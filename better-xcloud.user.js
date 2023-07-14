@@ -745,8 +745,6 @@ function checkHeader() {
     if (!$button) {
         const $rightHeader = document.querySelector('#PageContent header div[class*=EdgewaterHeader-module__rightSectionSpacing]');
         injectSettingsButton($rightHeader);
-
-        updateVideoPlayerCss();
     }
 }
 
@@ -840,6 +838,8 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 interceptHttpRequests();
 
 patchVideoApi();
+
+updateVideoPlayerCss();
 
 // Workaround for Hermit browser
 var onLoadTriggered = false;
