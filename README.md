@@ -54,7 +54,10 @@ It's because not many browsers on Android support installing extensions (and not
 That means Tampermonkey is not working properly. Please make sure you're using the latest version or switch to a well-known browser.  
 
 3. **Can I use this with the Xbox Android app?**  
-No you can't. You'll have to modidy the app.
+No you can't. You'll have to modify the app.
+
+4. **Will you able to enable "Clarity Boost" feature on non-Edge browsers?**  
+No. "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
 
 ## Acknowledgements  
 **Better xCloud** is inspired by these projects:  
