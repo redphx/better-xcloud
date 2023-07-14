@@ -79,7 +79,7 @@ class Preferences {
 
         {
             'id': Preferences.BLOCK_TRACKING,
-            'label': 'Disable analytics',
+            'label': 'Disable xCloud analytics',
             'default': false,
         },
 
