@@ -8,8 +8,8 @@
 // @match        https://www.xbox.com/*/play*
 // @run-at       document-start
 // @grant        none
-// @updateURL    https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js
-// @downloadURL  https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js
+// @updateURL    https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
+// @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
 // ==/UserScript==
 'use strict';
 
