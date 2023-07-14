@@ -311,6 +311,10 @@ button[class*=GripHandle-module__container][aria-expanded=true] div[class*=Grip-
 button[class*=GripHandle-module__container][aria-expanded=false] {
     background-color: transparent !important;
 }
+
+div[class*=StreamHUD-module__buttonsContainer] {
+    padding: 0px !important;
+}
 `;
     }
 
