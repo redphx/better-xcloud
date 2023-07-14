@@ -4,7 +4,7 @@ The main target of this script is Android users, but it should work great on des
 
 ## Features:
 
-<img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/bdd91d5a-2a77-4151-8702-f3818a6605f5">
+<img width="474" alt="screenshot" src="https://github.com/redphx/better-xcloud/assets/96280/a0e85915-4e3f-4c1b-8885-eda1c712eeb6">
 
 - Switch region of streaming server.
 - Prefer IPv6 streaming server (might improve latency).
