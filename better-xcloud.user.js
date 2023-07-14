@@ -307,6 +307,10 @@ div[class*=Grip-module__container] {
 button[class*=GripHandle-module__container][aria-expanded=true] div[class*=Grip-module__container] {
     visibility: visible;
 }
+
+button[class*=GripHandle-module__container][aria-expanded=false] {
+    background-color: transparent !important;
+}
 `;
     }
 
