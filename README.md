@@ -4,7 +4,7 @@ The main target of this script is Android users, but it should work great on des
 
 ## Features:
 
-<img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/3efa670b-c226-49b2-99d1-e34c2fb39020">
+<img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/bdd91d5a-2a77-4151-8702-f3818a6605f5">
 
 - Switch region of streaming server.
 - Prefer IPv6 streaming server (might improve latency).
@@ -14,8 +14,8 @@ The main target of this script is Android users, but it should work great on des
 - Adjust video filters (brightness/contrast/saturation).
 - Hide footer and other UI elements.
 - Reduce UI animations (the smooth scrolling cannot be disabled).
-- Disable analytics.
 - Disable social features (friends, chat...).
+- Disable xCloud analytics. The analytics contains statistics of your streaming session, so I'd recommend to enable analytics to help Xbox improve xCloud's experence in the future.  
 
 ## How to use:
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. It's also available for Firefox on Android.
