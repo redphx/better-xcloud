@@ -4,6 +4,8 @@ The main target of this script is Android users, but it should work great on des
 
 ## Features:
 
+<img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/3efa670b-c226-49b2-99d1-e34c2fb39020">
+
 - Switch region of streaming server.
 - Prefer IPv6 streaming server (might improve latency).
 - Force HD stream by disabling bandwidth checking -> xCloud always tries to use the best possible quality.
