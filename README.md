@@ -1,21 +1,22 @@
 # Better xCloud
-Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience.  
+Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
 The main target of this script is Android users, but it should work great on desktop too.
 
 ## Features:
 
-<img width="474" alt="screenshot" src="https://github.com/redphx/better-xcloud/assets/96280/a0e85915-4e3f-4c1b-8885-eda1c712eeb6">
+<img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/2793d404-3185-4c91-a500-dde362c661dd">
 
 - Switch region of streaming server.
 - Prefer IPv6 streaming server (might improve latency).
 - Force HD stream by disabling bandwidth checking -> xCloud always tries to use the best possible quality.
 - Skip Xbox splash video.
 - Make the top-left dots icon invisible while playing. You can still click on it, but it doesn't block the screen anymore.
+- Stretch video to full sctreen. Useful when you don't have a 16:9 screen.
 - Adjust video filters (brightness/contrast/saturation).
 - Hide footer and other UI elements.
 - Reduce UI animations (the smooth scrolling cannot be disabled).
 - Disable social features (friends, chat...).
-- Disable xCloud analytics. The analytics contains statistics of your streaming session, so I'd recommend to enable analytics to help Xbox improve xCloud's experence in the future.  
+- Disable xCloud analytics. The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.  
 
 ## How to use:
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. It's also available for Firefox on Android.
