@@ -30,6 +30,7 @@ class Preferences {
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
 
+    static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
@@ -80,6 +81,12 @@ class Preferences {
         {
             'id': Preferences.BLOCK_TRACKING,
             'label': 'Disable xCloud analytics',
+            'default': false,
+        },
+
+        {
+            'id': Preferences.VIDEO_FILL_FULL_SCREEN,
+            'label': 'Stretch video to full screen',
             'default': false,
         },
 
@@ -243,14 +250,24 @@ function addCss() {
     background-color: #06743f;
 }
 
-.better_xcloud_settings_color_bars {
+.better_xcloud_settings_preview_screen {
     display: none;
-    width: 100%;
-    aspect-ratio: 16/6;
-    margin-top: 10px;
+    aspect-ratio: 20/9;
+    background: #1e1e1e;
+    border-radius: 8px;
+    overflow: hidden;
+    max-height: 180px;
+    margin: 10px auto;
 }
 
-.better_xcloud_settings_color_bars div {
+.better_xcloud_settings_preview_video {
+    display: flex;
+    aspect-ratio: 16/9;
+    height: 100%;
+    margin: auto;
+}
+
+.better_xcloud_settings_preview_video div {
     flex: 1;
 }
 
@@ -508,6 +525,31 @@ function createElement(elmName, props = {}) {
 }
 
 
+function generateVideoPreviewBox() {
+    const $screen = createElement('div', {'class': 'better_xcloud_settings_preview_screen'});
+    const $video = createElement('div', {'class': 'better_xcloud_settings_preview_video'});
+
+    const COLOR_BARS = [
+        'white',
+        'yellow',
+        'cyan',
+        'green',
+        'magenta',
+        'red',
+        'blue',
+        'black',
+    ];
+
+    COLOR_BARS.forEach(color => {
+        $video.appendChild(createElement('div', {
+                style: `background-color: ${color}`,
+            }));
+    });
+
+    $screen.appendChild($video);
+    return $screen;
+}
+
 function injectSettingsButton($parent) {
     if (!$parent) {
         return;
@@ -587,13 +629,7 @@ function injectSettingsButton($parent) {
                     }
 
                     PREFS.set(e.target.getAttribute('data-key'), parseInt(e.target.value));
-
-                    const filters = getVideoPlayerFilterStyle();
-                    const $elm = document.querySelector('.better_xcloud_settings_color_bars');
-                    $elm.style.display = 'flex';
-                    $elm.style.filter = filters;
-
-                    updateVideoPlayerCss();
+                    updateVideoPlayerPreview();
                 });
             }
         } else {
@@ -602,8 +638,13 @@ function injectSettingsButton($parent) {
                 type: 'checkbox',
                 'data-key': setting.id,
             });
+
             $control.addEventListener('change', e => {
                 PREFS.set(e.target.getAttribute('data-key'), e.target.checked);
+
+                if (setting.id == Preferences.VIDEO_FILL_FULL_SCREEN) {
+                    updateVideoPlayerPreview();
+                }
             });
 
             setting.value = PREFS.get(setting.id);
@@ -618,25 +659,8 @@ function injectSettingsButton($parent) {
         $wrapper.appendChild($elm);
     }
 
-    const COLOR_BARS = [
-        'white',
-        'yellow',
-        'cyan',
-        'green',
-        'magenta',
-        'red',
-        'blue',
-        'black',
-    ];
-
-    const $colorBars = CE('div', {'class': 'better_xcloud_settings_color_bars'});
-    COLOR_BARS.forEach(color => {
-        $colorBars.appendChild(CE('div', {
-                style: `background-color: ${color}`,
-            }));
-    });
-
-    $wrapper.appendChild($colorBars);
+    const $videoPreview = generateVideoPreviewBox();
+    $wrapper.appendChild($videoPreview);
 
     const $reloadBtn = CE('button', {'class': 'setting_button'}, 'Reload page to reflect changes');
     $reloadBtn.addEventListener('click', e => window.location.reload());
@@ -678,10 +702,36 @@ function updateVideoPlayerCss() {
     let filters = getVideoPlayerFilterStyle();
     let css = '';
     if (filters) {
-        css = `#game-stream video {filter: ${filters}}`;
+        css += `filter: ${filters} !important;`;
+    }
+
+    if (PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN)) {
+        css += 'object-fit: fill !important;';
+    }
+
+    if (css) {
+        css = `#game-stream video {${css}}`;
     }
 
     $elm.textContent = css;
+}
+
+
+function updateVideoPlayerPreview() {
+    const $screen = document.querySelector('.better_xcloud_settings_preview_screen');
+    $screen.style.display = 'block';
+
+    const filters = getVideoPlayerFilterStyle();
+    const $video = document.querySelector('.better_xcloud_settings_preview_video');
+    $video.style.filter = filters;
+
+    if (PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN)) {
+        $video.style.height = 'auto';
+    } else {
+        $video.style.height = '100%';
+    }
+
+    updateVideoPlayerCss();
 }
 
 
