@@ -65,7 +65,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## FAQ
 1. **Will I get banned for using this?**  
-I think it's very unlikely that you'll get banned for using this. Most of the features only affect client-side, except for switching streaming server's region. If you want to be safe just avoid using that. As always, use as your own risk.
+I think it's very unlikely that you'll get banned for using this. Most of the features only affect client-side, except for switching region of streaming server (you'll connect to another server instead of the default one). If you want to be safe just avoid using that. As always, use as your own risk.
 
 2. **Why is it an Userscript and not extension?**  
 It's because not many browsers on Android support installing extensions (and not all extensions can be installed).
