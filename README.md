@@ -26,9 +26,9 @@ The main target of this script is Android users, but it should work great on des
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
     - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)
 4. Refresh [xCloud web page](https://www.xbox.com/play/).
-5. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.
+5. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.  
 6. Optional but recommended: change your browser's User-Agent. Check the [User-Agent section](#user-agent) below for more info.
-7. Don't forget to reload the page after changing settings.
+7. Don't forget to enable auto updating for the script in Tampermonkey.
 
 ## User-Agent
 Optional, as changing User-Agent won't guarantee a better streaming experience, but it's worth a try. You might need to install an external extension to do that.  
