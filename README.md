@@ -30,7 +30,7 @@ The main target of this script is Android users, but it should work great on des
 6. Optional but recommended: change your browser's User-Agent. Check the [User-Agent section](#user-agent) below for more info.
 7. Don't forget to enable auto updating for the script in Tampermonkey.
 
-To update, just install the script again (you won't lose your settings).
+To update manually, just install the script again (you won't lose your settings).
 
 ## Compatibility
 ✅ = confirmed to be working  
