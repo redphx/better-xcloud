@@ -834,7 +834,7 @@ function numberPicker(key) {
     const CE = createElement;
     const $wrapper = CE('div', {},
                         $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                        $text = CE('span', {}, value),
+                        $text = CE('span', {}, value + '%'),
                         $incBtn = CE('button', {'data-type': 'inc'}, '+'),
                     );
 
@@ -856,7 +856,7 @@ function numberPicker(key) {
             value = (value >= MAX) ? MAX : value + 1;
         }
 
-        $text.textContent = value;
+        $text.textContent = value + '%';
         PREFS.set(key, value);
         updateVideoPlayerCss();
 
@@ -949,8 +949,9 @@ function setupVideoSettingsBar() {
 }
 
 .better_xcloud_quick_settings_bar label {
-    font-size: 24px;
+    font-size: 20px;
     display: block;
+    margin-bottom: 8px;
 }
 
 .better_xcloud_quick_settings_bar input {
@@ -964,8 +965,9 @@ function setupVideoSettingsBar() {
     height: 24px;
     margin: 0 8px;
     line-height: 24px;
-    background-color: #fff;
-    color: #000;
+    background-color: #515151;
+    color: #fff;
+    border-radius: 4px;
 }
 
 @media (hover: hover) {
@@ -982,7 +984,9 @@ function setupVideoSettingsBar() {
 
 .better_xcloud_quick_settings_bar span {
     display: inline-block;
-    width: 26px;
+    width: 40px;
+    font-weight: bold;
+    font-family: Consolas, "Courier New", Courier, monospace;
 }
 `);
 
