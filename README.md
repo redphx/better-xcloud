@@ -4,7 +4,9 @@ The main target of this script is Android users, but it should work great on des
 
 ## Features
 
-<img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/2793d404-3185-4c91-a500-dde362c661dd">
+<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/db9b4f88-6958-4ec8-90cb-3cf37da5ab26">  
+<img width="500" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/130aa870-6938-4604-9e23-45e217b800cc">
+
 
 - Switch region of streaming server.
 - Prefer IPv6 streaming server (might reduce latency).
@@ -13,7 +15,6 @@ The main target of this script is Android users, but it should work great on des
 - Make the top-left dots icon invisible while playing. You can still click on it, but it doesn't block the screen anymore.
 - Stretch video to full sctreen. Useful when you don't have a 16:9 screen.
 - Adjust video filters (brightness/contrast/saturation).
-- You can change video settings while playing.
 - Hide footer and other UI elements.
 - Reduce UI animations (the smooth scrolling cannot be disabled).
 - Disable social features (friends, chat...).
@@ -50,9 +51,8 @@ Other options (only do one of these):
 ⚠️ = see custom notes  
 |                                        | Desktop  | Android          | iOS |
 |----------------------------------------|----------|------------------|-----|
-| Chrome                                 | ✅       | ❌               | ❌   |
+| Chrome/Edge/Chromium variants          | ✅       | ❌               | ❌   |
 | Firefox                                | ✅       | ✅               | ❌   |
-| Edge                                   | ❓       | ❌               | ❌   |
 | Safari                                 | ❓       | ❌               | ❓   |
 | [Hermit](https://hermit.chimbori.com)  | ❌       | ⚠️<sup>(1)</sup> | ❌   |
 
