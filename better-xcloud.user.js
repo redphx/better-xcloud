@@ -897,28 +897,6 @@ function patchVideoApi() {
 }
 
 
-function patchHistoryMethod(type) {
-    var orig = window.history[type];
-    return function(...args) {
-        const rv = orig.apply(this, arguments);
-
-        const event = new Event('xcloud_popstate');
-        event.arguments = args;
-        window.dispatchEvent(event);
-
-        return rv;
-    };
-};
-
-
-function hideSettingsOnPageChange() {
-    const $settings = document.querySelector('.better_xcloud_settings');
-    if ($settings) {
-        $settings.classList.add('better_xcloud_settings_gone');
-    }
-}
-
-
 function numberPicker(key) {
     let value = PREFS.get(key);
     let $text, $decBtn, $incBtn;
@@ -1086,9 +1064,34 @@ function setupVideoSettingsBar() {
 }
 
 
+function patchHistoryMethod(type) {
+    var orig = window.history[type];
+    return function(...args) {
+        const event = new Event('xcloud_popstate');
+        event.arguments = args;
+        window.dispatchEvent(event);
+
+        return orig.apply(this, arguments);
+    };
+};
+
+
+function hideUiOnPageChange() {
+    const $settings = document.querySelector('.better_xcloud_settings');
+    if ($settings) {
+        $settings.classList.add('better_xcloud_settings_gone');
+    }
+
+    const $quickBar = document.querySelector('.better_xcloud_quick_settings_bar');
+    if ($quickBar) {
+        $quickBar.style.display = 'none';
+    }
+}
+
+
 // Hide Settings UI when navigate to another page
-window.addEventListener('xcloud_popstate', hideSettingsOnPageChange);
-window.addEventListener('popstate', hideSettingsOnPageChange);
+window.addEventListener('xcloud_popstate', hideUiOnPageChange);
+window.addEventListener('popstate', hideUiOnPageChange);
 // Make pushState/replaceState methods dispatch "xcloud_popstate" event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
