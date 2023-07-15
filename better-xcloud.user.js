@@ -95,7 +95,7 @@ class Preferences {
             'label': 'Video saturation (%)',
             'default': 100,
             'min': 0,
-            'max': 200,
+            'max': 150,
         },
 
         {
@@ -103,7 +103,7 @@ class Preferences {
             'label': 'Video contrast (%)',
             'default': 100,
             'min': 0,
-            'max': 200,
+            'max': 150,
         },
 
         {
@@ -111,7 +111,7 @@ class Preferences {
             'label': 'Video brightness (%)',
             'default': 100,
             'min': 0,
-            'max': 200,
+            'max': 150,
         },
     ]
 
@@ -770,9 +770,83 @@ function watchHeader() {
 
         timeout = setTimeout(checkHeader, 2000);
     });
-    observer.observe($header, { subtree: true, childList: true});
+    observer.observe($header, {subtree: true, childList: true});
 
     checkHeader();
+}
+
+
+function injectVideoSettingsButton() {
+    const $screen = document.querySelector('#PageContent section[class*=PureScreens]');
+    if (!$screen) {
+        return;
+    }
+
+    if ($screen.xObserving) {
+        return;
+    }
+
+    $screen.xObserving = true;
+
+    const $quickBar = document.querySelector('.better_xcloud_quick_settings_bar');
+    const $parent = $screen.parentElement;
+    $parent.addEventListener('click', e => {
+        if (e.target == $parent) {
+            // Hide Quick settings bar
+            $quickBar.style.display = 'none';
+        }
+    });
+
+    const observer = new MutationObserver(mutationList => {
+        mutationList.forEach(item => {
+            if (item.type !== 'childList') {
+                return;
+            }
+
+            item.addedNodes.forEach(node => {
+                if (!node.className || !node.className.startsWith('StreamMenu')) {
+                    return;
+                }
+
+                const id = 'better-xcloud-video-settings-btn';
+                let $wrapper = document.getElementById('#' + id);
+                if ($wrapper) {
+                    return;
+                }
+
+                const $orgButton = node.querySelector('div > div > button');
+                if (!$orgButton) {
+                    return;
+                }
+
+                // Clone other button
+                const $button = $orgButton.cloneNode(true);
+                $button.setAttribute('aria-label', 'Video settings');
+                $button.querySelector('div[class*=label]').textContent = 'Video settings';
+
+                // Credit: https://www.iconfinder.com/iconsets/user-interface-outline-27
+                const SVG_ICON = '<path d="M8 2c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.186C5.602 7.158 6.706 8 8 8s2.395-.843 2.813-2h10.188a1 1 0 1 0 0-2H10.813C10.395 2.843 9.293 2 8 2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h9.186c.417 1.158 1.521 2 2.814 2s2.395-.843 2.813-2H21a1 1 0 1 0 0-2h-3.187c-.418-1.157-1.52-2-2.813-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm-7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.188c.417 1.157 1.519 2 2.813 2s2.398-.842 2.814-2H21a1 1 0 1 0 0-2H10.812c-.417-1.157-1.519-2-2.812-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
+                const $svg = $button.querySelector('svg');
+                $svg.innerHTML = SVG_ICON;
+                $svg.setAttribute('viewBox', '0 0 24 24');
+
+                $button.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Show Quick settings bar
+                    $quickBar.style.display = 'flex';
+
+                    // Close HUD
+                    document.querySelector('button[class*=StreamMenu-module__backButton]').click();
+                });
+
+                $orgButton.parentElement.insertBefore($button, $orgButton.parentElement.firstChild);
+            });
+
+        });
+    });
+    observer.observe($screen, {subtree: true, childList: true});
 }
 
 
@@ -798,8 +872,9 @@ function patchVideoApi() {
             };
         }
 
-        
         this.addEventListener('playing', showFunc);
+        injectVideoSettingsButton();
+
         return this.orgPlay.apply(this);
     };
 }
@@ -827,15 +902,168 @@ function hideSettingsOnPageChange() {
 }
 
 
+function numberPicker(key) {
+    let value = PREFS.get(key);
+    let $text, $decBtn, $incBtn;
+
+    const MIN = 0;
+    const MAX= 150;
+
+    const CE = createElement;
+    const $wrapper = CE('div', {},
+                        $decBtn = CE('button', {'data-type': 'dec'}, '-'),
+                        $text = CE('span', {}, value),
+                        $incBtn = CE('button', {'data-type': 'inc'}, '+'),
+                    );
+
+    let interval;
+    let isHolding = false;
+
+    const onClick = e => {
+        if (isHolding) {
+            e.preventDefault();
+            isHolding = false;
+
+            return;
+        }
+
+        const btnType = e.target.getAttribute('data-type');
+        if (btnType === 'dec') {
+            value = (value <= MIN) ? MIN : value - 1;
+        } else {
+            value = (value >= MAX) ? MAX : value + 1;
+        }
+
+        $text.textContent = value;
+        PREFS.set(key, value);
+        updateVideoPlayerCss();
+
+        isHolding = false;
+    }
+
+    const onMouseDown = e => {
+        isHolding = true;
+
+        const args = arguments;
+        interval = setInterval(() => {
+            const event = new Event('click');
+            event.arguments = args;
+
+            e.target.dispatchEvent(event);
+        }, 200);
+    };
+
+    const onMouseUp = e => {
+        clearInterval(interval);
+        isHolding = false;
+    };
+
+    $decBtn.addEventListener('click', onClick);
+    $decBtn.addEventListener('mousedown', onMouseDown);
+    $decBtn.addEventListener('mouseup', onMouseUp);
+
+    $incBtn.addEventListener('click', onClick);
+    $incBtn.addEventListener('mousedown', onMouseDown);
+    $incBtn.addEventListener('mouseup', onMouseUp);
+
+    return $wrapper;
+}
+
+function setupVideoSettingsBar() {
+    const CE = createElement;
+
+    let $stretchInp;
+    const $wrapper = CE('div', {'class': 'better_xcloud_quick_settings_bar'},
+                        CE('div', {},
+                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Stretch Video'),
+                            $stretchInp = CE('input', {'id': 'better-xcloud-quick-setting-stretch', 'type': 'checkbox'})),
+                        CE('div', {},
+                            CE('label', {}, 'Saturation'),
+                            numberPicker(Preferences.VIDEO_SATURATION)),
+                        CE('div', {},
+                            CE('label', {}, 'Contrast'),
+                            numberPicker(Preferences.VIDEO_CONTRAST)),
+                        CE('div', {},
+                            CE('label', {}, 'Brightness'),
+                            numberPicker(Preferences.VIDEO_BRIGHTNESS))
+                     );
+
+    $stretchInp.checked = PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN);
+    $stretchInp.addEventListener('change', e => {
+        PREFS.set(Preferences.VIDEO_FILL_FULL_SCREEN, e.target.checked);
+        updateVideoPlayerCss();
+    });
+
+    const $style = CE('style', {}, `
+.better_xcloud_quick_settings_bar {
+    display: none;
+    user-select: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 9999;
+    padding: 20px;
+    width: 540px;
+    background: #1a1b1e;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 400;
+    font-size: 16px;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+.better_xcloud_quick_settings_bar *:focus {
+    outline: none !important;
+}
+
+.better_xcloud_quick_settings_bar > div {
+    flex: 1;
+}
+
+.better_xcloud_quick_settings_bar label {
+    font-size: 20px;
+    display: block;
+}
+
+.better_xcloud_quick_settings_bar input {
+    width: 20px;
+    height: 20px;
+}
+
+.better_xcloud_quick_settings_bar button {
+    border: none;
+    width: 20px;
+    height: 20px;
+    margin: 0 8px;
+    line-height: 20px;
+    background-color: #fff;
+    color: #000;
+}
+
+.better_xcloud_quick_settings_bar button:hover {
+    background-color: #414141;
+    color: white;
+}
+
+.better_xcloud_quick_settings_bar span {
+    display: inline-block;
+    width: 26px;
+}
+`);
+
+    document.documentElement.appendChild($wrapper);
+    document.documentElement.appendChild($style);
+}
+
+
 // Hide Settings UI when navigate to another page
 window.addEventListener('xcloud_popstate', hideSettingsOnPageChange);
 window.addEventListener('popstate', hideSettingsOnPageChange);
 // Make pushState/replaceState methods dispatch "xcloud_popstate" event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
-
-// Add additional CSS
-addCss();
 
 // Clear data of window.navigator.userAgentData, force Xcloud to detect browser based on User-Agent header
 Object.defineProperty(window.navigator, 'userAgentData', {});
@@ -851,7 +1079,10 @@ interceptHttpRequests();
 
 patchVideoApi();
 
+// Setup UI
+addCss();
 updateVideoPlayerCss();
+setupVideoSettingsBar();
 
 // Workaround for Hermit browser
 var onLoadTriggered = false;
