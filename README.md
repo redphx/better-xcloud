@@ -55,7 +55,7 @@ Other options (only do one of these):
 | Safari                                 | ❓       | ❌               | ❓   |
 | [Hermit](https://hermit.chimbori.com)  | ❌       | ⚠️<sup>(1)</sup> | ❌   |
 
-<sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports both custom User-Agent and Userscript (premium features, only $7.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
+<sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports both custom User-Agent and Userscript (premium features, only $1.99 for Userscript feature or $7.99 if you want both) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
 
 ## FAQ
 1. **Why is it an Userscript and not extension?**  
