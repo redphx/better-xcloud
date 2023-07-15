@@ -790,12 +790,21 @@ function injectVideoSettingsButton() {
 
     const $quickBar = document.querySelector('.better_xcloud_quick_settings_bar');
     const $parent = $screen.parentElement;
-    $parent.addEventListener('click', e => {
-        if (e.target == $parent) {
-            // Hide Quick settings bar
-            $quickBar.style.display = 'none';
+    const hideQuickBarFunc = e => {
+        if (e.target != $parent && e.target.id !== 'MultiTouchSurface') {
+            return;
         }
-    });
+
+        // Hide Quick settings bar
+        $quickBar.style.display = 'none';
+
+        $parent.removeEventListener('click', hideQuickBarFunc);
+        $parent.removeEventListener('touchend', hideQuickBarFunc);
+
+        if (e.target.id === 'MultiTouchSurface') {
+            e.target.removeEventListener('touchstart', hideQuickBarFunc);
+        }
+    }
 
     const observer = new MutationObserver(mutationList => {
         mutationList.forEach(item => {
@@ -839,6 +848,14 @@ function injectVideoSettingsButton() {
 
                     // Close HUD
                     document.querySelector('button[class*=StreamMenu-module__backButton]').click();
+
+                    $parent.addEventListener('click', hideQuickBarFunc);
+                    $parent.addEventListener('touchend', hideQuickBarFunc);
+
+                    const $touchSurface = document.querySelector('#MultiTouchSurface');
+                    if ($touchSurface) {
+                        $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
+                    }
                 });
 
                 $orgButton.parentElement.insertBefore($button, $orgButton.parentElement.firstChild);
@@ -961,10 +978,14 @@ function numberPicker(key) {
     $decBtn.addEventListener('click', onClick);
     $decBtn.addEventListener('mousedown', onMouseDown);
     $decBtn.addEventListener('mouseup', onMouseUp);
+    $decBtn.addEventListener('touchstart', onMouseDown);
+    $decBtn.addEventListener('touchend', onMouseUp);
 
     $incBtn.addEventListener('click', onClick);
     $incBtn.addEventListener('mousedown', onMouseDown);
     $incBtn.addEventListener('mouseup', onMouseUp);
+    $incBtn.addEventListener('touchstart', onMouseDown);
+    $incBtn.addEventListener('touchend', onMouseUp);
 
     return $wrapper;
 }
@@ -1042,10 +1063,17 @@ function setupVideoSettingsBar() {
     color: #000;
 }
 
-.better_xcloud_quick_settings_bar button:hover {
-    background-color: #414141;
-    color: white;
+@media (hover: hover) {
+    .better_xcloud_quick_settings_bar button:hover {
+        background-color: #414141;
+        color: white;
+    }
 }
+
+.better_xcloud_quick_settings_bar button:active {
+        background-color: #414141;
+        color: white;
+    }
 
 .better_xcloud_quick_settings_bar span {
     display: inline-block;
