@@ -778,14 +778,17 @@ function watchHeader() {
 
 function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
-    // Do nothing if the "Skip splash video" setting is off
-    if (!PREF_SKIP_SPLASH_VIDEO) {
-        return;
+
+    // Show video player when it's ready
+    var showFunc;
+    showFunc = function() {
+        this.style.visibility = 'visible';
+        this.removeEventListener('playing', showFunc);
     }
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
-        if (this.className.startsWith('XboxSplashVideo')) {
+        if (PREF_SKIP_SPLASH_VIDEO && this.className.startsWith('XboxSplashVideo')) {
             this.volume = 0;
             this.style.display = 'none';
             this.dispatchEvent(new Event('ended'));
@@ -795,14 +798,8 @@ function patchVideoApi() {
             };
         }
 
-        // Show video player when it's ready
-        let showFunc;
-        showFunc = function() {
-            this.style.visibility = 'visible';
-            this.removeEventListener('playing', showFunc);
-        }
+        
         this.addEventListener('playing', showFunc);
-
         return this.orgPlay.apply(this);
     };
 }
