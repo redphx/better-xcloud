@@ -88,6 +88,7 @@ class Preferences {
             'id': Preferences.VIDEO_FILL_FULL_SCREEN,
             'label': 'Stretch video to full screen',
             'default': false,
+            'hidden': true,
         },
 
         {
@@ -96,6 +97,7 @@ class Preferences {
             'default': 100,
             'min': 0,
             'max': 150,
+            'hidden': true,
         },
 
         {
@@ -104,6 +106,7 @@ class Preferences {
             'default': 100,
             'min': 0,
             'max': 150,
+            'hidden': true,
         },
 
         {
@@ -112,6 +115,7 @@ class Preferences {
             'default': 100,
             'min': 0,
             'max': 150,
+            'hidden': true,
         },
     ]
 
@@ -244,31 +248,6 @@ function addCss() {
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     font-weight: 400;
     line-height: 24px;
-}
-
-.better_xcloud_settings_wrapper .setting_button:hover {
-    background-color: #06743f;
-}
-
-.better_xcloud_settings_preview_screen {
-    display: none;
-    aspect-ratio: 20/9;
-    background: #1e1e1e;
-    border-radius: 8px;
-    overflow: hidden;
-    max-height: 180px;
-    margin: 10px auto;
-}
-
-.better_xcloud_settings_preview_video {
-    display: flex;
-    aspect-ratio: 16/9;
-    height: 100%;
-    margin: auto;
-}
-
-.better_xcloud_settings_preview_video div {
-    flex: 1;
 }
 
 /* Hide UI elements */
@@ -536,31 +515,6 @@ function createElement(elmName, props = {}) {
 }
 
 
-function generateVideoPreviewBox() {
-    const $screen = createElement('div', {'class': 'better_xcloud_settings_preview_screen'});
-    const $video = createElement('div', {'class': 'better_xcloud_settings_preview_video'});
-
-    const COLOR_BARS = [
-        'white',
-        'yellow',
-        'cyan',
-        'green',
-        'magenta',
-        'red',
-        'blue',
-        'black',
-    ];
-
-    COLOR_BARS.forEach(color => {
-        $video.appendChild(createElement('div', {
-                style: `background-color: ${color}`,
-            }));
-    });
-
-    $screen.appendChild($video);
-    return $screen;
-}
-
 function injectSettingsButton($parent) {
     if (!$parent) {
         return;
@@ -593,8 +547,11 @@ function injectSettingsButton($parent) {
     $wrapper.appendChild($title);
 
     for (let setting of Preferences.SETTINGS) {
-        let $control;
+        if (setting.hidden) {
+            continue;
+        }
 
+        let $control;
         if (setting.id === Preferences.SERVER_REGION) {
             $control = CE('select', {id: 'xcloud_setting_' + setting.id});
             $control.addEventListener('change', e => {
@@ -615,33 +572,6 @@ function injectSettingsButton($parent) {
                 $option.selected = regionName === preferredRegion;
 
                 $control.appendChild($option);
-            }
-        } else if (typeof setting.default === 'number') {
-            $control = CE('input', {
-                id: 'xcloud_setting_' + setting.id,
-                type: 'number',
-                size: 5,
-                'data-key': setting.id,
-            });
-
-            if ('min' in setting) {
-                $control.setAttribute('min', setting.min);
-            }
-
-            if ('max' in setting) {
-                $control.setAttribute('max', setting.max);
-            }
-
-            $control.value = PREFS.get(setting.id);
-            if (setting.id.startsWith('video_')) {
-                $control.addEventListener('change', e => {
-                    if (!e.target.value) {
-                        return;
-                    }
-
-                    PREFS.set(e.target.getAttribute('data-key'), parseInt(e.target.value));
-                    updateVideoPlayerPreview();
-                });
             }
         } else {
             $control = CE('input', {
@@ -669,9 +599,6 @@ function injectSettingsButton($parent) {
 
         $wrapper.appendChild($elm);
     }
-
-    const $videoPreview = generateVideoPreviewBox();
-    $wrapper.appendChild($videoPreview);
 
     const $reloadBtn = CE('button', {'class': 'setting_button'}, 'Reload page to reflect changes');
     $reloadBtn.addEventListener('click', e => window.location.reload());
