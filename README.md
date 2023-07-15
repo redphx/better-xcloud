@@ -7,7 +7,7 @@ The main target of this script is Android users, but it should work great on des
 <img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/2793d404-3185-4c91-a500-dde362c661dd">
 
 - Switch region of streaming server.
-- Prefer IPv6 streaming server (might improve latency).
+- Prefer IPv6 streaming server (might reduce latency).
 - Force HD stream by disabling bandwidth checking -> xCloud always tries to use the best possible quality.
 - Skip Xbox splash video.
 - Make the top-left dots icon invisible while playing. You can still click on it, but it doesn't block the screen anymore.
