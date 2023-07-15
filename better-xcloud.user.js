@@ -1025,7 +1025,7 @@ function setupVideoSettingsBar() {
     transform: translate(-50%, 0);
     z-index: 9999;
     padding: 20px;
-    width: 540px;
+    width: 620px;
     background: #1a1b1e;
     color: #fff;
     border-radius: 8px;
@@ -1044,21 +1044,21 @@ function setupVideoSettingsBar() {
 }
 
 .better_xcloud_quick_settings_bar label {
-    font-size: 20px;
+    font-size: 24px;
     display: block;
 }
 
 .better_xcloud_quick_settings_bar input {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 }
 
 .better_xcloud_quick_settings_bar button {
     border: none;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     margin: 0 8px;
-    line-height: 20px;
+    line-height: 24px;
     background-color: #fff;
     color: #000;
 }
