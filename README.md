@@ -32,21 +32,6 @@ The main target of this script is Android users, but it should work great on des
 
 To update, just install the script again (you won't lose your settings).
 
-## User-Agent
-Optional, as changing User-Agent won't guarantee a better streaming experience, but it's worth a try. You might need to install an external extension to do that.  
-
-It's recommended to change User-Agent to:
-```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67
-```
-This will trick xCloud into thinking you're using Edge browser on desktop.
-
-Other options (only do one of these):
-- Add ` smarttv` to switch to Smart TV layout.
-- Add ` Xbox;` to become an Xbox console.
-- Add ` 36102dd3-6953-45f6-8b48-031fb95e0e0d` to become a Logitech G Cloud device.
-- Add ` 0ed22b6f-b61d-41eb-810a-a1ed586a550b` to become a Razer Edge device.
-
 ## Compatibility
 ✅ = confirmed to be working  
 ❓ = not yet tested  
@@ -62,6 +47,21 @@ Other options (only do one of these):
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
   
 <sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports both custom User-Agent and Userscript (premium features, only $1.99 for Userscript feature or $7.99 if you want both) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
+
+## User-Agent
+Optional, as changing User-Agent won't guarantee a better streaming experience, but it's worth a try. You might need to install an external extension to do that.  
+
+It's recommended to change User-Agent to:
+```
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67
+```
+This will trick xCloud into thinking you're using Edge browser on desktop.
+
+Other options (only do one of these):
+- Add ` smarttv` to switch to Smart TV layout.
+- Add ` Xbox;` to become an Xbox console.
+- Add ` 36102dd3-6953-45f6-8b48-031fb95e0e0d` to become a Logitech G Cloud device.
+- Add ` 0ed22b6f-b61d-41eb-810a-a1ed586a550b` to become a Razer Edge device.
 
 ## FAQ
 1. **Will I get banned for using this?**  
