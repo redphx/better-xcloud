@@ -9,10 +9,11 @@ The main target of this script is Android users, but it should work great on des
 - Switch region of streaming server.
 - Prefer IPv6 streaming server (might reduce latency).
 - Force HD stream by disabling bandwidth checking -> xCloud always tries to use the best possible quality.
-- Skip Xbox splash video.
+- Skip Xbox splash video (save 3 seconds).
 - Make the top-left dots icon invisible while playing. You can still click on it, but it doesn't block the screen anymore.
 - Stretch video to full sctreen. Useful when you don't have a 16:9 screen.
 - Adjust video filters (brightness/contrast/saturation).
+- You can change video settings while playing.
 - Hide footer and other UI elements.
 - Reduce UI animations (the smooth scrolling cannot be disabled).
 - Disable social features (friends, chat...).
@@ -71,8 +72,8 @@ No you can't. You'll have to modify the app.
 No. "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
 
 ## Acknowledgements  
-**Better xCloud** is inspired by these projects:  
-- [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector)  
+- [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
+- Icons by [Adam Design](https://www.iconfinder.com/iconsets/user-interface-outline-27)
 
 ## Disclaimers  
 - Use as your own risk.  
