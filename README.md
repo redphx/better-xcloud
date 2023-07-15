@@ -2,7 +2,7 @@
 Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
 The main target of this script is Android users, but it should work great on desktop too.
 
-## Features:
+## Features
 
 <img width="474" alt="image" src="https://github.com/redphx/better-xcloud/assets/96280/2793d404-3185-4c91-a500-dde362c661dd">
 
@@ -18,7 +18,7 @@ The main target of this script is Android users, but it should work great on des
 - Disable social features (friends, chat...).
 - Disable xCloud analytics. The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.  
 
-## How to use:
+## How to use
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. It's also available for Firefox on Android.
 2. Install **Better xCloud**:
     - [Directly on Github](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
@@ -42,10 +42,20 @@ Other options (only do one of these):
 - Add ` 36102dd3-6953-45f6-8b48-031fb95e0e0d` to become a Logitech G Cloud device.
 - Add ` 0ed22b6f-b61d-41eb-810a-a1ed586a550b` to become a Razer Edge device.
 
-## Tested on:
-- Chrome on macOS.
-- Firefox for Android with Tampermonkey add-on.
-- *(NOT RECOMMENDED at the moment since its Userscript implementation is not working properly)* [Hermit Browser](https://hermit.chimbori.com) on Android. It supports custom User-Agent and has built-in Userscript support (premium features, only $7.99) so you don't have to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
+## Compatibility
+✅ = confirmed to be working  
+❓ = not yet tested  
+❌ = not supported (mostly because of lacking Userscript/extension support)  
+⚠️ = see custom notes  
+|                                        | Desktop  | Android          | iOS |
+|----------------------------------------|----------|------------------|-----|
+| Chrome                                 | ✅       | ❌               | ❌   |
+| Firefox                                | ✅       | ✅               | ❌   |
+| Edge                                   | ❓       | ❌               | ❌   |
+| Safari                                 | ❓       | ❌               | ❓   |
+| [Hermit](https://hermit.chimbori.com)  | ❌       | ⚠️<sup>(1)</sup> | ❌   |
+
+<sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports both custom User-Agent and Userscript (premium features, only $7.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
 
 ## FAQ
 1. **Why is it an Userscript and not extension?**  
