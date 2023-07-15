@@ -284,6 +284,9 @@ div[class*=NotFocusedDialog] {
     height: 0px !important;
 }
 
+#game-stream video {
+    visibility: hidden;
+}
 `;
 
     // Reduce animations
@@ -782,17 +785,25 @@ function patchVideoApi() {
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
-        if (!this.className.startsWith('XboxSplashVideo')) {
-            return this.orgPlay.apply(this);
+        if (this.className.startsWith('XboxSplashVideo')) {
+            this.volume = 0;
+            this.style.display = 'none';
+            this.dispatchEvent(new Event('ended'));
+
+            return {
+                catch: () => {},
+            };
         }
 
-        this.volume = 0;
-        this.style.display = 'none';
-        this.dispatchEvent(new Event('ended'));
+        // Show video player when it's ready
+        let showFunc;
+        showFunc = function() {
+            this.style.visibility = 'visible';
+            this.removeEventListener('playing', showFunc);
+        }
+        this.addEventListener('playing', showFunc);
 
-        return {
-            catch: () => {},
-        };
+        return this.orgPlay.apply(this);
     };
 }
 
