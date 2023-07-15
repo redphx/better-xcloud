@@ -64,16 +64,19 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 <sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports both custom User-Agent and Userscript (premium features, only $1.99 for Userscript feature or $7.99 if you want both) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
 
 ## FAQ
-1. **Why is it an Userscript and not extension?**  
+1. **Will I get banned for using this?**  
+I think it's very unlikely that you'll get banned for using this. Most of the features only affect client-side, except for switching streaming server's region. If you want to be safe just avoid using that. As always, use as your own risk.
+
+2. **Why is it an Userscript and not extension?**  
 It's because not many browsers on Android support installing extensions (and not all extensions can be installed).
 
-2. **I see "???" button instead of server's name**  
+3. **I see "???" button instead of server's name**  
 That means Tampermonkey is not working properly. Please make sure you're using the latest version or switch to a well-known browser.  
 
-3. **Can I use this with the Xbox Android app?**  
+4. **Can I use this with the Xbox Android app?**  
 No you can't. You'll have to modify the app.
 
-4. **Will you able to enable "Clarity Boost" feature on non-Edge browsers?**  
+5. **Will you able to enable "Clarity Boost" feature on non-Edge browsers?**  
 No. "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
 
 ## Acknowledgements  
