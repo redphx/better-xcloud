@@ -2,7 +2,7 @@
 Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
 The main target of this script is mobile users, but it should work great on desktop too.
 
-Give this project a 🌟 if you like it. Thank you.
+Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
@@ -16,8 +16,8 @@ Give this project a 🌟 if you like it. Thank you.
 - **Force high quality stream**
   > Force xCloud to use the best streaming codec profile (same as desktop). You don't have to change User-Agent anymore.  
   > Some browsers (like Firefox) don't support this feature. Check [the full list](https://caniuse.com/?search=setCodecPreferences).  
-  > If you're on Android and want to use it, try [Hermit](https://hermit.chimbori.com).
-  > Check [User-Agent section](#user-agent) for a work-around.
+  > If you're on Android, I'd recommend using [Hermit](https://hermit.chimbori.com) instead.  
+  > If not, check [User-Agent section](#user-agent) for a work-around.
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **Skip Xbox splash video**
