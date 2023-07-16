@@ -17,6 +17,7 @@ Give this project a 🌟 if you like it. Thank you.
   > Force xCloud to use the best streaming codec profile (same as desktop). You don't have to change User-Agent anymore.  
   > Some browsers (like Firefox) don't support this feature. Check [the full list](https://caniuse.com/?search=setCodecPreferences).  
   > If you're on Android and want to use it, try [Hermit](https://hermit.chimbori.com).
+  > Check [User-Agent section](#user-agent) for a work-around.
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **Skip Xbox splash video**
@@ -79,14 +80,15 @@ No you can't. You'll have to modify the app.
 5. **Will you able to enable "Clarity Boost" feature on non-Edge browsers?**  
 No. "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
 
-## Acknowledgements  
-- [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
-- Icons by [Adam Design](https://www.iconfinder.com/iconsets/user-interface-outline-27)
-
 ## User-Agent
-> You're no longer needed to change User-Agent since you can just use the **Force high quality stream** setting.  
-> I'll still keep this section because it has some interesting info.
+You're no longer needed to change User-Agent since you can just use the **Force high quality stream** setting.  
+If your browser doesn't support **Force high quality stream** setting, try changing User-Agent to:  
+```
+Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36
+```
+This will change your device to a Samsung TV running Tizen OS. It will improve the stream quality.  
 
+---
 Change User-Agent to:
 ```
 Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67
@@ -99,7 +101,10 @@ Other options (only do one of these):
 - Add ` 36102dd3-6953-45f6-8b48-031fb95e0e0d` to become a Logitech G Cloud device.
 - Add ` 0ed22b6f-b61d-41eb-810a-a1ed586a550b` to become a Razer Edge device.
 
+## Acknowledgements  
+- [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
+- Icons by [Adam Design](https://www.iconfinder.com/iconsets/user-interface-outline-27)
+
 ## Disclaimers  
 - Use as your own risk.  
 - This project is not affiliated with Xbox in any way. All Xbox logos/icons/trademarks are copyright of their respective owners.
-
