@@ -1,6 +1,6 @@
 # Better xCloud
 Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
-The main target of this script is Android users, but it should work great on desktop too.
+The main target of this script is mobile users, but it should work great on desktop too.
 
 Give this project a 🌟 if you like it. Thank you.
 
@@ -10,7 +10,7 @@ Give this project a 🌟 if you like it. Thank you.
 <img width="500" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/130aa870-6938-4604-9e23-45e217b800cc">
 
 - **Switch region of streaming server**  
-  > Connect to another server instead of the default one
+  > Connect to another server instead of the default one. Check [FAQ section](#faq) for some notes.
 - **Prefer IPv6 streaming server**
   > Might reduce latency
 - **Force high quality stream**
@@ -49,16 +49,17 @@ To update manually, just install the script again (you won't lose your settings)
 ❓ = not yet tested  
 ❌ = not supported (mostly because of lacking Userscript/extension support)  
 ⚠️ = see custom notes  
-|                                        | Desktop  | Android          | iOS |
-|----------------------------------------|----------|------------------|-----|
-| Chrome/Edge/Chromium variants          | ✅       | ❌               | ❌   |
-| Firefox                                | ✅       | ✅               | ❌   |
-| Safari                                 | ❓       | ❌               | ❓   |
-| [Hermit](https://hermit.chimbori.com)  | ❌       | ⚠️<sup>(1)</sup> | ❌   |
+|                                        | Desktop          | Android          | iOS             |
+|----------------------------------------|------------------|------------------|-----------------|
+| Chrome/Edge/Chromium variants          | ✅               | ❌               | ❌               |
+| Firefox                                | ✅               | ✅               | ❌               |
+| Safari                                 | ✅<sup>(1)</sup> | ❌               | ✅<sup>(2)</sup> |
+| [Hermit](https://hermit.chimbori.com)  | ❌               | ⚠️<sup>(3)</sup> | ❌               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
-  
-<sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports Userscript (premium features, only $1.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
+
+<sup>1, 2</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887).  
+<sup>3</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports Userscript (premium features, only $1.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
 
 ## FAQ
 1. **Will I get banned for using this?**  
