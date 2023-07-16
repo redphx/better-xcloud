@@ -14,7 +14,9 @@ Give this project a 🌟 if you like it. Thank you.
 - **Prefer IPv6 streaming server**
   > Might reduce latency
 - **Force high quality stream**
-  > Force xCloud to use the best streaming codec (same as desktop). You don't have to change User-Agent anymore. Affect battery life.
+  > Force xCloud to use the best streaming codec profile (same as desktop). You don't have to change User-Agent anymore.  
+  > Some browsers (like Firefox) don't support this feature. Check [the full list](https://caniuse.com/?search=setCodecPreferences).  
+  > If you're on Android and want to use it, try [Hermit](https://hermit.chimbori.com).
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **Skip Xbox splash video**
