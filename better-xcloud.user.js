@@ -257,6 +257,16 @@ function addCss() {
     line-height: 24px;
 }
 
+@media (hover: hover) {
+    .better_xcloud_settings_wrapper .setting_button:hover {
+        background-color: #00753c;
+    }
+}
+
+.better_xcloud_settings_wrapper .setting_button:active {
+        background-color: #00753c;
+}
+
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
     display: none;
