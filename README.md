@@ -2,6 +2,8 @@
 Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
 The main target of this script is Android users, but it should work great on desktop too.
 
+Give this project a 🌟 if you like it. Thank you.
+
 ## Features
 
 <img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/4f60c2e6-9706-4326-940f-f46998177633">  
