@@ -607,6 +607,12 @@ function injectSettingsButton($parent) {
 
             setting.value = PREFS.get(setting.id);
             $control.checked = setting.value;
+
+            if (setting.id === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
+                $control.disabled = true;
+                $control.checked = false;
+                $control.title = 'Not supported by this browser';
+            }
         }
 
         const $elm = CE('div', {'class': 'setting_row'},
@@ -841,8 +847,17 @@ function patchVideoApi() {
 }
 
 
+function hasRtcSetCodecPreferencesSupport() {
+    return (typeof RTCRtpTransceiver !== 'undefined' && 'setCodecPreferences' in RTCRtpTransceiver.prototype)
+}
+
 function patchRtcCodecs() {
-    if (typeof RTCRtpTransceiver === 'undefined' || !PREFS.get(Preferences.USE_DESKTOP_CODEC)) {
+    if (!PREFS.get(Preferences.USE_DESKTOP_CODEC)) {
+        return;
+    }
+
+    if (!hasRtcSetCodecPreferencesSupport()) {
+        console.log('[Better xCloud] RTCRtpTransceiver.setCodecPreferences() is not supported');
         return;
     }
 
