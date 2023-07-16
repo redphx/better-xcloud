@@ -49,8 +49,14 @@ class Preferences {
         },
 
         {
+            'id': Preferences.USE_DESKTOP_CODEC,
+            'label': 'Force high quality stream (same as desktop)',
+            'default': false,
+        },
+
+        {
             'id': Preferences.DISABLE_BANDWIDTH_CHECKING,
-            'label': 'Force HD stream',
+            'label': 'Disable bandwitdh checking',
             'default': false,
         },
 
@@ -824,6 +830,31 @@ function patchVideoApi() {
 }
 
 
+function patchRtcCodecs() {
+    if (typeof RTCRtpTransceiver === 'undefined' || !PREFS.get(Preferences.USE_DESKTOP_CODEC)) {
+        return;
+    }
+
+    RTCRtpTransceiver.prototype.orgSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
+    RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
+        // Use the same codecs as desktop
+        codecs = [
+            {
+                'clockRate': 90000,
+                'mimeType': 'video/H264',
+                'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f',
+            },
+            {
+                'clockRate': 90000,
+                'mimeType': 'video/H264',
+                'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f',
+            }
+        ].concat(codecs);
+        this.orgSetCodecPreferences(codecs);
+    }
+}
+
+
 function numberPicker(key) {
     let value = PREFS.get(key);
     let $text, $decBtn, $incBtn;
@@ -1036,6 +1067,8 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
         get: () => undefined,
     });
 }
+
+patchRtcCodecs();
 
 interceptHttpRequests();
 
