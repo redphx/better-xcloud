@@ -22,6 +22,7 @@ const SERVER_REGIONS = {};
 class Preferences {
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
+    static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
 
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
