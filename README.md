@@ -4,21 +4,32 @@ The main target of this script is Android users, but it should work great on des
 
 ## Features
 
-<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/db9b4f88-6958-4ec8-90cb-3cf37da5ab26">  
+<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/4f60c2e6-9706-4326-940f-f46998177633">  
 <img width="500" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/130aa870-6938-4604-9e23-45e217b800cc">
 
-
-- Switch region of streaming server.
-- Prefer IPv6 streaming server (might reduce latency).
-- Force HD stream by disabling bandwidth checking -> xCloud always tries to use the best possible quality.
-- Skip Xbox splash video (save 3 seconds).
-- Make the top-left dots icon invisible while playing. You can still click on it, but it doesn't block the screen anymore.
-- Stretch video to full sctreen. Useful when you don't have a 16:9 screen.
-- Adjust video filters (brightness/contrast/saturation).
-- Hide footer and other UI elements.
-- Reduce UI animations (the smooth scrolling cannot be disabled).
-- Disable social features (friends, chat...).
-- Disable xCloud analytics. The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.  
+- **Switch region of streaming server**  
+  > Connect to another server instead of the default one
+- **Prefer IPv6 streaming server**
+  > Might reduce latency
+- **Force high quality stream**
+  > Force xCloud to use the best streaming codec (same as desktop). Affect battery life.
+- **Disable bandwidth checking**
+  > xCloud won't reduce quality when the internet speed is slow
+- **Skip Xbox splash video**
+  > Save 3 seconds
+- **Hide Dots icon while playing**
+  > You can still click on it, but it doesn't block the screen anymore
+- **Reduce UI animations**
+  > Disable `transition()` in some elements. The smooth scrolling cannot be disabled.
+- **Stretch video to full sctreen**
+  > Useful when you don't have a 16:9 screen
+- **Adjust video filters**
+  > Brightness/Contrast/Saturation
+- **Disable social features**
+  > Features like friends, chat... Disable these will make the page load faster.
+- **Disable xCloud analytics**
+  > The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.
+- **Hide footer and other UI elements**
 
 ## How to use
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. It's also available for Firefox on Android.
