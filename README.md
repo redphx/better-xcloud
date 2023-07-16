@@ -12,7 +12,7 @@ The main target of this script is Android users, but it should work great on des
 - **Prefer IPv6 streaming server**
   > Might reduce latency
 - **Force high quality stream**
-  > Force xCloud to use the best streaming codec (same as desktop). Affect battery life.
+  > Force xCloud to use the best streaming codec (same as desktop). You don't have to change User-Agent anymore. Affect battery life.
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **Skip Xbox splash video**
@@ -20,7 +20,7 @@ The main target of this script is Android users, but it should work great on des
 - **Hide Dots icon while playing**
   > You can still click on it, but it doesn't block the screen anymore
 - **Reduce UI animations**
-  > Disable `transition()` in some elements. The smooth scrolling cannot be disabled.
+  > Disable `transition` CSS property in some elements. The smooth scrolling cannot be disabled.
 - **Stretch video to full sctreen**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
@@ -38,8 +38,7 @@ The main target of this script is Android users, but it should work great on des
     - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)  
 4. Refresh [xCloud web page](https://www.xbox.com/play/).
 5. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.  
-6. Optional but recommended: change your browser's User-Agent. Check the [User-Agent section](#user-agent) below for more info.
-7. Don't forget to enable auto updating for the script in Tampermonkey.
+6. Don't forget to enable auto updating for the script in Tampermonkey.
 
 To update manually, just install the script again (you won't lose your settings).
 
@@ -57,22 +56,7 @@ To update manually, just install the script again (you won't lose your settings)
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
   
-<sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports both custom User-Agent and Userscript (premium features, only $1.99 for Userscript feature or $7.99 if you want both) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
-
-## User-Agent
-Optional, as changing User-Agent won't guarantee a better streaming experience, but it's worth a try. You might need to install an external extension to do that.  
-
-It's recommended to change User-Agent to:
-```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67
-```
-This will trick xCloud into thinking you're using Edge browser on desktop.
-
-Other options (only do one of these):
-- Add ` smarttv` to switch to Smart TV layout.
-- Add ` Xbox;` to become an Xbox console.
-- Add ` 36102dd3-6953-45f6-8b48-031fb95e0e0d` to become a Logitech G Cloud device.
-- Add ` 0ed22b6f-b61d-41eb-810a-a1ed586a550b` to become a Razer Edge device.
+<sup>1</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly. Non-network related features (skip splash video, video settings...) still work. It's still my favorite app to play xCloud on because it's lightweight, supports Userscript (premium features, only $1.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
 
 ## FAQ
 1. **Will I get banned for using this?**  
@@ -93,6 +77,22 @@ No. "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) th
 ## Acknowledgements  
 - [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
 - Icons by [Adam Design](https://www.iconfinder.com/iconsets/user-interface-outline-27)
+
+## User-Agent
+> You're no longer needed to change User-Agent since you can just use the **Force high quality stream** setting.  
+> I'll still keep this section because it has some interesting info.
+
+Change User-Agent to:
+```
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67
+```
+This will trick xCloud into thinking you're using Edge browser on desktop.
+
+Other options (only do one of these):
+- Add ` smarttv` to switch to Smart TV layout.
+- Add ` Xbox;` to become an Xbox console.
+- Add ` 36102dd3-6953-45f6-8b48-031fb95e0e0d` to become a Logitech G Cloud device.
+- Add ` 0ed22b6f-b61d-41eb-810a-a1ed586a550b` to become a Razer Edge device.
 
 ## Disclaimers  
 - Use as your own risk.  
