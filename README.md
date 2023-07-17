@@ -15,6 +15,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Might reduce latency
 - **Force high quality stream**
   > Force xCloud to use the best streaming codec profile (same as desktop). You don't have to change User-Agent anymore.  
+  > Use more bandwitdh & battery.  
   > Some browsers (like Firefox) don't support this feature. Check [the full list](https://caniuse.com/?search=setCodecPreferences).  
   > If you're on Android, I'd recommend using [Hermit](https://hermit.chimbori.com) instead.  
   > If not, check [User-Agent section](#user-agent) for a work-around.
