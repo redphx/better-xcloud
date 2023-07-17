@@ -15,8 +15,10 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Might reduce latency
 - **Force high quality stream**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV). You don't have to change User-Agent anymore.  
-  > Use more bandwitdh & battery.  
-  > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4
+  > You should enable this feature even if you're on desktop.  
+  > Use more bandwidth & battery.  
+  > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
+  > Disable if it causes crashes.  
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **Skip Xbox splash video**
