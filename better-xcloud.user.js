@@ -51,13 +51,13 @@ class Preferences {
 
         {
             'id': Preferences.USE_DESKTOP_CODEC,
-            'label': 'Force high quality stream (same as desktop)',
+            'label': 'Force high quality stream',
             'default': false,
         },
 
         {
             'id': Preferences.DISABLE_BANDWIDTH_CHECKING,
-            'label': 'Disable bandwitdh checking',
+            'label': 'Disable bandwidth checking',
             'default': false,
         },
 
@@ -81,7 +81,7 @@ class Preferences {
 
         {
             'id': Preferences.BLOCK_SOCIAL_FEATURES,
-            'label': 'Disable social features (Friends, Chat...)',
+            'label': 'Disable social features',
             'default': false,
         },
 
@@ -209,9 +209,9 @@ function addCss() {
 }
 
 .better_xcloud_settings_wrapper {
-    width: 400px;
+    width: 450px;
     margin: auto;
-    padding: 12px;
+    padding: 12px 6px;
 }
 
 .better_xcloud_settings_wrapper *:focus {
