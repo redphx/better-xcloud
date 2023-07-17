@@ -6,7 +6,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/4f60c2e6-9706-4326-940f-f46998177633">  
+<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/2f5b81f7-f739-4f8e-bb30-7b404fa35628">
 <img width="500" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/130aa870-6938-4604-9e23-45e217b800cc">
 
 - **Switch region of streaming server**  
@@ -14,11 +14,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Prefer IPv6 streaming server**
   > Might reduce latency
 - **Force high quality stream**
-  > Force xCloud to use the best streaming codec profile (same as desktop). You don't have to change User-Agent anymore.  
+  > Force xCloud to use the best streaming codec profile (same as desktop & TV). You don't have to change User-Agent anymore.  
   > Use more bandwitdh & battery.  
-  > Some browsers (like Firefox) don't support this feature. Check [the full list](https://caniuse.com/?search=setCodecPreferences).  
-  > If you're on Android, I'd recommend using [Hermit](https://hermit.chimbori.com) instead.  
-  > If not, check [User-Agent section](#user-agent) for a work-around.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
