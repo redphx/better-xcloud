@@ -18,7 +18,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Use more bandwitdh & battery.  
   > Some browsers (like Firefox) don't support this feature. Check [the full list](https://caniuse.com/?search=setCodecPreferences).  
   > If you're on Android, I'd recommend using [Hermit](https://hermit.chimbori.com) instead.  
-  > If not, check [User-Agent section](#user-agent) for a work-around.
+  > If not, check [User-Agent section](#user-agent) for a work-around.  
+  > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **Skip Xbox splash video**
