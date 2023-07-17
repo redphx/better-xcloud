@@ -356,10 +356,9 @@ function updateIceCandidates(candidates) {
 
     const newCandidates = [];
     let order = 1;
-    let priority = 100;
     lst.forEach(item => {
         item.order = order;
-        item.priority = priority;
+        item.priority = (order == 1) ? 100 : 1;
 
         newCandidates.push({
             'candidate': `a=candidate:${item.order} 1 UDP ${item.priority} ${item.ip} ${item.the_rest}`,
@@ -369,7 +368,6 @@ function updateIceCandidates(candidates) {
         });
 
         ++order;
-        --priority;
     });
 
     newCandidates.push({
@@ -484,6 +482,7 @@ function interceptHttpRequests() {
                     obj.exchangeResponse = JSON.stringify(exchangeResponse);
 
                     response.json = () => Promise.resolve(obj);
+                    response.text = () => Promise.resolve(JSON.stringify(obj));
                     return response;
                 });
             });
