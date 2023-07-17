@@ -426,6 +426,8 @@ function interceptHttpRequests() {
     };
 
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
+    const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
+    const HAS_CODECS_API_SUPPORT = hasRtcSetCodecPreferencesSupport();
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
@@ -466,8 +468,29 @@ function interceptHttpRequests() {
             });
         }
 
+        // Work-around for browsers with no setCodecPreferences() support
+        if (PREF_USE_DESKTOP_CODEC && !HAS_CODECS_API_SUPPORT && url.endsWith('/sdp') && url.includes('/sessions/cloud/') && request.method === 'GET') {
+            const promise = orgFetch(...arg);
+
+            return promise.then(response => {
+                return response.clone().text().then(text => {
+                    if (!text.length) {
+                        return response;
+                    }
+
+                    const obj = JSON.parse(text);
+                    obj.exchangeResponse = obj.exchangeResponse.replaceAll('profile-level-id=42', 'profile-level-id=4d');
+
+                    response.json = () => Promise.resolve(obj);
+                    response.text = () => Promise.resolve(JSON.stringify(obj));
+
+                    return response;
+                });
+            });
+        }
+
         // ICE server candidates
-        if (PREF_PREFER_IPV6_SERVER && url.endsWith('/ice') && url.includes('/sessions/cloud/')) {
+        if (PREF_PREFER_IPV6_SERVER && url.endsWith('/ice') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             const promise = orgFetch(...arg);
 
             return promise.then(response => {
@@ -483,6 +506,7 @@ function interceptHttpRequests() {
 
                     response.json = () => Promise.resolve(obj);
                     response.text = () => Promise.resolve(JSON.stringify(obj));
+
                     return response;
                 });
             });
@@ -606,12 +630,6 @@ function injectSettingsButton($parent) {
 
             setting.value = PREFS.get(setting.id);
             $control.checked = setting.value;
-
-            if (setting.id === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
-                $control.disabled = true;
-                $control.checked = false;
-                $control.title = 'Not supported by this browser';
-            }
         }
 
         const $elm = CE('div', {'class': 'setting_row'},
