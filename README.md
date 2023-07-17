@@ -13,7 +13,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Connect to another server instead of the default one. Check [FAQ section](#faq) for some notes.
 - **Prefer IPv6 streaming server**
   > Might reduce latency
-- **Force high quality stream**
+- **Force high quality stream <sup>(\*)</sup>**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV). You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
   > Use more bandwidth & battery.  
@@ -36,6 +36,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Disable xCloud analytics**
   > The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.
 - **Hide footer and other UI elements**
+
+<sup>(*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
 ## How to use
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. It's also available for Firefox on Android.
