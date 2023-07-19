@@ -193,7 +193,7 @@ function addCss() {
     padding: 8px;
 }
 
-.better_xcloud_settings_button:hover, .better_xlcoud_settings_button:focus {
+.better_xcloud_settings_button:hover, .better_xcloud_settings_button:focus {
     background-color: #515863;
 }
 
@@ -225,17 +225,35 @@ function addCss() {
     font-weight: bold;
     display: block;
     margin-bottom: 8px;
+    color: #5dc21e;
+}
+
+@media (hover: hover) {
+    .better_xcloud_settings_wrapper a:hover {
+        color: #83f73a;
+    }
+}
+
+.better_xcloud_settings_wrapper a:focus {
+    color: #83f73a;
 }
 
 .better_xcloud_settings_wrapper .setting_row {
     display: flex;
     margin-bottom: 8px;
+    padding: 2px 4px;
 }
 
 .better_xcloud_settings_wrapper .setting_row label {
     flex: 1;
     align-self: center;
     margin-bottom: 0;
+}
+
+@media not (hover: hover) {
+    .better_xcloud_settings_wrapper .setting_row:focus-within {
+       background-color: #242424;
+    }
 }
 
 .better_xcloud_settings_wrapper .setting_row input {
@@ -261,6 +279,10 @@ function addCss() {
     .better_xcloud_settings_wrapper .setting_button:hover {
         background-color: #00753c;
     }
+}
+
+.better_xcloud_settings_wrapper .setting_button:focus {
+    background-color: #00753c;
 }
 
 .better_xcloud_settings_wrapper .setting_button:active {
@@ -592,6 +614,7 @@ function injectSettingsButton($parent) {
         }
 
         let $control;
+        let labelAttrs = {};
         if (setting.id === Preferences.SERVER_REGION) {
             $control = CE('select', {id: 'xcloud_setting_' + setting.id});
             $control.addEventListener('change', e => {
@@ -630,17 +653,19 @@ function injectSettingsButton($parent) {
 
             setting.value = PREFS.get(setting.id);
             $control.checked = setting.value;
+
+            labelAttrs = {'for': 'xcloud_setting_' + setting.id, 'tabindex': 0};
         }
 
         const $elm = CE('div', {'class': 'setting_row'},
-            CE('label', {'for': 'xcloud_setting_' + setting.id}, setting.label),
+            CE('label', labelAttrs, setting.label),
             $control
         );
 
         $wrapper.appendChild($elm);
     }
 
-    const $reloadBtn = CE('button', {'class': 'setting_button'}, 'Reload page to reflect changes');
+    const $reloadBtn = CE('button', {'class': 'setting_button', 'tabindex': 0}, 'Reload page to reflect changes');
     $reloadBtn.addEventListener('click', e => window.location.reload());
     $wrapper.appendChild($reloadBtn);
 
