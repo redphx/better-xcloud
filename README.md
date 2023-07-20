@@ -6,19 +6,25 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/2f5b81f7-f739-4f8e-bb30-7b404fa35628">
-<img width="500" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/130aa870-6938-4604-9e23-45e217b800cc">
+<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/8fb9f0ac-85f5-4e5a-9570-5a5e119e4fc1">
+<img width="500" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ed219d50-02ab-40bd-95c5-a010956d77bf">
+
 
 - **Switch region of streaming server**  
-  > Connect to another server instead of the default one. Check [FAQ section](#faq) for some notes.
-- **Prefer IPv6 streaming server**
-  > Might reduce latency
-- **Force high quality stream <sup>(\*)</sup>**
+  > Connect to another server instead of the default one. Check [FAQ section](#faq) for some notes.  
+  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
+- **Force 1080p stream**
+  > By default you only get 1080p stream when playing on desktop.  
+  > This feature will give you 1080p stream even on mobile, without having to change User-Agent.  
+  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
+- **Force high quality codec <sup>(\*)</sup>**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV). You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
   > Use more bandwidth & battery.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
   > Disable if it causes crashes.  
+- **Prefer IPv6 streaming server**
+  > Might reduce latency
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **Skip Xbox splash video**
@@ -31,13 +37,17 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
   > Brightness/Contrast/Saturation
+- **Display stream's statuses**
+  > Region/Server/Quality/Dimension...
 - **Disable social features**
-  > Features like friends, chat... Disable these will make the page load faster.
+  > Features like friends, chat... Disable these will make the page load faster.  
+  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Disable xCloud analytics**
-  > The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.
+  > The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.  
+  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Hide footer and other UI elements**
 
-<sup>(*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
+<sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
 ## How to use
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. It's also available for Firefox on Android.
