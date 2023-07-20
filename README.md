@@ -65,17 +65,18 @@ To update manually, just install the script again (you won't lose your settings)
 ❓ = not yet tested  
 ❌ = not supported (mostly because of lacking Userscript/extension support)  
 ⚠️ = see custom notes  
-|                                        | Desktop          | Android          | iOS             |
-|----------------------------------------|------------------|------------------|-----------------|
+|                                        | Desktop          | Android          | iOS              |
+|----------------------------------------|------------------|------------------|------------------|
 | Chrome/Edge/Chromium variants          | ✅               | ❌               | ❌               |
-| Firefox                                | ✅               | ✅               | ❌               |
-| Safari                                 | ✅<sup>(1)</sup> | ❌               | ✅<sup>(2)</sup> |
-| [Hermit](https://hermit.chimbori.com)  | ❌               | ⚠️<sup>(3)</sup> | ❌               |
+| Firefox                                | ✅               | ✅<sup>(1)</sup> | ❌               |
+| Safari                                 | ✅<sup>(2)</sup> | ❌               | ✅<sup>(3)</sup> |
+| [Hermit](https://hermit.chimbori.com)  | ❌               | ⚠️<sup>(4)</sup> | ❌               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
-<sup>1, 2</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
-<sup>3</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details). It's still my favorite app to play xCloud on because it's lightweight, supports Userscript (premium features, only $1.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
+<sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android.  
+<sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
+<sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details). It's still my favorite app to play xCloud on because it's lightweight, supports Userscript (premium features, only $1.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
 
 ## FAQ
 1. **Will I get banned for using this?**  
