@@ -18,6 +18,16 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
 
+class StreamStatus {
+    static ipv6 = false;
+    static dimension = {width: 0, height: 0};
+    static hqCodec = false;
+    static region = '';
+
+    static render() {
+        console.log(StreamStatus.ipv6, StreamStatus.dimension, StreamStatus.hqCodec, StreamStatus.region);
+    }
+}
 
 class Preferences {
     static get SERVER_REGION() { return 'server_region'; }
@@ -362,7 +372,7 @@ function getPreferredServerRegion() {
 
 
 function updateIceCandidates(candidates) {
-    const pattern = new RegExp(/a=candidate:(?<order>\d+) (?<num>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<the_rest>.*)/);
+    const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<the_rest>.*)/);
 
     const lst = [];
     for (let item of candidates) {
@@ -377,19 +387,19 @@ function updateIceCandidates(candidates) {
     lst.sort((a, b) => (a.ip.includes(':') || a.ip > b.ip) ? -1 : 1);
 
     const newCandidates = [];
-    let order = 1;
+    let foundation = 1;
     lst.forEach(item => {
-        item.order = order;
-        item.priority = (order == 1) ? 100 : 1;
+        item.foundation = foundation;
+        item.priority = (foundation == 1) ? 100 : 1;
 
         newCandidates.push({
-            'candidate': `a=candidate:${item.order} 1 UDP ${item.priority} ${item.ip} ${item.the_rest}`,
+            'candidate': `a=candidate:${item.foundation} 1 UDP ${item.priority} ${item.ip} ${item.the_rest}`,
             'messageType': 'iceCandidate',
             'sdpMLineIndex': '0',
             'sdpMid': '0',
         });
 
-        ++order;
+        ++foundation;
     });
 
     newCandidates.push({
@@ -488,6 +498,22 @@ function interceptHttpRequests() {
                     return response;
                 });
             });
+        }
+
+        // Get region
+        if (url.endsWith('/sessions/cloud/play')) {
+            const parsedUrl = new URL(url);
+
+            StreamStatus.region = parsedUrl.host.split('.', 1)[0];
+            for (let regionName in SERVER_REGIONS) {
+                const region = SERVER_REGIONS[regionName];
+                if (parsedUrl.origin == region.baseUri) {
+                    StreamStatus.region = regionName;
+                    break;
+                }
+            }
+
+            return orgFetch(...arg);
         }
 
         // Work-around for browsers with no setCodecPreferences() support
@@ -838,9 +864,6 @@ function injectVideoSettingsButton() {
                     // Show Quick settings bar
                     $quickBar.style.display = 'flex';
 
-                    // Close HUD
-                    document.querySelector('button[class*=StreamMenu-module__backButton]').click();
-
                     $parent.addEventListener('click', hideQuickBarFunc);
                     $parent.addEventListener('touchend', hideQuickBarFunc);
 
@@ -851,6 +874,14 @@ function injectVideoSettingsButton() {
                 });
 
                 $orgButton.parentElement.insertBefore($button, $orgButton.parentElement.firstChild);
+
+                // Hide Quick bar when closing HUD
+                document.querySelector('button[class*=StreamMenu-module__backButton]').addEventListener('click', e => {
+                    $quickBar.style.display = 'none';
+                });
+
+                // Render stream badges
+                StreamStatus.render();
             });
 
         });
@@ -867,6 +898,10 @@ function patchVideoApi() {
     showFunc = function() {
         this.style.visibility = 'visible';
         this.removeEventListener('playing', showFunc);
+
+        if (this.videoWidth) {
+            StreamStatus.dimension = {width: this.videoWidth, height: this.videoHeight};
+        }
     }
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
@@ -1155,4 +1190,25 @@ window.onload = () => {
 
 if (document.readyState === 'complete' && !onLoadTriggered) {
     watchHeader();
+}
+
+
+RTCPeerConnection.prototype.orgSetRemoteDescription = RTCPeerConnection.prototype.setRemoteDescription;
+RTCPeerConnection.prototype.setRemoteDescription = function(...args) {
+    const sdpDesc = args[0];
+    if (sdpDesc.sdp) {
+        StreamStatus.hqCodec = sdpDesc.sdp.includes('profile-level-id=4d');
+    }
+    return this.orgSetRemoteDescription.apply(this, args);
+}
+
+
+RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
+RTCPeerConnection.prototype.addIceCandidate = function(...args) {
+    const candidate = args[0].candidate;
+    if (candidate && candidate.startsWith('a=candidate:1 ')) {
+        StreamStatus.ipv6 = candidate.substring(20).includes(':');
+    }
+
+    return this.orgAddIceCandidate.apply(this, args);
 }
