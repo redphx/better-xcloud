@@ -24,8 +24,27 @@ class StreamStatus {
     static hqCodec = false;
     static region = '';
 
+    static #renderBadge(name, value, color) {
+        const CE = createElement;
+        const $badge = CE('div', {'class': 'better_xcloud_badge'},
+                            CE('span', {'class': 'better_xcloud_badge_name'}, name),
+                            CE('span', {'class': 'better_xcloud_badge_value', 'style': `background-color: ${color}`}, value));
+
+        return $badge;
+    }
+
     static render() {
-        console.log(StreamStatus.ipv6, StreamStatus.dimension, StreamStatus.hqCodec, StreamStatus.region);
+        const BADGES = [
+            ['region', StreamStatus.region, '#d7450b'],
+            ['server', StreamStatus.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
+            ['quality', StreamStatus.hqCodec ? 'High' : 'Normal', '#007c8f'],
+            ['dimension', `${StreamStatus.dimension.width}x${StreamStatus.dimension.height}`, '#ff3977'],
+        ];
+
+        const $wrapper = createElement('div', {'class': 'better_xcloud_badges'});
+        BADGES.forEach(item => $wrapper.appendChild(StreamStatus.#renderBadge(...item)));
+
+        return $wrapper;
     }
 }
 
@@ -296,7 +315,43 @@ function addCss() {
 }
 
 .better_xcloud_settings_wrapper .setting_button:active {
-        background-color: #00753c;
+    background-color: #00753c;
+}
+
+div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
+    overflow: visible;
+}
+
+.better_xcloud_badges {
+    position: absolute;
+    bottom: -35px;
+    margin-left: 0px;
+    user-select: none;
+}
+
+.better_xcloud_badge {
+    border: none;
+    display: inline-block;
+    line-height: 24px;
+    color: #fff;
+    font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    font-weight: 400;
+    margin-right: 8px;
+}
+
+.better_xcloud_badge .better_xcloud_badge_name {
+    background-color: #2d3036;
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px 0 0 4px;
+    text-transform: uppercase;
+}
+
+.better_xcloud_badge .better_xcloud_badge_value {
+    background-color: grey;
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 0 4px 4px 0;
 }
 
 /* Hide UI elements */
@@ -881,7 +936,8 @@ function injectVideoSettingsButton() {
                 });
 
                 // Render stream badges
-                StreamStatus.render();
+                const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
+                $menu.appendChild(StreamStatus.render());
             });
 
         });
