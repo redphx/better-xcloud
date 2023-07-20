@@ -18,6 +18,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
 
+
 class StreamStatus {
     static ipv6 = false;
     static dimension = {width: 0, height: 0};
@@ -48,9 +49,11 @@ class StreamStatus {
     }
 }
 
+
 class Preferences {
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
+    static get FORCE_1080P_STREAM() { return 'force_1080p_stream'; }
     static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
 
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -73,14 +76,20 @@ class Preferences {
         },
 
         {
-            'id': Preferences.PREFER_IPV6_SERVER,
-            'label': 'Prefer IPv6 streaming server',
+            'id': Preferences.FORCE_1080P_STREAM,
+            'label': 'Force 1080p stream',
             'default': false,
         },
 
         {
             'id': Preferences.USE_DESKTOP_CODEC,
-            'label': 'Force high quality stream',
+            'label': 'Force high quality codec',
+            'default': false,
+        },
+
+        {
+            'id': Preferences.PREFER_IPV6_SERVER,
+            'label': 'Prefer IPv6 streaming server',
             'default': false,
         },
 
@@ -513,6 +522,7 @@ function interceptHttpRequests() {
     };
 
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
+    const PREF_FORCE_1080P_STREAM = PREFS.get(Preferences.FORCE_1080P_STREAM);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
     const HAS_CODECS_API_SUPPORT = hasRtcSetCodecPreferencesSupport();
 
@@ -566,6 +576,20 @@ function interceptHttpRequests() {
                     StreamStatus.region = regionName;
                     break;
                 }
+            }
+
+            // Force 1080p stream
+            if (PREF_FORCE_1080P_STREAM) {
+                // Intercept "osName" value
+                const clone = request.clone();
+                const body = await clone.json();
+                body.settings.osName = 'windows';
+
+                const newRequest = new Request(request, {
+                    body: JSON.stringify(body),
+                });
+
+                arg[0] = newRequest;
             }
 
             return orgFetch(...arg);
