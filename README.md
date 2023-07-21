@@ -22,8 +22,6 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > You should enable this feature even if you're on desktop.  
   > Use more bandwidth & battery.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
-  > Disable if it causes crashes.  
-  > This feature doesn't work on Kiwi Browser (unsupported codec).  
 - **Prefer IPv6 streaming server**
   > Might reduce latency
 - **Disable bandwidth checking**
@@ -73,16 +71,15 @@ To update manually, just install the script again (you won't lose your settings)
 | Firefox                                | ✅               | ✅<sup>(1)</sup> | ❌               |
 | Safari                                 | ✅<sup>(2)</sup> | ➖               | ✅<sup>(3)</sup> |
 | [Hermit](https://hermit.chimbori.com)  | ➖               | ⚠️<sup>(4)</sup> | ➖               |
-| Kiwi Browser                           | ➖               | ✅<sup>(5)</sup> | ➖               |
+| Kiwi Browser                           | ➖               | ✅               | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
 <sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android.  
 <sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
 <sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details).    
-<sup>5</sup> The "Force high quality codec" is unsupported (causes crashes).  
 
-In general, at the moment the best Android browser to use **Better xCloud** with is **Kiwi Browser**. All features work, except for "Force high quality stream".  
+In general, at the moment the best Android browser to use **Better xCloud** with is **Kiwi Browser**. All features work, it means you can get 1080p stream + high quality codec profile (the best possible quality).  
 
 ## FAQ
 1. **Will I get banned for using this?**  
