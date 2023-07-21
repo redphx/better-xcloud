@@ -83,7 +83,7 @@ class Preferences {
 
         {
             'id': Preferences.USE_DESKTOP_CODEC,
-            'label': 'Force high quality codec',
+            'label': 'Force high quality codec (if possible)',
             'default': false,
         },
 
@@ -1021,19 +1021,37 @@ function patchRtcCodecs() {
     RTCRtpTransceiver.prototype.orgSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
     RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
         // Use the same codecs as desktop
-        codecs = [
-            {
-                'clockRate': 90000,
-                'mimeType': 'video/H264',
-                'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d001f',
-            },
-            {
-                'clockRate': 90000,
-                'mimeType': 'video/H264',
-                'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f',
+        let profileSetting;
+        for (let codec of codecs) {
+            if (codec.sdpFmtpLine.includes('profile-level-id=4d') || codec.sdpFmtpLine.includes('profile-level-id=42')) {
+                profileSetting = codec.sdpFmtpLine.slice(-4); // get the last 4 characters
+                break;
             }
-        ].concat(codecs);
-        this.orgSetCodecPreferences(codecs);
+        }
+
+        let newCodecs;
+        if (profileSetting) {
+            newCodecs = [
+                {
+                    'clockRate': 90000,
+                    'mimeType': 'video/H264',
+                    'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d' + profileSetting,
+                },
+                {
+                    'clockRate': 90000,
+                    'mimeType': 'video/H264',
+                    'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d' + profileSetting,
+                }
+            ].concat(codecs);
+        } else {
+            newCodecs = codecs;
+        }
+
+        try {
+            this.orgSetCodecPreferences(newCodecs);
+        } catch (e) {
+            this.orgSetCodecPreferences(codecs);
+        }
     }
 }
 
@@ -1275,10 +1293,30 @@ if (document.readyState === 'complete' && !onLoadTriggered) {
 
 RTCPeerConnection.prototype.orgSetRemoteDescription = RTCPeerConnection.prototype.setRemoteDescription;
 RTCPeerConnection.prototype.setRemoteDescription = function(...args) {
+    StreamStatus.hqCodec = false;
+
     const sdpDesc = args[0];
     if (sdpDesc.sdp) {
-        StreamStatus.hqCodec = sdpDesc.sdp.includes('profile-level-id=4d');
+        const sdp = sdpDesc.sdp;
+
+        let lineIndex = 0;
+        let endPos = 0;
+        let line;
+        while (lineIndex > -1) {
+            lineIndex = sdp.indexOf('a=fmtp:', endPos);
+            if (lineIndex === -1) {
+                break;
+            }
+
+            endPos = sdp.indexOf('\n', lineIndex);
+            line = sdp.substring(lineIndex, endPos);
+            if (line.includes('profile-level-id')) {
+                StreamStatus.hqCodec = line.includes('profile-level-id=4d');
+                break;
+            }
+        }
     }
+
     return this.orgSetRemoteDescription.apply(this, args);
 }
 
