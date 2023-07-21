@@ -79,8 +79,11 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 <sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android.  
 <sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
-<sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details). It's still my favorite app to play xCloud on because it's lightweight, supports Userscript (premium features, only $1.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
+<sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details).    
 <sup>5</sup> The "Force high quality codec" is unsupported (causes crashes).  
+
+In general, at the moment the best Android browser to use **Better xCloud** with is **Kiwi Browser**. All features work, except for "Force high quality stream".  
+
 ## FAQ
 1. **Will I get banned for using this?**  
 I think it's very unlikely that you'll get banned for using this. Most of the features only affect client-side, except for switching region of streaming server (you'll connect to another server instead of the default one). If you want to be safe just avoid using that. As always, use as your own risk.
