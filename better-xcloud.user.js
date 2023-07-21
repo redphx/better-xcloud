@@ -83,7 +83,7 @@ class Preferences {
 
         {
             'id': Preferences.USE_DESKTOP_CODEC,
-            'label': 'Force high quality codec',
+            'label': 'Force high quality codec (if possible)',
             'default': false,
         },
 
@@ -1021,7 +1021,7 @@ function patchRtcCodecs() {
     RTCRtpTransceiver.prototype.orgSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
     RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
         // Use the same codecs as desktop
-        codecs = [
+        const newCodecs = [
             {
                 'clockRate': 90000,
                 'mimeType': 'video/H264',
@@ -1033,7 +1033,12 @@ function patchRtcCodecs() {
                 'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d001f',
             }
         ].concat(codecs);
-        this.orgSetCodecPreferences(codecs);
+
+        try {
+            this.orgSetCodecPreferences(newCodecs);
+        } catch (e) {
+            this.orgSetCodecPreferences(codecs);
+        }
     }
 }
 
