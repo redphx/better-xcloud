@@ -17,12 +17,13 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > By default you only get 1080p stream when playing on desktop.  
   > This feature will give you 1080p stream even on mobile, without having to change User-Agent.  
   > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
-- **Force high quality codec <sup>(\*)</sup>**
-  > Force xCloud to use the best streaming codec profile (same as desktop & TV). You don't have to change User-Agent anymore.  
+- **Force high quality codec (if possible)<sup>(\*)</sup>**
+  > Force xCloud to use the best streaming codec profile (same as desktop & TV) if possible. You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
   > Use more bandwidth & battery.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
   > Disable if it causes crashes.  
+  > This feature doesn't work on Kiwi Browser (unsupported codec).  
 - **Prefer IPv6 streaming server**
   > Might reduce latency
 - **Disable bandwidth checking**
@@ -64,20 +65,22 @@ To update manually, just install the script again (you won't lose your settings)
 ✅ = confirmed to be working  
 ❓ = not yet tested  
 ❌ = not supported (mostly because of lacking Userscript/extension support)  
+➖ = unavailable
 ⚠️ = see custom notes  
 |                                        | Desktop          | Android          | iOS              |
 |----------------------------------------|------------------|------------------|------------------|
 | Chrome/Edge/Chromium variants          | ✅               | ❌               | ❌               |
 | Firefox                                | ✅               | ✅<sup>(1)</sup> | ❌               |
-| Safari                                 | ✅<sup>(2)</sup> | ❌               | ✅<sup>(3)</sup> |
-| [Hermit](https://hermit.chimbori.com)  | ❌               | ⚠️<sup>(4)</sup> | ❌               |
+| Safari                                 | ✅<sup>(2)</sup> | ➖               | ✅<sup>(3)</sup> |
+| [Hermit](https://hermit.chimbori.com)  | ➖               | ⚠️<sup>(4)</sup> | ➖               |
+| Kiwi Browser                           | ➖               | ✅<sup>(5)</sup> | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
 <sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android.  
 <sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
 <sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details). It's still my favorite app to play xCloud on because it's lightweight, supports Userscript (premium features, only $1.99) without having to install anything else. I built **Better xCloud** just so I could use it with Hermit.  
-
+<sup>5</sup> The "Force high quality codec" is unsupported (causes crashes).  
 ## FAQ
 1. **Will I get banned for using this?**  
 I think it's very unlikely that you'll get banned for using this. Most of the features only affect client-side, except for switching region of streaming server (you'll connect to another server instead of the default one). If you want to be safe just avoid using that. As always, use as your own risk.
