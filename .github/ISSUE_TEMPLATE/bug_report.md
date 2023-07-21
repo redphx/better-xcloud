@@ -25,8 +25,8 @@ If applicable, add screenshots to help explain your problem.
 
 **Platform (please complete the following information):**
  - OS: [e.g. Android]
- - Browser: [e.g. chrome, safari]
- - Browser Version: [e.g. 22]
+ - Browser: [e.g. chrome, firefox]
+ - Browser Version: [e.g. 100]
 - Better xCloud Version: [e.g. 1.4]
 
 **Additional context**
