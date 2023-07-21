@@ -63,15 +63,15 @@ To update manually, just install the script again (you won't lose your settings)
 ✅ = confirmed to be working  
 ❓ = not yet tested  
 ❌ = not supported (mostly because of lacking Userscript/extension support)  
-➖ = unavailable
+➖ = unavailable  
 ⚠️ = see custom notes  
-|                                        | Desktop          | Android          | iOS              |
-|----------------------------------------|------------------|------------------|------------------|
-| Chrome/Edge/Chromium variants          | ✅               | ❌               | ❌               |
-| Firefox                                | ✅               | ✅<sup>(1)</sup> | ❌               |
-| Safari                                 | ✅<sup>(2)</sup> | ➖               | ✅<sup>(3)</sup> |
-| [Hermit](https://hermit.chimbori.com)  | ➖               | ⚠️<sup>(4)</sup> | ➖               |
-| Kiwi Browser                           | ➖               | ✅               | ➖               |
+|                                         | Desktop          | Android          | iOS             |
+|-----------------------------------------|:-----------------|:-----------------|:----------------|
+| Chrome/Edge/Chromium variants           | ✅               | ❌               | ❌               |
+| Firefox                                 | ✅               | ✅<sup>(1)</sup> | ❌               |
+| Safari                                  | ✅<sup>(2)</sup> | ➖               | ✅<sup>(3)</sup> |
+| [Hermit](https://hermit.chimbori.com)   | ➖               | ⚠️<sup>(4)</sup> | ➖               |
+| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ✅               | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
