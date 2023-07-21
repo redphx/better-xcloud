@@ -1022,20 +1022,22 @@ function patchRtcCodecs() {
     RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
         // Use the same codecs as desktop
         const newCodecs = codecs.slice();
+        let pos = 0;
         newCodecs.forEach((codec, i) => {
             // Find high quality codecs
             if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes('profile-level-id=4d')) {
                 // Move it to the top of the array
                 newCodecs.splice(i, 1);
-                newCodecs.unshift(codec);
+                newCodecs.splice(pos, 0, codec);
+                ++pos;
             }
         });
 
         try {
-            this.orgSetCodecPreferences(newCodecs);
+            this.orgSetCodecPreferences.apply(this, [newCodecs]);
         } catch (e) {
             console.log(e);
-            this.orgSetCodecPreferences(codecs);
+            this.orgSetCodecPreferences.apply(this, [codecs]);
         }
     }
 }
