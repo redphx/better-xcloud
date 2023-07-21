@@ -68,14 +68,14 @@ To update manually, just install the script again (you won't lose your settings)
 |                                         | Desktop          | Android          | iOS             |
 |-----------------------------------------|:-----------------|:-----------------|:----------------|
 | Chrome/Edge/Chromium variants           | ✅               | ❌               | ❌               |
-| Firefox                                 | ✅               | ✅<sup>(1)</sup> | ❌               |
+| Firefox                                 | ✅               | ⚠️<sup>(1)</sup> | ❌               |
 | Safari                                  | ✅<sup>(2)</sup> | ➖               | ✅<sup>(3)</sup> |
 | [Hermit](https://hermit.chimbori.com)   | ➖               | ⚠️<sup>(4)</sup> | ➖               |
 | [Kiwi Browser](https://kiwibrowser.com) | ➖               | ✅               | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
-<sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android.  
+<sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android. Its Gamepad API doesn't work properly so it might not recognize your controller.  
 <sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
 <sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details).    
 
