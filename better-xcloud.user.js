@@ -1021,35 +1021,20 @@ function patchRtcCodecs() {
     RTCRtpTransceiver.prototype.orgSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
     RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
         // Use the same codecs as desktop
-        let profileSetting;
-        for (let codec of codecs) {
-            if (codec.sdpFmtpLine.includes('profile-level-id=4d') || codec.sdpFmtpLine.includes('profile-level-id=42')) {
-                profileSetting = codec.sdpFmtpLine.slice(-4); // get the last 4 characters
-                break;
+        const newCodecs = codecs.slice();
+        newCodecs.forEach((codec, i) => {
+            // Find high quality codecs
+            if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes('profile-level-id=4d')) {
+                // Move it to the top of the array
+                newCodecs.splice(i, 1);
+                newCodecs.unshift(codec);
             }
-        }
-
-        let newCodecs;
-        if (profileSetting) {
-            newCodecs = [
-                {
-                    'clockRate': 90000,
-                    'mimeType': 'video/H264',
-                    'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=4d' + profileSetting,
-                },
-                {
-                    'clockRate': 90000,
-                    'mimeType': 'video/H264',
-                    'sdpFmtpLine': 'level-asymmetry-allowed=1;packetization-mode=0;profile-level-id=4d' + profileSetting,
-                }
-            ].concat(codecs);
-        } else {
-            newCodecs = codecs;
-        }
+        });
 
         try {
             this.orgSetCodecPreferences(newCodecs);
         } catch (e) {
+            console.log(e);
             this.orgSetCodecPreferences(codecs);
         }
     }
