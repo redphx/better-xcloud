@@ -1024,7 +1024,7 @@ function patchRtcCodecs() {
         let profileSetting;
         for (let codec of codecs) {
             if (codec.sdpFmtpLine.includes('profile-level-id=4d') || codec.sdpFmtpLine.includes('profile-level-id=42')) {
-                profileSetting = codec.sdpFmtpLine.substr(-4); // get the last 4 characters
+                profileSetting = codec.sdpFmtpLine.slice(-4); // get the last 4 characters
                 break;
             }
         }
@@ -1293,10 +1293,18 @@ if (document.readyState === 'complete' && !onLoadTriggered) {
 
 RTCPeerConnection.prototype.orgSetRemoteDescription = RTCPeerConnection.prototype.setRemoteDescription;
 RTCPeerConnection.prototype.setRemoteDescription = function(...args) {
+    StreamStatus.hqCodec = false;
+
     const sdpDesc = args[0];
     if (sdpDesc.sdp) {
-        StreamStatus.hqCodec = sdpDesc.sdp.includes('profile-level-id=4d');
+        const sdp = sdpDesc.sdp;
+        const index = sdp.indexOf('a=fmtp:');
+        if (index > -1) {
+            const line = sdp.substring(index, sdp.indexOf('\n', index));
+            StreamStatus.hqCodec = line.includes('profile-level-id=4d');
+        }
     }
+
     return this.orgSetRemoteDescription.apply(this, args);
 }
 
