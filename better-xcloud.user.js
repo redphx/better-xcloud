@@ -1298,10 +1298,22 @@ RTCPeerConnection.prototype.setRemoteDescription = function(...args) {
     const sdpDesc = args[0];
     if (sdpDesc.sdp) {
         const sdp = sdpDesc.sdp;
-        const index = sdp.indexOf('a=fmtp:');
-        if (index > -1) {
-            const line = sdp.substring(index, sdp.indexOf('\n', index));
-            StreamStatus.hqCodec = line.includes('profile-level-id=4d');
+
+        let lineIndex = 0;
+        let endPos = 0;
+        let line;
+        while (lineIndex > -1) {
+            lineIndex = sdp.indexOf('a=fmtp:', endPos);
+            if (lineIndex === -1) {
+                break;
+            }
+
+            endPos = sdp.indexOf('\n', lineIndex);
+            line = sdp.substring(lineIndex, endPos);
+            if (line.includes('profile-level-id')) {
+                StreamStatus.hqCodec = line.includes('profile-level-id=4d');
+                break;
+            }
         }
     }
 
