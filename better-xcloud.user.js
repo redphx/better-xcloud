@@ -17,7 +17,9 @@ const SCRIPT_VERSION = '1.4.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
-
+var $STREAM_VIDEO;
+var $SCREENSHOT_CANVAS;
+var GAME_TITLE_ID;
 
 class StreamStatus {
     static ipv6 = false;
@@ -56,6 +58,7 @@ class Preferences {
     static get FORCE_1080P_STREAM() { return 'force_1080p_stream'; }
     static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
 
+    static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
     static get DISABLE_BANDWIDTH_CHECKING() { return 'disable_bandwidth_checking'; }
@@ -73,88 +76,71 @@ class Preferences {
             'id': Preferences.SERVER_REGION,
             'label': 'Region of streaming server',
             'default': 'default',
-        },
-
-        {
+        }, {
             'id': Preferences.FORCE_1080P_STREAM,
             'label': 'Force 1080p stream',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.USE_DESKTOP_CODEC,
             'label': 'Force high quality codec (if possible)',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.PREFER_IPV6_SERVER,
             'label': 'Prefer IPv6 streaming server',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.DISABLE_BANDWIDTH_CHECKING,
             'label': 'Disable bandwidth checking',
             'default': false,
-        },
-
-        {
+        }, {
+            'id': Preferences.SCREENSHOT_BUTTON_POSITION,
+            'label': 'Screenshot button\'s position',
+            'default': 'bottom-left',
+            'options': {
+                'bottom-left': 'Bottom Left',
+                'bottom-right': 'Bottom Right',
+                'none': 'Disable',
+            },
+        }, {
             'id': Preferences.SKIP_SPLASH_VIDEO,
             'label': 'Skip Xbox splash video',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.HIDE_DOTS_ICON,
             'label': 'Hide Dots icon while playing',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.REDUCE_ANIMATIONS,
             'label': 'Reduce UI animations',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.BLOCK_SOCIAL_FEATURES,
             'label': 'Disable social features',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.BLOCK_TRACKING,
             'label': 'Disable xCloud analytics',
             'default': false,
-        },
-
-        {
+        }, {
             'id': Preferences.VIDEO_FILL_FULL_SCREEN,
             'label': 'Stretch video to full screen',
             'default': false,
             'hidden': true,
-        },
-
-        {
+        }, {
             'id': Preferences.VIDEO_SATURATION,
             'label': 'Video saturation (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
-        },
-
-        {
+        }, {
             'id': Preferences.VIDEO_CONTRAST,
             'label': 'Video contrast (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
-        },
-
-        {
+        }, {
             'id': Preferences.VIDEO_BRIGHTNESS,
             'label': 'Video brightness (%)',
             'default': 100,
@@ -361,6 +347,37 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 0 4px 4px 0;
+}
+
+.better_xcloud_screenshot_button {
+    display: none;
+    opacity: 0;
+    position: fixed;
+    bottom: 0;
+    width: 60px;
+    height: 60px;
+    padding: 5px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    filter: drop-shadow(0 0 2px #000000B0);
+    transition: opacity 0.1s ease-in-out 0s, padding 0.1s ease-in 0s;
+    z-index: 8888;
+
+    /* Credit: https://www.iconfinder.com/iconsets/user-interface-outline-27 */
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMTIgN2E1LjAyIDUuMDIgMCAwIDAtNSA1IDUuMDIgNS4wMiAwIDAgMCA1IDUgNS4wMiA1LjAyIDAgMCAwIDUtNSA1LjAyIDUuMDIgMCAwIDAtNS01em0wIDJjMS42NjkgMCAzIDEuMzMxIDMgM3MtMS4zMzEgMy0zIDMtMy0xLjMzMS0zLTMgMS4zMzEtMyAzLTN6TTYgMkMzLjgwMSAyIDIgMy44MDEgMiA2djJhMSAxIDAgMSAwIDIgMFY2YTEuOTcgMS45NyAwIDAgMSAyLTJoMmExIDEgMCAxIDAgMC0yek0zIDE1YTEgMSAwIDAgMC0xIDF2MmMwIDIuMTk5IDEuODAxIDQgNCA0aDJhMSAxIDAgMSAwIDAtMkg2YTEuOTcgMS45NyAwIDAgMS0yLTJ2LTJhMSAxIDAgMCAwLTEtMXptMTggMGExIDEgMCAwIDAtMSAxdjJhMS45NyAxLjk3IDAgMCAxLTIgMmgtMmExIDEgMCAxIDAgMCAyaDJjMi4xOTkgMCA0LTEuODAxIDQtNHYtMmExIDEgMCAwIDAtMS0xeiIvPjxwYXRoIGQ9Ik0xNiAyYTEgMSAwIDEgMCAwIDJoMmExLjk3IDEuOTcgMCAwIDEgMiAydjJhMSAxIDAgMSAwIDIgMFY2YzAtMi4xOTktMS44MDEtNC00LTR6Ii8+PC9zdmc+Cg==);
+}
+
+.better_xcloud_screenshot_button[data-showing=true] {
+    opacity: 1;
+}
+
+.better_xcloud_screenshot_button[data-capturing=true] {
+    padding: 0px;
+}
+
+.better_xcloud_screenshot_canvas {
+    display: none;
 }
 
 /* Hide UI elements */
@@ -720,27 +737,41 @@ function injectSettingsButton($parent) {
 
         let $control;
         let labelAttrs = {};
-        if (setting.id === Preferences.SERVER_REGION) {
+        if (setting.id === Preferences.SERVER_REGION || setting.options) {
+            let selectedValue;
+
             $control = CE('select', {id: 'xcloud_setting_' + setting.id});
             $control.addEventListener('change', e => {
-                PREFS.set(Preferences.SERVER_REGION, e.target.value);
+                PREFS.set(setting.id, e.target.value);
             });
 
-            for (let regionName in SERVER_REGIONS) {
-                const region = SERVER_REGIONS[regionName];
-                let value = regionName;
+            if (setting.id === Preferences.SERVER_REGION) {
+                selectedValue = preferredRegion;
+                setting.options = {};
+                for (let regionName in SERVER_REGIONS) {
+                    const region = SERVER_REGIONS[regionName];
+                    let value = regionName;
 
-                let label = regionName;
-                if (region.isDefault) {
-                    label += ' (Default)';
-                    value = 'default';
+                    let label = regionName;
+                    if (region.isDefault) {
+                        label += ' (Default)';
+                        value = 'default';
+                    }
+
+                    setting.options[value] = label;
                 }
+            } else {
+                selectedValue = PREFS.get(setting.id);
+            }
+
+            for (let value in setting.options) {
+                const label = setting.options[value];
 
                 const $option = CE('option', {value: value}, label);
-                $option.selected = regionName === preferredRegion;
-
+                $option.selected = value === selectedValue || label.includes(selectedValue);
                 $control.appendChild($option);
             }
+
         } else {
             $control = CE('input', {
                 id: 'xcloud_setting_' + setting.id,
@@ -972,6 +1003,7 @@ function injectVideoSettingsButton() {
 
 function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
+    const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
 
     // Show video player when it's ready
     var showFunc;
@@ -980,7 +1012,23 @@ function patchVideoApi() {
         this.removeEventListener('playing', showFunc);
 
         if (this.videoWidth) {
+            $STREAM_VIDEO = this;
+            $SCREENSHOT_CANVAS.width = this.videoWidth;
+            $SCREENSHOT_CANVAS.height = this.videoHeight;
             StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
+
+            if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
+                const $btn = document.querySelector('.better_xcloud_screenshot_button');
+                $btn.style.display = 'block';
+
+                if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
+                    $btn.style.right = '0';
+                } else {
+                    $btn.style.left = '0';
+                }
+            }
+
+            GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
         }
     }
 
@@ -1214,6 +1262,75 @@ function setupVideoSettingsBar() {
 }
 
 
+function setupScreenshotButton() {
+    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'better_xcloud_screenshot_canvas'});
+    document.documentElement.appendChild($SCREENSHOT_CANVAS);
+
+    const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
+
+    const delay = 2000;
+    const $btn = createElement('div', {'class': 'better_xcloud_screenshot_button', 'data-showing': false});
+
+    let timeout;
+    const detectDbClick = e => {
+        if (!$STREAM_VIDEO) {
+            timeout = null;
+            $btn.style.display = 'none';
+            return;
+        }
+
+        if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+            $btn.setAttribute('data-capturing', 'true');
+
+            $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+            $SCREENSHOT_CANVAS.toBlob(blob => {
+                // Download screenshot
+                const now = +new Date;
+                const $anchor = createElement('a', {
+                    'download': `${GAME_TITLE_ID}-${now}.png`,
+                    'href': URL.createObjectURL(blob),
+                });
+                $anchor.click();
+
+                // Free screenshot from memory
+                URL.revokeObjectURL($anchor.href);
+                $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+
+                // Hide button
+                $btn.setAttribute('data-showing', 'false');
+                setTimeout(() => {
+                    if (!timeout) {
+                        $btn.setAttribute('data-capturing', 'false');
+                    }
+                }, 100);
+            }, 'image/png');
+
+            return;
+        }
+
+        const isShowing = $btn.getAttribute('data-showing') === 'true';
+        if (!isShowing) {
+            // Show button
+            $btn.setAttribute('data-showing', 'true');
+            $btn.setAttribute('data-capturing', 'false');
+
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                timeout = null;
+                $btn.setAttribute('data-showing', 'false');
+                $btn.setAttribute('data-capturing', 'false');
+            }, delay);
+        }
+    }
+
+    $btn.addEventListener('mousedown', detectDbClick);
+    document.documentElement.appendChild($btn);
+
+}
+
+
 function patchHistoryMethod(type) {
     var orig = window.history[type];
     return function(...args) {
@@ -1236,6 +1353,9 @@ function hideUiOnPageChange() {
     if ($quickBar) {
         $quickBar.style.display = 'none';
     }
+
+    $STREAM_VIDEO = null;
+    document.querySelector('.better_xcloud_screenshot_button').style = '';
 }
 
 
@@ -1257,15 +1377,14 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 }
 
 patchRtcCodecs();
-
 interceptHttpRequests();
-
 patchVideoApi();
 
 // Setup UI
 addCss();
 updateVideoPlayerCss();
 setupVideoSettingsBar();
+setupScreenshotButton();
 
 // Workaround for Hermit browser
 var onLoadTriggered = false;
