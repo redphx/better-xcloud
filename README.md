@@ -87,10 +87,11 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## Capture screenshot  
 - This feature is only available in **Better xCloud**.  
-- Works on both desktop & mobile, but it's designed for mobile users.  
+- Works on both desktop & mobile, but it's designed for mobile users.
+- It's client-side only.
 - It captures the current frame of the stream and save to a file. That means you won't get the raw quality like when you play on console, but it's still better than using the built-in screenshot feature on your phone.  
 - Screenshot's resolution & quality depend on the quality of the stream at the moment.  
-- Screenshot doesn't touch UI, notification bar... only the gameplay.  
+- Screenshot doesn't include touch UI, notification bar... only the gameplay.  
 - There might be a slight delay.  
 - ⚠️ It's not possible to map the Share/Screenshot button on your controller to this feature.  
 
