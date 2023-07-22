@@ -21,7 +21,7 @@ const SERVER_REGIONS = {};
 
 class StreamStatus {
     static ipv6 = false;
-    static dimension = {width: 0, height: 0};
+    static resolution = {width: 0, height: 0};
     static hqCodec = false;
     static region = '';
 
@@ -39,7 +39,7 @@ class StreamStatus {
             ['region', StreamStatus.region, '#d7450b'],
             ['server', StreamStatus.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
             ['quality', StreamStatus.hqCodec ? 'High' : 'Normal', '#007c8f'],
-            ['dimension', `${StreamStatus.dimension.width}x${StreamStatus.dimension.height}`, '#ff3977'],
+            ['resolution', `${StreamStatus.resolution.width}x${StreamStatus.resolution.height}`, '#ff3977'],
         ];
 
         const $wrapper = createElement('div', {'class': 'better_xcloud_badges'});
@@ -980,7 +980,7 @@ function patchVideoApi() {
         this.removeEventListener('playing', showFunc);
 
         if (this.videoWidth) {
-            StreamStatus.dimension = {width: this.videoWidth, height: this.videoHeight};
+            StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
         }
     }
 
