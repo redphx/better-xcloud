@@ -6,12 +6,12 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="500" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/8fb9f0ac-85f5-4e5a-9570-5a5e119e4fc1">
-<img width="500" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ed219d50-02ab-40bd-95c5-a010956d77bf">
+<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ad687344-214d-4822-affe-21f1b1e105c8">
+<img width="475" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ed219d50-02ab-40bd-95c5-a010956d77bf">
 
 
 - **Switch region of streaming server**  
-  > Connect to another server instead of the default one. Check [FAQ section](#faq) for some notes.  
+  > Connect to another server instead of the default one. Check the [**FAQ** section](#faq) for some notes.  
   > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Force 1080p stream**
   > By default you only get 1080p stream when playing on desktop.  
@@ -26,6 +26,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Might reduce latency
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
+- **🔥 Capture screenshot**
+  > Exclusive to **Better xCloud**. Check the [**Capture screenshot** section](#capture-screenshot) for more info.
 - **Skip Xbox splash video**
   > Save 3 seconds
 - **Hide Dots icon while playing**
@@ -82,6 +84,24 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 ---
 - **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high quality codec profile (the best possible quality).  
 - **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a bluetooth mouse if you want to interact with the Settings.  
+
+## Capture screenshot  
+- This feature is only available in **Better xCloud**.  
+- Works on both desktop & mobile, but it's designed for mobile users.  
+- It captures the current frame of the stream and save to a file. That means you won't get the raw quality like when you play on console, but it's still better than using the built-in screenshot feature on your phone.  
+- Screenshot's resolution & quality depend on the quality of the stream at the moment.  
+- Screenshot doesn't touch UI, notification bar... only the gameplay.  
+- There might be a slight delay.  
+
+### How to capture screenshot  
+1. Enable this feature in setting.
+2. Play a game.
+3. Tap once at the bottom left/right (depend on your setting) to show the Screenshot button.
+4. Tap on that button to capture screenshot.
+5. Screenshot will be saved by browser.
+6. You can double tap that corner to capture screenshot.
+
+<img width="600" alt="Screenshot button" src="https://github.com/redphx/better-xcloud/assets/96280/a911b141-5dc0-450a-aeac-30d9cf202b44">
 
 ## FAQ
 1. **Will I get banned for using this?**  
