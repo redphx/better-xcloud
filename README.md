@@ -65,13 +65,13 @@ To update manually, just install the script again (you won't lose your settings)
 ❌ = not supported (mostly because of lacking Userscript/extension support)  
 ➖ = unavailable  
 ⚠️ = see custom notes  
-|                                         | Desktop          | Android          | iOS             |
-|-----------------------------------------|:-----------------|:-----------------|:----------------|
-| Chrome/Edge/Chromium variants           | ✅               | ❌               | ❌               |
-| Firefox                                 | ✅               | ⚠️<sup>(1)</sup> | ❌               |
-| Safari                                  | ✅<sup>(2)</sup> | ➖               | ✅<sup>(3)</sup> |
-| [Hermit](https://hermit.chimbori.com)   | ➖               | ⚠️<sup>(4)</sup> | ➖               |
-| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ✅               | ➖               |
+|                                         | Desktop          | Android/Android TV | iOS             |
+|-----------------------------------------|:-----------------|:-------------------|:----------------|
+| Chrome/Edge/Chromium variants           | ✅               | ❌                 | ❌               |
+| Firefox                                 | ✅               | ⚠️<sup>(1)</sup>   | ❌               |
+| Safari                                  | ✅<sup>(2)</sup> | ➖                 | ✅<sup>(3)</sup> |
+| [Hermit](https://hermit.chimbori.com)   | ➖               | ⚠️<sup>(4)</sup>   | ➖               |
+| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ✅                 | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
@@ -79,7 +79,9 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 <sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
 <sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details).    
 
-In general, at the moment the best Android browser to use **Better xCloud** with is **Kiwi Browser**. All features work, it means you can get 1080p stream + high quality codec profile (the best possible quality).  
+---
+- **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high quality codec profile (the best possible quality).  
+- **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a bluetooth mouse if you want to interact with the Settings.  
 
 ## FAQ
 1. **Will I get banned for using this?**  
