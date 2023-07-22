@@ -8,7 +8,10 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 <img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ad687344-214d-4822-affe-21f1b1e105c8">
 <img width="475" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ed219d50-02ab-40bd-95c5-a010956d77bf">
-
+  
+&nbsp;  
+  
+**Demo video:** https://youtu.be/oDr5Eddp55E  
 
 - **Switch region of streaming server**  
   > Connect to another server instead of the default one. Check the [**FAQ** section](#faq) for some notes.  
