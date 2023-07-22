@@ -92,6 +92,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - Screenshot's resolution & quality depend on the quality of the stream at the moment.  
 - Screenshot doesn't touch UI, notification bar... only the gameplay.  
 - There might be a slight delay.  
+- ⚠️ It's not possible to map the Share/Screenshot button on your controller to this feature.  
 
 ### How to capture screenshot  
 1. Enable this feature in setting.
