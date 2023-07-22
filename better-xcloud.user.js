@@ -17,7 +17,9 @@ const SCRIPT_VERSION = '1.4.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
-
+var $STREAM_VIDEO;
+var $SCREENSHOT_CANVAS;
+var GAME_TITLE_ID;
 
 class StreamStatus {
     static ipv6 = false;
@@ -361,6 +363,20 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 0 4px 4px 0;
+}
+
+.better_xcloud_screenshot_btn {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 50px;
+    background: red;
+    z-index: 9999;
+}
+
+.better_xcloud_screenshot_canvas {
+    display: none;
 }
 
 /* Hide UI elements */
@@ -980,7 +996,12 @@ function patchVideoApi() {
         this.removeEventListener('playing', showFunc);
 
         if (this.videoWidth) {
+            $STREAM_VIDEO = this;
+            $SCREENSHOT_CANVAS.width = this.videoWidth;
+            $SCREENSHOT_CANVAS.height = this.videoHeight;
             StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
+
+            GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
         }
     }
 
@@ -1214,6 +1235,52 @@ function setupVideoSettingsBar() {
 }
 
 
+function setupScreenshotButton() {
+    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'better_xcloud_screenshot_canvas'});
+    document.documentElement.appendChild($SCREENSHOT_CANVAS);
+
+    const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
+
+    const delay = 500;
+    const $btn = createElement('div', {'class': 'better_xcloud_screenshot_btn'});
+
+    let timeout;
+    const detectDbClick = e => {
+        if (!$STREAM_VIDEO) {
+            timeout = null;
+            return;
+        }
+
+        if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+
+            $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+            $SCREENSHOT_CANVAS.toBlob(blob => {
+                const now = +new Date;
+                const $anchor = createElement('a', {
+                    'download': `${GAME_TITLE_ID}-${now}.png`,
+                    'href': URL.createObjectURL(blob),
+                });
+                $anchor.click();
+
+                URL.revokeObjectURL($anchor.href);
+                $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+            }, 'image/png');
+            return;
+        }
+
+        timeout = setTimeout(() => {
+            timeout = null;
+        }, delay);
+    }
+
+    $btn.addEventListener('mousedown', detectDbClick);
+    document.documentElement.appendChild($btn);
+
+}
+
+
 function patchHistoryMethod(type) {
     var orig = window.history[type];
     return function(...args) {
@@ -1257,15 +1324,14 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 }
 
 patchRtcCodecs();
-
 interceptHttpRequests();
-
 patchVideoApi();
 
 // Setup UI
 addCss();
 updateVideoPlayerCss();
 setupVideoSettingsBar();
+setupScreenshotButton();
 
 // Workaround for Hermit browser
 var onLoadTriggered = false;
