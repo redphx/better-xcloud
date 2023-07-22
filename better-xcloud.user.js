@@ -365,7 +365,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 0 4px 4px 0;
 }
 
-.better_xcloud_screenshot_btn {
+.better_xcloud_screenshot_button {
+    display: none;
     opacity: 0;
     position: fixed;
     bottom: 0;
@@ -382,11 +383,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     z-index: 8888;
 }
 
-.better_xcloud_screenshot_btn[data-showing=true] {
+.better_xcloud_screenshot_button[data-showing=true] {
     opacity: 1;
 }
 
-.better_xcloud_screenshot_btn[data-capturing=true] {
+.better_xcloud_screenshot_button[data-capturing=true] {
     padding: 0px;
 }
 
@@ -1015,6 +1016,7 @@ function patchVideoApi() {
             $SCREENSHOT_CANVAS.width = this.videoWidth;
             $SCREENSHOT_CANVAS.height = this.videoHeight;
             StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
+            document.querySelector('.better_xcloud_screenshot_button').style.display = 'block';
 
             GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
         }
@@ -1257,12 +1259,13 @@ function setupScreenshotButton() {
     const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
     const delay = 2000;
-    const $btn = createElement('div', {'class': 'better_xcloud_screenshot_btn', 'data-showing': false});
+    const $btn = createElement('div', {'class': 'better_xcloud_screenshot_button', 'data-showing': false});
 
     let timeout;
     const detectDbClick = e => {
         if (!$STREAM_VIDEO) {
             timeout = null;
+            $btn.style.display = 'none';
             return;
         }
 
@@ -1340,6 +1343,9 @@ function hideUiOnPageChange() {
     if ($quickBar) {
         $quickBar.style.display = 'none';
     }
+
+    $STREAM_VIDEO = null;
+    document.querySelector('.better_xcloud_screenshot_button').style = '';
 }
 
 
