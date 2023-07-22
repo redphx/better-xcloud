@@ -366,13 +366,28 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better_xcloud_screenshot_btn {
+    opacity: 0;
     position: fixed;
     bottom: 0;
     left: 0;
-    width: 50px;
-    height: 50px;
-    background: red;
-    z-index: 9999;
+    width: 60px;
+    height: 60px;
+    padding: 5px;
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMTIgN2E1LjAyIDUuMDIgMCAwIDAtNSA1IDUuMDIgNS4wMiAwIDAgMCA1IDUgNS4wMiA1LjAyIDAgMCAwIDUtNSA1LjAyIDUuMDIgMCAwIDAtNS01em0wIDJjMS42NjkgMCAzIDEuMzMxIDMgM3MtMS4zMzEgMy0zIDMtMy0xLjMzMS0zLTMgMS4zMzEtMyAzLTN6TTYgMkMzLjgwMSAyIDIgMy44MDEgMiA2djJhMSAxIDAgMSAwIDIgMFY2YTEuOTcgMS45NyAwIDAgMSAyLTJoMmExIDEgMCAxIDAgMC0yek0zIDE1YTEgMSAwIDAgMC0xIDF2MmMwIDIuMTk5IDEuODAxIDQgNCA0aDJhMSAxIDAgMSAwIDAtMkg2YTEuOTcgMS45NyAwIDAgMS0yLTJ2LTJhMSAxIDAgMCAwLTEtMXptMTggMGExIDEgMCAwIDAtMSAxdjJhMS45NyAxLjk3IDAgMCAxLTIgMmgtMmExIDEgMCAxIDAgMCAyaDJjMi4xOTkgMCA0LTEuODAxIDQtNHYtMmExIDEgMCAwIDAtMS0xeiIvPjxwYXRoIGQ9Ik0xNiAyYTEgMSAwIDEgMCAwIDJoMmExLjk3IDEuOTcgMCAwIDEgMiAydjJhMSAxIDAgMSAwIDIgMFY2YzAtMi4xOTktMS44MDEtNC00LTR6Ii8+PC9zdmc+Cg==);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-origin: content-box;
+    filter: drop-shadow(0 0 2px #000000B0);
+    transition: opacity 0.1s ease-in-out 0s, padding 0.1s ease-in 0s;
+    z-index: 8888;
+}
+
+.better_xcloud_screenshot_btn[data-showing=true] {
+    opacity: 1;
+}
+
+.better_xcloud_screenshot_btn[data-capturing=true] {
+    padding: 0px;
 }
 
 .better_xcloud_screenshot_canvas {
@@ -1241,8 +1256,8 @@ function setupScreenshotButton() {
 
     const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
-    const delay = 500;
-    const $btn = createElement('div', {'class': 'better_xcloud_screenshot_btn'});
+    const delay = 2000;
+    const $btn = createElement('div', {'class': 'better_xcloud_screenshot_btn', 'data-showing': false});
 
     let timeout;
     const detectDbClick = e => {
@@ -1254,9 +1269,11 @@ function setupScreenshotButton() {
         if (timeout) {
             clearTimeout(timeout);
             timeout = null;
+            $btn.setAttribute('data-capturing', 'true');
 
             $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
             $SCREENSHOT_CANVAS.toBlob(blob => {
+                // Download screenshot
                 const now = +new Date;
                 const $anchor = createElement('a', {
                     'download': `${GAME_TITLE_ID}-${now}.png`,
@@ -1264,15 +1281,35 @@ function setupScreenshotButton() {
                 });
                 $anchor.click();
 
+                // Free screenshot from memory
                 URL.revokeObjectURL($anchor.href);
                 $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+
+                // Hide button
+                $btn.setAttribute('data-showing', 'false');
+                setTimeout(() => {
+                    if (!timeout) {
+                        $btn.setAttribute('data-capturing', 'false');
+                    }
+                }, 100);
             }, 'image/png');
+
             return;
         }
 
-        timeout = setTimeout(() => {
-            timeout = null;
-        }, delay);
+        const isShowing = $btn.getAttribute('data-showing') === 'true';
+        if (!isShowing) {
+            // Show button
+            $btn.setAttribute('data-showing', 'true');
+            $btn.setAttribute('data-capturing', 'false');
+
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                timeout = null;
+                $btn.setAttribute('data-showing', 'false');
+                $btn.setAttribute('data-capturing', 'false');
+            }, delay);
+        }
     }
 
     $btn.addEventListener('mousedown', detectDbClick);
