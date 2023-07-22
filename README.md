@@ -39,7 +39,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Adjust video filters**
   > Brightness/Contrast/Saturation
 - **Display stream's statuses**
-  > Region/Server/Quality/Dimension...
+  > Region/Server/Quality/Resoultion...
 - **Disable social features**
   > Features like friends, chat... Disable these will make the page load faster.  
   > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
