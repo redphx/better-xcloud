@@ -923,6 +923,13 @@ function injectSettingsButton($parent) {
             $control.checked = setting.value;
 
             labelAttrs = {'for': 'xcloud_setting_' + setting.id, 'tabindex': 0};
+
+            if (setting.id === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
+                $control.checked = false;
+                $control.disabled = true;
+                $control.title = 'Your browser doesn\'t support this feature';
+                $control.style.cursor = 'help';
+            }
         }
 
         const $elm = CE('div', {'class': 'setting_row'},
