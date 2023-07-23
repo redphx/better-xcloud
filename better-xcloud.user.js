@@ -699,7 +699,6 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_FORCE_1080P_STREAM = PREFS.get(Preferences.FORCE_1080P_STREAM);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
-    const HAS_CODECS_API_SUPPORT = hasRtcSetCodecPreferencesSupport();
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
@@ -768,27 +767,6 @@ function interceptHttpRequests() {
             }
 
             return orgFetch(...arg);
-        }
-
-        // Work-around for browsers with no setCodecPreferences() support
-        if (PREF_USE_DESKTOP_CODEC && !HAS_CODECS_API_SUPPORT && url.endsWith('/sdp') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            const promise = orgFetch(...arg);
-
-            return promise.then(response => {
-                return response.clone().text().then(text => {
-                    if (!text.length) {
-                        return response;
-                    }
-
-                    const obj = JSON.parse(text);
-                    obj.exchangeResponse = obj.exchangeResponse.replaceAll('profile-level-id=42', 'profile-level-id=4d');
-
-                    response.json = () => Promise.resolve(obj);
-                    response.text = () => Promise.resolve(JSON.stringify(obj));
-
-                    return response;
-                });
-            });
         }
 
         // ICE server candidates
