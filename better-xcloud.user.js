@@ -17,14 +17,17 @@ const SCRIPT_VERSION = '1.5';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
+var STREAM_WEBRTC;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 
-class StreamStatus {
+class StreamBadges {
     static ipv6 = false;
-    static resolution = {width: 0, height: 0};
-    static hqCodec = false;
+    static resolution = null;
+    static video = null;
+    static audio = null;
+    static fps = 0;
     static region = '';
 
     static #renderBadge(name, value, color) {
@@ -37,17 +40,134 @@ class StreamStatus {
     }
 
     static render() {
+        let video;
+        if (StreamBadges.video) {
+            video = StreamBadges.video.codec;
+            if (StreamBadges.video.profile) {
+                let profile = StreamBadges.video.profile;
+                profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
+                video += ` (${profile})`;
+            }
+        }
+
+        let audio;
+        if (StreamBadges.audio) {
+            audio = StreamBadges.audio.codec;
+            const bitrate = StreamBadges.audio.bitrate / 1000;
+            audio += ` (${bitrate} kHz)`;
+        }
+
         const BADGES = [
-            ['region', StreamStatus.region, '#d7450b'],
-            ['server', StreamStatus.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
-            ['quality', StreamStatus.hqCodec ? 'High' : 'Normal', '#007c8f'],
-            ['resolution', `${StreamStatus.resolution.width}x${StreamStatus.resolution.height}`, '#ff3977'],
+            ['region', StreamBadges.region, '#d7450b'],
+            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
+            video ? ['video', video, '#007c8f'] : null,
+            audio ? ['audio', audio, '#007c8f'] : null,
+            StreamBadges.resolution && ['resolution', `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`, '#ff3977'],
         ];
 
         const $wrapper = createElement('div', {'class': 'better_xcloud_badges'});
-        BADGES.forEach(item => $wrapper.appendChild(StreamStatus.#renderBadge(...item)));
+        BADGES.forEach(item => item && $wrapper.appendChild(StreamBadges.#renderBadge(...item)));
 
         return $wrapper;
+    }
+}
+
+
+class StreamStats {
+    static #timeout;
+    static #updateInterval = 1000;
+
+    static #$container;
+    static #$fps;
+    static #$rtt;
+    static #$pl;
+    static #$fl;
+    static #$br;
+
+    static #lastInbound;
+
+    static start() {
+        StreamStats.#$container.style.display = 'block';
+        StreamStats.update();
+    }
+
+    static stop() {
+        StreamStats.#$container.style.display = 'none';
+        clearTimeout(StreamStats.#timeout);
+        StreamStats.#timeout = null;
+        StreamStats.#lastInbound = null;
+    }
+
+    static toggle() {
+        StreamStats.#isHidden() ? StreamStats.start() : StreamStats.stop();
+    }
+
+    static #isHidden = () => StreamStats.#$container.style.display === 'none';
+
+    static update() {
+        if (StreamStats.#isHidden()) {
+            return;
+        }
+
+        if (!STREAM_WEBRTC) {
+            StreamStats.#timeout = setTimeout(StreamStats.update, StreamStats.#updateInterval);
+            return;
+        }
+
+        STREAM_WEBRTC.getStats().then(stats => {
+            stats.forEach(stat => {
+                if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
+                    // FPS
+                    StreamStats.#$fps.textContent = stat.framesPerSecond || 0;
+
+                    // Packets Loss
+                    const packetsLost = stat.packetsLost;
+                    const packetsReceived = stat.packetsReceived || 1;
+                    StreamStats.#$pl.textContent = `${packetsLost} (${(packetsLost * 100 / packetsReceived).toFixed(2)}%)`;
+
+                    // Frames Dropped
+                    const framesDropped = stat.framesDropped;
+                    const framesReceived = stat.framesReceived || 1;
+                    StreamStats.#$fl.textContent = `${framesDropped} (${(framesDropped * 100 / framesReceived).toFixed(2)}%)`;
+
+                    // Bitrate
+                    if (StreamStats.#lastInbound) {
+                        const timeDiff = stat.timestamp - StreamStats.#lastInbound.timestamp;
+                        const bitrate = 8 * (stat.bytesReceived - StreamStats.#lastInbound.bytesReceived) / timeDiff / 1000;
+                        StreamStats.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
+                    }
+
+                    StreamStats.#lastInbound = stat;
+                } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+                    // Round Trip Time
+                    const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
+                    StreamStats.#$rtt.textContent = `${roundTripTime}ms`;
+                }
+            });
+
+            StreamStats.#timeout = setTimeout(StreamStats.update, StreamStats.#updateInterval);
+        });
+    }
+
+    static render() {
+        if (StreamStats.#$container) {
+            return;
+        }
+
+        const CE = createElement;
+        StreamStats.#$container = CE('div', {'class': 'better_xcloud_stats_bar'},
+                            CE('label', {}, 'FPS'),
+                            StreamStats.#$fps = CE('span', {}, 0),
+                            CE('label', {}, 'RTT'),
+                            StreamStats.#$rtt = CE('span', {}, '0ms'),
+                            CE('label', {}, 'BR'),
+                            StreamStats.#$br = CE('span', {}, '0 Mbps'),
+                            CE('label', {}, 'PL'),
+                            StreamStats.#$pl = CE('span', {}, '0 (0.00%)'),
+                            CE('label', {}, 'FL'),
+                            StreamStats.#$fl = CE('span', {}, '0 (0.00%)'));
+
+        document.documentElement.appendChild(StreamStats.#$container);
     }
 }
 
@@ -319,7 +439,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better_xcloud_badges {
     position: absolute;
-    bottom: -35px;
+    top: 155px;
     margin-left: 0px;
     user-select: none;
 }
@@ -331,7 +451,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     color: #fff;
     font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
     font-weight: 400;
-    margin-right: 8px;
+    margin: 0 8px 8px 0;
+    box-shadow: 0px 0px 6px #000;
+    border-radius: 4px;
 }
 
 .better_xcloud_badge .better_xcloud_badge_name {
@@ -380,6 +502,36 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: none;
 }
 
+.better_xcloud_stats_bar {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.8;
+    background-color: #000;
+    color: #fff;
+    font-family: Consolas, "Courier New", Courier, monospace;
+    font-size: 0.9rem;
+    padding-left: 8px;
+    z-index: 1000;
+}
+
+.better_xcloud_stats_bar label {
+    font-weight: bold;
+    margin: 0 8px 0 0;
+    font-size: 0.9rem;
+}
+
+.better_xcloud_stats_bar span {
+    min-width: 60px;
+    display: inline-block;
+    text-align: right;
+    padding-right: 8px;
+    margin-right: 8px;
+    border-right: 2px solid #fff;
+}
+
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
     display: none;
@@ -395,6 +547,12 @@ div[class*=NotFocusedDialog] {
 
 #game-stream video {
     visibility: hidden;
+}
+
+/* Adjust Stream menu icon's size */
+button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    width: 110px !important;
 }
 `;
 
@@ -541,7 +699,6 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_FORCE_1080P_STREAM = PREFS.get(Preferences.FORCE_1080P_STREAM);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
-    const HAS_CODECS_API_SUPPORT = hasRtcSetCodecPreferencesSupport();
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
@@ -586,11 +743,11 @@ function interceptHttpRequests() {
         if (url.endsWith('/sessions/cloud/play')) {
             const parsedUrl = new URL(url);
 
-            StreamStatus.region = parsedUrl.host.split('.', 1)[0];
+            StreamBadges.region = parsedUrl.host.split('.', 1)[0];
             for (let regionName in SERVER_REGIONS) {
                 const region = SERVER_REGIONS[regionName];
                 if (parsedUrl.origin == region.baseUri) {
-                    StreamStatus.region = regionName;
+                    StreamBadges.region = regionName;
                     break;
                 }
             }
@@ -610,27 +767,6 @@ function interceptHttpRequests() {
             }
 
             return orgFetch(...arg);
-        }
-
-        // Work-around for browsers with no setCodecPreferences() support
-        if (PREF_USE_DESKTOP_CODEC && !HAS_CODECS_API_SUPPORT && url.endsWith('/sdp') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            const promise = orgFetch(...arg);
-
-            return promise.then(response => {
-                return response.clone().text().then(text => {
-                    if (!text.length) {
-                        return response;
-                    }
-
-                    const obj = JSON.parse(text);
-                    obj.exchangeResponse = obj.exchangeResponse.replaceAll('profile-level-id=42', 'profile-level-id=4d');
-
-                    response.json = () => Promise.resolve(obj);
-                    response.text = () => Promise.resolve(JSON.stringify(obj));
-
-                    return response;
-                });
-            });
         }
 
         // ICE server candidates
@@ -690,7 +826,7 @@ function createElement(elmName, props = {}) {
 
         if (argType == 'string' || argType == 'number') {
             $elm.innerText = arg;
-        } else {
+        } else if (arg) {
             $elm.appendChild(arg);
         }
     }
@@ -781,16 +917,19 @@ function injectSettingsButton($parent) {
 
             $control.addEventListener('change', e => {
                 PREFS.set(e.target.getAttribute('data-key'), e.target.checked);
-
-                if (setting.id == Preferences.VIDEO_FILL_FULL_SCREEN) {
-                    updateVideoPlayerPreview();
-                }
             });
 
             setting.value = PREFS.get(setting.id);
             $control.checked = setting.value;
 
             labelAttrs = {'for': 'xcloud_setting_' + setting.id, 'tabindex': 0};
+
+            if (setting.id === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
+                $control.checked = false;
+                $control.disabled = true;
+                $control.title = 'Your browser doesn\'t support this feature';
+                $control.style.cursor = 'help';
+            }
         }
 
         const $elm = CE('div', {'class': 'setting_row'},
@@ -856,24 +995,6 @@ function updateVideoPlayerCss() {
 }
 
 
-function updateVideoPlayerPreview() {
-    const $screen = document.querySelector('.better_xcloud_settings_preview_screen');
-    $screen.style.display = 'block';
-
-    const filters = getVideoPlayerFilterStyle();
-    const $video = document.querySelector('.better_xcloud_settings_preview_video');
-    $video.style.filter = filters;
-
-    if (PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN)) {
-        $video.style.height = 'auto';
-    } else {
-        $video.style.height = '100%';
-    }
-
-    updateVideoPlayerCss();
-}
-
-
 function checkHeader() {
     const $button = document.querySelector('#PageContent header .better_xcloud_settings_button');
 
@@ -901,6 +1022,19 @@ function watchHeader() {
     observer.observe($header, {subtree: true, childList: true});
 
     checkHeader();
+}
+
+
+function cloneStreamMenuButton($orgButton, label, svg_icon) {
+    const $button = $orgButton.cloneNode(true);
+    $button.setAttribute('aria-label', label);
+    $button.querySelector('div[class*=label]').textContent = label;
+
+    const $svg = $button.querySelector('svg');
+    $svg.innerHTML = svg_icon;
+    $svg.setAttribute('viewBox', '0 0 24 24');
+
+    return $button;
 }
 
 
@@ -945,29 +1079,16 @@ function injectVideoSettingsButton() {
                     return;
                 }
 
-                const id = 'better-xcloud-video-settings-btn';
-                let $wrapper = document.getElementById('#' + id);
-                if ($wrapper) {
-                    return;
-                }
-
                 const $orgButton = node.querySelector('div > div > button');
                 if (!$orgButton) {
                     return;
                 }
 
-                // Clone other button
-                const $button = $orgButton.cloneNode(true);
-                $button.setAttribute('aria-label', 'Video settings');
-                $button.querySelector('div[class*=label]').textContent = 'Video settings';
-
                 // Credit: https://www.iconfinder.com/iconsets/user-interface-outline-27
-                const SVG_ICON = '<path d="M8 2c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.186C5.602 7.158 6.706 8 8 8s2.395-.843 2.813-2h10.188a1 1 0 1 0 0-2H10.813C10.395 2.843 9.293 2 8 2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h9.186c.417 1.158 1.521 2 2.814 2s2.395-.843 2.813-2H21a1 1 0 1 0 0-2h-3.187c-.418-1.157-1.52-2-2.813-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm-7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.188c.417 1.157 1.519 2 2.813 2s2.398-.842 2.814-2H21a1 1 0 1 0 0-2H10.812c-.417-1.157-1.519-2-2.812-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
-                const $svg = $button.querySelector('svg');
-                $svg.innerHTML = SVG_ICON;
-                $svg.setAttribute('viewBox', '0 0 24 24');
-
-                $button.addEventListener('click', e => {
+                const ICON_VIDEO_SETTINGS = '<path d="M8 2c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.186C5.602 7.158 6.706 8 8 8s2.395-.843 2.813-2h10.188a1 1 0 1 0 0-2H10.813C10.395 2.843 9.293 2 8 2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h9.186c.417 1.158 1.521 2 2.814 2s2.395-.843 2.813-2H21a1 1 0 1 0 0-2h-3.187c-.418-1.157-1.52-2-2.813-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm-7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.188c.417 1.157 1.519 2 2.813 2s2.398-.842 2.814-2H21a1 1 0 1 0 0-2H10.812c-.417-1.157-1.519-2-2.812-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
+                // Create Video Settings button
+                const $btnVideoSettings = cloneStreamMenuButton($orgButton, 'Video settings', ICON_VIDEO_SETTINGS);
+                $btnVideoSettings.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -978,23 +1099,38 @@ function injectVideoSettingsButton() {
                     $parent.addEventListener('touchend', hideQuickBarFunc);
 
                     const $touchSurface = document.querySelector('#MultiTouchSurface');
-                    if ($touchSurface) {
-                        $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
-                    }
+                    $touchSurface && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
                 });
 
-                $orgButton.parentElement.insertBefore($button, $orgButton.parentElement.firstChild);
+                // Add button at the beginning
+                $orgButton.parentElement.insertBefore($btnVideoSettings, $orgButton.parentElement.firstChild);
 
                 // Hide Quick bar when closing HUD
-                document.querySelector('button[class*=StreamMenu-module__backButton]').addEventListener('click', e => {
+                const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
+                $btnCloseHud.addEventListener('click', e => {
                     $quickBar.style.display = 'none';
                 });
 
+                const ICON_STREAM_STATS = '<path d="M12.005 5C9.184 5 6.749 6.416 5.009 7.903c-.87.743-1.571 1.51-2.074 2.18-.251.335-.452.644-.605.934-.434.733-.389 1.314-.004 1.98a6.98 6.98 0 0 0 .609.949 13.62 13.62 0 0 0 2.076 2.182C6.753 17.606 9.188 19 12.005 19s5.252-1.394 6.994-2.873a13.62 13.62 0 0 0 2.076-2.182 6.98 6.98 0 0 0 .609-.949c.425-.737.364-1.343-.004-1.98-.154-.29-.354-.599-.605-.934-.503-.669-1.204-1.436-2.074-2.18C17.261 6.416 14.826 5 12.005 5zm0 2c2.135 0 4.189 1.135 5.697 2.424.754.644 1.368 1.32 1.773 1.859.203.27.354.509.351.733s-.151.462-.353.732c-.404.541-1.016 1.214-1.77 1.854C16.198 15.881 14.145 17 12.005 17s-4.193-1.12-5.699-2.398a11.8 11.8 0 0 1-1.77-1.854c-.202-.27-.351-.508-.353-.732s.149-.463.351-.733c.406-.54 1.019-1.215 1.773-1.859C7.816 8.135 9.87 7 12.005 7zm.025 1.975c-1.645 0-3 1.355-3 3s1.355 3 3 3 3-1.355 3-3-1.355-3-3-3zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
+                // Create Stream Stats button
+                const $btnStreamStats = cloneStreamMenuButton($orgButton, 'Stream stats', ICON_STREAM_STATS);
+                $btnStreamStats.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    // Close HUD
+                    $btnCloseHud.click();
+                    // Toggle Stream Stats
+                    StreamStats.toggle();
+                });
+
+                // Insert after Video Settings button
+                $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings.nextSibling);
+
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
-                $menu.appendChild(StreamStatus.render());
+                $menu.appendChild(StreamBadges.render());
             });
-
         });
     });
     observer.observe($screen, {subtree: true, childList: true});
@@ -1011,25 +1147,54 @@ function patchVideoApi() {
         this.style.visibility = 'visible';
         this.removeEventListener('playing', showFunc);
 
-        if (this.videoWidth) {
-            $STREAM_VIDEO = this;
-            $SCREENSHOT_CANVAS.width = this.videoWidth;
-            $SCREENSHOT_CANVAS.height = this.videoHeight;
-            StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
-
-            if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-                const $btn = document.querySelector('.better_xcloud_screenshot_button');
-                $btn.style.display = 'block';
-
-                if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
-                    $btn.style.right = '0';
-                } else {
-                    $btn.style.left = '0';
-                }
-            }
-
-            GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+        if (!this.videoWidth) {
+            return;
         }
+
+        $STREAM_VIDEO = this;
+        $SCREENSHOT_CANVAS.width = this.videoWidth;
+        $SCREENSHOT_CANVAS.height = this.videoHeight;
+        StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
+
+        const stats = STREAM_WEBRTC.getStats().then(stats => {
+            stats.forEach(stat => {
+                if (stat.type !== 'codec') {
+                    return;
+                }
+
+                const mimeType = stat.mimeType.split('/');
+                if (mimeType[0] === 'video') {
+                    const video = {
+                        codec: mimeType[1],
+                    };
+
+                    if (video.codec === 'H264') {
+                        const match = /profile-level-id=([0-9a-f]{6})/.exec(stat.sdpFmtpLine);
+                        video.profile = match ? match[1] : null;
+                    }
+
+                    StreamBadges.video = video;
+                } else if (!StreamBadges.audio && mimeType[0] === 'audio') {
+                    StreamBadges.audio = {
+                        codec: mimeType[1],
+                        bitrate: stat.clockRate,
+                    };
+                }
+            });
+        });
+
+        if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
+            const $btn = document.querySelector('.better_xcloud_screenshot_button');
+            $btn.style.display = 'block';
+
+            if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
+                $btn.style.right = '0';
+            } else {
+                $btn.style.left = '0';
+            }
+        }
+
+        GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
     }
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
@@ -1354,7 +1519,9 @@ function hideUiOnPageChange() {
         $quickBar.style.display = 'none';
     }
 
+    STREAM_WEBRTC = null;
     $STREAM_VIDEO = null;
+    StreamStats.stop();
     document.querySelector('.better_xcloud_screenshot_button').style = '';
 }
 
@@ -1385,6 +1552,7 @@ addCss();
 updateVideoPlayerCss();
 setupVideoSettingsBar();
 setupScreenshotButton();
+StreamStats.render();
 
 // Workaround for Hermit browser
 var onLoadTriggered = false;
@@ -1396,43 +1564,13 @@ if (document.readyState === 'complete' && !onLoadTriggered) {
     watchHeader();
 }
 
-
-RTCPeerConnection.prototype.orgSetRemoteDescription = RTCPeerConnection.prototype.setRemoteDescription;
-RTCPeerConnection.prototype.setRemoteDescription = function(...args) {
-    StreamStatus.hqCodec = false;
-
-    const sdpDesc = args[0];
-    if (sdpDesc.sdp) {
-        const sdp = sdpDesc.sdp;
-
-        let lineIndex = 0;
-        let endPos = 0;
-        let line;
-        while (lineIndex > -1) {
-            lineIndex = sdp.indexOf('a=fmtp:', endPos);
-            if (lineIndex === -1) {
-                break;
-            }
-
-            endPos = sdp.indexOf('\n', lineIndex);
-            line = sdp.substring(lineIndex, endPos);
-            if (line.includes('profile-level-id')) {
-                StreamStatus.hqCodec = line.includes('profile-level-id=4d');
-                break;
-            }
-        }
-    }
-
-    return this.orgSetRemoteDescription.apply(this, args);
-}
-
-
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
-        StreamStatus.ipv6 = candidate.substring(20).includes(':');
+        StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
+    STREAM_WEBRTC = this;
     return this.orgAddIceCandidate.apply(this, args);
 }
