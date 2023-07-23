@@ -498,6 +498,12 @@ div[class*=NotFocusedDialog] {
 #game-stream video {
     visibility: hidden;
 }
+
+/* Adjust Stream menu icon's size */
+button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    width: 110px !important;
+}
 `;
 
     // Reduce animations
