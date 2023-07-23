@@ -17,6 +17,7 @@ const SCRIPT_VERSION = '1.5';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
+var STREAM_WEBRTC;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
@@ -24,7 +25,9 @@ var GAME_TITLE_ID;
 class StreamStatus {
     static ipv6 = false;
     static resolution = {width: 0, height: 0};
-    static hqCodec = false;
+    static video = null;
+    static audio = null;
+    static fps = 0;
     static region = '';
 
     static #renderBadge(name, value, color) {
@@ -37,15 +40,33 @@ class StreamStatus {
     }
 
     static render() {
+        let video;
+        if (StreamStatus.video) {
+            video = StreamStatus.video.codec;
+            if (StreamStatus.video.profile) {
+                let profile = StreamStatus.video.profile;
+                profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
+                video += ` (${profile})`;
+            }
+        }
+
+        let audio;
+        if (StreamStatus.audio) {
+            audio = StreamStatus.audio.codec;
+            const bitrate = StreamStatus.audio.bitrate / 1000;
+            audio += ` (${bitrate} kHz)`;
+        }
+
         const BADGES = [
             ['region', StreamStatus.region, '#d7450b'],
             ['server', StreamStatus.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
-            ['quality', StreamStatus.hqCodec ? 'High' : 'Normal', '#007c8f'],
+            video ? ['video', video, '#007c8f'] : null,
+            audio ? ['audio', audio, '#007c8f'] : null,
             ['resolution', `${StreamStatus.resolution.width}x${StreamStatus.resolution.height}`, '#ff3977'],
         ];
 
         const $wrapper = createElement('div', {'class': 'better_xcloud_badges'});
-        BADGES.forEach(item => $wrapper.appendChild(StreamStatus.#renderBadge(...item)));
+        BADGES.forEach(item => item && $wrapper.appendChild(StreamStatus.#renderBadge(...item)));
 
         return $wrapper;
     }
@@ -319,7 +340,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better_xcloud_badges {
     position: absolute;
-    bottom: -35px;
+    top: 155px;
     margin-left: 0px;
     user-select: none;
 }
@@ -331,7 +352,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     color: #fff;
     font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
     font-weight: 400;
-    margin-right: 8px;
+    margin: 0 8px 8px 0;
 }
 
 .better_xcloud_badge .better_xcloud_badge_name {
@@ -690,7 +711,7 @@ function createElement(elmName, props = {}) {
 
         if (argType == 'string' || argType == 'number') {
             $elm.innerText = arg;
-        } else {
+        } else if (arg) {
             $elm.appendChild(arg);
         }
     }
@@ -1011,25 +1032,54 @@ function patchVideoApi() {
         this.style.visibility = 'visible';
         this.removeEventListener('playing', showFunc);
 
-        if (this.videoWidth) {
-            $STREAM_VIDEO = this;
-            $SCREENSHOT_CANVAS.width = this.videoWidth;
-            $SCREENSHOT_CANVAS.height = this.videoHeight;
-            StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
-
-            if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-                const $btn = document.querySelector('.better_xcloud_screenshot_button');
-                $btn.style.display = 'block';
-
-                if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
-                    $btn.style.right = '0';
-                } else {
-                    $btn.style.left = '0';
-                }
-            }
-
-            GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+        if (!this.videoWidth) {
+            return;
         }
+
+        $STREAM_VIDEO = this;
+        $SCREENSHOT_CANVAS.width = this.videoWidth;
+        $SCREENSHOT_CANVAS.height = this.videoHeight;
+        StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
+
+        const stats = STREAM_WEBRTC.getStats().then(stats => {
+            stats.forEach(stat => {
+                if (stat.type !== 'codec') {
+                    return;
+                }
+
+                const mimeType = stat.mimeType.split('/');
+                if (mimeType[0] === 'video') {
+                    const video = {
+                        codec: mimeType[1],
+                    };
+
+                    if (video.codec === 'H264') {
+                        const match = /profile-level-id=([0-9a-f]{6})/.exec(stat.sdpFmtpLine);
+                        video.profile = match ? match[1] : null;
+                    }
+
+                    StreamStatus.video = video;
+                } else if (!StreamStatus.audio && mimeType[0] === 'audio') {
+                    StreamStatus.audio = {
+                        codec: mimeType[1],
+                        bitrate: stat.clockRate,
+                    };
+                }
+            });
+        });
+
+        if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
+            const $btn = document.querySelector('.better_xcloud_screenshot_button');
+            $btn.style.display = 'block';
+
+            if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
+                $btn.style.right = '0';
+            } else {
+                $btn.style.left = '0';
+            }
+        }
+
+        GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
     }
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
@@ -1354,6 +1404,7 @@ function hideUiOnPageChange() {
         $quickBar.style.display = 'none';
     }
 
+    STREAM_WEBRTC = null;
     $STREAM_VIDEO = null;
     document.querySelector('.better_xcloud_screenshot_button').style = '';
 }
@@ -1396,37 +1447,6 @@ if (document.readyState === 'complete' && !onLoadTriggered) {
     watchHeader();
 }
 
-
-RTCPeerConnection.prototype.orgSetRemoteDescription = RTCPeerConnection.prototype.setRemoteDescription;
-RTCPeerConnection.prototype.setRemoteDescription = function(...args) {
-    StreamStatus.hqCodec = false;
-
-    const sdpDesc = args[0];
-    if (sdpDesc.sdp) {
-        const sdp = sdpDesc.sdp;
-
-        let lineIndex = 0;
-        let endPos = 0;
-        let line;
-        while (lineIndex > -1) {
-            lineIndex = sdp.indexOf('a=fmtp:', endPos);
-            if (lineIndex === -1) {
-                break;
-            }
-
-            endPos = sdp.indexOf('\n', lineIndex);
-            line = sdp.substring(lineIndex, endPos);
-            if (line.includes('profile-level-id')) {
-                StreamStatus.hqCodec = line.includes('profile-level-id=4d');
-                break;
-            }
-        }
-    }
-
-    return this.orgSetRemoteDescription.apply(this, args);
-}
-
-
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
@@ -1434,5 +1454,6 @@ RTCPeerConnection.prototype.addIceCandidate = function(...args) {
         StreamStatus.ipv6 = candidate.substring(20).includes(':');
     }
 
+    STREAM_WEBRTC = this;
     return this.orgAddIceCandidate.apply(this, args);
 }
