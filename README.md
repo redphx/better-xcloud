@@ -6,9 +6,9 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ad687344-214d-4822-affe-21f1b1e105c8">
-<img width="475" alt="Video Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ed219d50-02ab-40bd-95c5-a010956d77bf">
-  
+<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ad687344-214d-4822-affe-21f1b1e105c8"> 
+<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/ff695d3a-b077-4b21-b778-beb0a1fdd6be">  
+
 &nbsp;  
   
 **Demo video:** https://youtu.be/oDr5Eddp55E  
@@ -23,16 +23,17 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Force high quality codec (if possible)<sup>(\*)</sup>**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV) if possible. You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
+  > Not available for some browsers (Firefox, Safari...).  
   > Use more bandwidth & battery.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
 - **Prefer IPv6 streaming server**
-  > Might reduce latency
+  > Might reduce latency.
 - **Disable bandwidth checking**
   > xCloud won't reduce quality when the internet speed is slow
 - **🔥 Capture screenshot**
   > Exclusive to **Better xCloud**. Check the [**Capture screenshot** section](#capture-screenshot) for more info.
 - **Skip Xbox splash video**
-  > Save 3 seconds
+  > Save 3 seconds.
 - **Hide Dots icon while playing**
   > You can still click on it, but it doesn't block the screen anymore
 - **Reduce UI animations**
@@ -40,7 +41,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Stretch video to full sctreen**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
-  > Brightness/Contrast/Saturation
+  > Brightness/Contrast/Saturation.
 - **Display stream's statuses**
   > Region/Server/Quality/Resolution...
 - **Disable social features**
@@ -50,6 +51,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.  
   > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Hide footer and other UI elements**
+- **🔥 Show stream stats**
+  > Check [Stream stats section](#stream-stats) for more info.  
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
@@ -87,6 +90,25 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 ---
 - **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high quality codec profile (the best possible quality).  
 - **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a bluetooth mouse if you want to interact with the Settings.  
+
+## Stream stats  
+![image](https://github.com/redphx/better-xcloud/assets/96280/dc0f4f36-8a69-4ec1-aadd-cfda2d701991)  
+
+- While playing > `...` > `Stream Stats`.  
+- This bar is updated every second.  
+
+| Abbr. | Full name          | Explain                                                                                                           |
+|------:|:-------------------|:------------------------------------------------------------------------------------------------------------------|
+| FPS   | Frames per Seconds | The number of decoded frames in the last second                                                                   |
+| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (lower is better) |
+| BR    | Bitrate            | The amount of data server send to your device in the last second                                                  |
+| PL    | Packets Lost       | Total number of packets lost                                                                                      |
+| FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline       |
+
+These info are provied by WebRTC API. You can use browser's built-in tool to see more info:  
+- Chrome/Edge/Chromium variants: `chrome://webrtc-internals`  
+- Firefox: `about:webrtc`  
+
 
 ## Capture screenshot  
 - This feature is only available in **Better xCloud**.  
