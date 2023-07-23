@@ -140,7 +140,8 @@ class StreamStats {
                     StreamStats.#lastInbound = stat;
                 } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
                     // Round Trip Time
-                    StreamStats.#$rtt.textContent = `${stat.currentRoundTripTime * 1000}ms`;
+                    const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
+                    StreamStats.#$rtt.textContent = `${roundTripTime}ms`;
                 }
             });
 
