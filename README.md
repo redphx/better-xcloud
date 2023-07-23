@@ -6,7 +6,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ad687344-214d-4822-affe-21f1b1e105c8"> 
+<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/20aca05d-ff20-4adb-ac21-08b4b1cfd07f">
+
 <img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/ff695d3a-b077-4b21-b778-beb0a1fdd6be">  
 
 &nbsp;  
