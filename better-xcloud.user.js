@@ -73,6 +73,58 @@ class StreamStatus {
 }
 
 
+class StreamStats {
+    static #updateInterval = 1000;
+    static #$fps;
+    static #$rtt;
+    static #$pl;
+    static #$fl;
+
+    static update() {
+        if (!STREAM_WEBRTC) {
+            setTimeout(StreamStats.update, StreamStats.#updateInterval);
+            return;
+        }
+        STREAM_WEBRTC.getStats().then(stats => {
+            stats.forEach(stat => {
+                if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
+                    StreamStats.#$fps.textContent = stat.framesPerSecond;
+
+                    const packetsLost = stat.packetsLost;
+                    const packetsReceived = stat.packetsReceived || 1;
+                    StreamStats.#$pl.textContent = `${packetsLost} (${(packetsLost * 100 / packetsReceived).toFixed(2)}%)`;
+
+                    const framesDropped = stat.framesDropped;
+                    const framesReceived = stat.framesReceived || 1;
+                    StreamStats.#$fl.textContent = `${framesDropped} (${(framesDropped * 100 / framesReceived).toFixed(2)}%)`;
+                } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+                    StreamStats.#$rtt.textContent = `${stat.currentRoundTripTime * 1000}ms`;
+                }
+            });
+            setTimeout(StreamStats.update, StreamStats.#updateInterval);
+        });
+    }
+
+    static render() {
+        const CE = createElement;
+        const $wrapper = CE('div', {'class': 'better_xcloud_stats_bar'},
+                            CE('label', {}, 'FPS'),
+                            StreamStats.#$fps = CE('span', {'id': 'better-xcloud-stat-fps'}, 0),
+                            CE('label', {}, 'RTT'),
+                            StreamStats.#$rtt = CE('span', {'id': 'better-xcloud-stat-rtt'}, '0ms'),
+                            CE('label', {}, 'PL'),
+                            StreamStats.#$pl = CE('span', {'id': 'better-xcloud-stat-pl'}, '0 (0.00%)'),
+                            CE('label', {}, 'FL'),
+                            StreamStats.#$fl = CE('span', {'id': 'better-xcloud-stat-fl'}, '0 (0.00%)'));
+
+        return $wrapper;
+    }
+}
+
+document.documentElement.appendChild(StreamStats.render());
+StreamStats.update();
+
+
 class Preferences {
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
@@ -399,6 +451,35 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better_xcloud_screenshot_canvas {
     display: none;
+}
+
+.better_xcloud_stats_bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.8;
+    background-color: #000;
+    color: #fff;
+    font-family: Consolas, "Courier New", Courier, monospace;
+    font-size: 0.9rem;
+    padding-left: 8px;
+    z-index: 1000;
+}
+
+.better_xcloud_stats_bar label {
+    font-weight: bold;
+    margin: 0 8px 0 0;
+    font-size: 0.9rem;
+}
+
+.better_xcloud_stats_bar span {
+    min-width: 60px;
+    display: inline-block;
+    text-align: right;
+    padding-right: 8px;
+    margin-right: 8px;
+    border-right: 2px solid #fff;
 }
 
 /* Hide UI elements */
