@@ -917,10 +917,6 @@ function injectSettingsButton($parent) {
 
             $control.addEventListener('change', e => {
                 PREFS.set(e.target.getAttribute('data-key'), e.target.checked);
-
-                if (setting.id == Preferences.VIDEO_FILL_FULL_SCREEN) {
-                    updateVideoPlayerPreview();
-                }
             });
 
             setting.value = PREFS.get(setting.id);
@@ -989,24 +985,6 @@ function updateVideoPlayerCss() {
     }
 
     $elm.textContent = css;
-}
-
-
-function updateVideoPlayerPreview() {
-    const $screen = document.querySelector('.better_xcloud_settings_preview_screen');
-    $screen.style.display = 'block';
-
-    const filters = getVideoPlayerFilterStyle();
-    const $video = document.querySelector('.better_xcloud_settings_preview_video');
-    $video.style.filter = filters;
-
-    if (PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN)) {
-        $video.style.height = 'auto';
-    } else {
-        $video.style.height = '100%';
-    }
-
-    updateVideoPlayerCss();
 }
 
 
