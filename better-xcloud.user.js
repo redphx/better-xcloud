@@ -79,6 +79,9 @@ class StreamStats {
     static #$rtt;
     static #$pl;
     static #$fl;
+    static #$br;
+
+    static #lastInbound;
 
     static update() {
         if (!STREAM_WEBRTC) {
@@ -88,19 +91,33 @@ class StreamStats {
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
                 if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
-                    StreamStats.#$fps.textContent = stat.framesPerSecond;
+                    // FPS
+                    StreamStats.#$fps.textContent = stat.framesPerSecond || 0;
 
+                    // Packets Loss
                     const packetsLost = stat.packetsLost;
                     const packetsReceived = stat.packetsReceived || 1;
                     StreamStats.#$pl.textContent = `${packetsLost} (${(packetsLost * 100 / packetsReceived).toFixed(2)}%)`;
 
+                    // Frames Dropped
                     const framesDropped = stat.framesDropped;
                     const framesReceived = stat.framesReceived || 1;
                     StreamStats.#$fl.textContent = `${framesDropped} (${(framesDropped * 100 / framesReceived).toFixed(2)}%)`;
+
+                    // Bitrate
+                    if (StreamStats.#lastInbound) {
+                        const timeDiff = stat.timestamp - StreamStats.#lastInbound.timestamp;
+                        const bitrate = 8 * (stat.bytesReceived - StreamStats.#lastInbound.bytesReceived) / timeDiff / 1000;
+                        StreamStats.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
+                    }
+
+                    StreamStats.#lastInbound = stat;
                 } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+                    // Round Trip Time
                     StreamStats.#$rtt.textContent = `${stat.currentRoundTripTime * 1000}ms`;
                 }
             });
+
             setTimeout(StreamStats.update, StreamStats.#updateInterval);
         });
     }
@@ -109,13 +126,15 @@ class StreamStats {
         const CE = createElement;
         const $wrapper = CE('div', {'class': 'better_xcloud_stats_bar'},
                             CE('label', {}, 'FPS'),
-                            StreamStats.#$fps = CE('span', {'id': 'better-xcloud-stat-fps'}, 0),
+                            StreamStats.#$fps = CE('span', {}, 0),
                             CE('label', {}, 'RTT'),
-                            StreamStats.#$rtt = CE('span', {'id': 'better-xcloud-stat-rtt'}, '0ms'),
+                            StreamStats.#$rtt = CE('span', {}, '0ms'),
+                            CE('label', {}, 'BR'),
+                            StreamStats.#$br = CE('span', {}, '0 Mbps'),
                             CE('label', {}, 'PL'),
-                            StreamStats.#$pl = CE('span', {'id': 'better-xcloud-stat-pl'}, '0 (0.00%)'),
+                            StreamStats.#$pl = CE('span', {}, '0 (0.00%)'),
                             CE('label', {}, 'FL'),
-                            StreamStats.#$fl = CE('span', {'id': 'better-xcloud-stat-fl'}, '0 (0.00%)'));
+                            StreamStats.#$fl = CE('span', {}, '0 (0.00%)'));
 
         return $wrapper;
     }
