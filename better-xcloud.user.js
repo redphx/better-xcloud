@@ -22,9 +22,9 @@ var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 
-class StreamStatus {
+class StreamBadges {
     static ipv6 = false;
-    static resolution = {width: 0, height: 0};
+    static resolution = null;
     static video = null;
     static audio = null;
     static fps = 0;
@@ -41,32 +41,32 @@ class StreamStatus {
 
     static render() {
         let video;
-        if (StreamStatus.video) {
-            video = StreamStatus.video.codec;
-            if (StreamStatus.video.profile) {
-                let profile = StreamStatus.video.profile;
+        if (StreamBadges.video) {
+            video = StreamBadges.video.codec;
+            if (StreamBadges.video.profile) {
+                let profile = StreamBadges.video.profile;
                 profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
                 video += ` (${profile})`;
             }
         }
 
         let audio;
-        if (StreamStatus.audio) {
-            audio = StreamStatus.audio.codec;
-            const bitrate = StreamStatus.audio.bitrate / 1000;
+        if (StreamBadges.audio) {
+            audio = StreamBadges.audio.codec;
+            const bitrate = StreamBadges.audio.bitrate / 1000;
             audio += ` (${bitrate} kHz)`;
         }
 
         const BADGES = [
-            ['region', StreamStatus.region, '#d7450b'],
-            ['server', StreamStatus.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
+            ['region', StreamBadges.region, '#d7450b'],
+            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
             video ? ['video', video, '#007c8f'] : null,
             audio ? ['audio', audio, '#007c8f'] : null,
-            ['resolution', `${StreamStatus.resolution.width}x${StreamStatus.resolution.height}`, '#ff3977'],
+            StreamBadges.resolution && ['resolution', `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`, '#ff3977'],
         ];
 
         const $wrapper = createElement('div', {'class': 'better_xcloud_badges'});
-        BADGES.forEach(item => item && $wrapper.appendChild(StreamStatus.#renderBadge(...item)));
+        BADGES.forEach(item => item && $wrapper.appendChild(StreamBadges.#renderBadge(...item)));
 
         return $wrapper;
     }
@@ -743,11 +743,11 @@ function interceptHttpRequests() {
         if (url.endsWith('/sessions/cloud/play')) {
             const parsedUrl = new URL(url);
 
-            StreamStatus.region = parsedUrl.host.split('.', 1)[0];
+            StreamBadges.region = parsedUrl.host.split('.', 1)[0];
             for (let regionName in SERVER_REGIONS) {
                 const region = SERVER_REGIONS[regionName];
                 if (parsedUrl.origin == region.baseUri) {
-                    StreamStatus.region = regionName;
+                    StreamBadges.region = regionName;
                     break;
                 }
             }
@@ -1165,7 +1165,7 @@ function injectVideoSettingsButton() {
 
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
-                $menu.appendChild(StreamStatus.render());
+                $menu.appendChild(StreamBadges.render());
             });
         });
     });
@@ -1190,7 +1190,7 @@ function patchVideoApi() {
         $STREAM_VIDEO = this;
         $SCREENSHOT_CANVAS.width = this.videoWidth;
         $SCREENSHOT_CANVAS.height = this.videoHeight;
-        StreamStatus.resolution = {width: this.videoWidth, height: this.videoHeight};
+        StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
 
         const stats = STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
@@ -1209,9 +1209,9 @@ function patchVideoApi() {
                         video.profile = match ? match[1] : null;
                     }
 
-                    StreamStatus.video = video;
-                } else if (!StreamStatus.audio && mimeType[0] === 'audio') {
-                    StreamStatus.audio = {
+                    StreamBadges.video = video;
+                } else if (!StreamBadges.audio && mimeType[0] === 'audio') {
+                    StreamBadges.audio = {
                         codec: mimeType[1],
                         bitrate: stat.clockRate,
                     };
@@ -1604,7 +1604,7 @@ RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.add
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
-        StreamStatus.ipv6 = candidate.substring(20).includes(':');
+        StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
     STREAM_WEBRTC = this;
