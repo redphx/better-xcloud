@@ -405,6 +405,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
     font-weight: 400;
     margin: 0 8px 8px 0;
+    box-shadow: 0px 0px 6px #000;
+    border-radius: 4px;
 }
 
 .better_xcloud_badge .better_xcloud_badge_name {
