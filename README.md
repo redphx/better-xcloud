@@ -106,9 +106,11 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 | PL    | Packets Lost       | Total number of packets lost                                                                                      |
 | FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline       |
 
-These info are provied by WebRTC API. You can use browser's built-in tool to see more info:  
+These info are provided by WebRTC API. You can use browser's built-in tool to see more info:  
 - Chrome/Edge/Chromium variants: `chrome://webrtc-internals`  
 - Firefox: `about:webrtc`  
+
+📝 Having this info on all the time might reduce your enjoyment, so I'd recommend you to only use it when having network problem.
 
 
 ## Capture screenshot  
