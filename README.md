@@ -49,7 +49,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Features like friends, chat... Disable these will make the page load faster.  
   > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Disable xCloud analytics**
-  > The analytics contains statistics of your streaming session, so I'd recommend to allow analytics to help Xbox improve xCloud's experence in the future.  
+  > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.  
   > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Hide footer and other UI elements**
 - **🔥 Show stream stats**
@@ -90,7 +90,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ---
 - **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high quality codec profile (the best possible quality).  
-- **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a bluetooth mouse if you want to interact with the Settings.  
+- **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a Bluetooth mouse if you want to interact with the Settings.  
 
 ## Stream stats  
 ![image](https://github.com/redphx/better-xcloud/assets/96280/dc0f4f36-8a69-4ec1-aadd-cfda2d701991)  
@@ -102,52 +102,52 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 |------:|:-------------------|:------------------------------------------------------------------------------------------------------------------|
 | FPS   | Frames per Seconds | The number of decoded frames in the last second                                                                   |
 | RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (lower is better) |
-| BR    | Bitrate            | The amount of data server send to your device in the last second                                                  |
-| PL    | Packets Lost       | Total number of packets lost                                                                                      |
+| BR    | Bitrate            | The amount of data the server sent to your device in the last second                                              |
+| PL    | Packets Lost       | The total number of packets lost                                                                                  |
 | FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline       |
 
-These info are provided by WebRTC API. You can use browser's built-in tool to see more info:  
+This info is provided by WebRTC API. You can use browser's built-in tool to see more info:  
 - Chrome/Edge/Chromium variants: `chrome://webrtc-internals`  
 - Firefox: `about:webrtc`  
 
-📝 Having this info on all the time might reduce your enjoyment, so I'd recommend you to only use it when having network problem.
+📝 Having this info on all the time might reduce your enjoyment, so I'd recommend only using it when having network problems.
 
 
 ## Capture screenshot  
 - This feature is only available in **Better xCloud**.  
-- Works on both desktop & mobile, but it's designed for mobile users.
+- Works on both desktop & mobile, but it was designed for mobile users.
 - It's client-side only.
-- It captures the current frame of the stream and save to a file. That means you won't get the raw quality like when you play on console, but it's still better than using the built-in screenshot feature on your phone.  
+- It captures the current frame of the stream and saves it to a file. That means you won't get the raw quality like when you play on a console, but it's still better than using the built-in screenshot feature on your phone.  
 - Screenshot's resolution & quality depend on the quality of the stream at the moment.  
 - Screenshot doesn't include touch UI, notification bar... only the gameplay.  
 - There might be a slight delay.  
 - ⚠️ It's not possible to map the Share/Screenshot button on your controller to this feature.  
 
 ### How to capture screenshot  
-1. Enable this feature in setting.
+1. Enable this feature in the Settings.
 2. Play a game.
-3. Tap once at the bottom left/right (depend on your setting) to show the Screenshot button.
+3. Tap once at the bottom left/right (depending on your setting) to show the Screenshot button.
 4. Tap on that button to capture screenshot.
-5. Screenshot will be saved by browser.
-6. You can double tap that corner to capture screenshot.
+5. Screenshot will be saved by the browser.
+6. You can double-tap that corner to capture screenshot.
 
 <img width="600" alt="Screenshot button" src="https://github.com/redphx/better-xcloud/assets/96280/a911b141-5dc0-450a-aeac-30d9cf202b44">
 
 ## FAQ
 1. **Will I get banned for using this?**  
-I think it's very unlikely that you'll get banned for using this. Most of the features only affect client-side, except for switching region of streaming server (you'll connect to another server instead of the default one). If you want to be safe just avoid using that. As always, use as your own risk.
+I think it's very unlikely that you'll get banned for using this. Most of the features only affect client-side, except for switching region of streaming server (you'll connect to another server instead of the default one). If you want to be safe just avoid using that. As always, use it as your own risk.
 
-2. **Why is it an Userscript and not extension?**  
+2. **Why is it an Userscript and not an extension?**  
 It's because not many browsers on Android support installing extensions (and not all extensions can be installed).
 
-3. **I see "???" button instead of server's name**  
+3. **I see "???" button instead of the server's name**  
 That means Tampermonkey is not working properly. Please make sure you're using the latest version or switch to a well-known browser.  
 
 4. **Can I use this with the Xbox Android app?**  
-No you can't. You'll have to modify the app.
+No, you can't. You'll have to modify the app.
 
-5. **Will you able to enable "Clarity Boost" feature on non-Edge browsers?**  
-No. "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
+5. **Will you be able to enable the "Clarity Boost" feature on non-Edge browsers?**  
+No. The "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
 
 ## User-Agent
 You're no longer needed to change User-Agent since you can just use the **Force high quality stream** setting.  
@@ -175,5 +175,5 @@ Other options (only do one of these):
 - Icons by [Adam Design](https://www.iconfinder.com/iconsets/user-interface-outline-27)
 
 ## Disclaimers  
-- Use as your own risk.  
+- Use as it your own risk.  
 - This project is not affiliated with Xbox in any way. All Xbox logos/icons/trademarks are copyright of their respective owners.
