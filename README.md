@@ -98,13 +98,13 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - While playing > `...` > `Stream Stats`.  
 - This bar is updated every second.  
 
-| Abbr. | Full name          | Explain                                                                                                           |
-|------:|:-------------------|:------------------------------------------------------------------------------------------------------------------|
-| FPS   | Frames per Seconds | The number of decoded frames in the last second                                                                   |
-| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (lower is better) |
-| BR    | Bitrate            | The amount of data the server sent to your device in the last second                                              |
-| PL    | Packets Lost       | The total number of packets lost                                                                                  |
-| FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline       |
+| Abbr. | Full name          | Explain                                                                                                                            |
+|------:|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
+| FPS   | Frames per Seconds | The number of decoded frames in the last second                                                                                    |
+| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better) |
+| BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                               |
+| PL    | Packets Lost       | The total number of packets lost                                                                                                   |
+| FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline                        |
 
 This info is provided by WebRTC API. You can use browser's built-in tool to see more info:  
 - Chrome/Edge/Chromium variants: `chrome://webrtc-internals`  
