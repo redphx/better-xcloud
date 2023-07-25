@@ -173,6 +173,9 @@ class StreamStats {
 
 
 class Preferences {
+    static get LAST_UPDATE_CHECK() { return 'last_update_check'; }
+    static get LATEST_VERSION() { return 'latest_version'; }
+
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
     static get FORCE_1080P_STREAM() { return 'force_1080p_stream'; }
@@ -325,6 +328,26 @@ class Preferences {
 const PREFS = new Preferences();
 
 
+function checkForUpdate() {
+    const CHECK_INTERVAL_SECONDS = 4 * 3600 * 1000; // check every 4 hours
+    const lastCheck = PREFS.get(Preferences.LAST_UPDATE_CHECK, 0);
+    const now = +new Date;
+
+    if (now - lastCheck < CHECK_INTERVAL_SECONDS) {
+        return;
+    }
+
+    // Start checking
+    PREFS.set(Preferences.LAST_UPDATE_CHECK, now);
+    fetch('https://api.github.com/repos/redphx/better-xcloud/releases/latest')
+        .then(response => response.json())
+        .then(json => {
+            // Store the latest version
+            PREFS.set(Preferences.LATEST_VERSION, json.tag_name.substring(1));
+        });
+}
+
+
 function addCss() {
     let css = `
 .better_xcloud_settings_button {
@@ -339,6 +362,10 @@ function addCss() {
 
 .better_xcloud_settings_button:hover, .better_xcloud_settings_button:focus {
     background-color: #515863;
+}
+
+.better_xcloud_settings_button[data-update-available]::after {
+    content: ' 🌟';
 }
 
 .better_xcloud_settings {
@@ -362,7 +389,11 @@ function addCss() {
     outline: none !important;
 }
 
-.better_xcloud_settings_wrapper a {
+.better_xcloud_settings_wrapper .better_xcloud_settings_title_wrapper {
+    display: flex;
+}
+
+.better_xcloud_settings_wrapper a.better_xcloud_settings_title {
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     font-size: 20px;
     text-decoration: none;
@@ -370,16 +401,35 @@ function addCss() {
     display: block;
     margin-bottom: 8px;
     color: #5dc21e;
+    flex: 1;
 }
 
 @media (hover: hover) {
-    .better_xcloud_settings_wrapper a:hover {
+    .better_xcloud_settings_wrapper a.better_xcloud_settings_title:hover {
         color: #83f73a;
     }
 }
 
-.better_xcloud_settings_wrapper a:focus {
+.better_xcloud_settings_wrapper a.better_xcloud_settings_title:focus {
     color: #83f73a;
+}
+
+.better_xcloud_settings_wrapper a.better_xcloud_settings_update {
+    display: none;
+    color: #ff834b;
+    text-decoration: none;
+}
+
+@media (hover: hover) {
+    .better_xcloud_settings_wrapper a.better_xcloud_settings_update:hover {
+        color: #ff9869;
+        text-decoration: underline;
+    }
+}
+
+.better_xcloud_settings_wrapper a.better_xcloud_settings_update:focus {
+    color: #ff9869;
+    text-decoration: underline;
 }
 
 .better_xcloud_settings_wrapper .setting_row {
@@ -841,30 +891,47 @@ function injectSettingsButton($parent) {
     }
 
     const CE = createElement;
-    const preferredRegion = getPreferredServerRegion();
+    const PREF_PREFERRED_REGION = getPreferredServerRegion();
+    const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION, null);
 
-    const $button = CE('button', {'class': 'better_xcloud_settings_button'}, preferredRegion);
+    const $button = CE('button', {'class': 'better_xcloud_settings_button'}, PREF_PREFERRED_REGION);
     $button.addEventListener('click', e => {
         const $settings = document.querySelector('.better_xcloud_settings');
         $settings.classList.toggle('better_xcloud_settings_gone');
         $settings.scrollIntoView();
     });
+
+    if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
+        $button.setAttribute('data-update-available', true);
+    }
+
     $parent.appendChild($button);
 
     const $container = CE('div', {
         'class': 'better_xcloud_settings better_xcloud_settings_gone',
     });
 
-    const $wrapper = CE('div', {
-        'class': 'better_xcloud_settings_wrapper',
-    });
+    let $updateAvailable;
+    const $wrapper = CE('div', {'class': 'better_xcloud_settings_wrapper'},
+                        CE('div', {'class': 'better_xcloud_settings_title_wrapper'},
+                           CE('a', {
+                                'class': 'better_xcloud_settings_title',
+                                'href': SCRIPT_HOME,
+                                'target': '_blank',
+                           }, 'Better xCloud ' + SCRIPT_VERSION),
+                           $updateAvailable = CE('a', {
+                                'class': 'better_xcloud_settings_update',
+                                'href': 'https://github.com/redphx/better-xcloud/releases',
+                                'target': '_blank',
+                           })
+                        )
+                       );
     $container.appendChild($wrapper);
 
-    const $title = CE('a', {
-            href: SCRIPT_HOME,
-            target: '_blank',
-        }, 'Better xCloud ' + SCRIPT_VERSION);
-    $wrapper.appendChild($title);
+    if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
+        $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
+        $updateAvailable.style.display = 'block';
+    }
 
     for (let setting of Preferences.SETTINGS) {
         if (setting.hidden) {
@@ -882,7 +949,7 @@ function injectSettingsButton($parent) {
             });
 
             if (setting.id === Preferences.SERVER_REGION) {
-                selectedValue = preferredRegion;
+                selectedValue = PREF_PREFERRED_REGION;
                 setting.options = {};
                 for (let regionName in SERVER_REGIONS) {
                     const region = SERVER_REGIONS[regionName];
@@ -1543,6 +1610,10 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
     });
 }
 
+// Check for Update
+checkForUpdate();
+
+// Monkey patches
 patchRtcCodecs();
 interceptHttpRequests();
 patchVideoApi();
