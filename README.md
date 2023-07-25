@@ -29,8 +29,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
 - **Prefer IPv6 streaming server**
   > Might reduce latency.
-- **Disable bandwidth checking**
-  > xCloud won't reduce quality when the internet speed is slow
+- **Disable bandwidth checking**  
+  > xCloud won't warn about slow connection speed.  
 - **🔥 Capture screenshot**
   > Exclusive to **Better xCloud**. Check the [**Capture screenshot** section](#capture-screenshot) for more info.
 - **Skip Xbox splash video**
