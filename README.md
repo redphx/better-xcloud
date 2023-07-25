@@ -24,7 +24,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Force high quality codec (if possible)<sup>(\*)</sup>**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV) if possible. You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
-  > Not available for some browsers (Firefox, Safari...).  
+  > Not available for some browsers (Firefox, Safari...). Use the [changing User-Agent method](https://github.com/redphx/better-xcloud/wiki/User‐Agent) instead.  
   > Use more bandwidth & battery.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
 - **Prefer IPv6 streaming server**
@@ -150,25 +150,7 @@ No, you can't. You'll have to modify the app.
 No. The "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
 
 ## User-Agent
-You're no longer needed to change User-Agent since you can just use the **Force high quality stream** setting.  
-If your browser doesn't support **Force high quality stream** setting, try changing User-Agent to:  
-```
-Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36
-```
-This will change your device to a Samsung TV running Tizen OS. It will improve the stream quality.  
-
----
-Change User-Agent to:
-```
-Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67
-```
-This will trick xCloud into thinking you're using Edge browser on desktop.
-
-Other options (only do one of these):
-- Add ` smarttv` to switch to Smart TV layout.
-- Add ` Xbox;` to become an Xbox console.
-- Add ` 36102dd3-6953-45f6-8b48-031fb95e0e0d` to become a Logitech G Cloud device.
-- Add ` 0ed22b6f-b61d-41eb-810a-a1ed586a550b` to become a Razer Edge device.
+Moved to [wiki](https://github.com/redphx/better-xcloud/wiki/User‐Agent).
 
 ## Acknowledgements  
 - [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
