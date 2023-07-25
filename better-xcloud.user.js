@@ -581,6 +581,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-right: 2px solid #fff;
 }
 
+.better_xcloud_stats_bar span:last-of-type {
+    border: 0;
+    margin-right: 0;
+}
+
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
     display: none;
