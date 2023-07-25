@@ -554,6 +554,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better_xcloud_stats_bar {
     display: none;
+    user-select: none;
     position: absolute;
     top: 0;
     left: 0;
@@ -567,9 +568,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better_xcloud_stats_bar label {
-    font-weight: bold;
     margin: 0 8px 0 0;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     font-size: 0.9rem;
+    font-weight: bold;
 }
 
 .better_xcloud_stats_bar span {
