@@ -4,6 +4,10 @@ The main target of this script is mobile users, but it should work great on desk
 
 Give this project a 🌟 if you like it. Thank you 🙏.
 
+[![Latest version](https://img.shields.io/github/v/release/redphx/better-xcloud?label=latest)](https://github.com/redphx/better-xcloud/releases) 
+[![Total downloads](https://img.shields.io/github/downloads/redphx/better-xcloud/total?color=%23e15f2c)](https://github.com/redphx/better-xcloud/releases) 
+[![Total stars](https://img.shields.io/github/stars/redphx/better-xcloud?color=%23cca400)](https://github.com/redphx/better-xcloud/stargazers)  
+
 ## Features
 
 <img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/20aca05d-ff20-4adb-ac21-08b4b1cfd07f">
