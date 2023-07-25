@@ -84,6 +84,8 @@ class StreamStats {
     static #$fl;
     static #$br;
 
+    static #$settings;
+
     static #lastInbound;
 
     static start() {
@@ -149,6 +151,16 @@ class StreamStats {
         });
     }
 
+    static #refreshStyles() {
+        const PREF_POSITION = PREFS.get(Preferences.STATS_POSITION);
+        const PREF_TRANSPARENT = PREFS.get(Preferences.STATS_TRANSPARENT);
+        const PREF_OPACITY = PREFS.get(Preferences.STATS_OPACITY);
+
+        StreamStats.#$container.setAttribute('data-position', PREF_POSITION);
+        StreamStats.#$container.setAttribute('data-transparent', PREF_TRANSPARENT);
+        StreamStats.#$container.style.opacity = PREF_OPACITY + '%';
+    }
+
     static render() {
         if (StreamStats.#$container) {
             return;
@@ -168,6 +180,56 @@ class StreamStats {
                             StreamStats.#$fl = CE('span', {}, '0 (0.00%)'));
 
         document.documentElement.appendChild(StreamStats.#$container);
+
+        const POSITIONS = {
+            'top-left': 'Top Left',
+            'top-center': 'Top Center',
+            'top-right': 'Top Right',
+        };
+        const $select = CE('select', {});
+        for (let value in POSITIONS) {
+            const name = POSITIONS[value];
+            $select.appendChild(CE('option', {'value': value}, name));
+        }
+        $select.value = PREFS.get(Preferences.STATS_POSITION);
+        $select.addEventListener('change', e => {
+            PREFS.set(Preferences.STATS_POSITION, e.target.value);
+            StreamStats.#refreshStyles();
+        });
+
+        let $transparent, $opacity;
+        StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
+                                    CE('div', {},
+                                       CE('label', {}, 'Position'),
+                                       $select
+                                      ),
+                                    CE('div', {},
+                                       CE('label', {}, 'Transparent Background'),
+                                       $transparent = CE('input', {'type': 'checkbox'})
+                                      ),
+                                    CE('div', {},
+                                       CE('label', {}, 'Opacity (50-100%)'),
+                                       $opacity = CE('input', {'type': 'number', 'min': 50, 'max': 100})
+                                      ));
+
+        $transparent.checked = PREFS.get(Preferences.STATS_TRANSPARENT);
+        $transparent.addEventListener('change', e => {
+            PREFS.set(Preferences.STATS_TRANSPARENT, e.target.checked);
+            StreamStats.#refreshStyles();
+        });
+
+        $opacity.value = PREFS.get(Preferences.STATS_OPACITY);
+        $opacity.addEventListener('change', e => {
+            let value = Math.max(50, Math.min(100, parseInt(e.target.value)));
+            e.target.value = value;
+
+            PREFS.set(Preferences.STATS_OPACITY, value);
+            StreamStats.#refreshStyles();
+        });
+
+        document.documentElement.appendChild(StreamStats.#$settings);
+
+        StreamStats.#refreshStyles();
     }
 }
 
@@ -193,6 +255,10 @@ class Preferences {
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
+
+    static get STATS_POSITION() { return 'stats_position'; }
+    static get STATS_TRANSPARENT() { return 'stats_transparent'; }
+    static get STATS_OPACITY() { return 'stats_opacity'; }
 
     static SETTINGS = [
         {
@@ -269,6 +335,20 @@ class Preferences {
             'default': 100,
             'min': 0,
             'max': 150,
+            'hidden': true,
+        }, {
+            'id': Preferences.STATS_POSITION,
+            'default': 'top-left',
+            'hidden': true,
+        }, {
+            'id': Preferences.STATS_TRANSPARENT,
+            'default': false,
+            'hidden': true,
+        }, {
+            'id': Preferences.STATS_OPACITY,
+            'default': 80,
+            'min': 50,
+            'max': 100,
             'hidden': true,
         },
     ]
@@ -555,16 +635,32 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better_xcloud_stats_bar {
     display: none;
     user-select: none;
-    position: absolute;
+    position: fixed;
     top: 0;
-    left: 0;
-    opacity: 0.8;
     background-color: #000;
     color: #fff;
     font-family: Consolas, "Courier New", Courier, monospace;
     font-size: 0.9rem;
     padding-left: 8px;
     z-index: 1000;
+}
+
+.better_xcloud_stats_bar[data-position=top-left] {
+    left: 0;
+}
+
+.better_xcloud_stats_bar[data-position=top-right] {
+    right: 0;
+}
+
+.better_xcloud_stats_bar[data-position=top-center] {
+    transform: translate(-50%, 0);
+    left: 50%;
+}
+
+.better_xcloud_stats_bar[data-transparent=true] {
+    background: none;
+    filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
 }
 
 .better_xcloud_stats_bar label {
@@ -586,6 +682,41 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better_xcloud_stats_bar span:last-of-type {
     border: 0;
     margin-right: 0;
+}
+
+.better_xcloud_stats_settings {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    padding: 10px;
+    border-radius: 8px;
+    z-index: 1000;
+    background: #1a1b1e;
+    color: #fff;
+    font-weight: 400;
+    font-size: 16px;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    box-shadow: 0 0 6px #000;
+}
+
+.better_xcloud_stats_settings *:focus {
+    outline: none !important;
+}
+
+.better_xcloud_stats_settings > div {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 2px 4px;
+}
+
+.better_xcloud_stats_settings label {
+    flex: 1;
+    margin-bottom: 0;
+    align-self: center;
 }
 
 /* Hide UI elements */
