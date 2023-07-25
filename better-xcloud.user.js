@@ -161,6 +161,15 @@ class StreamStats {
         StreamStats.#$container.style.opacity = PREF_OPACITY + '%';
     }
 
+    static hideSettingsUi() {
+        StreamStats.#$settings.style.display = 'none';
+    }
+
+    static #toggleSettingsUi() {
+        const display = StreamStats.#$settings.style.display;
+        StreamStats.#$settings.style.display = display === 'block' ? 'none' : 'block';
+    }
+
     static render() {
         if (StreamStats.#$container) {
             return;
@@ -178,6 +187,21 @@ class StreamStats {
                             StreamStats.#$pl = CE('span', {}, '0 (0.00%)'),
                             CE('label', {}, 'FL'),
                             StreamStats.#$fl = CE('span', {}, '0 (0.00%)'));
+
+        let clickTimeout;
+        StreamStats.#$container.addEventListener('mousedown', e => {
+            clearTimeout(clickTimeout);
+            if (clickTimeout) {
+                // Double-clicked
+                clickTimeout = null;
+                StreamStats.#toggleSettingsUi();
+                return;
+            }
+
+            clickTimeout = setTimeout(() => {
+                clickTimeout = null;
+            }, 400);
+        });
 
         document.documentElement.appendChild(StreamStats.#$container);
 
@@ -197,7 +221,7 @@ class StreamStats {
             StreamStats.#refreshStyles();
         });
 
-        let $transparent, $opacity;
+        let $transparent, $opacity, $close;
         StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
                                     CE('div', {},
                                        CE('label', {}, 'Position'),
@@ -210,7 +234,10 @@ class StreamStats {
                                     CE('div', {},
                                        CE('label', {}, 'Opacity (50-100%)'),
                                        $opacity = CE('input', {'type': 'number', 'min': 50, 'max': 100})
-                                      ));
+                                      ),
+                                    $close = CE('button', {}, 'Close'));
+
+        $close.addEventListener('click', e => StreamStats.hideSettingsUi());
 
         $transparent.checked = PREFS.get(Preferences.STATS_TRANSPARENT);
         $transparent.addEventListener('change', e => {
@@ -679,6 +706,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-right: 2px solid #fff;
 }
 
+.better_xcloud_stats_bar span:first-of-type {
+    min-width: 30px;
+}
+
 .better_xcloud_stats_bar span:last-of-type {
     border: 0;
     margin-right: 0;
@@ -717,6 +748,32 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     flex: 1;
     margin-bottom: 0;
     align-self: center;
+}
+
+.better_xcloud_stats_settings button {
+    padding: 8px 32px;
+    margin: 10px auto 0;
+    border: none;
+    border-radius: 4px;
+    display: block;
+    background-color: #2d3036;
+    text-align: center;
+    color: white;
+    text-transform: uppercase;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-weight: 400;
+    line-height: 18px;
+    font-size: 14px;
+}
+
+@media (hover: hover) {
+    .better_xcloud_stats_settings button:hover {
+        background-color: #515863;
+    }
+}
+
+.better_xcloud_stats_settings button:focus {
+    background-color: #515863;
 }
 
 /* Hide UI elements */
@@ -1726,6 +1783,7 @@ function hideUiOnPageChange() {
     STREAM_WEBRTC = null;
     $STREAM_VIDEO = null;
     StreamStats.stop();
+    StreamStats.hideSettingsUi();
     document.querySelector('.better_xcloud_screenshot_button').style = '';
 }
 
