@@ -245,7 +245,7 @@ class StreamStats {
         StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
                                     CE('b', {}, 'Stream Stats Settings'),
                                     CE('div', {},
-                                        CE('label', {}, 'Show stats when starting the game'),
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_SHOW_WHEN_PLAYING}`}, 'Show stats when starting the game'),
                                         $showStartup
                                       ),
                                     CE('div', {},
@@ -257,15 +257,15 @@ class StreamStats {
                                         $textSize
                                       ),
                                     CE('div', {},
-                                        CE('label', {}, 'Opacity (50-100%)'),
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_OPACITY}`}, 'Opacity (50-100%)'),
                                         $opacity
                                       ),
                                     CE('div', {},
-                                        CE('label', {}, 'Transparent background'),
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_TRANSPARENT}`}, 'Transparent background'),
                                         $transparent
                                       ),
                                     CE('div', {},
-                                        CE('label', {}, 'Conditional formatting text color'),
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_CONDITIONAL_FORMATTING}`}, 'Conditional formatting text color'),
                                         $formatting
                                       ),
                                     $close = CE('button', {}, 'Close'));
@@ -523,6 +523,7 @@ class Preferences {
             });
         }
 
+        $control.id = `xcloud_setting_${key}`;
         return $control;
     }
 }
