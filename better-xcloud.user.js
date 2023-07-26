@@ -287,98 +287,98 @@ class Preferences {
     static get STATS_TRANSPARENT() { return 'stats_transparent'; }
     static get STATS_OPACITY() { return 'stats_opacity'; }
 
-    static SETTINGS = [
-        {
-            'id': Preferences.SERVER_REGION,
+    static SETTINGS = {
+        [Preferences.SERVER_REGION]: {
             'label': 'Region of streaming server',
             'default': 'default',
-        }, {
-            'id': Preferences.FORCE_1080P_STREAM,
+        },
+        [Preferences.FORCE_1080P_STREAM]: {
             'label': 'Force 1080p stream',
             'default': false,
-        }, {
-            'id': Preferences.USE_DESKTOP_CODEC,
+        },
+        [Preferences.USE_DESKTOP_CODEC]: {
             'label': 'Force high quality codec (if possible)',
             'default': false,
-        }, {
-            'id': Preferences.PREFER_IPV6_SERVER,
+        },
+        [Preferences.PREFER_IPV6_SERVER]: {
             'label': 'Prefer IPv6 streaming server',
             'default': false,
-        }, {
-            'id': Preferences.DISABLE_BANDWIDTH_CHECKING,
+        },
+        [Preferences.DISABLE_BANDWIDTH_CHECKING]: {
             'label': 'Disable bandwidth checking',
             'default': false,
-        }, {
-            'id': Preferences.SCREENSHOT_BUTTON_POSITION,
+        },
+        [Preferences.SCREENSHOT_BUTTON_POSITION]: {
             'label': 'Screenshot button\'s position',
             'default': 'bottom-left',
-            'options': {
+            'options':
+            {
                 'bottom-left': 'Bottom Left',
                 'bottom-right': 'Bottom Right',
                 'none': 'Disable',
             },
-        }, {
-            'id': Preferences.SKIP_SPLASH_VIDEO,
+        },
+        [Preferences.SKIP_SPLASH_VIDEO]: {
             'label': 'Skip Xbox splash video',
             'default': false,
-        }, {
-            'id': Preferences.HIDE_DOTS_ICON,
+        },
+        [Preferences.HIDE_DOTS_ICON]: {
             'label': 'Hide Dots icon while playing',
             'default': false,
-        }, {
-            'id': Preferences.REDUCE_ANIMATIONS,
+        },
+        [Preferences.REDUCE_ANIMATIONS]: {
             'label': 'Reduce UI animations',
             'default': false,
-        }, {
-            'id': Preferences.BLOCK_SOCIAL_FEATURES,
+        },
+        [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'label': 'Disable social features',
             'default': false,
-        }, {
-            'id': Preferences.BLOCK_TRACKING,
+        },
+        [Preferences.BLOCK_TRACKING]: {
             'label': 'Disable xCloud analytics',
             'default': false,
-        }, {
-            'id': Preferences.VIDEO_FILL_FULL_SCREEN,
+        },
+        [Preferences.VIDEO_FILL_FULL_SCREEN]: {
             'label': 'Stretch video to full screen',
             'default': false,
             'hidden': true,
-        }, {
-            'id': Preferences.VIDEO_SATURATION,
+        },
+        [Preferences.VIDEO_SATURATION]: {
             'label': 'Video saturation (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
-        }, {
-            'id': Preferences.VIDEO_CONTRAST,
+        },
+        [Preferences.VIDEO_CONTRAST]: {
             'label': 'Video contrast (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
-        }, {
-            'id': Preferences.VIDEO_BRIGHTNESS,
+        },
+        [Preferences.VIDEO_BRIGHTNESS]: {
             'label': 'Video brightness (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
-        }, {
-            'id': Preferences.STATS_POSITION,
+        },
+        [Preferences.STATS_POSITION]: {
             'default': 'top-left',
             'hidden': true,
-        }, {
-            'id': Preferences.STATS_TRANSPARENT,
+        },
+        [Preferences.STATS_TRANSPARENT]: {
             'default': false,
             'hidden': true,
-        }, {
-            'id': Preferences.STATS_OPACITY,
+        },
+        [Preferences.STATS_OPACITY]: {
             'default': 80,
             'min': 50,
             'max': 100,
             'hidden': true,
         },
-    ]
+    }
 
     constructor() {
         this._storage = localStorage;
@@ -391,11 +391,12 @@ class Preferences {
         savedPrefs = JSON.parse(savedPrefs);
 
         this._prefs = {};
-        for (let setting of Preferences.SETTINGS) {
-            if (setting.id in savedPrefs) {
-                this._prefs[setting.id] = savedPrefs[setting.id];
+        for (let settingId in Preferences.SETTINGS) {
+            const setting = Preferences.SETTINGS[settingId];
+            if (settingId in savedPrefs) {
+                this._prefs[settingId] = savedPrefs[settingId];
             } else {
-                this._prefs[setting.id] = setting.default;
+                this._prefs[settingId] = setting.default;
             }
         }
     }
@@ -411,14 +412,8 @@ class Preferences {
             return defaultValue;
         }
 
-        // Get default value
-        for (let setting of Preferences.SETTINGS) {
-            if (setting.id == key) {
-                return setting.default;
-            }
-        }
-
-        return null;
+        // Return default value
+        return Preferences.SETTINGS[key].default;
     }
 
     set(key, value) {
@@ -1127,22 +1122,23 @@ function injectSettingsButton($parent) {
         $updateAvailable.style.display = 'block';
     }
 
-    for (let setting of Preferences.SETTINGS) {
+    for (let settingId in Preferences.SETTINGS) {
+        const setting = Preferences.SETTINGS[settingId];
         if (setting.hidden) {
             continue;
         }
 
         let $control;
         let labelAttrs = {};
-        if (setting.id === Preferences.SERVER_REGION || setting.options) {
+        if (settingId === Preferences.SERVER_REGION || setting.options) {
             let selectedValue;
 
-            $control = CE('select', {id: 'xcloud_setting_' + setting.id});
+            $control = CE('select', {id: 'xcloud_setting_' + settingId});
             $control.addEventListener('change', e => {
-                PREFS.set(setting.id, e.target.value);
+                PREFS.set(settingId, e.target.value);
             });
 
-            if (setting.id === Preferences.SERVER_REGION) {
+            if (settingId === Preferences.SERVER_REGION) {
                 selectedValue = PREF_PREFERRED_REGION;
                 setting.options = {};
                 for (let regionName in SERVER_REGIONS) {
@@ -1158,7 +1154,7 @@ function injectSettingsButton($parent) {
                     setting.options[value] = label;
                 }
             } else {
-                selectedValue = PREFS.get(setting.id);
+                selectedValue = PREFS.get(settingId);
             }
 
             for (let value in setting.options) {
@@ -1171,21 +1167,21 @@ function injectSettingsButton($parent) {
 
         } else {
             $control = CE('input', {
-                id: 'xcloud_setting_' + setting.id,
+                id: 'xcloud_setting_' + settingId,
                 type: 'checkbox',
-                'data-key': setting.id,
+                'data-key': settingId,
             });
 
             $control.addEventListener('change', e => {
                 PREFS.set(e.target.getAttribute('data-key'), e.target.checked);
             });
 
-            setting.value = PREFS.get(setting.id);
+            setting.value = PREFS.get(settingId);
             $control.checked = setting.value;
 
-            labelAttrs = {'for': 'xcloud_setting_' + setting.id, 'tabindex': 0};
+            labelAttrs = {'for': 'xcloud_setting_' + settingId, 'tabindex': 0};
 
-            if (setting.id === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
+            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
                 $control.checked = false;
                 $control.disabled = true;
                 $control.title = 'Your browser doesn\'t support this feature';
