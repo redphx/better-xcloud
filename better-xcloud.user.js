@@ -205,14 +205,10 @@ class StreamStats {
 
         document.documentElement.appendChild(StreamStats.#$container);
 
-        const POSITIONS = {
-            'top-left': 'Top Left',
-            'top-center': 'Top Center',
-            'top-right': 'Top Right',
-        };
+        const positions = Preferences.SETTINGS[Preferences.STATS_POSITION].options;
         const $select = CE('select', {});
-        for (let value in POSITIONS) {
-            const name = POSITIONS[value];
+        for (let value in positions) {
+            const name = positions[value];
             $select.appendChild(CE('option', {'value': value}, name));
         }
         $select.value = PREFS.get(Preferences.STATS_POSITION);
@@ -223,6 +219,7 @@ class StreamStats {
 
         let $transparent, $opacity, $close;
         StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
+                                    CE('b', {}, 'Settings'),
                                     CE('div', {},
                                        CE('label', {}, 'Position'),
                                        $select
@@ -366,6 +363,11 @@ class Preferences {
         },
         [Preferences.STATS_POSITION]: {
             'default': 'top-left',
+            'options': {
+                'top-left': 'Top Left',
+                'top-center': 'Top Center',
+                'top-right': 'Top Right',
+            },
             'hidden': true,
         },
         [Preferences.STATS_TRANSPARENT]: {
@@ -718,7 +720,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-right: -50%;
     transform: translate(-50%, -50%);
     width: 350px;
-    padding: 10px;
+    padding: 20px;
     border-radius: 8px;
     z-index: 1000;
     background: #1a1b1e;
@@ -727,10 +729,21 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-size: 16px;
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     box-shadow: 0 0 6px #000;
+    user-select: none;
 }
 
 .better_xcloud_stats_settings *:focus {
     outline: none !important;
+}
+
+.better_xcloud_stats_settings > b {
+    color: #fff;
+    display: block;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 32px;
+    margin-bottom: 12px;
 }
 
 .better_xcloud_stats_settings > div {
@@ -747,7 +760,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better_xcloud_stats_settings button {
     padding: 8px 32px;
-    margin: 10px auto 0;
+    margin: 20px auto 0;
     border: none;
     border-radius: 4px;
     display: block;
