@@ -117,8 +117,11 @@ class StreamStats {
             return;
         }
 
+        const PREF_STATS_CONDITIONAL_FORMATTING = PREFS.get(Preferences.STATS_CONDITIONAL_FORMATTING);
+
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
+                let grade = '';
                 if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
                     // FPS
                     StreamStats.#$fps.textContent = stat.framesPerSecond || 0;
@@ -145,6 +148,11 @@ class StreamStats {
                         const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
                         const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
                         StreamStats.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+
+                        if (PREF_STATS_CONDITIONAL_FORMATTING) {
+                            grade = (currentDecodeTime > 12) ? 'bad' : (currentDecodeTime > 9) ? 'ok' : (currentDecodeTime > 6) ? 'good' : '';
+                        }
+                        StreamStats.#$dt.setAttribute('data-grade', grade);
                     }
 
                     StreamStats.#lastStat = stat;
@@ -152,6 +160,11 @@ class StreamStats {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
                     StreamStats.#$rtt.textContent = `${roundTripTime}ms`;
+
+                    if (PREF_STATS_CONDITIONAL_FORMATTING) {
+                        grade = (roundTripTime > 100) ? 'bad' : (roundTripTime > 75) ? 'ok' : (roundTripTime > 40) ? 'good' : '';
+                    }
+                    StreamStats.#$rtt.setAttribute('data-grade', grade);
                 }
             });
 
@@ -225,6 +238,7 @@ class StreamStats {
         let $close;
         const $showStartup = PREFS.toElement(Preferences.STATS_SHOW_WHEN_PLAYING, refreshFunc);
         const $transparent = PREFS.toElement(Preferences.STATS_TRANSPARENT, refreshFunc);
+        const $formatting = PREFS.toElement(Preferences.STATS_CONDITIONAL_FORMATTING, refreshFunc);
         const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
         const $textSize = PREFS.toElement(Preferences.STATS_TEXT_SIZE, refreshFunc);
 
@@ -243,12 +257,16 @@ class StreamStats {
                                         $textSize
                                       ),
                                     CE('div', {},
+                                        CE('label', {}, 'Opacity (50-100%)'),
+                                        $opacity
+                                      ),
+                                    CE('div', {},
                                         CE('label', {}, 'Transparent background'),
                                         $transparent
                                       ),
                                     CE('div', {},
-                                        CE('label', {}, 'Opacity (50-100%)'),
-                                        $opacity
+                                        CE('label', {}, 'Conditional formatting text color'),
+                                        $formatting
                                       ),
                                     $close = CE('button', {}, 'Close'));
 
@@ -287,6 +305,7 @@ class Preferences {
     static get STATS_TEXT_SIZE() { return 'stats_text_size'; }
     static get STATS_TRANSPARENT() { return 'stats_transparent'; }
     static get STATS_OPACITY() { return 'stats_opacity'; }
+    static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
 
     static SETTINGS = {
         [Preferences.SERVER_REGION]: {
@@ -395,6 +414,10 @@ class Preferences {
             'default': 80,
             'min': 50,
             'max': 100,
+            'hidden': true,
+        },
+        [Preferences.STATS_CONDITIONAL_FORMATTING]: {
+            'default': false,
             'hidden': true,
         },
     }
@@ -779,6 +802,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-right: 8px;
     border-right: 2px solid #fff;
     vertical-align: middle;
+}
+
+.better_xcloud_stats_bar span[data-grade=good] {
+    color: #0cc90c;
+}
+
+.better_xcloud_stats_bar span[data-grade=ok] {
+    color: #ffe700;
+}
+
+.better_xcloud_stats_bar span[data-grade=bad] {
+    color: #ff4500;
 }
 
 .better_xcloud_stats_bar span:first-of-type {
