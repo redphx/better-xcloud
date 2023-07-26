@@ -104,7 +104,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 | Abbr. | Full name          | Explain                                                                                                                            |
 |------:|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
-| FPS   | Frames per Seconds | The number of decoded frames in the last second                                                                                    |
+| FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (equal to or lower than the FPS of the game)                         |
 | RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better) |
 | BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                               |
 | PL    | Packets Lost       | The total number of packets lost                                                                                                   |
