@@ -20,11 +20,9 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 - **Switch region of streaming server**  
   > Connect to another server instead of the default one. Check the [**FAQ** section](#faq) for some notes.  
-  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Force 1080p stream**
   > By default you only get 1080p stream when playing on desktop.  
   > This feature will give you 1080p stream even on mobile, without having to change User-Agent.  
-  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Force high quality codec (if possible)<sup>(\*)</sup>**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV) if possible. You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
@@ -51,10 +49,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Region/Server/Quality/Resolution...
 - **Disable social features**
   > Features like friends, chat... Disable these will make the page load faster.  
-  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Disable xCloud analytics**
   > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.  
-  > Not working in Hermit ([#5](https://github.com/redphx/better-xcloud/issues/5)).
 - **Hide footer and other UI elements**
 - **🔥 Show stream stats**
   > Check [Stream stats section](#stream-stats) for more info.  
