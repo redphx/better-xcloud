@@ -74,7 +74,7 @@ class StreamBadges {
 
 
 class StreamStats {
-    static #timeout;
+    static #interval;
     static #updateInterval = 1000;
 
     static #$container;
@@ -91,13 +91,14 @@ class StreamStats {
 
     static start() {
         StreamStats.#$container.style.display = 'block';
-        StreamStats.update();
+        StreamStats.#interval = setInterval(StreamStats.update, StreamStats.#updateInterval);
     }
 
     static stop() {
+        clearInterval(StreamStats.#interval);
+
         StreamStats.#$container.style.display = 'none';
-        clearTimeout(StreamStats.#timeout);
-        StreamStats.#timeout = null;
+        StreamStats.#interval = null;
         StreamStats.#lastStat = null;
     }
 
@@ -108,17 +109,12 @@ class StreamStats {
     static #isHidden = () => StreamStats.#$container.style.display === 'none';
 
     static update() {
-        if (StreamStats.#isHidden()) {
-            return;
-        }
-
-        if (!STREAM_WEBRTC) {
-            StreamStats.#timeout = setTimeout(StreamStats.update, StreamStats.#updateInterval);
+        if (StreamStats.#isHidden() || !STREAM_WEBRTC) {
+            StreamStats.stop();
             return;
         }
 
         const PREF_STATS_CONDITIONAL_FORMATTING = PREFS.get(Preferences.STATS_CONDITIONAL_FORMATTING);
-
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
                 let grade = '';
@@ -126,7 +122,7 @@ class StreamStats {
                     // FPS
                     StreamStats.#$fps.textContent = stat.framesPerSecond || 0;
 
-                    // Packets Loss
+                    // Packets Lost
                     const packetsLost = stat.packetsLost;
                     const packetsReceived = stat.packetsReceived || 1;
                     StreamStats.#$pl.textContent = `${packetsLost} (${(packetsLost * 100 / packetsReceived).toFixed(2)}%)`;
@@ -167,8 +163,6 @@ class StreamStats {
                     StreamStats.#$rtt.setAttribute('data-grade', grade);
                 }
             });
-
-            StreamStats.#timeout = setTimeout(StreamStats.update, StreamStats.#updateInterval);
         });
     }
 
