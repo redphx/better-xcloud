@@ -219,9 +219,9 @@ class StreamStats {
 
         let $showStartup, $transparent, $opacity, $close;
         StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
-                                    CE('b', {}, 'Settings'),
+                                    CE('b', {}, 'Stream Stats Settings'),
                                     CE('div', {},
-                                       CE('label', {}, 'Show when starting the game'),
+                                       CE('label', {}, 'Show stats when starting the game'),
                                        $showStartup = CE('input', {'type': 'checkbox'})
                                       ),
                                     CE('div', {},
@@ -229,7 +229,7 @@ class StreamStats {
                                        $select
                                       ),
                                     CE('div', {},
-                                       CE('label', {}, 'Transparent Background'),
+                                       CE('label', {}, 'Transparent background'),
                                        $transparent = CE('input', {'type': 'checkbox'})
                                       ),
                                     CE('div', {},
@@ -305,7 +305,7 @@ class Preferences {
             'default': false,
         },
         [Preferences.USE_DESKTOP_CODEC]: {
-            'label': 'Force high quality codec (if possible)',
+            'label': 'Force high-quality codec (if supported)',
             'default': false,
         },
         [Preferences.PREFER_IPV6_SERVER]: {
@@ -734,7 +734,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
-    width: 400px;
+    width: 420px;
     padding: 20px;
     border-radius: 8px;
     z-index: 1000;
@@ -1526,7 +1526,7 @@ function patchRtcCodecs() {
         const newCodecs = codecs.slice();
         let pos = 0;
         newCodecs.forEach((codec, i) => {
-            // Find high quality codecs
+            // Find high-quality codecs
             if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes('profile-level-id=4d')) {
                 // Move it to the top of the array
                 newCodecs.splice(i, 1);
