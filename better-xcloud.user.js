@@ -806,15 +806,15 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better_xcloud_stats_bar span[data-grade=good] {
-    color: #0cc90c;
+    color: #6bffff;
 }
 
 .better_xcloud_stats_bar span[data-grade=ok] {
-    color: #ffe700;
+    color: #fff16b;
 }
 
 .better_xcloud_stats_bar span[data-grade=bad] {
-    color: #ff4500;
+    color: #ff5f5f;
 }
 
 .better_xcloud_stats_bar span:first-of-type {
