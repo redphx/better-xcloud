@@ -217,9 +217,13 @@ class StreamStats {
             StreamStats.#refreshStyles();
         });
 
-        let $transparent, $opacity, $close;
+        let $showStartup, $transparent, $opacity, $close;
         StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
                                     CE('b', {}, 'Settings'),
+                                    CE('div', {},
+                                       CE('label', {}, 'Show when starting the game'),
+                                       $showStartup = CE('input', {'type': 'checkbox'})
+                                      ),
                                     CE('div', {},
                                        CE('label', {}, 'Position'),
                                        $select
@@ -235,6 +239,12 @@ class StreamStats {
                                     $close = CE('button', {}, 'Close'));
 
         $close.addEventListener('click', e => StreamStats.hideSettingsUi());
+
+        $showStartup.checked = PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING);
+        $showStartup.addEventListener('change', e => {
+            PREFS.set(Preferences.STATS_SHOW_WHEN_PLAYING, e.target.checked);
+            StreamStats.#refreshStyles();
+        });
 
         $transparent.checked = PREFS.get(Preferences.STATS_TRANSPARENT);
         $transparent.addEventListener('change', e => {
@@ -280,6 +290,7 @@ class Preferences {
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
 
+    static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
     static get STATS_POSITION() { return 'stats_position'; }
     static get STATS_TRANSPARENT() { return 'stats_transparent'; }
     static get STATS_OPACITY() { return 'stats_opacity'; }
@@ -359,6 +370,10 @@ class Preferences {
             'default': 100,
             'min': 0,
             'max': 150,
+            'hidden': true,
+        },
+        [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+            'default': false,
             'hidden': true,
         },
         [Preferences.STATS_POSITION]: {
@@ -719,7 +734,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
-    width: 350px;
+    width: 400px;
     padding: 20px;
     border-radius: 8px;
     z-index: 1000;
@@ -1426,7 +1441,7 @@ function patchVideoApi() {
         $SCREENSHOT_CANVAS.height = this.videoHeight;
         StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
 
-        const stats = STREAM_WEBRTC.getStats().then(stats => {
+        STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
                 if (stat.type !== 'codec') {
                     return;
@@ -1451,6 +1466,10 @@ function patchVideoApi() {
                     };
                 }
             });
+
+            if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
+                StreamStats.start();
+            }
         });
 
         if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
