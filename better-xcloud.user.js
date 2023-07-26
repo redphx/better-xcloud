@@ -767,6 +767,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-size: 0.9rem;
     padding-left: 8px;
     z-index: 1000;
+    text-wrap: nowrap;
 }
 
 .better_xcloud_stats_bar[data-position=top-left] {
