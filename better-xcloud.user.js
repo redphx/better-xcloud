@@ -80,13 +80,14 @@ class StreamStats {
     static #$container;
     static #$fps;
     static #$rtt;
+    static #$dt;
     static #$pl;
     static #$fl;
     static #$br;
 
     static #$settings;
 
-    static #lastInbound;
+    static #lastStat;
 
     static start() {
         StreamStats.#$container.style.display = 'block';
@@ -97,7 +98,7 @@ class StreamStats {
         StreamStats.#$container.style.display = 'none';
         clearTimeout(StreamStats.#timeout);
         StreamStats.#timeout = null;
-        StreamStats.#lastInbound = null;
+        StreamStats.#lastStat = null;
     }
 
     static toggle() {
@@ -132,14 +133,21 @@ class StreamStats {
                     const framesReceived = stat.framesReceived || 1;
                     StreamStats.#$fl.textContent = `${framesDropped} (${(framesDropped * 100 / framesReceived).toFixed(2)}%)`;
 
-                    // Bitrate
-                    if (StreamStats.#lastInbound) {
-                        const timeDiff = stat.timestamp - StreamStats.#lastInbound.timestamp;
-                        const bitrate = 8 * (stat.bytesReceived - StreamStats.#lastInbound.bytesReceived) / timeDiff / 1000;
+                    if (StreamStats.#lastStat) {
+                        const lastStat = StreamStats.#lastStat;
+                        // Bitrate
+                        const timeDiff = stat.timestamp - lastStat.timestamp;
+                        const bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
                         StreamStats.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
+
+                        // Decode time
+                        const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
+                        const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
+                        const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
+                        StreamStats.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
                     }
 
-                    StreamStats.#lastInbound = stat;
+                    StreamStats.#lastStat = stat;
                 } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
@@ -183,6 +191,8 @@ class StreamStats {
                             StreamStats.#$fps = CE('span', {}, 0),
                             CE('label', {}, 'RTT'),
                             StreamStats.#$rtt = CE('span', {}, '0ms'),
+                            CE('label', {}, 'DT'),
+                            StreamStats.#$dt = CE('span', {}, '0ms'),
                             CE('label', {}, 'BR'),
                             StreamStats.#$br = CE('span', {}, '0 Mbps'),
                             CE('label', {}, 'PL'),
