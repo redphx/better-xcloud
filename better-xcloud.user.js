@@ -205,62 +205,37 @@ class StreamStats {
 
         document.documentElement.appendChild(StreamStats.#$container);
 
-        const positions = Preferences.SETTINGS[Preferences.STATS_POSITION].options;
-        const $select = CE('select', {});
-        for (let value in positions) {
-            const name = positions[value];
-            $select.appendChild(CE('option', {'value': value}, name));
-        }
-        $select.value = PREFS.get(Preferences.STATS_POSITION);
-        $select.addEventListener('change', e => {
-            PREFS.set(Preferences.STATS_POSITION, e.target.value);
-            StreamStats.#refreshStyles();
-        });
+        const refreshFunc = e => {
+            StreamStats.#refreshStyles()
+        };
+        const $position = PREFS.toElement(Preferences.STATS_POSITION, refreshFunc);
 
-        let $showStartup, $transparent, $opacity, $close;
+        let $close;
+        const $showStartup = PREFS.toElement(Preferences.STATS_SHOW_WHEN_PLAYING, refreshFunc);
+        const $transparent = PREFS.toElement(Preferences.STATS_TRANSPARENT, refreshFunc);
+        const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
+
         StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
                                     CE('b', {}, 'Stream Stats Settings'),
                                     CE('div', {},
                                        CE('label', {}, 'Show stats when starting the game'),
-                                       $showStartup = CE('input', {'type': 'checkbox'})
+                                       $showStartup
                                       ),
                                     CE('div', {},
                                        CE('label', {}, 'Position'),
-                                       $select
+                                       $position
                                       ),
                                     CE('div', {},
                                        CE('label', {}, 'Transparent background'),
-                                       $transparent = CE('input', {'type': 'checkbox'})
+                                       $transparent
                                       ),
                                     CE('div', {},
                                        CE('label', {}, 'Opacity (50-100%)'),
-                                       $opacity = CE('input', {'type': 'number', 'min': 50, 'max': 100})
+                                       $opacity
                                       ),
                                     $close = CE('button', {}, 'Close'));
 
         $close.addEventListener('click', e => StreamStats.hideSettingsUi());
-
-        $showStartup.checked = PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING);
-        $showStartup.addEventListener('change', e => {
-            PREFS.set(Preferences.STATS_SHOW_WHEN_PLAYING, e.target.checked);
-            StreamStats.#refreshStyles();
-        });
-
-        $transparent.checked = PREFS.get(Preferences.STATS_TRANSPARENT);
-        $transparent.addEventListener('change', e => {
-            PREFS.set(Preferences.STATS_TRANSPARENT, e.target.checked);
-            StreamStats.#refreshStyles();
-        });
-
-        $opacity.value = PREFS.get(Preferences.STATS_OPACITY);
-        $opacity.addEventListener('change', e => {
-            let value = Math.max(50, Math.min(100, parseInt(e.target.value)));
-            e.target.value = value;
-
-            PREFS.set(Preferences.STATS_OPACITY, value);
-            StreamStats.#refreshStyles();
-        });
-
         document.documentElement.appendChild(StreamStats.#$settings);
 
         StreamStats.#refreshStyles();
@@ -455,6 +430,50 @@ class Preferences {
 
     _update_storage() {
         this._storage.setItem(this._key, JSON.stringify(this._prefs));
+    }
+
+    toElement(key, onChange) {
+        const CE = createElement;
+        const setting = Preferences.SETTINGS[key];
+        const currentValue = PREFS.get(key);
+
+        let $control;
+        if ('options' in setting) {
+            $control = CE('select', {id: 'xcloud_setting_' + key});
+            for (let value in setting.options) {
+                const label = setting.options[value];
+
+                const $option = CE('option', {value: value}, label);
+                $control.appendChild($option);
+            }
+
+            $control.value = currentValue;
+            $control.addEventListener('change', e => {
+                PREFS.set(key, e.target.value);
+                onChange && onChange(e);
+            });
+        } else if (typeof setting.default === 'number') {
+            $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max});
+
+            $control.value = currentValue;
+            $control.addEventListener('change', e => {
+                let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
+                e.target.value = value;
+
+                PREFS.set(key, e.target.value);
+                onChange && onChange(e);
+            });
+        } else {
+            $control = CE('input', {'type': 'checkbox'});
+            $control.checked = currentValue;
+
+            $control.addEventListener('change', e => {
+                PREFS.set(key, e.target.checked);
+                onChange && onChange(e);
+            });
+        }
+
+        return $control;
     }
 }
 
