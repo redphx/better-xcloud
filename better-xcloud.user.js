@@ -155,10 +155,12 @@ class StreamStats {
         const PREF_POSITION = PREFS.get(Preferences.STATS_POSITION);
         const PREF_TRANSPARENT = PREFS.get(Preferences.STATS_TRANSPARENT);
         const PREF_OPACITY = PREFS.get(Preferences.STATS_OPACITY);
+        const PREF_TEXT_SIZE = PREFS.get(Preferences.STATS_TEXT_SIZE);
 
         StreamStats.#$container.setAttribute('data-position', PREF_POSITION);
         StreamStats.#$container.setAttribute('data-transparent', PREF_TRANSPARENT);
         StreamStats.#$container.style.opacity = PREF_OPACITY + '%';
+        StreamStats.#$container.style.fontSize = PREF_TEXT_SIZE;
     }
 
     static hideSettingsUi() {
@@ -214,24 +216,29 @@ class StreamStats {
         const $showStartup = PREFS.toElement(Preferences.STATS_SHOW_WHEN_PLAYING, refreshFunc);
         const $transparent = PREFS.toElement(Preferences.STATS_TRANSPARENT, refreshFunc);
         const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
+        const $textSize = PREFS.toElement(Preferences.STATS_TEXT_SIZE, refreshFunc);
 
         StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
                                     CE('b', {}, 'Stream Stats Settings'),
                                     CE('div', {},
-                                       CE('label', {}, 'Show stats when starting the game'),
-                                       $showStartup
+                                        CE('label', {}, 'Show stats when starting the game'),
+                                        $showStartup
                                       ),
                                     CE('div', {},
-                                       CE('label', {}, 'Position'),
-                                       $position
+                                        CE('label', {}, 'Position'),
+                                        $position
                                       ),
                                     CE('div', {},
-                                       CE('label', {}, 'Transparent background'),
-                                       $transparent
+                                        CE('label', {}, 'Text size'),
+                                        $textSize
                                       ),
                                     CE('div', {},
-                                       CE('label', {}, 'Opacity (50-100%)'),
-                                       $opacity
+                                        CE('label', {}, 'Transparent background'),
+                                        $transparent
+                                      ),
+                                    CE('div', {},
+                                        CE('label', {}, 'Opacity (50-100%)'),
+                                        $opacity
                                       ),
                                     $close = CE('button', {}, 'Close'));
 
@@ -267,6 +274,7 @@ class Preferences {
 
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
     static get STATS_POSITION() { return 'stats_position'; }
+    static get STATS_TEXT_SIZE() { return 'stats_text_size'; }
     static get STATS_TRANSPARENT() { return 'stats_transparent'; }
     static get STATS_OPACITY() { return 'stats_opacity'; }
 
@@ -357,6 +365,15 @@ class Preferences {
                 'top-left': 'Top Left',
                 'top-center': 'Top Center',
                 'top-right': 'Top Right',
+            },
+            'hidden': true,
+        },
+        [Preferences.STATS_TEXT_SIZE]: {
+            'default': '0.9rem',
+            'options': {
+                '0.9rem': 'Small',
+                '1.0rem': 'Normal',
+                '1.1rem': 'Large',
             },
             'hidden': true,
         },
@@ -739,8 +756,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better_xcloud_stats_bar label {
     margin: 0 8px 0 0;
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
-    font-size: 0.9rem;
+    font-size: inherit;
     font-weight: bold;
+    vertical-align: middle;
 }
 
 .better_xcloud_stats_bar span {
@@ -750,6 +768,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     padding-right: 8px;
     margin-right: 8px;
     border-right: 2px solid #fff;
+    vertical-align: middle;
 }
 
 .better_xcloud_stats_bar span:first-of-type {
