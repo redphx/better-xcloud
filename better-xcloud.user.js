@@ -434,6 +434,21 @@ class Preferences {
     }
 
     set(key, value) {
+        const config = Preferences.SETTINGS[key];
+        if (config) {
+            if ('min' in config) {
+                value = Math.max(config.min, value);
+            }
+
+            if ('max' in config) {
+                value = Math.min(config.max, value);
+            }
+
+            if ('options' in config && !(value in config.options)) {
+                value = config.default;
+            }
+        }
+
         this._prefs[key] = value;
         this._update_storage();
     }
