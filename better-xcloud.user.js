@@ -74,28 +74,32 @@ class StreamBadges {
 
 
 class StreamStats {
-    static #timeout;
+    static #interval;
     static #updateInterval = 1000;
 
     static #$container;
     static #$fps;
     static #$rtt;
+    static #$dt;
     static #$pl;
     static #$fl;
     static #$br;
 
-    static #lastInbound;
+    static #$settings;
+
+    static #lastStat;
 
     static start() {
         StreamStats.#$container.style.display = 'block';
-        StreamStats.update();
+        StreamStats.#interval = setInterval(StreamStats.update, StreamStats.#updateInterval);
     }
 
     static stop() {
+        clearInterval(StreamStats.#interval);
+
         StreamStats.#$container.style.display = 'none';
-        clearTimeout(StreamStats.#timeout);
-        StreamStats.#timeout = null;
-        StreamStats.#lastInbound = null;
+        StreamStats.#interval = null;
+        StreamStats.#lastStat = null;
     }
 
     static toggle() {
@@ -105,22 +109,20 @@ class StreamStats {
     static #isHidden = () => StreamStats.#$container.style.display === 'none';
 
     static update() {
-        if (StreamStats.#isHidden()) {
+        if (StreamStats.#isHidden() || !STREAM_WEBRTC) {
+            StreamStats.stop();
             return;
         }
 
-        if (!STREAM_WEBRTC) {
-            StreamStats.#timeout = setTimeout(StreamStats.update, StreamStats.#updateInterval);
-            return;
-        }
-
+        const PREF_STATS_CONDITIONAL_FORMATTING = PREFS.get(Preferences.STATS_CONDITIONAL_FORMATTING);
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
+                let grade = '';
                 if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
                     // FPS
                     StreamStats.#$fps.textContent = stat.framesPerSecond || 0;
 
-                    // Packets Loss
+                    // Packets Lost
                     const packetsLost = stat.packetsLost;
                     const packetsReceived = stat.packetsReceived || 1;
                     StreamStats.#$pl.textContent = `${packetsLost} (${(packetsLost * 100 / packetsReceived).toFixed(2)}%)`;
@@ -130,23 +132,59 @@ class StreamStats {
                     const framesReceived = stat.framesReceived || 1;
                     StreamStats.#$fl.textContent = `${framesDropped} (${(framesDropped * 100 / framesReceived).toFixed(2)}%)`;
 
-                    // Bitrate
-                    if (StreamStats.#lastInbound) {
-                        const timeDiff = stat.timestamp - StreamStats.#lastInbound.timestamp;
-                        const bitrate = 8 * (stat.bytesReceived - StreamStats.#lastInbound.bytesReceived) / timeDiff / 1000;
+                    if (StreamStats.#lastStat) {
+                        const lastStat = StreamStats.#lastStat;
+                        // Bitrate
+                        const timeDiff = stat.timestamp - lastStat.timestamp;
+                        const bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
                         StreamStats.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
+
+                        // Decode time
+                        const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
+                        const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
+                        const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
+                        StreamStats.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+
+                        if (PREF_STATS_CONDITIONAL_FORMATTING) {
+                            grade = (currentDecodeTime > 12) ? 'bad' : (currentDecodeTime > 9) ? 'ok' : (currentDecodeTime > 6) ? 'good' : '';
+                        }
+                        StreamStats.#$dt.setAttribute('data-grade', grade);
                     }
 
-                    StreamStats.#lastInbound = stat;
+                    StreamStats.#lastStat = stat;
                 } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
                     StreamStats.#$rtt.textContent = `${roundTripTime}ms`;
+
+                    if (PREF_STATS_CONDITIONAL_FORMATTING) {
+                        grade = (roundTripTime > 100) ? 'bad' : (roundTripTime > 75) ? 'ok' : (roundTripTime > 40) ? 'good' : '';
+                    }
+                    StreamStats.#$rtt.setAttribute('data-grade', grade);
                 }
             });
-
-            StreamStats.#timeout = setTimeout(StreamStats.update, StreamStats.#updateInterval);
         });
+    }
+
+    static #refreshStyles() {
+        const PREF_POSITION = PREFS.get(Preferences.STATS_POSITION);
+        const PREF_TRANSPARENT = PREFS.get(Preferences.STATS_TRANSPARENT);
+        const PREF_OPACITY = PREFS.get(Preferences.STATS_OPACITY);
+        const PREF_TEXT_SIZE = PREFS.get(Preferences.STATS_TEXT_SIZE);
+
+        StreamStats.#$container.setAttribute('data-position', PREF_POSITION);
+        StreamStats.#$container.setAttribute('data-transparent', PREF_TRANSPARENT);
+        StreamStats.#$container.style.opacity = PREF_OPACITY + '%';
+        StreamStats.#$container.style.fontSize = PREF_TEXT_SIZE;
+    }
+
+    static hideSettingsUi() {
+        StreamStats.#$settings.style.display = 'none';
+    }
+
+    static #toggleSettingsUi() {
+        const display = StreamStats.#$settings.style.display;
+        StreamStats.#$settings.style.display = display === 'block' ? 'none' : 'block';
     }
 
     static render() {
@@ -160,6 +198,8 @@ class StreamStats {
                             StreamStats.#$fps = CE('span', {}, 0),
                             CE('label', {}, 'RTT'),
                             StreamStats.#$rtt = CE('span', {}, '0ms'),
+                            CE('label', {}, 'DT'),
+                            StreamStats.#$dt = CE('span', {}, '0ms'),
                             CE('label', {}, 'BR'),
                             StreamStats.#$br = CE('span', {}, '0 Mbps'),
                             CE('label', {}, 'PL'),
@@ -167,7 +207,67 @@ class StreamStats {
                             CE('label', {}, 'FL'),
                             StreamStats.#$fl = CE('span', {}, '0 (0.00%)'));
 
+        let clickTimeout;
+        StreamStats.#$container.addEventListener('mousedown', e => {
+            clearTimeout(clickTimeout);
+            if (clickTimeout) {
+                // Double-clicked
+                clickTimeout = null;
+                StreamStats.#toggleSettingsUi();
+                return;
+            }
+
+            clickTimeout = setTimeout(() => {
+                clickTimeout = null;
+            }, 400);
+        });
+
         document.documentElement.appendChild(StreamStats.#$container);
+
+        const refreshFunc = e => {
+            StreamStats.#refreshStyles()
+        };
+        const $position = PREFS.toElement(Preferences.STATS_POSITION, refreshFunc);
+
+        let $close;
+        const $showStartup = PREFS.toElement(Preferences.STATS_SHOW_WHEN_PLAYING, refreshFunc);
+        const $transparent = PREFS.toElement(Preferences.STATS_TRANSPARENT, refreshFunc);
+        const $formatting = PREFS.toElement(Preferences.STATS_CONDITIONAL_FORMATTING, refreshFunc);
+        const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
+        const $textSize = PREFS.toElement(Preferences.STATS_TEXT_SIZE, refreshFunc);
+
+        StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
+                                    CE('b', {}, 'Stream Stats Settings'),
+                                    CE('div', {},
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_SHOW_WHEN_PLAYING}`}, 'Show stats when starting the game'),
+                                        $showStartup
+                                      ),
+                                    CE('div', {},
+                                        CE('label', {}, 'Position'),
+                                        $position
+                                      ),
+                                    CE('div', {},
+                                        CE('label', {}, 'Text size'),
+                                        $textSize
+                                      ),
+                                    CE('div', {},
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_OPACITY}`}, 'Opacity (50-100%)'),
+                                        $opacity
+                                      ),
+                                    CE('div', {},
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_TRANSPARENT}`}, 'Transparent background'),
+                                        $transparent
+                                      ),
+                                    CE('div', {},
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_CONDITIONAL_FORMATTING}`}, 'Conditional formatting text color'),
+                                        $formatting
+                                      ),
+                                    $close = CE('button', {}, 'Close'));
+
+        $close.addEventListener('click', e => StreamStats.hideSettingsUi());
+        document.documentElement.appendChild(StreamStats.#$settings);
+
+        StreamStats.#refreshStyles();
     }
 }
 
@@ -194,84 +294,127 @@ class Preferences {
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
 
-    static SETTINGS = [
-        {
-            'id': Preferences.SERVER_REGION,
+    static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
+    static get STATS_POSITION() { return 'stats_position'; }
+    static get STATS_TEXT_SIZE() { return 'stats_text_size'; }
+    static get STATS_TRANSPARENT() { return 'stats_transparent'; }
+    static get STATS_OPACITY() { return 'stats_opacity'; }
+    static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
+
+    static SETTINGS = {
+        [Preferences.SERVER_REGION]: {
             'label': 'Region of streaming server',
             'default': 'default',
-        }, {
-            'id': Preferences.FORCE_1080P_STREAM,
+        },
+        [Preferences.FORCE_1080P_STREAM]: {
             'label': 'Force 1080p stream',
             'default': false,
-        }, {
-            'id': Preferences.USE_DESKTOP_CODEC,
-            'label': 'Force high quality codec (if possible)',
+        },
+        [Preferences.USE_DESKTOP_CODEC]: {
+            'label': 'Force high-quality codec (if supported)',
             'default': false,
-        }, {
-            'id': Preferences.PREFER_IPV6_SERVER,
+        },
+        [Preferences.PREFER_IPV6_SERVER]: {
             'label': 'Prefer IPv6 streaming server',
             'default': false,
-        }, {
-            'id': Preferences.DISABLE_BANDWIDTH_CHECKING,
+        },
+        [Preferences.DISABLE_BANDWIDTH_CHECKING]: {
             'label': 'Disable bandwidth checking',
             'default': false,
-        }, {
-            'id': Preferences.SCREENSHOT_BUTTON_POSITION,
+        },
+        [Preferences.SCREENSHOT_BUTTON_POSITION]: {
             'label': 'Screenshot button\'s position',
             'default': 'bottom-left',
-            'options': {
+            'options':
+            {
                 'bottom-left': 'Bottom Left',
                 'bottom-right': 'Bottom Right',
                 'none': 'Disable',
             },
-        }, {
-            'id': Preferences.SKIP_SPLASH_VIDEO,
+        },
+        [Preferences.SKIP_SPLASH_VIDEO]: {
             'label': 'Skip Xbox splash video',
             'default': false,
-        }, {
-            'id': Preferences.HIDE_DOTS_ICON,
+        },
+        [Preferences.HIDE_DOTS_ICON]: {
             'label': 'Hide Dots icon while playing',
             'default': false,
-        }, {
-            'id': Preferences.REDUCE_ANIMATIONS,
+        },
+        [Preferences.REDUCE_ANIMATIONS]: {
             'label': 'Reduce UI animations',
             'default': false,
-        }, {
-            'id': Preferences.BLOCK_SOCIAL_FEATURES,
+        },
+        [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'label': 'Disable social features',
             'default': false,
-        }, {
-            'id': Preferences.BLOCK_TRACKING,
+        },
+        [Preferences.BLOCK_TRACKING]: {
             'label': 'Disable xCloud analytics',
             'default': false,
-        }, {
-            'id': Preferences.VIDEO_FILL_FULL_SCREEN,
+        },
+        [Preferences.VIDEO_FILL_FULL_SCREEN]: {
             'label': 'Stretch video to full screen',
             'default': false,
             'hidden': true,
-        }, {
-            'id': Preferences.VIDEO_SATURATION,
+        },
+        [Preferences.VIDEO_SATURATION]: {
             'label': 'Video saturation (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
-        }, {
-            'id': Preferences.VIDEO_CONTRAST,
+        },
+        [Preferences.VIDEO_CONTRAST]: {
             'label': 'Video contrast (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
-        }, {
-            'id': Preferences.VIDEO_BRIGHTNESS,
+        },
+        [Preferences.VIDEO_BRIGHTNESS]: {
             'label': 'Video brightness (%)',
             'default': 100,
             'min': 0,
             'max': 150,
             'hidden': true,
         },
-    ]
+        [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+            'default': false,
+            'hidden': true,
+        },
+        [Preferences.STATS_POSITION]: {
+            'default': 'top-left',
+            'options': {
+                'top-left': 'Top Left',
+                'top-center': 'Top Center',
+                'top-right': 'Top Right',
+            },
+            'hidden': true,
+        },
+        [Preferences.STATS_TEXT_SIZE]: {
+            'default': '0.9rem',
+            'options': {
+                '0.9rem': 'Small',
+                '1.0rem': 'Normal',
+                '1.1rem': 'Large',
+            },
+            'hidden': true,
+        },
+        [Preferences.STATS_TRANSPARENT]: {
+            'default': false,
+            'hidden': true,
+        },
+        [Preferences.STATS_OPACITY]: {
+            'default': 80,
+            'min': 50,
+            'max': 100,
+            'hidden': true,
+        },
+        [Preferences.STATS_CONDITIONAL_FORMATTING]: {
+            'default': false,
+            'hidden': true,
+        },
+    }
 
     constructor() {
         this._storage = localStorage;
@@ -284,11 +427,12 @@ class Preferences {
         savedPrefs = JSON.parse(savedPrefs);
 
         this._prefs = {};
-        for (let setting of Preferences.SETTINGS) {
-            if (setting.id in savedPrefs) {
-                this._prefs[setting.id] = savedPrefs[setting.id];
+        for (let settingId in Preferences.SETTINGS) {
+            const setting = Preferences.SETTINGS[settingId];
+            if (settingId in savedPrefs) {
+                this._prefs[settingId] = savedPrefs[settingId];
             } else {
-                this._prefs[setting.id] = setting.default;
+                this._prefs[settingId] = setting.default;
             }
         }
     }
@@ -304,23 +448,77 @@ class Preferences {
             return defaultValue;
         }
 
-        // Get default value
-        for (let setting of Preferences.SETTINGS) {
-            if (setting.id == key) {
-                return setting.default;
-            }
-        }
-
-        return null;
+        // Return default value
+        return Preferences.SETTINGS[key].default;
     }
 
     set(key, value) {
+        const config = Preferences.SETTINGS[key];
+        if (config) {
+            if ('min' in config) {
+                value = Math.max(config.min, value);
+            }
+
+            if ('max' in config) {
+                value = Math.min(config.max, value);
+            }
+
+            if ('options' in config && !(value in config.options)) {
+                value = config.default;
+            }
+        }
+
         this._prefs[key] = value;
         this._update_storage();
     }
 
     _update_storage() {
         this._storage.setItem(this._key, JSON.stringify(this._prefs));
+    }
+
+    toElement(key, onChange) {
+        const CE = createElement;
+        const setting = Preferences.SETTINGS[key];
+        const currentValue = PREFS.get(key);
+
+        let $control;
+        if ('options' in setting) {
+            $control = CE('select', {id: 'xcloud_setting_' + key});
+            for (let value in setting.options) {
+                const label = setting.options[value];
+
+                const $option = CE('option', {value: value}, label);
+                $control.appendChild($option);
+            }
+
+            $control.value = currentValue;
+            $control.addEventListener('change', e => {
+                PREFS.set(key, e.target.value);
+                onChange && onChange(e);
+            });
+        } else if (typeof setting.default === 'number') {
+            $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max});
+
+            $control.value = currentValue;
+            $control.addEventListener('change', e => {
+                let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
+                e.target.value = value;
+
+                PREFS.set(key, e.target.value);
+                onChange && onChange(e);
+            });
+        } else {
+            $control = CE('input', {'type': 'checkbox'});
+            $control.checked = currentValue;
+
+            $control.addEventListener('change', e => {
+                PREFS.set(key, e.target.checked);
+                onChange && onChange(e);
+            });
+        }
+
+        $control.id = `xcloud_setting_${key}`;
+        return $control;
     }
 }
 
@@ -554,22 +752,42 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better_xcloud_stats_bar {
     display: none;
-    position: absolute;
+    user-select: none;
+    position: fixed;
     top: 0;
-    left: 0;
-    opacity: 0.8;
     background-color: #000;
     color: #fff;
     font-family: Consolas, "Courier New", Courier, monospace;
     font-size: 0.9rem;
     padding-left: 8px;
     z-index: 1000;
+    text-wrap: nowrap;
+}
+
+.better_xcloud_stats_bar[data-position=top-left] {
+    left: 0;
+}
+
+.better_xcloud_stats_bar[data-position=top-right] {
+    right: 0;
+}
+
+.better_xcloud_stats_bar[data-position=top-center] {
+    transform: translate(-50%, 0);
+    left: 50%;
+}
+
+.better_xcloud_stats_bar[data-transparent=true] {
+    background: none;
+    filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
 }
 
 .better_xcloud_stats_bar label {
-    font-weight: bold;
     margin: 0 8px 0 0;
-    font-size: 0.9rem;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-size: inherit;
+    font-weight: bold;
+    vertical-align: middle;
 }
 
 .better_xcloud_stats_bar span {
@@ -579,11 +797,100 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     padding-right: 8px;
     margin-right: 8px;
     border-right: 2px solid #fff;
+    vertical-align: middle;
+}
+
+.better_xcloud_stats_bar span[data-grade=good] {
+    color: #6bffff;
+}
+
+.better_xcloud_stats_bar span[data-grade=ok] {
+    color: #fff16b;
+}
+
+.better_xcloud_stats_bar span[data-grade=bad] {
+    color: #ff5f5f;
+}
+
+.better_xcloud_stats_bar span:first-of-type {
+    min-width: 30px;
 }
 
 .better_xcloud_stats_bar span:last-of-type {
     border: 0;
     margin-right: 0;
+}
+
+.better_xcloud_stats_settings {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: 1000;
+    background: #1a1b1e;
+    color: #fff;
+    font-weight: 400;
+    font-size: 16px;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    box-shadow: 0 0 6px #000;
+    user-select: none;
+}
+
+.better_xcloud_stats_settings *:focus {
+    outline: none !important;
+}
+
+.better_xcloud_stats_settings > b {
+    color: #fff;
+    display: block;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 32px;
+    margin-bottom: 12px;
+}
+
+.better_xcloud_stats_settings > div {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 2px 4px;
+}
+
+.better_xcloud_stats_settings label {
+    flex: 1;
+    margin-bottom: 0;
+    align-self: center;
+}
+
+.better_xcloud_stats_settings button {
+    padding: 8px 32px;
+    margin: 20px auto 0;
+    border: none;
+    border-radius: 4px;
+    display: block;
+    background-color: #2d3036;
+    text-align: center;
+    color: white;
+    text-transform: uppercase;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-weight: 400;
+    line-height: 18px;
+    font-size: 14px;
+}
+
+@media (hover: hover) {
+    .better_xcloud_stats_settings button:hover {
+        background-color: #515863;
+    }
+}
+
+.better_xcloud_stats_settings button:focus {
+    background-color: #515863;
 }
 
 /* Hide UI elements */
@@ -937,22 +1244,23 @@ function injectSettingsButton($parent) {
         $updateAvailable.style.display = 'block';
     }
 
-    for (let setting of Preferences.SETTINGS) {
+    for (let settingId in Preferences.SETTINGS) {
+        const setting = Preferences.SETTINGS[settingId];
         if (setting.hidden) {
             continue;
         }
 
         let $control;
         let labelAttrs = {};
-        if (setting.id === Preferences.SERVER_REGION || setting.options) {
+        if (settingId === Preferences.SERVER_REGION || setting.options) {
             let selectedValue;
 
-            $control = CE('select', {id: 'xcloud_setting_' + setting.id});
+            $control = CE('select', {id: 'xcloud_setting_' + settingId});
             $control.addEventListener('change', e => {
-                PREFS.set(setting.id, e.target.value);
+                PREFS.set(settingId, e.target.value);
             });
 
-            if (setting.id === Preferences.SERVER_REGION) {
+            if (settingId === Preferences.SERVER_REGION) {
                 selectedValue = PREF_PREFERRED_REGION;
                 setting.options = {};
                 for (let regionName in SERVER_REGIONS) {
@@ -968,7 +1276,7 @@ function injectSettingsButton($parent) {
                     setting.options[value] = label;
                 }
             } else {
-                selectedValue = PREFS.get(setting.id);
+                selectedValue = PREFS.get(settingId);
             }
 
             for (let value in setting.options) {
@@ -981,21 +1289,21 @@ function injectSettingsButton($parent) {
 
         } else {
             $control = CE('input', {
-                id: 'xcloud_setting_' + setting.id,
+                id: 'xcloud_setting_' + settingId,
                 type: 'checkbox',
-                'data-key': setting.id,
+                'data-key': settingId,
             });
 
             $control.addEventListener('change', e => {
                 PREFS.set(e.target.getAttribute('data-key'), e.target.checked);
             });
 
-            setting.value = PREFS.get(setting.id);
+            setting.value = PREFS.get(settingId);
             $control.checked = setting.value;
 
-            labelAttrs = {'for': 'xcloud_setting_' + setting.id, 'tabindex': 0};
+            labelAttrs = {'for': 'xcloud_setting_' + settingId, 'tabindex': 0};
 
-            if (setting.id === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
+            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
                 $control.checked = false;
                 $control.disabled = true;
                 $control.title = 'Your browser doesn\'t support this feature';
@@ -1227,7 +1535,7 @@ function patchVideoApi() {
         $SCREENSHOT_CANVAS.height = this.videoHeight;
         StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
 
-        const stats = STREAM_WEBRTC.getStats().then(stats => {
+        STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
                 if (stat.type !== 'codec') {
                     return;
@@ -1252,6 +1560,10 @@ function patchVideoApi() {
                     };
                 }
             });
+
+            if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
+                StreamStats.start();
+            }
         });
 
         if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
@@ -1308,7 +1620,7 @@ function patchRtcCodecs() {
         const newCodecs = codecs.slice();
         let pos = 0;
         newCodecs.forEach((codec, i) => {
-            // Find high quality codecs
+            // Find high-quality codecs
             if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes('profile-level-id=4d')) {
                 // Move it to the top of the array
                 newCodecs.splice(i, 1);
@@ -1593,6 +1905,7 @@ function hideUiOnPageChange() {
     STREAM_WEBRTC = null;
     $STREAM_VIDEO = null;
     StreamStats.stop();
+    StreamStats.hideSettingsUi();
     document.querySelector('.better_xcloud_screenshot_button').style = '';
 }
 
