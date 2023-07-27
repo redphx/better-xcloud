@@ -93,14 +93,17 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a Bluetooth mouse if you want to interact with the Settings.  
 
 ## Stream stats  
-![image](https://github.com/redphx/better-xcloud/assets/96280/dc0f4f36-8a69-4ec1-aadd-cfda2d701991)  
-
-- While playing > `...` > `Stream Stats`.  
+<img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/70f4b1bb-4e3d-4f27-9b2f-afcfe1b8b261">
+  
+- While playing > `...` > `Stream Stats`.
+- Double-click on the stats bar to show Settings dialog.  
 - This bar is updated every second.  
+- Showing the stats bar does affect the performance of the stream.  
 
 | Abbr. | Full name          | Explain                                                                                                                            |
 |------:|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
 | FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (equal to or lower than the FPS of the game)                         |
+| DT    | Decode Time        | The average time it took to decode one frame in the last second (might be bugged)                                                  |
 | RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better) |
 | BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                               |
 | PL    | Packets Lost       | The total number of packets lost                                                                                                   |
@@ -108,7 +111,13 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 This info is provided by WebRTC API. You can use browser's built-in tool to see more info:  
 - Chrome/Edge/Chromium variants: `chrome://webrtc-internals`  
-- Firefox: `about:webrtc`  
+- Firefox: `about:webrtc`
+
+Colors:  
+- Red = Bad
+- Yellow = Okay
+- Green = Good
+- White = Great
 
 📝 Having this info on all the time might reduce your enjoyment, so I'd recommend only using it when having network problems.
 
