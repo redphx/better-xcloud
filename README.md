@@ -2,6 +2,7 @@
 Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
 The main target of this script is mobile users, but it should work great on desktop too.
 
+This script makes me spend more time with xCloud, and I hope the same thing happens to you.  
 Give this project a 🌟 if you like it. Thank you 🙏.
 
 [![Latest version](https://img.shields.io/github/v/release/redphx/better-xcloud?label=latest)](https://github.com/redphx/better-xcloud/releases) 
