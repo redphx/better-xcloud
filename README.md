@@ -99,7 +99,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - While playing > `...` > `Stream Stats`.
 - Double-click on the stats bar to show Settings dialog.  
 - This bar is updated every second.  
-- Showing the stats bar does affect the performance of the stream.  
+- ⚠️ Using **Better xCloud** or showing the stats bar also affects the performance of the stream.  
 
 | Abbr. | Full name          | Explain                                                                                                                            |
 |------:|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
