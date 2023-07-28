@@ -72,6 +72,10 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 To update manually, just install the script again (you won't lose your settings).
 
+## Tutorial videos  
+If you still have trouble installing **Better xCloud**, you can follow one of these tutorial videos:  
+- [How to install on Desktop & Android by **Cloud Gaming France**](https://www.youtube.com/watch?v=5U05KoTdDHs) (in French)  
+
 ## Compatibility
 ✅ = confirmed to be working  
 ❓ = not yet tested  
