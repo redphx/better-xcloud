@@ -392,6 +392,14 @@ class Preferences {
     static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
 
     static SETTINGS = {
+        [Preferences.LAST_UPDATE_CHECK]: {
+            'default': 0,
+            'hidden': true,
+        },
+        [Preferences.LATEST_VERSION]: {
+            'default': '',
+            'hidden': true,
+        },
         [Preferences.SERVER_REGION]: {
             'label': 'Region of streaming server',
             'default': 'default',
