@@ -1062,6 +1062,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-size: 16px;
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     text-align: center;
+    box-shadow: 0px 0px 6px #000;
+    opacity: 0.95;
 }
 
 .better-xcloud-quick-settings-bar *:focus {
