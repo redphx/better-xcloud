@@ -69,9 +69,9 @@ class StreamBadges {
 
     static #renderBadge(name, value, color) {
         const CE = createElement;
-        const $badge = CE('div', {'class': 'better_xcloud_badge'},
-                            CE('span', {'class': 'better_xcloud_badge_name'}, name),
-                            CE('span', {'class': 'better_xcloud_badge_value', 'style': `background-color: ${color}`}, value));
+        const $badge = CE('div', {'class': 'better-xcloud-badge'},
+                            CE('span', {'class': 'better-xcloud-badge-name'}, name),
+                            CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
 
         return $badge;
     }
@@ -102,7 +102,7 @@ class StreamBadges {
             StreamBadges.resolution && ['resolution', `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`, '#ff3977'],
         ];
 
-        const $wrapper = createElement('div', {'class': 'better_xcloud_badges'});
+        const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
         BADGES.forEach(item => item && $wrapper.appendChild(StreamBadges.#renderBadge(...item)));
 
         return $wrapper;
@@ -230,7 +230,7 @@ class StreamStats {
         }
 
         const CE = createElement;
-        StreamStats.#$container = CE('div', {'class': 'better_xcloud_stats_bar'},
+        StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar'},
                             CE('label', {}, 'FPS'),
                             StreamStats.#$fps = CE('span', {}, 0),
                             CE('label', {}, 'RTT'),
@@ -273,7 +273,7 @@ class StreamStats {
         const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
         const $textSize = PREFS.toElement(Preferences.STATS_TEXT_SIZE, refreshFunc);
 
-        StreamStats.#$settings = CE('div', {'class': 'better_xcloud_stats_settings'},
+        StreamStats.#$settings = CE('div', {'class': 'better-xcloud-stats-settings'},
                                     CE('b', {}, 'Stream Stats Settings'),
                                     CE('div', {},
                                         CE('label', {'for': `xcloud_setting_${Preferences.STATS_SHOW_WHEN_PLAYING}`}, 'Show stats when starting the game'),
@@ -695,7 +695,7 @@ function checkForUpdate() {
 
 function addCss() {
     let css = `
-.better_xcloud_settings_button {
+.better-xcloud-settings-button {
     background-color: transparent;
     border: none;
     color: white;
@@ -705,11 +705,11 @@ function addCss() {
     padding: 8px;
 }
 
-.better_xcloud_settings_button:hover, .better_xcloud_settings_button:focus {
+.better-xcloud-settings-button:hover, .better-xcloud-settings-button:focus {
     background-color: #515863;
 }
 
-.better_xcloud_settings_button[data-update-available]::after {
+.better-xcloud-settings-button[data-update-available]::after {
     content: ' 🌟';
 }
 
@@ -720,25 +720,25 @@ function addCss() {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif
 }
 
-.better_xcloud_settings_gone {
+.better-xcloud-settings-gone {
     display: none;
 }
 
-.better_xcloud_settings_wrapper {
+.better-xcloud-settings-wrapper {
     width: 450px;
     margin: auto;
     padding: 12px 6px;
 }
 
-.better_xcloud_settings_wrapper *:focus {
+.better-xcloud-settings-wrapper *:focus {
     outline: none !important;
 }
 
-.better_xcloud_settings_wrapper .better_xcloud_settings_title_wrapper {
+.better-xcloud-settings-wrapper .better-xcloud-settings-title-wrapper {
     display: flex;
 }
 
-.better_xcloud_settings_wrapper a.better_xcloud_settings_title {
+.better-xcloud-settings-wrapper a.better-xcloud-settings-title {
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     font-size: 20px;
     text-decoration: none;
@@ -750,56 +750,56 @@ function addCss() {
 }
 
 @media (hover: hover) {
-    .better_xcloud_settings_wrapper a.better_xcloud_settings_title:hover {
+    .better-xcloud-settings-wrapper a.better-xcloud-settings-title:hover {
         color: #83f73a;
     }
 }
 
-.better_xcloud_settings_wrapper a.better_xcloud_settings_title:focus {
+.better-xcloud-settings-wrapper a.better-xcloud-settings-title:focus {
     color: #83f73a;
 }
 
-.better_xcloud_settings_wrapper a.better_xcloud_settings_update {
+.better-xcloud-settings-wrapper a.better-xcloud-settings-update {
     display: none;
     color: #ff834b;
     text-decoration: none;
 }
 
 @media (hover: hover) {
-    .better_xcloud_settings_wrapper a.better_xcloud_settings_update:hover {
+    .better-xcloud-settings-wrapper a.better-xcloud-settings-update:hover {
         color: #ff9869;
         text-decoration: underline;
     }
 }
 
-.better_xcloud_settings_wrapper a.better_xcloud_settings_update:focus {
+.better-xcloud-settings-wrapper a.better-xcloud-settings-update:focus {
     color: #ff9869;
     text-decoration: underline;
 }
 
-.better_xcloud_settings_wrapper .setting_row {
+.better-xcloud-settings-wrapper .setting_row {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
 }
 
-.better_xcloud_settings_wrapper .setting_row label {
+.better-xcloud-settings-wrapper .setting_row label {
     flex: 1;
     align-self: center;
     margin-bottom: 0;
 }
 
 @media not (hover: hover) {
-    .better_xcloud_settings_wrapper .setting_row:focus-within {
+    .better-xcloud-settings-wrapper .setting_row:focus-within {
        background-color: #242424;
     }
 }
 
-.better_xcloud_settings_wrapper .setting_row input {
+.better-xcloud-settings-wrapper .setting_row input {
     align-self: center;
 }
 
-.better_xcloud_settings_wrapper .setting_button {
+.better-xcloud-settings-wrapper .setting_button {
     padding: 8px 32px;
     margin: 10px auto 0;
     border: none;
@@ -815,20 +815,20 @@ function addCss() {
 }
 
 @media (hover: hover) {
-    .better_xcloud_settings_wrapper .setting_button:hover {
+    .better-xcloud-settings-wrapper .setting_button:hover {
         background-color: #00753c;
     }
 }
 
-.better_xcloud_settings_wrapper .setting_button:focus {
+.better-xcloud-settings-wrapper .setting_button:focus {
     background-color: #00753c;
 }
 
-.better_xcloud_settings_wrapper .setting_button:active {
+.better-xcloud-settings-wrapper .setting_button:active {
     background-color: #00753c;
 }
 
-.better_xcloud_settings_custom_user_agent {
+.better-xcloud-settings-custom-user-agent {
     display: block;
     width: 100%;
 }
@@ -837,14 +837,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: visible;
 }
 
-.better_xcloud_badges {
+.better-xcloud-badges {
     position: absolute;
     top: 155px;
     margin-left: 0px;
     user-select: none;
 }
 
-.better_xcloud_badge {
+.better-xcloud-badge {
     border: none;
     display: inline-block;
     line-height: 24px;
@@ -856,7 +856,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.better_xcloud_badge .better_xcloud_badge_name {
+.better-xcloud-badge .better-xcloud-badge-name {
     background-color: #2d3036;
     display: inline-block;
     padding: 2px 8px;
@@ -864,14 +864,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-transform: uppercase;
 }
 
-.better_xcloud_badge .better_xcloud_badge_value {
+.better-xcloud-badge .better-xcloud-badge-value {
     background-color: grey;
     display: inline-block;
     padding: 2px 8px;
     border-radius: 0 4px 4px 0;
 }
 
-.better_xcloud_screenshot_button {
+.better-xcloud-screenshot-button {
     display: none;
     opacity: 0;
     position: fixed;
@@ -890,19 +890,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMTIgN2E1LjAyIDUuMDIgMCAwIDAtNSA1IDUuMDIgNS4wMiAwIDAgMCA1IDUgNS4wMiA1LjAyIDAgMCAwIDUtNSA1LjAyIDUuMDIgMCAwIDAtNS01em0wIDJjMS42NjkgMCAzIDEuMzMxIDMgM3MtMS4zMzEgMy0zIDMtMy0xLjMzMS0zLTMgMS4zMzEtMyAzLTN6TTYgMkMzLjgwMSAyIDIgMy44MDEgMiA2djJhMSAxIDAgMSAwIDIgMFY2YTEuOTcgMS45NyAwIDAgMSAyLTJoMmExIDEgMCAxIDAgMC0yek0zIDE1YTEgMSAwIDAgMC0xIDF2MmMwIDIuMTk5IDEuODAxIDQgNCA0aDJhMSAxIDAgMSAwIDAtMkg2YTEuOTcgMS45NyAwIDAgMS0yLTJ2LTJhMSAxIDAgMCAwLTEtMXptMTggMGExIDEgMCAwIDAtMSAxdjJhMS45NyAxLjk3IDAgMCAxLTIgMmgtMmExIDEgMCAxIDAgMCAyaDJjMi4xOTkgMCA0LTEuODAxIDQtNHYtMmExIDEgMCAwIDAtMS0xeiIvPjxwYXRoIGQ9Ik0xNiAyYTEgMSAwIDEgMCAwIDJoMmExLjk3IDEuOTcgMCAwIDEgMiAydjJhMSAxIDAgMSAwIDIgMFY2YzAtMi4xOTktMS44MDEtNC00LTR6Ii8+PC9zdmc+Cg==);
 }
 
-.better_xcloud_screenshot_button[data-showing=true] {
+.better-xcloud-screenshot-button[data-showing=true] {
     opacity: 1;
 }
 
-.better_xcloud_screenshot_button[data-capturing=true] {
+.better-xcloud-screenshot-button[data-capturing=true] {
     padding: 0px;
 }
 
-.better_xcloud_screenshot_canvas {
+.better-xcloud-screenshot-canvas {
     display: none;
 }
 
-.better_xcloud_stats_bar {
+.better-xcloud-stats-bar {
     display: none;
     user-select: none;
     position: fixed;
@@ -916,25 +916,25 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-wrap: nowrap;
 }
 
-.better_xcloud_stats_bar[data-position=top-left] {
+.better-xcloud-stats-bar[data-position=top-left] {
     left: 0;
 }
 
-.better_xcloud_stats_bar[data-position=top-right] {
+.better-xcloud-stats-bar[data-position=top-right] {
     right: 0;
 }
 
-.better_xcloud_stats_bar[data-position=top-center] {
+.better-xcloud-stats-bar[data-position=top-center] {
     transform: translate(-50%, 0);
     left: 50%;
 }
 
-.better_xcloud_stats_bar[data-transparent=true] {
+.better-xcloud-stats-bar[data-transparent=true] {
     background: none;
     filter: drop-shadow(1px 0 0 #000) drop-shadow(-1px 0 0 #000) drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 #000);
 }
 
-.better_xcloud_stats_bar label {
+.better-xcloud-stats-bar label {
     margin: 0 8px 0 0;
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     font-size: inherit;
@@ -942,7 +942,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     vertical-align: middle;
 }
 
-.better_xcloud_stats_bar span {
+.better-xcloud-stats-bar span {
     min-width: 60px;
     display: inline-block;
     text-align: right;
@@ -952,28 +952,28 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     vertical-align: middle;
 }
 
-.better_xcloud_stats_bar span[data-grade=good] {
+.better-xcloud-stats-bar span[data-grade=good] {
     color: #6bffff;
 }
 
-.better_xcloud_stats_bar span[data-grade=ok] {
+.better-xcloud-stats-bar span[data-grade=ok] {
     color: #fff16b;
 }
 
-.better_xcloud_stats_bar span[data-grade=bad] {
+.better-xcloud-stats-bar span[data-grade=bad] {
     color: #ff5f5f;
 }
 
-.better_xcloud_stats_bar span:first-of-type {
+.better-xcloud-stats-bar span:first-of-type {
     min-width: 30px;
 }
 
-.better_xcloud_stats_bar span:last-of-type {
+.better-xcloud-stats-bar span:last-of-type {
     border: 0;
     margin-right: 0;
 }
 
-.better_xcloud_stats_settings {
+.better-xcloud-stats-settings {
     display: none;
     position: fixed;
     top: 50%;
@@ -993,11 +993,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     user-select: none;
 }
 
-.better_xcloud_stats_settings *:focus {
+.better-xcloud-stats-settings *:focus {
     outline: none !important;
 }
 
-.better_xcloud_stats_settings > b {
+.better-xcloud-stats-settings > b {
     color: #fff;
     display: block;
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
@@ -1007,19 +1007,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 12px;
 }
 
-.better_xcloud_stats_settings > div {
+.better-xcloud-stats-settings > div {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
 }
 
-.better_xcloud_stats_settings label {
+.better-xcloud-stats-settings label {
     flex: 1;
     margin-bottom: 0;
     align-self: center;
 }
 
-.better_xcloud_stats_settings button {
+.better-xcloud-stats-settings button {
     padding: 8px 32px;
     margin: 20px auto 0;
     border: none;
@@ -1036,12 +1036,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 @media (hover: hover) {
-    .better_xcloud_stats_settings button:hover {
+    .better-xcloud-stats-settings button:hover {
         background-color: #515863;
     }
 }
 
-.better_xcloud_stats_settings button:focus {
+.better-xcloud-stats-settings button:focus {
     background-color: #515863;
 }
 
@@ -1368,10 +1368,10 @@ function injectSettingsButton($parent) {
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION, null);
 
-    const $button = CE('button', {'class': 'better_xcloud_settings_button'}, PREF_PREFERRED_REGION);
+    const $button = CE('button', {'class': 'better-xcloud-settings-button'}, PREF_PREFERRED_REGION);
     $button.addEventListener('click', e => {
         const $settings = document.querySelector('.better_xcloud_settings');
-        $settings.classList.toggle('better_xcloud_settings_gone');
+        $settings.classList.toggle('better-xcloud-settings-gone');
         $settings.scrollIntoView();
     });
 
@@ -1382,19 +1382,19 @@ function injectSettingsButton($parent) {
     $parent.appendChild($button);
 
     const $container = CE('div', {
-        'class': 'better_xcloud_settings better_xcloud_settings_gone',
+        'class': 'better_xcloud_settings better-xcloud-settings-gone',
     });
 
     let $updateAvailable;
-    const $wrapper = CE('div', {'class': 'better_xcloud_settings_wrapper'},
-                        CE('div', {'class': 'better_xcloud_settings_title_wrapper'},
+    const $wrapper = CE('div', {'class': 'better-xcloud-settings-wrapper'},
+                        CE('div', {'class': 'better-xcloud-settings-title-wrapper'},
                            CE('a', {
-                                'class': 'better_xcloud_settings_title',
+                                'class': 'better-xcloud-settings-title',
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
                            $updateAvailable = CE('a', {
-                                'class': 'better_xcloud_settings_update',
+                                'class': 'better-xcloud-settings-update',
                                 'href': 'https://github.com/redphx/better-xcloud/releases',
                                 'target': '_blank',
                            })
@@ -1421,7 +1421,7 @@ function injectSettingsButton($parent) {
             $inpCustomUserAgent = CE('input', {
                     'type': 'text',
                     'placeholder': defaultUserAgent,
-                    'class': 'better_xcloud_settings_custom_user_agent',
+                    'class': 'better-xcloud-settings-custom-user-agent',
                 });
             $inpCustomUserAgent.addEventListener('change', e => {
                 PREFS.set(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
@@ -1566,7 +1566,7 @@ function updateVideoPlayerCss() {
 
 
 function checkHeader() {
-    const $button = document.querySelector('#PageContent header .better_xcloud_settings_button');
+    const $button = document.querySelector('#PageContent header .better-xcloud-settings-button');
 
     if (!$button) {
         const $rightHeader = document.querySelector('#PageContent header div[class*=EdgewaterHeader-module__rightSectionSpacing]');
@@ -1620,7 +1620,7 @@ function injectVideoSettingsButton() {
 
     $screen.xObserving = true;
 
-    const $quickBar = document.querySelector('.better_xcloud_quick_settings_bar');
+    const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
         if (e.target != $parent && e.target.id !== 'MultiTouchSurface') {
@@ -1758,7 +1758,7 @@ function patchVideoApi() {
         });
 
         if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-            const $btn = document.querySelector('.better_xcloud_screenshot_button');
+            const $btn = document.querySelector('.better-xcloud-screenshot-button');
             $btn.style.display = 'block';
 
             if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
@@ -1905,7 +1905,7 @@ function setupVideoSettingsBar() {
     const CE = createElement;
 
     let $stretchInp;
-    const $wrapper = CE('div', {'class': 'better_xcloud_quick_settings_bar'},
+    const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
                         CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Stretch Video'),
                             $stretchInp = CE('input', {'id': 'better-xcloud-quick-setting-stretch', 'type': 'checkbox'})),
@@ -1927,7 +1927,7 @@ function setupVideoSettingsBar() {
     });
 
     const $style = CE('style', {}, `
-.better_xcloud_quick_settings_bar {
+.better-xcloud-quick-settings-bar {
     display: none;
     user-select: none;
     position: fixed;
@@ -1946,26 +1946,26 @@ function setupVideoSettingsBar() {
     text-align: center;
 }
 
-.better_xcloud_quick_settings_bar *:focus {
+.better-xcloud-quick-settings-bar *:focus {
     outline: none !important;
 }
 
-.better_xcloud_quick_settings_bar > div {
+.better-xcloud-quick-settings-bar > div {
     flex: 1;
 }
 
-.better_xcloud_quick_settings_bar label {
+.better-xcloud-quick-settings-bar label {
     font-size: 20px;
     display: block;
     margin-bottom: 8px;
 }
 
-.better_xcloud_quick_settings_bar input {
+.better-xcloud-quick-settings-bar input {
     width: 24px;
     height: 24px;
 }
 
-.better_xcloud_quick_settings_bar button {
+.better-xcloud-quick-settings-bar button {
     border: none;
     width: 24px;
     height: 24px;
@@ -1977,18 +1977,18 @@ function setupVideoSettingsBar() {
 }
 
 @media (hover: hover) {
-    .better_xcloud_quick_settings_bar button:hover {
+    .better-xcloud-quick-settings-bar button:hover {
         background-color: #414141;
         color: white;
     }
 }
 
-.better_xcloud_quick_settings_bar button:active {
+.better-xcloud-quick-settings-bar button:active {
         background-color: #414141;
         color: white;
     }
 
-.better_xcloud_quick_settings_bar span {
+.better-xcloud-quick-settings-bar span {
     display: inline-block;
     width: 40px;
     font-weight: bold;
@@ -2002,13 +2002,13 @@ function setupVideoSettingsBar() {
 
 
 function setupScreenshotButton() {
-    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'better_xcloud_screenshot_canvas'});
+    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'better-xcloud-screenshot-canvas'});
     document.documentElement.appendChild($SCREENSHOT_CANVAS);
 
     const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
     const delay = 2000;
-    const $btn = createElement('div', {'class': 'better_xcloud_screenshot_button', 'data-showing': false});
+    const $btn = createElement('div', {'class': 'better-xcloud-screenshot-button', 'data-showing': false});
 
     let timeout;
     const detectDbClick = e => {
@@ -2085,10 +2085,10 @@ function patchHistoryMethod(type) {
 function onHistoryChange() {
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
-        $settings.classList.add('better_xcloud_settings_gone');
+        $settings.classList.add('better-xcloud-settings-gone');
     }
 
-    const $quickBar = document.querySelector('.better_xcloud_quick_settings_bar');
+    const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
     if ($quickBar) {
         $quickBar.style.display = 'none';
     }
@@ -2097,7 +2097,7 @@ function onHistoryChange() {
     $STREAM_VIDEO = null;
     StreamStats.stop();
     StreamStats.hideSettingsUi();
-    document.querySelector('.better_xcloud_screenshot_button').style = '';
+    document.querySelector('.better-xcloud-screenshot-button').style = '';
 
     MouseCursorHider.stop();
 }
@@ -2109,8 +2109,6 @@ window.addEventListener('popstate', onHistoryChange);
 // Make pushState/replaceState methods dispatch "xcloud_popstate" event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
-
-
 
 UserAgent.spoof();
 
