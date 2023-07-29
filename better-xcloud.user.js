@@ -1218,8 +1218,13 @@ function interceptHttpRequests() {
 
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
-            const parsedUrl = new URL(url);
+            // Start hiding cursor
+            if (PREFS.get(Preferences.HIDE_IDLE_CURSOR)) {
+                MouseCursorHider.start();
+                MouseCursorHider.hide();
+            }
 
+            const parsedUrl = new URL(url);
             StreamBadges.region = parsedUrl.host.split('.', 1)[0];
             for (let regionName in SERVER_REGIONS) {
                 const region = SERVER_REGIONS[regionName];
@@ -1665,7 +1670,6 @@ function injectVideoSettingsButton() {
 function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
-    const PREF_HIDE_IDLE_CURSOR = PREFS.get(Preferences.HIDE_IDLE_CURSOR);
 
     // Show video player when it's ready
     var showFunc;
@@ -1681,11 +1685,6 @@ function patchVideoApi() {
         $SCREENSHOT_CANVAS.width = this.videoWidth;
         $SCREENSHOT_CANVAS.height = this.videoHeight;
         StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
-
-        if (PREF_HIDE_IDLE_CURSOR) {
-            MouseCursorHider.start();
-            MouseCursorHider.hide();
-        }
 
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
