@@ -74,7 +74,9 @@ To update manually, just install the script again (you won't lose your settings)
 
 ## Tutorial videos  
 If you still have trouble installing **Better xCloud**, you can follow one of these tutorial videos:  
-- [How to install on Desktop & Android by **Cloud Gaming France**](https://www.youtube.com/watch?v=5U05KoTdDHs) (in French)  
+- 🇧🇷 [Tudo isso agora tem no xCloud!! (ChipTec)](https://youtu.be/zS8Zy0mYIbU?t=40)
+- 🇫🇷 [#Tuto Xbox Cloud Gaming : Ecran ultra large et adieu les bandes noires sur smartphone (Cloud Gaming France)](https://www.youtube.com/watch?v=5U05KoTdDHs)
+
 
 ## Compatibility
 ✅ = confirmed to be working  
