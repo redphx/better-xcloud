@@ -1133,7 +1133,12 @@ div[class*=NotFocusedDialog] {
 /* Adjust Stream menu icon's size */
 button[class*=MenuItem-module__container] {
     min-width: auto !important;
-    width: 110px !important;
+    width: 100px !important;
+}
+
+button[class*=MenuItem-module__container] div[class*=MenuItem-module__label] {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
 }
 `;
 
