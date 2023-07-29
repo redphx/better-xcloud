@@ -284,7 +284,7 @@ class UserAgent {
     }
 
     static get(profile) {
-        const defaultUserAgent = window.navigator.userAgent;
+        const defaultUserAgent = window.navigator.orgUserAgent || window.navigator.userAgent;
         if (profile === UserAgent.PROFILE_CUSTOM) {
             return PREFS.get(Preferences.USER_AGENT_CUSTOM, '');
         }
@@ -303,7 +303,9 @@ class UserAgent {
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
         Object.defineProperty(window.navigator, 'userAgentData', {});
+
         // Override navigator.userAgent
+        window.navigator.orgUserAgent = window.navigator.userAgent;
         Object.defineProperty(window.navigator, 'userAgent', {
             value: userAgent,
         });
@@ -1330,7 +1332,7 @@ function injectSettingsButton($parent) {
         let labelAttrs = {};
 
         if (settingId === Preferences.USER_AGENT_PROFILE) {
-            let defaultUserAgent = window.navigator.userAgent;
+            let defaultUserAgent = window.navigator.orgUserAgent || window.navigator.userAgent;
             $inpCustomUserAgent = CE('input', {
                     'type': 'text',
                     'placeholder': defaultUserAgent,
