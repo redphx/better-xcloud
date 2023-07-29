@@ -1045,6 +1045,74 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-color: #515863;
 }
 
+.better-xcloud-quick-settings-bar {
+    display: none;
+    user-select: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 9999;
+    padding: 20px;
+    width: 620px;
+    background: #1a1b1e;
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 400;
+    font-size: 16px;
+    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+.better-xcloud-quick-settings-bar *:focus {
+    outline: none !important;
+}
+
+.better-xcloud-quick-settings-bar > div {
+    flex: 1;
+}
+
+.better-xcloud-quick-settings-bar label {
+    font-size: 20px;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.better-xcloud-quick-settings-bar input {
+    width: 24px;
+    height: 24px;
+}
+
+.better-xcloud-quick-settings-bar button {
+    border: none;
+    width: 24px;
+    height: 24px;
+    margin: 0 8px;
+    line-height: 24px;
+    background-color: #515151;
+    color: #fff;
+    border-radius: 4px;
+}
+
+@media (hover: hover) {
+    .better-xcloud-quick-settings-bar button:hover {
+        background-color: #414141;
+        color: white;
+    }
+}
+
+.better-xcloud-quick-settings-bar button:active {
+        background-color: #414141;
+        color: white;
+    }
+
+.better-xcloud-quick-settings-bar span {
+    display: inline-block;
+    width: 40px;
+    font-weight: bold;
+    font-family: Consolas, "Courier New", Courier, monospace;
+}
+
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
     display: none;
@@ -1926,78 +1994,7 @@ function setupVideoSettingsBar() {
         updateVideoPlayerCss();
     });
 
-    const $style = CE('style', {}, `
-.better-xcloud-quick-settings-bar {
-    display: none;
-    user-select: none;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    z-index: 9999;
-    padding: 20px;
-    width: 620px;
-    background: #1a1b1e;
-    color: #fff;
-    border-radius: 8px;
-    font-weight: 400;
-    font-size: 16px;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
-    text-align: center;
-}
-
-.better-xcloud-quick-settings-bar *:focus {
-    outline: none !important;
-}
-
-.better-xcloud-quick-settings-bar > div {
-    flex: 1;
-}
-
-.better-xcloud-quick-settings-bar label {
-    font-size: 20px;
-    display: block;
-    margin-bottom: 8px;
-}
-
-.better-xcloud-quick-settings-bar input {
-    width: 24px;
-    height: 24px;
-}
-
-.better-xcloud-quick-settings-bar button {
-    border: none;
-    width: 24px;
-    height: 24px;
-    margin: 0 8px;
-    line-height: 24px;
-    background-color: #515151;
-    color: #fff;
-    border-radius: 4px;
-}
-
-@media (hover: hover) {
-    .better-xcloud-quick-settings-bar button:hover {
-        background-color: #414141;
-        color: white;
-    }
-}
-
-.better-xcloud-quick-settings-bar button:active {
-        background-color: #414141;
-        color: white;
-    }
-
-.better-xcloud-quick-settings-bar span {
-    display: inline-block;
-    width: 40px;
-    font-weight: bold;
-    font-family: Consolas, "Courier New", Courier, monospace;
-}
-`);
-
     document.documentElement.appendChild($wrapper);
-    document.documentElement.appendChild($style);
 }
 
 
