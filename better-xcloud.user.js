@@ -298,11 +298,15 @@ class UserAgent {
             return;
         }
 
-        // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
-        Object.defineProperty(window.navigator, 'userAgentData', {});
-
         const defaultUserAgent = window.navigator.userAgent;
         const userAgent = UserAgent.get(profile) || defaultUserAgent;
+
+        // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
+        Object.defineProperty(window.navigator, 'userAgentData', {});
+        // Override navigator.userAgent
+        Object.defineProperty(window.navigator, 'userAgent', {
+            value: userAgent,
+        });
 
         Object.defineProperty(window, '__PRELOADED_STATE__', {
             configurable: true,
