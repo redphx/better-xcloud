@@ -278,7 +278,7 @@ class Preferences {
 
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
-    static get FORCE_1080P_STREAM() { return 'force_1080p_stream'; }
+    static get STREAM_TARGET_RESOLUTION() { return 'stream_target_resolution'; }
     static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
@@ -306,9 +306,14 @@ class Preferences {
             'label': 'Region of streaming server',
             'default': 'default',
         },
-        [Preferences.FORCE_1080P_STREAM]: {
-            'label': 'Force 1080p stream',
-            'default': false,
+        [Preferences.STREAM_TARGET_RESOLUTION]: {
+            'label': 'Stream\'s target resolution',
+            'default': 'auto',
+            'options': {
+                'auto': 'Auto',
+                '1080p': '1080p',
+                '720p': '720p',
+            },
         },
         [Preferences.USE_DESKTOP_CODEC]: {
             'label': 'Force high-quality codec (if supported)',
@@ -1058,7 +1063,7 @@ function interceptHttpRequests() {
     };
 
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
-    const PREF_FORCE_1080P_STREAM = PREFS.get(Preferences.FORCE_1080P_STREAM);
+    const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
 
     const orgFetch = window.fetch;
@@ -1113,12 +1118,14 @@ function interceptHttpRequests() {
                 }
             }
 
-            // Force 1080p stream
-            if (PREF_FORCE_1080P_STREAM) {
+            // Force stream's resolution
+            if (PREF_STREAM_TARGET_RESOLUTION !== 'auto') {
                 // Intercept "osName" value
                 const clone = request.clone();
                 const body = await clone.json();
-                body.settings.osName = 'windows';
+
+                const osName = (PREF_STREAM_TARGET_RESOLUTION === '720p') ? 'android' : 'windows';
+                body.settings.osName = osName;
 
                 const newRequest = new Request(request, {
                     body: JSON.stringify(body),
