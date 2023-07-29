@@ -67,6 +67,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Useful when you're using unsupported browsers.  
   > If you're on Safari, changing User-Agent to "Edge on Windows" will allow you to use Mic feature.  
   > This setting only affects xCloud, and it doesn't change browser's global User-Agent.  
+  > 📝 If you get 404 error after using this feature, try refreshing the page a few times. See [#34](https://github.com/redphx/better-xcloud/issues/34).  
 - **Hide footer and other UI elements**
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
