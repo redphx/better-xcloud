@@ -1770,7 +1770,7 @@ function injectVideoSettingsButton() {
                 });
 
                 // Insert after Video Settings button
-                $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings.nextSibling);
+                $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings);
 
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
