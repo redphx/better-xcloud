@@ -22,6 +22,42 @@ var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 
+
+class MouseCursorHider {
+    static #timeout;
+    static #cursorVisible = true;
+
+    static show() {
+        document.body && (document.body.style.cursor = 'unset');
+        MouseCursorHider.#cursorVisible = true;
+    }
+
+    static hide() {
+        document.body && (document.body.style.cursor = 'none');
+        MouseCursorHider.#timeout = null;
+        MouseCursorHider.#cursorVisible = false;
+    }
+
+    static onMouseMove(e) {
+        // Toggle cursor
+        !MouseCursorHider.#cursorVisible && MouseCursorHider.show();
+        // Setup timeout
+        MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout);
+        MouseCursorHider.#timeout = setTimeout(MouseCursorHider.hide, 3000);
+    }
+
+    static start() {
+        MouseCursorHider.show();
+        document.addEventListener('mousemove', MouseCursorHider.onMouseMove);
+    }
+
+    static stop() {
+        MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout);
+        document.removeEventListener('mousemove', MouseCursorHider.onMouseMove);
+        MouseCursorHider.show();
+    }
+}
+
 class StreamBadges {
     static ipv6 = false;
     static resolution = null;
@@ -395,6 +431,10 @@ class Preferences {
         },
         [Preferences.HIDE_DOTS_ICON]: {
             'label': 'Hide Dots icon while playing',
+            'default': false,
+        },
+        [Preferences.HIDE_IDLE_CURSOR]: {
+            'label': 'Hide mouse cursor while playing',
             'default': false,
         },
         [Preferences.REDUCE_ANIMATIONS]: {
@@ -1625,6 +1665,7 @@ function injectVideoSettingsButton() {
 function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
+    const PREF_HIDE_IDLE_CURSOR = PREFS.get(Preferences.HIDE_IDLE_CURSOR);
 
     // Show video player when it's ready
     var showFunc;
@@ -1640,6 +1681,11 @@ function patchVideoApi() {
         $SCREENSHOT_CANVAS.width = this.videoWidth;
         $SCREENSHOT_CANVAS.height = this.videoHeight;
         StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
+
+        if (PREF_HIDE_IDLE_CURSOR) {
+            MouseCursorHider.start();
+            MouseCursorHider.hide();
+        }
 
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
@@ -1997,7 +2043,7 @@ function patchHistoryMethod(type) {
 };
 
 
-function hideUiOnPageChange() {
+function onHistoryChange() {
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
         $settings.classList.add('better_xcloud_settings_gone');
@@ -2013,15 +2059,19 @@ function hideUiOnPageChange() {
     StreamStats.stop();
     StreamStats.hideSettingsUi();
     document.querySelector('.better_xcloud_screenshot_button').style = '';
+
+    MouseCursorHider.stop();
 }
 
 
 // Hide Settings UI when navigate to another page
-window.addEventListener('xcloud_popstate', hideUiOnPageChange);
-window.addEventListener('popstate', hideUiOnPageChange);
+window.addEventListener('xcloud_popstate', onHistoryChange);
+window.addEventListener('popstate', onHistoryChange);
 // Make pushState/replaceState methods dispatch "xcloud_popstate" event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
+
+
 
 UserAgent.spoof();
 
@@ -2036,27 +2086,6 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
-patchRtcCodecs();
-interceptHttpRequests();
-patchVideoApi();
-
-// Setup UI
-addCss();
-updateVideoPlayerCss();
-setupVideoSettingsBar();
-setupScreenshotButton();
-StreamStats.render();
-
-// Workaround for Hermit browser
-var onLoadTriggered = false;
-window.onload = () => {
-    onLoadTriggered = true;
-};
-
-if (document.readyState === 'complete' && !onLoadTriggered) {
-    watchHeader();
-}
-
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
@@ -2067,3 +2096,14 @@ RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     STREAM_WEBRTC = this;
     return this.orgAddIceCandidate.apply(this, args);
 }
+
+patchRtcCodecs();
+interceptHttpRequests();
+patchVideoApi();
+
+// Setup UI
+addCss();
+updateVideoPlayerCss();
+setupVideoSettingsBar();
+setupScreenshotButton();
+StreamStats.render();
