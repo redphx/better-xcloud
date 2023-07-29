@@ -272,6 +272,50 @@ class StreamStats {
 }
 
 
+class UserAgent {
+    static get PROFILE_EDGE_WINDOWS() { return 'edge-windows'; }
+    static get PROFILE_SMARTTV_TIZEN() { return 'smarttv-tizen'; }
+    static get PROFILE_DEFAULT() { return 'default'; }
+    static get PROFILE_CUSTOM() { return 'custom'; }
+
+    static #USER_AGENTS = {
+        [UserAgent.PROFILE_EDGE_WINDOWS]: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+        [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36',
+    }
+
+    static get(profile) {
+        const defaultUserAgent = window.navigator.userAgent;
+        if (profile === UserAgent.PROFILE_CUSTOM) {
+            return PREFS.get(Preferences.USER_AGENT_CUSTOM, '');
+        }
+
+        return UserAgent.#USER_AGENTS[profile] || defaultUserAgent;
+    }
+
+    static spoof() {
+        const profile = PREFS.get(Preferences.USER_AGENT_PROFILE);
+        if (profile === UserAgent.PROFILE_DEFAULT) {
+            return;
+        }
+
+        // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
+        Object.defineProperty(window.navigator, 'userAgentData', {});
+
+        const defaultUserAgent = window.navigator.userAgent;
+        const userAgent = UserAgent.get(profile) || defaultUserAgent;
+
+        Object.defineProperty(window, '__PRELOADED_STATE__', {
+            configurable: true,
+            get: () => this._state,
+            set: (state) => {
+                state.appContext.requestInfo.userAgent = userAgent;
+                this._state = state;
+            }
+        });
+    }
+}
+
+
 class Preferences {
     static get LAST_UPDATE_CHECK() { return 'last_update_check'; }
     static get LATEST_VERSION() { return 'latest_version'; }
@@ -280,6 +324,8 @@ class Preferences {
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
     static get STREAM_TARGET_RESOLUTION() { return 'stream_target_resolution'; }
     static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
+    static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
+    static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -356,6 +402,20 @@ class Preferences {
         [Preferences.BLOCK_TRACKING]: {
             'label': 'Disable xCloud analytics',
             'default': false,
+        },
+        [Preferences.USER_AGENT_PROFILE]: {
+            'label': 'User-Agent profile',
+            'default': 'default',
+            'options': {
+                [UserAgent.PROFILE_DEFAULT]: 'Default',
+                [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge on Windows',
+                [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Samsung Smart TV',
+                [UserAgent.PROFILE_CUSTOM]: 'Custom',
+            },
+        },
+        [Preferences.USER_AGENT_CUSTOM]: {
+            'default': '',
+            'hidden': true,
         },
         [Preferences.VIDEO_FILL_FULL_SCREEN]: {
             'label': 'Stretch video to full screen',
@@ -684,6 +744,11 @@ function addCss() {
 
 .better_xcloud_settings_wrapper .setting_button:active {
     background-color: #00753c;
+}
+
+.better_xcloud_settings_custom_user_agent {
+    display: block;
+    width: 100%;
 }
 
 div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
@@ -1257,9 +1322,30 @@ function injectSettingsButton($parent) {
             continue;
         }
 
-        let $control;
+        let $control, $inpCustomUserAgent;
         let labelAttrs = {};
-        if (settingId === Preferences.SERVER_REGION || setting.options) {
+
+        if (settingId === Preferences.USER_AGENT_PROFILE) {
+            let defaultUserAgent = window.navigator.userAgent;
+            $inpCustomUserAgent = CE('input', {
+                    'type': 'text',
+                    'placeholder': defaultUserAgent,
+                    'class': 'better_xcloud_settings_custom_user_agent',
+                });
+            $inpCustomUserAgent.addEventListener('change', e => {
+                PREFS.set(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
+            });
+
+            $control = PREFS.toElement(Preferences.USER_AGENT_PROFILE, e => {
+                const value = e.target.value;
+                let isCustom = value === UserAgent.PROFILE_CUSTOM;
+                let userAgent = UserAgent.get(value);
+
+                $inpCustomUserAgent.value = userAgent;
+                $inpCustomUserAgent.readOnly = !isCustom;
+                $inpCustomUserAgent.disabled = !isCustom;
+            });
+        } else if (settingId === Preferences.SERVER_REGION || setting.options) {
             let selectedValue;
 
             $control = CE('select', {id: 'xcloud_setting_' + settingId});
@@ -1324,6 +1410,13 @@ function injectSettingsButton($parent) {
         );
 
         $wrapper.appendChild($elm);
+
+        // Add User-Agent input
+        if (settingId === Preferences.USER_AGENT_PROFILE) {
+            $wrapper.appendChild($inpCustomUserAgent);
+            // Trigger 'change' event
+            $control.dispatchEvent(new Event('change'));
+        }
     }
 
     const $reloadBtn = CE('button', {'class': 'setting_button', 'tabindex': 0}, 'Reload page to reflect changes');
@@ -1924,8 +2017,7 @@ window.addEventListener('popstate', hideUiOnPageChange);
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
 
-// Clear data of window.navigator.userAgentData, force Xcloud to detect browser based on User-Agent header
-Object.defineProperty(window.navigator, 'userAgentData', {});
+UserAgent.spoof();
 
 // Disable bandwidth checking
 if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
