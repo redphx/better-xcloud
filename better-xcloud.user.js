@@ -58,6 +58,7 @@ class MouseCursorHider {
     }
 }
 
+
 class StreamBadges {
     static ipv6 = false;
     static resolution = null;
@@ -365,6 +366,7 @@ class Preferences {
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
     static get STREAM_TARGET_RESOLUTION() { return 'stream_target_resolution'; }
+    static get STREAM_PREFERRED_LOCALE() { return 'stream_preferred_locale'; }
     static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
@@ -393,6 +395,40 @@ class Preferences {
         [Preferences.SERVER_REGION]: {
             'label': 'Region of streaming server',
             'default': 'default',
+        },
+        [Preferences.STREAM_PREFERRED_LOCALE]: {
+            'label': 'Preferred game\'s language',
+            'default': 'default',
+            'options': {
+                'default': 'Default',
+                'ar-SA': '\u0627\u0644\u0639\u0631\u0628\u064a\u0629',
+                'cs-CZ': '\u010de\u0161tina',
+                'da-DK': 'dansk',
+                'de-DE': 'Deutsch',
+                'el-GR': '\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac',
+                'en-GB': 'English (United Kingdom)',
+                'en-US': 'English (United States)',
+                'es-ES': 'espa\xf1ol (Espa\xf1a)',
+                'es-MX': 'espa\xf1ol (Latinoam\xe9rica)',
+                'fi-FI': 'suomi',
+                'fr-FR': 'fran\xe7ais',
+                'he-IL': '\u05e2\u05d1\u05e8\u05d9\u05ea',
+                'hu-HU': 'magyar',
+                'it-IT': 'italiano',
+                'ja-JP': '\u65e5\u672c\u8a9e',
+                'ko-KR': '\ud55c\uad6d\uc5b4',
+                'nb-NO': 'norsk bokm\xe5l',
+                'nl-NL': 'Nederlands',
+                'pl-PL': 'polski',
+                'pt-BR': 'portugu\xeas (Brasil)',
+                'pt-PT': 'portugu\xeas (Portugal)',
+                'ru-RU': '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
+                'sk-SK': 'sloven\u010dina',
+                'sv-SE': 'svenska',
+                'tr-TR': 'T\xfcrk\xe7e',
+                'zh-CN': '\u4e2d\u6587(\u7b80\u4f53)',
+                'zh-TW': '\u4e2d\u6587 (\u7e41\u9ad4)',
+            },
         },
         [Preferences.STREAM_TARGET_RESOLUTION]: {
             'label': 'Stream\'s target resolution',
@@ -1175,6 +1211,7 @@ function interceptHttpRequests() {
 
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
+    const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
 
     const orgFetch = window.fetch;
@@ -1234,22 +1271,25 @@ function interceptHttpRequests() {
                 }
             }
 
+            const clone = request.clone();
+            const body = await clone.json();
+
             // Force stream's resolution
             if (PREF_STREAM_TARGET_RESOLUTION !== 'auto') {
-                // Intercept "osName" value
-                const clone = request.clone();
-                const body = await clone.json();
-
                 const osName = (PREF_STREAM_TARGET_RESOLUTION === '720p') ? 'android' : 'windows';
                 body.settings.osName = osName;
-
-                const newRequest = new Request(request, {
-                    body: JSON.stringify(body),
-                });
-
-                arg[0] = newRequest;
             }
 
+            // Override "locale" value
+            if (PREF_STREAM_PREFERRED_LOCALE !== 'default') {
+                body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
+            }
+
+            const newRequest = new Request(request, {
+                body: JSON.stringify(body),
+            });
+
+            arg[0] = newRequest;
             return orgFetch(...arg);
         }
 
