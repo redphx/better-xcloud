@@ -1839,10 +1839,7 @@ function injectVideoSettingsButton() {
                         isHolding = true;
                     }, 750);
                 };
-
-                $btnQuit.addEventListener('mousedown', onMouseDown);
-                $btnQuit.addEventListener('touchstart', onMouseDown);
-                $btnQuit.addEventListener('click', e => {
+                const onMouseUp = e => {
                     e.preventDefault();
                     holdTimeout && clearTimeout(holdTimeout);
 
@@ -1851,7 +1848,13 @@ function injectVideoSettingsButton() {
                         confirm('Do you want to refresh the stream?') && window.location.reload();
                     }
                     isHolding = false;
-                });
+                };
+
+                $btnQuit.addEventListener('mousedown', onMouseDown);
+                $btnQuit.addEventListener('click', onMouseUp);
+
+                $btnQuit.addEventListener('touchstart', onMouseDown);
+                $btnQuit.addEventListener('touchend', onMouseUp);
 
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
