@@ -1840,10 +1840,10 @@ function injectVideoSettingsButton() {
                     }, 750);
                 };
                 const onMouseUp = e => {
-                    e.preventDefault();
                     holdTimeout && clearTimeout(holdTimeout);
 
                     if (isHolding) {
+                        e.preventDefault();
                         e.stopPropagation();
                         confirm('Do you want to refresh the stream?') && window.location.reload();
                     }
