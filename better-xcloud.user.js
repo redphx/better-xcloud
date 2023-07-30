@@ -22,6 +22,10 @@ var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 
+// Credit: https://www.iconfinder.com/iconsets/user-interface-outline-27
+const ICON_VIDEO_SETTINGS = '<path d="M8 2c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.186C5.602 7.158 6.706 8 8 8s2.395-.843 2.813-2h10.188a1 1 0 1 0 0-2H10.813C10.395 2.843 9.293 2 8 2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h9.186c.417 1.158 1.521 2 2.814 2s2.395-.843 2.813-2H21a1 1 0 1 0 0-2h-3.187c-.418-1.157-1.52-2-2.813-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm-7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.188c.417 1.157 1.519 2 2.813 2s2.398-.842 2.814-2H21a1 1 0 1 0 0-2H10.812c-.417-1.157-1.519-2-2.812-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
+const ICON_STREAM_STATS = '<path d="M12.005 5C9.184 5 6.749 6.416 5.009 7.903c-.87.743-1.571 1.51-2.074 2.18-.251.335-.452.644-.605.934-.434.733-.389 1.314-.004 1.98a6.98 6.98 0 0 0 .609.949 13.62 13.62 0 0 0 2.076 2.182C6.753 17.606 9.188 19 12.005 19s5.252-1.394 6.994-2.873a13.62 13.62 0 0 0 2.076-2.182 6.98 6.98 0 0 0 .609-.949c.425-.737.364-1.343-.004-1.98-.154-.29-.354-.599-.605-.934-.503-.669-1.204-1.436-2.074-2.18C17.261 6.416 14.826 5 12.005 5zm0 2c2.135 0 4.189 1.135 5.697 2.424.754.644 1.368 1.32 1.773 1.859.203.27.354.509.351.733s-.151.462-.353.732c-.404.541-1.016 1.214-1.77 1.854C16.198 15.881 14.145 17 12.005 17s-4.193-1.12-5.699-2.398a11.8 11.8 0 0 1-1.77-1.854c-.202-.27-.351-.508-.353-.732s.149-.463.351-.733c.406-.54 1.019-1.215 1.773-1.859C7.816 8.135 9.87 7 12.005 7zm.025 1.975c-1.645 0-3 1.355-3 3s1.355 3 3 3 3-1.355 3-3-1.355-3-3-3zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
+
 
 class MouseCursorHider {
     static #timeout;
@@ -1784,8 +1788,6 @@ function injectVideoSettingsButton() {
                     return;
                 }
 
-                // Credit: https://www.iconfinder.com/iconsets/user-interface-outline-27
-                const ICON_VIDEO_SETTINGS = '<path d="M8 2c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.186C5.602 7.158 6.706 8 8 8s2.395-.843 2.813-2h10.188a1 1 0 1 0 0-2H10.813C10.395 2.843 9.293 2 8 2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h9.186c.417 1.158 1.521 2 2.814 2s2.395-.843 2.813-2H21a1 1 0 1 0 0-2h-3.187c-.418-1.157-1.52-2-2.813-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1zm-7 5c-1.293 0-2.395.843-2.812 2H3a1 1 0 1 0 0 2h2.188c.417 1.157 1.519 2 2.813 2s2.398-.842 2.814-2H21a1 1 0 1 0 0-2H10.812c-.417-1.157-1.519-2-2.812-2zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
                 // Create Video Settings button
                 const $btnVideoSettings = cloneStreamMenuButton($orgButton, 'Video settings', ICON_VIDEO_SETTINGS);
                 $btnVideoSettings.addEventListener('click', e => {
@@ -1811,7 +1813,6 @@ function injectVideoSettingsButton() {
                     $quickBar.style.display = 'none';
                 });
 
-                const ICON_STREAM_STATS = '<path d="M12.005 5C9.184 5 6.749 6.416 5.009 7.903c-.87.743-1.571 1.51-2.074 2.18-.251.335-.452.644-.605.934-.434.733-.389 1.314-.004 1.98a6.98 6.98 0 0 0 .609.949 13.62 13.62 0 0 0 2.076 2.182C6.753 17.606 9.188 19 12.005 19s5.252-1.394 6.994-2.873a13.62 13.62 0 0 0 2.076-2.182 6.98 6.98 0 0 0 .609-.949c.425-.737.364-1.343-.004-1.98-.154-.29-.354-.599-.605-.934-.503-.669-1.204-1.436-2.074-2.18C17.261 6.416 14.826 5 12.005 5zm0 2c2.135 0 4.189 1.135 5.697 2.424.754.644 1.368 1.32 1.773 1.859.203.27.354.509.351.733s-.151.462-.353.732c-.404.541-1.016 1.214-1.77 1.854C16.198 15.881 14.145 17 12.005 17s-4.193-1.12-5.699-2.398a11.8 11.8 0 0 1-1.77-1.854c-.202-.27-.351-.508-.353-.732s.149-.463.351-.733c.406-.54 1.019-1.215 1.773-1.859C7.816 8.135 9.87 7 12.005 7zm.025 1.975c-1.645 0-3 1.355-3 3s1.355 3 3 3 3-1.355 3-3-1.355-3-3-3zm0 2c.564 0 1 .436 1 1s-.436 1-1 1-1-.436-1-1 .436-1 1-1z"/>';
                 // Create Stream Stats button
                 const $btnStreamStats = cloneStreamMenuButton($orgButton, 'Stream stats', ICON_STREAM_STATS);
                 $btnStreamStats.addEventListener('click', e => {
@@ -1826,6 +1827,31 @@ function injectVideoSettingsButton() {
 
                 // Insert after Video Settings button
                 $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings);
+
+                // Get "Quit game" button
+                const $btnQuit = $orgButton.parentElement.querySelector('button:last-of-type');
+
+                let isHolding = false;
+                let holdTimeout;
+                const onMouseDown = e => {
+                    isHolding = false;
+                    holdTimeout = setTimeout(() => {
+                        isHolding = true;
+                    }, 750);
+                };
+
+                $btnQuit.addEventListener('mousedown', onMouseDown);
+                $btnQuit.addEventListener('touchstart', onMouseDown);
+                $btnQuit.addEventListener('click', e => {
+                    e.preventDefault();
+                    holdTimeout && clearTimeout(holdTimeout);
+
+                    if (isHolding) {
+                        e.stopPropagation();
+                        confirm('Do you want to refresh the stream?') && window.location.reload();
+                    }
+                    isHolding = false;
+                });
 
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
