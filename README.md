@@ -140,8 +140,7 @@ Colors:
 - Green = Good
 - White = Great
 
-📝 Having this info on all the time might reduce your enjoyment, so I'd recommend only using it when having network problems.
-
+⚠️ Having this info on all the time will drain the battery faster, so I'd recommend only using it when having network problems.  
 
 ## Capture screenshot  
 - This feature is only available in **Better xCloud**.  
