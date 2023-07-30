@@ -67,6 +67,9 @@ class StreamBadges {
     static fps = 0;
     static region = '';
 
+    static startBatteryLevel = 1.0;
+    static startTimestamp = 0;
+
     static #renderBadge(name, value, color) {
         const CE = createElement;
         const $badge = CE('div', {'class': 'better-xcloud-badge'},
@@ -76,7 +79,18 @@ class StreamBadges {
         return $badge;
     }
 
-    static render() {
+    static #secondsToHms(seconds) {
+        let h = Math.floor(seconds / 3600);
+        let m = Math.floor(seconds % 3600 / 60);
+        let s = Math.floor(seconds % 3600 % 60);
+
+        let hDisplay = h > 0 ? `${h}h`: '';
+        let mDisplay = m > 0 ? `${m}m`: '';
+        let sDisplay = s > 0 ? `${s}s`: '';
+        return hDisplay + mDisplay + sDisplay;
+    }
+
+    static async render() {
         let video;
         if (StreamBadges.video) {
             video = StreamBadges.video.codec;
@@ -94,12 +108,31 @@ class StreamBadges {
             audio += ` (${bitrate} kHz)`;
         }
 
+        let batteryLevel = '';
+        if (navigator.getBattery && StreamBadges.startBatteryLevel < 1) {
+            try {
+                const currentLevel = (await navigator.getBattery()).level;
+                batteryLevel = `${currentLevel * 100}%`;
+
+                if (currentLevel != StreamBadges.startBatteryLevel) {
+                    const diffLevel = Math.ceil((StreamBadges.startBatteryLevel - currentLevel) * 100);
+                    batteryLevel += ` (-${diffLevel}%)`;
+                }
+            } catch(e) {}
+        }
+
+        let now = +new Date;
+        const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
+        const playtime = StreamBadges.#secondsToHms(diffSeconds);
+
         const BADGES = [
+            playtime ? ['playtime', playtime, '#ab0000'] : null,
+            batteryLevel ? ['battery', batteryLevel, '#449700'] : null,
             ['region', StreamBadges.region, '#d7450b'],
-            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#008746'],
+            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#986400'],
             video ? ['video', video, '#007c8f'] : null,
-            audio ? ['audio', audio, '#007c8f'] : null,
             StreamBadges.resolution && ['resolution', `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`, '#ff3977'],
+            audio ? ['audio', audio, '#79008f'] : null,
         ];
 
         const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
@@ -1741,7 +1774,7 @@ function injectVideoSettingsButton() {
                 return;
             }
 
-            item.addedNodes.forEach(node => {
+            item.addedNodes.forEach(async node => {
                 if (!node.className || !node.className.startsWith('StreamMenu')) {
                     return;
                 }
@@ -1796,7 +1829,7 @@ function injectVideoSettingsButton() {
 
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
-                $menu.appendChild(StreamBadges.render());
+                $menu.appendChild(await StreamBadges.render());
             });
         });
     });
@@ -1821,7 +1854,17 @@ function patchVideoApi() {
         $STREAM_VIDEO = this;
         $SCREENSHOT_CANVAS.width = this.videoWidth;
         $SCREENSHOT_CANVAS.height = this.videoHeight;
+
         StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
+        StreamBadges.startTimestamp = +new Date;
+        // Get battery level
+        if (navigator.getBattery) {
+            try {
+                navigator.getBattery().then(bm => {
+                    StreamBadges.startBatteryLevel = bm.level;
+                });
+            } catch(e) {}
+        }
 
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
