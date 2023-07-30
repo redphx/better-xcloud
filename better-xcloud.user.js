@@ -370,6 +370,7 @@ class Preferences {
     static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
+    static get STREAM_HIDE_TOUCH_CONTROLLER() { return 'stream_hide_touch_controller'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -475,6 +476,10 @@ class Preferences {
         },
         [Preferences.HIDE_DOTS_ICON]: {
             'label': 'Hide Dots icon while playing',
+            'default': false,
+        },
+        [Preferences.STREAM_HIDE_TOUCH_CONTROLLER]: {
+            'label': 'Disable touch controller',
             'default': false,
         },
         [Preferences.HIDE_IDLE_CURSOR]: {
@@ -1180,6 +1185,15 @@ button[class*=GripHandle-module__container][aria-expanded=false] {
 
 div[class*=StreamHUD-module__buttonsContainer] {
     padding: 0px !important;
+}
+`;
+    }
+
+    // Hide touch controller
+    if (PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER)) {
+        css += `
+#MultiTouchSurface, #BabylonCanvasContainer-main {
+    display: none !important;
 }
 `;
     }
