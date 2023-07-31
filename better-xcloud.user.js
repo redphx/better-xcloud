@@ -71,7 +71,7 @@ class StreamBadges {
     static fps = 0;
     static region = '';
 
-    static startBatteryLevel = 1.0;
+    static startBatteryLevel = 100;
     static startTimestamp = 0;
 
     static #renderBadge(name, value, color) {
@@ -113,13 +113,13 @@ class StreamBadges {
         }
 
         let batteryLevel = '';
-        if (navigator.getBattery && StreamBadges.startBatteryLevel < 1) {
+        if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
             try {
-                const currentLevel = (await navigator.getBattery()).level;
-                batteryLevel = `${currentLevel * 100}%`;
+                const currentLevel = (await navigator.getBattery()).level * 100;
+                batteryLevel = `${currentLevel}%`;
 
-                if (currentLevel != StreamBadges.startBatteryLevel) {
-                    const diffLevel = Math.ceil((StreamBadges.startBatteryLevel - currentLevel) * 100);
+                if (currentLevel < StreamBadges.startBatteryLevel) {
+                    const diffLevel = StreamBadges.startBatteryLevel - currentLevel;
                     batteryLevel += ` (-${diffLevel}%)`;
                 }
             } catch(e) {}
@@ -1890,7 +1890,7 @@ function patchVideoApi() {
         if (navigator.getBattery) {
             try {
                 navigator.getBattery().then(bm => {
-                    StreamBadges.startBatteryLevel = bm.level;
+                    StreamBadges.startBatteryLevel = bm.level * 100;
                 });
             } catch(e) {}
         }
