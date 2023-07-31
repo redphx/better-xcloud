@@ -130,13 +130,13 @@ class StreamBadges {
         const playtime = StreamBadges.#secondsToHms(diffSeconds);
 
         const BADGES = [
-            playtime ? ['playtime', playtime, '#ab0000'] : null,
-            batteryLevel ? ['battery', batteryLevel, '#449700'] : null,
-            ['region', StreamBadges.region, '#d7450b'],
-            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#986400'],
-            video ? ['video', video, '#007c8f'] : null,
-            StreamBadges.resolution && ['resolution', `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`, '#ff3977'],
-            audio ? ['audio', audio, '#79008f'] : null,
+            playtime ? ['playtime', playtime, '#ff004d'] : null,
+            batteryLevel ? ['battery', batteryLevel, '#008751'] : null,
+            ['region', StreamBadges.region, '#ff6c24'],
+            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
+            StreamBadges.resolution && ['resolution', `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`, '#7e2553'],
+            video ? ['video', video, '#065AB5'] : null,
+            audio ? ['audio', audio, '#5f574f'] : null,
         ];
 
         const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
