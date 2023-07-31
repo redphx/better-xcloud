@@ -83,15 +83,13 @@ class StreamBadges {
         return $badge;
     }
 
-    static #secondsToHms(seconds) {
-        let h = Math.floor(seconds / 3600);
-        let m = Math.floor(seconds % 3600 / 60);
-        let s = Math.floor(seconds % 3600 % 60);
+    static #secondsToHm(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor(seconds % 3600 / 60) + 1;
 
-        let hDisplay = h > 0 ? `${h}h`: '';
-        let mDisplay = m > 0 ? `${m}m`: '';
-        let sDisplay = s > 0 ? `${s}s`: '';
-        return hDisplay + mDisplay + sDisplay;
+        const hDisplay = h > 0 ? `${h}h`: '';
+        const mDisplay = m > 0 ? `${m}m`: '';
+        return hDisplay + mDisplay;
     }
 
     static async render() {
@@ -127,7 +125,7 @@ class StreamBadges {
 
         let now = +new Date;
         const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
-        const playtime = StreamBadges.#secondsToHms(diffSeconds);
+        const playtime = StreamBadges.#secondsToHm(diffSeconds);
 
         const BADGES = [
             playtime ? ['playtime', playtime, '#ff004d'] : null,
