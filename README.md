@@ -14,9 +14,9 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ef689e3b-0235-4635-8623-ebcc332774b2"> 
+<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/f4187ef8-fa10-4eab-b085-ef3c3aed3201">
 
-<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/905750b2-5d02-41e0-af36-2e8b590d81a0">
+<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/68f91041-10b2-4fd9-adc1-e2a21db7e36f">
 
 
 &nbsp;  
@@ -25,6 +25,11 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 - **🔥 Show stream stats**  
   > Check [Stream stats section](#stream-stats) for more info.  
+- **🔥 Capture screenshot**
+  > Exclusive to **Better xCloud**. Check the [**Capture screenshot** section](#capture-screenshot) for more info.
+- **🔥 Hold the "Quit game" button for one second to refresh the stream**
+  > Sometimes you can fix the bad connection to the stream simply by refreshing the page.  
+  > Useful on mobile where the pull-to-refresh feature doesn't work while playing.  
 - **Switch region of streaming server**  
   > Connect to another server instead of the default one. Check the [**FAQ** section](#faq) for some notes.
 - **Preferred game's language**
@@ -43,22 +48,23 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Might reduce latency.
 - **Disable bandwidth checking**  
   > xCloud won't warn about slow connection speed.  
-- **🔥 Capture screenshot**
-  > Exclusive to **Better xCloud**. Check the [**Capture screenshot** section](#capture-screenshot) for more info.
 - **Skip Xbox splash video**
   > Save 3 seconds.
 - **Hide Dots icon while playing**
   > You can still click on it, but it doesn't block the screen anymore.
+- **Disable touch controller**
+  > Stop the touch controller from showing when touching the screen.  
+  > Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, Retroid, etc.
 - **Hide mouse cursor while playing**  
-  > Hide the mouse cursor after 3 seconds of not moving.   
-- **Reduce UI animations**
-  > Disable `transition` CSS property in some elements. The smooth scrolling cannot be disabled.
+  > Hide the mouse cursor after 3 seconds of not moving.  
 - **Stretch video to full sctreen**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
   > Brightness/Contrast/Saturation.
 - **Display stream's statuses**
-  > Region/Server/Quality/Resolution...
+  > Region/Server/Codecs/Resolution...  
+  > Current playtime of the session.  
+  > Current battery level. Only visible on battery-powered devices.  
 - **Disable social features**
   > Features like friends, chat... Disable these will make the page load faster.  
 - **Disable xCloud analytics**
@@ -68,6 +74,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > If you're on Safari, changing User-Agent to "Edge on Windows" will allow you to use Mic feature.  
   > This setting only affects xCloud, and it doesn't change browser's global User-Agent.  
   > 📝 If you get 404 error after using this feature, try refreshing the page a few times. See [#34](https://github.com/redphx/better-xcloud/issues/34).  
+- **Reduce UI animations**
+  > Disable `transition` CSS property in some elements. The smooth scrolling cannot be disabled.  
 - **Hide footer and other UI elements**
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
