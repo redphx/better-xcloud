@@ -129,14 +129,14 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - This bar is updated every second.  
 - ⚠️ Using **Better xCloud** or showing the stats bar also affects the performance of the stream.  
 
-| Abbr. | Full name          | Explain                                                                                                                            |
-|------:|:-------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
-| FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (equal to or lower than the FPS of the game)                         |
-| DT    | Decode Time        | The average time it took to decode one frame in the last second (might be bugged [#26](https://github.com/redphx/better-xcloud/issues/26))                                                  |
-| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better) |
-| BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                               |
-| PL    | Packets Lost       | The total number of packets lost                                                                                                   |
-| FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline                        |
+| Abbr. | Full name          | Explain                                                                                                                                    |
+|------:|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
+| FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (may not be the same as the FPS of the game)                                 |
+| DT    | Decode Time        | The average time it took to decode one frame in the last second (might be bugged [#26](https://github.com/redphx/better-xcloud/issues/26)) |
+| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better)         |
+| BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                                       |
+| PL    | Packets Lost       | The total number of packets lost                                                                                                           |
+| FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline                                |
 
 This info is provided by WebRTC API. You can use browser's built-in tool to see more info:  
 - Chrome/Edge/Chromium variants: `chrome://webrtc-internals`  
