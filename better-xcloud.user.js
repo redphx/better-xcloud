@@ -92,7 +92,14 @@ class StreamBadges {
         return hDisplay + mDisplay;
     }
 
+    // https://stackoverflow.com/a/20732091
+    static #humanFileSize(size) {
+        let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+        return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    }
+
     static async render() {
+        // Video
         let video = '';
         if (StreamBadges.resolution) {
             video = `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`;
@@ -108,6 +115,7 @@ class StreamBadges {
             }
         }
 
+        // Audio
         let audio;
         if (StreamBadges.audio) {
             audio = StreamBadges.audio.codec;
@@ -115,6 +123,7 @@ class StreamBadges {
             audio += ` (${bitrate} kHz)`;
         }
 
+        // Battery
         let batteryLevel = '';
         if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
             try {
@@ -129,17 +138,31 @@ class StreamBadges {
             } catch(e) {}
         }
 
+        // Playtime
         let now = +new Date;
         const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
         const playtime = StreamBadges.#secondsToHm(diffSeconds);
 
+        // In/Out
+        const stats = await STREAM_WEBRTC.getStats();
+        let totalIn = 0;
+        let totalOut = 0;
+        stats.forEach(stat => {
+            if (stat.type === 'candidate-pair' && stat.state == 'succeeded') {
+                totalIn += stat.bytesReceived;
+                totalOut += stat.bytesSent;
+            }
+        });
+
         const BADGES = [
             playtime ? ['playtime', playtime, '#ff004d'] : null,
-            batteryLevel ? ['battery', batteryLevel, '#008751'] : null,
+            batteryLevel ? ['battery', batteryLevel, '#00b543'] : null,
             ['region', StreamBadges.region, '#ff6c24'],
             ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
-            video ? ['video', video, '#7e2553'] : null,
+            video ? ['video', video, '#754665'] : null,
             audio ? ['audio', audio, '#5f574f'] : null,
+            totalIn ? ['in', StreamBadges.#humanFileSize(totalIn), '#29adff'] : null,
+            totalOut ? ['out', StreamBadges.#humanFileSize(totalOut), '#ff77a8'] : null,
         ];
 
         const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
