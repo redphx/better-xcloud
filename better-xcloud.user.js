@@ -138,7 +138,7 @@ class StreamBadges {
             batteryLevel ? ['battery', batteryLevel, '#008751'] : null,
             ['region', StreamBadges.region, '#ff6c24'],
             ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
-            video ? ['video', video, '#065AB5'] : null,
+            video ? ['video', video, '#7e2553'] : null,
             audio ? ['audio', audio, '#5f574f'] : null,
         ];
 
