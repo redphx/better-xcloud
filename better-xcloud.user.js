@@ -116,9 +116,10 @@ class StreamBadges {
                 const currentLevel = (await navigator.getBattery()).level * 100;
                 batteryLevel = `${currentLevel}%`;
 
-                if (currentLevel < StreamBadges.startBatteryLevel) {
-                    const diffLevel = StreamBadges.startBatteryLevel - currentLevel;
-                    batteryLevel += ` (-${diffLevel}%)`;
+                if (currentLevel != StreamBadges.startBatteryLevel) {
+                    const diffLevel = currentLevel - StreamBadges.startBatteryLevel;
+                    const sign = diffLevel > 0 ? '+' : '';
+                    batteryLevel += ` (${sign}${diffLevel}%)`;
                 }
             } catch(e) {}
         }
