@@ -93,9 +93,14 @@ class StreamBadges {
     }
 
     static async render() {
-        let video;
+        let video = '';
+        if (StreamBadges.resolution) {
+            video = `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`;
+        }
+
         if (StreamBadges.video) {
-            video = StreamBadges.video.codec;
+            video && (video += '/');
+            video += StreamBadges.video.codec;
             if (StreamBadges.video.profile) {
                 let profile = StreamBadges.video.profile;
                 profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
@@ -133,7 +138,6 @@ class StreamBadges {
             batteryLevel ? ['battery', batteryLevel, '#008751'] : null,
             ['region', StreamBadges.region, '#ff6c24'],
             ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
-            StreamBadges.resolution && ['resolution', `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`, '#7e2553'],
             video ? ['video', video, '#065AB5'] : null,
             audio ? ['audio', audio, '#5f574f'] : null,
         ];
