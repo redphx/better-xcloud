@@ -1835,7 +1835,8 @@ function injectVideoSettingsButton() {
                     isHolding = false;
                     holdTimeout = setTimeout(() => {
                         isHolding = true;
-                    }, 750);
+                        confirm('Do you want to refresh the stream?') && window.location.reload();
+                    }, 1000);
                 };
                 const onMouseUp = e => {
                     holdTimeout && clearTimeout(holdTimeout);
@@ -1843,7 +1844,6 @@ function injectVideoSettingsButton() {
                     if (isHolding) {
                         e.preventDefault();
                         e.stopPropagation();
-                        confirm('Do you want to refresh the stream?') && window.location.reload();
                     }
                     isHolding = false;
                 };
