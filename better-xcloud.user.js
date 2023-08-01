@@ -162,14 +162,14 @@ class StreamStats {
     static #lastStat;
 
     static start() {
-        StreamStats.#$container.style.display = 'block';
+        StreamStats.#$container.classList.remove('better-xcloud-gone');
         StreamStats.#interval = setInterval(StreamStats.update, StreamStats.#updateInterval);
     }
 
     static stop() {
         clearInterval(StreamStats.#interval);
 
-        StreamStats.#$container.style.display = 'none';
+        StreamStats.#$container.classList.add('better-xcloud-gone');
         StreamStats.#interval = null;
         StreamStats.#lastStat = null;
     }
@@ -178,7 +178,7 @@ class StreamStats {
         StreamStats.#isHidden() ? StreamStats.start() : StreamStats.stop();
     }
 
-    static #isHidden = () => StreamStats.#$container.style.display === 'none';
+    static #isHidden = () => StreamStats.#$container.classList.contains('better-xcloud-gone');
 
     static update() {
         if (StreamStats.#isHidden() || !STREAM_WEBRTC) {
@@ -265,7 +265,7 @@ class StreamStats {
         }
 
         const CE = createElement;
-        StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar'},
+        StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar better-xcloud-gone'},
                             CE('label', {}, 'FPS'),
                             StreamStats.#$fps = CE('span', {}, 0),
                             CE('label', {}, 'RTT'),
@@ -768,8 +768,8 @@ function addCss() {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif
 }
 
-.better-xcloud-settings-gone {
-    display: none;
+.better-xcloud-gone {
+    display: none !important;
 }
 
 .better-xcloud-settings-wrapper {
@@ -951,7 +951,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-stats-bar {
-    display: none;
+    display: block;
     user-select: none;
     position: fixed;
     top: 0;
@@ -1503,7 +1503,7 @@ function injectSettingsButton($parent) {
     const $button = CE('button', {'class': 'better-xcloud-settings-button'}, PREF_PREFERRED_REGION);
     $button.addEventListener('click', e => {
         const $settings = document.querySelector('.better_xcloud_settings');
-        $settings.classList.toggle('better-xcloud-settings-gone');
+        $settings.classList.toggle('better-xcloud-gone');
         $settings.scrollIntoView();
     });
 
@@ -1514,7 +1514,7 @@ function injectSettingsButton($parent) {
     $parent.appendChild($button);
 
     const $container = CE('div', {
-        'class': 'better_xcloud_settings better-xcloud-settings-gone',
+        'class': 'better_xcloud_settings better-xcloud-gone',
     });
 
     let $updateAvailable;
@@ -2181,7 +2181,7 @@ function patchHistoryMethod(type) {
 function onHistoryChange() {
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
-        $settings.classList.add('better-xcloud-settings-gone');
+        $settings.classList.add('better-xcloud-gone');
     }
 
     const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
