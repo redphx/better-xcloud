@@ -64,6 +64,18 @@ class MouseCursorHider {
 
 
 class StreamBadges {
+    static get BADGE_PLAYTIME() { return 'playtime'; };
+    static get BADGE_BATTERY() { return 'battery'; };
+    static get BADGE_IN() { return 'in'; };
+    static get BADGE_OUT() { return 'out'; };
+
+    static get BADGE_REGION() { return 'region'; };
+    static get BADGE_SERVER() { return 'server'; };
+    static get BADGE_VIDEO() { return 'video'; };
+    static get BADGE_AUDIO() { return 'audio'; };
+
+    static get BADGE_BREAK() { return 'break'; };
+
     static ipv6 = false;
     static resolution = null;
     static video = null;
@@ -76,7 +88,16 @@ class StreamBadges {
 
     static #cachedDoms = {};
 
+    static #interval;
+    static get #REFRESH_INTERVAL() { return 3000; };
+
     static #renderBadge(name, value, color) {
+        const CE = createElement;
+
+        if (name === StreamBadges.BADGE_BREAK) {
+            return CE('div', {'style': 'display: block'});
+        }
+
         let $badge;
         if (StreamBadges.#cachedDoms[name]) {
             $badge = StreamBadges.#cachedDoms[name];
@@ -84,13 +105,71 @@ class StreamBadges {
             return $badge;
         }
 
-        const CE = createElement;
         $badge = CE('div', {'class': 'better-xcloud-badge'},
                     CE('span', {'class': 'better-xcloud-badge-name'}, name),
                     CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
 
         StreamBadges.#cachedDoms[name] = $badge;
         return $badge;
+    }
+
+    static async #updateBadges(forceUpdate) {
+        if (!forceUpdate && !document.querySelector('.better-xcloud-badges')) {
+            StreamBadges.#stop();
+            return;
+        }
+
+        // Playtime
+        let now = +new Date;
+        const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
+        const playtime = StreamBadges.#secondsToHm(diffSeconds);
+
+        // Battery
+        let batteryLevel = '';
+        if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
+            try {
+                const currentLevel = (await navigator.getBattery()).level * 100;
+                batteryLevel = `${currentLevel}%`;
+
+                if (currentLevel != StreamBadges.startBatteryLevel) {
+                    const diffLevel = currentLevel - StreamBadges.startBatteryLevel;
+                    const sign = diffLevel > 0 ? '+' : '';
+                    batteryLevel += ` (${sign}${diffLevel}%)`;
+                }
+            } catch(e) {}
+        }
+
+        const stats = await STREAM_WEBRTC.getStats();
+        let totalIn = 0;
+        let totalOut = 0;
+        stats.forEach(stat => {
+            if (stat.type === 'candidate-pair' && stat.state == 'succeeded') {
+                totalIn += stat.bytesReceived;
+                totalOut += stat.bytesSent;
+            }
+        });
+
+        const badges = {
+            [StreamBadges.BADGE_IN]: totalIn ? StreamBadges.#humanFileSize(totalIn) : null,
+            [StreamBadges.BADGE_OUT]: totalOut ? StreamBadges.#humanFileSize(totalOut) : null,
+            [StreamBadges.BADGE_PLAYTIME]: playtime,
+            [StreamBadges.BADGE_BATTERY]: batteryLevel,
+        };
+
+        for (let name in badges) {
+            const value = badges[name];
+            if (value === null) {
+                continue;
+            }
+
+            const $elm = StreamBadges.#cachedDoms[name];
+            $elm && ($elm.lastElementChild.textContent = value);
+        }
+    }
+
+    static #stop() {
+        StreamBadges.#interval && clearInterval(StreamBadges.#interval);
+        StreamBadges.#interval = null;
     }
 
     static #secondsToHm(seconds) {
@@ -136,47 +215,27 @@ class StreamBadges {
         // Battery
         let batteryLevel = '';
         if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
-            try {
-                const currentLevel = (await navigator.getBattery()).level * 100;
-                batteryLevel = `${currentLevel}%`;
-
-                if (currentLevel != StreamBadges.startBatteryLevel) {
-                    const diffLevel = currentLevel - StreamBadges.startBatteryLevel;
-                    const sign = diffLevel > 0 ? '+' : '';
-                    batteryLevel += ` (${sign}${diffLevel}%)`;
-                }
-            } catch(e) {}
+            batteryLevel = '99%';
         }
 
-        // Playtime
-        let now = +new Date;
-        const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
-        const playtime = StreamBadges.#secondsToHm(diffSeconds);
-
-        // In/Out
-        const stats = await STREAM_WEBRTC.getStats();
-        let totalIn = 0;
-        let totalOut = 0;
-        stats.forEach(stat => {
-            if (stat.type === 'candidate-pair' && stat.state == 'succeeded') {
-                totalIn += stat.bytesReceived;
-                totalOut += stat.bytesSent;
-            }
-        });
-
         const BADGES = [
-            playtime ? ['playtime', playtime, '#ff004d'] : null,
-            batteryLevel ? ['battery', batteryLevel, '#00b543'] : null,
-            ['region', StreamBadges.region, '#ff6c24'],
-            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
-            video ? ['video', video, '#754665'] : null,
-            audio ? ['audio', audio, '#5f574f'] : null,
-            totalIn ? ['in', StreamBadges.#humanFileSize(totalIn), '#29adff'] : null,
-            totalOut ? ['out', StreamBadges.#humanFileSize(totalOut), '#ff77a8'] : null,
+            [StreamBadges.BADGE_PLAYTIME, '1m', '#ff004d'],
+            batteryLevel ? [StreamBadges.BADGE_BATTERY, batteryLevel, '#00b543'] : null,
+            [StreamBadges.BADGE_IN, StreamBadges.#humanFileSize(0), '#29adff'],
+            [StreamBadges.BADGE_OUT, StreamBadges.#humanFileSize(0), '#ff77a8'],
+            [StreamBadges.BADGE_BREAK],
+            [StreamBadges.BADGE_REGION, StreamBadges.region, '#ff6c24'],
+            [StreamBadges.BADGE_SERVER, StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
+            video ? [StreamBadges.BADGE_VIDEO, video, '#754665'] : null,
+            audio ? [StreamBadges.BADGE_AUDIO, audio, '#5f574f'] : null,
         ];
 
         const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
         BADGES.forEach(item => item && $wrapper.appendChild(StreamBadges.#renderBadge(...item)));
+
+        await StreamBadges.#updateBadges(true);
+        StreamBadges.#stop();
+        StreamBadges.#interval = setInterval(StreamBadges.#updateBadges, StreamBadges.#REFRESH_INTERVAL);
 
         return $wrapper;
     }
