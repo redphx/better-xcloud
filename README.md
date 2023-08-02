@@ -16,7 +16,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 <img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/f4187ef8-fa10-4eab-b085-ef3c3aed3201">
 
-<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/68f91041-10b2-4fd9-adc1-e2a21db7e36f">
+<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/7e0fe3e1-b826-4a69-9843-a3acb866a2f9">
 
 
 &nbsp;  
@@ -64,7 +64,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Display stream's statuses**
   > Region/Server/Codecs/Resolution...  
   > Current playtime of the session.  
-  > Current battery level. Only visible on battery-powered devices.  
+  > Current battery level.  
+  > Estimated total data sent/received.  
 - **Disable social features**
   > Features like friends, chat... Disable these will make the page load faster.  
 - **Disable xCloud analytics**
