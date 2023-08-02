@@ -191,7 +191,7 @@ class StreamBadges {
         // Video
         let video = '';
         if (StreamBadges.resolution) {
-            video = `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`;
+            video = `${StreamBadges.resolution.height}p`;
         }
 
         if (StreamBadges.video) {
