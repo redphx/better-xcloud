@@ -125,8 +125,8 @@ class StreamBadges {
         const playtime = StreamBadges.#secondsToHm(diffSeconds);
 
         // Battery
-        let batteryLevel = '';
-        if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
+        let batteryLevel = '100%';
+        if (navigator.getBattery) {
             try {
                 const currentLevel = (await navigator.getBattery()).level * 100;
                 batteryLevel = `${currentLevel}%`;
@@ -214,13 +214,13 @@ class StreamBadges {
 
         // Battery
         let batteryLevel = '';
-        if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
-            batteryLevel = '99%';
+        if (navigator.getBattery) {
+            batteryLevel = '100%';
         }
 
         const BADGES = [
             [StreamBadges.BADGE_PLAYTIME, '1m', '#ff004d'],
-            batteryLevel ? [StreamBadges.BADGE_BATTERY, batteryLevel, '#00b543'] : null,
+            [StreamBadges.BADGE_BATTERY, batteryLevel, '#00b543'],
             [StreamBadges.BADGE_IN, StreamBadges.#humanFileSize(0), '#29adff'],
             [StreamBadges.BADGE_OUT, StreamBadges.#humanFileSize(0), '#ff77a8'],
             [StreamBadges.BADGE_BREAK],
