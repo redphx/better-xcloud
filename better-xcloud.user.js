@@ -486,6 +486,7 @@ class UserAgent {
             get: () => this._state,
             set: (state) => {
                 state.appContext.requestInfo.userAgent = userAgent;
+                state.appContext.requestInfo.origin = 'https://www.xbox.com';
                 this._state = state;
             }
         });
