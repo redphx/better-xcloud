@@ -74,12 +74,22 @@ class StreamBadges {
     static startBatteryLevel = 100;
     static startTimestamp = 0;
 
-    static #renderBadge(name, value, color) {
-        const CE = createElement;
-        const $badge = CE('div', {'class': 'better-xcloud-badge'},
-                            CE('span', {'class': 'better-xcloud-badge-name'}, name),
-                            CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
+    static #cachedDoms = {};
 
+    static #renderBadge(name, value, color) {
+        let $badge;
+        if (StreamBadges.#cachedDoms[name]) {
+            $badge = StreamBadges.#cachedDoms[name];
+            $badge.lastElementChild.textContent = value;
+            return $badge;
+        }
+
+        const CE = createElement;
+        $badge = CE('div', {'class': 'better-xcloud-badge'},
+                    CE('span', {'class': 'better-xcloud-badge-name'}, name),
+                    CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
+
+        StreamBadges.#cachedDoms[name] = $badge;
         return $badge;
     }
 
