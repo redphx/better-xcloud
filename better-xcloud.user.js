@@ -64,6 +64,18 @@ class MouseCursorHider {
 
 
 class StreamBadges {
+    static get BADGE_PLAYTIME() { return 'playtime'; };
+    static get BADGE_BATTERY() { return 'battery'; };
+    static get BADGE_IN() { return 'in'; };
+    static get BADGE_OUT() { return 'out'; };
+
+    static get BADGE_REGION() { return 'region'; };
+    static get BADGE_SERVER() { return 'server'; };
+    static get BADGE_VIDEO() { return 'video'; };
+    static get BADGE_AUDIO() { return 'audio'; };
+
+    static get BADGE_BREAK() { return 'break'; };
+
     static ipv6 = false;
     static resolution = null;
     static video = null;
@@ -74,47 +86,45 @@ class StreamBadges {
     static startBatteryLevel = 100;
     static startTimestamp = 0;
 
+    static #cachedDoms = {};
+
+    static #interval;
+    static get #REFRESH_INTERVAL() { return 3000; };
+
     static #renderBadge(name, value, color) {
         const CE = createElement;
-        const $badge = CE('div', {'class': 'better-xcloud-badge'},
-                            CE('span', {'class': 'better-xcloud-badge-name'}, name),
-                            CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
 
+        if (name === StreamBadges.BADGE_BREAK) {
+            return CE('div', {'style': 'display: block'});
+        }
+
+        let $badge;
+        if (StreamBadges.#cachedDoms[name]) {
+            $badge = StreamBadges.#cachedDoms[name];
+            $badge.lastElementChild.textContent = value;
+            return $badge;
+        }
+
+        $badge = CE('div', {'class': 'better-xcloud-badge'},
+                    CE('span', {'class': 'better-xcloud-badge-name'}, name),
+                    CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
+
+        StreamBadges.#cachedDoms[name] = $badge;
         return $badge;
     }
 
-    static #secondsToHm(seconds) {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor(seconds % 3600 / 60) + 1;
-
-        const hDisplay = h > 0 ? `${h}h`: '';
-        const mDisplay = m > 0 ? `${m}m`: '';
-        return hDisplay + mDisplay;
-    }
-
-    static async render() {
-        let video = '';
-        if (StreamBadges.resolution) {
-            video = `${StreamBadges.resolution.width}x${StreamBadges.resolution.height}`;
+    static async #updateBadges(forceUpdate) {
+        if (!forceUpdate && !document.querySelector('.better-xcloud-badges')) {
+            StreamBadges.#stop();
+            return;
         }
 
-        if (StreamBadges.video) {
-            video && (video += '/');
-            video += StreamBadges.video.codec;
-            if (StreamBadges.video.profile) {
-                let profile = StreamBadges.video.profile;
-                profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
-                video += ` (${profile})`;
-            }
-        }
+        // Playtime
+        let now = +new Date;
+        const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
+        const playtime = StreamBadges.#secondsToHm(diffSeconds);
 
-        let audio;
-        if (StreamBadges.audio) {
-            audio = StreamBadges.audio.codec;
-            const bitrate = StreamBadges.audio.bitrate / 1000;
-            audio += ` (${bitrate} kHz)`;
-        }
-
+        // Battery
         let batteryLevel = '';
         if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
             try {
@@ -129,21 +139,103 @@ class StreamBadges {
             } catch(e) {}
         }
 
-        let now = +new Date;
-        const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
-        const playtime = StreamBadges.#secondsToHm(diffSeconds);
+        const stats = await STREAM_WEBRTC.getStats();
+        let totalIn = 0;
+        let totalOut = 0;
+        stats.forEach(stat => {
+            if (stat.type === 'candidate-pair' && stat.state == 'succeeded') {
+                totalIn += stat.bytesReceived;
+                totalOut += stat.bytesSent;
+            }
+        });
+
+        const badges = {
+            [StreamBadges.BADGE_IN]: totalIn ? StreamBadges.#humanFileSize(totalIn) : null,
+            [StreamBadges.BADGE_OUT]: totalOut ? StreamBadges.#humanFileSize(totalOut) : null,
+            [StreamBadges.BADGE_PLAYTIME]: playtime,
+            [StreamBadges.BADGE_BATTERY]: batteryLevel,
+        };
+
+        for (let name in badges) {
+            const value = badges[name];
+            if (value === null) {
+                continue;
+            }
+
+            const $elm = StreamBadges.#cachedDoms[name];
+            $elm && ($elm.lastElementChild.textContent = value);
+        }
+    }
+
+    static #stop() {
+        StreamBadges.#interval && clearInterval(StreamBadges.#interval);
+        StreamBadges.#interval = null;
+    }
+
+    static #secondsToHm(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor(seconds % 3600 / 60) + 1;
+
+        const hDisplay = h > 0 ? `${h}h`: '';
+        const mDisplay = m > 0 ? `${m}m`: '';
+        return hDisplay + mDisplay;
+    }
+
+    // https://stackoverflow.com/a/20732091
+    static #humanFileSize(size) {
+        let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+        return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    }
+
+    static async render() {
+        // Video
+        let video = '';
+        if (StreamBadges.resolution) {
+            video = `${StreamBadges.resolution.height}p`;
+        }
+
+        if (StreamBadges.video) {
+            video && (video += '/');
+            video += StreamBadges.video.codec;
+            if (StreamBadges.video.profile) {
+                let profile = StreamBadges.video.profile;
+                profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
+                video += ` (${profile})`;
+            }
+        }
+
+        // Audio
+        let audio;
+        if (StreamBadges.audio) {
+            audio = StreamBadges.audio.codec;
+            const bitrate = StreamBadges.audio.bitrate / 1000;
+            audio += ` (${bitrate} kHz)`;
+        }
+
+        // Battery
+        let batteryLevel = '';
+        if (navigator.getBattery && StreamBadges.startBatteryLevel < 100) {
+            batteryLevel = '99%';
+        }
 
         const BADGES = [
-            playtime ? ['playtime', playtime, '#ff004d'] : null,
-            batteryLevel ? ['battery', batteryLevel, '#008751'] : null,
-            ['region', StreamBadges.region, '#ff6c24'],
-            ['server', StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
-            video ? ['video', video, '#7e2553'] : null,
-            audio ? ['audio', audio, '#5f574f'] : null,
+            [StreamBadges.BADGE_PLAYTIME, '1m', '#ff004d'],
+            batteryLevel ? [StreamBadges.BADGE_BATTERY, batteryLevel, '#00b543'] : null,
+            [StreamBadges.BADGE_IN, StreamBadges.#humanFileSize(0), '#29adff'],
+            [StreamBadges.BADGE_OUT, StreamBadges.#humanFileSize(0), '#ff77a8'],
+            [StreamBadges.BADGE_BREAK],
+            [StreamBadges.BADGE_REGION, StreamBadges.region, '#ff6c24'],
+            [StreamBadges.BADGE_SERVER, StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
+            video ? [StreamBadges.BADGE_VIDEO, video, '#754665'] : null,
+            audio ? [StreamBadges.BADGE_AUDIO, audio, '#5f574f'] : null,
         ];
 
         const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
         BADGES.forEach(item => item && $wrapper.appendChild(StreamBadges.#renderBadge(...item)));
+
+        await StreamBadges.#updateBadges(true);
+        StreamBadges.#stop();
+        StreamBadges.#interval = setInterval(StreamBadges.#updateBadges, StreamBadges.#REFRESH_INTERVAL);
 
         return $wrapper;
     }
@@ -394,6 +486,7 @@ class UserAgent {
             get: () => this._state,
             set: (state) => {
                 state.appContext.requestInfo.userAgent = userAgent;
+                state.appContext.requestInfo.origin = 'https://www.xbox.com';
                 this._state = state;
             }
         });
