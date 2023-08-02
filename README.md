@@ -72,7 +72,6 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.
 - **Change User-Agent**
   > Useful when you're using unsupported browsers.  
-  > If you're on Safari, changing User-Agent to "Edge on Windows" will allow you to use Mic feature.  
   > This setting only affects xCloud, and it doesn't change browser's global User-Agent.  
   > 📝 If you get 404 error after using this feature, try refreshing the page a few times. See [#34](https://github.com/redphx/better-xcloud/issues/34).  
 - **Reduce UI animations**
