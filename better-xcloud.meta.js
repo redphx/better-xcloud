@@ -1,5 +1,5 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      1.8.1
+// @version      1.8.2
 // ==/UserScript==
