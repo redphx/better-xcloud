@@ -177,8 +177,8 @@ I think it's very unlikely that you'll get banned for using this. Most of the fe
 2. **Why is it an Userscript and not an extension?**  
 It's because not many browsers on Android support installing extensions (and not all extensions can be installed).
 
-3. **I see "???" button instead of the server's name**  
-That means Tampermonkey is not working properly. Please make sure you're using the latest version or switch to a well-known browser.  
+3. **Why doesn't the xCloud website implement *this* or *that* feature from Better xCloud?**  
+For being an unofficial tool, **Better xCloud** has the luxury to implement anything on the xCloud website. On the xCloud's side, they have a lot more users and devices to support, so it's more difficult for them to implement a new feature. Also it's not easy to explain some of the features of **Better xCloud** to normal xCloud users.  
 
 4. **Can I use this with the Xbox Android app?**  
 No, you can't. You'll have to modify the app.
