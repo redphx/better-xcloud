@@ -125,13 +125,14 @@ class StreamBadges {
 
         // Battery
         let batteryLevel = '100%';
+        let batteryLevelInt = 100;
         if (navigator.getBattery) {
             try {
-                const currentLevel = (await navigator.getBattery()).level * 100;
-                batteryLevel = `${currentLevel}%`;
+                batteryLevelInt = Math.round((await navigator.getBattery()).level * 100);
+                batteryLevel = `${batteryLevelInt}%`;
 
-                if (currentLevel != StreamBadges.startBatteryLevel) {
-                    const diffLevel = Math.round(currentLevel - StreamBadges.startBatteryLevel);
+                if (batteryLevelInt != StreamBadges.startBatteryLevel) {
+                    const diffLevel = Math.round(batteryLevelInt - StreamBadges.startBatteryLevel);
                     const sign = diffLevel > 0 ? '+' : '';
                     batteryLevel += ` (${sign}${diffLevel}%)`;
                 }
@@ -163,6 +164,14 @@ class StreamBadges {
 
             const $elm = StreamBadges.#cachedDoms[name];
             $elm && ($elm.lastElementChild.textContent = value);
+
+            if (name === StreamBadges.BADGE_BATTERY) {
+                if (StreamBadges.startBatteryLevel === 100 && batteryLevelInt === 100) {
+                    $elm.style.display = 'none';
+                } else {
+                    $elm.style = '';
+                }
+            }
         }
     }
 
@@ -2050,7 +2059,7 @@ function patchVideoApi() {
         if (navigator.getBattery) {
             try {
                 navigator.getBattery().then(bm => {
-                    StreamBadges.startBatteryLevel = bm.level * 100;
+                    StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
                 });
             } catch(e) {}
         }
