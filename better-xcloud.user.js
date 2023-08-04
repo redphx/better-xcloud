@@ -1326,7 +1326,7 @@ div[class*=StreamHUD-module__buttonsContainer] {
 `;
     }
 
-    // Minify Stream's menu
+    // Simplify Stream's menu
     css += `
 div[class*=StreamMenu-module__menu] {
     min-width: 100vw !important;
@@ -1343,6 +1343,10 @@ div[class*=Menu-module__scrollable] {
     top: calc(var(--streamMenuItemSize) - 20px);
 }
 
+body[data-media-type=tv] .better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) - 10px) !important;
+}
+
 button[class*=MenuItem-module__container] {
     min-width: auto !important;
     min-height: auto !important;
@@ -1355,6 +1359,7 @@ div[class*=MenuItem-module__label] {
 }
 
 svg[class*=MenuItem-module__icon] {
+    width: 36px;
     height: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -1362,16 +1367,24 @@ svg[class*=MenuItem-module__icon] {
 `;
     } else {
         css += `
-.better-xcloud-badges {
+body[data-media-type=tv] .better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) + 30px);
+}
+
+body:not([data-media-type=tv]) .better-xcloud-badges {
     top: calc(var(--streamMenuItemSize) + 20px);
 }
 
-button[class*=MenuItem-module__container] {
+body:not([data-media-type=tv]) button[class*=MenuItem-module__container] {
     min-width: auto !important;
     width: 100px !important;
 }
 
-div[class*=MenuItem-module__label] {
+body:not([data-media-type=tv]) button[class*=MenuItem-module__container]:nth-child(n+2) {
+    margin-left: 10px !important;
+}
+
+body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
     margin-left: 8px !important;
     margin-right: 8px !important;
 }
