@@ -1004,6 +1004,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     line-height: 24px;
     color: #fff;
     font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    font-size: 14px;
     font-weight: 400;
     margin: 0 8px 8px 0;
     box-shadow: 0px 0px 6px #000;
