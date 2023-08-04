@@ -2340,3 +2340,8 @@ updateVideoPlayerCss();
 setupVideoSettingsBar();
 setupScreenshotButton();
 StreamStats.render();
+
+// Disable PWA prompt in Safari on iOS/iPadOS
+Object.defineProperty(window.navigator, 'standalone', {
+    value: true,
+});
