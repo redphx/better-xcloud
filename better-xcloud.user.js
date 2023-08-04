@@ -883,6 +883,7 @@ function addCss() {
 .better_xcloud_settings {
     background-color: #151515;
     user-select: none;
+    -webkit-user-select: none;
     color: #fff;
     font-family: "Segoe UI", Arial, Helvetica, sans-serif
 }
@@ -1008,6 +1009,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     position: absolute;
     margin-left: 0px;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 .better-xcloud-badge {
@@ -1072,6 +1074,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-stats-bar {
     display: block;
     user-select: none;
+    -webkit-user-select: none;
     position: fixed;
     top: 0;
     background-color: #000;
@@ -1158,6 +1161,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     box-shadow: 0 0 6px #000;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 .better-xcloud-stats-settings *:focus {
@@ -1215,6 +1219,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-quick-settings-bar {
     display: none;
     user-select: none;
+    -webkit-user-select: none;
     position: fixed;
     bottom: 20px;
     left: 50%;
