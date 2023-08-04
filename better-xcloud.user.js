@@ -237,7 +237,7 @@ class StreamBadges {
             [StreamBadges.BADGE_OUT, StreamBadges.#humanFileSize(0), '#ff77a8'],
             [StreamBadges.BADGE_BREAK],
             [StreamBadges.BADGE_SERVER, server, '#ff6c24'],
-            video ? [StreamBadges.BADGE_VIDEO, video, '#754665'] : null,
+            video ? [StreamBadges.BADGE_VIDEO, video, '#742f29'] : null,
             audio ? [StreamBadges.BADGE_AUDIO, audio, '#5f574f'] : null,
         ];
 
