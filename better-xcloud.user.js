@@ -506,6 +506,7 @@ class Preferences {
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_HIDE_TOUCH_CONTROLLER() { return 'stream_hide_touch_controller'; }
+    static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -615,6 +616,10 @@ class Preferences {
         },
         [Preferences.STREAM_HIDE_TOUCH_CONTROLLER]: {
             'label': 'Disable touch controller',
+            'default': false,
+        },
+        [Preferences.STREAM_SIMPLIFY_MENU]: {
+            'label': 'Simplify Stream\'s menu',
             'default': false,
         },
         [Preferences.HIDE_IDLE_CURSOR]: {
@@ -987,7 +992,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-badges {
     position: absolute;
-    top: 155px;
     margin-left: 0px;
     user-select: none;
 }
@@ -1279,17 +1283,6 @@ div[class*=NotFocusedDialog] {
 #game-stream video {
     visibility: hidden;
 }
-
-/* Adjust Stream menu icon's size */
-button[class*=MenuItem-module__container] {
-    min-width: auto !important;
-    width: 100px !important;
-}
-
-button[class*=MenuItem-module__container] div[class*=MenuItem-module__label] {
-    margin-left: 8px !important;
-    margin-right: 8px !important;
-}
 `;
 
     // Reduce animations
@@ -1329,6 +1322,58 @@ div[class*=StreamHUD-module__buttonsContainer] {
         css += `
 #MultiTouchSurface, #BabylonCanvasContainer-main {
     display: none !important;
+}
+`;
+    }
+
+    // Minify Stream's menu
+    css += `
+div[class*=StreamMenu-module__menu] {
+    min-width: 100vw !important;
+}
+`;
+    if (PREFS.get(Preferences.STREAM_SIMPLIFY_MENU)) {
+        css += `
+div[class*=Menu-module__scrollable] {
+    --bxStreamMenuItemSize: 80px;
+    --streamMenuItemSize: calc(var(--bxStreamMenuItemSize) + 40px) !important;
+}
+
+.better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) - 20px);
+}
+
+button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    min-height: auto !important;
+    width: var(--bxStreamMenuItemSize) !important;
+    height: var(--bxStreamMenuItemSize) !important;
+}
+
+div[class*=MenuItem-module__label] {
+    display: none !important;
+}
+
+svg[class*=MenuItem-module__icon] {
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+`;
+    } else {
+        css += `
+.better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) + 20px);
+}
+
+button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    width: 100px !important;
+}
+
+div[class*=MenuItem-module__label] {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
 }
 `;
     }
