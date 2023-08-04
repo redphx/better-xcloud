@@ -14,10 +14,9 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/f4187ef8-fa10-4eab-b085-ef3c3aed3201">
+<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/575d566a-7759-4cce-962d-7e5f55a70d9e">
 
-<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/7e0fe3e1-b826-4a69-9843-a3acb866a2f9">
-
+<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/b4f943f1-d0b4-4401-a8cb-0fd677a5c6f0">
 
 &nbsp;  
   
@@ -55,6 +54,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Disable touch controller**
   > Stop the touch controller from showing when touching the screen.  
   > Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, Retroid, etc.
+- **Simplify Stream's menu**
+  > Hide the labels of the menu buttons.
 - **Hide mouse cursor while playing**  
   > Hide the mouse cursor after 3 seconds of not moving.  
 - **Stretch video to full sctreen**
@@ -122,11 +123,12 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a Bluetooth mouse if you want to interact with the Settings.  
 
 ## Stream stats  
-<img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/70f4b1bb-4e3d-4f27-9b2f-afcfe1b8b261">
-  
-- While playing > `...` > `Stream Stats`.
-- Double-click on the stats bar to show Settings dialog.  
+<img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/0d4abb6b-49ab-4c9a-a52d-df7e396d2145">
+
+- While playing > `...` > `Stream Stats` (the one with the eye icon).
+- Double-click on the stats bar to show the Settings dialog.
 - This bar is updated every second.  
+- **Quick glance** feature: only show the stats bar when the System buttons bar is expanded. The 👀 emoji at the beginning indicates that the stats bar is in the quick glance mode.  
 - ⚠️ Using **Better xCloud** or showing the stats bar also affects the performance of the stream.  
 
 | Abbr. | Full name          | Explain                                                                                                                                    |
