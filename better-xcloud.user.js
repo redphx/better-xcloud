@@ -131,7 +131,7 @@ class StreamBadges {
                 batteryLevel = `${currentLevel}%`;
 
                 if (currentLevel != StreamBadges.startBatteryLevel) {
-                    const diffLevel = currentLevel - StreamBadges.startBatteryLevel;
+                    const diffLevel = Math.round(currentLevel - StreamBadges.startBatteryLevel);
                     const sign = diffLevel > 0 ? '+' : '';
                     batteryLevel += ` (${sign}${diffLevel}%)`;
                 }
