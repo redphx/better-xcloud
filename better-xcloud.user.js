@@ -269,28 +269,83 @@ class StreamStats {
 
     static #lastStat;
 
-    static start() {
+    static #quickGlanceObserver;
+
+    static start(glancing=false) {
+        if (!StreamStats.isHidden() || (glancing && StreamStats.#isGlancing())) {
+            return;
+        }
+
         StreamStats.#$container.classList.remove('better-xcloud-gone');
+        StreamStats.#$container.setAttribute('data-display', glancing ? 'glancing' : 'fixed');
+
         StreamStats.#interval = setInterval(StreamStats.update, StreamStats.#updateInterval);
     }
 
-    static stop() {
-        clearInterval(StreamStats.#interval);
+    static stop(glancing=false) {
+        if (glancing && !StreamStats.#isGlancing()) {
+            return;
+        }
 
-        StreamStats.#$container.classList.add('better-xcloud-gone');
+        clearInterval(StreamStats.#interval);
         StreamStats.#interval = null;
         StreamStats.#lastStat = null;
+
+        StreamStats.#$container.removeAttribute('data-display');
+        StreamStats.#$container.classList.add('better-xcloud-gone');
     }
 
     static toggle() {
-        StreamStats.#isHidden() ? StreamStats.start() : StreamStats.stop();
+        if (StreamStats.#isGlancing()) {
+            StreamStats.#$container.setAttribute('data-display', 'fixed');
+        } else {
+            StreamStats.isHidden() ? StreamStats.start() : StreamStats.stop();
+        }
     }
 
-    static #isHidden = () => StreamStats.#$container.classList.contains('better-xcloud-gone');
+    static onStoppedPlaying() {
+        StreamStats.stop();
+        StreamStats.quickGlanceStop();
+        StreamStats.hideSettingsUi();
+    }
+
+    static isHidden = () => StreamStats.#$container.classList.contains('better-xcloud-gone');
+    static #isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
+
+    static quickGlanceSetup() {
+        if (StreamStats.#quickGlanceObserver) {
+            return;
+        }
+
+        const $uiContainer = document.querySelector('div[data-testid=ui-container]');
+        StreamStats.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
+            for (let record of mutationList) {
+                if (record.attributeName && record.attributeName === 'aria-expanded') {
+                    const expanded = record.target.ariaExpanded;
+                    if (expanded === 'true') {
+                        StreamStats.isHidden() && StreamStats.start(true);
+                    } else {
+                        StreamStats.stop(true);
+                    }
+                }
+            }
+        });
+
+        StreamStats.#quickGlanceObserver.observe($uiContainer, {
+            attributes: true,
+            attributeFilter: ['aria-expanded'],
+            subtree: true,
+        });
+    }
+
+    static quickGlanceStop() {
+        StreamStats.#quickGlanceObserver && StreamStats.#quickGlanceObserver.disconnect();
+        StreamStats.#quickGlanceObserver = null;
+    }
 
     static update() {
-        if (StreamStats.#isHidden() || !STREAM_WEBRTC) {
-            StreamStats.stop();
+        if (StreamStats.isHidden() || !STREAM_WEBRTC) {
+            StreamStats.onStoppedPlaying();
             return;
         }
 
@@ -362,6 +417,10 @@ class StreamStats {
 
     static hideSettingsUi() {
         StreamStats.#$settings.style.display = 'none';
+
+        if (StreamStats.#isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
+            StreamStats.stop();
+        }
     }
 
     static #toggleSettingsUi() {
@@ -412,7 +471,10 @@ class StreamStats {
         const $position = PREFS.toElement(Preferences.STATS_POSITION, refreshFunc);
 
         let $close;
-        const $showStartup = PREFS.toElement(Preferences.STATS_SHOW_WHEN_PLAYING, refreshFunc);
+        const $showStartup = PREFS.toElement(Preferences.STATS_SHOW_WHEN_PLAYING);
+        const $quickGlance = PREFS.toElement(Preferences.STATS_QUICK_GLANCE, e => {
+            e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+        });
         const $transparent = PREFS.toElement(Preferences.STATS_TRANSPARENT, refreshFunc);
         const $formatting = PREFS.toElement(Preferences.STATS_CONDITIONAL_FORMATTING, refreshFunc);
         const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
@@ -423,6 +485,10 @@ class StreamStats {
                                     CE('div', {},
                                         CE('label', {'for': `xcloud_setting_${Preferences.STATS_SHOW_WHEN_PLAYING}`}, 'Show stats when starting the game'),
                                         $showStartup
+                                      ),
+                                    CE('div', {},
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_QUICK_GLANCE}`}, 'Enable quick glance'),
+                                        $quickGlance
                                       ),
                                     CE('div', {},
                                         CE('label', {}, 'Position'),
@@ -452,7 +518,6 @@ class StreamStats {
         StreamStats.#refreshStyles();
     }
 }
-
 
 class UserAgent {
     static get PROFILE_EDGE_WINDOWS() { return 'edge-windows'; }
@@ -535,6 +600,7 @@ class Preferences {
     static get VIDEO_SATURATION() { return 'video_saturation'; }
 
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
+    static get STATS_QUICK_GLANCE() { return 'stats_quick_glance'; }
     static get STATS_POSITION() { return 'stats_position'; }
     static get STATS_TEXT_SIZE() { return 'stats_text_size'; }
     static get STATS_TRANSPARENT() { return 'stats_transparent'; }
@@ -693,6 +759,10 @@ class Preferences {
             'hidden': true,
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+            'default': false,
+            'hidden': true,
+        },
+        [Preferences.STATS_QUICK_GLANCE]: {
             'default': false,
             'hidden': true,
         },
@@ -1084,6 +1154,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     padding-left: 8px;
     z-index: 1000;
     text-wrap: nowrap;
+}
+
+.better-xcloud-stats-bar[data-display=glancing]::before {
+    content: '👀 ';
+    vertical-align: middle;
 }
 
 .better-xcloud-stats-bar[data-position=top-left] {
@@ -2046,6 +2121,7 @@ function injectVideoSettingsButton() {
 function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
+    const PREF_STATS_QUICK_GLANCE = PREFS.get(Preferences.STATS_QUICK_GLANCE);
 
     // Show video player when it's ready
     var showFunc;
@@ -2055,6 +2131,10 @@ function patchVideoApi() {
 
         if (!this.videoWidth) {
             return;
+        }
+
+        if (PREF_STATS_QUICK_GLANCE) {
+            StreamStats.quickGlanceSetup();
         }
 
         $STREAM_VIDEO = this;
@@ -2396,8 +2476,7 @@ function onHistoryChange() {
 
     STREAM_WEBRTC = null;
     $STREAM_VIDEO = null;
-    StreamStats.stop();
-    StreamStats.hideSettingsUi();
+    StreamStats.onStoppedPlaying();
     document.querySelector('.better-xcloud-screenshot-button').style = '';
 
     MouseCursorHider.stop();
