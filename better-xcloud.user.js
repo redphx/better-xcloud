@@ -456,12 +456,14 @@ class StreamStats {
 
 class UserAgent {
     static get PROFILE_EDGE_WINDOWS() { return 'edge-windows'; }
+    static get PROFILE_SAFARI_MACOS() { return 'safari-macos'; }
     static get PROFILE_SMARTTV_TIZEN() { return 'smarttv-tizen'; }
     static get PROFILE_DEFAULT() { return 'default'; }
     static get PROFILE_CUSTOM() { return 'custom'; }
 
     static #USER_AGENTS = {
         [UserAgent.PROFILE_EDGE_WINDOWS]: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+        [UserAgent.PROFILE_SAFARI_MACOS]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
         [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36',
     }
 
@@ -655,6 +657,7 @@ class Preferences {
             'options': {
                 [UserAgent.PROFILE_DEFAULT]: 'Default',
                 [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge on Windows',
+                [UserAgent.PROFILE_SAFARI_MACOS]: 'Safari on macOS',
                 [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Samsung Smart TV',
                 [UserAgent.PROFILE_CUSTOM]: 'Custom',
             },
