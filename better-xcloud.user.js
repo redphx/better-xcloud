@@ -2069,6 +2069,9 @@ function patchVideoApi() {
         }
 
         STREAM_WEBRTC.getStats().then(stats => {
+            const allVideoCodecs = {};
+            let videoCodecId;
+
             const allAudioCodecs = {};
             let audioCodecId;
 
@@ -2076,28 +2079,37 @@ function patchVideoApi() {
                 if (stat.type == 'codec') {
                     const mimeType = stat.mimeType.split('/');
                     if (mimeType[0] === 'video') {
-                        const video = {
-                            codec: mimeType[1],
-                        };
-
-                        if (video.codec === 'H264') {
-                            const match = /profile-level-id=([0-9a-f]{6})/.exec(stat.sdpFmtpLine);
-                            video.profile = match ? match[1] : null;
-                        }
-
-                        StreamBadges.video = video;
+                        // Store all video stats
+                        allVideoCodecs[stat.id] = stat;
                     } else if (mimeType[0] === 'audio') {
                         // Store all audio stats
                         allAudioCodecs[stat.id] = stat;
                     }
-                } else if (stat.type === 'inbound-rtp' && stat.kind === 'audio') {
-                    // Get the codecId of the audio currently being used
-                    if (stat.packetsReceived > 0) {
+                } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
+                    // Get the codecId of the video/audio track currently being used
+                    if (stat.kind === 'video') {
+                        videoCodecId = stat.codecId;
+                    } else if (stat.kind === 'audio') {
                         audioCodecId = stat.codecId;
                     }
                 }
             });
-            
+
+            // Get video codec from codecId
+            if (videoCodecId) {
+                const videoStat = allVideoCodecs[videoCodecId];
+                const video = {
+                    codec: videoStat.mimeType.substring(6),
+                };
+
+                if (video.codec === 'H264') {
+                    const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+                    video.profile = match ? match[1] : null;
+                }
+
+                StreamBadges.video = video;
+            }
+
             // Get audio codec from codecId
             if (audioCodecId) {
                 const audioStat = allAudioCodecs[audioCodecId];
