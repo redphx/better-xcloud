@@ -1913,7 +1913,8 @@ function injectVideoSettingsButton() {
     const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
-        if (e.target != $parent && e.target.id !== 'MultiTouchSurface') {
+        e.stopPropagation();
+        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.querySelector('#BabylonCanvasContainer-main')) {
             return;
         }
 
@@ -1921,7 +1922,7 @@ function injectVideoSettingsButton() {
         $quickBar.style.display = 'none';
 
         $parent.removeEventListener('click', hideQuickBarFunc);
-        $parent.removeEventListener('touchend', hideQuickBarFunc);
+        $parent.removeEventListener('touchstart', hideQuickBarFunc);
 
         if (e.target.id === 'MultiTouchSurface') {
             e.target.removeEventListener('touchstart', hideQuickBarFunc);
@@ -1954,10 +1955,10 @@ function injectVideoSettingsButton() {
                     $quickBar.style.display = 'flex';
 
                     $parent.addEventListener('click', hideQuickBarFunc);
-                    $parent.addEventListener('touchend', hideQuickBarFunc);
+                    $parent.addEventListener('touchstart', hideQuickBarFunc);
 
                     const $touchSurface = document.querySelector('#MultiTouchSurface');
-                    $touchSurface && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
+                    $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
                 });
 
                 // Add button at the beginning
