@@ -69,7 +69,6 @@ class StreamBadges {
     static get BADGE_IN() { return 'in'; };
     static get BADGE_OUT() { return 'out'; };
 
-    static get BADGE_REGION() { return 'region'; };
     static get BADGE_SERVER() { return 'server'; };
     static get BADGE_VIDEO() { return 'video'; };
     static get BADGE_AUDIO() { return 'audio'; };
@@ -218,14 +217,17 @@ class StreamBadges {
             batteryLevel = '100%';
         }
 
+        // Server + Region
+        let server = StreamBadges.region;
+        server += '@' + (StreamBadges.ipv6 ? 'IPv6' : 'IPv4');
+
         const BADGES = [
             [StreamBadges.BADGE_PLAYTIME, '1m', '#ff004d'],
             [StreamBadges.BADGE_BATTERY, batteryLevel, '#00b543'],
             [StreamBadges.BADGE_IN, StreamBadges.#humanFileSize(0), '#29adff'],
             [StreamBadges.BADGE_OUT, StreamBadges.#humanFileSize(0), '#ff77a8'],
             [StreamBadges.BADGE_BREAK],
-            [StreamBadges.BADGE_REGION, StreamBadges.region, '#ff6c24'],
-            [StreamBadges.BADGE_SERVER, StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
+            [StreamBadges.BADGE_SERVER, server, '#ff6c24'],
             video ? [StreamBadges.BADGE_VIDEO, video, '#754665'] : null,
             audio ? [StreamBadges.BADGE_AUDIO, audio, '#5f574f'] : null,
         ];
