@@ -2055,6 +2055,7 @@ function patchVideoApi() {
 
         StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
         StreamBadges.startTimestamp = +new Date;
+
         // Get battery level
         if (navigator.getBattery) {
             try {
@@ -2065,30 +2066,43 @@ function patchVideoApi() {
         }
 
         STREAM_WEBRTC.getStats().then(stats => {
+            const allAudioCodecs = {};
+            let audioCodecId;
+
             stats.forEach(stat => {
-                if (stat.type !== 'codec') {
-                    return;
-                }
+                if (stat.type == 'codec') {
+                    const mimeType = stat.mimeType.split('/');
+                    if (mimeType[0] === 'video') {
+                        const video = {
+                            codec: mimeType[1],
+                        };
 
-                const mimeType = stat.mimeType.split('/');
-                if (mimeType[0] === 'video') {
-                    const video = {
-                        codec: mimeType[1],
-                    };
+                        if (video.codec === 'H264') {
+                            const match = /profile-level-id=([0-9a-f]{6})/.exec(stat.sdpFmtpLine);
+                            video.profile = match ? match[1] : null;
+                        }
 
-                    if (video.codec === 'H264') {
-                        const match = /profile-level-id=([0-9a-f]{6})/.exec(stat.sdpFmtpLine);
-                        video.profile = match ? match[1] : null;
+                        StreamBadges.video = video;
+                    } else if (mimeType[0] === 'audio') {
+                        // Store all audio stats
+                        allAudioCodecs[stat.id] = stat;
                     }
-
-                    StreamBadges.video = video;
-                } else if (!StreamBadges.audio && mimeType[0] === 'audio') {
-                    StreamBadges.audio = {
-                        codec: mimeType[1],
-                        bitrate: stat.clockRate,
-                    };
+                } else if (stat.type === 'inbound-rtp' && stat.kind === 'audio') {
+                    // Get the codecId of the audio currently being used
+                    if (stat.packetsReceived > 0) {
+                        audioCodecId = stat.codecId;
+                    }
                 }
             });
+            
+            // Get audio codec from codecId
+            if (audioCodecId) {
+                const audioStat = allAudioCodecs[audioCodecId];
+                StreamBadges.audio = {
+                    codec: audioStat.mimeType.substring(6),
+                    bitrate: audioStat.clockRate,
+                }
+            }
 
             if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
                 StreamStats.start();
