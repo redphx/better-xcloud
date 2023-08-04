@@ -69,7 +69,6 @@ class StreamBadges {
     static get BADGE_IN() { return 'in'; };
     static get BADGE_OUT() { return 'out'; };
 
-    static get BADGE_REGION() { return 'region'; };
     static get BADGE_SERVER() { return 'server'; };
     static get BADGE_VIDEO() { return 'video'; };
     static get BADGE_AUDIO() { return 'audio'; };
@@ -126,13 +125,14 @@ class StreamBadges {
 
         // Battery
         let batteryLevel = '100%';
+        let batteryLevelInt = 100;
         if (navigator.getBattery) {
             try {
-                const currentLevel = (await navigator.getBattery()).level * 100;
-                batteryLevel = `${currentLevel}%`;
+                batteryLevelInt = Math.round((await navigator.getBattery()).level * 100);
+                batteryLevel = `${batteryLevelInt}%`;
 
-                if (currentLevel != StreamBadges.startBatteryLevel) {
-                    const diffLevel = currentLevel - StreamBadges.startBatteryLevel;
+                if (batteryLevelInt != StreamBadges.startBatteryLevel) {
+                    const diffLevel = Math.round(batteryLevelInt - StreamBadges.startBatteryLevel);
                     const sign = diffLevel > 0 ? '+' : '';
                     batteryLevel += ` (${sign}${diffLevel}%)`;
                 }
@@ -164,6 +164,14 @@ class StreamBadges {
 
             const $elm = StreamBadges.#cachedDoms[name];
             $elm && ($elm.lastElementChild.textContent = value);
+
+            if (name === StreamBadges.BADGE_BATTERY) {
+                if (StreamBadges.startBatteryLevel === 100 && batteryLevelInt === 100) {
+                    $elm.style.display = 'none';
+                } else {
+                    $elm.style = '';
+                }
+            }
         }
     }
 
@@ -218,15 +226,18 @@ class StreamBadges {
             batteryLevel = '100%';
         }
 
+        // Server + Region
+        let server = StreamBadges.region;
+        server += '@' + (StreamBadges.ipv6 ? 'IPv6' : 'IPv4');
+
         const BADGES = [
             [StreamBadges.BADGE_PLAYTIME, '1m', '#ff004d'],
             [StreamBadges.BADGE_BATTERY, batteryLevel, '#00b543'],
             [StreamBadges.BADGE_IN, StreamBadges.#humanFileSize(0), '#29adff'],
             [StreamBadges.BADGE_OUT, StreamBadges.#humanFileSize(0), '#ff77a8'],
             [StreamBadges.BADGE_BREAK],
-            [StreamBadges.BADGE_REGION, StreamBadges.region, '#ff6c24'],
-            [StreamBadges.BADGE_SERVER, StreamBadges.ipv6 ? 'IPv6' : 'IPv4', '#065ab5'],
-            video ? [StreamBadges.BADGE_VIDEO, video, '#754665'] : null,
+            [StreamBadges.BADGE_SERVER, server, '#ff6c24'],
+            video ? [StreamBadges.BADGE_VIDEO, video, '#742f29'] : null,
             audio ? [StreamBadges.BADGE_AUDIO, audio, '#5f574f'] : null,
         ];
 
@@ -445,12 +456,14 @@ class StreamStats {
 
 class UserAgent {
     static get PROFILE_EDGE_WINDOWS() { return 'edge-windows'; }
+    static get PROFILE_SAFARI_MACOS() { return 'safari-macos'; }
     static get PROFILE_SMARTTV_TIZEN() { return 'smarttv-tizen'; }
     static get PROFILE_DEFAULT() { return 'default'; }
     static get PROFILE_CUSTOM() { return 'custom'; }
 
     static #USER_AGENTS = {
         [UserAgent.PROFILE_EDGE_WINDOWS]: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188',
+        [UserAgent.PROFILE_SAFARI_MACOS]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
         [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36',
     }
 
@@ -506,6 +519,7 @@ class Preferences {
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_HIDE_TOUCH_CONTROLLER() { return 'stream_hide_touch_controller'; }
+    static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -617,6 +631,10 @@ class Preferences {
             'label': 'Disable touch controller',
             'default': false,
         },
+        [Preferences.STREAM_SIMPLIFY_MENU]: {
+            'label': 'Simplify Stream\'s menu',
+            'default': false,
+        },
         [Preferences.HIDE_IDLE_CURSOR]: {
             'label': 'Hide mouse cursor while playing',
             'default': false,
@@ -639,6 +657,7 @@ class Preferences {
             'options': {
                 [UserAgent.PROFILE_DEFAULT]: 'Default',
                 [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge on Windows',
+                [UserAgent.PROFILE_SAFARI_MACOS]: 'Safari on macOS',
                 [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Samsung Smart TV',
                 [UserAgent.PROFILE_CUSTOM]: 'Custom',
             },
@@ -864,6 +883,7 @@ function addCss() {
 .better_xcloud_settings {
     background-color: #151515;
     user-select: none;
+    -webkit-user-select: none;
     color: #fff;
     font-family: "Segoe UI", Arial, Helvetica, sans-serif
 }
@@ -987,9 +1007,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-badges {
     position: absolute;
-    top: 155px;
     margin-left: 0px;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 .better-xcloud-badge {
@@ -998,6 +1018,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     line-height: 24px;
     color: #fff;
     font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    font-size: 14px;
     font-weight: 400;
     margin: 0 8px 8px 0;
     box-shadow: 0px 0px 6px #000;
@@ -1053,6 +1074,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-stats-bar {
     display: block;
     user-select: none;
+    -webkit-user-select: none;
     position: fixed;
     top: 0;
     background-color: #000;
@@ -1139,6 +1161,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     box-shadow: 0 0 6px #000;
     user-select: none;
+    -webkit-user-select: none;
 }
 
 .better-xcloud-stats-settings *:focus {
@@ -1196,6 +1219,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-quick-settings-bar {
     display: none;
     user-select: none;
+    -webkit-user-select: none;
     position: fixed;
     bottom: 20px;
     left: 50%;
@@ -1279,17 +1303,6 @@ div[class*=NotFocusedDialog] {
 #game-stream video {
     visibility: hidden;
 }
-
-/* Adjust Stream menu icon's size */
-button[class*=MenuItem-module__container] {
-    min-width: auto !important;
-    width: 100px !important;
-}
-
-button[class*=MenuItem-module__container] div[class*=MenuItem-module__label] {
-    margin-left: 8px !important;
-    margin-right: 8px !important;
-}
 `;
 
     // Reduce animations
@@ -1329,6 +1342,71 @@ div[class*=StreamHUD-module__buttonsContainer] {
         css += `
 #MultiTouchSurface, #BabylonCanvasContainer-main {
     display: none !important;
+}
+`;
+    }
+
+    // Simplify Stream's menu
+    css += `
+div[class*=StreamMenu-module__menu] {
+    min-width: 100vw !important;
+}
+`;
+    if (PREFS.get(Preferences.STREAM_SIMPLIFY_MENU)) {
+        css += `
+div[class*=Menu-module__scrollable] {
+    --bxStreamMenuItemSize: 80px;
+    --streamMenuItemSize: calc(var(--bxStreamMenuItemSize) + 40px) !important;
+}
+
+.better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) - 20px);
+}
+
+body[data-media-type=tv] .better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) - 10px) !important;
+}
+
+button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    min-height: auto !important;
+    width: var(--bxStreamMenuItemSize) !important;
+    height: var(--bxStreamMenuItemSize) !important;
+}
+
+div[class*=MenuItem-module__label] {
+    display: none !important;
+}
+
+svg[class*=MenuItem-module__icon] {
+    width: 36px;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+`;
+    } else {
+        css += `
+body[data-media-type=tv] .better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) + 30px);
+}
+
+body:not([data-media-type=tv]) .better-xcloud-badges {
+    top: calc(var(--streamMenuItemSize) + 20px);
+}
+
+body:not([data-media-type=tv]) button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    width: 100px !important;
+}
+
+body:not([data-media-type=tv]) button[class*=MenuItem-module__container]:nth-child(n+2) {
+    margin-left: 10px !important;
+}
+
+body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
 }
 `;
     }
@@ -1855,7 +1933,8 @@ function injectVideoSettingsButton() {
     const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
-        if (e.target != $parent && e.target.id !== 'MultiTouchSurface') {
+        e.stopPropagation();
+        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.querySelector('#BabylonCanvasContainer-main')) {
             return;
         }
 
@@ -1863,7 +1942,7 @@ function injectVideoSettingsButton() {
         $quickBar.style.display = 'none';
 
         $parent.removeEventListener('click', hideQuickBarFunc);
-        $parent.removeEventListener('touchend', hideQuickBarFunc);
+        $parent.removeEventListener('touchstart', hideQuickBarFunc);
 
         if (e.target.id === 'MultiTouchSurface') {
             e.target.removeEventListener('touchstart', hideQuickBarFunc);
@@ -1896,10 +1975,10 @@ function injectVideoSettingsButton() {
                     $quickBar.style.display = 'flex';
 
                     $parent.addEventListener('click', hideQuickBarFunc);
-                    $parent.addEventListener('touchend', hideQuickBarFunc);
+                    $parent.addEventListener('touchstart', hideQuickBarFunc);
 
                     const $touchSurface = document.querySelector('#MultiTouchSurface');
-                    $touchSurface && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
+                    $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
                 });
 
                 // Add button at the beginning
@@ -1984,40 +2063,66 @@ function patchVideoApi() {
 
         StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
         StreamBadges.startTimestamp = +new Date;
+
         // Get battery level
         if (navigator.getBattery) {
             try {
                 navigator.getBattery().then(bm => {
-                    StreamBadges.startBatteryLevel = bm.level * 100;
+                    StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
                 });
             } catch(e) {}
         }
 
         STREAM_WEBRTC.getStats().then(stats => {
+            const allVideoCodecs = {};
+            let videoCodecId;
+
+            const allAudioCodecs = {};
+            let audioCodecId;
+
             stats.forEach(stat => {
-                if (stat.type !== 'codec') {
-                    return;
-                }
-
-                const mimeType = stat.mimeType.split('/');
-                if (mimeType[0] === 'video') {
-                    const video = {
-                        codec: mimeType[1],
-                    };
-
-                    if (video.codec === 'H264') {
-                        const match = /profile-level-id=([0-9a-f]{6})/.exec(stat.sdpFmtpLine);
-                        video.profile = match ? match[1] : null;
+                if (stat.type == 'codec') {
+                    const mimeType = stat.mimeType.split('/');
+                    if (mimeType[0] === 'video') {
+                        // Store all video stats
+                        allVideoCodecs[stat.id] = stat;
+                    } else if (mimeType[0] === 'audio') {
+                        // Store all audio stats
+                        allAudioCodecs[stat.id] = stat;
                     }
-
-                    StreamBadges.video = video;
-                } else if (!StreamBadges.audio && mimeType[0] === 'audio') {
-                    StreamBadges.audio = {
-                        codec: mimeType[1],
-                        bitrate: stat.clockRate,
-                    };
+                } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
+                    // Get the codecId of the video/audio track currently being used
+                    if (stat.kind === 'video') {
+                        videoCodecId = stat.codecId;
+                    } else if (stat.kind === 'audio') {
+                        audioCodecId = stat.codecId;
+                    }
                 }
             });
+
+            // Get video codec from codecId
+            if (videoCodecId) {
+                const videoStat = allVideoCodecs[videoCodecId];
+                const video = {
+                    codec: videoStat.mimeType.substring(6),
+                };
+
+                if (video.codec === 'H264') {
+                    const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+                    video.profile = match ? match[1] : null;
+                }
+
+                StreamBadges.video = video;
+            }
+
+            // Get audio codec from codecId
+            if (audioCodecId) {
+                const audioStat = allAudioCodecs[audioCodecId];
+                StreamBadges.audio = {
+                    codec: audioStat.mimeType.substring(6),
+                    bitrate: audioStat.clockRate,
+                }
+            }
 
             if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
                 StreamStats.start();
