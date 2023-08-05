@@ -585,6 +585,7 @@ class Preferences {
     static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
+    static get STREAM_HIDE_IDLE_CURSOR() { return 'stream_hide_idle_cursor';}
     static get STREAM_HIDE_TOUCH_CONTROLLER() { return 'stream_hide_touch_controller'; }
     static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
@@ -707,7 +708,7 @@ class Preferences {
             'label': 'Simplify Stream\'s menu',
             'default': false,
         },
-        [Preferences.HIDE_IDLE_CURSOR]: {
+        [Preferences.STREAM_HIDE_IDLE_CURSOR]: {
             'label': 'Hide mouse cursor while playing',
             'default': false,
         },
@@ -818,6 +819,12 @@ class Preferences {
 
         this._prefs = {};
         for (let settingId in Preferences.SETTINGS) {
+            if (!settingId) {
+                alert('Undefined setting key');
+                console.log('Undefined setting key');
+                continue;
+            }
+
             const setting = Preferences.SETTINGS[settingId];
             if (settingId in savedPrefs) {
                 this._prefs[settingId] = savedPrefs[settingId];
@@ -1650,7 +1657,7 @@ function interceptHttpRequests() {
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
             // Start hiding cursor
-            if (PREFS.get(Preferences.HIDE_IDLE_CURSOR)) {
+            if (PREFS.get(Preferences.STREAM_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
                 MouseCursorHider.hide();
             }
