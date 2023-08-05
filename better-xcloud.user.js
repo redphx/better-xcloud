@@ -2134,94 +2134,7 @@ function patchVideoApi() {
             return;
         }
 
-        if (PREF_STATS_QUICK_GLANCE) {
-            StreamStats.quickGlanceSetup();
-        }
-
-        $STREAM_VIDEO = this;
-        $SCREENSHOT_CANVAS.width = this.videoWidth;
-        $SCREENSHOT_CANVAS.height = this.videoHeight;
-
-        StreamBadges.resolution = {width: this.videoWidth, height: this.videoHeight};
-        StreamBadges.startTimestamp = +new Date;
-
-        // Get battery level
-        if (navigator.getBattery) {
-            try {
-                navigator.getBattery().then(bm => {
-                    StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
-                });
-            } catch(e) {}
-        }
-
-        STREAM_WEBRTC.getStats().then(stats => {
-            const allVideoCodecs = {};
-            let videoCodecId;
-
-            const allAudioCodecs = {};
-            let audioCodecId;
-
-            stats.forEach(stat => {
-                if (stat.type == 'codec') {
-                    const mimeType = stat.mimeType.split('/');
-                    if (mimeType[0] === 'video') {
-                        // Store all video stats
-                        allVideoCodecs[stat.id] = stat;
-                    } else if (mimeType[0] === 'audio') {
-                        // Store all audio stats
-                        allAudioCodecs[stat.id] = stat;
-                    }
-                } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
-                    // Get the codecId of the video/audio track currently being used
-                    if (stat.kind === 'video') {
-                        videoCodecId = stat.codecId;
-                    } else if (stat.kind === 'audio') {
-                        audioCodecId = stat.codecId;
-                    }
-                }
-            });
-
-            // Get video codec from codecId
-            if (videoCodecId) {
-                const videoStat = allVideoCodecs[videoCodecId];
-                const video = {
-                    codec: videoStat.mimeType.substring(6),
-                };
-
-                if (video.codec === 'H264') {
-                    const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-                    video.profile = match ? match[1] : null;
-                }
-
-                StreamBadges.video = video;
-            }
-
-            // Get audio codec from codecId
-            if (audioCodecId) {
-                const audioStat = allAudioCodecs[audioCodecId];
-                StreamBadges.audio = {
-                    codec: audioStat.mimeType.substring(6),
-                    bitrate: audioStat.clockRate,
-                }
-            }
-
-            if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
-                StreamStats.start();
-            }
-        });
-
-        if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-            const $btn = document.querySelector('.better-xcloud-screenshot-button');
-            $btn.style.display = 'block';
-
-            if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
-                $btn.style.right = '0';
-            } else {
-                $btn.style.left = '0';
-            }
-        }
-
-        GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+        onStreamStarted(this);
     }
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
@@ -2464,7 +2377,7 @@ function patchHistoryMethod(type) {
 };
 
 
-function onHistoryChange() {
+function onHistoryChanged() {
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
         $settings.classList.add('better-xcloud-gone');
@@ -2484,9 +2397,104 @@ function onHistoryChange() {
 }
 
 
+function onStreamStarted($video) {
+    const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
+    const PREF_STATS_QUICK_GLANCE = PREFS.get(Preferences.STATS_QUICK_GLANCE);
+
+    if (PREF_STATS_QUICK_GLANCE) {
+        StreamStats.quickGlanceSetup();
+    }
+
+    $STREAM_VIDEO = $video;
+    $SCREENSHOT_CANVAS.width = $video.videoWidth;
+    $SCREENSHOT_CANVAS.height = $video.videoHeight;
+
+    StreamBadges.resolution = {width: $video.videoWidth, height: $video.videoHeight};
+    StreamBadges.startTimestamp = +new Date;
+
+    // Get battery level
+    if (navigator.getBattery) {
+        try {
+            navigator.getBattery().then(bm => {
+                StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
+            });
+        } catch(e) {}
+    }
+
+    STREAM_WEBRTC.getStats().then(stats => {
+        const allVideoCodecs = {};
+        let videoCodecId;
+
+        const allAudioCodecs = {};
+        let audioCodecId;
+
+        stats.forEach(stat => {
+            if (stat.type == 'codec') {
+                const mimeType = stat.mimeType.split('/');
+                if (mimeType[0] === 'video') {
+                    // Store all video stats
+                    allVideoCodecs[stat.id] = stat;
+                } else if (mimeType[0] === 'audio') {
+                    // Store all audio stats
+                    allAudioCodecs[stat.id] = stat;
+                }
+            } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
+                // Get the codecId of the video/audio track currently being used
+                if (stat.kind === 'video') {
+                    videoCodecId = stat.codecId;
+                } else if (stat.kind === 'audio') {
+                    audioCodecId = stat.codecId;
+                }
+            }
+        });
+
+        // Get video codec from codecId
+        if (videoCodecId) {
+            const videoStat = allVideoCodecs[videoCodecId];
+            const video = {
+                codec: videoStat.mimeType.substring(6),
+            };
+
+            if (video.codec === 'H264') {
+                const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+                video.profile = match ? match[1] : null;
+            }
+
+            StreamBadges.video = video;
+        }
+
+        // Get audio codec from codecId
+        if (audioCodecId) {
+            const audioStat = allAudioCodecs[audioCodecId];
+            StreamBadges.audio = {
+                codec: audioStat.mimeType.substring(6),
+                bitrate: audioStat.clockRate,
+            }
+        }
+
+        if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
+            StreamStats.start();
+        }
+    });
+
+    if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
+        const $btn = document.querySelector('.better-xcloud-screenshot-button');
+        $btn.style.display = 'block';
+
+        if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
+            $btn.style.right = '0';
+        } else {
+            $btn.style.left = '0';
+        }
+    }
+
+    GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+}
+
+
 // Hide Settings UI when navigate to another page
-window.addEventListener('xcloud_popstate', onHistoryChange);
-window.addEventListener('popstate', onHistoryChange);
+window.addEventListener('xcloud_popstate', onHistoryChanged);
+window.addEventListener('popstate', onHistoryChanged);
 // Make pushState/replaceState methods dispatch "xcloud_popstate" event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
