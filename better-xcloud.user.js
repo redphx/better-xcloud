@@ -665,7 +665,7 @@ class Preferences {
             },
         },
         [Preferences.USE_DESKTOP_CODEC]: {
-            'label': 'Force high-quality codec (if supported)',
+            'label': 'Force high-quality codec',
             'default': false,
         },
         [Preferences.PREFER_IPV6_SERVER]: {
@@ -1878,6 +1878,14 @@ function injectSettingsButton($parent) {
                 $control.disabled = true;
                 $control.title = 'Your browser doesn\'t support this feature';
                 $control.style.cursor = 'help';
+            } else if (settingId === Preferences.STREAM_HIDE_TOUCH_CONTROLLER) {
+                // Disable this setting for non-touchable devices
+                if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
+                    $control.checked = false;
+                    $control.disabled = true;
+                    $control.title = 'Your device doesn\'t have touch support';
+                    $control.style.cursor = 'help';
+                }
             }
         }
 
