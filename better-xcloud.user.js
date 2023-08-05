@@ -22,6 +22,9 @@ var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 
+const TOUCH_SUPPORTED_GAME_IDS = new Set();
+var SHOW_GENERIC_TOUCH_CONTROLLER = false;
+
 // Credit: https://phosphoricons.com
 const ICON_VIDEO_SETTINGS = '<path d="M16 9.144A6.89 6.89 0 0 0 9.144 16 6.89 6.89 0 0 0 16 22.856 6.89 6.89 0 0 0 22.856 16 6.9 6.9 0 0 0 16 9.144zm0 11.427c-2.507 0-4.571-2.064-4.571-4.571s2.064-4.571 4.571-4.571 4.571 2.064 4.571 4.571-2.064 4.571-4.571 4.571zm15.704-7.541c-.065-.326-.267-.607-.556-.771l-4.26-2.428-.017-4.802c-.001-.335-.15-.652-.405-.868-1.546-1.307-3.325-2.309-5.245-2.953-.306-.103-.641-.073-.923.085L16 3.694l-4.302-2.407c-.282-.158-.618-.189-.924-.086a16.02 16.02 0 0 0-5.239 2.964 1.14 1.14 0 0 0-.403.867L5.109 9.84.848 12.268a1.14 1.14 0 0 0-.555.771 15.22 15.22 0 0 0 0 5.936c.064.326.267.607.555.771l4.261 2.428.017 4.802c.001.335.149.652.403.868 1.546 1.307 3.326 2.309 5.245 2.953.306.103.641.073.923-.085L16 28.306l4.302 2.407a1.13 1.13 0 0 0 .558.143 1.18 1.18 0 0 0 .367-.059c1.917-.648 3.695-1.652 5.239-2.962.255-.216.402-.532.405-.866l.021-4.807 4.261-2.428a1.14 1.14 0 0 0 .555-.771 15.21 15.21 0 0 0-.003-5.931zm-2.143 4.987l-4.082 2.321a1.15 1.15 0 0 0-.429.429l-.258.438a1.13 1.13 0 0 0-.174.601l-.022 4.606a13.71 13.71 0 0 1-3.623 2.043l-4.117-2.295a1.15 1.15 0 0 0-.559-.143h-.546c-.205-.005-.407.045-.586.143l-4.119 2.3a13.74 13.74 0 0 1-3.634-2.033l-.016-4.599a1.14 1.14 0 0 0-.174-.603l-.257-.437c-.102-.182-.249-.333-.429-.437l-4.085-2.328a12.92 12.92 0 0 1 0-4.036l4.074-2.325a1.15 1.15 0 0 0 .429-.429l.258-.438a1.14 1.14 0 0 0 .175-.601l.021-4.606a13.7 13.7 0 0 1 3.625-2.043l4.11 2.295a1.14 1.14 0 0 0 .585.143h.52c.205.005.407-.045.586-.143l4.119-2.3a13.74 13.74 0 0 1 3.634 2.033l.016 4.599a1.14 1.14 0 0 0 .174.603l.257.437c.102.182.249.333.429.438l4.085 2.327a12.88 12.88 0 0 1 .007 4.041h.007z" fill-rule="nonzero"/>';
 const ICON_STREAM_STATS = '<path d="M27.295 9.31C24.303 6.313 20.234 4.631 16 4.643h-.057C7.153 4.673 0 11.929 0 20.804v3.267a2.3 2.3 0 0 0 2.286 2.286h27.429A2.3 2.3 0 0 0 32 24.072v-3.429A15.9 15.9 0 0 0 27.294 9.31zm2.419 14.761H14.816l7.823-10.757a1.15 1.15 0 0 0-.925-1.817c-.366 0-.71.176-.925.471l-8.801 12.103H2.286v-3.267c0-.44.022-.874.062-1.304h3.367a1.15 1.15 0 0 0 1.143-1.143 1.15 1.15 0 0 0-1.143-1.143H2.753c1.474-5.551 6.286-9.749 12.104-10.237v3.379A1.15 1.15 0 0 0 16 11.5a1.15 1.15 0 0 0 1.143-1.143V6.975c5.797.488 10.682 4.608 12.143 10.239h-3a1.15 1.15 0 0 0-1.143 1.143 1.15 1.15 0 0 0 1.143 1.143h3.382a14.58 14.58 0 0 1 .047 1.143v3.429z" fill-rule="nonzero"/>';
@@ -560,12 +563,39 @@ class UserAgent {
             value: userAgent,
         });
 
+        return userAgent;
+    }
+}
+
+
+class PreloadedState {
+    static override() {
         Object.defineProperty(window, '__PRELOADED_STATE__', {
             configurable: true,
             get: () => this._state,
             set: (state) => {
-                state.appContext.requestInfo.userAgent = userAgent;
-                state.appContext.requestInfo.origin = 'https://www.xbox.com';
+                // Override User-Agent
+                const userAgent = UserAgent.spoof();
+                if (userAgent) {
+                    state.appContext.requestInfo.userAgent = userAgent;
+                    state.appContext.requestInfo.origin = 'https://www.xbox.com';
+                }
+
+                // Get a list of touch-supported games
+                if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
+                    let titles = {};
+                    try {
+                        titles = state.xcloud.titles.data.titles;
+                    } catch (e) {}
+
+                    for (let id in titles) {
+                        const details = titles[id].data.details;
+                        // Has move than one input type -> must have touch support
+                        if (details.supportedInputTypes.length > 1) {
+                            TOUCH_SUPPORTED_GAME_IDS.add(details.productId);
+                        }
+                    }
+                }
                 this._state = state;
             }
         });
@@ -586,7 +616,7 @@ class Preferences {
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_HIDE_IDLE_CURSOR() { return 'stream_hide_idle_cursor';}
-    static get STREAM_HIDE_TOUCH_CONTROLLER() { return 'stream_hide_touch_controller'; }
+    static get STREAM_TOUCH_CONTROLLER() { return 'stream_touch_controller'; }
     static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
@@ -700,9 +730,14 @@ class Preferences {
             'label': 'Hide System menu\'s icon while playing',
             'default': false,
         },
-        [Preferences.STREAM_HIDE_TOUCH_CONTROLLER]: {
-            'label': 'Disable touch controller',
-            'default': false,
+        [Preferences.STREAM_TOUCH_CONTROLLER]: {
+            'label': 'Touch controller',
+            'default': 'default',
+            'options': {
+                'default': 'Default',
+                'all': 'All games',
+                'off': 'Off',
+            },
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
             'label': 'Simplify Stream\'s menu',
@@ -835,6 +870,11 @@ class Preferences {
     }
 
     get(key, defaultValue=null) {
+        if (typeof key === 'undefined') {
+            debugger;
+            return;
+        }
+
         const value = this._prefs[key];
 
         if (typeof value !== 'undefined' && value !== null && value !== '') {
@@ -1429,7 +1469,7 @@ div[class*=StreamHUD-module__buttonsContainer] {
     }
 
     // Hide touch controller
-    if (PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER)) {
+    if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'off') {
         css += `
 #MultiTouchSurface, #BabylonCanvasContainer-main {
     display: none !important;
@@ -1613,6 +1653,7 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
+    const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
 
     const orgFetch = window.fetch;
@@ -1692,6 +1733,58 @@ function interceptHttpRequests() {
 
             arg[0] = newRequest;
             return orgFetch(...arg);
+        }
+
+        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
+            SHOW_GENERIC_TOUCH_CONTROLLER = false;
+            // Get game ID from window.location
+            const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+            // Check touch support
+            if (match && !TOUCH_SUPPORTED_GAME_IDS.has(match[1])) {
+                SHOW_GENERIC_TOUCH_CONTROLLER = true;
+            }
+
+            const promise = orgFetch(...arg);
+            if (!SHOW_GENERIC_TOUCH_CONTROLLER) {
+                return promise;
+            }
+
+            // Intercept result to make xCloud show the touch controller
+            return promise.then(response => {
+                return response.clone().text().then(text => {
+                    if (!text.length) {
+                        return response;
+                    }
+
+                    const obj = JSON.parse(text);
+                    let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
+                    overrides.inputConfiguration = {
+                        enableTouchInput: true,
+                        maxTouchPoints: 10,
+                    };
+                    obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
+
+                    response.json = () => Promise.resolve(obj);
+                    response.text = () => Promise.resolve(JSON.stringify(obj));
+
+                    return response;
+                });
+            });
+        }
+
+        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
+            const promise = orgFetch(...arg);
+            return promise.then(response => {
+                return response.clone().json().then(json => {
+                    for (let game of json.results) {
+                        if (game.details.supportedInputTypes.length > 1) {
+                            TOUCH_SUPPORTED_GAME_IDS.add(game.details.productId);
+                        }
+                    }
+
+                    return response;
+                });
+            });
         }
 
         // ICE server candidates
@@ -1887,22 +1980,20 @@ function injectSettingsButton($parent) {
             $control.checked = setting.value;
 
             labelAttrs = {'for': 'xcloud_setting_' + settingId, 'tabindex': 0};
+        }
 
-            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
-                $control.checked = false;
+        if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
+            $control.disabled = true;
+            $control.checked = false;
+            $control.title = 'Your browser doesn\'t support this feature';
+        } else if (settingId === Preferences.STREAM_TOUCH_CONTROLLER) {
+            // Disable this setting for non-touchable devices
+            if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
                 $control.disabled = true;
-                $control.title = 'Your browser doesn\'t support this feature';
-                $control.style.cursor = 'help';
-            } else if (settingId === Preferences.STREAM_HIDE_TOUCH_CONTROLLER) {
-                // Disable this setting for non-touchable devices
-                if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
-                    $control.checked = false;
-                    $control.disabled = true;
-                    $control.title = 'Your device doesn\'t have touch support';
-                    $control.style.cursor = 'help';
-                }
+                $control.title = 'Your device doesn\'t have touch support';
             }
         }
+        $control.disabled && ($control.style.cursor = 'help');
 
         const $elm = CE('div', {'class': 'setting_row'},
             CE('label', labelAttrs, setting.label),
@@ -2030,7 +2121,7 @@ function injectVideoSettingsButton() {
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
         e.stopPropagation();
-        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.getElementById('BabylonCanvasContainer-main')) {
+        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.querySelector('#BabylonCanvasContainer-main')) {
             return;
         }
 
@@ -2540,7 +2631,7 @@ window.addEventListener('popstate', onHistoryChanged);
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
 
-UserAgent.spoof();
+PreloadedState.override();
 
 // Disable bandwidth checking
 if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
@@ -2557,12 +2648,43 @@ RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.add
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
+        STREAM_WEBRTC = this;
         StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
-    STREAM_WEBRTC = this;
     return this.orgAddIceCandidate.apply(this, args);
 }
+
+if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
+    RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+    RTCPeerConnection.prototype.createDataChannel = function() {
+        const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
+        if (!SHOW_GENERIC_TOUCH_CONTROLLER) {
+            return dataChannel;
+        }
+
+        const dispatchLayout = () => {
+            // Dispatch a message to display generic touch controller
+            dataChannel.dispatchEvent(new MessageEvent('message', {
+                data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
+                origin: 'better-xcloud',
+            }));
+        }
+
+        dataChannel.addEventListener('message', msg => {
+            if (msg.origin === 'better-xcloud' || typeof msg.data !== 'string') {
+                return;
+            }
+
+            if (msg.data.includes('touchcontrols/showtitledefault')) {
+                setTimeout(dispatchLayout, 10);
+            }
+        });
+
+        return dataChannel;
+    };
+}
+
 
 patchRtcCodecs();
 interceptHttpRequests();
