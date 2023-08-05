@@ -691,7 +691,7 @@ class Preferences {
             'default': false,
         },
         [Preferences.HIDE_DOTS_ICON]: {
-            'label': 'Hide Dots icon while playing',
+            'label': 'Hide System menu\'s icon while playing',
             'default': false,
         },
         [Preferences.STREAM_HIDE_TOUCH_CONTROLLER]: {
