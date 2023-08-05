@@ -1873,7 +1873,7 @@ function injectSettingsButton($parent) {
 
             labelAttrs = {'for': 'xcloud_setting_' + settingId, 'tabindex': 0};
 
-            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasRtcSetCodecPreferencesSupport()) {
+            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
                 $control.checked = false;
                 $control.disabled = true;
                 $control.title = 'Your browser doesn\'t support this feature';
@@ -2154,17 +2154,38 @@ function patchVideoApi() {
 }
 
 
-function hasRtcSetCodecPreferencesSupport() {
-    return (typeof RTCRtpTransceiver !== 'undefined' && 'setCodecPreferences' in RTCRtpTransceiver.prototype)
-}
-
-function patchRtcCodecs() {
-    if (!PREFS.get(Preferences.USE_DESKTOP_CODEC)) {
-        return;
+function hasHighQualityCodecSupport() {
+    if (typeof HAS_HIGH_QUALITY_CODEC_SUPPORT !== 'undefined') {
+        return HAS_HIGH_QUALITY_CODEC_SUPPORT;
     }
 
-    if (!hasRtcSetCodecPreferencesSupport()) {
-        console.log('[Better xCloud] RTCRtpTransceiver.setCodecPreferences() is not supported');
+    if (typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
+        return false;
+    }
+
+    if (!('getCapabilities' in RTCRtpReceiver)) {
+        return false;
+    }
+    
+    const codecs = RTCRtpReceiver.getCapabilities('video').codecs;
+    for (let codec of codecs) {
+        if (codec.mimeType.toLowerCase() !== 'video/h264' || !codec.sdpFmtpLine) {
+            continue;
+        }
+
+        const fmtp = codec.sdpFmtpLine.toLowerCase();
+        if (fmtp.includes('profile-level-id=4d')) {
+            return true;
+        }
+    }
+
+    return false;
+}
+var HAS_HIGH_QUALITY_CODEC_SUPPORT = hasHighQualityCodecSupport();
+
+
+function patchRtcCodecs() {
+    if (!PREFS.get(Preferences.USE_DESKTOP_CODEC) || !hasHighQualityCodecSupport()) {
         return;
     }
 
