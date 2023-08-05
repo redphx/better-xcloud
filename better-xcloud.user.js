@@ -2546,8 +2546,11 @@ function onStreamStarted($video) {
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
     const PREF_STATS_QUICK_GLANCE = PREFS.get(Preferences.STATS_QUICK_GLANCE);
 
+    // Setup Stat's Quick Glance mode
     if (PREF_STATS_QUICK_GLANCE) {
         StreamStats.quickGlanceSetup();
+        // Show stats bar
+        StreamStats.start(true);
     }
 
     $STREAM_VIDEO = $video;
