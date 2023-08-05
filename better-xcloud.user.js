@@ -488,7 +488,7 @@ class StreamStats {
                                         $showStartup
                                       ),
                                     CE('div', {},
-                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_QUICK_GLANCE}`}, 'Enable quick glance'),
+                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_QUICK_GLANCE}`}, 'Enable "Quick Glance" mode'),
                                         $quickGlance
                                       ),
                                     CE('div', {},
