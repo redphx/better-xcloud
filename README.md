@@ -185,8 +185,11 @@ For being an unofficial tool, **Better xCloud** has the luxury to implement anyt
 4. **Can I use this with the Xbox Android app?**  
 No, you can't. You'll have to modify the app.
 
-5. **Will you be able to enable the "Clarity Boost" feature on non-Edge browsers?**  
+5. **Will it be able to enable the "Clarity Boost" feature on non-Edge browsers?**  
 No. The "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
+
+6. **Will it be able to request a lower FPS or increase the maximum bitrate (15Mbps) of the stream?**  
+Sorry, no. The server decides all these settings.  
 
 ## User-Agent
 Moved to [wiki](https://github.com/redphx/better-xcloud/wiki/User‐Agent).
