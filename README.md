@@ -128,7 +128,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - While playing > `...` > `Stream Stats` (the one with the eye icon).
 - Double-click on the stats bar to show the Settings dialog.
 - This bar is updated every second.  
-- **Quick glance** feature: only show the stats bar when the System buttons bar is expanded. The 👀 emoji at the beginning indicates that the stats bar is in the quick glance mode.  
+- **Quick glance** feature: only show the stats bar when the System menu is expanded. The 👀 emoji at the beginning indicates that the stats bar is in the quick glance mode.  
 - ⚠️ Using **Better xCloud** or showing the stats bar also affects the performance of the stream.  
 
 | Abbr. | Full name          | Explain                                                                                                                                    |
