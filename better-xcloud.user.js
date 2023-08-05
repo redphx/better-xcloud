@@ -582,7 +582,7 @@ class PreloadedState {
                 }
 
                 // Get a list of touch-supported games
-                if (PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER)) {
+                if (!PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER) && PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER)) {
                     let titles = {};
                     try {
                         titles = state.xcloud.titles.data.titles;
@@ -1648,8 +1648,10 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
-    const PREF_STREAM_ENABLE_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
+
+    const PREF_STREAM_HIDE_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER);
+    const PREF_STREAM_ENABLE_TOUCH_CONTROLLER = !PREF_STREAM_HIDE_TOUCH_CONTROLLER && PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER);
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
@@ -1981,7 +1983,7 @@ function injectSettingsButton($parent) {
                 $control.disabled = true;
                 $control.title = 'Your browser doesn\'t support this feature';
                 $control.style.cursor = 'help';
-            } else if (settingId === Preferences.STREAM_HIDE_TOUCH_CONTROLLER) {
+            } else if (settingId === Preferences.STREAM_ENABLE_TOUCH_CONTROLLER || settingId === Preferences.STREAM_HIDE_TOUCH_CONTROLLER) {
                 // Disable this setting for non-touchable devices
                 if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
                     $control.checked = false;
@@ -2652,7 +2654,7 @@ RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     return this.orgAddIceCandidate.apply(this, args);
 }
 
-if (PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER)) {
+if (!PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER) && PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER)) {
     RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
     RTCPeerConnection.prototype.createDataChannel = function() {
         const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
