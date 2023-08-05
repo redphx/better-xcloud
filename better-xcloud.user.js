@@ -574,8 +574,9 @@ class UserAgent {
 
 
 class Preferences {
-    static get LAST_UPDATE_CHECK() { return 'last_update_check'; }
-    static get LATEST_VERSION() { return 'latest_version'; }
+    static get LAST_UPDATE_CHECK() { return 'version_last_check'; }
+    static get LATEST_VERSION() { return 'version_latest'; }
+    static get CURRENT_VERSION() { return 'version_current'; }
 
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
@@ -614,6 +615,10 @@ class Preferences {
             'hidden': true,
         },
         [Preferences.LATEST_VERSION]: {
+            'default': '',
+            'hidden': true,
+        },
+        [Preferences.CURRENT_VERSION]: {
             'default': '',
             'hidden': true,
         },
@@ -912,11 +917,13 @@ const PREFS = new Preferences();
 
 
 function checkForUpdate() {
-    const CHECK_INTERVAL_SECONDS = 4 * 3600 * 1000; // check every 4 hours
-    const lastCheck = PREFS.get(Preferences.LAST_UPDATE_CHECK, 0);
-    const now = +new Date;
+    const CHECK_INTERVAL_SECONDS = 4 * 3600; // check every 4 hours
 
-    if (now - lastCheck < CHECK_INTERVAL_SECONDS) {
+    const currentVersion = PREFS.get(Preferences.CURRENT_VERSION, '');
+    const lastCheck = PREFS.get(Preferences.LAST_UPDATE_CHECK, 0);
+    const now = Math.round((+new Date) / 1000);
+
+    if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) {
         return;
     }
 
@@ -927,6 +934,7 @@ function checkForUpdate() {
         .then(json => {
             // Store the latest version
             PREFS.set(Preferences.LATEST_VERSION, json.tag_name.substring(1));
+            PREFS.set(Preferences.CURRENT_VERSION, SCRIPT_VERSION);
         });
 }
 
@@ -2174,7 +2182,7 @@ function hasHighQualityCodecSupport() {
     if (!('getCapabilities' in RTCRtpReceiver)) {
         return false;
     }
-    
+
     const codecs = RTCRtpReceiver.getCapabilities('video').codecs;
     for (let codec of codecs) {
         if (codec.mimeType.toLowerCase() !== 'video/h264' || !codec.sdpFmtpLine) {
