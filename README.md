@@ -40,7 +40,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Force high quality codec (if supported)<sup>(\*)</sup>**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV) if possible. You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
-  > Not available for some browsers (Firefox, Safari...). Use the [changing User-Agent method](https://github.com/redphx/better-xcloud/wiki/User‐Agent) instead.  
+  > Not available for some browsers (Firefox, Safari...).  
   > Use more bandwidth & battery.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
 - **Prefer IPv6 streaming server**
