@@ -596,7 +596,6 @@ class PreloadedState {
                         }
                     }
                 }
-
                 this._state = state;
             }
         });
@@ -2119,7 +2118,7 @@ function injectVideoSettingsButton() {
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
         e.stopPropagation();
-        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.getElementById('BabylonCanvasContainer-main')) {
+        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.querySelector('#BabylonCanvasContainer-main')) {
             return;
         }
 
@@ -2646,10 +2645,10 @@ RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.add
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
+        STREAM_WEBRTC = this;
         StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
-    STREAM_WEBRTC = this;
     return this.orgAddIceCandidate.apply(this, args);
 }
 
