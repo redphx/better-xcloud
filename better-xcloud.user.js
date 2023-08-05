@@ -1952,10 +1952,10 @@ function updateVideoPlayerCss() {
 
 
 function checkHeader() {
-    const $button = document.querySelector('#PageContent header .better-xcloud-settings-button');
+    const $button = document.querySelector('.better-xcloud-settings-button');
 
     if (!$button) {
-        const $rightHeader = document.querySelector('#PageContent header div[class*=EdgewaterHeader-module__rightSectionSpacing]');
+        const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
         injectSettingsButton($rightHeader);
     }
 }
@@ -1969,10 +1969,7 @@ function watchHeader() {
 
     let timeout;
     const observer = new MutationObserver(mutationList => {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-
+        timeout && clearTimeout(timeout);
         timeout = setTimeout(checkHeader, 2000);
     });
     observer.observe($header, {subtree: true, childList: true});
@@ -2010,7 +2007,7 @@ function injectVideoSettingsButton() {
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
         e.stopPropagation();
-        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.querySelector('#BabylonCanvasContainer-main')) {
+        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.getElementById('BabylonCanvasContainer-main')) {
             return;
         }
 
@@ -2053,7 +2050,7 @@ function injectVideoSettingsButton() {
                     $parent.addEventListener('click', hideQuickBarFunc);
                     $parent.addEventListener('touchstart', hideQuickBarFunc);
 
-                    const $touchSurface = document.querySelector('#MultiTouchSurface');
+                    const $touchSurface = document.getElementById('MultiTouchSurface');
                     $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
                 });
 
