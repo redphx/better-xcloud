@@ -86,9 +86,10 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 2. Install **Better xCloud**:
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
     - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)  
-4. Refresh [xCloud web page](https://www.xbox.com/play/).
-5. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.  
-6. Don't forget to enable auto updating for the script in Tampermonkey.
+    I only distribute **Better xCloud** on GitHub, *DO NOT* download it on other websites or from unknown sources.  
+3. Refresh [xCloud web page](https://www.xbox.com/play/).
+4. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.  
+5. Don't forget to enable auto updating for the script in Tampermonkey.
 
 To update manually, just install the script again (you won't lose your settings).
 
