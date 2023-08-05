@@ -112,6 +112,10 @@ class StreamBadges {
                     CE('span', {'class': 'better-xcloud-badge-name'}, name),
                     CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
 
+        if (name === StreamBadges.BADGE_BATTERY) {
+            $badge.classList.add('better-xcloud-badge-battery');
+        }
+
         StreamBadges.#cachedDoms[name] = $badge;
         return $badge;
     }
@@ -130,9 +134,12 @@ class StreamBadges {
         // Battery
         let batteryLevel = '100%';
         let batteryLevelInt = 100;
+        let isCharging = false;
         if (navigator.getBattery) {
             try {
-                batteryLevelInt = Math.round((await navigator.getBattery()).level * 100);
+                const bm = await navigator.getBattery();
+                isCharging = bm.charging;
+                batteryLevelInt = Math.round(bm.level * 100);
                 batteryLevel = `${batteryLevelInt}%`;
 
                 if (batteryLevelInt != StreamBadges.startBatteryLevel) {
@@ -170,6 +177,9 @@ class StreamBadges {
             $elm && ($elm.lastElementChild.textContent = value);
 
             if (name === StreamBadges.BADGE_BATTERY) {
+                // Show charging status
+                $elm.setAttribute('data-charging', isCharging);
+
                 if (StreamBadges.startBatteryLevel === 100 && batteryLevelInt === 100) {
                     $elm.style.display = 'none';
                 } else {
@@ -1151,7 +1161,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.better-xcloud-badge .better-xcloud-badge-name {
+.better-xcloud-badge-name {
     background-color: #2d3036;
     display: inline-block;
     padding: 2px 8px;
@@ -1159,11 +1169,15 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-transform: uppercase;
 }
 
-.better-xcloud-badge .better-xcloud-badge-value {
+.better-xcloud-badge-value {
     background-color: grey;
     display: inline-block;
     padding: 2px 8px;
     border-radius: 0 4px 4px 0;
+}
+
+.better-xcloud-badge-battery[data-charging=true] span:first-of-type::after {
+    content: ' ⚡️';
 }
 
 .better-xcloud-screenshot-button {
@@ -2233,7 +2247,6 @@ function injectVideoSettingsButton() {
 function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
-    const PREF_STATS_QUICK_GLANCE = PREFS.get(Preferences.STATS_QUICK_GLANCE);
 
     // Show video player when it's ready
     var showFunc;
@@ -2545,13 +2558,11 @@ function onStreamStarted($video) {
     StreamBadges.startTimestamp = +new Date;
 
     // Get battery level
-    if (navigator.getBattery) {
-        try {
-            navigator.getBattery().then(bm => {
-                StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
-            });
-        } catch(e) {}
-    }
+    try {
+        navigator.getBattery && navigator.getBattery().then(bm => {
+            StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
+        });
+    } catch(e) {}
 
     STREAM_WEBRTC.getStats().then(stats => {
         const allVideoCodecs = {};
@@ -2609,6 +2620,7 @@ function onStreamStarted($video) {
         }
     });
 
+    // Setup screenshot button
     if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
         const $btn = document.querySelector('.better-xcloud-screenshot-button');
         $btn.style.display = 'block';
@@ -2619,8 +2631,6 @@ function onStreamStarted($video) {
             $btn.style.left = '0';
         }
     }
-
-    GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
 }
 
 
