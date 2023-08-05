@@ -582,7 +582,7 @@ class PreloadedState {
                 }
 
                 // Get a list of touch-supported games
-                if (!PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER) && PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER)) {
+                if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
                     let titles = {};
                     try {
                         titles = state.xcloud.titles.data.titles;
@@ -616,8 +616,7 @@ class Preferences {
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_HIDE_IDLE_CURSOR() { return 'stream_hide_idle_cursor';}
-    static get STREAM_HIDE_TOUCH_CONTROLLER() { return 'stream_hide_touch_controller'; }
-    static get STREAM_ENABLE_TOUCH_CONTROLLER() { return 'stream_enable_touch_controller'; }
+    static get STREAM_TOUCH_CONTROLLER() { return 'stream_touch_controller'; }
     static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
@@ -731,13 +730,14 @@ class Preferences {
             'label': 'Hide System menu\'s icon while playing',
             'default': false,
         },
-        [Preferences.STREAM_ENABLE_TOUCH_CONTROLLER]: {
-            'label': 'Enable touch controller for all games',
-            'default': false,
-        },
-        [Preferences.STREAM_HIDE_TOUCH_CONTROLLER]: {
-            'label': 'Disable touch controller',
-            'default': false,
+        [Preferences.STREAM_TOUCH_CONTROLLER]: {
+            'label': 'Touch controller',
+            'default': 'default',
+            'options': {
+                'default': 'Default',
+                'all': 'All games',
+                'off': 'Off',
+            },
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
             'label': 'Simplify Stream\'s menu',
@@ -870,6 +870,11 @@ class Preferences {
     }
 
     get(key, defaultValue=null) {
+        if (typeof key === 'undefined') {
+            debugger;
+            return;
+        }
+
         const value = this._prefs[key];
 
         if (typeof value !== 'undefined' && value !== null && value !== '') {
@@ -1464,7 +1469,7 @@ div[class*=StreamHUD-module__buttonsContainer] {
     }
 
     // Hide touch controller
-    if (PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER)) {
+    if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'off') {
         css += `
 #MultiTouchSurface, #BabylonCanvasContainer-main {
     display: none !important;
@@ -1648,10 +1653,8 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
+    const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
-
-    const PREF_STREAM_HIDE_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER);
-    const PREF_STREAM_ENABLE_TOUCH_CONTROLLER = !PREF_STREAM_HIDE_TOUCH_CONTROLLER && PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER);
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
@@ -1732,7 +1735,7 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (PREF_STREAM_ENABLE_TOUCH_CONTROLLER && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
+        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             SHOW_GENERIC_TOUCH_CONTROLLER = false;
             // Get game ID from window.location
             const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
@@ -1769,7 +1772,7 @@ function interceptHttpRequests() {
             });
         }
 
-        if (PREF_STREAM_ENABLE_TOUCH_CONTROLLER && (url.endsWith('/titles') || url.endsWith('/mru'))) {
+        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
             const promise = orgFetch(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
@@ -1977,22 +1980,20 @@ function injectSettingsButton($parent) {
             $control.checked = setting.value;
 
             labelAttrs = {'for': 'xcloud_setting_' + settingId, 'tabindex': 0};
+        }
 
-            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
-                $control.checked = false;
+        if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
+            $control.disabled = true;
+            $control.checked = false;
+            $control.title = 'Your browser doesn\'t support this feature';
+        } else if (settingId === Preferences.STREAM_TOUCH_CONTROLLER) {
+            // Disable this setting for non-touchable devices
+            if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
                 $control.disabled = true;
-                $control.title = 'Your browser doesn\'t support this feature';
-                $control.style.cursor = 'help';
-            } else if (settingId === Preferences.STREAM_ENABLE_TOUCH_CONTROLLER || settingId === Preferences.STREAM_HIDE_TOUCH_CONTROLLER) {
-                // Disable this setting for non-touchable devices
-                if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
-                    $control.checked = false;
-                    $control.disabled = true;
-                    $control.title = 'Your device doesn\'t have touch support';
-                    $control.style.cursor = 'help';
-                }
+                $control.title = 'Your device doesn\'t have touch support';
             }
         }
+        $control.disabled && ($control.style.cursor = 'help');
 
         const $elm = CE('div', {'class': 'setting_row'},
             CE('label', labelAttrs, setting.label),
@@ -2654,7 +2655,7 @@ RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     return this.orgAddIceCandidate.apply(this, args);
 }
 
-if (!PREFS.get(Preferences.STREAM_HIDE_TOUCH_CONTROLLER) && PREFS.get(Preferences.STREAM_ENABLE_TOUCH_CONTROLLER)) {
+if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
     RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
     RTCPeerConnection.prototype.createDataChannel = function() {
         const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
