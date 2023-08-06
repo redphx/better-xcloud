@@ -14,13 +14,15 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ## Features
 
-<img width="475" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/575d566a-7759-4cce-962d-7e5f55a70d9e">
-
-<img width="475" alt="Stream HUD UI" src="https://github.com/redphx/better-xcloud/assets/96280/b4f943f1-d0b4-4401-a8cb-0fd677a5c6f0">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/6e74fdaf-dc84-416a-a2bc-5e117a3717e3">
+<br>
+<img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/e30f6514-13ca-41c6-bff2-979573cff956">
+<br>
+<img width="600" alt="Video settings" src="https://github.com/redphx/better-xcloud/assets/96280/c45877f9-379c-4ba4-977c-021d3d8835e4">
 
 &nbsp;  
   
-**Demo video:** https://youtu.be/oDr5Eddp55E  
+**Demo video:** [https://youtu.be/oDr5Eddp55E  ](https://youtu.be/AYb-EUcz72U)  
 
 - **🔥 Show stream stats**  
   > Check [Stream stats section](#stream-stats) for more info.  
@@ -29,35 +31,55 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **🔥 Hold the "Quit game" button for one second to refresh the stream**
   > Sometimes you can fix the bad connection to the stream simply by refreshing the page.  
   > Useful on mobile where the pull-to-refresh feature doesn't work while playing.  
-- **Switch region of streaming server**  
+- **🔥 Touch controller**
+  > Enable touch controller support for all games.
+
+### Server
+- **Set the region of streaming server**  
   > Connect to another server instead of the default one. Check the [**FAQ** section](#faq) for some notes.
 - **Preferred game's language**
   > If the game doesn't support this language, it will use the same language as xCloud's website.  
-- **Stream's target resolution**
-  > Set stream's resolution.  
+- **Prefer IPv6 server**
+  > Might reduce latency.
+
+### Stream quality
+- **Set target resolution**
   > By default you only get 1080p stream when playing on desktop.  
   > This feature can give you 1080p stream even on mobile, without having to change User-Agent.  
-- **Force high quality codec (if supported)<sup>(\*)</sup>**
+- **Force high-quality codec (if supported)<sup>(\*)</sup>**
   > Force xCloud to use the best streaming codec profile (same as desktop & TV) if possible. You don't have to change User-Agent anymore.  
   > You should enable this feature even if you're on desktop.  
   > Not available for some browsers (Firefox, Safari...).  
   > Use more bandwidth & battery.  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
-- **Prefer IPv6 streaming server**
-  > Might reduce latency.
 - **Disable bandwidth checking**  
   > xCloud won't warn about slow connection speed.  
+
+### Controller
+- **🔥 Touch controller**
+  > - **Default**: nothing change.  
+  > - **All games**: enable touch controller support for all games.  
+  > - **Off**: stop the touch controller from showing when touching the screen. Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, etc.  
+- **Hide mouse cursor on idle**  
+  > Hide the mouse cursor after 3 seconds of not moving.  
+
+### UI
+- **Simplify Stream's menu**
+  > Hide the labels of the menu buttons.  
 - **Skip Xbox splash video**
   > Save 3 seconds.
-- **Hide Dots icon while playing**
+- **Hide System menu's icon**
   > You can still click on it, but it doesn't block the screen anymore.
-- **Disable touch controller**
-  > Stop the touch controller from showing when touching the screen.  
-  > Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, Retroid, etc.
-- **Simplify Stream's menu**
-  > Hide the labels of the menu buttons.
-- **Hide mouse cursor while playing**  
-  > Hide the mouse cursor after 3 seconds of not moving.  
+- **Reduce UI animations**
+  > Disable `transition` CSS property in some elements. The smooth scrolling cannot be disabled.  
+
+### Other  
+- **Disable social features**
+  > Features like friends, chat... Disable these will make the page load faster.  
+- **Disable xCloud analytics**
+  > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.
+
+### Stream's video features
 - **Stretch video to full sctreen**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
@@ -67,16 +89,12 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > Current playtime of the session.  
   > Current battery level.  
   > Estimated total data sent/received.  
-- **Disable social features**
-  > Features like friends, chat... Disable these will make the page load faster.  
-- **Disable xCloud analytics**
-  > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.
+
+### Advanced features  
 - **Change User-Agent**
   > Useful when you're using unsupported browsers.  
   > This setting only affects xCloud, and it doesn't change browser's global User-Agent.  
   > 📝 If you get 404 error after using this feature, try refreshing the page a few times. See [#34](https://github.com/redphx/better-xcloud/issues/34).  
-- **Reduce UI animations**
-  > Disable `transition` CSS property in some elements. The smooth scrolling cannot be disabled.  
 - **Hide footer and other UI elements**
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
@@ -126,7 +144,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 ## Stream stats  
 <img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/0d4abb6b-49ab-4c9a-a52d-df7e396d2145">
 
-- While playing > `...` > `Stream Stats` (the one with the eye icon).
+- While playing > `...` > `Stream Stats`.
 - Double-click on the stats bar to show the Settings dialog.
 - This bar is updated every second.  
 - **Quick glance** feature: only show the stats bar when the System menu is expanded. The 👀 emoji at the beginning indicates that the stats bar is in the quick glance mode.  
@@ -197,7 +215,7 @@ Moved to [wiki](https://github.com/redphx/better-xcloud/wiki/User‐Agent).
 
 ## Acknowledgements  
 - [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
-- Icons by [Adam Design](https://www.iconfinder.com/iconsets/user-interface-outline-27)
+- Icons by [Phosphor Icons](https://phosphoricons.com)
 
 ## Disclaimers  
 - Use as it your own risk.  

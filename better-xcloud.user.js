@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      1.9
+// @version      1.10
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -13,7 +13,7 @@
 // ==/UserScript==
 'use strict';
 
-const SCRIPT_VERSION = '1.9';
+const SCRIPT_VERSION = '1.10';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
@@ -2246,6 +2246,9 @@ function injectVideoSettingsButton() {
 
 
 function patchVideoApi() {
+    // Get title ID for screenshot's name
+    GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
 
@@ -2684,6 +2687,9 @@ if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
                 origin: 'better-xcloud',
             }));
         }
+
+        // Fix sometimes the touch controller doesn't show at the beginning
+        setTimeout(dispatchLayout, 100);
 
         dataChannel.addEventListener('message', msg => {
             if (msg.origin === 'better-xcloud' || typeof msg.data !== 'string') {
