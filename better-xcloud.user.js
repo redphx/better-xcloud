@@ -1276,11 +1276,13 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     opacity: 0;
     position: fixed;
     bottom: 0;
+    box-sizing: border-box;
     width: 16vh;
     height: 16vh;
-    max-width: 96px;
-    max-height: 96px;
-    padding: 12px;
+    max-width: 128px;
+    max-height: 128px;
+    padding: 2vh;
+    padding: 24px 24px 12px 12px;
     background-size: cover;
     background-repeat: no-repeat;
     background-origin: content-box;
@@ -1297,7 +1299,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-screenshot-button[data-capturing=true] {
-    padding: 6px;
+    padding: 1vh;
 }
 
 .better-xcloud-screenshot-canvas {
