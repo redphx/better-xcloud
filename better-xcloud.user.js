@@ -2685,6 +2685,9 @@ if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
             }));
         }
 
+        // Fix sometimes the touch controller doesn't show at the beginning
+        setTimeout(dispatchLayout, 100);
+
         dataChannel.addEventListener('message', msg => {
             if (msg.origin === 'better-xcloud' || typeof msg.data !== 'string') {
                 return;
