@@ -57,8 +57,9 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 ### Controller
 - **🔥 Touch controller**
+  > Only for mobile (Android/iOS/iPadOS).  
   > - **Default**: nothing change.  
-  > - **All games**: enable touch controller support for all games.  
+  > - **All games**: enable touch controller support for all games. Games with custom layout won't be affected.  
   > - **Off**: stop the touch controller from showing when touching the screen. Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, etc.  
 - **Hide mouse cursor on idle**  
   > Hide the mouse cursor after 3 seconds of not moving.  
