@@ -2246,6 +2246,9 @@ function injectVideoSettingsButton() {
 
 
 function patchVideoApi() {
+    // Get title ID for screenshot's name
+    GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
 
