@@ -1295,7 +1295,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-screenshot-button[data-showing=true] {
-    opacity: 1;
+    opacity: 0.9;
 }
 
 .better-xcloud-screenshot-button[data-capturing=true] {
