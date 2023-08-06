@@ -653,22 +653,17 @@ class Preferences {
     static SETTINGS = {
         [Preferences.LAST_UPDATE_CHECK]: {
             'default': 0,
-            'hidden': true,
         },
         [Preferences.LATEST_VERSION]: {
             'default': '',
-            'hidden': true,
         },
         [Preferences.CURRENT_VERSION]: {
             'default': '',
-            'hidden': true,
         },
         [Preferences.SERVER_REGION]: {
-            'label': 'Region of streaming server',
             'default': 'default',
         },
         [Preferences.STREAM_PREFERRED_LOCALE]: {
-            'label': 'Preferred game\'s language',
             'default': 'default',
             'options': {
                 'default': 'Default',
@@ -702,7 +697,6 @@ class Preferences {
             },
         },
         [Preferences.STREAM_TARGET_RESOLUTION]: {
-            'label': 'Stream\'s target resolution',
             'default': 'auto',
             'options': {
                 'auto': 'Auto',
@@ -711,19 +705,15 @@ class Preferences {
             },
         },
         [Preferences.USE_DESKTOP_CODEC]: {
-            'label': 'Force high-quality codec',
             'default': false,
         },
         [Preferences.PREFER_IPV6_SERVER]: {
-            'label': 'Prefer IPv6 streaming server',
             'default': false,
         },
         [Preferences.DISABLE_BANDWIDTH_CHECKING]: {
-            'label': 'Disable bandwidth checking',
             'default': false,
         },
         [Preferences.SCREENSHOT_BUTTON_POSITION]: {
-            'label': 'Screenshot button\'s position',
             'default': 'bottom-left',
             'options':
             {
@@ -733,15 +723,12 @@ class Preferences {
             },
         },
         [Preferences.SKIP_SPLASH_VIDEO]: {
-            'label': 'Skip Xbox splash video',
             'default': false,
         },
         [Preferences.HIDE_DOTS_ICON]: {
-            'label': 'Hide System menu\'s icon while playing',
             'default': false,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER]: {
-            'label': 'Touch controller',
             'default': 'default',
             'options': {
                 'default': 'Default',
@@ -750,27 +737,21 @@ class Preferences {
             },
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
-            'label': 'Simplify Stream\'s menu',
             'default': false,
         },
         [Preferences.STREAM_HIDE_IDLE_CURSOR]: {
-            'label': 'Hide mouse cursor while playing',
             'default': false,
         },
         [Preferences.REDUCE_ANIMATIONS]: {
-            'label': 'Reduce UI animations',
             'default': false,
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
-            'label': 'Disable social features',
             'default': false,
         },
         [Preferences.BLOCK_TRACKING]: {
-            'label': 'Disable xCloud analytics',
             'default': false,
         },
         [Preferences.USER_AGENT_PROFILE]: {
-            'label': 'User-Agent profile',
             'default': 'default',
             'options': {
                 [UserAgent.PROFILE_DEFAULT]: 'Default',
@@ -782,41 +763,30 @@ class Preferences {
         },
         [Preferences.USER_AGENT_CUSTOM]: {
             'default': '',
-            'hidden': true,
         },
         [Preferences.VIDEO_FILL_FULL_SCREEN]: {
-            'label': 'Stretch video to full screen',
             'default': false,
-            'hidden': true,
         },
         [Preferences.VIDEO_SATURATION]: {
-            'label': 'Video saturation (%)',
             'default': 100,
             'min': 0,
             'max': 150,
-            'hidden': true,
         },
         [Preferences.VIDEO_CONTRAST]: {
-            'label': 'Video contrast (%)',
             'default': 100,
             'min': 0,
             'max': 150,
-            'hidden': true,
         },
         [Preferences.VIDEO_BRIGHTNESS]: {
-            'label': 'Video brightness (%)',
             'default': 100,
             'min': 0,
             'max': 150,
-            'hidden': true,
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
             'default': false,
-            'hidden': true,
         },
         [Preferences.STATS_QUICK_GLANCE]: {
             'default': false,
-            'hidden': true,
         },
         [Preferences.STATS_POSITION]: {
             'default': 'top-left',
@@ -825,7 +795,6 @@ class Preferences {
                 'top-center': 'Top Center',
                 'top-right': 'Top Right',
             },
-            'hidden': true,
         },
         [Preferences.STATS_TEXT_SIZE]: {
             'default': '0.9rem',
@@ -834,21 +803,17 @@ class Preferences {
                 '1.0rem': 'Normal',
                 '1.1rem': 'Large',
             },
-            'hidden': true,
         },
         [Preferences.STATS_TRANSPARENT]: {
             'default': false,
-            'hidden': true,
         },
         [Preferences.STATS_OPACITY]: {
             'default': 80,
             'min': 50,
             'max': 100,
-            'hidden': true,
         },
         [Preferences.STATS_CONDITIONAL_FORMATTING]: {
             'default': false,
-            'hidden': true,
         },
     }
 
@@ -1044,13 +1009,19 @@ function addCss() {
 
 .better-xcloud-settings-wrapper a.better-xcloud-settings-title {
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
-    font-size: 20px;
+    font-size: 1.4rem;
     text-decoration: none;
     font-weight: bold;
     display: block;
     margin-bottom: 8px;
     color: #5dc21e;
     flex: 1;
+}
+
+.better-xcloud-settings-group-label {
+    font-weight: bold;
+    display: block;
+    font-size: 1.1rem;
 }
 
 @media (hover: hover) {
@@ -1081,29 +1052,30 @@ function addCss() {
     text-decoration: underline;
 }
 
-.better-xcloud-settings-wrapper .setting_row {
+.better-xcloud-settings-row {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
 }
 
-.better-xcloud-settings-wrapper .setting_row label {
+.better-xcloud-settings-row label {
     flex: 1;
     align-self: center;
     margin-bottom: 0;
+    padding-left: 10px;
 }
 
 @media not (hover: hover) {
-    .better-xcloud-settings-wrapper .setting_row:focus-within {
+    .better-xcloud-settings-row:focus-within {
        background-color: #242424;
     }
 }
 
-.better-xcloud-settings-wrapper .setting_row input {
+.better-xcloud-settings-row input {
     align-self: center;
 }
 
-.better-xcloud-settings-wrapper .setting_button {
+.better-xcloud-settings-reload-button {
     padding: 8px 32px;
     margin: 10px auto 0;
     border: none;
@@ -1119,16 +1091,16 @@ function addCss() {
 }
 
 @media (hover: hover) {
-    .better-xcloud-settings-wrapper .setting_button:hover {
+    .better-xcloud-settings-reload-button:hover {
         background-color: #00753c;
     }
 }
 
-.better-xcloud-settings-wrapper .setting_button:focus {
+.better-xcloud-settings-reload-button:focus {
     background-color: #00753c;
 }
 
-.better-xcloud-settings-wrapper .setting_button:active {
+.better-xcloud-settings-reload-button:active {
     background-color: #00753c;
 }
 
@@ -1876,6 +1848,7 @@ function injectSettingsButton($parent) {
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION, null);
 
+    // Setup Settings button
     const $button = CE('button', {'class': 'better-xcloud-settings-button'}, PREF_PREFERRED_REGION);
     $button.addEventListener('click', e => {
         const $settings = document.querySelector('.better_xcloud_settings');
@@ -1883,12 +1856,15 @@ function injectSettingsButton($parent) {
         $settings.scrollIntoView();
     });
 
+    // Show new update status
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
         $button.setAttribute('data-update-available', true);
     }
 
+    // Add Settings button to the web page
     $parent.appendChild($button);
 
+    // Setup Settings UI
     const $container = CE('div', {
         'class': 'better_xcloud_settings better-xcloud-gone',
     });
@@ -1910,49 +1886,83 @@ function injectSettingsButton($parent) {
                        );
     $container.appendChild($wrapper);
 
+    // Show new version indicator
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
         $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
         $updateAvailable.style.display = 'block';
     }
 
-    for (let settingId in Preferences.SETTINGS) {
-        const setting = Preferences.SETTINGS[settingId];
-        if (setting.hidden) {
-            continue;
-        }
+    // Render settings
+    const SETTINGS_UI = {
+        'Server': {
+            [Preferences.SERVER_REGION]: 'Region',
+            [Preferences.STREAM_PREFERRED_LOCALE]: 'Preferred game\'s language',
+            [Preferences.PREFER_IPV6_SERVER]: 'Prefer IPv6 server',
+        },
+        'Stream quality': {
+            [Preferences.STREAM_TARGET_RESOLUTION]: 'Target resolution',
+            [Preferences.USE_DESKTOP_CODEC]: 'Force high-quality codec',
+            [Preferences.DISABLE_BANDWIDTH_CHECKING]: 'Disable bandwidth checking',
+        },
+        'Controller': {
+            [Preferences.STREAM_TOUCH_CONTROLLER]: 'Touch controller',
+            [Preferences.STREAM_HIDE_IDLE_CURSOR]: 'Hide mouse cursor on idle',
+        },
+        'UI': {
+            [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
+            [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
+            [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
+            [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
+            [Preferences.SCREENSHOT_BUTTON_POSITION]: 'Screenshot button\'s position',
+        },
+        'Other': {
+            [Preferences.BLOCK_SOCIAL_FEATURES]: 'Disable social features',
+            [Preferences.BLOCK_TRACKING]: 'Disable xCloud analytics',
+        },
+        'Advanced': {
+            [Preferences.USER_AGENT_PROFILE]: 'User-Agent profile',
+        },
+    };
 
-        let $control, $inpCustomUserAgent;
-        let labelAttrs = {};
+    for (let groupLabel in SETTINGS_UI) {
+        const $group = CE('span', {'class': 'better-xcloud-settings-group-label'}, groupLabel);
+        $wrapper.appendChild($group);
 
-        if (settingId === Preferences.USER_AGENT_PROFILE) {
-            let defaultUserAgent = window.navigator.orgUserAgent || window.navigator.userAgent;
-            $inpCustomUserAgent = CE('input', {
+        for (let settingId in SETTINGS_UI[groupLabel]) {
+            const setting = Preferences.SETTINGS[settingId];
+            const settingLabel = SETTINGS_UI[groupLabel][settingId];
+
+            let $control, $inpCustomUserAgent;
+            let labelAttrs = {};
+
+            if (settingId === Preferences.USER_AGENT_PROFILE) {
+                let defaultUserAgent = window.navigator.orgUserAgent || window.navigator.userAgent;
+                $inpCustomUserAgent = CE('input', {
                     'type': 'text',
                     'placeholder': defaultUserAgent,
                     'class': 'better-xcloud-settings-custom-user-agent',
                 });
-            $inpCustomUserAgent.addEventListener('change', e => {
-                PREFS.set(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
-            });
+                $inpCustomUserAgent.addEventListener('change', e => {
+                    PREFS.set(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
+                });
 
-            $control = PREFS.toElement(Preferences.USER_AGENT_PROFILE, e => {
-                const value = e.target.value;
-                let isCustom = value === UserAgent.PROFILE_CUSTOM;
-                let userAgent = UserAgent.get(value);
+                $control = PREFS.toElement(Preferences.USER_AGENT_PROFILE, e => {
+                    const value = e.target.value;
+                    let isCustom = value === UserAgent.PROFILE_CUSTOM;
+                    let userAgent = UserAgent.get(value);
 
-                $inpCustomUserAgent.value = userAgent;
-                $inpCustomUserAgent.readOnly = !isCustom;
-                $inpCustomUserAgent.disabled = !isCustom;
-            });
-        } else if (settingId === Preferences.SERVER_REGION || setting.options) {
-            let selectedValue;
+                    $inpCustomUserAgent.value = userAgent;
+                    $inpCustomUserAgent.readOnly = !isCustom;
+                    $inpCustomUserAgent.disabled = !isCustom;
+                });
+            } else if (settingId === Preferences.SERVER_REGION) {
+                let selectedValue;
 
-            $control = CE('select', {id: 'xcloud_setting_' + settingId});
-            $control.addEventListener('change', e => {
-                PREFS.set(settingId, e.target.value);
-            });
+                $control = CE('select', {id: 'xcloud_setting_' + settingId});
+                $control.addEventListener('change', e => {
+                    PREFS.set(settingId, e.target.value);
+                });
 
-            if (settingId === Preferences.SERVER_REGION) {
                 selectedValue = PREF_PREFERRED_REGION;
                 setting.options = {};
                 for (let regionName in SERVER_REGIONS) {
@@ -1967,67 +1977,55 @@ function injectSettingsButton($parent) {
 
                     setting.options[value] = label;
                 }
+
+                for (let value in setting.options) {
+                    const label = setting.options[value];
+
+                    const $option = CE('option', {value: value}, label);
+                    $option.selected = value === selectedValue || label.includes(selectedValue);
+                    $control.appendChild($option);
+                }
             } else {
-                selectedValue = PREFS.get(settingId);
+                $control = PREFS.toElement(settingId);
+                labelAttrs = {'for': $control.id, 'tabindex': 0};
             }
 
-            for (let value in setting.options) {
-                const label = setting.options[value];
-
-                const $option = CE('option', {value: value}, label);
-                $option.selected = value === selectedValue || label.includes(selectedValue);
-                $control.appendChild($option);
-            }
-
-        } else {
-            $control = CE('input', {
-                id: 'xcloud_setting_' + settingId,
-                type: 'checkbox',
-                'data-key': settingId,
-            });
-
-            $control.addEventListener('change', e => {
-                PREFS.set(e.target.getAttribute('data-key'), e.target.checked);
-            });
-
-            setting.value = PREFS.get(settingId);
-            $control.checked = setting.value;
-
-            labelAttrs = {'for': 'xcloud_setting_' + settingId, 'tabindex': 0};
-        }
-
-        if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
-            $control.disabled = true;
-            $control.checked = false;
-            $control.title = 'Your browser doesn\'t support this feature';
-        } else if (settingId === Preferences.STREAM_TOUCH_CONTROLLER) {
-            // Disable this setting for non-touchable devices
-            if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
+            // Disable unsupported settings
+            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
                 $control.disabled = true;
-                $control.title = 'Your device doesn\'t have touch support';
+                $control.checked = false;
+                $control.title = 'Your browser doesn\'t support this feature';
+            } else if (settingId === Preferences.STREAM_TOUCH_CONTROLLER) {
+                // Disable this setting for non-touchable devices
+                if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
+                    $control.disabled = true;
+                    $control.title = 'Your device doesn\'t have touch support';
+                }
             }
-        }
-        $control.disabled && ($control.style.cursor = 'help');
+            $control.disabled && ($control.style.cursor = 'help');
 
-        const $elm = CE('div', {'class': 'setting_row'},
-            CE('label', labelAttrs, setting.label),
-            $control
-        );
+            const $elm = CE('div', {'class': 'better-xcloud-settings-row'},
+                            CE('label', labelAttrs, settingLabel),
+                            $control
+                           );
 
-        $wrapper.appendChild($elm);
+            $wrapper.appendChild($elm);
 
-        // Add User-Agent input
-        if (settingId === Preferences.USER_AGENT_PROFILE) {
-            $wrapper.appendChild($inpCustomUserAgent);
-            // Trigger 'change' event
-            $control.dispatchEvent(new Event('change'));
+            // Add User-Agent input
+            if (settingId === Preferences.USER_AGENT_PROFILE) {
+                $wrapper.appendChild($inpCustomUserAgent);
+                // Trigger 'change' event
+                $control.dispatchEvent(new Event('change'));
+            }
         }
     }
 
-    const $reloadBtn = CE('button', {'class': 'setting_button', 'tabindex': 0}, 'Reload page to reflect changes');
+    // Setup Reload button
+    const $reloadBtn = CE('button', {'class': 'better-xcloud-settings-reload-button', 'tabindex': 0}, 'Reload page to reflect changes');
     $reloadBtn.addEventListener('click', e => window.location.reload());
     $wrapper.appendChild($reloadBtn);
 
+    // Add Settings UI to the web page
     const $pageContent = document.getElementById('PageContent');
     $pageContent.parentNode.insertBefore($container, $pageContent);
 }
