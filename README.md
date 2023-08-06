@@ -22,7 +22,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 &nbsp;  
   
-**Demo video:** https://youtu.be/oDr5Eddp55E  
+**Demo video:** [https://youtu.be/oDr5Eddp55E  ](https://youtu.be/AYb-EUcz72U)  
 
 - **🔥 Show stream stats**  
   > Check [Stream stats section](#stream-stats) for more info.  
