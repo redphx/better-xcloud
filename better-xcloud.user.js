@@ -1276,8 +1276,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     opacity: 0;
     position: fixed;
     bottom: 0;
-    width: 60px;
-    height: 60px;
+    width: 16vh;
+    height: 16vh;
+    max-width: 96px;
+    max-height: 96px;
     padding: 12px;
     background-size: cover;
     background-repeat: no-repeat;
