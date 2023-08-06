@@ -1525,13 +1525,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 #better-xcloud-touch-controller-bar {
     display: none;
-    opacity: 1;
-    background: red;
+    opacity: 0;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 20px;
+    height: 6vh;
     z-index: 5555;
 }
 
