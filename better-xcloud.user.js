@@ -2022,7 +2022,10 @@ function injectSettingsButton($parent) {
 
     // Setup Reload button
     const $reloadBtn = CE('button', {'class': 'better-xcloud-settings-reload-button', 'tabindex': 0}, 'Reload page to reflect changes');
-    $reloadBtn.addEventListener('click', e => window.location.reload());
+    $reloadBtn.addEventListener('click', e => {
+        window.location.reload();
+        $reloadBtn.textContent = 'Reloading...';
+    });
     $wrapper.appendChild($reloadBtn);
 
     // Add Settings UI to the web page
