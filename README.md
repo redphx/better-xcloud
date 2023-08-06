@@ -81,6 +81,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
   > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.
 
 ### Stream's video features
+⚠️ These features don't work when xCloud's "Clarity Boost" feature is ON ([#64](https://github.com/redphx/better-xcloud/issues/64)).  
+
 - **Stretch video to full sctreen**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
