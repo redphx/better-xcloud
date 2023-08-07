@@ -93,7 +93,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 - **Display stream's statuses**
   > Region/Server/Codecs/Resolution...  
   > Current playtime of the session.  
-  > Current battery level.  
+  > Current battery level. Not working on [some browsers](https://caniuse.com/battery-status).  
   > Estimated total data sent/received.  
 
 ### Advanced features  
