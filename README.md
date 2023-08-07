@@ -214,7 +214,10 @@ No, you can't. You'll have to modify the app.
 No. The "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
 
 6. **Will it be able to request a lower FPS or increase the maximum bitrate (15Mbps) of the stream?**  
-Sorry, no. The server decides all these settings.  
+Sorry, no. The server decides all these settings.
+
+7. **What's the meaning behind the name "Better xCloud"?**  
+It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
 
 ## User-Agent
 Moved to [wiki](https://github.com/redphx/better-xcloud/wiki/User‐Agent).
