@@ -106,7 +106,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
 ## How to install
-1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. For Safari, use [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887).  
+1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. For Safari, use [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (not working properly, see [#81](https://github.com/redphx/better-xcloud/issues/81)).  
 2. Install **Better xCloud**:
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
     - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)  
@@ -135,14 +135,14 @@ If you still have trouble installing **Better xCloud**, you can follow one of th
 |-----------------------------------------|:-----------------|:-------------------|:----------------|
 | Chrome/Edge/Chromium variants           | ✅               | ❌                 | ❌               |
 | Firefox                                 | ✅               | ⚠️<sup>(1)</sup>   | ❌               |
-| Safari                                  | ✅<sup>(2)</sup> | ➖                 | ✅<sup>(3)</sup> |
+| Safari                                  | ⚠️<sup>(2)</sup> | ➖                 | ⚠️<sup>(3)</sup> |
 | [Hermit](https://hermit.chimbori.com)   | ➖               | ⚠️<sup>(4)</sup>   | ➖               |
 | [Kiwi Browser](https://kiwibrowser.com) | ➖               | ✅                 | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
 <sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android. Its Gamepad API doesn't work properly so it might not recognize your controller.  
-<sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  
+<sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  Not working properly ([#81](https://github.com/redphx/better-xcloud/issues/81)). If you're on macOS, I'd recommend using Chrome/Edge instead.  
 <sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details).    
 
 ---
