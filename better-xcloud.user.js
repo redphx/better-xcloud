@@ -2135,7 +2135,7 @@ function injectSettingsButton($parent) {
                 $control.title = 'Your browser doesn\'t support this feature';
             } else if (settingId === Preferences.STREAM_TOUCH_CONTROLLER) {
                 // Disable this setting for non-touchable devices
-                if (!('ontouchstart'in window) && navigator.maxTouchPoints === 0) {
+                if (!('ontouchstart' in window) && navigator.maxTouchPoints === 0) {
                     $control.disabled = true;
                     $control.title = 'Your device doesn\'t have touch support';
                 }
@@ -2784,6 +2784,22 @@ function onStreamStarted($video) {
 }
 
 
+function disablePwa() {
+    const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
+    if (!userAgent) {
+        return;
+    }
+
+    // Check if it's Safari on mobile
+    if (userAgent.includes('mobile') && userAgent.includes('safari') && !userAgent.includes('chrom')) {
+        // Disable the PWA prompt
+        Object.defineProperty(window.navigator, 'standalone', {
+            value: true,
+        });
+    }
+}
+
+
 // Hide Settings UI when navigate to another page
 window.addEventListener('xcloud_popstate', onHistoryChanged);
 window.addEventListener('popstate', onHistoryChanged);
@@ -2831,7 +2847,4 @@ setupVideoSettingsBar();
 setupScreenshotButton();
 StreamStats.render();
 
-// Disable PWA prompt in Safari on iOS/iPadOS
-Object.defineProperty(window.navigator, 'standalone', {
-    value: true,
-});
+disablePwa();
