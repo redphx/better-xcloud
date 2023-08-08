@@ -105,7 +105,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
-## How to use
+## How to install
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. For Safari, use [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887).  
 2. Install **Better xCloud**:
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
@@ -116,6 +116,8 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 5. Don't forget to enable auto updating for the script in Tampermonkey.
 
 To update manually, just install the script again (you won't lose your settings).
+
+⚠️⚠️⚠️ If you're using Kiwi Browser on Android, make sure to follow the steps correctly and install the script with Tampermonkey (not installing it as an extension), or else it won't work.
 
 ## Tutorial videos  
 If you still have trouble installing **Better xCloud**, you can follow one of these tutorial videos:  
