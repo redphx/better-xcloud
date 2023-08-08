@@ -8,11 +8,11 @@ assignees: ''
 ---
 
 **Platform**
- - Device: [e.g. Phone, Laptop, Desktop, TV]  
- - OS: [e.g. Windows, Android, iOS]  
- - Browser: [e.g. Chrome, Kiwi]  
- - Browser Version: [e.g. 100]  
-- Better xCloud Version: [e.g. 1.4]  
+ - Device: [e.g. Phone, Laptop, Desktop, TV]
+ - OS: [e.g. Windows, Android, iOS]
+ - Browser: [e.g. Chrome, Kiwi]
+ - Browser Version: [e.g. 100]
+ - Better xCloud Version: [e.g. 1.10]
 
 **Describe the bug**
 ...
