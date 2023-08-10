@@ -12,7 +12,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 -->
 
 
-## Features
+## ✨ Features
 
 <img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/6e74fdaf-dc84-416a-a2bc-5e117a3717e3">
 <br>
@@ -105,7 +105,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
-## How to install
+## 🐵 How to install
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. For Safari, use [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (not working properly, see [#81](https://github.com/redphx/better-xcloud/issues/81)).  
 2. Install **Better xCloud**:
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
@@ -119,7 +119,7 @@ To update manually, just install the script again (you won't lose your settings)
 
 ⚠️⚠️⚠️ If you're using Kiwi Browser on Android, make sure to follow the steps correctly and install the script with Tampermonkey (not installing it as an extension), or else it won't work.
 
-## Tutorial videos  
+## 🤓 Tutorial videos  
 If you still have trouble installing **Better xCloud**, you can follow one of these tutorial videos:  
 - 🇧🇷 [Tudo isso agora tem no xCloud!! (ChipTec)](https://youtu.be/zS8Zy0mYIbU?t=40)
 - 🇫🇷 [#Tuto Xbox Cloud Gaming : Ecran ultra large et adieu les bandes noires sur smartphone (Cloud Gaming France)](https://www.youtube.com/watch?v=5U05KoTdDHs)
