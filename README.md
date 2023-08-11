@@ -1,9 +1,9 @@
 # Better xCloud
 Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
-The main target of this script is mobile users, but it should work great on desktop too.
+The main target of this script is mobile users, but it should work great on desktop too.  
 
 This script makes me spend more time with xCloud, and I hope the same thing happens to you.  
-Give this project a 🌟 if you like it. Thank you 🙏.
+If you like this project please give it a 🌟. Thank you 🙏.
 
 [![Latest version](https://img.shields.io/github/v/release/redphx/better-xcloud?label=latest)](https://github.com/redphx/better-xcloud/releases) 
 [![Total stars](https://img.shields.io/github/stars/redphx/better-xcloud?color=%23cca400)](https://github.com/redphx/better-xcloud/stargazers)  
@@ -11,8 +11,18 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 [![Total downloads](https://img.shields.io/github/downloads/redphx/better-xcloud/total?color=%23e15f2c)](https://github.com/redphx/better-xcloud/releases) 
 -->
 
+## Table of Contents
+- [**Features**](#features)
+- [**How to install**](#how-to-install)
+- [**Compatibility**](#compatibility)
+- [**Stream stats**](#stream-stats)
+- [**Capture screenshot**](#capture-screenshot)
+- [**FAQ**](#faq)
+- [**Acknowledgements**](#acknowledgements)
+- [**Disclaimers**](#disclaimers)
 
-## ✨ Features
+
+## Features
 
 <img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/6e74fdaf-dc84-416a-a2bc-5e117a3717e3">
 <br>
@@ -105,7 +115,7 @@ Give this project a 🌟 if you like it. Thank you 🙏.
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
-## 🐵 How to install
+## How to install
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. For Safari, use [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (not working properly, see [#81](https://github.com/redphx/better-xcloud/issues/81)).  
 2. Install **Better xCloud**:
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
@@ -119,7 +129,7 @@ To update manually, just install the script again (you won't lose your settings)
 
 ⚠️⚠️⚠️ If you're using Kiwi Browser on Android, make sure to follow the steps correctly and install the script with Tampermonkey (not installing it as an extension), or else it won't work.
 
-## 🤓 Tutorial videos  
+### Tutorial videos  
 If you still have trouble installing **Better xCloud**, you can follow one of these tutorial videos:  
 - 🇧🇷 [Tudo isso agora tem no xCloud!! (ChipTec)](https://youtu.be/zS8Zy0mYIbU?t=40)
 - 🇫🇷 [#Tuto Xbox Cloud Gaming : Ecran ultra large et adieu les bandes noires sur smartphone (Cloud Gaming France)](https://www.youtube.com/watch?v=5U05KoTdDHs)
@@ -207,7 +217,10 @@ I think it's very unlikely that you'll get banned for using this. Most of the fe
 It's because not many browsers on Android support installing extensions (and not all extensions can be installed).
 
 3. **Why doesn't the xCloud website implement *this* or *that* feature from Better xCloud?**  
-For being an unofficial tool, **Better xCloud** has the luxury to implement anything on the xCloud website. On the xCloud's side, they have a lot more users and devices to support, so it's more difficult for them to implement a new feature. Also it's not easy to explain some of the features of **Better xCloud** to normal xCloud users.  
+Think of this project as an unofficial beta version of xCloud.  
+    - **Better xCloud** doesn't have to worry about the compatibility much: if it doesn't work on this browser, it can just suggest you switch to another one. xCloud can't do the same.  
+    - On the xCloud's side, they have a lot more users and devices to support, so it's more difficult for them to implement a new feature.  
+    - Also, it's not easy to explain some of the features of **Better xCloud** to normal xCloud users.  
 
 4. **Can I use this with the Xbox Android app?**  
 No, you can't. You'll have to modify the app.
