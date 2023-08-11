@@ -710,14 +710,17 @@ class PreloadedState {
     static override() {
         Object.defineProperty(window, '__PRELOADED_STATE__', {
             configurable: true,
-            get: () => this._state,
-            set: (state) => {
+            get: () => {
                 // Override User-Agent
                 const userAgent = UserAgent.spoof();
                 if (userAgent) {
-                    state.appContext.requestInfo.userAgent = userAgent;
-                    state.appContext.requestInfo.origin = 'https://www.xbox.com';
+                    this._state.appContext.requestInfo.userAgent = userAgent;
                 }
+                
+                return this._state;
+            },
+            set: (state) => {
+                this._state = state;
 
                 // Get a list of touch-supported games
                 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
@@ -734,7 +737,6 @@ class PreloadedState {
                         }
                     }
                 }
-                this._state = state;
             }
         });
     }
