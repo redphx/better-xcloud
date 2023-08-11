@@ -1944,10 +1944,11 @@ function interceptHttpRequests() {
 
                     const obj = JSON.parse(text);
                     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
-                    overrides.inputConfiguration = {
-                        enableTouchInput: true,
-                        maxTouchPoints: 10,
-                    };
+
+                    overrides.inputConfiguration = overrides.inputConfiguration || {};
+                    overrides.inputConfiguration.enableTouchInput = true;
+                    overrides.inputConfiguration.maxTouchPoints = 10;
+
                     obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
 
                     response.json = () => Promise.resolve(obj);
