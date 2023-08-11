@@ -13,12 +13,63 @@
 // ==/UserScript==
 'use strict';
 
+// Quickly create a tree of elements without having to use innerHTML
+function createElement(elmName, props = {}) {
+    const $elm = document.createElement(elmName);
+    for (let key in props) {
+        if (!props.hasOwnProperty(key) || $elm.hasOwnProperty(key)) {
+            continue;
+        }
+
+        $elm.setAttribute(key, props[key]);
+    }
+
+    for (let i = 2, size = arguments.length; i < size; i++) {
+        const arg = arguments[i];
+        const argType = typeof arg;
+
+        if (argType === 'string' || argType === 'number') {
+            $elm.textContent = arg;
+        } else if (arg) {
+            $elm.appendChild(arg);
+        }
+    }
+
+    return $elm;
+}
+
+
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
 const ENABLE_SAFARI_WORKAROUND = true;
 if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
+    // Stop loading
     window.stop();
+
+    // Show the reloading overlay
+    const $elm = createElement('div', {'class': 'better-xcloud-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
+    const css = `
+.better-xcloud-reload-overlay {
+    position: fixed;
+    top: 0;
+    background: #000000cc;
+    z-index: 9999;
+    width: 100%;
+    line-height: 100vh;
+    color: #fff;
+    text-align: center;
+    font-weight: 400;
+    font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.3rem;
+}
+`;
+    document.documentElement.appendChild(createElement('style', {}, css));
+    document.documentElement.appendChild($elm);
+
+    // Reload the page
     window.location.reload(true);
+
+    // Stop processing the script
     throw new Error('[Better xCloud] Executing workaround for Safari');
 }
 
@@ -1958,33 +2009,6 @@ function interceptHttpRequests() {
 
         return orgFetch(...arg);
     }
-}
-
-
-// Quickly create a tree of elements without having to use innerHTML
-function createElement(elmName, props = {}) {
-    const $elm = document.createElement(elmName);
-    for (let key in props) {
-        if (!props.hasOwnProperty(key) || $elm.hasOwnProperty(key)) {
-            continue;
-        }
-
-        let value = props[key];
-        $elm.setAttribute(key, value);
-    }
-
-    for (let i = 2, size = arguments.length; i < size; i++) {
-        const arg = arguments[i];
-        const argType = typeof arg;
-
-        if (argType == 'string' || argType == 'number') {
-            $elm.innerText = arg;
-        } else if (arg) {
-            $elm.appendChild(arg);
-        }
-    }
-
-    return $elm;
 }
 
 
