@@ -13,6 +13,15 @@
 // ==/UserScript==
 'use strict';
 
+console.log(`[Better xCloud] readyState: ${document.readyState}`);
+
+const ENABLE_SAFARI_WORKAROUND = true;
+if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
+    window.stop();
+    window.location.reload(true);
+    throw new Error('[Better xCloud] Executing workaround for Safari');
+}
+
 const SCRIPT_VERSION = '1.10.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
