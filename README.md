@@ -18,6 +18,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
 - [**Stream stats**](#stream-stats)
 - [**Capture screenshot**](#capture-screenshot)
 - [**FAQ**](#faq)
+- [**Donation**](#donation)
 - [**Acknowledgements**](#acknowledgements)
 - [**Disclaimers**](#disclaimers)
 
@@ -233,6 +234,9 @@ Sorry, no. The server decides all these settings.
 
 7. **What's the meaning behind the name "Better xCloud"?**  
 It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
+
+## Donation
+I'm doing this for fun, so you don't have to donate anything. You're already supporting me by using this script. Save that money toward your Xbox Game Pass Ultimate subscription 😄.
 
 ## User-Agent
 Moved to [wiki](https://github.com/redphx/better-xcloud/wiki/User‐Agent).
