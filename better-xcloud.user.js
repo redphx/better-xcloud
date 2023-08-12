@@ -94,6 +94,7 @@ var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 
+const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 const TOUCH_SUPPORTED_GAME_IDS = new Set();
 
 // Credit: https://phosphoricons.com
@@ -1091,6 +1092,11 @@ class Preferences {
         if (typeof key === 'undefined') {
             debugger;
             return;
+        }
+
+        // Return "default" for STREAM_TOUCH_CONTROLLER pref when the browser doesn't support touch
+        if (!HAS_TOUCH_SUPPORT && key === Preferences.STREAM_TOUCH_CONTROLLER) {
+            return 'default';
         }
 
         const value = this._prefs[key];
@@ -2159,17 +2165,17 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_PREFERRED_LOCALE]: 'Preferred game\'s language',
             [Preferences.PREFER_IPV6_SERVER]: 'Prefer IPv6 server',
         },
-        'Video/Audio': {
+        'Stream': {
             [Preferences.STREAM_TARGET_RESOLUTION]: 'Target resolution',
             [Preferences.USE_DESKTOP_CODEC]: 'Force high-quality codec',
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: 'Disable bandwidth checking',
             [Preferences.AUDIO_MIC_ON_PLAYING]: 'Enable microphone on game launch',
+            [Preferences.STREAM_HIDE_IDLE_CURSOR]: 'Hide mouse cursor on idle',
         },
-        'Controller': {
-            [Preferences.STREAM_TOUCH_CONTROLLER]: 'Touch controller',
+        'Touch controller': {
+            [Preferences.STREAM_TOUCH_CONTROLLER]: 'Availability',
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: 'Standard layout\'s button style',
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: 'Custom layout\'s button style',
-            [Preferences.STREAM_HIDE_IDLE_CURSOR]: 'Hide mouse cursor on idle',
         },
         'UI': {
             [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
@@ -2258,9 +2264,9 @@ function injectSettingsButton($parent) {
                 $control.disabled = true;
                 $control.checked = false;
                 $control.title = 'Your browser doesn\'t support this feature';
-            } else if (settingId === Preferences.STREAM_TOUCH_CONTROLLER) {
+            } else if (!HAS_TOUCH_SUPPORT) {
                 // Disable this setting for non-touchable devices
-                if (!('ontouchstart' in window) && navigator.maxTouchPoints === 0) {
+                if ([Preferences.STREAM_TOUCH_CONTROLLER, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM].indexOf(settingId) > -1) {
                     $control.disabled = true;
                     $control.title = 'Your device doesn\'t have touch support';
                 }
