@@ -167,7 +167,7 @@ class TouchController {
     static #dispatchMessage(msg) {
         TouchController.#dataChannel && setTimeout(() => {
             TouchController.#dataChannel.dispatchEvent(msg);
-        }, 10);
+        }, 100);
     }
 
     static setup() {
