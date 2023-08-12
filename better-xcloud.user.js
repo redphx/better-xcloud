@@ -477,7 +477,7 @@ class StreamStats {
     static #quickGlanceObserver;
 
     static start(glancing=false) {
-        if (!StreamStats.isHidden() || (glancing && StreamStats.#isGlancing())) {
+        if (!StreamStats.isHidden() || (glancing && StreamStats.isGlancing())) {
             return;
         }
 
@@ -488,7 +488,7 @@ class StreamStats {
     }
 
     static stop(glancing=false) {
-        if (glancing && !StreamStats.#isGlancing()) {
+        if (glancing && !StreamStats.isGlancing()) {
             return;
         }
 
@@ -501,7 +501,7 @@ class StreamStats {
     }
 
     static toggle() {
-        if (StreamStats.#isGlancing()) {
+        if (StreamStats.isGlancing()) {
             StreamStats.#$container.setAttribute('data-display', 'fixed');
         } else {
             StreamStats.isHidden() ? StreamStats.start() : StreamStats.stop();
@@ -515,7 +515,7 @@ class StreamStats {
     }
 
     static isHidden = () => StreamStats.#$container.classList.contains('better-xcloud-gone');
-    static #isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
+    static isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
 
     static quickGlanceSetup() {
         if (StreamStats.#quickGlanceObserver) {
@@ -623,7 +623,7 @@ class StreamStats {
     static hideSettingsUi() {
         StreamStats.#$settings.style.display = 'none';
 
-        if (StreamStats.#isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
+        if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
     }
@@ -779,7 +779,7 @@ class PreloadedState {
                 if (userAgent) {
                     this._state.appContext.requestInfo.userAgent = userAgent;
                 }
-                
+
                 return this._state;
             },
             set: (state) => {
@@ -834,6 +834,8 @@ class Preferences {
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
+
+    static get AUDIO_MIC_ON_PLAYING() { return 'audio_mic_on_playing'; }
 
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
     static get STATS_QUICK_GLANCE() { return 'stats_quick_glance'; }
@@ -974,6 +976,9 @@ class Preferences {
             'default': 100,
             'min': 0,
             'max': 150,
+        },
+        [Preferences.AUDIO_MIC_ON_PLAYING]: {
+            'default': false,
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
             'default': false,
@@ -1601,6 +1606,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: Consolas, "Courier New", Courier, monospace;
 }
 
+.better-xcloud-stream-menu-button-on {
+    fill: #000 !important;
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
 #better-xcloud-touch-controller-bar {
     display: none;
     opacity: 0;
@@ -1851,8 +1862,11 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
-    const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
+
+    const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
+    const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
+    const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
@@ -1933,21 +1947,27 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            TouchController.disable();
-            // Get game ID from window.location
-            const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-            // Check touch support
-            if (match && !TOUCH_SUPPORTED_GAME_IDS.has(match[1])) {
-                TouchController.enable();
-            }
-
+        if (PREF_OVERRIDE_CONFIGURATION && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             const promise = orgFetch(...arg);
-            if (!TouchController.isEnabled()) {
-                return promise;
+
+            // Touch controller for all games
+            if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
+                TouchController.disable();
+
+                // Get game ID from window.location
+                const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+                // Check touch support
+                if (match && !TOUCH_SUPPORTED_GAME_IDS.has(match[1])) {
+                    TouchController.enable();
+                }
+
+                // If both settings are invalid -> return promise
+                if (!PREF_AUDIO_MIC_ON_PLAYING && !TouchController.isEnabled()) {
+                    return promise;
+                }
             }
 
-            // Intercept result to make xCloud show the touch controller
+            // Intercept configurations
             return promise.then(response => {
                 return response.clone().text().then(text => {
                     if (!text.length) {
@@ -1957,9 +1977,18 @@ function interceptHttpRequests() {
                     const obj = JSON.parse(text);
                     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
 
-                    overrides.inputConfiguration = overrides.inputConfiguration || {};
-                    overrides.inputConfiguration.enableTouchInput = true;
-                    overrides.inputConfiguration.maxTouchPoints = 10;
+                    // Enable touch controller
+                    if (TouchController.isEnabled()) {
+                        overrides.inputConfiguration = overrides.inputConfiguration || {};
+                        overrides.inputConfiguration.enableTouchInput = true;
+                        overrides.inputConfiguration.maxTouchPoints = 10;
+                    }
+
+                    // Enable mic
+                    if (PREF_AUDIO_MIC_ON_PLAYING) {
+                        overrides.audioConfiguration = overrides.audioConfiguration || {};
+                        overrides.audioConfiguration.enableMicrophone = true;
+                    }
 
                     obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
 
@@ -2085,10 +2114,11 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_PREFERRED_LOCALE]: 'Preferred game\'s language',
             [Preferences.PREFER_IPV6_SERVER]: 'Prefer IPv6 server',
         },
-        'Stream quality': {
+        'Video/Audio': {
             [Preferences.STREAM_TARGET_RESOLUTION]: 'Target resolution',
             [Preferences.USE_DESKTOP_CODEC]: 'Force high-quality codec',
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: 'Disable bandwidth checking',
+            [Preferences.AUDIO_MIC_ON_PLAYING]: 'Enable microphone on game launch',
         },
         'Controller': {
             [Preferences.STREAM_TOUCH_CONTROLLER]: 'Touch controller',
@@ -2306,7 +2336,7 @@ function cloneStreamMenuButton($orgButton, label, svg_icon) {
 }
 
 
-function injectVideoSettingsButton() {
+function injectStreamMenuButtons() {
     const $screen = document.querySelector('#PageContent section[class*=PureScreens]');
     if (!$screen) {
         return;
@@ -2348,7 +2378,8 @@ function injectVideoSettingsButton() {
                     return;
                 }
 
-                const $orgButton = node.querySelector('div > div > button');
+                // Get the second last button
+                const $orgButton = node.querySelector('div > div > button:nth-last-child(2)');
                 if (!$orgButton) {
                     return;
                 }
@@ -2358,6 +2389,9 @@ function injectVideoSettingsButton() {
                 $btnVideoSettings.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
+
+                    // Close HUD
+                    $btnCloseHud.click();
 
                     // Show Quick settings bar
                     $quickBar.style.display = 'flex';
@@ -2389,6 +2423,9 @@ function injectVideoSettingsButton() {
                     // Toggle Stream Stats
                     StreamStats.toggle();
                 });
+
+                const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
+                $btnStreamStats.classList.toggle('better-xcloud-stream-menu-button-on', btnStreamStatsOn);
 
                 // Insert after Video Settings button
                 $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings);
@@ -2461,7 +2498,7 @@ function patchVideoApi() {
         }
 
         this.addEventListener('playing', showFunc);
-        injectVideoSettingsButton();
+        injectStreamMenuButtons();
 
         return this.orgPlay.apply(this);
     };
