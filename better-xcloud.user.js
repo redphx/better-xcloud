@@ -2384,6 +2384,9 @@ function injectStreamMenuButtons() {
                     e.preventDefault();
                     e.stopPropagation();
 
+                    // Close HUD
+                    $btnCloseHud.click();
+
                     // Show Quick settings bar
                     $quickBar.style.display = 'flex';
 
