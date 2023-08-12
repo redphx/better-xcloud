@@ -25,7 +25,8 @@ If you like this project please give it a 🌟. Thank you 🙏.
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/6e74fdaf-dc84-416a-a2bc-5e117a3717e3">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/65ee4193-c31d-46fb-b580-196614246ee6">
+
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/e30f6514-13ca-41c6-bff2-979573cff956">
 <br>
@@ -53,7 +54,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
 - **Prefer IPv6 server**
   > Might reduce latency.
 
-### Stream quality
+### Stream
 - **Set target resolution**
   > By default you only get 1080p stream when playing on desktop.  
   > This feature can give you 1080p stream even on mobile, without having to change User-Agent.  
@@ -65,18 +66,26 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
 - **Disable bandwidth checking**  
   > xCloud won't warn about slow connection speed.  
+- **Enable microphone on game launch**  
+  > Automatically enable the mic when starting to play a game.  
+- **Hide mouse cursor on idle**  
+  > Hide the mouse cursor after 3 seconds of not moving.  
 
-### Controller
-- **🔥 Touch controller**
-  > Only for mobile (Android/iOS/iPadOS).  
+
+### 🔥 Touch controller
+- **Availability**
+  > Only for devices with touch support (Android/iOS/iPadOS/...).  
   > - **Default**: nothing change.  
   > - **Off**: stop the touch controller from showing when touching the screen. Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, etc.  
   > - **All games**: enable touch controller support for all games. Games with custom layout won't be affected.  
   > Double-tap anywhere at the bottom of the screen to show/hide the controller. Useful when you're viewing cutscenes.
   > ![touch-controller](https://github.com/redphx/better-xcloud/assets/96280/6ad6fc76-74aa-46f8-8fb0-806474f494ad)
+- **Button styles**
+  > - Default  
+  > - Muted  
+  > - All white (only for standard/default controller)
+  > <img width="400" alt="Button styles" src="https://github.com/redphx/better-xcloud/assets/96280/2bfef2b3-6712-4924-b067-c2312f8c8062">
 
-- **Hide mouse cursor on idle**  
-  > Hide the mouse cursor after 3 seconds of not moving.  
 
 ### UI
 - **Simplify Stream's menu**
@@ -146,18 +155,18 @@ If you still have trouble installing **Better xCloud**, you can follow one of th
 |-----------------------------------------|:-----------------|:-------------------|:----------------|
 | Chrome/Edge/Chromium variants           | ✅               | ❌                 | ❌               |
 | Firefox                                 | ✅               | ⚠️<sup>(1)</sup>   | ❌               |
-| Safari                                  | ⚠️<sup>(2)</sup> | ➖                 | ⚠️<sup>(3)</sup> |
+| Safari                                  | ✅<sup>(2)</sup> | ➖                 | ✅<sup>(3)</sup> |
 | [Hermit](https://hermit.chimbori.com)   | ➖               | ⚠️<sup>(4)</sup>   | ➖               |
 | [Kiwi Browser](https://kiwibrowser.com) | ➖               | ✅                 | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
 <sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android. Its Gamepad API doesn't work properly so it might not recognize your controller.  
-<sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open source).  Not working properly ([#81](https://github.com/redphx/better-xcloud/issues/81)). If you're on macOS, I'd recommend using Chrome/Edge instead.  
+<sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open-source). Check [this page](https://github.com/redphx/better-xcloud/wiki/Using-with-Safari) before using.  
 <sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details).    
 
 ---
-- **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high quality codec profile (the best possible quality).  
+- **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high-quality codec profile (the best possible quality).  
 - **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a Bluetooth mouse if you want to interact with the Settings.  
 
 ## Stream stats  
