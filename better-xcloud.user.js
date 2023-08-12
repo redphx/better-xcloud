@@ -13,6 +13,78 @@
 // ==/UserScript==
 'use strict';
 
+console.log(`[Better xCloud] readyState: ${document.readyState}`);
+
+
+// Quickly create a tree of elements without having to use innerHTML
+function createElement(elmName, props = {}) {
+    const $elm = document.createElement(elmName);
+    for (let key in props) {
+        if (!props.hasOwnProperty(key) || $elm.hasOwnProperty(key)) {
+            continue;
+        }
+
+        $elm.setAttribute(key, props[key]);
+    }
+
+    for (let i = 2, size = arguments.length; i < size; i++) {
+        const arg = arguments[i];
+        const argType = typeof arg;
+
+        if (argType === 'string' || argType === 'number') {
+            $elm.textContent = arg;
+        } else if (arg) {
+            $elm.appendChild(arg);
+        }
+    }
+
+    return $elm;
+}
+
+
+const ENABLE_SAFARI_WORKAROUND = true;
+if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
+    // Stop loading
+    window.stop();
+
+    // Show the reloading overlay
+    const $elm = createElement('div', {'class': 'better-xcloud-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
+    const css = `
+.better-xcloud-reload-overlay {
+    position: fixed;
+    top: 0;
+    background: #000000cc;
+    z-index: 9999;
+    width: 100%;
+    line-height: 100vh;
+    color: #fff;
+    text-align: center;
+    font-weight: 400;
+    font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.3rem;
+}
+`;
+    document.documentElement.appendChild(createElement('style', {}, css));
+    document.documentElement.appendChild($elm);
+
+    // Reload the page
+    window.location.reload(true);
+
+    // Stop processing the script
+    throw new Error('[Better xCloud] Executing workaround for Safari');
+}
+
+// Automatically reload the page when running into the "We are sorry..." error message
+window.addEventListener('load', e => {
+    setTimeout(() => {
+        if (document.body.classList.contains('legacyBackground')) {
+            // Has error message -> reload page
+            window.location.reload(true);
+        }
+    }, 2000);
+});
+
+
 const SCRIPT_VERSION = '1.10.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
@@ -701,14 +773,17 @@ class PreloadedState {
     static override() {
         Object.defineProperty(window, '__PRELOADED_STATE__', {
             configurable: true,
-            get: () => this._state,
-            set: (state) => {
+            get: () => {
                 // Override User-Agent
                 const userAgent = UserAgent.spoof();
                 if (userAgent) {
-                    state.appContext.requestInfo.userAgent = userAgent;
-                    state.appContext.requestInfo.origin = 'https://www.xbox.com';
+                    this._state.appContext.requestInfo.userAgent = userAgent;
                 }
+                
+                return this._state;
+            },
+            set: (state) => {
+                this._state = state;
 
                 // Get a list of touch-supported games
                 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
@@ -725,7 +800,6 @@ class PreloadedState {
                         }
                     }
                 }
-                this._state = state;
             }
         });
     }
@@ -1882,10 +1956,11 @@ function interceptHttpRequests() {
 
                     const obj = JSON.parse(text);
                     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
-                    overrides.inputConfiguration = {
-                        enableTouchInput: true,
-                        maxTouchPoints: 10,
-                    };
+
+                    overrides.inputConfiguration = overrides.inputConfiguration || {};
+                    overrides.inputConfiguration.enableTouchInput = true;
+                    overrides.inputConfiguration.maxTouchPoints = 10;
+
                     obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
 
                     response.json = () => Promise.resolve(obj);
@@ -1947,33 +2022,6 @@ function interceptHttpRequests() {
 
         return orgFetch(...arg);
     }
-}
-
-
-// Quickly create a tree of elements without having to use innerHTML
-function createElement(elmName, props = {}) {
-    const $elm = document.createElement(elmName);
-    for (let key in props) {
-        if (!props.hasOwnProperty(key) || $elm.hasOwnProperty(key)) {
-            continue;
-        }
-
-        let value = props[key];
-        $elm.setAttribute(key, value);
-    }
-
-    for (let i = 2, size = arguments.length; i < size; i++) {
-        const arg = arguments[i];
-        const argType = typeof arg;
-
-        if (argType == 'string' || argType == 'number') {
-            $elm.innerText = arg;
-        } else if (arg) {
-            $elm.appendChild(arg);
-        }
-    }
-
-    return $elm;
 }
 
 
