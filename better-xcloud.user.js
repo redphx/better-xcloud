@@ -13,6 +13,9 @@
 // ==/UserScript==
 'use strict';
 
+console.log(`[Better xCloud] readyState: ${document.readyState}`);
+
+
 // Quickly create a tree of elements without having to use innerHTML
 function createElement(elmName, props = {}) {
     const $elm = document.createElement(elmName);
@@ -38,8 +41,6 @@ function createElement(elmName, props = {}) {
     return $elm;
 }
 
-
-console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
 const ENABLE_SAFARI_WORKAROUND = true;
 if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
@@ -72,6 +73,17 @@ if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
     // Stop processing the script
     throw new Error('[Better xCloud] Executing workaround for Safari');
 }
+
+// Automatically reload the page when running into the "We are sorry..." error message
+window.addEventListener('load', e => {
+    setTimeout(() => {
+        if (document.body.classList.contains('legacyBackground')) {
+            // Has error message -> reload page
+            window.location.reload(true);
+        }
+    }, 2000);
+});
+
 
 const SCRIPT_VERSION = '1.10.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
