@@ -74,7 +74,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
 
 ### 🔥 Touch controller
 - **Availability**
-  > Only for devices with touch support (Android/iOS/iPadOS/...).  
+  > Only for devices with touch support (Android/iOS/iPadOS/...). Using "Desktop mode" in mobile browsers also disables this feature.  
   > - **Default**: nothing change.  
   > - **Off**: stop the touch controller from showing when touching the screen. Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, etc.  
   > - **All games**: enable touch controller support for all games. Games with custom layout won't be affected.  
