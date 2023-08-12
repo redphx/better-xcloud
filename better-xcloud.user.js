@@ -168,7 +168,7 @@ class TouchController {
     static #dispatchMessage(msg) {
         TouchController.#dataChannel && setTimeout(() => {
             TouchController.#dataChannel.dispatchEvent(msg);
-        }, 100);
+        }, 10);
     }
 
     static setup() {
@@ -231,7 +231,7 @@ class TouchController {
 
             // Fix sometimes the touch controller doesn't show at the beginning
             dataChannel.addEventListener('open', e => {
-                TouchController.#show();
+                setTimeout(TouchController.#show, 1000);
             });
 
             dataChannel.addEventListener('message', msg => {
