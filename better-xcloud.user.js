@@ -477,7 +477,7 @@ class StreamStats {
     static #quickGlanceObserver;
 
     static start(glancing=false) {
-        if (!StreamStats.isHidden() || (glancing && StreamStats.#isGlancing())) {
+        if (!StreamStats.isHidden() || (glancing && StreamStats.isGlancing())) {
             return;
         }
 
@@ -488,7 +488,7 @@ class StreamStats {
     }
 
     static stop(glancing=false) {
-        if (glancing && !StreamStats.#isGlancing()) {
+        if (glancing && !StreamStats.isGlancing()) {
             return;
         }
 
@@ -501,7 +501,7 @@ class StreamStats {
     }
 
     static toggle() {
-        if (StreamStats.#isGlancing()) {
+        if (StreamStats.isGlancing()) {
             StreamStats.#$container.setAttribute('data-display', 'fixed');
         } else {
             StreamStats.isHidden() ? StreamStats.start() : StreamStats.stop();
@@ -515,7 +515,7 @@ class StreamStats {
     }
 
     static isHidden = () => StreamStats.#$container.classList.contains('better-xcloud-gone');
-    static #isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
+    static isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
 
     static quickGlanceSetup() {
         if (StreamStats.#quickGlanceObserver) {
@@ -623,7 +623,7 @@ class StreamStats {
     static hideSettingsUi() {
         StreamStats.#$settings.style.display = 'none';
 
-        if (StreamStats.#isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
+        if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
     }
@@ -1606,6 +1606,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: Consolas, "Courier New", Courier, monospace;
 }
 
+.better-xcloud-stream-menu-button-on {
+    fill: #000 !important;
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
 #better-xcloud-touch-controller-bar {
     display: none;
     opacity: 0;
@@ -2417,6 +2423,9 @@ function injectStreamMenuButtons() {
                     // Toggle Stream Stats
                     StreamStats.toggle();
                 });
+
+                const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
+                $btnStreamStats.classList.toggle('better-xcloud-stream-menu-button-on', btnStreamStatsOn);
 
                 // Insert after Video Settings button
                 $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings);
