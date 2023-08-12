@@ -779,7 +779,7 @@ class PreloadedState {
                 if (userAgent) {
                     this._state.appContext.requestInfo.userAgent = userAgent;
                 }
-                
+
                 return this._state;
             },
             set: (state) => {
@@ -834,6 +834,8 @@ class Preferences {
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
+
+    static get AUDIO_MIC_ON_PLAYING() { return 'audio_mic_on_playing'; }
 
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
     static get STATS_QUICK_GLANCE() { return 'stats_quick_glance'; }
@@ -974,6 +976,9 @@ class Preferences {
             'default': 100,
             'min': 0,
             'max': 150,
+        },
+        [Preferences.AUDIO_MIC_ON_PLAYING]: {
+            'default': false,
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
             'default': false,
@@ -1851,8 +1856,11 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
-    const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
+
+    const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
+    const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
+    const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
@@ -1933,21 +1941,27 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            TouchController.disable();
-            // Get game ID from window.location
-            const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-            // Check touch support
-            if (match && !TOUCH_SUPPORTED_GAME_IDS.has(match[1])) {
-                TouchController.enable();
-            }
-
+        if (PREF_OVERRIDE_CONFIGURATION && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             const promise = orgFetch(...arg);
-            if (!TouchController.isEnabled()) {
-                return promise;
+
+            // Touch controller for all games
+            if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
+                TouchController.disable();
+
+                // Get game ID from window.location
+                const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+                // Check touch support
+                if (match && !TOUCH_SUPPORTED_GAME_IDS.has(match[1])) {
+                    TouchController.enable();
+                }
+
+                // If both settings are invalid -> return promise
+                if (!PREF_AUDIO_MIC_ON_PLAYING && !TouchController.isEnabled()) {
+                    return promise;
+                }
             }
 
-            // Intercept result to make xCloud show the touch controller
+            // Intercept configurations
             return promise.then(response => {
                 return response.clone().text().then(text => {
                     if (!text.length) {
@@ -1957,9 +1971,18 @@ function interceptHttpRequests() {
                     const obj = JSON.parse(text);
                     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
 
-                    overrides.inputConfiguration = overrides.inputConfiguration || {};
-                    overrides.inputConfiguration.enableTouchInput = true;
-                    overrides.inputConfiguration.maxTouchPoints = 10;
+                    // Enable touch controller
+                    if (TouchController.isEnabled()) {
+                        overrides.inputConfiguration = overrides.inputConfiguration || {};
+                        overrides.inputConfiguration.enableTouchInput = true;
+                        overrides.inputConfiguration.maxTouchPoints = 10;
+                    }
+
+                    // Enable mic
+                    if (PREF_AUDIO_MIC_ON_PLAYING) {
+                        overrides.audioConfiguration = overrides.audioConfiguration || {};
+                        overrides.audioConfiguration.enableMicrophone = true;
+                    }
 
                     obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
 
@@ -2085,10 +2108,11 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_PREFERRED_LOCALE]: 'Preferred game\'s language',
             [Preferences.PREFER_IPV6_SERVER]: 'Prefer IPv6 server',
         },
-        'Stream quality': {
+        'Video/Audio': {
             [Preferences.STREAM_TARGET_RESOLUTION]: 'Target resolution',
             [Preferences.USE_DESKTOP_CODEC]: 'Force high-quality codec',
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: 'Disable bandwidth checking',
+            [Preferences.AUDIO_MIC_ON_PLAYING]: 'Enable microphone on game launch',
         },
         'Controller': {
             [Preferences.STREAM_TOUCH_CONTROLLER]: 'Touch controller',
