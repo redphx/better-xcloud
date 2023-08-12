@@ -1353,6 +1353,13 @@ function addCss() {
     background-color: #00753c;
 }
 
+.better-xcloud-settings-app-version {
+    margin-top: 10px;
+    text-align: center;
+    color: #484848;
+    font-size: 12px;
+}
+
 .better-xcloud-settings-custom-user-agent {
     display: block;
     width: 100%;
@@ -2296,6 +2303,13 @@ function injectSettingsButton($parent) {
         $reloadBtn.textContent = 'Reloading...';
     });
     $wrapper.appendChild($reloadBtn);
+
+    // Show Game Pass app version
+    try {
+        const appVersion = document.querySelector('meta[name=gamepass-app-version]').content;
+        const appDate = new Date(document.querySelector('meta[name=gamepass-app-date]').content).toISOString().substring(0, 10);
+        $wrapper.appendChild(CE('div', {'class': 'better-xcloud-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
+    } catch (e) {}
 
     // Add Settings UI to the web page
     const $pageContent = document.getElementById('PageContent');
