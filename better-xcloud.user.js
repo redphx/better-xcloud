@@ -2330,7 +2330,7 @@ function cloneStreamMenuButton($orgButton, label, svg_icon) {
 }
 
 
-function injectVideoSettingsButton() {
+function injectStreamMenuButtons() {
     const $screen = document.querySelector('#PageContent section[class*=PureScreens]');
     if (!$screen) {
         return;
@@ -2372,7 +2372,8 @@ function injectVideoSettingsButton() {
                     return;
                 }
 
-                const $orgButton = node.querySelector('div > div > button');
+                // Get the second last button
+                const $orgButton = node.querySelector('div > div > button:nth-last-child(2)');
                 if (!$orgButton) {
                     return;
                 }
@@ -2485,7 +2486,7 @@ function patchVideoApi() {
         }
 
         this.addEventListener('playing', showFunc);
-        injectVideoSettingsButton();
+        injectStreamMenuButtons();
 
         return this.orgPlay.apply(this);
     };
