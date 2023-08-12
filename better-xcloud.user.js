@@ -171,6 +171,9 @@ class TouchController {
     }
 
     static setup() {
+        const $style = document.createElement('style');
+        document.documentElement.appendChild($style);
+
         const $bar = createElement('div', {'id': 'better-xcloud-touch-controller-bar'});
         document.documentElement.appendChild($bar);
 
@@ -192,8 +195,32 @@ class TouchController {
 
         TouchController.#$bar = $bar;
 
+        const PREF_STYLE_STANDARD = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
+        const PREF_STYLE_CUSTOM = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+
         RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
+            // Apply touch controller's style
+            const $babylonCanvas = document.getElementById('babylon-canvas');
+            let filter = '';
+            if (TouchController.#enable) {
+                if (PREF_STYLE_STANDARD === 'white') {
+                    filter = 'grayscale(1) brightness(2)';
+                } else if (PREF_STYLE_STANDARD === 'muted') {
+                    filter = 'sepia(0.5)';
+                }
+            } else if (PREF_STYLE_CUSTOM === 'muted') {
+                filter = 'sepia(0.5)';
+            }
+
+            if (filter) {
+                $style.textContent = `
+#babylon-canvas {
+    filter: ${filter} !important;
+}
+`;
+            }
+
             const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
             if (!TouchController.#enable) {
                 return dataChannel;
@@ -819,8 +846,11 @@ class Preferences {
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_HIDE_IDLE_CURSOR() { return 'stream_hide_idle_cursor';}
-    static get STREAM_TOUCH_CONTROLLER() { return 'stream_touch_controller'; }
     static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
+
+    static get STREAM_TOUCH_CONTROLLER() { return 'stream_touch_controller'; }
+    static get STREAM_TOUCH_CONTROLLER_STYLE_STANDARD() { return 'stream_touch_controller_style_standard'; }
+    static get STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM() { return 'stream_touch_controller_style_custom'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -929,6 +959,21 @@ class Preferences {
                 'default': 'Default',
                 'all': 'All games',
                 'off': 'Off',
+            },
+        },
+        [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
+            'default': 'default',
+            'options': {
+                'default': 'Default colors',
+                'white': 'All white',
+                'muted': 'Muted colors',
+            },
+        },
+        [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
+            'default': 'default',
+            'options': {
+                'default': 'Default colors',
+                'muted': 'Muted colors',
             },
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
@@ -2122,6 +2167,8 @@ function injectSettingsButton($parent) {
         },
         'Controller': {
             [Preferences.STREAM_TOUCH_CONTROLLER]: 'Touch controller',
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: 'Standard layout\'s button style',
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: 'Custom layout\'s button style',
             [Preferences.STREAM_HIDE_IDLE_CURSOR]: 'Hide mouse cursor on idle',
         },
         'UI': {
