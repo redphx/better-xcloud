@@ -113,6 +113,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > Similar to (but not as good as) the "Clarity Boost" of xCloud on Edge browser. [Demo video](https://youtu.be/ZhW2choAHUs).  
   > Also known as poor man's "Clarity Boost".  
   > Affects the stream's performance, uses more battery, and may causes frames to drop (especially on lower-end devices).  
+  > Works with Chrome/Chromium browsers.  
   > Doesn't work with Safari.  
   > &nbsp;  
   > ![clarity](https://github.com/redphx/better-xcloud/assets/96280/32879a1e-d56f-428c-bc86-bbacf9588506)
