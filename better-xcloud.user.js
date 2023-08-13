@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      1.11
+// @version      1.12
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -12,6 +12,9 @@
 // @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
 // ==/UserScript==
 'use strict';
+
+const SCRIPT_VERSION = '1.12';
+const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
@@ -101,9 +104,6 @@ window.addEventListener('load', e => {
     }, 2000);
 });
 
-
-const SCRIPT_VERSION = '1.11';
-const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const SERVER_REGIONS = {};
 var STREAM_WEBRTC;
