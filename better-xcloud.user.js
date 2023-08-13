@@ -781,7 +781,7 @@ class UserAgent {
         [UserAgent.PROFILE_SAFARI_MACOS]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
         [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36',
     }
-    
+
     static getDefault() {
         return window.navigator.orgUserAgent || window.navigator.userAgent;
     }
@@ -794,7 +794,7 @@ class UserAgent {
 
         return UserAgent.#USER_AGENTS[profile] || defaultUserAgent;
     }
-    
+
     static isSafari(mobile=false) {
         const userAgent = (UserAgent.getDefault() || '').toLowerCase();
         let result = userAgent.includes('safari') && !userAgent.includes('chrom');
@@ -2716,12 +2716,12 @@ function numberPicker(key, suffix='', disabled=false) {
     if (disabled) {
         $incBtn.disabled = true;
         $incBtn.classList.add('better-xcloud-hidden');
-        
+
         $decBtn.disabled = true;
         $decBtn.classList.add('better-xcloud-hidden');
         return $wrapper;
     }
-    
+
     let interval;
     let isHolding = false;
 
@@ -2790,16 +2790,16 @@ function setupVideoSettingsBar() {
                             $stretchInp = CE('input', {'id': 'better-xcloud-quick-setting-stretch', 'type': 'checkbox'})),
                         CE('div', {},
                             CE('label', {}, 'Clarity'),
-                            numberPicker(Preferences.VIDEO_CLARITY, suffix='', disabled=isSafari)), // disable this feature in Safari
+                            numberPicker(Preferences.VIDEO_CLARITY, '', isSafari)), // disable this feature in Safari
                         CE('div', {},
                             CE('label', {}, 'Saturation'),
-                            numberPicker(Preferences.VIDEO_SATURATION, suffix='%')),
+                            numberPicker(Preferences.VIDEO_SATURATION, '%')),
                         CE('div', {},
                             CE('label', {}, 'Contrast'),
-                            numberPicker(Preferences.VIDEO_CONTRAST, suffix='%')),
+                            numberPicker(Preferences.VIDEO_CONTRAST, '%')),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            numberPicker(Preferences.VIDEO_BRIGHTNESS, suffix='%'))
+                            numberPicker(Preferences.VIDEO_BRIGHTNESS, '%'))
                      );
 
     $stretchInp.checked = PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN);
@@ -3023,7 +3023,7 @@ function disablePwa() {
     }
 
     // Check if it's Safari on mobile
-    if (UserAgent.isSafari(mobile=true)) {
+    if (UserAgent.isSafari(true)) {
         // Disable the PWA prompt
         Object.defineProperty(window.navigator, 'standalone', {
             value: true,
