@@ -79,13 +79,12 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > - **Off**: stop the touch controller from showing when touching the screen. Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, etc.  
   > - **All games**: enable touch controller support for all games. Games with custom layout won't be affected.  
   > Double-tap anywhere at the bottom of the screen to show/hide the controller. Useful when you're viewing cutscenes.
-  > ![touch-controller](https://github.com/redphx/better-xcloud/assets/96280/6ad6fc76-74aa-46f8-8fb0-806474f494ad)
+  > ![toggle-touch-controller](https://github.com/redphx/better-xcloud/assets/96280/8b9c7091-529a-45ae-8b45-73e61531ecc8)
 - **Button styles**
   > - Default  
   > - Muted  
   > - All white (only for standard/default controller)
   > <img width="400" alt="Button styles" src="https://github.com/redphx/better-xcloud/assets/96280/2bfef2b3-6712-4924-b067-c2312f8c8062">
-
 
 ### UI
 - **Simplify Stream's menu**
@@ -170,6 +169,9 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a Bluetooth mouse if you want to interact with the Settings.  
 
 ## Stream stats  
+
+![stats-optimize](https://github.com/redphx/better-xcloud/assets/96280/736548db-316d-4bb3-a0f8-467766ae810b)
+
 <img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/0d4abb6b-49ab-4c9a-a52d-df7e396d2145">
 
 - While playing > `...` > `Stream Stats`.
@@ -178,14 +180,14 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - **Quick glance** feature: only show the stats bar when the System menu is expanded. The 👀 emoji at the beginning indicates that the stats bar is in the quick glance mode.  
 - ⚠️ Using **Better xCloud** or showing the stats bar also affects the performance of the stream.  
 
-| Abbr. | Full name          | Explain                                                                                                                                    |
-|------:|:-------------------|:-------------------------------------------------------------------------------------------------------------------------------------------|
-| FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (may not be the same as the FPS of the game)                                 |
+| Abbr. | Full name          | Explain                                                                                                                                           |
+|------:|:-------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
+| FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (may not be the same as the FPS of the game)                                        |
+| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better)                |
 | DT    | Decode Time        | The average time it took to decode one frame in the last second (bugged in Kiwi Browser [#26](https://github.com/redphx/better-xcloud/issues/26)) |
-| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better)         |
-| BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                                       |
-| PL    | Packets Lost       | The total number of packets lost                                                                                                           |
-| FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline                                |
+| BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                                              |
+| PL    | Packets Lost       | The total number of packets lost                                                                                                                  |
+| FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline                                       |
 
 This info is provided by WebRTC API. You can use browser's built-in tool to see more info:  
 - Chrome/Edge/Chromium variants: `chrome://webrtc-internals`  
@@ -217,7 +219,7 @@ Colors:
 5. Screenshot will be saved by the browser.
 6. You can double-tap that corner to capture screenshot.
 
-<img width="600" alt="Screenshot button" src="https://github.com/redphx/better-xcloud/assets/96280/a911b141-5dc0-450a-aeac-30d9cf202b44">
+![screenshot](https://github.com/redphx/better-xcloud/assets/96280/b277193e-df94-4d72-b75c-3f728c984974)
 
 ## FAQ
 1. **Will I get banned for using this?**  
