@@ -18,13 +18,29 @@ console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
 // Quickly create a tree of elements without having to use innerHTML
 function createElement(elmName, props = {}) {
-    const $elm = document.createElement(elmName);
+    let $elm;
+    const hasNs = 'xmlns' in props;
+
+    if (hasNs) {
+        $elm = document.createElementNS(props.xmlns, elmName);
+    } else {
+        $elm = document.createElement(elmName);
+    }
+
     for (let key in props) {
+        if (key === 'xmlns') {
+            continue;
+        }
+
         if (!props.hasOwnProperty(key) || $elm.hasOwnProperty(key)) {
             continue;
         }
 
-        $elm.setAttribute(key, props[key]);
+        if (hasNs) {
+            $elm.setAttributeNS(null, key, props[key]);
+        } else {
+            $elm.setAttribute(key, props[key]);
+        }
     }
 
     for (let i = 2, size = arguments.length; i < size; i++) {
@@ -861,6 +877,7 @@ class Preferences {
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
 
+    static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
@@ -1004,6 +1021,11 @@ class Preferences {
         },
         [Preferences.USER_AGENT_CUSTOM]: {
             'default': '',
+        },
+        [Preferences.VIDEO_CLARITY]: {
+            'default': 0,
+            'min': 0,
+            'max': 3,
         },
         [Preferences.VIDEO_FILL_FULL_SCREEN]: {
             'default': false,
@@ -1598,17 +1620,17 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     user-select: none;
     -webkit-user-select: none;
     position: fixed;
-    bottom: 20px;
+    bottom: 0;
     left: 50%;
     transform: translate(-50%, 0);
     z-index: 9999;
-    padding: 20px;
-    width: 620px;
+    padding: 16px;
+    width: 645px;
     background: #1a1b1e;
     color: #fff;
-    border-radius: 8px;
+    border-radius: 8px 8px 0 0;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     text-align: center;
     box-shadow: 0px 0px 6px #000;
@@ -1624,22 +1646,22 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-quick-settings-bar label {
-    font-size: 20px;
+    font-size: 16px;
     display: block;
     margin-bottom: 8px;
 }
 
 .better-xcloud-quick-settings-bar input {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
 }
 
 .better-xcloud-quick-settings-bar button {
     border: none;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     margin: 0 8px;
-    line-height: 24px;
+    line-height: 22px;
     background-color: #515151;
     color: #fff;
     border-radius: 4px;
@@ -2319,6 +2341,15 @@ function injectSettingsButton($parent) {
 function getVideoPlayerFilterStyle() {
     const filters = [];
 
+    const clarity = PREFS.get(Preferences.VIDEO_CLARITY);
+    if (clarity != 0) {
+        const level = 7 - (clarity - 1); // 5,6,7
+        const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
+        document.getElementById('better-xcloud-filter-clarity-matrix').setAttributeNS(null, 'kernelMatrix', matrix);
+
+        filters.push(`url(#better-xcloud-filter-clarity)`);
+    }
+
     const saturation = PREFS.get(Preferences.VIDEO_SATURATION);
     if (saturation != 100) {
         filters.push(`saturate(${saturation}%)`);
@@ -2341,8 +2372,22 @@ function getVideoPlayerFilterStyle() {
 function updateVideoPlayerCss() {
     let $elm = document.getElementById('better-xcloud-video-css');
     if (!$elm) {
-        $elm = createElement('style', {id: 'better-xcloud-video-css'});
+        const CE = createElement;
+
+        $elm = CE('style', {id: 'better-xcloud-video-css'});
         document.documentElement.appendChild($elm);
+
+        // Setup SVG filters
+        const $svg = CE('svg', {
+            'id': 'better-xcloud-video-filters',
+            'xmlns': 'http://www.w3.org/2000/svg',
+            'class': 'better-xcloud-gone',
+        }, CE('defs', {'xmlns': 'http://www.w3.org/2000/svg'},
+              CE('filter', {'id': 'better-xcloud-filter-clarity', 'xmlns': 'http://www.w3.org/2000/svg'},
+                CE('feConvolveMatrix', {'id': 'better-xcloud-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
+             )
+        );
+        document.documentElement.appendChild($svg);
     }
 
     let filters = getVideoPlayerFilterStyle();
@@ -2632,17 +2677,19 @@ function patchRtcCodecs() {
 }
 
 
-function numberPicker(key) {
+function numberPicker(key, suffix='') {
+    const setting = Preferences.SETTINGS[key]
     let value = PREFS.get(key);
+
     let $text, $decBtn, $incBtn;
 
-    const MIN = 0;
-    const MAX= 150;
+    const MIN = setting.min;
+    const MAX= setting.max;
 
     const CE = createElement;
     const $wrapper = CE('div', {},
                         $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                        $text = CE('span', {}, value + '%'),
+                        $text = CE('span', {}, value + suffix),
                         $incBtn = CE('button', {'data-type': 'inc'}, '+'),
                     );
 
@@ -2664,7 +2711,7 @@ function numberPicker(key) {
             value = (value >= MAX) ? MAX : value + 1;
         }
 
-        $text.textContent = value + '%';
+        $text.textContent = value + suffix;
         PREFS.set(key, value);
         updateVideoPlayerCss();
 
@@ -2712,14 +2759,17 @@ function setupVideoSettingsBar() {
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Stretch Video'),
                             $stretchInp = CE('input', {'id': 'better-xcloud-quick-setting-stretch', 'type': 'checkbox'})),
                         CE('div', {},
+                            CE('label', {}, 'Clarity'),
+                            numberPicker(Preferences.VIDEO_CLARITY)),
+                        CE('div', {},
                             CE('label', {}, 'Saturation'),
-                            numberPicker(Preferences.VIDEO_SATURATION)),
+                            numberPicker(Preferences.VIDEO_SATURATION, '%')),
                         CE('div', {},
                             CE('label', {}, 'Contrast'),
-                            numberPicker(Preferences.VIDEO_CONTRAST)),
+                            numberPicker(Preferences.VIDEO_CONTRAST, '%')),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            numberPicker(Preferences.VIDEO_BRIGHTNESS))
+                            numberPicker(Preferences.VIDEO_BRIGHTNESS, '%'))
                      );
 
     $stretchInp.checked = PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN);
