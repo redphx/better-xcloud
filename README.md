@@ -117,11 +117,12 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > Doesn't work with Safari.  
   > &nbsp;  
   > ![clarity](https://github.com/redphx/better-xcloud/assets/96280/32879a1e-d56f-428c-bc86-bbacf9588506)
+  > *(click to enlarge)*
 
 - **Stretch video to full sctreen**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
-  > Brightness/Contrast/Saturation.
+  > Brightness/Contrast/Saturation.  
   > ⚠️ These features don't work when xCloud's "Clarity Boost" feature is ON ([#64](https://github.com/redphx/better-xcloud/issues/64)).  
 - **Display stream's statuses**
   > Region/Server/Codecs/Resolution...  
