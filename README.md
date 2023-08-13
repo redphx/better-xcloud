@@ -78,12 +78,14 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > - **Default**: nothing change.  
   > - **Off**: stop the touch controller from showing when touching the screen. Useful when you play on a device with a built-in controller like Logitech G Cloud, Steam Deck, etc.  
   > - **All games**: enable touch controller support for all games. Games with custom layout won't be affected.  
-  > Double-tap anywhere at the bottom of the screen to show/hide the controller. Useful when you're viewing cutscenes.
+  > Double-tap anywhere at the bottom of the screen to show/hide the controller. Useful when you're viewing cutscenes.  
+  > &nbsp;  
   > ![toggle-touch-controller](https://github.com/redphx/better-xcloud/assets/96280/8b9c7091-529a-45ae-8b45-73e61531ecc8)
 - **Button styles**
   > - Default  
   > - Muted  
-  > - All white (only for standard/default controller)
+  > - All white (only for standard/default controller)  
+  > &nbsp;  
   > <img width="400" alt="Button styles" src="https://github.com/redphx/better-xcloud/assets/96280/2bfef2b3-6712-4924-b067-c2312f8c8062">
 
 ### UI
@@ -170,7 +172,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## Stream stats  
 
-![stats-optimize](https://github.com/redphx/better-xcloud/assets/96280/736548db-316d-4bb3-a0f8-467766ae810b)
+![stats](https://github.com/redphx/better-xcloud/assets/96280/736548db-316d-4bb3-a0f8-467766ae810b)
 
 <img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/0d4abb6b-49ab-4c9a-a52d-df7e396d2145">
 
