@@ -1644,7 +1644,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     transform: translate(-50%, 0);
     z-index: 9999;
     padding: 16px;
-    width: 645px;
+    width: 600px;
     background: #1a1b1e;
     color: #fff;
     border-radius: 8px 8px 0 0;
@@ -1679,7 +1679,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border: none;
     width: 22px;
     height: 22px;
-    margin: 0 8px;
+    margin: 0 4px;
     line-height: 22px;
     background-color: #515151;
     color: #fff;
