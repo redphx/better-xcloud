@@ -30,12 +30,15 @@ If you like this project please give it a 🌟. Thank you 🙏.
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/e30f6514-13ca-41c6-bff2-979573cff956">
 <br>
-<img width="600" alt="Video settings" src="https://github.com/redphx/better-xcloud/assets/96280/c45877f9-379c-4ba4-977c-021d3d8835e4">
+<img width="600" alt="Video settings" src="https://github.com/redphx/better-xcloud/assets/96280/a8614693-7f56-4a49-82ad-c1fd7e2e00a5">
+
 
 &nbsp;  
   
 **Demo video:** [https://youtu.be/oDr5Eddp55E  ](https://youtu.be/AYb-EUcz72U)  
 
+- **🔥 Improve visual quality of the stream**
+  > Similar to (but not as good as) the "Clarity Boost" of xCloud on Edge browser. [Demo video](https://youtu.be/ZhW2choAHUs). 
 - **🔥 Show stream stats**  
   > Check [Stream stats section](#stream-stats) for more info.  
 - **🔥 Capture screenshot**
@@ -105,12 +108,20 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.
 
 ### Stream's video features
-⚠️ These features don't work when xCloud's "Clarity Boost" feature is ON ([#64](https://github.com/redphx/better-xcloud/issues/64)).  
+
+- **🔥 Improve stream's clarity**
+  > Similar to (but not as good as) the "Clarity Boost" of xCloud on Edge browser. [Demo video](https://youtu.be/ZhW2choAHUs).  
+  > Also known as poor man's "Clarity Boost".  
+  > Affects the stream's performance, uses more battery, and may causes frames to drop (especially on lower-end devices).  
+  > Doesn't work with Safari.  
+  > &nbsp;  
+  > ![clarity](https://github.com/redphx/better-xcloud/assets/96280/32879a1e-d56f-428c-bc86-bbacf9588506)
 
 - **Stretch video to full sctreen**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
   > Brightness/Contrast/Saturation.
+  > ⚠️ These features don't work when xCloud's "Clarity Boost" feature is ON ([#64](https://github.com/redphx/better-xcloud/issues/64)).  
 - **Display stream's statuses**
   > Region/Server/Codecs/Resolution...  
   > Current playtime of the session.  
@@ -240,12 +251,13 @@ Think of this project as an unofficial beta version of xCloud.
 No, you can't. You'll have to modify the app.
 
 5. **Will it be able to enable the "Clarity Boost" feature on non-Edge browsers?**  
-No. The "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.
+~~No. The "Clarity Boost" feature uses an exclusive API (`Video.msVideoProcessing`) that's only available on Edge browser for desktop at the moment.~~  
+Fake news! This feature has been implemented in **Better xCloud** since version 1.12, but the original "Clarity Boost" still perform better.  
 
-6. **Will it be able to request a lower FPS or increase the maximum bitrate (15Mbps) of the stream?**  
+7. **Will it be able to request a lower FPS or increase the maximum bitrate (15Mbps) of the stream?**  
 Sorry, no. The server decides all these settings.
 
-7. **What's the meaning behind the name "Better xCloud"?**  
+8. **What's the meaning behind the name "Better xCloud"?**  
 It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
 
 ## Donation
