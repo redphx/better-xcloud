@@ -95,6 +95,7 @@ window.addEventListener('load', e => {
     setTimeout(() => {
         if (document.body.classList.contains('legacyBackground')) {
             // Has error message -> reload page
+            window.stop();
             window.location.reload(true);
         }
     }, 2000);
