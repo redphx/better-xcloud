@@ -1041,7 +1041,7 @@ class Preferences {
         [Preferences.VIDEO_CLARITY]: {
             'default': 0,
             'min': 0,
-            'max': 3,
+            'max': 5,
         },
         [Preferences.VIDEO_FILL_FULL_SCREEN]: {
             'default': false,
@@ -2363,7 +2363,7 @@ function getVideoPlayerFilterStyle() {
 
     const clarity = PREFS.get(Preferences.VIDEO_CLARITY);
     if (clarity != 0) {
-        const level = 7 - (clarity - 1); // 5,6,7
+        const level = (7 - (clarity - 1) * 0.5).toFixed(1); // 5, 5.5, 6, 6.5, 7
         const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
         document.getElementById('better-xcloud-filter-clarity-matrix').setAttributeNS(null, 'kernelMatrix', matrix);
 
