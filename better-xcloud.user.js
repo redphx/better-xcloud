@@ -1155,7 +1155,7 @@ class Preferences {
             'default': false,
         },
         [Preferences.UI_GAME_ART_LOADING_SCREEN]: {
-            'default': false,
+            'default': true,
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'default': false,
