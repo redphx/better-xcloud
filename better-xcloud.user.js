@@ -111,6 +111,8 @@ var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 
+var MSCV;
+
 const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 const TOUCH_SUPPORTED_GAME_IDS = new Set();
 
@@ -118,6 +120,115 @@ const TOUCH_SUPPORTED_GAME_IDS = new Set();
 const ICON_VIDEO_SETTINGS = '<path d="M16 9.144A6.89 6.89 0 0 0 9.144 16 6.89 6.89 0 0 0 16 22.856 6.89 6.89 0 0 0 22.856 16 6.9 6.9 0 0 0 16 9.144zm0 11.427c-2.507 0-4.571-2.064-4.571-4.571s2.064-4.571 4.571-4.571 4.571 2.064 4.571 4.571-2.064 4.571-4.571 4.571zm15.704-7.541c-.065-.326-.267-.607-.556-.771l-4.26-2.428-.017-4.802c-.001-.335-.15-.652-.405-.868-1.546-1.307-3.325-2.309-5.245-2.953-.306-.103-.641-.073-.923.085L16 3.694l-4.302-2.407c-.282-.158-.618-.189-.924-.086a16.02 16.02 0 0 0-5.239 2.964 1.14 1.14 0 0 0-.403.867L5.109 9.84.848 12.268a1.14 1.14 0 0 0-.555.771 15.22 15.22 0 0 0 0 5.936c.064.326.267.607.555.771l4.261 2.428.017 4.802c.001.335.149.652.403.868 1.546 1.307 3.326 2.309 5.245 2.953.306.103.641.073.923-.085L16 28.306l4.302 2.407a1.13 1.13 0 0 0 .558.143 1.18 1.18 0 0 0 .367-.059c1.917-.648 3.695-1.652 5.239-2.962.255-.216.402-.532.405-.866l.021-4.807 4.261-2.428a1.14 1.14 0 0 0 .555-.771 15.21 15.21 0 0 0-.003-5.931zm-2.143 4.987l-4.082 2.321a1.15 1.15 0 0 0-.429.429l-.258.438a1.13 1.13 0 0 0-.174.601l-.022 4.606a13.71 13.71 0 0 1-3.623 2.043l-4.117-2.295a1.15 1.15 0 0 0-.559-.143h-.546c-.205-.005-.407.045-.586.143l-4.119 2.3a13.74 13.74 0 0 1-3.634-2.033l-.016-4.599a1.14 1.14 0 0 0-.174-.603l-.257-.437c-.102-.182-.249-.333-.429-.437l-4.085-2.328a12.92 12.92 0 0 1 0-4.036l4.074-2.325a1.15 1.15 0 0 0 .429-.429l.258-.438a1.14 1.14 0 0 0 .175-.601l.021-4.606a13.7 13.7 0 0 1 3.625-2.043l4.11 2.295a1.14 1.14 0 0 0 .585.143h.52c.205.005.407-.045.586-.143l4.119-2.3a13.74 13.74 0 0 1 3.634 2.033l.016 4.599a1.14 1.14 0 0 0 .174.603l.257.437c.102.182.249.333.429.438l4.085 2.327a12.88 12.88 0 0 1 .007 4.041h.007z" fill-rule="nonzero"/>';
 const ICON_STREAM_STATS = '<path d="M27.295 9.31C24.303 6.313 20.234 4.631 16 4.643h-.057C7.153 4.673 0 11.929 0 20.804v3.267a2.3 2.3 0 0 0 2.286 2.286h27.429A2.3 2.3 0 0 0 32 24.072v-3.429A15.9 15.9 0 0 0 27.294 9.31zm2.419 14.761H14.816l7.823-10.757a1.15 1.15 0 0 0-.925-1.817c-.366 0-.71.176-.925.471l-8.801 12.103H2.286v-3.267c0-.44.022-.874.062-1.304h3.367a1.15 1.15 0 0 0 1.143-1.143 1.15 1.15 0 0 0-1.143-1.143H2.753c1.474-5.551 6.286-9.749 12.104-10.237v3.379A1.15 1.15 0 0 0 16 11.5a1.15 1.15 0 0 0 1.143-1.143V6.975c5.797.488 10.682 4.608 12.143 10.239h-3a1.15 1.15 0 0 0-1.143 1.143 1.15 1.15 0 0 0 1.143 1.143h3.382a14.58 14.58 0 0 1 .047 1.143v3.429z" fill-rule="nonzero"/>';
 const ICON_SCREENSHOT_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=';
+
+
+class TitlesInfo {
+    static #INFO = {};
+
+    static get(titleId) {
+        return TitlesInfo.#INFO[titleId];
+    }
+
+    static update(titleId, info) {
+        TitlesInfo.#INFO[titleId] = TitlesInfo.#INFO[titleId] || {};
+        Object.assign(TitlesInfo.#INFO[titleId], info);
+    }
+
+    static saveFromTitleInfo(titleInfo) {
+        const details = titleInfo.details;
+        TitlesInfo.#INFO[details.productId] = {
+            titleId: titleInfo.titleId,
+            // Has more than one input type -> must have touch support
+            hasTouchSupport: (details.supportedInputTypes.length > 1),
+        };
+    }
+
+    static saveFromCatalogInfo(catalogInfo) {
+        const titleId = catalogInfo.StoreId;
+
+        TitlesInfo.update(titleId, {
+            imageHero: catalogInfo.Image_Hero ? catalogInfo.Image_Hero.URL : '',
+        });
+    }
+
+    static hasTouchSupport(titleId) {
+        const gameInfo = TitlesInfo.#INFO[titleId] || {};
+        return !!gameInfo.hasTouchSupport;
+    }
+
+    static requestCatalogInfo(titleId, callback) {
+        fetch('https://catalog.gamepass.com/v3/products?market=US&language=en-US&hydration=RemoteHighSapphire0', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Ms-Cv': MSCV,
+                'Calling-App-Name': 'Xbox Cloud Gaming Web',
+                'Calling-App-Version': '20.3.41-hotfix.1',
+            },
+            body: JSON.stringify({
+                Products: [titleId],
+            }),
+        }).then(resp => {
+            callback && callback(TitlesInfo.get(titleId));
+        });
+    }
+}
+
+
+class LoadingScreen {
+    static #$style;
+
+    static setup() {
+        // Get titleId from location
+        const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+        if (!match) {
+            return;
+        }
+
+        const titleId = match[1];
+        const titleInfo = TitlesInfo.get(titleId);
+        if (titleInfo && titleInfo.imageHero) {
+            LoadingScreen.#setBackground(titleInfo.imageHero);
+        } else {
+            TitlesInfo.requestCatalogInfo(titleId, info => {
+                info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
+            });
+        }
+    }
+
+    static #setBackground(imageUrl) {
+        // Setup style tag
+        let $style = LoadingScreen.#$style;
+        if (!$style) {
+            $style = createElement('style');
+            document.documentElement.appendChild($style);
+            LoadingScreen.#$style = $style;
+        }
+
+        // Limit max width to reduce image size
+        imageUrl = 'https:' + imageUrl + '?w=1920';
+
+        const css = `
+#game-stream {
+    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
+    background-color: transparent !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+    transition: background-image 1s ease-in !important;
+}
+
+#game-stream rect[width="800"] {
+    display: none !important;
+}
+`;
+        $style.textContent = css;
+    }
+
+    static reset() {
+        LoadingScreen.#$style && (LoadingScreen.#$style.textContent = '');
+    }
+}
 
 
 class TouchController {
@@ -840,6 +951,8 @@ class PreloadedState {
                     this._state.appContext.requestInfo.userAgent = userAgent;
                 }
 
+                MSCV = this._state.appContext.telemetryInfo.initialCv;
+
                 return this._state;
             },
             set: (state) => {
@@ -853,11 +966,7 @@ class PreloadedState {
                     } catch (e) {}
 
                     for (let id in titles) {
-                        const details = titles[id].data.details;
-                        // Has move than one input type -> must have touch support
-                        if (details.supportedInputTypes.length > 1) {
-                            TOUCH_SUPPORTED_GAME_IDS.add(details.productId);
-                        }
+                        TitlesInfo.saveFromTitleInfo(titles[id].data);
                     }
                 }
             }
@@ -1017,6 +1126,9 @@ class Preferences {
             'default': false,
         },
         [Preferences.REDUCE_ANIMATIONS]: {
+            'default': false,
+        },
+        [Preferences.UI_GAME_ART_LOADING_SCREEN]: {
             'default': false,
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
@@ -2009,6 +2121,9 @@ function interceptHttpRequests() {
 
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
+            // Setup loading screen
+            LoadingScreen.setup();
+
             // Start hiding cursor
             if (PREFS.get(Preferences.STREAM_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
@@ -2100,14 +2215,26 @@ function interceptHttpRequests() {
             });
         }
 
+        // catalog.gamepass
+        if (url.startsWith('https://catalog.gamepass.com') && url.includes('/products')) {
+            const promise = orgFetch(...arg);
+            return promise.then(response => {
+                return response.clone().json().then(json => {
+                    for (let productId in json.Products) {
+                        TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
+                    }
+
+                    return response;
+                });
+            });
+        }
+
         if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
             const promise = orgFetch(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     for (let game of json.results) {
-                        if (game.details.supportedInputTypes.length > 1) {
-                            TOUCH_SUPPORTED_GAME_IDS.add(game.details.productId);
-                        }
+                        TitlesInfo.saveFromTitleInfo(game);
                     }
 
                     return response;
@@ -2228,6 +2355,7 @@ function injectSettingsButton($parent) {
         },
         'UI': {
             [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
+            [Preferences.UI_GAME_ART_LOADING_SCREEN]: 'Show game\'s art while loading',
             [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
             [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
             [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
@@ -2619,6 +2747,8 @@ function patchVideoApi() {
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
+        LoadingScreen.reset();
+
         if (PREF_SKIP_SPLASH_VIDEO && this.className.startsWith('XboxSplashVideo')) {
             this.volume = 0;
             this.style.display = 'none';
@@ -2911,6 +3041,8 @@ function onHistoryChanged() {
 
     MouseCursorHider.stop();
     TouchController.reset();
+
+    LoadingScreen.reset();
 }
 
 
