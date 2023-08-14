@@ -2101,6 +2101,7 @@ function interceptHttpRequests() {
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
+    const PREF_UI_GAME_ART_LOADING_SCREEN = PREFS.get(Preferences.UI_GAME_ART_LOADING_SCREEN);
 
     const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
@@ -2148,7 +2149,7 @@ function interceptHttpRequests() {
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
             // Setup loading screen
-            LoadingScreen.setup();
+            PREF_UI_GAME_ART_LOADING_SCREEN && LoadingScreen.setup();
 
             // Start hiding cursor
             if (PREFS.get(Preferences.STREAM_HIDE_IDLE_CURSOR)) {
@@ -2189,7 +2190,7 @@ function interceptHttpRequests() {
         }
 
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            LoadingScreen.hide();
+            PREF_UI_GAME_ART_LOADING_SCREEN && LoadingScreen.hide();
 
             const promise = orgFetch(...arg);
             if (!PREF_OVERRIDE_CONFIGURATION) {
@@ -2386,7 +2387,7 @@ function injectSettingsButton($parent) {
         },
         'UI': {
             [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
-            [Preferences.UI_GAME_ART_LOADING_SCREEN]: 'Show game\'s art while loading',
+            [Preferences.UI_GAME_ART_LOADING_SCREEN]: 'Show game art while loading',
             [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
             [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
             [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
