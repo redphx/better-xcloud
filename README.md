@@ -51,7 +51,9 @@ If you like this project please give it a 🌟. Thank you 🙏.
 
 ### Server
 - **Set the region of streaming server**  
-  > Connect to another server instead of the default one. Check the [**FAQ** section](#faq) for some notes.
+  > Connect to another server instead of the default one.  
+  > It's not using VPN.  
+  > ["Can I get banned for using this?"](#faq)  
 - **Preferred game's language**
   > If the game doesn't support this language, it will use the same language as xCloud's website.  
 - **Prefer IPv6 server**
