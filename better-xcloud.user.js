@@ -206,7 +206,7 @@ class LoadingScreen {
         }
 
         // Limit max width to reduce image size
-        imageUrl = 'https:' + imageUrl + '?w=1920';
+        imageUrl = imageUrl + '?w=1920';
 
         const css = `
 #game-stream {
@@ -215,14 +215,39 @@ class LoadingScreen {
     background-position: center center !important;
     background-repeat: no-repeat !important;
     background-size: cover !important;
-    transition: background-image 1s ease-in !important;
 }
 
 #game-stream rect[width="800"] {
-    display: none !important;
+    transition: opacity 0.3s ease-in-out !important;
 }
 `;
         $style.textContent = css;
+
+        const bg = new Image();
+        bg.onload = e => {
+            $style.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 0 !important;
+}
+`;
+        };
+        bg.src = imageUrl;
+    }
+
+    static hide() {
+        document.querySelector('#game-stream rect[width="800"]').addEventListener('transitionend', e => {
+            LoadingScreen.#$style.textContent += `
+#game-stream {
+    background: #000 !important;
+}
+`;
+        });
+
+        LoadingScreen.#$style.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 1 !important;
+}
+`;
     }
 
     static reset() {
@@ -1001,6 +1026,7 @@ class Preferences {
     static get SKIP_SPLASH_VIDEO() { return 'skip_splash_video'; }
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
+    static get UI_GAME_ART_LOADING_SCREEN() { return 'ui_game_art_loading_screen'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
@@ -2162,8 +2188,13 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (PREF_OVERRIDE_CONFIGURATION && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
+        if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
+            LoadingScreen.hide();
+
             const promise = orgFetch(...arg);
+            if (!PREF_OVERRIDE_CONFIGURATION) {
+                return promise;
+            }
 
             // Touch controller for all games
             if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
