@@ -179,6 +179,7 @@ class LoadingScreen {
     static #$waitTimeBox;
 
     static #waitTimeInterval;
+    static #orgWebTitle;
 
     static #secondsToString(seconds) {
         const m = Math.floor(seconds / 60);
@@ -252,6 +253,8 @@ class LoadingScreen {
         let $countDown;
         let $estimated;
 
+        LoadingScreen.#orgWebTitle = document.title;
+
         const endDate = new Date();
         endDate.setSeconds(endDate.getSeconds() + waitTime);
         let endDateStr = endDate.toISOString().slice(0, 19);
@@ -262,7 +265,6 @@ class LoadingScreen {
 
         let $waitTimeBox = LoadingScreen.#$waitTimeBox;
         if (!$waitTimeBox) {
-            debugger;
             $waitTimeBox = CE('div', {'class': 'better-xcloud-wait-time-box'},
                                     CE('label', {}, 'Estimated finish time'),
                                     $estimated = CE('span', {'class': 'better-xcloud-wait-time-estimated'}),
@@ -280,10 +282,12 @@ class LoadingScreen {
 
         $estimated.textContent = endDateStr;
         $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+        document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
 
         LoadingScreen.#waitTimeInterval = setInterval(() => {
             secondsLeft--;
             $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+            document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
 
             if (secondsLeft <= 0) {
                 LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
@@ -293,6 +297,7 @@ class LoadingScreen {
     }
 
     static hide() {
+        document.title = LoadingScreen.#orgWebTitle;
         LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
 
         document.querySelector('#game-stream rect[width="800"]').addEventListener('transitionend', e => {
