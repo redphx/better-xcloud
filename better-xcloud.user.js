@@ -175,7 +175,19 @@ class TitlesInfo {
 
 
 class LoadingScreen {
-    static #$style;
+    static #$bgStyle;
+    static #$waitTimeBox;
+
+    static #waitTimeInterval;
+
+    static #secondsToString(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+
+        const mDisplay = m > 0 ? `${m}m`: '';
+        const sDisplay = `${s}s`.padStart(s >=0 ? 3 : 4, '0');
+        return mDisplay + sDisplay;
+    }
 
     static setup() {
         // Get titleId from location
@@ -197,11 +209,11 @@ class LoadingScreen {
 
     static #setBackground(imageUrl) {
         // Setup style tag
-        let $style = LoadingScreen.#$style;
-        if (!$style) {
-            $style = createElement('style');
-            document.documentElement.appendChild($style);
-            LoadingScreen.#$style = $style;
+        let $bgStyle = LoadingScreen.#$bgStyle;
+        if (!$bgStyle) {
+            $bgStyle = createElement('style');
+            document.documentElement.appendChild($bgStyle);
+            LoadingScreen.#$bgStyle = $bgStyle;
         }
 
         // Limit max width to reduce image size
@@ -220,11 +232,11 @@ class LoadingScreen {
     transition: opacity 0.3s ease-in-out !important;
 }
 `;
-        $style.textContent = css;
+        $bgStyle.textContent = css;
 
         const bg = new Image();
         bg.onload = e => {
-            $style.textContent += `
+            $bgStyle.textContent += `
 #game-stream rect[width="800"] {
     opacity: 0 !important;
 }
@@ -233,16 +245,65 @@ class LoadingScreen {
         bg.src = imageUrl;
     }
 
+    static setupWaitTime(waitTime) {
+        const CE = createElement;
+
+        let secondsLeft = waitTime;
+        let $countDown;
+        let $estimated;
+
+        const endDate = new Date();
+        endDate.setSeconds(endDate.getSeconds() + waitTime);
+        let endDateStr = endDate.toISOString().slice(0, 19);
+        endDateStr = endDateStr.substring(0, 10) + ' ' + endDateStr.substring(11, 19);
+        endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+
+        let estimatedWaitTime = LoadingScreen.#secondsToString(waitTime);
+
+        let $waitTimeBox = LoadingScreen.#$waitTimeBox;
+        if (!$waitTimeBox) {
+            debugger;
+            $waitTimeBox = CE('div', {'class': 'better-xcloud-wait-time-box'},
+                                    CE('label', {}, 'Estimated finish time'),
+                                    $estimated = CE('span', {'class': 'better-xcloud-wait-time-estimated'}),
+                                    CE('label', {}, 'Countdown'),
+                                    $countDown = CE('span', {'class': 'better-xcloud-wait-time-countdown'}),
+                                   );
+
+            document.documentElement.appendChild($waitTimeBox);
+            LoadingScreen.#$waitTimeBox = $waitTimeBox;
+        } else {
+            $waitTimeBox.classList.remove('better-xcloud-gone');
+            $estimated = $waitTimeBox.querySelector('.better-xcloud-wait-time-estimated');
+            $countDown = $waitTimeBox.querySelector('.better-xcloud-wait-time-countdown');
+        }
+
+        $estimated.textContent = endDateStr;
+        $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+
+        LoadingScreen.#waitTimeInterval = setInterval(() => {
+            secondsLeft--;
+            $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+
+            if (secondsLeft <= 0) {
+                LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+                LoadingScreen.#waitTimeInterval = null;
+            }
+        }, 1000);
+    }
+
     static hide() {
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+
         document.querySelector('#game-stream rect[width="800"]').addEventListener('transitionend', e => {
-            LoadingScreen.#$style.textContent += `
+            LoadingScreen.#$bgStyle.textContent += `
 #game-stream {
     background: #000 !important;
 }
 `;
         });
 
-        LoadingScreen.#$style.textContent += `
+        LoadingScreen.#$bgStyle.textContent += `
 #game-stream rect[width="800"] {
     opacity: 1 !important;
 }
@@ -250,7 +311,11 @@ class LoadingScreen {
     }
 
     static reset() {
-        LoadingScreen.#$style && (LoadingScreen.#$style.textContent = '');
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+        LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
+
+        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+        LoadingScreen.#waitTimeInterval = null;
     }
 }
 
@@ -1864,6 +1929,37 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: block !important;
 }
 
+.better-xcloud-wait-time-box {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #000000cc;
+    color: #fff;
+    z-index: 9999;
+    padding: 12px;
+    border-radius: 0 0 0 8px;
+}
+
+.better-xcloud-wait-time-box label {
+    display: block;
+    text-transform: uppercase;
+    text-align: right;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.better-xcloud-wait-time-estimated, .better-xcloud-wait-time-countdown {
+    display: block;
+    font-family: Consolas, "Courier New", Courier, monospace;
+    text-align: right;
+    font-size: 16px;
+}
+
+.better-xcloud-wait-time-estimated {
+    margin-bottom: 10px;
+}
+
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
     display: none;
@@ -2188,8 +2284,23 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
+        // Get wait time
+        if (url.includes('xboxlive.com') && url.includes('/waittime/')) {
+            const promise = orgFetch(...arg);
+            return promise.then(response => {
+                return response.clone().json().then(json => {
+                    if (json.estimatedAllocationTimeInSeconds > 0) {
+                        // Setup wait time overlay
+                        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
+                    }
+
+                    return response;
+                });
+            });
+        }
+
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            PREF_UI_GAME_ART_LOADING_SCREEN && LoadingScreen.hide();
+            LoadingScreen.hide();
 
             const promise = orgFetch(...arg);
             if (!PREF_OVERRIDE_CONFIGURATION) {
