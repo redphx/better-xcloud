@@ -25,8 +25,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/65ee4193-c31d-46fb-b580-196614246ee6">
-
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/0eedde97-74c7-44df-bc89-2ebf8edb6e2c">
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/e30f6514-13ca-41c6-bff2-979573cff956">
 <br>
@@ -93,6 +92,21 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > &nbsp;  
   > <img width="400" alt="Button styles" src="https://github.com/redphx/better-xcloud/assets/96280/2bfef2b3-6712-4924-b067-c2312f8c8062">
 
+### Loading screen
+- Show game art
+  > Replace the black background with game art if it's available.  
+- Show the estimated wait time
+  > The time is estimated by the server.  
+  > It's not 100% correct: you might get in the game sooner or later.
+  > Don't be mad when the estimated time is inaccurate.  
+  > Check [#51](https://github.com/redphx/better-xcloud/issues/51) for more info.  
+- Show/hide the rocket animation
+  > Always show/Hide when queuing/Always hide.  
+  > Hide this animation might save some battery life while queuing.  
+  
+<img height="300" alt="Loading screen" src="https://github.com/redphx/better-xcloud/assets/96280/46074b14-1abb-466d-a859-d46ad4dac2fd">
+
+
 ### UI
 - **Simplify Stream's menu**
   > Hide the labels of the menu buttons.  
@@ -118,7 +132,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > Works with Chrome/Chromium browsers.  
   > Doesn't work with Safari.  
   > &nbsp;  
-  > ![clarity](https://github.com/redphx/better-xcloud/assets/96280/32879a1e-d56f-428c-bc86-bbacf9588506)
+  > ![clarity](https://github.com/redphx/better-xcloud/assets/96280/ed63bbb0-fcbf-43e2-8e51-ac2733e697b8)
   > *(click to enlarge)*
 
 - **Stretch video to full sctreen**
