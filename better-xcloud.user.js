@@ -1095,7 +1095,7 @@ class Preferences {
     static get SKIP_SPLASH_VIDEO() { return 'skip_splash_video'; }
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
-    static get UI_GAME_ART_LOADING_SCREEN() { return 'ui_game_art_loading_screen'; }
+    static get UI_LOADING_SCREEN_GAME_ART() { return 'ui_loading_screen_game_art'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
@@ -1223,7 +1223,7 @@ class Preferences {
         [Preferences.REDUCE_ANIMATIONS]: {
             'default': false,
         },
-        [Preferences.UI_GAME_ART_LOADING_SCREEN]: {
+        [Preferences.UI_LOADING_SCREEN_GAME_ART]: {
             'default': true,
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
@@ -2201,7 +2201,7 @@ function interceptHttpRequests() {
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
-    const PREF_UI_GAME_ART_LOADING_SCREEN = PREFS.get(Preferences.UI_GAME_ART_LOADING_SCREEN);
+    const PREF_UI_LOADING_SCREEN_GAME_ART = PREFS.get(Preferences.UI_LOADING_SCREEN_GAME_ART);
 
     const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
@@ -2249,7 +2249,7 @@ function interceptHttpRequests() {
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
             // Setup loading screen
-            PREF_UI_GAME_ART_LOADING_SCREEN && LoadingScreen.setup();
+            PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.setup();
 
             // Start hiding cursor
             if (PREFS.get(Preferences.STREAM_HIDE_IDLE_CURSOR)) {
@@ -2503,7 +2503,7 @@ function injectSettingsButton($parent) {
         },
         'UI': {
             [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
-            [Preferences.UI_GAME_ART_LOADING_SCREEN]: 'Show game art while loading',
+            [Preferences.UI_LOADING_SCREEN_GAME_ART]: 'Show game art while loading',
             [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
             [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
             [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
