@@ -297,7 +297,7 @@ class LoadingScreen {
     }
 
     static hide() {
-        document.title = LoadingScreen.#orgWebTitle;
+        LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
         LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
 
         document.querySelector('#game-stream rect[width="800"]').addEventListener('transitionend', e => {
@@ -1096,6 +1096,7 @@ class Preferences {
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
     static get UI_LOADING_SCREEN_GAME_ART() { return 'ui_loading_screen_game_art'; }
+    static get UI_LOADING_SCREEN_WAIT_TIME() { return 'ui_loading_screen_wait_time'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
@@ -1225,6 +1226,9 @@ class Preferences {
         },
         [Preferences.UI_LOADING_SCREEN_GAME_ART]: {
             'default': true,
+        },
+        [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: {
+            'default': false,
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'default': false,
@@ -2202,6 +2206,7 @@ function interceptHttpRequests() {
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
     const PREF_UI_LOADING_SCREEN_GAME_ART = PREFS.get(Preferences.UI_LOADING_SCREEN_GAME_ART);
+    const PREF_UI_LOADING_SCREEN_WAIT_TIME = PREFS.get(Preferences.UI_LOADING_SCREEN_WAIT_TIME);
 
     const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
@@ -2290,7 +2295,7 @@ function interceptHttpRequests() {
         }
 
         // Get wait time
-        if (url.includes('xboxlive.com') && url.includes('/waittime/')) {
+        if (PREF_UI_LOADING_SCREEN_WAIT_TIME && url.includes('xboxlive.com') && url.includes('/waittime/')) {
             const promise = orgFetch(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
@@ -2504,6 +2509,7 @@ function injectSettingsButton($parent) {
         'UI': {
             [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
             [Preferences.UI_LOADING_SCREEN_GAME_ART]: 'Show game art while loading',
+            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: 'Show the estimated wait time',
             [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
             [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
             [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
