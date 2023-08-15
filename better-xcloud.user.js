@@ -199,6 +199,12 @@ class LoadingScreen {
             return;
         }
 
+        if (!LoadingScreen.#$bgStyle) {
+            const $bgStyle = createElement('style');
+            document.documentElement.appendChild($bgStyle);
+            LoadingScreen.#$bgStyle = $bgStyle;
+        }
+
         const titleId = match[1];
         const titleInfo = TitlesInfo.get(titleId);
         if (titleInfo && titleInfo.imageHero) {
@@ -208,16 +214,26 @@ class LoadingScreen {
                 info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
             });
         }
+
+        if (PREFS.get(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide') {
+            LoadingScreen.#hideRocket();
+        }
+    }
+
+    static #hideRocket() {
+        let $bgStyle = LoadingScreen.#$bgStyle;
+
+        const css = `
+#game-stream div[class*=RocketAnimation-module__container] > svg {
+    display: none;
+}
+`;
+        $bgStyle.textContent += css;
     }
 
     static #setBackground(imageUrl) {
         // Setup style tag
         let $bgStyle = LoadingScreen.#$bgStyle;
-        if (!$bgStyle) {
-            $bgStyle = createElement('style');
-            document.documentElement.appendChild($bgStyle);
-            LoadingScreen.#$bgStyle = $bgStyle;
-        }
 
         // Limit max width to reduce image size
         imageUrl = imageUrl + '?w=1920';
@@ -235,7 +251,7 @@ class LoadingScreen {
     transition: opacity 0.3s ease-in-out !important;
 }
 `;
-        $bgStyle.textContent = css;
+        $bgStyle.textContent += css;
 
         const bg = new Image();
         bg.onload = e => {
@@ -250,6 +266,11 @@ class LoadingScreen {
 
     static setupWaitTime(waitTime) {
         const CE = createElement;
+
+        // Hide rocket when queing
+        if (PREFS.get(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide-queue') {
+            LoadingScreen.#hideRocket();
+        }
 
         let secondsLeft = waitTime;
         let $countDown;
@@ -1098,8 +1119,10 @@ class Preferences {
     static get SKIP_SPLASH_VIDEO() { return 'skip_splash_video'; }
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
+
     static get UI_LOADING_SCREEN_GAME_ART() { return 'ui_loading_screen_game_art'; }
     static get UI_LOADING_SCREEN_WAIT_TIME() { return 'ui_loading_screen_wait_time'; }
+    static get UI_LOADING_SCREEN_ROCKET() { return 'ui_loading_screen_rocket'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
@@ -1232,6 +1255,14 @@ class Preferences {
         },
         [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: {
             'default': false,
+        },
+        [Preferences.UI_LOADING_SCREEN_ROCKET]: {
+            'default': 'show',
+            'options': {
+                'show': 'Always show',
+                'hide-queue': 'Hide when queuing',
+                'hide': 'Always hide',
+            },
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'default': false,
@@ -2509,10 +2540,13 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: 'Standard layout\'s button style',
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: 'Custom layout\'s button style',
         },
+        'Loading screen': {
+            [Preferences.UI_LOADING_SCREEN_GAME_ART]: 'Show game art',
+            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: 'Show the estimated wait time',
+            [Preferences.UI_LOADING_SCREEN_ROCKET]: 'Rocket animation',
+        },
         'UI': {
             [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
-            [Preferences.UI_LOADING_SCREEN_GAME_ART]: 'Show game art while loading',
-            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: 'Show the estimated wait time',
             [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
             [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
             [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
