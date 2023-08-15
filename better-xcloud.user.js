@@ -256,7 +256,9 @@ class LoadingScreen {
         LoadingScreen.#orgWebTitle = document.title;
 
         const endDate = new Date();
-        endDate.setSeconds(endDate.getSeconds() + waitTime);
+        const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
+        endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
+
         let endDateStr = endDate.toISOString().slice(0, 19);
         endDateStr = endDateStr.substring(0, 10) + ' ' + endDateStr.substring(11, 19);
         endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
