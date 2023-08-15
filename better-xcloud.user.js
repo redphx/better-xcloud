@@ -110,8 +110,7 @@ var STREAM_WEBRTC;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
-
-var MSCV;
+var APP_CONTEXT;
 
 const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
@@ -156,13 +155,16 @@ class TitlesInfo {
     }
 
     static requestCatalogInfo(titleId, callback) {
-        fetch('https://catalog.gamepass.com/v3/products?market=US&language=en-US&hydration=RemoteHighSapphire0', {
+        const url = `https://catalog.gamepass.com/v3/products?market=${APP_CONTEXT.marketInfo.market}&language=${APP_CONTEXT.marketInfo.locale}&hydration=RemoteHighSapphire0`;
+        const appVersion = document.querySelector('meta[name=gamepass-app-version]').content;
+
+        fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Ms-Cv': MSCV,
+                'Ms-Cv': APP_CONTEXT.telemetryInfo.initialCv,
                 'Calling-App-Name': 'Xbox Cloud Gaming Web',
-                'Calling-App-Version': '20.3.41-hotfix.1',
+                'Calling-App-Version': appVersion,
             },
             body: JSON.stringify({
                 Products: [titleId],
@@ -1047,12 +1049,11 @@ class PreloadedState {
                     this._state.appContext.requestInfo.userAgent = userAgent;
                 }
 
-                MSCV = this._state.appContext.telemetryInfo.initialCv;
-
                 return this._state;
             },
             set: (state) => {
                 this._state = state;
+                APP_CONTEXT = structuredClone(state.appContext);
 
                 // Get a list of touch-supported games
                 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
