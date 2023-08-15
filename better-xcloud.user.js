@@ -110,14 +110,244 @@ var STREAM_WEBRTC;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
+var APP_CONTEXT;
 
 const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-const TOUCH_SUPPORTED_GAME_IDS = new Set();
 
 // Credit: https://phosphoricons.com
 const ICON_VIDEO_SETTINGS = '<path d="M16 9.144A6.89 6.89 0 0 0 9.144 16 6.89 6.89 0 0 0 16 22.856 6.89 6.89 0 0 0 22.856 16 6.9 6.9 0 0 0 16 9.144zm0 11.427c-2.507 0-4.571-2.064-4.571-4.571s2.064-4.571 4.571-4.571 4.571 2.064 4.571 4.571-2.064 4.571-4.571 4.571zm15.704-7.541c-.065-.326-.267-.607-.556-.771l-4.26-2.428-.017-4.802c-.001-.335-.15-.652-.405-.868-1.546-1.307-3.325-2.309-5.245-2.953-.306-.103-.641-.073-.923.085L16 3.694l-4.302-2.407c-.282-.158-.618-.189-.924-.086a16.02 16.02 0 0 0-5.239 2.964 1.14 1.14 0 0 0-.403.867L5.109 9.84.848 12.268a1.14 1.14 0 0 0-.555.771 15.22 15.22 0 0 0 0 5.936c.064.326.267.607.555.771l4.261 2.428.017 4.802c.001.335.149.652.403.868 1.546 1.307 3.326 2.309 5.245 2.953.306.103.641.073.923-.085L16 28.306l4.302 2.407a1.13 1.13 0 0 0 .558.143 1.18 1.18 0 0 0 .367-.059c1.917-.648 3.695-1.652 5.239-2.962.255-.216.402-.532.405-.866l.021-4.807 4.261-2.428a1.14 1.14 0 0 0 .555-.771 15.21 15.21 0 0 0-.003-5.931zm-2.143 4.987l-4.082 2.321a1.15 1.15 0 0 0-.429.429l-.258.438a1.13 1.13 0 0 0-.174.601l-.022 4.606a13.71 13.71 0 0 1-3.623 2.043l-4.117-2.295a1.15 1.15 0 0 0-.559-.143h-.546c-.205-.005-.407.045-.586.143l-4.119 2.3a13.74 13.74 0 0 1-3.634-2.033l-.016-4.599a1.14 1.14 0 0 0-.174-.603l-.257-.437c-.102-.182-.249-.333-.429-.437l-4.085-2.328a12.92 12.92 0 0 1 0-4.036l4.074-2.325a1.15 1.15 0 0 0 .429-.429l.258-.438a1.14 1.14 0 0 0 .175-.601l.021-4.606a13.7 13.7 0 0 1 3.625-2.043l4.11 2.295a1.14 1.14 0 0 0 .585.143h.52c.205.005.407-.045.586-.143l4.119-2.3a13.74 13.74 0 0 1 3.634 2.033l.016 4.599a1.14 1.14 0 0 0 .174.603l.257.437c.102.182.249.333.429.438l4.085 2.327a12.88 12.88 0 0 1 .007 4.041h.007z" fill-rule="nonzero"/>';
 const ICON_STREAM_STATS = '<path d="M27.295 9.31C24.303 6.313 20.234 4.631 16 4.643h-.057C7.153 4.673 0 11.929 0 20.804v3.267a2.3 2.3 0 0 0 2.286 2.286h27.429A2.3 2.3 0 0 0 32 24.072v-3.429A15.9 15.9 0 0 0 27.294 9.31zm2.419 14.761H14.816l7.823-10.757a1.15 1.15 0 0 0-.925-1.817c-.366 0-.71.176-.925.471l-8.801 12.103H2.286v-3.267c0-.44.022-.874.062-1.304h3.367a1.15 1.15 0 0 0 1.143-1.143 1.15 1.15 0 0 0-1.143-1.143H2.753c1.474-5.551 6.286-9.749 12.104-10.237v3.379A1.15 1.15 0 0 0 16 11.5a1.15 1.15 0 0 0 1.143-1.143V6.975c5.797.488 10.682 4.608 12.143 10.239h-3a1.15 1.15 0 0 0-1.143 1.143 1.15 1.15 0 0 0 1.143 1.143h3.382a14.58 14.58 0 0 1 .047 1.143v3.429z" fill-rule="nonzero"/>';
 const ICON_SCREENSHOT_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=';
+
+
+class TitlesInfo {
+    static #INFO = {};
+
+    static get(titleId) {
+        return TitlesInfo.#INFO[titleId];
+    }
+
+    static update(titleId, info) {
+        TitlesInfo.#INFO[titleId] = TitlesInfo.#INFO[titleId] || {};
+        Object.assign(TitlesInfo.#INFO[titleId], info);
+    }
+
+    static saveFromTitleInfo(titleInfo) {
+        const details = titleInfo.details;
+        TitlesInfo.#INFO[details.productId] = {
+            titleId: titleInfo.titleId,
+            // Has more than one input type -> must have touch support
+            hasTouchSupport: (details.supportedInputTypes.length > 1),
+        };
+    }
+
+    static saveFromCatalogInfo(catalogInfo) {
+        const titleId = catalogInfo.StoreId;
+
+        TitlesInfo.update(titleId, {
+            imageHero: catalogInfo.Image_Hero ? catalogInfo.Image_Hero.URL : '',
+        });
+    }
+
+    static hasTouchSupport(titleId) {
+        const gameInfo = TitlesInfo.#INFO[titleId] || {};
+        return !!gameInfo.hasTouchSupport;
+    }
+
+    static requestCatalogInfo(titleId, callback) {
+        const url = `https://catalog.gamepass.com/v3/products?market=${APP_CONTEXT.marketInfo.market}&language=${APP_CONTEXT.marketInfo.locale}&hydration=RemoteHighSapphire0`;
+        const appVersion = document.querySelector('meta[name=gamepass-app-version]').content;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Ms-Cv': APP_CONTEXT.telemetryInfo.initialCv,
+                'Calling-App-Name': 'Xbox Cloud Gaming Web',
+                'Calling-App-Version': appVersion,
+            },
+            body: JSON.stringify({
+                Products: [titleId],
+            }),
+        }).then(resp => {
+            callback && callback(TitlesInfo.get(titleId));
+        });
+    }
+}
+
+
+class LoadingScreen {
+    static #$bgStyle;
+    static #$waitTimeBox;
+
+    static #waitTimeInterval;
+    static #orgWebTitle;
+
+    static #secondsToString(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+
+        const mDisplay = m > 0 ? `${m}m`: '';
+        const sDisplay = `${s}s`.padStart(s >=0 ? 3 : 4, '0');
+        return mDisplay + sDisplay;
+    }
+
+    static setup() {
+        // Get titleId from location
+        const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+        if (!match) {
+            return;
+        }
+
+        if (!LoadingScreen.#$bgStyle) {
+            const $bgStyle = createElement('style');
+            document.documentElement.appendChild($bgStyle);
+            LoadingScreen.#$bgStyle = $bgStyle;
+        }
+
+        const titleId = match[1];
+        const titleInfo = TitlesInfo.get(titleId);
+        if (titleInfo && titleInfo.imageHero) {
+            LoadingScreen.#setBackground(titleInfo.imageHero);
+        } else {
+            TitlesInfo.requestCatalogInfo(titleId, info => {
+                info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
+            });
+        }
+
+        if (PREFS.get(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide') {
+            LoadingScreen.#hideRocket();
+        }
+    }
+
+    static #hideRocket() {
+        let $bgStyle = LoadingScreen.#$bgStyle;
+
+        const css = `
+#game-stream div[class*=RocketAnimation-module__container] > svg {
+    display: none;
+}
+`;
+        $bgStyle.textContent += css;
+    }
+
+    static #setBackground(imageUrl) {
+        // Setup style tag
+        let $bgStyle = LoadingScreen.#$bgStyle;
+
+        // Limit max width to reduce image size
+        imageUrl = imageUrl + '?w=1920';
+
+        const css = `
+#game-stream {
+    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
+    background-color: transparent !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+}
+
+#game-stream rect[width="800"] {
+    transition: opacity 0.3s ease-in-out !important;
+}
+`;
+        $bgStyle.textContent += css;
+
+        const bg = new Image();
+        bg.onload = e => {
+            $bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 0 !important;
+}
+`;
+        };
+        bg.src = imageUrl;
+    }
+
+    static setupWaitTime(waitTime) {
+        const CE = createElement;
+
+        // Hide rocket when queing
+        if (PREFS.get(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide-queue') {
+            LoadingScreen.#hideRocket();
+        }
+
+        let secondsLeft = waitTime;
+        let $countDown;
+        let $estimated;
+
+        LoadingScreen.#orgWebTitle = document.title;
+
+        const endDate = new Date();
+        const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
+        endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
+
+        let endDateStr = endDate.toISOString().slice(0, 19);
+        endDateStr = endDateStr.substring(0, 10) + ' ' + endDateStr.substring(11, 19);
+        endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+
+        let estimatedWaitTime = LoadingScreen.#secondsToString(waitTime);
+
+        let $waitTimeBox = LoadingScreen.#$waitTimeBox;
+        if (!$waitTimeBox) {
+            $waitTimeBox = CE('div', {'class': 'better-xcloud-wait-time-box'},
+                                    CE('label', {}, 'Estimated finish time'),
+                                    $estimated = CE('span', {'class': 'better-xcloud-wait-time-estimated'}),
+                                    CE('label', {}, 'Countdown'),
+                                    $countDown = CE('span', {'class': 'better-xcloud-wait-time-countdown'}),
+                                   );
+
+            document.documentElement.appendChild($waitTimeBox);
+            LoadingScreen.#$waitTimeBox = $waitTimeBox;
+        } else {
+            $waitTimeBox.classList.remove('better-xcloud-gone');
+            $estimated = $waitTimeBox.querySelector('.better-xcloud-wait-time-estimated');
+            $countDown = $waitTimeBox.querySelector('.better-xcloud-wait-time-countdown');
+        }
+
+        $estimated.textContent = endDateStr;
+        $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+        document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+
+        LoadingScreen.#waitTimeInterval = setInterval(() => {
+            secondsLeft--;
+            $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+            document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+
+            if (secondsLeft <= 0) {
+                LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+                LoadingScreen.#waitTimeInterval = null;
+            }
+        }, 1000);
+    }
+
+    static hide() {
+        LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+
+        document.querySelector('#game-stream rect[width="800"]').addEventListener('transitionend', e => {
+            LoadingScreen.#$bgStyle.textContent += `
+#game-stream {
+    background: #000 !important;
+}
+`;
+        });
+
+        LoadingScreen.#$bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 1 !important;
+}
+`;
+    }
+
+    static reset() {
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+        LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
+
+        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+        LoadingScreen.#waitTimeInterval = null;
+    }
+}
 
 
 class TouchController {
@@ -844,6 +1074,7 @@ class PreloadedState {
             },
             set: (state) => {
                 this._state = state;
+                APP_CONTEXT = structuredClone(state.appContext);
 
                 // Get a list of touch-supported games
                 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
@@ -853,11 +1084,7 @@ class PreloadedState {
                     } catch (e) {}
 
                     for (let id in titles) {
-                        const details = titles[id].data.details;
-                        // Has move than one input type -> must have touch support
-                        if (details.supportedInputTypes.length > 1) {
-                            TOUCH_SUPPORTED_GAME_IDS.add(details.productId);
-                        }
+                        TitlesInfo.saveFromTitleInfo(titles[id].data);
                     }
                 }
             }
@@ -892,6 +1119,10 @@ class Preferences {
     static get SKIP_SPLASH_VIDEO() { return 'skip_splash_video'; }
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
+
+    static get UI_LOADING_SCREEN_GAME_ART() { return 'ui_loading_screen_game_art'; }
+    static get UI_LOADING_SCREEN_WAIT_TIME() { return 'ui_loading_screen_wait_time'; }
+    static get UI_LOADING_SCREEN_ROCKET() { return 'ui_loading_screen_rocket'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
@@ -1018,6 +1249,20 @@ class Preferences {
         },
         [Preferences.REDUCE_ANIMATIONS]: {
             'default': false,
+        },
+        [Preferences.UI_LOADING_SCREEN_GAME_ART]: {
+            'default': true,
+        },
+        [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: {
+            'default': false,
+        },
+        [Preferences.UI_LOADING_SCREEN_ROCKET]: {
+            'default': 'show',
+            'options': {
+                'show': 'Always show',
+                'hide-queue': 'Hide when queuing',
+                'hide': 'Always hide',
+            },
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'default': false,
@@ -1727,6 +1972,37 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: block !important;
 }
 
+.better-xcloud-wait-time-box {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #000000cc;
+    color: #fff;
+    z-index: 9999;
+    padding: 12px;
+    border-radius: 0 0 0 8px;
+}
+
+.better-xcloud-wait-time-box label {
+    display: block;
+    text-transform: uppercase;
+    text-align: right;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.better-xcloud-wait-time-estimated, .better-xcloud-wait-time-countdown {
+    display: block;
+    font-family: Consolas, "Courier New", Courier, monospace;
+    text-align: right;
+    font-size: 16px;
+}
+
+.better-xcloud-wait-time-estimated {
+    margin-bottom: 10px;
+}
+
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
     display: none;
@@ -1963,6 +2239,8 @@ function interceptHttpRequests() {
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
     const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
+    const PREF_UI_LOADING_SCREEN_GAME_ART = PREFS.get(Preferences.UI_LOADING_SCREEN_GAME_ART);
+    const PREF_UI_LOADING_SCREEN_WAIT_TIME = PREFS.get(Preferences.UI_LOADING_SCREEN_WAIT_TIME);
 
     const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
@@ -2009,6 +2287,9 @@ function interceptHttpRequests() {
 
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
+            // Setup loading screen
+            PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.setup();
+
             // Start hiding cursor
             if (PREFS.get(Preferences.STREAM_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
@@ -2047,8 +2328,28 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (PREF_OVERRIDE_CONFIGURATION && url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
+        // Get wait time
+        if (PREF_UI_LOADING_SCREEN_WAIT_TIME && url.includes('xboxlive.com') && url.includes('/waittime/')) {
             const promise = orgFetch(...arg);
+            return promise.then(response => {
+                return response.clone().json().then(json => {
+                    if (json.estimatedAllocationTimeInSeconds > 0) {
+                        // Setup wait time overlay
+                        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
+                    }
+
+                    return response;
+                });
+            });
+        }
+
+        if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
+            LoadingScreen.hide();
+
+            const promise = orgFetch(...arg);
+            if (!PREF_OVERRIDE_CONFIGURATION) {
+                return promise;
+            }
 
             // Touch controller for all games
             if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
@@ -2057,8 +2358,9 @@ function interceptHttpRequests() {
                 // Get game ID from window.location
                 const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
                 // Check touch support
-                if (match && !TOUCH_SUPPORTED_GAME_IDS.has(match[1])) {
-                    TouchController.enable();
+                if (match) {
+                    const titleId = match[1];
+                    !TitlesInfo.hasTouchSupport(titleId) && TouchController.enable();
                 }
 
                 // If both settings are invalid -> return promise
@@ -2100,14 +2402,26 @@ function interceptHttpRequests() {
             });
         }
 
+        // catalog.gamepass
+        if (url.startsWith('https://catalog.gamepass.com') && url.includes('/products')) {
+            const promise = orgFetch(...arg);
+            return promise.then(response => {
+                return response.clone().json().then(json => {
+                    for (let productId in json.Products) {
+                        TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
+                    }
+
+                    return response;
+                });
+            });
+        }
+
         if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
             const promise = orgFetch(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     for (let game of json.results) {
-                        if (game.details.supportedInputTypes.length > 1) {
-                            TOUCH_SUPPORTED_GAME_IDS.add(game.details.productId);
-                        }
+                        TitlesInfo.saveFromTitleInfo(game);
                     }
 
                     return response;
@@ -2225,6 +2539,11 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_TOUCH_CONTROLLER]: 'Availability',
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: 'Standard layout\'s button style',
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: 'Custom layout\'s button style',
+        },
+        'Loading screen': {
+            [Preferences.UI_LOADING_SCREEN_GAME_ART]: 'Show game art',
+            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: 'Show the estimated wait time',
+            [Preferences.UI_LOADING_SCREEN_ROCKET]: 'Rocket animation',
         },
         'UI': {
             [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
@@ -2619,6 +2938,8 @@ function patchVideoApi() {
 
     HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
+        LoadingScreen.reset();
+
         if (PREF_SKIP_SPLASH_VIDEO && this.className.startsWith('XboxSplashVideo')) {
             this.volume = 0;
             this.style.display = 'none';
@@ -2911,6 +3232,8 @@ function onHistoryChanged() {
 
     MouseCursorHider.stop();
     TouchController.reset();
+
+    LoadingScreen.reset();
 }
 
 
