@@ -325,7 +325,8 @@ class LoadingScreen {
         LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
         LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
 
-        document.querySelector('#game-stream rect[width="800"]').addEventListener('transitionend', e => {
+        const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
+        $rocketBg && $rocketBg.addEventListener('transitionend', e => {
             LoadingScreen.#$bgStyle.textContent += `
 #game-stream {
     background: #000 !important;
@@ -2016,7 +2017,7 @@ div[class*=NotFocusedDialog] {
     height: 0px !important;
 }
 
-#game-stream video {
+#game-stream video:not([src]) {
     visibility: hidden;
 }
 `;
@@ -2344,7 +2345,7 @@ function interceptHttpRequests() {
         }
 
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            LoadingScreen.hide();
+            PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
 
             const promise = orgFetch(...arg);
             if (!PREF_OVERRIDE_CONFIGURATION) {
@@ -2940,14 +2941,18 @@ function patchVideoApi() {
     HTMLMediaElement.prototype.play = function() {
         LoadingScreen.reset();
 
-        if (PREF_SKIP_SPLASH_VIDEO && this.className.startsWith('XboxSplashVideo')) {
-            this.volume = 0;
-            this.style.display = 'none';
-            this.dispatchEvent(new Event('ended'));
+        if (this.className && this.className.startsWith('XboxSplashVideo')) {
+            if (PREF_SKIP_SPLASH_VIDEO) {
+                this.volume = 0;
+                this.style.display = 'none';
+                this.dispatchEvent(new Event('ended'));
 
-            return {
-                catch: () => {},
-            };
+                return {
+                    catch: () => {},
+                };
+            }
+
+            return this.orgPlay.apply(this);
         }
 
         this.addEventListener('playing', showFunc);
