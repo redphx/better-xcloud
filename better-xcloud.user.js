@@ -735,12 +735,19 @@ class StreamBadges {
 
 
 class StreamStats {
+    static get FPS() { return 'fps'; }
+    static get PING() { return 'png'; }
+    static get BITRATE() { return 'btr'; }
+    static get DECODE_TIME() { return 'dt'; }
+    static get PACKETS_LOST() { return 'pl'; }
+    static get FRAMES_LOST() { return 'fl'; }
+
     static #interval;
     static #updateInterval = 1000;
 
     static #$container;
     static #$fps;
-    static #$rtt;
+    static #$png;
     static #$dt;
     static #$pl;
     static #$fl;
@@ -873,23 +880,25 @@ class StreamStats {
                 } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
-                    StreamStats.#$rtt.textContent = `${roundTripTime}ms`;
+                    StreamStats.#$png.textContent = `${roundTripTime}ms`;
 
                     if (PREF_STATS_CONDITIONAL_FORMATTING) {
                         grade = (roundTripTime > 100) ? 'bad' : (roundTripTime > 75) ? 'ok' : (roundTripTime > 40) ? 'good' : '';
                     }
-                    StreamStats.#$rtt.setAttribute('data-grade', grade);
+                    StreamStats.#$png.setAttribute('data-grade', grade);
                 }
             });
         });
     }
 
     static #refreshStyles() {
+        const PREF_ITEMS = PREFS.get(Preferences.STATS_ITEMS);
         const PREF_POSITION = PREFS.get(Preferences.STATS_POSITION);
         const PREF_TRANSPARENT = PREFS.get(Preferences.STATS_TRANSPARENT);
         const PREF_OPACITY = PREFS.get(Preferences.STATS_OPACITY);
         const PREF_TEXT_SIZE = PREFS.get(Preferences.STATS_TEXT_SIZE);
 
+        StreamStats.#$container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
         StreamStats.#$container.setAttribute('data-position', PREF_POSITION);
         StreamStats.#$container.setAttribute('data-transparent', PREF_TRANSPARENT);
         StreamStats.#$container.style.opacity = PREF_OPACITY + '%';
@@ -915,19 +924,22 @@ class StreamStats {
         }
 
         const CE = createElement;
-        StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar better-xcloud-gone'},
-                            CE('label', {}, 'FPS'),
-                            StreamStats.#$fps = CE('span', {}, 0),
-                            CE('label', {}, 'PNG'),
-                            StreamStats.#$rtt = CE('span', {}, '0ms'),
-                            CE('label', {}, 'DT'),
-                            StreamStats.#$dt = CE('span', {}, '0ms'),
-                            CE('label', {}, 'BR'),
-                            StreamStats.#$br = CE('span', {}, '0 Mbps'),
-                            CE('label', {}, 'PL'),
-                            StreamStats.#$pl = CE('span', {}, '0 (0.00%)'),
-                            CE('label', {}, 'FL'),
-                            StreamStats.#$fl = CE('span', {}, '0 (0.00%)'));
+        const STATS = {
+            [StreamStats.FPS]: (StreamStats.#$fps = CE('span', {}, '0')),
+            [StreamStats.PING]: (StreamStats.#$png = CE('span', {}, '0ms')),
+            [StreamStats.BITRATE]: (StreamStats.#$br = CE('span', {}, '0 Mbps')),
+            [StreamStats.DECODE_TIME]: (StreamStats.#$dt = CE('span', {}, '0ms')),
+            [StreamStats.PACKETS_LOST]: (StreamStats.#$pl = CE('span', {}, '0 (0.00%)')),
+            [StreamStats.FRAMES_LOST]: (StreamStats.#$fl = CE('span', {}, '0 (0.00%)')),
+        };
+
+        const $barFragment = document.createDocumentFragment();
+        for (let statKey in STATS) {
+            const $div = CE('div', {'class': `better-xcloud-stat-${statKey}`}, CE('label', {}, statKey.toUpperCase()), STATS[statKey]);
+            $barFragment.appendChild($div);
+        }
+
+        StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar better-xcloud-gone'}, $barFragment);
 
         let clickTimeout;
         StreamStats.#$container.addEventListener('mousedown', e => {
@@ -949,54 +961,59 @@ class StreamStats {
         const refreshFunc = e => {
             StreamStats.#refreshStyles()
         };
-        const $position = PREFS.toElement(Preferences.STATS_POSITION, refreshFunc);
 
         let $close;
-        const $showStartup = PREFS.toElement(Preferences.STATS_SHOW_WHEN_PLAYING);
-        const $quickGlance = PREFS.toElement(Preferences.STATS_QUICK_GLANCE, e => {
-            e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
-        });
-        const $transparent = PREFS.toElement(Preferences.STATS_TRANSPARENT, refreshFunc);
-        const $formatting = PREFS.toElement(Preferences.STATS_CONDITIONAL_FORMATTING, refreshFunc);
-        const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
-        const $textSize = PREFS.toElement(Preferences.STATS_TEXT_SIZE, refreshFunc);
 
-        const $items = PREFS.toElement(Preferences.STATS_ITEMS, refreshFunc);
+
+        const STATS_UI = {
+            [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+                'label': 'Show stats when starting the game',
+            },
+            [Preferences.STATS_QUICK_GLANCE]: {
+                'label': 'Enable "Quick Glance" mode',
+                'onChange': e => {
+                    e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+                },
+            },
+            [Preferences.STATS_ITEMS]: {
+                'label': 'Stats',
+                'onChange': refreshFunc,
+            },
+            [Preferences.STATS_POSITION]: {
+                'label': 'Position',
+                'onChange': refreshFunc,
+            },
+            [Preferences.STATS_TEXT_SIZE]: {
+                'label': 'Text size',
+                'onChange': refreshFunc,
+            },
+            [Preferences.STATS_OPACITY]: {
+                'label': 'Opacity (50-100%)',
+                'onChange': refreshFunc,
+            },
+            [Preferences.STATS_TRANSPARENT]: {
+                'label': 'Transparent background',
+                'onChange': refreshFunc,
+            },
+            [Preferences.STATS_CONDITIONAL_FORMATTING]: {
+                'label': 'Conditional formatting text color',
+                'onChange': refreshFunc,
+            },
+        };
+
+        const $fragment = document.createDocumentFragment();
+        for (let settingKey in STATS_UI) {
+            const setting = STATS_UI[settingKey];
+
+            $fragment.appendChild(CE('div', {},
+               CE('label', {'for': `xcloud_setting_${settingKey}`}, setting.label),
+               PREFS.toElement(settingKey, setting.onChange)
+            ));
+        }
 
         StreamStats.#$settings = CE('div', {'class': 'better-xcloud-stats-settings'},
                                     CE('b', {}, 'Stream Stats Settings'),
-                                    CE('div', {},
-                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_SHOW_WHEN_PLAYING}`}, 'Show stats when starting the game'),
-                                        $showStartup
-                                      ),
-                                    CE('div', {},
-                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_QUICK_GLANCE}`}, 'Enable "Quick Glance" mode'),
-                                        $quickGlance
-                                      ),
-                                    CE('div', {},
-                                        CE('label', {}, 'Stats'),
-                                        $items,
-                                    ),
-                                    CE('div', {},
-                                        CE('label', {}, 'Position'),
-                                        $position
-                                      ),
-                                    CE('div', {},
-                                        CE('label', {}, 'Text size'),
-                                        $textSize
-                                      ),
-                                    CE('div', {},
-                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_OPACITY}`}, 'Opacity (50-100%)'),
-                                        $opacity
-                                      ),
-                                    CE('div', {},
-                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_TRANSPARENT}`}, 'Transparent background'),
-                                        $transparent
-                                      ),
-                                    CE('div', {},
-                                        CE('label', {'for': `xcloud_setting_${Preferences.STATS_CONDITIONAL_FORMATTING}`}, 'Conditional formatting text color'),
-                                        $formatting
-                                      ),
+                                    $fragment,
                                     $close = CE('button', {}, 'Close'));
 
         $close.addEventListener('click', e => StreamStats.hideSettingsUi());
@@ -1319,13 +1336,14 @@ class Preferences {
         },
 
         [Preferences.STATS_ITEMS]: {
-            'default': ['fps', 'png', 'dt', 'pl', 'fl'],
+            'default': [StreamStats.FPS, StreamStats.PING, StreamStats.BITRATE, StreamStats.DECODE_TIME, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
-                'fps': 'FPS',
-                'png': 'Ping',
-                'dt': 'Decode time',
-                'pl': 'Packets lost',
-                'fl': 'Frames lost',
+                [StreamStats.FPS]: 'FPS',
+                [StreamStats.PING]: 'Ping',
+                [StreamStats.BITRATE]: 'Bitrate',
+                [StreamStats.DECODE_TIME]: 'Decode time',
+                [StreamStats.PACKETS_LOST]: 'Packets lost',
+                [StreamStats.FRAMES_LOST]: 'Frames lost',
             },
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
@@ -1476,6 +1494,8 @@ class Preferences {
                 const label = setting.multiple_options[value];
 
                 const $option = CE('option', {value: value}, label);
+                $option.selected = currentValue.indexOf(value) > -1;
+
                 $option.addEventListener('mousedown', e => {
                     e.preventDefault();
                     e.target.selected = !e.target.selected;
@@ -1488,6 +1508,7 @@ class Preferences {
                 $control.appendChild($option);
             }
 
+            // $control.value = currentValue;
             $control.addEventListener('change', e => {
                 const values = Array.from(e.target.selectedOptions).map(e => e.value);
                 PREFS.set(key, values);
@@ -1799,6 +1820,32 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-wrap: nowrap;
 }
 
+.better-xcloud-stats-bar > div {
+    display: none;
+    border-right: 2px solid #fff;
+    margin-right: 8px;
+    padding-right: 8px;
+}
+
+.better-xcloud-stats-bar[data-stats*="[fps]"] > .better-xcloud-stat-fps,
+.better-xcloud-stats-bar[data-stats*="[png]"] > .better-xcloud-stat-png,
+.better-xcloud-stats-bar[data-stats*="[btr]"] > .better-xcloud-stat-btr,
+.better-xcloud-stats-bar[data-stats*="[dt]"] > .better-xcloud-stat-dt,
+.better-xcloud-stats-bar[data-stats*="[pl]"] > .better-xcloud-stat-pl,
+.better-xcloud-stats-bar[data-stats*="[fl]"] > .better-xcloud-stat-fl {
+    display: inline-block;
+}
+
+.better-xcloud-stats-bar[data-stats$="[fps]"] > .better-xcloud-stat-fps,
+.better-xcloud-stats-bar[data-stats$="[png]"] > .better-xcloud-stat-png,
+.better-xcloud-stats-bar[data-stats$="[btr]"] > .better-xcloud-stat-btr,
+.better-xcloud-stats-bar[data-stats$="[dt]"] > .better-xcloud-stat-dt,
+.better-xcloud-stats-bar[data-stats$="[pl]"] > .better-xcloud-stat-pl,
+.better-xcloud-stats-bar[data-stats$="[fl]"] > .better-xcloud-stat-fl {
+    margin-right: 0;
+    border-right: none;
+}
+
 .better-xcloud-stats-bar[data-display=glancing]::before {
     content: '👀 ';
     vertical-align: middle;
@@ -1806,15 +1853,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-stats-bar[data-position=top-left] {
     left: 0;
+    border-radius: 0 0 4px 0;
 }
 
 .better-xcloud-stats-bar[data-position=top-right] {
     right: 0;
+    border-radius: 0 0 0 4px;
 }
 
 .better-xcloud-stats-bar[data-position=top-center] {
     transform: translate(-50%, 0);
     left: 50%;
+    border-radius: 0 0 4px 4px;
 }
 
 .better-xcloud-stats-bar[data-transparent=true] {
@@ -1834,9 +1884,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     min-width: 60px;
     display: inline-block;
     text-align: right;
-    padding-right: 8px;
-    margin-right: 8px;
-    border-right: 2px solid #fff;
     vertical-align: middle;
 }
 
@@ -1854,11 +1901,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-stats-bar span:first-of-type {
     min-width: 30px;
-}
-
-.better-xcloud-stats-bar span:last-of-type {
-    border: 0;
-    margin-right: 0;
 }
 
 .better-xcloud-stats-settings {
