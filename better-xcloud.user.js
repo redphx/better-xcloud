@@ -961,6 +961,8 @@ class StreamStats {
         const $opacity = PREFS.toElement(Preferences.STATS_OPACITY, refreshFunc);
         const $textSize = PREFS.toElement(Preferences.STATS_TEXT_SIZE, refreshFunc);
 
+        const $items = PREFS.toElement(Preferences.STATS_ITEMS, refreshFunc);
+
         StreamStats.#$settings = CE('div', {'class': 'better-xcloud-stats-settings'},
                                     CE('b', {}, 'Stream Stats Settings'),
                                     CE('div', {},
@@ -971,6 +973,10 @@ class StreamStats {
                                         CE('label', {'for': `xcloud_setting_${Preferences.STATS_QUICK_GLANCE}`}, 'Enable "Quick Glance" mode'),
                                         $quickGlance
                                       ),
+                                    CE('div', {},
+                                        CE('label', {}, 'Stats'),
+                                        $items,
+                                    ),
                                     CE('div', {},
                                         CE('label', {}, 'Position'),
                                         $position
@@ -1133,6 +1139,7 @@ class Preferences {
 
     static get AUDIO_MIC_ON_PLAYING() { return 'audio_mic_on_playing'; }
 
+    static get STATS_ITEMS() { return 'stats_items'; };
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
     static get STATS_QUICK_GLANCE() { return 'stats_quick_glance'; }
     static get STATS_POSITION() { return 'stats_position'; }
@@ -1310,6 +1317,17 @@ class Preferences {
         [Preferences.AUDIO_MIC_ON_PLAYING]: {
             'default': false,
         },
+
+        [Preferences.STATS_ITEMS]: {
+            'default': ['fps', 'png', 'dt', 'pl', 'fl'],
+            'multiple_options': {
+                'fps': 'FPS',
+                'png': 'Ping',
+                'dt': 'Decode time',
+                'pl': 'Packets lost',
+                'fl': 'Frames lost',
+            },
+        },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
             'default': false,
         },
@@ -1410,6 +1428,17 @@ class Preferences {
 
             if ('options' in config && !(value in config.options)) {
                 value = config.default;
+            } else if ('multiple_options' in config) {
+                if (value.length) {
+                    const validOptions = Object.keys(config.multiple_options);
+                    value.forEach((item, idx) => {
+                        (validOptions.indexOf(item) === -1) && value.splice(idx, 1);
+                    });
+                }
+
+                if (!value.length) {
+                    value = config.default;
+                }
             }
         }
 
@@ -1428,7 +1457,7 @@ class Preferences {
 
         let $control;
         if ('options' in setting) {
-            $control = CE('select', {id: 'xcloud_setting_' + key});
+            $control = CE('select', {'id': 'xcloud_setting_' + key});
             for (let value in setting.options) {
                 const label = setting.options[value];
 
@@ -1439,6 +1468,30 @@ class Preferences {
             $control.value = currentValue;
             $control.addEventListener('change', e => {
                 PREFS.set(key, e.target.value);
+                onChange && onChange(e);
+            });
+        } else if ('multiple_options' in setting) {
+            $control = CE('select', {'id': 'xcloud_setting_' + key, 'multiple': true});
+            for (let value in setting.multiple_options) {
+                const label = setting.multiple_options[value];
+
+                const $option = CE('option', {value: value}, label);
+                $option.addEventListener('mousedown', e => {
+                    e.preventDefault();
+                    e.target.selected = !e.target.selected;
+
+                    const $parent = e.target.parentElement;
+                    $parent.focus();
+                    $parent.dispatchEvent(new Event('change'));
+                });
+
+                $control.appendChild($option);
+            }
+
+            $control.addEventListener('change', e => {
+                const values = Array.from(e.target.selectedOptions).map(e => e.value);
+                PREFS.set(key, values);
+
                 onChange && onChange(e);
             });
         } else if (typeof setting.default === 'number') {
