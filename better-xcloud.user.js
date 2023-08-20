@@ -918,7 +918,7 @@ class StreamStats {
         StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar better-xcloud-gone'},
                             CE('label', {}, 'FPS'),
                             StreamStats.#$fps = CE('span', {}, 0),
-                            CE('label', {}, 'RTT'),
+                            CE('label', {}, 'PNG'),
                             StreamStats.#$rtt = CE('span', {}, '0ms'),
                             CE('label', {}, 'DT'),
                             StreamStats.#$dt = CE('span', {}, '0ms'),
