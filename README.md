@@ -203,7 +203,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ![stats](https://github.com/redphx/better-xcloud/assets/96280/736548db-316d-4bb3-a0f8-467766ae810b)
 
-<img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/0d4abb6b-49ab-4c9a-a52d-df7e396d2145">
+<img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/142625ea-20ab-4392-a111-0c5bc08bae09">
 
 - While playing > `...` > `Stream Stats`.
 - Double-click on the stats bar to show the Settings dialog.
@@ -213,8 +213,8 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 | Abbr. | Full name          | Explain                                                                                                                                           |
 |------:|:-------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
+| PING  | Ping               | The number of seconds it takes for data to be sent from your device to the server and back over (the correct term is "Round Trip Time")           |
 | FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (may not be the same as the FPS of the game)                                        |
-| RTT   | Round Trip Time    | The number of seconds it takes for data to be sent from your device to the server and back over (similar to ping, lower is better)                |
 | DT    | Decode Time        | The average time it took to decode one frame in the last second (bugged in Kiwi Browser [#26](https://github.com/redphx/better-xcloud/issues/26)) |
 | BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                                              |
 | PL    | Packets Lost       | The total number of packets lost                                                                                                                  |
