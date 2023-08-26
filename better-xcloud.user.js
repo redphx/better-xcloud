@@ -736,7 +736,7 @@ class StreamBadges {
 
 class StreamStats {
     static get FPS() { return 'fps'; }
-    static get PING() { return 'png'; }
+    static get PING() { return 'ping'; }
     static get BITRATE() { return 'btr'; }
     static get DECODE_TIME() { return 'dt'; }
     static get PACKETS_LOST() { return 'pl'; }
@@ -747,7 +747,7 @@ class StreamStats {
 
     static #$container;
     static #$fps;
-    static #$png;
+    static #$ping;
     static #$dt;
     static #$pl;
     static #$fl;
@@ -880,12 +880,12 @@ class StreamStats {
                 } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
-                    StreamStats.#$png.textContent = `${roundTripTime}ms`;
+                    StreamStats.#$ping.textContent = `${roundTripTime}ms`;
 
                     if (PREF_STATS_CONDITIONAL_FORMATTING) {
                         grade = (roundTripTime > 100) ? 'bad' : (roundTripTime > 75) ? 'ok' : (roundTripTime > 40) ? 'good' : '';
                     }
-                    StreamStats.#$png.setAttribute('data-grade', grade);
+                    StreamStats.#$ping.setAttribute('data-grade', grade);
                 }
             });
         });
@@ -926,7 +926,7 @@ class StreamStats {
         const CE = createElement;
         const STATS = {
             [StreamStats.FPS]: (StreamStats.#$fps = CE('span', {}, '0')),
-            [StreamStats.PING]: (StreamStats.#$png = CE('span', {}, '0ms')),
+            [StreamStats.PING]: (StreamStats.#$ping = CE('span', {}, '0ms')),
             [StreamStats.BITRATE]: (StreamStats.#$br = CE('span', {}, '0 Mbps')),
             [StreamStats.DECODE_TIME]: (StreamStats.#$dt = CE('span', {}, '0ms')),
             [StreamStats.PACKETS_LOST]: (StreamStats.#$pl = CE('span', {}, '0 (0.00%)')),
@@ -1496,17 +1496,23 @@ class Preferences {
                 const $option = CE('option', {value: value}, label);
                 $option.selected = currentValue.indexOf(value) > -1;
 
-                $option.addEventListener('mousedown', e => {
-                    e.preventDefault();
-                    e.target.selected = !e.target.selected;
-
-                    const $parent = e.target.parentElement;
-                    $parent.focus();
-                    $parent.dispatchEvent(new Event('change'));
-                });
-
                 $control.appendChild($option);
             }
+
+            $control.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                const $this = this;
+                const orgScrollTop = $this.scrollTop;
+                e.target.selected = !e.target.selected;
+
+                const $parent = e.target.parentElement;
+                $parent.focus();
+                $parent.dispatchEvent(new Event('change'));
+
+                setTimeout(() => ($this.scrollTop = orgScrollTop), 0);
+            });
+
+            $control.addEventListener('mousemove', e => e.preventDefault());
 
             // $control.value = currentValue;
             $control.addEventListener('change', e => {
@@ -1822,13 +1828,13 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-stats-bar > div {
     display: none;
-    border-right: 2px solid #fff;
     margin-right: 8px;
+    border-right: 2px solid #fff;
     padding-right: 8px;
 }
 
 .better-xcloud-stats-bar[data-stats*="[fps]"] > .better-xcloud-stat-fps,
-.better-xcloud-stats-bar[data-stats*="[png]"] > .better-xcloud-stat-png,
+.better-xcloud-stats-bar[data-stats*="[ping]"] > .better-xcloud-stat-ping,
 .better-xcloud-stats-bar[data-stats*="[btr]"] > .better-xcloud-stat-btr,
 .better-xcloud-stats-bar[data-stats*="[dt]"] > .better-xcloud-stat-dt,
 .better-xcloud-stats-bar[data-stats*="[pl]"] > .better-xcloud-stat-pl,
@@ -1837,7 +1843,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-stats-bar[data-stats$="[fps]"] > .better-xcloud-stat-fps,
-.better-xcloud-stats-bar[data-stats$="[png]"] > .better-xcloud-stat-png,
+.better-xcloud-stats-bar[data-stats$="[ping]"] > .better-xcloud-stat-ping,
 .better-xcloud-stats-bar[data-stats$="[btr]"] > .better-xcloud-stat-btr,
 .better-xcloud-stats-bar[data-stats$="[dt]"] > .better-xcloud-stat-dt,
 .better-xcloud-stats-bar[data-stats$="[pl]"] > .better-xcloud-stat-pl,
