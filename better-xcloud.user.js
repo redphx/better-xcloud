@@ -3340,6 +3340,8 @@ function onHistoryChanged() {
     TouchController.reset();
 
     LoadingScreen.reset();
+
+    setTimeout(checkHeader, 2000);
 }
 
 
