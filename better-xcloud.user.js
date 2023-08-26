@@ -735,8 +735,8 @@ class StreamBadges {
 
 
 class StreamStats {
-    static get FPS() { return 'fps'; }
     static get PING() { return 'ping'; }
+    static get FPS() { return 'fps'; }
     static get BITRATE() { return 'btr'; }
     static get DECODE_TIME() { return 'dt'; }
     static get PACKETS_LOST() { return 'pl'; }
@@ -880,7 +880,7 @@ class StreamStats {
                 } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
-                    StreamStats.#$ping.textContent = `${roundTripTime}ms`;
+                    StreamStats.#$ping.textContent = roundTripTime;
 
                     if (PREF_STATS_CONDITIONAL_FORMATTING) {
                         grade = (roundTripTime > 100) ? 'bad' : (roundTripTime > 75) ? 'ok' : (roundTripTime > 40) ? 'good' : '';
@@ -925,8 +925,8 @@ class StreamStats {
 
         const CE = createElement;
         const STATS = {
+            [StreamStats.PING]: (StreamStats.#$ping = CE('span', {}, '0')),
             [StreamStats.FPS]: (StreamStats.#$fps = CE('span', {}, '0')),
-            [StreamStats.PING]: (StreamStats.#$ping = CE('span', {}, '0ms')),
             [StreamStats.BITRATE]: (StreamStats.#$br = CE('span', {}, '0 Mbps')),
             [StreamStats.DECODE_TIME]: (StreamStats.#$dt = CE('span', {}, '0ms')),
             [StreamStats.PACKETS_LOST]: (StreamStats.#$pl = CE('span', {}, '0 (0.00%)')),
@@ -1336,10 +1336,10 @@ class Preferences {
         },
 
         [Preferences.STATS_ITEMS]: {
-            'default': [StreamStats.FPS, StreamStats.PING, StreamStats.BITRATE, StreamStats.DECODE_TIME, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
+            'default': [StreamStats.PING, StreamStats.FPS, StreamStats.BITRATE, StreamStats.DECODE_TIME, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
-                [StreamStats.FPS]: 'FPS',
                 [StreamStats.PING]: 'Ping',
+                [StreamStats.FPS]: 'FPS',
                 [StreamStats.BITRATE]: 'Bitrate',
                 [StreamStats.DECODE_TIME]: 'Decode time',
                 [StreamStats.PACKETS_LOST]: 'Packets lost',
