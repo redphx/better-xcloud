@@ -2943,6 +2943,11 @@ function injectStreamMenuButtons() {
                     e.preventDefault();
                     e.stopPropagation();
 
+                    if ($STREAM_VIDEO.msVideoProcessing) {
+                        alert('This feature doesn\'t work when the Clarity Boost mode is ON');
+                        return;
+                    }
+
                     // Close HUD
                     $btnCloseHud.click();
 
