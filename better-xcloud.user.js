@@ -2945,7 +2945,8 @@ function injectStreamMenuButtons() {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    if ($STREAM_VIDEO.msVideoProcessing) {
+                    const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
+                    if (msVideoProcessing && msVideoProcessing !== 'default') {
                         alert('This feature doesn\'t work when the Clarity Boost mode is ON');
                         return;
                     }
