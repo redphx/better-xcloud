@@ -1496,19 +1496,21 @@ class Preferences {
                 const $option = CE('option', {value: value}, label);
                 $option.selected = currentValue.indexOf(value) > -1;
 
+                $option.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    e.target.selected = !e.target.selected;
+
+                    const $parent = e.target.parentElement;
+                    $parent.focus();
+                    $parent.dispatchEvent(new Event('change'));
+                });
+
                 $control.appendChild($option);
             }
 
-            $control.addEventListener('mousedown', function(e) {
-                e.preventDefault();
+            $control.addEventListener('mousedown', e => {
                 const $this = this;
                 const orgScrollTop = $this.scrollTop;
-                e.target.selected = !e.target.selected;
-
-                const $parent = e.target.parentElement;
-                $parent.focus();
-                $parent.dispatchEvent(new Event('change'));
-
                 setTimeout(() => ($this.scrollTop = orgScrollTop), 0);
             });
 
