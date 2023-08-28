@@ -6,10 +6,9 @@ This script makes me spend more time with xCloud, and I hope the same thing happ
 If you like this project please give it a 🌟. Thank you 🙏.
 
 [![Latest version](https://img.shields.io/github/v/release/redphx/better-xcloud?label=latest)](https://github.com/redphx/better-xcloud/releases) 
-[![Total stars](https://img.shields.io/github/stars/redphx/better-xcloud?color=%23cca400)](https://github.com/redphx/better-xcloud/stargazers)  
-<!--
 [![Total downloads](https://img.shields.io/github/downloads/redphx/better-xcloud/total?color=%23e15f2c)](https://github.com/redphx/better-xcloud/releases) 
--->
+[![Total stars](https://img.shields.io/github/stars/redphx/better-xcloud?color=%23cca400)](https://github.com/redphx/better-xcloud/stargazers)  
+
 
 ## Table of Contents
 - [**Features**](#features)
@@ -93,14 +92,13 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > <img width="400" alt="Button styles" src="https://github.com/redphx/better-xcloud/assets/96280/2bfef2b3-6712-4924-b067-c2312f8c8062">
 
 ### Loading screen
-- Show game art
+- **Show game art**
   > Replace the black background with game art if it's available.  
-- Show the estimated wait time
+- **Show the estimated wait time**
   > The time is estimated by the server.  
-  > It's not 100% correct: you might get in the game sooner or later.
-  > Don't be mad when the estimated time is inaccurate.  
+  > It's not 100% correct: you might get in the game sooner or later.  
   > Check [#51](https://github.com/redphx/better-xcloud/issues/51) for more info.  
-- Show/hide the rocket animation
+- **Show/hide the rocket animation**
   > Always show/Hide when queuing/Always hide.  
   > Hide this animation might save some battery life while queuing.  
   
@@ -215,7 +213,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 |------:|:-------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
 | PING  | Ping               | The number of seconds it takes for data to be sent from your device to the server and back over (the correct term is "Round Trip Time")           |
 | FPS   | Frames per Seconds | The number of decoded frames in the last second of the stream (may not be the same as the FPS of the game)                                        |
-| DT    | Decode Time        | The average time it took to decode one frame in the last second (bugged in Kiwi Browser [#26](https://github.com/redphx/better-xcloud/issues/26)) |
+| DT    | Decode Time        | The average time it took to decode one frame in the last second (bugged on Android [#26](https://github.com/redphx/better-xcloud/issues/26))      |
 | BR    | Bitrate            | The amount of data the server sent to your device in the last second                                                                              |
 | PL    | Packets Lost       | The total number of packets lost                                                                                                                  |
 | FL    | Frames Lost        | The total number of frames dropped prior to decode or dropped because the frame missed its display deadline                                       |
