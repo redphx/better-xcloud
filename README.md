@@ -157,7 +157,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
 1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. For Safari, use the [Userscripts extension](https://apps.apple.com/us/app/userscripts/id1463298887) (check [this page](https://github.com/redphx/better-xcloud/wiki/Using-with-Safari) before using).  
 2. Install **Better xCloud**:
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
-    - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)  
+    <!-- - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)-->  
     I only distribute **Better xCloud** on GitHub, *DO NOT* download it on other websites or from unknown sources.  
 3. Refresh [xCloud web page](https://www.xbox.com/play/).
 4. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.  
