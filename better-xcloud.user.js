@@ -1150,6 +1150,7 @@ class Preferences {
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
+    static get VIDEO_RATIO() { return 'video_ratio' }
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
@@ -1315,6 +1316,12 @@ class Preferences {
         },
         [Preferences.VIDEO_FILL_FULL_SCREEN]: {
             'default': false,
+        },
+        [Preferences.VIDEO_RATIO]: {
+            'default': 16,
+            'min': 16,
+            'max': 21,
+            'steps': 1,
         },
         [Preferences.VIDEO_SATURATION]: {
             'default': 100,
@@ -2918,17 +2925,33 @@ function updateVideoPlayerCss() {
     }
 
     let filters = getVideoPlayerFilterStyle();
-    let css = '';
+    let videoCss = '';
     if (filters) {
-        css += `filter: ${filters} !important;`;
+        videoCss += `filter: ${filters} !important;`;
     }
 
-    if (PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN)) {
-        css += 'object-fit: fill !important;';
+    const PREF_RATIO = PREFS.get(Preferences.VIDEO_RATIO);
+    if (PREF_RATIO) {
+        const minRatio = 16 / 9;
+        let maxRatio = window.innerWidth / window.innerHeight;
+        const ratio = Math.min(maxRatio, PREF_RATIO / 9);
+        if (ratio > minRatio) {
+            videoCss += `aspect-ratio: ${ratio}; width: auto !important; object-fit: unset !important;`;
+        }
     }
 
-    if (css) {
-        css = `#game-stream video {${css}}`;
+    let css = '';
+    if (videoCss) {
+        css = `
+div[data-testid="media-container"] {
+    display: flex;
+}
+
+#game-stream video {
+    margin: 0 auto;
+    ${videoCss}
+}
+`;
     }
 
     $elm.textContent = css;
@@ -3513,6 +3536,8 @@ patchVideoApi();
 // Setup UI
 addCss();
 updateVideoPlayerCss();
+window.addEventListener('resize', updateVideoPlayerCss);
+
 setupVideoSettingsBar();
 setupScreenshotButton();
 StreamStats.render();
