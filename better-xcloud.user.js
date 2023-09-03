@@ -1149,7 +1149,6 @@ class Preferences {
     static get UI_LOADING_SCREEN_ROCKET() { return 'ui_loading_screen_rocket'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
-    static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
     static get VIDEO_RATIO() { return 'video_ratio' }
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
@@ -1313,9 +1312,6 @@ class Preferences {
             'default': 0,
             'min': 0,
             'max': 5,
-        },
-        [Preferences.VIDEO_FILL_FULL_SCREEN]: {
-            'default': false,
         },
         [Preferences.VIDEO_RATIO]: {
             'default': 16,
@@ -2106,22 +2102,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-quick-settings-bar label {
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: bold;
     display: block;
     margin-bottom: 8px;
 }
 
-.better-xcloud-quick-settings-bar input {
-    width: 22px;
-    height: 22px;
-}
-
 .better-xcloud-quick-settings-bar button {
     border: none;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     margin: 0 4px;
-    line-height: 22px;
+    line-height: 24px;
     background-color: #515151;
     color: #fff;
     border-radius: 4px;
@@ -2144,6 +2136,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     width: 40px;
     font-weight: bold;
     font-family: Consolas, "Courier New", Courier, monospace;
+    font-size: 16px;
 }
 
 .better-xcloud-stream-menu-button-on {
