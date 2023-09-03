@@ -1547,6 +1547,90 @@ class Preferences {
         $control.id = `xcloud_setting_${key}`;
         return $control;
     }
+
+    toNumberStepper(key, onChange, suffix='', disabled=false) {
+        const setting = Preferences.SETTINGS[key]
+        let value = PREFS.get(key);
+
+        let $text, $decBtn, $incBtn;
+
+        const MIN = setting.min;
+        const MAX= setting.max;
+        const STEPS = Math.max(setting.steps || 1, 1);
+
+        const CE = createElement;
+        const $wrapper = CE('div', {},
+                            $decBtn = CE('button', {'data-type': 'dec'}, '-'),
+                            $text = CE('span', {}, value + suffix),
+                            $incBtn = CE('button', {'data-type': 'inc'}, '+'),
+                           );
+
+        if (disabled) {
+            $incBtn.disabled = true;
+            $incBtn.classList.add('better-xcloud-hidden');
+
+            $decBtn.disabled = true;
+            $decBtn.classList.add('better-xcloud-hidden');
+            return $wrapper;
+        }
+
+        let interval;
+        let isHolding = false;
+
+        const onClick = e => {
+            if (isHolding) {
+                e.preventDefault();
+                isHolding = false;
+
+                return;
+            }
+
+            const btnType = e.target.getAttribute('data-type');
+            if (btnType === 'dec') {
+                value = Math.max(MIN, value - STEPS);
+            } else {
+                value = Math.min(MAX, value + STEPS);
+            }
+
+            $text.textContent = value + suffix;
+            PREFS.set(key, value);
+
+            isHolding = false;
+
+            onChange && onChange();
+        }
+
+        const onMouseDown = e => {
+            isHolding = true;
+
+            const args = arguments;
+            interval = setInterval(() => {
+                const event = new Event('click');
+                event.arguments = args;
+
+                e.target.dispatchEvent(event);
+            }, 200);
+        };
+
+        const onMouseUp = e => {
+            clearInterval(interval);
+            isHolding = false;
+        };
+
+        $decBtn.addEventListener('click', onClick);
+        $decBtn.addEventListener('mousedown', onMouseDown);
+        $decBtn.addEventListener('mouseup', onMouseUp);
+        $decBtn.addEventListener('touchstart', onMouseDown);
+        $decBtn.addEventListener('touchend', onMouseUp);
+
+        $incBtn.addEventListener('click', onClick);
+        $incBtn.addEventListener('mousedown', onMouseDown);
+        $incBtn.addEventListener('mouseup', onMouseUp);
+        $incBtn.addEventListener('touchstart', onMouseDown);
+        $incBtn.addEventListener('touchend', onMouseUp);
+
+        return $wrapper;
+    }
 }
 
 
@@ -3132,116 +3216,31 @@ function patchRtcCodecs() {
 }
 
 
-function numberPicker(key, suffix='', disabled=false) {
-    const setting = Preferences.SETTINGS[key]
-    let value = PREFS.get(key);
-
-    let $text, $decBtn, $incBtn;
-
-    const MIN = setting.min;
-    const MAX= setting.max;
-
-    const CE = createElement;
-    const $wrapper = CE('div', {},
-                        $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                        $text = CE('span', {}, value + suffix),
-                        $incBtn = CE('button', {'data-type': 'inc'}, '+'),
-                    );
-
-    if (disabled) {
-        $incBtn.disabled = true;
-        $incBtn.classList.add('better-xcloud-hidden');
-
-        $decBtn.disabled = true;
-        $decBtn.classList.add('better-xcloud-hidden');
-        return $wrapper;
-    }
-
-    let interval;
-    let isHolding = false;
-
-    const onClick = e => {
-        if (isHolding) {
-            e.preventDefault();
-            isHolding = false;
-
-            return;
-        }
-
-        const btnType = e.target.getAttribute('data-type');
-        if (btnType === 'dec') {
-            value = (value <= MIN) ? MIN : value - 1;
-        } else {
-            value = (value >= MAX) ? MAX : value + 1;
-        }
-
-        $text.textContent = value + suffix;
-        PREFS.set(key, value);
-        updateVideoPlayerCss();
-
-        isHolding = false;
-    }
-
-    const onMouseDown = e => {
-        isHolding = true;
-
-        const args = arguments;
-        interval = setInterval(() => {
-            const event = new Event('click');
-            event.arguments = args;
-
-            e.target.dispatchEvent(event);
-        }, 200);
-    };
-
-    const onMouseUp = e => {
-        clearInterval(interval);
-        isHolding = false;
-    };
-
-    $decBtn.addEventListener('click', onClick);
-    $decBtn.addEventListener('mousedown', onMouseDown);
-    $decBtn.addEventListener('mouseup', onMouseUp);
-    $decBtn.addEventListener('touchstart', onMouseDown);
-    $decBtn.addEventListener('touchend', onMouseUp);
-
-    $incBtn.addEventListener('click', onClick);
-    $incBtn.addEventListener('mousedown', onMouseDown);
-    $incBtn.addEventListener('mouseup', onMouseUp);
-    $incBtn.addEventListener('touchstart', onMouseDown);
-    $incBtn.addEventListener('touchend', onMouseUp);
-
-    return $wrapper;
-}
-
 function setupVideoSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
+    const onChange = e => {
+        updateVideoPlayerCss();
+    }
 
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
                         CE('div', {},
-                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Stretch Video'),
-                            $stretchInp = CE('input', {'id': 'better-xcloud-quick-setting-stretch', 'type': 'checkbox'})),
+                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
+                            PREFS.toNumberStepper(Preferences.VIDEO_RATIO, onChange, ':9')),
                         CE('div', {},
                             CE('label', {}, 'Clarity'),
-                            numberPicker(Preferences.VIDEO_CLARITY, '', isSafari)), // disable this feature in Safari
+                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onChange, '', isSafari)), // disable this feature in Safari
                         CE('div', {},
                             CE('label', {}, 'Saturation'),
-                            numberPicker(Preferences.VIDEO_SATURATION, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onChange, '%')),
                         CE('div', {},
                             CE('label', {}, 'Contrast'),
-                            numberPicker(Preferences.VIDEO_CONTRAST, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onChange, '%')),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            numberPicker(Preferences.VIDEO_BRIGHTNESS, '%'))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onChange, '%'))
                      );
-
-    $stretchInp.checked = PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN);
-    $stretchInp.addEventListener('change', e => {
-        PREFS.set(Preferences.VIDEO_FILL_FULL_SCREEN, e.target.checked);
-        updateVideoPlayerCss();
-    });
 
     document.documentElement.appendChild($wrapper);
 }
