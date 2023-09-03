@@ -1726,7 +1726,7 @@ function addCss() {
 .better-xcloud-settings-app-version {
     margin-top: 10px;
     text-align: center;
-    color: #484848;
+    color: #747474;
     font-size: 12px;
 }
 
