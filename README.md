@@ -28,8 +28,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/e30f6514-13ca-41c6-bff2-979573cff956">
 <br>
-<img width="600" alt="Video settings" src="https://github.com/redphx/better-xcloud/assets/96280/a8614693-7f56-4a49-82ad-c1fd7e2e00a5">
-
+<img width="600" alt="Video settings" src="https://github.com/redphx/better-xcloud/assets/96280/20756157-917b-4a43-9985-df7bfdc24aa3">
 
 &nbsp;  
   
