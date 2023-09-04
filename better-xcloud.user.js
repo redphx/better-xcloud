@@ -1149,7 +1149,7 @@ class Preferences {
     static get UI_LOADING_SCREEN_ROCKET() { return 'ui_loading_screen_rocket'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
-    static get VIDEO_FILL_FULL_SCREEN() { return 'video_fill_full_screen'; }
+    static get VIDEO_RATIO() { return 'video_ratio' }
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
     static get VIDEO_CONTRAST() { return 'video_contrast'; }
     static get VIDEO_SATURATION() { return 'video_saturation'; }
@@ -1313,8 +1313,11 @@ class Preferences {
             'min': 0,
             'max': 5,
         },
-        [Preferences.VIDEO_FILL_FULL_SCREEN]: {
-            'default': false,
+        [Preferences.VIDEO_RATIO]: {
+            'default': 16,
+            'min': 16,
+            'max': 21,
+            'steps': 1,
         },
         [Preferences.VIDEO_SATURATION]: {
             'default': 100,
@@ -1547,6 +1550,90 @@ class Preferences {
         $control.id = `xcloud_setting_${key}`;
         return $control;
     }
+
+    toNumberStepper(key, onChange, suffix='', disabled=false) {
+        const setting = Preferences.SETTINGS[key]
+        let value = PREFS.get(key);
+
+        let $text, $decBtn, $incBtn;
+
+        const MIN = setting.min;
+        const MAX= setting.max;
+        const STEPS = Math.max(setting.steps || 1, 1);
+
+        const CE = createElement;
+        const $wrapper = CE('div', {},
+                            $decBtn = CE('button', {'data-type': 'dec'}, '-'),
+                            $text = CE('span', {}, value + suffix),
+                            $incBtn = CE('button', {'data-type': 'inc'}, '+'),
+                           );
+
+        if (disabled) {
+            $incBtn.disabled = true;
+            $incBtn.classList.add('better-xcloud-hidden');
+
+            $decBtn.disabled = true;
+            $decBtn.classList.add('better-xcloud-hidden');
+            return $wrapper;
+        }
+
+        let interval;
+        let isHolding = false;
+
+        const onClick = e => {
+            if (isHolding) {
+                e.preventDefault();
+                isHolding = false;
+
+                return;
+            }
+
+            const btnType = e.target.getAttribute('data-type');
+            if (btnType === 'dec') {
+                value = Math.max(MIN, value - STEPS);
+            } else {
+                value = Math.min(MAX, value + STEPS);
+            }
+
+            $text.textContent = value + suffix;
+            PREFS.set(key, value);
+
+            isHolding = false;
+
+            onChange && onChange();
+        }
+
+        const onMouseDown = e => {
+            isHolding = true;
+
+            const args = arguments;
+            interval = setInterval(() => {
+                const event = new Event('click');
+                event.arguments = args;
+
+                e.target.dispatchEvent(event);
+            }, 200);
+        };
+
+        const onMouseUp = e => {
+            clearInterval(interval);
+            isHolding = false;
+        };
+
+        $decBtn.addEventListener('click', onClick);
+        $decBtn.addEventListener('mousedown', onMouseDown);
+        $decBtn.addEventListener('mouseup', onMouseUp);
+        $decBtn.addEventListener('touchstart', onMouseDown);
+        $decBtn.addEventListener('touchend', onMouseUp);
+
+        $incBtn.addEventListener('click', onClick);
+        $incBtn.addEventListener('mousedown', onMouseDown);
+        $incBtn.addEventListener('mouseup', onMouseUp);
+        $incBtn.addEventListener('touchstart', onMouseDown);
+        $incBtn.addEventListener('touchend', onMouseUp);
+
+        return $wrapper;
+    }
 }
 
 
@@ -1726,7 +1813,7 @@ function addCss() {
 .better-xcloud-settings-app-version {
     margin-top: 10px;
     text-align: center;
-    color: #484848;
+    color: #747474;
     font-size: 12px;
 }
 
@@ -2015,22 +2102,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-quick-settings-bar label {
-    font-size: 16px;
+    font-size: 18px;
+    font-weight: bold;
     display: block;
     margin-bottom: 8px;
 }
 
-.better-xcloud-quick-settings-bar input {
-    width: 22px;
-    height: 22px;
-}
-
 .better-xcloud-quick-settings-bar button {
     border: none;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     margin: 0 4px;
-    line-height: 22px;
+    line-height: 24px;
     background-color: #515151;
     color: #fff;
     border-radius: 4px;
@@ -2053,6 +2136,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     width: 40px;
     font-weight: bold;
     font-family: Consolas, "Courier New", Courier, monospace;
+    font-size: 16px;
 }
 
 .better-xcloud-stream-menu-button-on {
@@ -2834,17 +2918,33 @@ function updateVideoPlayerCss() {
     }
 
     let filters = getVideoPlayerFilterStyle();
-    let css = '';
+    let videoCss = '';
     if (filters) {
-        css += `filter: ${filters} !important;`;
+        videoCss += `filter: ${filters} !important;`;
     }
 
-    if (PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN)) {
-        css += 'object-fit: fill !important;';
+    const PREF_RATIO = PREFS.get(Preferences.VIDEO_RATIO);
+    if (PREF_RATIO) {
+        const minRatio = 16 / 9;
+        let maxRatio = window.innerWidth / window.innerHeight;
+        const ratio = Math.min(maxRatio, PREF_RATIO / 9);
+        if (ratio > minRatio) {
+            videoCss += `aspect-ratio: ${ratio}; width: auto !important; object-fit: unset !important;`;
+        }
     }
 
-    if (css) {
-        css = `#game-stream video {${css}}`;
+    let css = '';
+    if (videoCss) {
+        css = `
+div[data-testid="media-container"] {
+    display: flex;
+}
+
+#game-stream video {
+    margin: 0 auto;
+    ${videoCss}
+}
+`;
     }
 
     $elm.textContent = css;
@@ -3132,116 +3232,31 @@ function patchRtcCodecs() {
 }
 
 
-function numberPicker(key, suffix='', disabled=false) {
-    const setting = Preferences.SETTINGS[key]
-    let value = PREFS.get(key);
-
-    let $text, $decBtn, $incBtn;
-
-    const MIN = setting.min;
-    const MAX= setting.max;
-
-    const CE = createElement;
-    const $wrapper = CE('div', {},
-                        $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                        $text = CE('span', {}, value + suffix),
-                        $incBtn = CE('button', {'data-type': 'inc'}, '+'),
-                    );
-
-    if (disabled) {
-        $incBtn.disabled = true;
-        $incBtn.classList.add('better-xcloud-hidden');
-
-        $decBtn.disabled = true;
-        $decBtn.classList.add('better-xcloud-hidden');
-        return $wrapper;
-    }
-
-    let interval;
-    let isHolding = false;
-
-    const onClick = e => {
-        if (isHolding) {
-            e.preventDefault();
-            isHolding = false;
-
-            return;
-        }
-
-        const btnType = e.target.getAttribute('data-type');
-        if (btnType === 'dec') {
-            value = (value <= MIN) ? MIN : value - 1;
-        } else {
-            value = (value >= MAX) ? MAX : value + 1;
-        }
-
-        $text.textContent = value + suffix;
-        PREFS.set(key, value);
-        updateVideoPlayerCss();
-
-        isHolding = false;
-    }
-
-    const onMouseDown = e => {
-        isHolding = true;
-
-        const args = arguments;
-        interval = setInterval(() => {
-            const event = new Event('click');
-            event.arguments = args;
-
-            e.target.dispatchEvent(event);
-        }, 200);
-    };
-
-    const onMouseUp = e => {
-        clearInterval(interval);
-        isHolding = false;
-    };
-
-    $decBtn.addEventListener('click', onClick);
-    $decBtn.addEventListener('mousedown', onMouseDown);
-    $decBtn.addEventListener('mouseup', onMouseUp);
-    $decBtn.addEventListener('touchstart', onMouseDown);
-    $decBtn.addEventListener('touchend', onMouseUp);
-
-    $incBtn.addEventListener('click', onClick);
-    $incBtn.addEventListener('mousedown', onMouseDown);
-    $incBtn.addEventListener('mouseup', onMouseUp);
-    $incBtn.addEventListener('touchstart', onMouseDown);
-    $incBtn.addEventListener('touchend', onMouseUp);
-
-    return $wrapper;
-}
-
 function setupVideoSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
+    const onChange = e => {
+        updateVideoPlayerCss();
+    }
 
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
                         CE('div', {},
-                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Stretch Video'),
-                            $stretchInp = CE('input', {'id': 'better-xcloud-quick-setting-stretch', 'type': 'checkbox'})),
+                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
+                            PREFS.toNumberStepper(Preferences.VIDEO_RATIO, onChange, ':9')),
                         CE('div', {},
                             CE('label', {}, 'Clarity'),
-                            numberPicker(Preferences.VIDEO_CLARITY, '', isSafari)), // disable this feature in Safari
+                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onChange, '', isSafari)), // disable this feature in Safari
                         CE('div', {},
                             CE('label', {}, 'Saturation'),
-                            numberPicker(Preferences.VIDEO_SATURATION, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onChange, '%')),
                         CE('div', {},
                             CE('label', {}, 'Contrast'),
-                            numberPicker(Preferences.VIDEO_CONTRAST, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onChange, '%')),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            numberPicker(Preferences.VIDEO_BRIGHTNESS, '%'))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onChange, '%'))
                      );
-
-    $stretchInp.checked = PREFS.get(Preferences.VIDEO_FILL_FULL_SCREEN);
-    $stretchInp.addEventListener('change', e => {
-        PREFS.set(Preferences.VIDEO_FILL_FULL_SCREEN, e.target.checked);
-        updateVideoPlayerCss();
-    });
 
     document.documentElement.appendChild($wrapper);
 }
@@ -3514,6 +3529,8 @@ patchVideoApi();
 // Setup UI
 addCss();
 updateVideoPlayerCss();
+window.addEventListener('resize', updateVideoPlayerCss);
+
 setupVideoSettingsBar();
 setupScreenshotButton();
 StreamStats.render();
