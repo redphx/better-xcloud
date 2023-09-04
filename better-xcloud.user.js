@@ -1339,7 +1339,7 @@ class Preferences {
         },
 
         [Preferences.STATS_ITEMS]: {
-            'default': [StreamStats.PING, StreamStats.FPS, StreamStats.BITRATE, StreamStats.DECODE_TIME, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
+            'default': [StreamStats.PING, StreamStats.FPS, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
                 [StreamStats.PING]: 'Ping',
                 [StreamStats.FPS]: 'FPS',
