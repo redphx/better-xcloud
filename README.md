@@ -133,7 +133,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
   > ![clarity](https://github.com/redphx/better-xcloud/assets/96280/ed63bbb0-fcbf-43e2-8e51-ac2733e697b8)
   > *(click to enlarge)*
 
-- **Stretch video to full sctreen**
+- **Change video's ratio**
   > Useful when you don't have a 16:9 screen
 - **Adjust video filters**
   > Brightness/Contrast/Saturation.  
