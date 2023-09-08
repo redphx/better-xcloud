@@ -1314,10 +1314,16 @@ class Preferences {
             'max': 5,
         },
         [Preferences.VIDEO_RATIO]: {
-            'default': 16,
-            'min': 16,
-            'max': 21,
-            'steps': 1,
+            'default': '16:9',
+            'options': {
+                '16:9': '16:9',
+                '21:9': '21:9',
+                '16:10': '16:10',
+                '4:3': '4:3',
+
+                'fill': 'Stretch',
+                'cover': 'Cover',
+            },
         },
         [Preferences.VIDEO_SATURATION]: {
             'default': 100,
@@ -2924,12 +2930,20 @@ function updateVideoPlayerCss() {
     }
 
     const PREF_RATIO = PREFS.get(Preferences.VIDEO_RATIO);
-    if (PREF_RATIO) {
-        const minRatio = 16 / 9;
-        let maxRatio = window.innerWidth / window.innerHeight;
-        const ratio = Math.min(maxRatio, PREF_RATIO / 9);
-        if (ratio > minRatio) {
-            videoCss += `aspect-ratio: ${ratio}; width: auto !important; object-fit: unset !important;`;
+    if (PREF_RATIO && PREF_RATIO !== '16:9') {
+        if (PREF_RATIO.includes(':')) {
+            videoCss += `aspect-ratio: ${PREF_RATIO.replace(':', '/')}; object-fit: unset !important;`;
+
+            const tmp = PREF_RATIO.split(':');
+            const ratio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
+            const maxRatio = window.innerWidth / window.innerHeight;
+            if (ratio < maxRatio) {
+                videoCss += 'width: fit-content !important;'
+            } else {
+                videoCss += 'height: fit-content !important;'
+            }
+        } else {
+            videoCss += `object-fit: ${PREF_RATIO} !important;`;
         }
     }
 
@@ -2942,6 +2956,7 @@ div[data-testid="media-container"] {
 
 #game-stream video {
     margin: 0 auto;
+    align-self: center;
     ${videoCss}
 }
 `;
@@ -3243,7 +3258,7 @@ function setupVideoSettingsBar() {
     const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
                         CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_RATIO, onChange, ':9')),
+                            PREFS.toElement(Preferences.VIDEO_RATIO, onChange, ':9')),
                         CE('div', {},
                             CE('label', {}, 'Clarity'),
                             PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onChange, '', isSafari)), // disable this feature in Safari
