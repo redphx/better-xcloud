@@ -1327,17 +1327,17 @@ class Preferences {
         },
         [Preferences.VIDEO_SATURATION]: {
             'default': 100,
-            'min': 0,
+            'min': 50,
             'max': 150,
         },
         [Preferences.VIDEO_CONTRAST]: {
             'default': 100,
-            'min': 0,
+            'min': 50,
             'max': 150,
         },
         [Preferences.VIDEO_BRIGHTNESS]: {
             'default': 100,
-            'min': 0,
+            'min': 50,
             'max': 150,
         },
         [Preferences.AUDIO_MIC_ON_PLAYING]: {
@@ -1417,7 +1417,43 @@ class Preferences {
         }
     }
 
-    get(key, defaultValue=null) {
+    #validateValue(key, value) {
+        const config = Preferences.SETTINGS[key];
+        if (!config) {
+            return value;
+        }
+
+        if (typeof value === 'undefined' || value === null) {
+            value = config.default;
+        }
+
+        if ('min' in config) {
+            value = Math.max(config.min, value);
+        }
+
+        if ('max' in config) {
+            value = Math.min(config.max, value);
+        }
+
+        if ('options' in config && !(value in config.options)) {
+            value = config.default;
+        } else if ('multiple_options' in config) {
+            if (value.length) {
+                const validOptions = Object.keys(config.multiple_options);
+                value.forEach((item, idx) => {
+                    (validOptions.indexOf(item) === -1) && value.splice(idx, 1);
+                });
+            }
+
+            if (!value.length) {
+                value = config.default;
+            }
+        }
+
+        return value;
+    }
+
+    get(key) {
         if (typeof key === 'undefined') {
             debugger;
             return;
@@ -1428,46 +1464,14 @@ class Preferences {
             return 'default';
         }
 
-        const value = this._prefs[key];
+        let value = this._prefs[key];
+        value = this.#validateValue(key, value);
 
-        if (typeof value !== 'undefined' && value !== null && value !== '') {
-            return value;
-        }
-
-        if (defaultValue !== null) {
-            return defaultValue;
-        }
-
-        // Return default value
-        return Preferences.SETTINGS[key].default;
+        return value;
     }
 
     set(key, value) {
-        const config = Preferences.SETTINGS[key];
-        if (config) {
-            if ('min' in config) {
-                value = Math.max(config.min, value);
-            }
-
-            if ('max' in config) {
-                value = Math.min(config.max, value);
-            }
-
-            if ('options' in config && !(value in config.options)) {
-                value = config.default;
-            } else if ('multiple_options' in config) {
-                if (value.length) {
-                    const validOptions = Object.keys(config.multiple_options);
-                    value.forEach((item, idx) => {
-                        (validOptions.indexOf(item) === -1) && value.splice(idx, 1);
-                    });
-                }
-
-                if (!value.length) {
-                    value = config.default;
-                }
-            }
-        }
+        value = this.#validateValue(key, value);
 
         this._prefs[key] = value;
         this._update_storage();
@@ -1649,8 +1653,8 @@ const PREFS = new Preferences();
 function checkForUpdate() {
     const CHECK_INTERVAL_SECONDS = 4 * 3600; // check every 4 hours
 
-    const currentVersion = PREFS.get(Preferences.CURRENT_VERSION, '');
-    const lastCheck = PREFS.get(Preferences.LAST_UPDATE_CHECK, 0);
+    const currentVersion = PREFS.get(Preferences.CURRENT_VERSION);
+    const lastCheck = PREFS.get(Preferences.LAST_UPDATE_CHECK);
     const now = Math.round((+new Date) / 1000);
 
     if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) {
@@ -2669,7 +2673,7 @@ function injectSettingsButton($parent) {
 
     const CE = createElement;
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
-    const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION, null);
+    const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
 
     // Setup Settings button
     const $button = CE('button', {'class': 'better-xcloud-settings-button'}, PREF_PREFERRED_REGION);
