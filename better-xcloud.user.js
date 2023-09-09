@@ -3062,9 +3062,9 @@ function injectStreamMenuButtons() {
                     return;
                 }
 
-                // Create Video Settings button
-                const $btnVideoSettings = cloneStreamMenuButton($orgButton, 'Video settings', ICON_VIDEO_SETTINGS);
-                $btnVideoSettings.addEventListener('click', e => {
+                // Create Stream Settings button
+                const $btnStreamSettings = cloneStreamMenuButton($orgButton, 'Stream settings', ICON_VIDEO_SETTINGS);
+                $btnStreamSettings.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -3088,7 +3088,7 @@ function injectStreamMenuButtons() {
                 });
 
                 // Add button at the beginning
-                $orgButton.parentElement.insertBefore($btnVideoSettings, $orgButton.parentElement.firstChild);
+                $orgButton.parentElement.insertBefore($btnStreamSettings, $orgButton.parentElement.firstChild);
 
                 // Hide Quick bar when closing HUD
                 const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
@@ -3111,8 +3111,8 @@ function injectStreamMenuButtons() {
                 const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
                 $btnStreamStats.classList.toggle('better-xcloud-stream-menu-button-on', btnStreamStatsOn);
 
-                // Insert after Video Settings button
-                $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings);
+                // Insert after Stream Settings button
+                $orgButton.parentElement.insertBefore($btnStreamStats, $btnStreamSettings);
 
                 // Get "Quit game" button
                 const $btnQuit = $orgButton.parentElement.querySelector('button:last-of-type');
