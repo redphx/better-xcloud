@@ -2083,24 +2083,26 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-quick-settings-bar {
     display: none;
+    flex-direction: column;
     user-select: none;
     -webkit-user-select: none;
     position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translate(-50%, 0);
+    right: 0;
+    top: 20px;
+    bottom: 20px;
     z-index: 9999;
     padding: 16px;
-    width: 600px;
+    width: 200px;
     background: #1a1b1e;
     color: #fff;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px 0 0 8px;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 16px;
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     text-align: center;
     box-shadow: 0px 0px 6px #000;
     opacity: 0.95;
+    overflow: overlay;
 }
 
 .better-xcloud-quick-settings-bar *:focus {
@@ -2108,11 +2110,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-quick-settings-bar > div {
-    flex: 1;
+    margin-bottom: 16px;
 }
 
 .better-xcloud-quick-settings-bar label {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     display: block;
     margin-bottom: 8px;
@@ -2127,6 +2129,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-color: #515151;
     color: #fff;
     border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: Consolas, "Courier New", Courier, monospace;
 }
 
 @media (hover: hover) {
@@ -2144,9 +2149,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-quick-settings-bar span {
     display: inline-block;
     width: 40px;
-    font-weight: bold;
     font-family: Consolas, "Courier New", Courier, monospace;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .better-xcloud-stream-menu-button-on {
