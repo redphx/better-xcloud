@@ -107,6 +107,7 @@ window.addEventListener('load', e => {
 
 const SERVER_REGIONS = {};
 var STREAM_WEBRTC;
+var STREAM_AUDIO_GAIN_NODE;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
@@ -1155,6 +1156,7 @@ class Preferences {
     static get VIDEO_SATURATION() { return 'video_saturation'; }
 
     static get AUDIO_MIC_ON_PLAYING() { return 'audio_mic_on_playing'; }
+    static get AUDIO_VOLUME() { return 'audio_volume'; }
 
     static get STATS_ITEMS() { return 'stats_items'; };
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
@@ -1340,9 +1342,16 @@ class Preferences {
             'min': 50,
             'max': 150,
         },
+
         [Preferences.AUDIO_MIC_ON_PLAYING]: {
             'default': false,
         },
+        [Preferences.AUDIO_VOLUME]: {
+            'default': 100,
+            'min': 0,
+            'max': 200,
+        },
+
 
         [Preferences.STATS_ITEMS]: {
             'default': [StreamStats.PING, StreamStats.FPS, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
@@ -1610,7 +1619,7 @@ class Preferences {
 
             isHolding = false;
 
-            onChange && onChange();
+            onChange && onChange(e, value);
         }
 
         const onMouseDown = e => {
@@ -3258,7 +3267,7 @@ function patchRtcCodecs() {
 function setupVideoSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
-    const onChange = e => {
+    const onVideoChange = e => {
         updateVideoPlayerCss();
     }
 
@@ -3266,19 +3275,25 @@ function setupVideoSettingsBar() {
     const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
                         CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
-                            PREFS.toElement(Preferences.VIDEO_RATIO, onChange, ':9')),
+                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange, ':9')),
                         CE('div', {},
                             CE('label', {}, 'Clarity'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onChange, '', isSafari)), // disable this feature in Safari
+                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, '', isSafari)), // disable this feature in Safari
                         CE('div', {},
                             CE('label', {}, 'Saturation'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onChange, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, '%')),
                         CE('div', {},
                             CE('label', {}, 'Contrast'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onChange, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, '%')),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onChange, '%'))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, '%')),
+                        CE('div', {},
+                            CE('label', {}, 'Volume'),
+                            PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
+                                const volume = (value / 100).toFixed(2);
+                                STREAM_AUDIO_GAIN_NODE.gain.value = volume;
+                            }, '%'))
                      );
 
     document.documentElement.appendChild($wrapper);
@@ -3378,6 +3393,7 @@ function onHistoryChanged() {
     }
 
     STREAM_WEBRTC = null;
+    STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
     document.querySelector('.better-xcloud-screenshot-button').style = '';
@@ -3529,11 +3545,33 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
+RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+RTCPeerConnection.prototype.createDataChannel = function(...args) {
+    if (!STREAM_WEBRTC) {
+        STREAM_WEBRTC = this;
+        STREAM_WEBRTC.addEventListener('track', e => {
+            if (e.track.kind !== 'audio') {
+                return;
+            }
+
+            const audioContext = new AudioContext();
+            const audioStream = audioContext.createMediaStreamSource(e.streams[0]);
+            const gainNode = audioContext.createGain();
+
+            audioStream.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            STREAM_AUDIO_GAIN_NODE = gainNode;
+        });
+    }
+
+    return this.orgCreateDataChannel.apply(this, args);
+}
+
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
-        STREAM_WEBRTC = this;
         StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
