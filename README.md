@@ -174,18 +174,19 @@ If you still have trouble installing **Better xCloud**, you can follow one of th
 
 
 ## Compatibility
-✅ = confirmed to be working  
-❓ = not yet tested  
-❌ = not supported (mostly because of lacking Userscript/extension support)  
-➖ = unavailable  
-⚠️ = see custom notes  
-|                                         | Desktop          | Android/Android TV | iOS             |
-|-----------------------------------------|:-----------------|:-------------------|:----------------|
-| Chrome/Edge/Chromium variants           | ✅               | ❌                 | ❌               |
-| Firefox                                 | ✅               | ⚠️<sup>(1)</sup>   | ❌               |
-| Safari                                  | ✅<sup>(2)</sup> | ➖                 | ✅<sup>(3)</sup> |
-| [Hermit](https://hermit.chimbori.com)   | ➖               | ⚠️<sup>(4)</sup>   | ➖               |
-| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ✅                 | ➖               |
+- 👍 = best choice, all features work as intended
+- ✅ = confirmed to be working, might miss some features
+- ❌ = not supported (mostly because of lacking Userscript/extension support)
+- ➖ = unavailable
+- 🗒️ = see custom notes
+
+|                                         | Windows/Linux    | macOS | Android/Android TV | iOS              |
+|-----------------------------------------|:-----------------|:-----------------|:------------------|:-----------------|
+| Chrome/Edge/Chromium variants           | 👍               | 👍               | ❌                 | ❌               |
+| Firefox                                 | ✅               | ✅               | 🗒️<sup>(1)</sup>   | ❌               |
+| Safari                                  | ➖               | ✅<sup>(2)</sup> | ➖                 | ✅<sup>(3)</sup> |
+| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ➖               | 👍                 | ➖               |
+| [Hermit](https://hermit.chimbori.com)   | ➖               | ➖               | 🗒️<sup>(4)</sup>   | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
