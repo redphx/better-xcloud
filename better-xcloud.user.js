@@ -3277,7 +3277,7 @@ function setupVideoSettingsBar() {
                         CE('div', {},
                             CE('label', {}, 'Volume'),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
-                                STREAM_AUDIO_GAIN_NODE && STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2);
+                                STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
                             }, '%')),
                         CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
