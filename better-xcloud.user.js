@@ -1350,7 +1350,7 @@ class Preferences {
         [Preferences.AUDIO_VOLUME]: {
             'default': 100,
             'min': 0,
-            'max': 200,
+            'max': 500,
         },
 
 
@@ -1571,11 +1571,16 @@ class Preferences {
         return $control;
     }
 
-    toNumberStepper(key, onChange, suffix='', disabled=false) {
+    toNumberStepper(key, onChange, options={}) {
+        options = options || {};
+        options.suffix = options.suffix || '';
+        options.disabled = !!options.disabled;
+        options.hideSlider = !!options.hideSlider;
+
         const setting = Preferences.SETTINGS[key]
         let value = PREFS.get(key);
 
-        let $text, $decBtn, $incBtn;
+        let $text, $decBtn, $incBtn, $range;
 
         const MIN = setting.min;
         const MAX= setting.max;
@@ -1584,11 +1589,23 @@ class Preferences {
         const CE = createElement;
         const $wrapper = CE('div', {},
                             $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                            $text = CE('span', {}, value + suffix),
+                            $text = CE('span', {}, value + options.suffix),
                             $incBtn = CE('button', {'data-type': 'inc'}, '+'),
                            );
 
-        if (disabled) {
+        if (!options.disabled && !options.hideSlider) {
+            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value});
+            $wrapper.appendChild($range);
+            $range.addEventListener('input', e => {
+                value = parseInt(e.target.value);
+
+                $text.textContent = value + options.suffix;
+                PREFS.set(key, value);
+                onChange && onChange(e, value);
+            });
+        }
+
+        if (options.disabled) {
             $incBtn.disabled = true;
             $incBtn.classList.add('better-xcloud-hidden');
 
@@ -1615,11 +1632,11 @@ class Preferences {
                 value = Math.min(MAX, value + STEPS);
             }
 
-            $text.textContent = value + suffix;
+            $text.textContent = value + options.suffix;
+            $range && ($range.value = value);
             PREFS.set(key, value);
 
             isHolding = false;
-
             onChange && onChange(e, value);
         }
 
@@ -2121,6 +2138,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-quick-settings-bar > div {
     margin-bottom: 16px;
+}
+
+.better-xcloud-quick-settings-bar input {
+    display: block;
+    margin: 12px auto;
 }
 
 .better-xcloud-quick-settings-bar label {
@@ -3278,22 +3300,22 @@ function setupVideoSettingsBar() {
                             CE('label', {}, 'Volume'),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, '%')),
+                            }, {suffix: '%', disabled: isSafari})),
                         CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
-                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange, ':9')),
+                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
                         CE('div', {},
                             CE('label', {}, 'Clarity'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, '', isSafari)), // disable this feature in Safari
+                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
                         CE('div', {},
                             CE('label', {}, 'Saturation'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%'})),
                         CE('div', {},
                             CE('label', {}, 'Contrast'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, '%')),
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%'})),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, '%'))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%'}))
                      );
 
     document.documentElement.appendChild($wrapper);
@@ -3546,17 +3568,28 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
-AudioContext.prototype.orgConstructor = AudioContext.prototype.constructor;
-AudioContext.prototype.constructor = function(...args) {
-    const ctx = this.orgConstructor.apply(this, args);
-    STREAM_AUDIO_CONTEXT = ctx;
-    return ctx;    
-}
+if (!UserAgent.isSafari()) {
+    AudioContext.prototype.orgConstructor = AudioContext.prototype.constructor;
+    AudioContext.prototype.constructor = function(...args) {
+        const ctx = this.orgConstructor.apply(this, args);
+        STREAM_AUDIO_CONTEXT = ctx;
+        return ctx;
+    }
 
-RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
-RTCPeerConnection.prototype.createDataChannel = function(...args) {
-    if (!STREAM_WEBRTC) {
+    AudioContext.prototype.orgResume = AudioContext.prototype.resume;
+    AudioContext.prototype.resume = function(...args) {
+        STREAM_AUDIO_CONTEXT = this;
+        return this.orgResume.apply(this, args);
+    }
+
+    RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+    RTCPeerConnection.prototype.createDataChannel = function(...args) {
+        if (STREAM_WEBRTC && STREAM_WEBRTC.tracking) {
+            return this.orgCreateDataChannel.apply(this, args);
+        }
+
         STREAM_WEBRTC = this;
+        STREAM_WEBRTC.tracking = true;
         STREAM_WEBRTC.addEventListener('track', e => {
             if (e.track.kind !== 'audio') {
                 return;
@@ -3564,7 +3597,7 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
 
             try {
                 const $audio = document.querySelector('#game-stream audio');
-                $audio.muted = true;  // prevent double outputs
+                $audio.muted = true; // prevent double outputs
 
                 const audioCtx = STREAM_AUDIO_CONTEXT;
                 const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
@@ -3576,18 +3609,20 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
 
                 STREAM_AUDIO_GAIN_NODE = gainNode;
             } catch (e) {
-                console.log(e);
+                const $audio = document.querySelector('#game-stream audio');
+                $audio.muted = false;
             }
         });
-    }
 
-    return this.orgCreateDataChannel.apply(this, args);
+        return this.orgCreateDataChannel.apply(this, args);
+    }
 }
 
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
+        STREAM_WEBRTC = this;
         StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
