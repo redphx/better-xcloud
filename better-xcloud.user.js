@@ -3452,7 +3452,6 @@ function onHistoryChanged() {
         $quickBar.style.display = 'none';
     }
 
-    STREAM_WEBRTC = null;
     STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
@@ -3622,14 +3621,10 @@ if (UserAgent.isSafari(true)) {
     }
 }
 
-RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
-RTCPeerConnection.prototype.createDataChannel = function(...args) {
-    if (STREAM_WEBRTC) {
-        return this.orgCreateDataChannel.apply(this, args);
-    }
-
-    STREAM_WEBRTC = this;
-    STREAM_WEBRTC.addEventListener('track', e => {
+const OrgRTCPeerConnection = window.RTCPeerConnection;
+window.RTCPeerConnection = function() {
+    const peer = new OrgRTCPeerConnection();
+    peer.addEventListener('track', e => {
         if (e.track.kind !== 'audio') {
             return;
         }
@@ -3662,7 +3657,8 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
         }
     });
 
-    return this.orgCreateDataChannel.apply(this, args);
+    STREAM_WEBRTC = peer;
+    return peer;
 }
 
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
