@@ -1595,7 +1595,6 @@ class Preferences {
 
         if (!options.disabled && !options.hideSlider) {
             $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value});
-            $wrapper.appendChild($range);
             $range.addEventListener('input', e => {
                 value = parseInt(e.target.value);
 
@@ -1603,6 +1602,18 @@ class Preferences {
                 PREFS.set(key, value);
                 onChange && onChange(e, value);
             });
+            $wrapper.appendChild($range);
+
+            if (options.ticks) {
+                const markersId = `markers-${key}`;
+                const $markers = CE('datalist', {'id': markersId});
+                $range.setAttribute('list', markersId);
+
+                for (let i = MIN; i <= MAX; i += options.ticks) {
+                    $markers.appendChild(CE('option', {'value': i}));
+                }
+                $wrapper.appendChild($markers);
+            }
         }
 
         if (options.disabled) {
@@ -2140,9 +2151,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 16px;
 }
 
-.better-xcloud-quick-settings-bar input {
+.better-xcloud-quick-settings-bar input[type="range"] {
     display: block;
     margin: 12px auto;
+    color: #959595 !important;
 }
 
 .better-xcloud-quick-settings-bar label {
@@ -3300,7 +3312,7 @@ function setupVideoSettingsBar() {
                             CE('label', {}, 'Volume'),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, {suffix: '%'})),
+                            }, {suffix: '%', ticks: 100})),
                         CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
@@ -3309,13 +3321,13 @@ function setupVideoSettingsBar() {
                             PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
                         CE('div', {},
                             CE('label', {}, 'Saturation'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%'})),
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25})),
                         CE('div', {},
                             CE('label', {}, 'Contrast'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%'})),
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%'}))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}))
                      );
 
     document.documentElement.appendChild($wrapper);
@@ -3576,12 +3588,11 @@ window.AudioContext = function() {
 
 RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
 RTCPeerConnection.prototype.createDataChannel = function(...args) {
-    if (STREAM_WEBRTC && STREAM_WEBRTC.tracking) {
+    if (STREAM_WEBRTC) {
         return this.orgCreateDataChannel.apply(this, args);
     }
 
     STREAM_WEBRTC = this;
-    STREAM_WEBRTC.tracking = true;
     STREAM_WEBRTC.addEventListener('track', e => {
         if (e.track.kind !== 'audio') {
             return;
@@ -3613,7 +3624,6 @@ RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.add
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
-        STREAM_WEBRTC = this;
         StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
