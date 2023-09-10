@@ -2143,6 +2143,24 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: overlay;
 }
 
+.better-xcloud-quick-settings-bar:not([data-clarity-boost="true"]) .better-xcloud-clarity-boost-warning {
+    display: none;
+}
+
+.better-xcloud-quick-settings-bar[data-clarity-boost="true"] .better-xcloud-clarity-boost-warning {
+    display: block;
+    margin: 0px 8px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: normal;
+    background: #282828;
+    border-radius: 4px;
+}
+
+.better-xcloud-quick-settings-bar[data-clarity-boost="true"] > div[data-type="video"] {
+    display: none;
+}
+
 .better-xcloud-quick-settings-bar *:focus {
     outline: none !important;
 }
@@ -3119,10 +3137,7 @@ function injectStreamMenuButtons() {
                     e.stopPropagation();
 
                     const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
-                    if (msVideoProcessing && msVideoProcessing !== 'default') {
-                        alert('This feature doesn\'t work when the Clarity Boost mode is ON');
-                        return;
-                    }
+                    $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
 
                     // Close HUD
                     $btnCloseHud.click();
@@ -3322,19 +3337,20 @@ function setupVideoSettingsBar() {
                             }, {suffix: '%', ticks: 100})),
 
                         CE('h2', {}, 'Video'),
-                        CE('div', {},
+                        CE('div', {'class': 'better-xcloud-clarity-boost-warning'}, '⚠️ These settings don\'t work when the Clarity Boost mode is ON'),
+                        CE('div', {'data-type': 'video'},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Ratio'),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
-                        CE('div', {},
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Clarity'),
                             PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
-                        CE('div', {},
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Saturation'),
                             PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25})),
-                        CE('div', {},
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Contrast'),
                             PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
-                        CE('div', {},
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Brightness'),
                             PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}))
                      );
