@@ -3300,7 +3300,7 @@ function setupVideoSettingsBar() {
                             CE('label', {}, 'Volume'),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, {suffix: '%', disabled: isSafari})),
+                            }, {suffix: '%'})),
                         CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
@@ -3415,7 +3415,6 @@ function onHistoryChanged() {
     }
 
     STREAM_WEBRTC = null;
-    STREAM_AUDIO_CONTEXT = null;
     STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
@@ -3568,54 +3567,46 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
-if (!UserAgent.isSafari()) {
-    AudioContext.prototype.orgConstructor = AudioContext.prototype.constructor;
-    AudioContext.prototype.constructor = function(...args) {
-        const ctx = this.orgConstructor.apply(this, args);
-        STREAM_AUDIO_CONTEXT = ctx;
-        return ctx;
-    }
+const OrgAudioContext = window.AudioContext;
+window.AudioContext = function() {
+    const ctx = new OrgAudioContext();
+    STREAM_AUDIO_CONTEXT = ctx;
+    return ctx;
+}
 
-    AudioContext.prototype.orgResume = AudioContext.prototype.resume;
-    AudioContext.prototype.resume = function(...args) {
-        STREAM_AUDIO_CONTEXT = this;
-        return this.orgResume.apply(this, args);
-    }
-
-    RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
-    RTCPeerConnection.prototype.createDataChannel = function(...args) {
-        if (STREAM_WEBRTC && STREAM_WEBRTC.tracking) {
-            return this.orgCreateDataChannel.apply(this, args);
-        }
-
-        STREAM_WEBRTC = this;
-        STREAM_WEBRTC.tracking = true;
-        STREAM_WEBRTC.addEventListener('track', e => {
-            if (e.track.kind !== 'audio') {
-                return;
-            }
-
-            try {
-                const $audio = document.querySelector('#game-stream audio');
-                $audio.muted = true; // prevent double outputs
-
-                const audioCtx = STREAM_AUDIO_CONTEXT;
-                const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
-                const gainNode = audioCtx.createGain();
-
-                audioStream.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
-
-                STREAM_AUDIO_GAIN_NODE = gainNode;
-            } catch (e) {
-                const $audio = document.querySelector('#game-stream audio');
-                $audio.muted = false;
-            }
-        });
-
+RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+RTCPeerConnection.prototype.createDataChannel = function(...args) {
+    if (STREAM_WEBRTC && STREAM_WEBRTC.tracking) {
         return this.orgCreateDataChannel.apply(this, args);
     }
+
+    STREAM_WEBRTC = this;
+    STREAM_WEBRTC.tracking = true;
+    STREAM_WEBRTC.addEventListener('track', e => {
+        if (e.track.kind !== 'audio') {
+            return;
+        }
+
+        try {
+            const $audio = document.querySelector('#game-stream audio');
+            $audio.muted = true; // prevent double outputs
+
+            const audioCtx = STREAM_AUDIO_CONTEXT;
+            const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
+            const gainNode = audioCtx.createGain();
+
+            audioStream.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+
+            STREAM_AUDIO_GAIN_NODE = gainNode;
+        } catch (e) {
+            const $audio = document.querySelector('#game-stream audio');
+            $audio.muted = false;
+        }
+    });
+
+    return this.orgCreateDataChannel.apply(this, args);
 }
 
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
