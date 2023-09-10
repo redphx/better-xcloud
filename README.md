@@ -26,9 +26,9 @@ If you like this project please give it a 🌟. Thank you 🙏.
 
 <img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/0eedde97-74c7-44df-bc89-2ebf8edb6e2c">
 <br>
-<img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/e30f6514-13ca-41c6-bff2-979573cff956">
+<img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/51bdb96c-79ab-402f-902a-a9e6229973b2">
 <br>
-<img width="600" alt="Video settings" src="https://github.com/redphx/better-xcloud/assets/96280/20756157-917b-4a43-9985-df7bfdc24aa3">
+<img width="600" alt="Stream settings" src="https://github.com/redphx/better-xcloud/assets/96280/18ed4598-4eca-4626-9434-5f74266b00e7">
 
 &nbsp;  
   
@@ -120,8 +120,9 @@ If you like this project please give it a 🌟. Thank you 🙏.
 - **Disable xCloud analytics**
   > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.
 
-### Stream's video features
-
+### In-game settings
+- **Volume control**
+  > Increase stream's volume up to 600%  
 - **🔥 Improve stream's clarity**
   > Similar to (but not as good as) the "Clarity Boost" of xCloud on Edge browser. [Demo video](https://youtu.be/ZhW2choAHUs).  
   > Also known as poor man's "Clarity Boost".  
