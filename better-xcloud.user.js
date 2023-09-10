@@ -107,6 +107,7 @@ window.addEventListener('load', e => {
 
 const SERVER_REGIONS = {};
 var STREAM_WEBRTC;
+var STREAM_AUDIO_CONTEXT;
 var STREAM_AUDIO_GAIN_NODE;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
@@ -3274,6 +3275,11 @@ function setupVideoSettingsBar() {
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
                         CE('div', {},
+                            CE('label', {}, 'Volume'),
+                            PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
+                                STREAM_AUDIO_GAIN_NODE && STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2);
+                            }, '%')),
+                        CE('div', {},
                             CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange, ':9')),
                         CE('div', {},
@@ -3287,13 +3293,7 @@ function setupVideoSettingsBar() {
                             PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, '%')),
                         CE('div', {},
                             CE('label', {}, 'Brightness'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, '%')),
-                        CE('div', {},
-                            CE('label', {}, 'Volume'),
-                            PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
-                                const volume = (value / 100).toFixed(2);
-                                STREAM_AUDIO_GAIN_NODE.gain.value = volume;
-                            }, '%'))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, '%'))
                      );
 
     document.documentElement.appendChild($wrapper);
@@ -3393,6 +3393,7 @@ function onHistoryChanged() {
     }
 
     STREAM_WEBRTC = null;
+    STREAM_AUDIO_CONTEXT = null;
     STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
@@ -3545,6 +3546,12 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
+AudioContext.prototype.orgResume = AudioContext.prototype.resume;
+AudioContext.prototype.resume = function(...args) {
+    STREAM_AUDIO_CONTEXT = this;
+    return this.orgResume.apply(this, args);
+}
+
 RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
 RTCPeerConnection.prototype.createDataChannel = function(...args) {
     if (!STREAM_WEBRTC) {
@@ -3554,14 +3561,22 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
                 return;
             }
 
-            const audioContext = new AudioContext();
-            const audioStream = audioContext.createMediaStreamSource(e.streams[0]);
-            const gainNode = audioContext.createGain();
+            try {
+                const $audio = document.querySelector('#game-stream audio');
+                $audio.muted = true;  // prevent double outputs
 
-            audioStream.connect(gainNode);
-            gainNode.connect(audioContext.destination);
+                const audioCtx = STREAM_AUDIO_CONTEXT;
+                const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
+                const gainNode = audioCtx.createGain();
 
-            STREAM_AUDIO_GAIN_NODE = gainNode;
+                audioStream.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+
+                STREAM_AUDIO_GAIN_NODE = gainNode;
+            } catch (e) {
+                console.log(e);
+            }
         });
     }
 
