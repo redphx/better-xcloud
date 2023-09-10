@@ -3640,7 +3640,8 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
         }
 
         try {
-            $audio.muted = true; // prevent double outputs
+            // Prevent double sounds
+            $audio.muted = true;
 
             const audioCtx = STREAM_AUDIO_CONTEXT;
             const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
@@ -3651,6 +3652,11 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
             gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
 
             STREAM_AUDIO_GAIN_NODE = gainNode;
+
+            $audio.pause();
+            $audio.addEventListener('play', e => {
+                $audio.pause();
+            });
         } catch (e) {
             $audio && ($audio.muted = false);
         }
