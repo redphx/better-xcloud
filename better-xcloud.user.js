@@ -1350,7 +1350,7 @@ class Preferences {
         [Preferences.AUDIO_VOLUME]: {
             'default': 100,
             'min': 0,
-            'max': 500,
+            'max': 600,
         },
 
 
@@ -2178,6 +2178,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-quick-settings-bar input[type="range"] {
     display: block;
     margin: 12px auto;
+    width: 80%;
     color: #959595 !important;
 }
 
