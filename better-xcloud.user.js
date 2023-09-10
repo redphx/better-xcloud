@@ -3599,13 +3599,6 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
-const OrgAudioContext = window.AudioContext;
-window.AudioContext = function() {
-    const ctx = new OrgAudioContext();
-    STREAM_AUDIO_CONTEXT = ctx;
-    return ctx;
-}
-
 if (UserAgent.isSafari(true)) {
     window.AudioContext.prototype.orgCreateGain = window.AudioContext.prototype.createGain;
     window.AudioContext.prototype.createGain = function() {
@@ -3614,6 +3607,13 @@ if (UserAgent.isSafari(true)) {
         STREAM_AUDIO_GAIN_NODE = gainNode;
         return gainNode;
     }
+}
+
+const OrgAudioContext = window.AudioContext;
+window.AudioContext = function() {
+    const ctx = new OrgAudioContext();
+    STREAM_AUDIO_CONTEXT = ctx;
+    return ctx;
 }
 
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
