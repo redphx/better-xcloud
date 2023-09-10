@@ -2129,8 +2129,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     top: 20px;
     bottom: 20px;
     z-index: 9999;
-    padding: 16px;
-    width: 200px;
+    padding: 8px;
+    width: 220px;
     background: #1a1b1e;
     color: #fff;
     border-radius: 8px 0 0 8px;
@@ -2149,6 +2149,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-quick-settings-bar > div {
     margin-bottom: 16px;
+}
+
+.better-xcloud-quick-settings-bar h2 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 8px;
 }
 
 .better-xcloud-quick-settings-bar input[type="range"] {
@@ -3308,13 +3314,16 @@ function setupVideoSettingsBar() {
 
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
+                        CE('h2', {}, 'Audio'),
                         CE('div', {},
                             CE('label', {}, 'Volume'),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
                             }, {suffix: '%', ticks: 100})),
+
+                        CE('h2', {}, 'Video'),
                         CE('div', {},
-                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
+                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Ratio'),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
                         CE('div', {},
                             CE('label', {}, 'Clarity'),
