@@ -107,6 +107,8 @@ window.addEventListener('load', e => {
 
 const SERVER_REGIONS = {};
 var STREAM_WEBRTC;
+var STREAM_AUDIO_CONTEXT;
+var STREAM_AUDIO_GAIN_NODE;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
@@ -449,8 +451,12 @@ class TouchController {
 
         RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
+            const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
+            if (!TouchController.#enable || dataChannel.label !== 'message') {
+                return dataChannel;
+            }
+
             // Apply touch controller's style
-            const $babylonCanvas = document.getElementById('babylon-canvas');
             let filter = '';
             if (TouchController.#enable) {
                 if (PREF_STYLE_STANDARD === 'white') {
@@ -463,16 +469,7 @@ class TouchController {
             }
 
             if (filter) {
-                $style.textContent = `
-#babylon-canvas {
-    filter: ${filter} !important;
-}
-`;
-            }
-
-            const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
-            if (!TouchController.#enable) {
-                return dataChannel;
+                $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
             }
 
             TouchController.#dataChannel = dataChannel;
@@ -1155,6 +1152,7 @@ class Preferences {
     static get VIDEO_SATURATION() { return 'video_saturation'; }
 
     static get AUDIO_MIC_ON_PLAYING() { return 'audio_mic_on_playing'; }
+    static get AUDIO_VOLUME() { return 'audio_volume'; }
 
     static get STATS_ITEMS() { return 'stats_items'; };
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
@@ -1340,9 +1338,16 @@ class Preferences {
             'min': 50,
             'max': 150,
         },
+
         [Preferences.AUDIO_MIC_ON_PLAYING]: {
             'default': false,
         },
+        [Preferences.AUDIO_VOLUME]: {
+            'default': 100,
+            'min': 0,
+            'max': 600,
+        },
+
 
         [Preferences.STATS_ITEMS]: {
             'default': [StreamStats.PING, StreamStats.FPS, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
@@ -1390,17 +1395,17 @@ class Preferences {
         },
     }
 
-    constructor() {
-        this._storage = localStorage;
-        this._key = 'better_xcloud';
+    #storage = localStorage;
+    #key = 'better_xcloud';
+    #prefs = {};
 
-        let savedPrefs = this._storage.getItem(this._key);
+    constructor() {
+        let savedPrefs = this.#storage.getItem(this.#key);
         if (savedPrefs == null) {
             savedPrefs = '{}';
         }
         savedPrefs = JSON.parse(savedPrefs);
 
-        this._prefs = {};
         for (let settingId in Preferences.SETTINGS) {
             if (!settingId) {
                 alert('Undefined setting key');
@@ -1410,9 +1415,9 @@ class Preferences {
 
             const setting = Preferences.SETTINGS[settingId];
             if (settingId in savedPrefs) {
-                this._prefs[settingId] = savedPrefs[settingId];
+                this.#prefs[settingId] = savedPrefs[settingId];
             } else {
-                this._prefs[settingId] = setting.default;
+                this.#prefs[settingId] = setting.default;
             }
         }
     }
@@ -1464,7 +1469,7 @@ class Preferences {
             return 'default';
         }
 
-        let value = this._prefs[key];
+        let value = this.#prefs[key];
         value = this.#validateValue(key, value);
 
         return value;
@@ -1473,12 +1478,12 @@ class Preferences {
     set(key, value) {
         value = this.#validateValue(key, value);
 
-        this._prefs[key] = value;
-        this._update_storage();
+        this.#prefs[key] = value;
+        this.#updateStorage();
     }
 
-    _update_storage() {
-        this._storage.setItem(this._key, JSON.stringify(this._prefs));
+    #updateStorage() {
+        this.#storage.setItem(this.#key, JSON.stringify(this.#prefs));
     }
 
     toElement(key, onChange) {
@@ -1561,11 +1566,16 @@ class Preferences {
         return $control;
     }
 
-    toNumberStepper(key, onChange, suffix='', disabled=false) {
+    toNumberStepper(key, onChange, options={}) {
+        options = options || {};
+        options.suffix = options.suffix || '';
+        options.disabled = !!options.disabled;
+        options.hideSlider = !!options.hideSlider;
+
         const setting = Preferences.SETTINGS[key]
         let value = PREFS.get(key);
 
-        let $text, $decBtn, $incBtn;
+        let $text, $decBtn, $incBtn, $range;
 
         const MIN = setting.min;
         const MAX= setting.max;
@@ -1574,11 +1584,34 @@ class Preferences {
         const CE = createElement;
         const $wrapper = CE('div', {},
                             $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                            $text = CE('span', {}, value + suffix),
+                            $text = CE('span', {}, value + options.suffix),
                             $incBtn = CE('button', {'data-type': 'inc'}, '+'),
                            );
 
-        if (disabled) {
+        if (!options.disabled && !options.hideSlider) {
+            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value});
+            $range.addEventListener('input', e => {
+                value = parseInt(e.target.value);
+
+                $text.textContent = value + options.suffix;
+                PREFS.set(key, value);
+                onChange && onChange(e, value);
+            });
+            $wrapper.appendChild($range);
+
+            if (options.ticks) {
+                const markersId = `markers-${key}`;
+                const $markers = CE('datalist', {'id': markersId});
+                $range.setAttribute('list', markersId);
+
+                for (let i = MIN; i <= MAX; i += options.ticks) {
+                    $markers.appendChild(CE('option', {'value': i}));
+                }
+                $wrapper.appendChild($markers);
+            }
+        }
+
+        if (options.disabled) {
             $incBtn.disabled = true;
             $incBtn.classList.add('better-xcloud-hidden');
 
@@ -1605,12 +1638,12 @@ class Preferences {
                 value = Math.min(MAX, value + STEPS);
             }
 
-            $text.textContent = value + suffix;
+            $text.textContent = value + options.suffix;
+            $range && ($range.value = value);
             PREFS.set(key, value);
 
             isHolding = false;
-
-            onChange && onChange();
+            onChange && onChange(e, value);
         }
 
         const onMouseDown = e => {
@@ -2005,7 +2038,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-stats-bar span:first-of-type {
-    min-width: 30px;
+    min-width: 22px;
 }
 
 .better-xcloud-stats-settings {
@@ -2083,24 +2116,44 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-quick-settings-bar {
     display: none;
+    flex-direction: column;
     user-select: none;
     -webkit-user-select: none;
     position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translate(-50%, 0);
+    right: 0;
+    top: 20px;
+    bottom: 20px;
     z-index: 9999;
-    padding: 16px;
-    width: 600px;
+    padding: 8px;
+    width: 220px;
     background: #1a1b1e;
     color: #fff;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px 0 0 8px;
     font-weight: 400;
-    font-size: 14px;
+    font-size: 16px;
     font-family: Bahnschrift, Arial, Helvetica, sans-serif;
     text-align: center;
     box-shadow: 0px 0px 6px #000;
     opacity: 0.95;
+    overflow: overlay;
+}
+
+.better-xcloud-quick-settings-bar:not([data-clarity-boost="true"]) .better-xcloud-clarity-boost-warning {
+    display: none;
+}
+
+.better-xcloud-quick-settings-bar[data-clarity-boost="true"] .better-xcloud-clarity-boost-warning {
+    display: block;
+    margin: 0px 8px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: normal;
+    background: #282828;
+    border-radius: 4px;
+}
+
+.better-xcloud-quick-settings-bar[data-clarity-boost="true"] > div[data-type="video"] {
+    display: none;
 }
 
 .better-xcloud-quick-settings-bar *:focus {
@@ -2108,11 +2161,24 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-quick-settings-bar > div {
-    flex: 1;
+    margin-bottom: 16px;
+}
+
+.better-xcloud-quick-settings-bar h2 {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.better-xcloud-quick-settings-bar input[type="range"] {
+    display: block;
+    margin: 12px auto;
+    width: 80%;
+    color: #959595 !important;
 }
 
 .better-xcloud-quick-settings-bar label {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     display: block;
     margin-bottom: 8px;
@@ -2127,6 +2193,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-color: #515151;
     color: #fff;
     border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: Consolas, "Courier New", Courier, monospace;
 }
 
 @media (hover: hover) {
@@ -2144,9 +2213,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-quick-settings-bar span {
     display: inline-block;
     width: 40px;
-    font-weight: bold;
     font-family: Consolas, "Courier New", Courier, monospace;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .better-xcloud-stream-menu-button-on {
@@ -3058,17 +3126,14 @@ function injectStreamMenuButtons() {
                     return;
                 }
 
-                // Create Video Settings button
-                const $btnVideoSettings = cloneStreamMenuButton($orgButton, 'Video settings', ICON_VIDEO_SETTINGS);
-                $btnVideoSettings.addEventListener('click', e => {
+                // Create Stream Settings button
+                const $btnStreamSettings = cloneStreamMenuButton($orgButton, 'Stream settings', ICON_VIDEO_SETTINGS);
+                $btnStreamSettings.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
 
                     const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
-                    if (msVideoProcessing && msVideoProcessing !== 'default') {
-                        alert('This feature doesn\'t work when the Clarity Boost mode is ON');
-                        return;
-                    }
+                    $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
 
                     // Close HUD
                     $btnCloseHud.click();
@@ -3084,7 +3149,7 @@ function injectStreamMenuButtons() {
                 });
 
                 // Add button at the beginning
-                $orgButton.parentElement.insertBefore($btnVideoSettings, $orgButton.parentElement.firstChild);
+                $orgButton.parentElement.insertBefore($btnStreamSettings, $orgButton.parentElement.firstChild);
 
                 // Hide Quick bar when closing HUD
                 const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
@@ -3107,8 +3172,8 @@ function injectStreamMenuButtons() {
                 const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
                 $btnStreamStats.classList.toggle('better-xcloud-stream-menu-button-on', btnStreamStatsOn);
 
-                // Insert after Video Settings button
-                $orgButton.parentElement.insertBefore($btnStreamStats, $btnVideoSettings);
+                // Insert after Stream Settings button
+                $orgButton.parentElement.insertBefore($btnStreamStats, $btnStreamSettings);
 
                 // Get "Quit game" button
                 const $btnQuit = $orgButton.parentElement.querySelector('button:last-of-type');
@@ -3254,27 +3319,36 @@ function patchRtcCodecs() {
 function setupVideoSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
-    const onChange = e => {
+    const onVideoChange = e => {
         updateVideoPlayerCss();
     }
 
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
+                        CE('h2', {}, 'Audio'),
                         CE('div', {},
-                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Video Ratio'),
-                            PREFS.toElement(Preferences.VIDEO_RATIO, onChange, ':9')),
-                        CE('div', {},
+                            CE('label', {}, 'Volume'),
+                            PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
+                                STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
+                            }, {suffix: '%', ticks: 100})),
+
+                        CE('h2', {}, 'Video'),
+                        CE('div', {'class': 'better-xcloud-clarity-boost-warning'}, '⚠️ These settings don\'t work when the Clarity Boost mode is ON'),
+                        CE('div', {'data-type': 'video'},
+                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Ratio'),
+                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Clarity'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onChange, '', isSafari)), // disable this feature in Safari
-                        CE('div', {},
+                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Saturation'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onChange, '%')),
-                        CE('div', {},
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25})),
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Contrast'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onChange, '%')),
-                        CE('div', {},
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
+                        CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Brightness'),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onChange, '%'))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}))
                      );
 
     document.documentElement.appendChild($wrapper);
@@ -3373,7 +3447,7 @@ function onHistoryChanged() {
         $quickBar.style.display = 'none';
     }
 
-    STREAM_WEBRTC = null;
+    STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
     document.querySelector('.better-xcloud-screenshot-button').style = '';
@@ -3525,11 +3599,27 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
+if (UserAgent.isSafari(true)) {
+    window.AudioContext.prototype.orgCreateGain = window.AudioContext.prototype.createGain;
+    window.AudioContext.prototype.createGain = function() {
+        const gainNode = this.orgCreateGain.apply(this);
+        gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+        STREAM_AUDIO_GAIN_NODE = gainNode;
+        return gainNode;
+    }
+}
+
+const OrgAudioContext = window.AudioContext;
+window.AudioContext = function() {
+    const ctx = new OrgAudioContext();
+    STREAM_AUDIO_CONTEXT = ctx;
+    return ctx;
+}
+
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
 RTCPeerConnection.prototype.addIceCandidate = function(...args) {
     const candidate = args[0].candidate;
     if (candidate && candidate.startsWith('a=candidate:1 ')) {
-        STREAM_WEBRTC = this;
         StreamBadges.ipv6 = candidate.substring(20).includes(':');
     }
 
@@ -3538,6 +3628,46 @@ RTCPeerConnection.prototype.addIceCandidate = function(...args) {
 
 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
     TouchController.setup();
+}
+
+const OrgRTCPeerConnection = window.RTCPeerConnection;
+window.RTCPeerConnection = function() {
+    const peer = new OrgRTCPeerConnection();
+    peer.addEventListener('track', e => {
+        if (e.track.kind !== 'audio') {
+            return;
+        }
+
+        const $audio = document.querySelector('#game-stream audio');
+        if (!$audio) {
+            return;
+        }
+
+        try {
+            // Prevent double sounds
+            $audio.muted = true;
+
+            const audioCtx = STREAM_AUDIO_CONTEXT;
+            const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
+            const gainNode = audioCtx.createGain();
+
+            audioStream.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+
+            STREAM_AUDIO_GAIN_NODE = gainNode;
+
+            $audio.pause();
+            $audio.addEventListener('play', e => {
+                $audio.pause();
+            });
+        } catch (e) {
+            $audio && ($audio.muted = false);
+        }
+    });
+
+    STREAM_WEBRTC = peer;
+    return peer;
 }
 
 
