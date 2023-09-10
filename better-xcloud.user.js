@@ -2043,7 +2043,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .better-xcloud-stats-bar span:first-of-type {
-    min-width: 30px;
+    min-width: 22px;
 }
 
 .better-xcloud-stats-settings {
