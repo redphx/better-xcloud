@@ -3612,6 +3612,16 @@ window.AudioContext = function() {
     return ctx;
 }
 
+if (UserAgent.isSafari(true)) {
+    window.AudioContext.prototype.orgCreateGain = window.AudioContext.prototype.createGain;
+    window.AudioContext.prototype.createGain = function() {
+        const gainNode = this.orgCreateGain.apply(this);
+        gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+        STREAM_AUDIO_GAIN_NODE = gainNode;
+        return gainNode;
+    }
+}
+
 RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
 RTCPeerConnection.prototype.createDataChannel = function(...args) {
     if (STREAM_WEBRTC) {
@@ -3624,8 +3634,12 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
             return;
         }
 
+        const $audio = document.querySelector('#game-stream audio');
+        if (!$audio) {
+            return;
+        }
+
         try {
-            const $audio = document.querySelector('#game-stream audio');
             $audio.muted = true; // prevent double outputs
 
             const audioCtx = STREAM_AUDIO_CONTEXT;
@@ -3638,8 +3652,7 @@ RTCPeerConnection.prototype.createDataChannel = function(...args) {
 
             STREAM_AUDIO_GAIN_NODE = gainNode;
         } catch (e) {
-            const $audio = document.querySelector('#game-stream audio');
-            $audio.muted = false;
+            $audio && ($audio.muted = false);
         }
     });
 
