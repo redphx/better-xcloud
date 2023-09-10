@@ -1400,17 +1400,17 @@ class Preferences {
         },
     }
 
-    constructor() {
-        this._storage = localStorage;
-        this._key = 'better_xcloud';
+    #storage = localStorage;
+    #key = 'better_xcloud';
+    #prefs = {};
 
-        let savedPrefs = this._storage.getItem(this._key);
+    constructor() {
+        let savedPrefs = this.#storage.getItem(this.#key);
         if (savedPrefs == null) {
             savedPrefs = '{}';
         }
         savedPrefs = JSON.parse(savedPrefs);
 
-        this._prefs = {};
         for (let settingId in Preferences.SETTINGS) {
             if (!settingId) {
                 alert('Undefined setting key');
@@ -1420,9 +1420,9 @@ class Preferences {
 
             const setting = Preferences.SETTINGS[settingId];
             if (settingId in savedPrefs) {
-                this._prefs[settingId] = savedPrefs[settingId];
+                this.#prefs[settingId] = savedPrefs[settingId];
             } else {
-                this._prefs[settingId] = setting.default;
+                this.#prefs[settingId] = setting.default;
             }
         }
     }
@@ -1474,7 +1474,7 @@ class Preferences {
             return 'default';
         }
 
-        let value = this._prefs[key];
+        let value = this.#prefs[key];
         value = this.#validateValue(key, value);
 
         return value;
@@ -1483,12 +1483,12 @@ class Preferences {
     set(key, value) {
         value = this.#validateValue(key, value);
 
-        this._prefs[key] = value;
-        this._update_storage();
+        this.#prefs[key] = value;
+        this.#updateStorage();
     }
 
-    _update_storage() {
-        this._storage.setItem(this._key, JSON.stringify(this._prefs));
+    #updateStorage() {
+        this.#storage.setItem(this.#key, JSON.stringify(this.#prefs));
     }
 
     toElement(key, onChange) {
