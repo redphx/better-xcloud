@@ -3546,10 +3546,11 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
-AudioContext.prototype.orgResume = AudioContext.prototype.resume;
-AudioContext.prototype.resume = function(...args) {
-    STREAM_AUDIO_CONTEXT = this;
-    return this.orgResume.apply(this, args);
+AudioContext.prototype.orgConstructor = AudioContext.prototype.constructor;
+AudioContext.prototype.constructor = function(...args) {
+    const ctx = this.orgConstructor.apply(this, args);
+    STREAM_AUDIO_CONTEXT = ctx;
+    return ctx;    
 }
 
 RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
