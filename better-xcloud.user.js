@@ -451,8 +451,12 @@ class TouchController {
 
         RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
+            const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
+            if (!TouchController.#enable || dataChannel.label !== 'message') {
+                return dataChannel;
+            }
+
             // Apply touch controller's style
-            const $babylonCanvas = document.getElementById('babylon-canvas');
             let filter = '';
             if (TouchController.#enable) {
                 if (PREF_STYLE_STANDARD === 'white') {
@@ -465,16 +469,7 @@ class TouchController {
             }
 
             if (filter) {
-                $style.textContent = `
-#babylon-canvas {
-    filter: ${filter} !important;
-}
-`;
-            }
-
-            const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
-            if (!TouchController.#enable) {
-                return dataChannel;
+                $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
             }
 
             TouchController.#dataChannel = dataChannel;
@@ -3621,6 +3616,20 @@ if (UserAgent.isSafari(true)) {
     }
 }
 
+RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
+RTCPeerConnection.prototype.addIceCandidate = function(...args) {
+    const candidate = args[0].candidate;
+    if (candidate && candidate.startsWith('a=candidate:1 ')) {
+        StreamBadges.ipv6 = candidate.substring(20).includes(':');
+    }
+
+    return this.orgAddIceCandidate.apply(this, args);
+}
+
+if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
+    TouchController.setup();
+}
+
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
     const peer = new OrgRTCPeerConnection();
@@ -3659,20 +3668,6 @@ window.RTCPeerConnection = function() {
 
     STREAM_WEBRTC = peer;
     return peer;
-}
-
-RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
-RTCPeerConnection.prototype.addIceCandidate = function(...args) {
-    const candidate = args[0].candidate;
-    if (candidate && candidate.startsWith('a=candidate:1 ')) {
-        StreamBadges.ipv6 = candidate.substring(20).includes(':');
-    }
-
-    return this.orgAddIceCandidate.apply(this, args);
-}
-
-if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
-    TouchController.setup();
 }
 
 
