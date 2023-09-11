@@ -11,9 +11,9 @@ If you like this project please give it a 🌟. Thank you 🙏.
 
 
 ## Table of Contents
-- [**Features**](#features)
 - [**How to install**](#how-to-install)
 - [**Compatibility**](#compatibility)
+- [**Features**](#features)
 - [**Stream stats**](#stream-stats)
 - [**Capture screenshot**](#capture-screenshot)
 - [**FAQ**](#faq)
@@ -21,6 +21,42 @@ If you like this project please give it a 🌟. Thank you 🙏.
 - [**Acknowledgements**](#acknowledgements)
 - [**Disclaimers**](#disclaimers)
 
+## How to install
+1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers.  
+   For Safari, use the [Userscripts extension](https://apps.apple.com/us/app/userscripts/id1463298887) (check [this page](https://github.com/redphx/better-xcloud/wiki/Using-with-Safari) before using).
+2. Install **Better xCloud**:
+    - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
+    <!-- - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)-->  
+    I only distribute **Better xCloud** on GitHub, *DO NOT* download it on other websites or from unknown sources.
+3. Refresh [xCloud web page](https://www.xbox.com/play/).
+4. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.
+
+To update manually, just install the script again (you won't lose your settings).
+
+⚠️⚠️⚠️ If you're using Kiwi Browser on Android, make sure to follow the steps correctly and install the script with Tampermonkey (not installing it as an extension), or else it won't work.
+
+## Compatibility
+- 👍 = best choice, all features work as intended
+- ✅ = confirmed to be working, might miss some features
+- ❌ = not supported (mostly because of lacking Userscript/extension support)
+- ➖ = unavailable
+- 🗒️ = see custom notes
+
+|                                         | Windows/Linux    | macOS            | Android/Android TV | iOS              |
+|-----------------------------------------|:-----------------|:-----------------|:-------------------|:-----------------|
+| Chrome/Edge/Chromium variants           | 👍               | 👍               | ❌                  | ❌               |
+| Firefox                                 | ✅               | ✅               | 🗒️<sup>(1)</sup>    | ❌               |
+| Safari                                  | ➖               | ✅<sup>(2)</sup> | ➖                  | ✅<sup>(3)</sup> |
+| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ➖               | 👍                  | ➖               |
+
+Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
+
+<sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android. Its Gamepad API doesn't work properly so it might not recognize your controller.  
+<sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open-source). Check [this page](https://github.com/redphx/better-xcloud/wiki/Using-with-Safari) before using.  
+
+---
+- **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high-quality codec profile (the best possible quality).  
+- **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a Bluetooth mouse if you want to interact with the Settings.  
 
 ## Features
 
@@ -152,51 +188,6 @@ If you like this project please give it a 🌟. Thank you 🙏.
 - **Hide footer and other UI elements**
 
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
-
-## How to install
-1. Install [Tampermonkey extension](https://www.tampermonkey.net/) on suppported browsers. For Safari, use the [Userscripts extension](https://apps.apple.com/us/app/userscripts/id1463298887) (check [this page](https://github.com/redphx/better-xcloud/wiki/Using-with-Safari) before using).  
-2. Install **Better xCloud**:
-    - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
-    <!-- - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)-->  
-    I only distribute **Better xCloud** on GitHub, *DO NOT* download it on other websites or from unknown sources.  
-3. Refresh [xCloud web page](https://www.xbox.com/play/).
-4. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.  
-5. Don't forget to enable auto updating for the script in Tampermonkey.
-
-To update manually, just install the script again (you won't lose your settings).
-
-⚠️⚠️⚠️ If you're using Kiwi Browser on Android, make sure to follow the steps correctly and install the script with Tampermonkey (not installing it as an extension), or else it won't work.
-
-### Tutorial videos  
-If you still have trouble installing **Better xCloud**, you can follow one of these tutorial videos:  
-- 🇧🇷 [Tudo isso agora tem no xCloud!! (ChipTec)](https://youtu.be/zS8Zy0mYIbU?t=40)
-- 🇫🇷 [#Tuto Xbox Cloud Gaming : Ecran ultra large et adieu les bandes noires sur smartphone (Cloud Gaming France)](https://www.youtube.com/watch?v=5U05KoTdDHs)
-
-
-## Compatibility
-- 👍 = best choice, all features work as intended
-- ✅ = confirmed to be working, might miss some features
-- ❌ = not supported (mostly because of lacking Userscript/extension support)
-- ➖ = unavailable
-- 🗒️ = see custom notes
-
-|                                         | Windows/Linux    | macOS | Android/Android TV | iOS              |
-|-----------------------------------------|:-----------------|:-----------------|:------------------|:-----------------|
-| Chrome/Edge/Chromium variants           | 👍               | 👍               | ❌                 | ❌               |
-| Firefox                                 | ✅               | ✅               | 🗒️<sup>(1)</sup>   | ❌               |
-| Safari                                  | ➖               | ✅<sup>(2)</sup> | ➖                 | ✅<sup>(3)</sup> |
-| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ➖               | 👍                 | ➖               |
-| [Hermit](https://hermit.chimbori.com)   | ➖               | ➖               | 🗒️<sup>(4)</sup>   | ➖               |
-
-Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
-
-<sup>1</sup> Follow [this guide](https://support.mozilla.org/en-US/kb/find-and-install-add-ons-firefox-android) to install Tampermonkey on Firefox Android. Its Gamepad API doesn't work properly so it might not recognize your controller.  
-<sup>2, 3</sup> Requires [Userscripts app](https://apps.apple.com/us/app/userscripts/id1463298887) (free & open-source). Check [this page](https://github.com/redphx/better-xcloud/wiki/Using-with-Safari) before using.  
-<sup>4</sup> NOT RECOMMENDED at the moment since its Userscript implementation is not working properly (see https://github.com/redphx/better-xcloud/issues/5 for full details).    
-
----
-- **Kiwi Browser** is the best choice on Android. All features work, it means you can get 1080p stream + high-quality codec profile (the best possible quality).  
-- **Better xCloud** also works on Android TV, but you'll have to sideload the browser APK and need a Bluetooth mouse if you want to interact with the Settings.  
 
 ## Stream stats  
 
