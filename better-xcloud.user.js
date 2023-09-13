@@ -3099,9 +3099,14 @@ function injectStreamMenuButtons() {
     const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
-        e.stopPropagation();
-        if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.querySelector('#BabylonCanvasContainer-main')) {
-            return;
+        if (e) {
+            e.stopPropagation();
+            if (e.target != $parent && e.target.id !== 'MultiTouchSurface' && !e.target.querySelector('#BabylonCanvasContainer-main')) {
+                return;
+            }
+            if (e.target.id === 'MultiTouchSurface') {
+                e.target.removeEventListener('touchstart', hideQuickBarFunc);
+            }
         }
 
         // Hide Quick settings bar
@@ -3109,10 +3114,6 @@ function injectStreamMenuButtons() {
 
         $parent.removeEventListener('click', hideQuickBarFunc);
         $parent.removeEventListener('touchstart', hideQuickBarFunc);
-
-        if (e.target.id === 'MultiTouchSurface') {
-            e.target.removeEventListener('touchstart', hideQuickBarFunc);
-        }
     }
 
     const observer = new MutationObserver(mutationList => {
@@ -3212,6 +3213,8 @@ function injectStreamMenuButtons() {
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
                 $menu.appendChild(await StreamBadges.render());
+
+                hideQuickBarFunc();
             });
         });
     });
