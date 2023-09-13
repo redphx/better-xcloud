@@ -269,7 +269,8 @@ Sorry, no. The server decides all these settings.
 It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
 
 ## Donation
-I'm doing this for fun, so you don't have to donate anything. You're already supporting me by using this script. Save that money toward your Xbox Game Pass Ultimate subscription 😄.
+I'm doing this for fun, so you don't have to donate anything. You're already supporting me by using this script. Save that money toward your Xbox Game Pass Ultimate subscription 😄.  
+But if you still really want to donate, I have a [Ko-fi page](https://ko-fi.com/redphx). Thank you.
 
 ## User-Agent
 Moved to [wiki](https://github.com/redphx/better-xcloud/wiki/User‐Agent).
