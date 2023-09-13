@@ -1706,6 +1706,63 @@ function checkForUpdate() {
 }
 
 
+class MouseHoldEvent {
+    #isHolding = false;
+    #timeout;
+
+    #$elm;
+    #callback;
+    #duration;
+
+    #onMouseDown = function(e) {
+        const _this = this;
+        this.#isHolding = false;
+
+        this.#timeout && clearTimeout(this.#timeout);
+        this.#timeout = setTimeout(() => {
+            _this.#isHolding = true;
+            _this.#callback();
+        }, this.#duration);
+    };
+
+    #onMouseUp = e => {
+        this.#timeout && clearTimeout(this.#timeout);
+        this.#timeout = null;
+
+        if (this.#isHolding) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        this.#isHolding = false;
+    };
+
+    #addEventListeners = () => {
+        this.#$elm.addEventListener('mousedown', this.#onMouseDown.bind(this));
+        this.#$elm.addEventListener('click', this.#onMouseUp.bind(this));
+
+        this.#$elm.addEventListener('touchstart', this.#onMouseDown.bind(this));
+        this.#$elm.addEventListener('touchend', this.#onMouseUp.bind(this));
+    }
+
+    #clearEventLiseners = () => {
+        this.#$elm.removeEventListener('mousedown', this.#onMouseDown);
+        this.#$elm.removeEventListener('click', this.#onMouseUp);
+
+        this.#$elm.removeEventListener('touchstart', this.#onMouseDown);
+        this.#$elm.removeEventListener('touchend', this.#onMouseUp);
+    }
+
+    constructor($elm, callback, duration=1000) {
+        this.#$elm = $elm;
+        this.#callback = callback;
+        this.#duration = duration;
+
+        this.#addEventListeners();
+        $elm.clearMouseHoldEventListeners = this.#clearEventLiseners;
+    }
+}
+
+
 function addCss() {
     let css = `
 .better-xcloud-settings-button {
@@ -3184,31 +3241,10 @@ function injectStreamMenuButtons() {
 
                 // Get "Quit game" button
                 const $btnQuit = $orgButton.parentElement.querySelector('button:last-of-type');
-
-                let isHolding = false;
-                let holdTimeout;
-                const onMouseDown = e => {
-                    isHolding = false;
-                    holdTimeout = setTimeout(() => {
-                        isHolding = true;
-                        confirm('Do you want to refresh the stream?') && window.location.reload();
-                    }, 1000);
-                };
-                const onMouseUp = e => {
-                    holdTimeout && clearTimeout(holdTimeout);
-
-                    if (isHolding) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    isHolding = false;
-                };
-
-                $btnQuit.addEventListener('mousedown', onMouseDown);
-                $btnQuit.addEventListener('click', onMouseUp);
-
-                $btnQuit.addEventListener('touchstart', onMouseDown);
-                $btnQuit.addEventListener('touchend', onMouseUp);
+                // Hold "Quit game" button to refresh the stream
+                new MouseHoldEvent($btnQuit, () => {
+                    confirm('Do you want to refresh the stream?') && window.location.reload();
+                }, 1000);
 
                 // Render stream badges
                 const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
