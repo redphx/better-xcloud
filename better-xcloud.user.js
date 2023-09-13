@@ -2289,7 +2289,13 @@ div[class*=NotFocusedDialog] {
 
     // Reduce animations
     if (PREFS.get(Preferences.REDUCE_ANIMATIONS)) {
-        css += 'div[class*=GameImageItem-module], div[class*=ScrollArrows-module] { transition: none !important; }';
+        css += `
+div[class*=GameCard-module__gameTitleInnerWrapper],
+div[class*=GameCard-module__card],
+div[class*=ScrollArrows-module] {
+    transition: none !important;
+}
+`;
     }
 
     // Hide the top-left dots icon while playing
