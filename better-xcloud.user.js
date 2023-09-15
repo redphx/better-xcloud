@@ -1075,6 +1075,8 @@ class Preferences {
     static get LATEST_VERSION() { return 'version_latest'; }
     static get CURRENT_VERSION() { return 'version_current'; }
 
+    static get BETTER_XCLOUD_LOCALE() { return 'better_xcloud_locale'};
+
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
     static get STREAM_TARGET_RESOLUTION() { return 'stream_target_resolution'; }
@@ -1128,6 +1130,12 @@ class Preferences {
         },
         [Preferences.CURRENT_VERSION]: {
             'default': '',
+        },
+        [Preferences.BETTER_XCLOUD_LOCALE]: {
+            'default': 'en-US',
+            'options': {
+                'en-US': 'English (United States)',
+            },
         },
         [Preferences.SERVER_REGION]: {
             'default': 'default',
@@ -2822,6 +2830,9 @@ function injectSettingsButton($parent) {
 
     // Render settings
     const SETTINGS_UI = {
+        'Better xCloud': {
+            [Preferences.BETTER_XCLOUD_LOCALE]: 'Language',
+        },
         'Server': {
             [Preferences.SERVER_REGION]: 'Region',
             [Preferences.STREAM_PREFERRED_LOCALE]: 'Preferred game\'s language',
