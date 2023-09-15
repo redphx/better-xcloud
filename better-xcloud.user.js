@@ -1765,6 +1765,20 @@ class MouseHoldEvent {
 
 function addCss() {
     let css = `
+:root {
+    --bx-title-font: Bahnschrift, Arial, Helvetica, sans-serif;
+    --bx-title-font-semibold: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    --bx-normal-font: "Segoe UI", Arial, Helvetica, sans-serif;
+    --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
+
+    --bx-wait-time-box-z-index: 9999;
+    --bx-stream-settings-z-index: 9999;
+    --bx-screenshot-z-index: 8888;
+    --bx-touch-controller-bar-z-index: 5555;
+    --bx-stats-settings-z-index: 1001;
+    --bx-stats-bar-z-index: 1000;
+}
+
 .better-xcloud-settings-button {
     background-color: transparent;
     border: none;
@@ -1788,7 +1802,7 @@ function addCss() {
     user-select: none;
     -webkit-user-select: none;
     color: #fff;
-    font-family: "Segoe UI", Arial, Helvetica, sans-serif
+    font-family: var(--bx-normal-font);
 }
 
 .better-xcloud-gone {
@@ -1814,7 +1828,7 @@ function addCss() {
 }
 
 .better-xcloud-settings-wrapper a.better-xcloud-settings-title {
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-size: 1.4rem;
     text-decoration: none;
     font-weight: bold;
@@ -1891,7 +1905,7 @@ function addCss() {
     text-align: center;
     color: white;
     text-transform: uppercase;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-weight: 400;
     line-height: 24px;
 }
@@ -1938,7 +1952,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: inline-block;
     line-height: 24px;
     color: #fff;
-    font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font-semibold);
     font-size: 14px;
     font-weight: 400;
     margin: 0 8px 8px 0;
@@ -1982,7 +1996,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-origin: content-box;
     filter: drop-shadow(0 0 2px #000000B0);
     transition: opacity 0.1s ease-in-out 0s, padding 0.1s ease-in 0s;
-    z-index: 8888;
+    z-index: var(--bx-screenshot-z-index);
 
     /* Credit: https://phosphoricons.com */
     background-image: url(${ICON_SCREENSHOT_B64});
@@ -2008,10 +2022,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     top: 0;
     background-color: #000;
     color: #fff;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
     font-size: 0.9rem;
     padding-left: 8px;
-    z-index: 1000;
+    z-index: var(--bx-stats-bar-z-index);
     text-wrap: nowrap;
 }
 
@@ -2069,7 +2083,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-stats-bar label {
     margin: 0 8px 0 0;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-size: inherit;
     font-weight: bold;
     vertical-align: middle;
@@ -2108,12 +2122,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     width: 420px;
     padding: 20px;
     border-radius: 8px;
-    z-index: 1000;
+    z-index: var(--bx-stats-settings-z-index);
     background: #1a1b1e;
     color: #fff;
     font-weight: 400;
     font-size: 16px;
-    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-family: var(--bx-normal-font);
     box-shadow: 0 0 6px #000;
     user-select: none;
     -webkit-user-select: none;
@@ -2126,7 +2140,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-stats-settings > b {
     color: #fff;
     display: block;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-size: 26px;
     font-weight: 400;
     line-height: 32px;
@@ -2155,7 +2169,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-align: center;
     color: white;
     text-transform: uppercase;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-weight: 400;
     line-height: 18px;
     font-size: 14px;
@@ -2180,7 +2194,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     right: 0;
     top: 20px;
     bottom: 20px;
-    z-index: 9999;
+    z-index: var(--bx-stream-settings-z-index);
     padding: 8px;
     width: 220px;
     background: #1a1b1e;
@@ -2188,7 +2202,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 8px 0 0 8px;
     font-weight: 400;
     font-size: 16px;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     text-align: center;
     box-shadow: 0px 0px 6px #000;
     opacity: 0.95;
@@ -2252,7 +2266,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
     font-weight: bold;
     font-size: 14px;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
 }
 
 @media (hover: hover) {
@@ -2270,7 +2284,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .better-xcloud-quick-settings-bar span {
     display: inline-block;
     width: 40px;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
     font-size: 14px;
 }
 
@@ -2288,7 +2302,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     left: 0;
     right: 0;
     height: 6vh;
-    z-index: 5555;
+    z-index: var(--bx-touch-controller-bar-z-index);
 }
 
 #better-xcloud-touch-controller-bar[data-showing=true] {
@@ -2301,7 +2315,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     right: 0;
     background-color: #000000cc;
     color: #fff;
-    z-index: 9999;
+    z-index: var(--bx-wait-time-box-z-index);
     padding: 12px;
     border-radius: 0 0 0 8px;
 }
@@ -2317,7 +2331,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .better-xcloud-wait-time-estimated, .better-xcloud-wait-time-countdown {
     display: block;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
     text-align: right;
     font-size: 16px;
 }
