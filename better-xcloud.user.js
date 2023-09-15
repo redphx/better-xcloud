@@ -61,50 +61,6 @@ function createElement(elmName, props = {}) {
 }
 
 
-const ENABLE_SAFARI_WORKAROUND = true;
-if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
-    // Stop loading
-    window.stop();
-
-    // Show the reloading overlay
-    const $elm = createElement('div', {'class': 'bx-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
-    const css = `
-.bx-reload-overlay {
-    position: fixed;
-    top: 0;
-    background: #000000cc;
-    z-index: 9999;
-    width: 100%;
-    line-height: 100vh;
-    color: #fff;
-    text-align: center;
-    font-weight: 400;
-    font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 1.3rem;
-}
-`;
-    document.documentElement.appendChild(createElement('style', {}, css));
-    document.documentElement.appendChild($elm);
-
-    // Reload the page
-    window.location.reload(true);
-
-    // Stop processing the script
-    throw new Error('[Better xCloud] Executing workaround for Safari');
-}
-
-// Automatically reload the page when running into the "We are sorry..." error message
-window.addEventListener('load', e => {
-    setTimeout(() => {
-        if (document.body.classList.contains('legacyBackground')) {
-            // Has error message -> reload page
-            window.stop();
-            window.location.reload(true);
-        }
-    }, 2000);
-});
-
-
 const SERVER_REGIONS = {};
 var STREAM_WEBRTC;
 var STREAM_AUDIO_CONTEXT;
@@ -3636,6 +3592,50 @@ function disablePwa() {
         });
     }
 }
+
+
+const ENABLE_SAFARI_WORKAROUND = true;
+if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
+    // Stop loading
+    window.stop();
+
+    // Show the reloading overlay
+    const $elm = createElement('div', {'class': 'bx-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
+    const css = `
+.bx-reload-overlay {
+    position: fixed;
+    top: 0;
+    background: #000000cc;
+    z-index: 9999;
+    width: 100%;
+    line-height: 100vh;
+    color: #fff;
+    text-align: center;
+    font-weight: 400;
+    font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.3rem;
+}
+`;
+    document.documentElement.appendChild(createElement('style', {}, css));
+    document.documentElement.appendChild($elm);
+
+    // Reload the page
+    window.location.reload(true);
+
+    // Stop processing the script
+    throw new Error('[Better xCloud] Executing workaround for Safari');
+}
+
+// Automatically reload the page when running into the "We are sorry..." error message
+window.addEventListener('load', e => {
+    setTimeout(() => {
+        if (document.body.classList.contains('legacyBackground')) {
+            // Has error message -> reload page
+            window.stop();
+            window.location.reload(true);
+        }
+    }, 3000);
+});
 
 
 // Hide Settings UI when navigate to another page
