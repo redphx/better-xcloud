@@ -67,9 +67,9 @@ if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
     window.stop();
 
     // Show the reloading overlay
-    const $elm = createElement('div', {'class': 'better-xcloud-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
+    const $elm = createElement('div', {'class': 'bx-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
     const css = `
-.better-xcloud-reload-overlay {
+.bx-reload-overlay {
     position: fixed;
     top: 0;
     background: #000000cc;
@@ -292,19 +292,19 @@ class LoadingScreen {
 
         let $waitTimeBox = LoadingScreen.#$waitTimeBox;
         if (!$waitTimeBox) {
-            $waitTimeBox = CE('div', {'class': 'better-xcloud-wait-time-box'},
+            $waitTimeBox = CE('div', {'class': 'bx-wait-time-box'},
                                     CE('label', {}, 'Estimated finish time'),
-                                    $estimated = CE('span', {'class': 'better-xcloud-wait-time-estimated'}),
+                                    $estimated = CE('span', {'class': 'bx-wait-time-estimated'}),
                                     CE('label', {}, 'Countdown'),
-                                    $countDown = CE('span', {'class': 'better-xcloud-wait-time-countdown'}),
+                                    $countDown = CE('span', {'class': 'bx-wait-time-countdown'}),
                                    );
 
             document.documentElement.appendChild($waitTimeBox);
             LoadingScreen.#$waitTimeBox = $waitTimeBox;
         } else {
-            $waitTimeBox.classList.remove('better-xcloud-gone');
-            $estimated = $waitTimeBox.querySelector('.better-xcloud-wait-time-estimated');
-            $countDown = $waitTimeBox.querySelector('.better-xcloud-wait-time-countdown');
+            $waitTimeBox.classList.remove('bx-gone');
+            $estimated = $waitTimeBox.querySelector('.bx-wait-time-estimated');
+            $countDown = $waitTimeBox.querySelector('.bx-wait-time-countdown');
         }
 
         $estimated.textContent = endDateStr;
@@ -325,7 +325,7 @@ class LoadingScreen {
 
     static hide() {
         LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
 
         const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
         $rocketBg && $rocketBg.addEventListener('transitionend', e => {
@@ -344,7 +344,7 @@ class LoadingScreen {
     }
 
     static reset() {
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
         LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
 
         LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
@@ -425,7 +425,7 @@ class TouchController {
         const $style = document.createElement('style');
         document.documentElement.appendChild($style);
 
-        const $bar = createElement('div', {'id': 'better-xcloud-touch-controller-bar'});
+        const $bar = createElement('div', {'id': 'bx-touch-controller-bar'});
         document.documentElement.appendChild($bar);
 
         // Setup double-tap event
@@ -572,12 +572,12 @@ class StreamBadges {
             return $badge;
         }
 
-        $badge = CE('div', {'class': 'better-xcloud-badge'},
-                    CE('span', {'class': 'better-xcloud-badge-name'}, name),
-                    CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
+        $badge = CE('div', {'class': 'bx-badge'},
+                    CE('span', {'class': 'bx-badge-name'}, name),
+                    CE('span', {'class': 'bx-badge-value', 'style': `background-color: ${color}`}, value));
 
         if (name === StreamBadges.BADGE_BATTERY) {
-            $badge.classList.add('better-xcloud-badge-battery');
+            $badge.classList.add('bx-badge-battery');
         }
 
         StreamBadges.#cachedDoms[name] = $badge;
@@ -585,7 +585,7 @@ class StreamBadges {
     }
 
     static async #updateBadges(forceUpdate) {
-        if (!forceUpdate && !document.querySelector('.better-xcloud-badges')) {
+        if (!forceUpdate && !document.querySelector('.bx-badges')) {
             StreamBadges.#stop();
             return;
         }
@@ -719,7 +719,7 @@ class StreamBadges {
             audio ? [StreamBadges.BADGE_AUDIO, audio, '#5f574f'] : null,
         ];
 
-        const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
+        const $wrapper = createElement('div', {'class': 'bx-badges'});
         BADGES.forEach(item => item && $wrapper.appendChild(StreamBadges.#renderBadge(...item)));
 
         await StreamBadges.#updateBadges(true);
@@ -761,7 +761,7 @@ class StreamStats {
             return;
         }
 
-        StreamStats.#$container.classList.remove('better-xcloud-gone');
+        StreamStats.#$container.classList.remove('bx-gone');
         StreamStats.#$container.setAttribute('data-display', glancing ? 'glancing' : 'fixed');
 
         StreamStats.#interval = setInterval(StreamStats.update, StreamStats.#updateInterval);
@@ -777,7 +777,7 @@ class StreamStats {
         StreamStats.#lastStat = null;
 
         StreamStats.#$container.removeAttribute('data-display');
-        StreamStats.#$container.classList.add('better-xcloud-gone');
+        StreamStats.#$container.classList.add('bx-gone');
     }
 
     static toggle() {
@@ -794,7 +794,7 @@ class StreamStats {
         StreamStats.hideSettingsUi();
     }
 
-    static isHidden = () => StreamStats.#$container.classList.contains('better-xcloud-gone');
+    static isHidden = () => StreamStats.#$container.classList.contains('bx-gone');
     static isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
 
     static quickGlanceSetup() {
@@ -932,11 +932,11 @@ class StreamStats {
 
         const $barFragment = document.createDocumentFragment();
         for (let statKey in STATS) {
-            const $div = CE('div', {'class': `better-xcloud-stat-${statKey}`}, CE('label', {}, statKey.toUpperCase()), STATS[statKey]);
+            const $div = CE('div', {'class': `bx-stat-${statKey}`}, CE('label', {}, statKey.toUpperCase()), STATS[statKey]);
             $barFragment.appendChild($div);
         }
 
-        StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar better-xcloud-gone'}, $barFragment);
+        StreamStats.#$container = CE('div', {'class': 'bx-stats-bar bx-gone'}, $barFragment);
 
         let clickTimeout;
         StreamStats.#$container.addEventListener('mousedown', e => {
@@ -1008,7 +1008,7 @@ class StreamStats {
             ));
         }
 
-        StreamStats.#$settings = CE('div', {'class': 'better-xcloud-stats-settings'},
+        StreamStats.#$settings = CE('div', {'class': 'bx-stats-settings'},
                                     CE('b', {}, 'Stream Stats Settings'),
                                     $fragment,
                                     $close = CE('button', {}, 'Close'));
@@ -1613,10 +1613,10 @@ class Preferences {
 
         if (options.disabled) {
             $incBtn.disabled = true;
-            $incBtn.classList.add('better-xcloud-hidden');
+            $incBtn.classList.add('bx-hidden');
 
             $decBtn.disabled = true;
-            $decBtn.classList.add('better-xcloud-hidden');
+            $decBtn.classList.add('bx-hidden');
             return $wrapper;
         }
 
@@ -1779,7 +1779,7 @@ function addCss() {
     --bx-stats-bar-z-index: 1000;
 }
 
-.better-xcloud-settings-button {
+.bx-settings-button {
     background-color: transparent;
     border: none;
     color: white;
@@ -1789,11 +1789,11 @@ function addCss() {
     padding: 8px;
 }
 
-.better-xcloud-settings-button:hover, .better-xcloud-settings-button:focus {
+.bx-settings-button:hover, .bx-settings-button:focus {
     background-color: #515863;
 }
 
-.better-xcloud-settings-button[data-update-available]::after {
+.bx-settings-button[data-update-available]::after {
     content: ' 🌟';
 }
 
@@ -1805,29 +1805,29 @@ function addCss() {
     font-family: var(--bx-normal-font);
 }
 
-.better-xcloud-gone {
+.bx-gone {
     display: none !important;
 }
 
-.better-xcloud-hidden {
+.bx-hidden {
     visibility: hidden !important;
 }
 
-.better-xcloud-settings-wrapper {
+.bx-settings-wrapper {
     width: 450px;
     margin: auto;
     padding: 12px 6px;
 }
 
-.better-xcloud-settings-wrapper *:focus {
+.bx-settings-wrapper *:focus {
     outline: none !important;
 }
 
-.better-xcloud-settings-wrapper .better-xcloud-settings-title-wrapper {
+.bx-settings-wrapper .bx-settings-title-wrapper {
     display: flex;
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-title {
+.bx-settings-wrapper a.bx-settings-title {
     font-family: var(--bx-title-font);
     font-size: 1.4rem;
     text-decoration: none;
@@ -1838,47 +1838,47 @@ function addCss() {
     flex: 1;
 }
 
-.better-xcloud-settings-group-label {
+.bx-settings-group-label {
     font-weight: bold;
     display: block;
     font-size: 1.1rem;
 }
 
 @media (hover: hover) {
-    .better-xcloud-settings-wrapper a.better-xcloud-settings-title:hover {
+    .bx-settings-wrapper a.bx-settings-title:hover {
         color: #83f73a;
     }
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-title:focus {
+.bx-settings-wrapper a.bx-settings-title:focus {
     color: #83f73a;
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-update {
+.bx-settings-wrapper a.bx-settings-update {
     display: none;
     color: #ff834b;
     text-decoration: none;
 }
 
 @media (hover: hover) {
-    .better-xcloud-settings-wrapper a.better-xcloud-settings-update:hover {
+    .bx-settings-wrapper a.bx-settings-update:hover {
         color: #ff9869;
         text-decoration: underline;
     }
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-update:focus {
+.bx-settings-wrapper a.bx-settings-update:focus {
     color: #ff9869;
     text-decoration: underline;
 }
 
-.better-xcloud-settings-row {
+.bx-settings-row {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
 }
 
-.better-xcloud-settings-row label {
+.bx-settings-row label {
     flex: 1;
     align-self: center;
     margin-bottom: 0;
@@ -1886,16 +1886,16 @@ function addCss() {
 }
 
 @media not (hover: hover) {
-    .better-xcloud-settings-row:focus-within {
+    .bx-settings-row:focus-within {
        background-color: #242424;
     }
 }
 
-.better-xcloud-settings-row input {
+.bx-settings-row input {
     align-self: center;
 }
 
-.better-xcloud-settings-reload-button {
+.bx-settings-reload-button {
     padding: 8px 32px;
     margin: 10px auto 0;
     border: none;
@@ -1911,27 +1911,27 @@ function addCss() {
 }
 
 @media (hover: hover) {
-    .better-xcloud-settings-reload-button:hover {
+    .bx-settings-reload-button:hover {
         background-color: #00753c;
     }
 }
 
-.better-xcloud-settings-reload-button:focus {
+.bx-settings-reload-button:focus {
     background-color: #00753c;
 }
 
-.better-xcloud-settings-reload-button:active {
+.bx-settings-reload-button:active {
     background-color: #00753c;
 }
 
-.better-xcloud-settings-app-version {
+.bx-settings-app-version {
     margin-top: 10px;
     text-align: center;
     color: #747474;
     font-size: 12px;
 }
 
-.better-xcloud-settings-custom-user-agent {
+.bx-settings-custom-user-agent {
     display: block;
     width: 100%;
 }
@@ -1940,14 +1940,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: visible;
 }
 
-.better-xcloud-badges {
+.bx-badges {
     position: absolute;
     margin-left: 0px;
     user-select: none;
     -webkit-user-select: none;
 }
 
-.better-xcloud-badge {
+.bx-badge {
     border: none;
     display: inline-block;
     line-height: 24px;
@@ -1960,7 +1960,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.better-xcloud-badge-name {
+.bx-badge-name {
     background-color: #2d3036;
     display: inline-block;
     padding: 2px 8px;
@@ -1968,18 +1968,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-transform: uppercase;
 }
 
-.better-xcloud-badge-value {
+.bx-badge-value {
     background-color: grey;
     display: inline-block;
     padding: 2px 8px;
     border-radius: 0 4px 4px 0;
 }
 
-.better-xcloud-badge-battery[data-charging=true] span:first-of-type::after {
+.bx-badge-battery[data-charging=true] span:first-of-type::after {
     content: ' ⚡️';
 }
 
-.better-xcloud-screenshot-button {
+.bx-screenshot-button {
     display: none;
     opacity: 0;
     position: fixed;
@@ -2002,19 +2002,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-image: url(${ICON_SCREENSHOT_B64});
 }
 
-.better-xcloud-screenshot-button[data-showing=true] {
+.bx-screenshot-button[data-showing=true] {
     opacity: 0.9;
 }
 
-.better-xcloud-screenshot-button[data-capturing=true] {
+.bx-screenshot-button[data-capturing=true] {
     padding: 1vh;
 }
 
-.better-xcloud-screenshot-canvas {
+.bx-screenshot-canvas {
     display: none;
 }
 
-.better-xcloud-stats-bar {
+.bx-stats-bar {
     display: block;
     user-select: none;
     -webkit-user-select: none;
@@ -2029,59 +2029,59 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-wrap: nowrap;
 }
 
-.better-xcloud-stats-bar > div {
+.bx-stats-bar > div {
     display: none;
     margin-right: 8px;
     border-right: 2px solid #fff;
     padding-right: 8px;
 }
 
-.better-xcloud-stats-bar[data-stats*="[fps]"] > .better-xcloud-stat-fps,
-.better-xcloud-stats-bar[data-stats*="[ping]"] > .better-xcloud-stat-ping,
-.better-xcloud-stats-bar[data-stats*="[btr]"] > .better-xcloud-stat-btr,
-.better-xcloud-stats-bar[data-stats*="[dt]"] > .better-xcloud-stat-dt,
-.better-xcloud-stats-bar[data-stats*="[pl]"] > .better-xcloud-stat-pl,
-.better-xcloud-stats-bar[data-stats*="[fl]"] > .better-xcloud-stat-fl {
+.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,
+.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,
+.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,
+.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,
+.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,
+.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl {
     display: inline-block;
 }
 
-.better-xcloud-stats-bar[data-stats$="[fps]"] > .better-xcloud-stat-fps,
-.better-xcloud-stats-bar[data-stats$="[ping]"] > .better-xcloud-stat-ping,
-.better-xcloud-stats-bar[data-stats$="[btr]"] > .better-xcloud-stat-btr,
-.better-xcloud-stats-bar[data-stats$="[dt]"] > .better-xcloud-stat-dt,
-.better-xcloud-stats-bar[data-stats$="[pl]"] > .better-xcloud-stat-pl,
-.better-xcloud-stats-bar[data-stats$="[fl]"] > .better-xcloud-stat-fl {
+.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,
+.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,
+.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,
+.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,
+.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,
+.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl {
     margin-right: 0;
     border-right: none;
 }
 
-.better-xcloud-stats-bar[data-display=glancing]::before {
+.bx-stats-bar[data-display=glancing]::before {
     content: '👀 ';
     vertical-align: middle;
 }
 
-.better-xcloud-stats-bar[data-position=top-left] {
+.bx-stats-bar[data-position=top-left] {
     left: 0;
     border-radius: 0 0 4px 0;
 }
 
-.better-xcloud-stats-bar[data-position=top-right] {
+.bx-stats-bar[data-position=top-right] {
     right: 0;
     border-radius: 0 0 0 4px;
 }
 
-.better-xcloud-stats-bar[data-position=top-center] {
+.bx-stats-bar[data-position=top-center] {
     transform: translate(-50%, 0);
     left: 50%;
     border-radius: 0 0 4px 4px;
 }
 
-.better-xcloud-stats-bar[data-transparent=true] {
+.bx-stats-bar[data-transparent=true] {
     background: none;
     filter: drop-shadow(1px 0 0 #000000f0) drop-shadow(-1px 0 0 #000000f0) drop-shadow(0 1px 0 #000000f0) drop-shadow(0 -1px 0 #000000f0);
 }
 
-.better-xcloud-stats-bar label {
+.bx-stats-bar label {
     margin: 0 8px 0 0;
     font-family: var(--bx-title-font);
     font-size: inherit;
@@ -2089,30 +2089,30 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     vertical-align: middle;
 }
 
-.better-xcloud-stats-bar span {
+.bx-stats-bar span {
     min-width: 60px;
     display: inline-block;
     text-align: right;
     vertical-align: middle;
 }
 
-.better-xcloud-stats-bar span[data-grade=good] {
+.bx-stats-bar span[data-grade=good] {
     color: #6bffff;
 }
 
-.better-xcloud-stats-bar span[data-grade=ok] {
+.bx-stats-bar span[data-grade=ok] {
     color: #fff16b;
 }
 
-.better-xcloud-stats-bar span[data-grade=bad] {
+.bx-stats-bar span[data-grade=bad] {
     color: #ff5f5f;
 }
 
-.better-xcloud-stats-bar span:first-of-type {
+.bx-stats-bar span:first-of-type {
     min-width: 22px;
 }
 
-.better-xcloud-stats-settings {
+.bx-stats-settings {
     display: none;
     position: fixed;
     top: 50%;
@@ -2133,11 +2133,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     -webkit-user-select: none;
 }
 
-.better-xcloud-stats-settings *:focus {
+.bx-stats-settings *:focus {
     outline: none !important;
 }
 
-.better-xcloud-stats-settings > b {
+.bx-stats-settings > b {
     color: #fff;
     display: block;
     font-family: var(--bx-title-font);
@@ -2147,19 +2147,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 12px;
 }
 
-.better-xcloud-stats-settings > div {
+.bx-stats-settings > div {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
 }
 
-.better-xcloud-stats-settings label {
+.bx-stats-settings label {
     flex: 1;
     margin-bottom: 0;
     align-self: center;
 }
 
-.better-xcloud-stats-settings button {
+.bx-stats-settings button {
     padding: 8px 32px;
     margin: 20px auto 0;
     border: none;
@@ -2176,16 +2176,16 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 @media (hover: hover) {
-    .better-xcloud-stats-settings button:hover {
+    .bx-stats-settings button:hover {
         background-color: #515863;
     }
 }
 
-.better-xcloud-stats-settings button:focus {
+.bx-stats-settings button:focus {
     background-color: #515863;
 }
 
-.better-xcloud-quick-settings-bar {
+.bx-quick-settings-bar {
     display: none;
     flex-direction: column;
     user-select: none;
@@ -2209,11 +2209,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: overlay;
 }
 
-.better-xcloud-quick-settings-bar:not([data-clarity-boost="true"]) .better-xcloud-clarity-boost-warning {
+.bx-quick-settings-bar:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
     display: none;
 }
 
-.better-xcloud-quick-settings-bar[data-clarity-boost="true"] .better-xcloud-clarity-boost-warning {
+.bx-quick-settings-bar[data-clarity-boost="true"] .bx-clarity-boost-warning {
     display: block;
     margin: 0px 8px;
     padding: 12px;
@@ -2223,39 +2223,39 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.better-xcloud-quick-settings-bar[data-clarity-boost="true"] > div[data-type="video"] {
+.bx-quick-settings-bar[data-clarity-boost="true"] > div[data-type="video"] {
     display: none;
 }
 
-.better-xcloud-quick-settings-bar *:focus {
+.bx-quick-settings-bar *:focus {
     outline: none !important;
 }
 
-.better-xcloud-quick-settings-bar > div {
+.bx-quick-settings-bar > div {
     margin-bottom: 16px;
 }
 
-.better-xcloud-quick-settings-bar h2 {
+.bx-quick-settings-bar h2 {
     font-size: 32px;
     font-weight: bold;
     margin-bottom: 8px;
 }
 
-.better-xcloud-quick-settings-bar input[type="range"] {
+.bx-quick-settings-bar input[type="range"] {
     display: block;
     margin: 12px auto;
     width: 80%;
     color: #959595 !important;
 }
 
-.better-xcloud-quick-settings-bar label {
+.bx-quick-settings-bar label {
     font-size: 16px;
     font-weight: bold;
     display: block;
     margin-bottom: 8px;
 }
 
-.better-xcloud-quick-settings-bar button {
+.bx-quick-settings-bar button {
     border: none;
     width: 24px;
     height: 24px;
@@ -2270,31 +2270,31 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 @media (hover: hover) {
-    .better-xcloud-quick-settings-bar button:hover {
+    .bx-quick-settings-bar button:hover {
         background-color: #414141;
         color: white;
     }
 }
 
-.better-xcloud-quick-settings-bar button:active {
+.bx-quick-settings-bar button:active {
         background-color: #414141;
         color: white;
     }
 
-.better-xcloud-quick-settings-bar span {
+.bx-quick-settings-bar span {
     display: inline-block;
     width: 40px;
     font-family: var(--bx-monospaced-font);
     font-size: 14px;
 }
 
-.better-xcloud-stream-menu-button-on {
+.bx-stream-menu-button-on {
     fill: #000 !important;
     background-color: #fff !important;
     color: #000 !important;
 }
 
-#better-xcloud-touch-controller-bar {
+#bx-touch-controller-bar {
     display: none;
     opacity: 0;
     position: fixed;
@@ -2305,11 +2305,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     z-index: var(--bx-touch-controller-bar-z-index);
 }
 
-#better-xcloud-touch-controller-bar[data-showing=true] {
+#bx-touch-controller-bar[data-showing=true] {
     display: block !important;
 }
 
-.better-xcloud-wait-time-box {
+.bx-wait-time-box {
     position: fixed;
     top: 0;
     right: 0;
@@ -2320,7 +2320,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 0 0 0 8px;
 }
 
-.better-xcloud-wait-time-box label {
+.bx-wait-time-box label {
     display: block;
     text-transform: uppercase;
     text-align: right;
@@ -2329,14 +2329,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin: 0;
 }
 
-.better-xcloud-wait-time-estimated, .better-xcloud-wait-time-countdown {
+.bx-wait-time-estimated, .bx-wait-time-countdown {
     display: block;
     font-family: var(--bx-monospaced-font);
     text-align: right;
     font-size: 16px;
 }
 
-.better-xcloud-wait-time-estimated {
+.bx-wait-time-estimated {
     margin-bottom: 10px;
 }
 
@@ -2418,11 +2418,11 @@ div[class*=Menu-module__scrollable] {
     --streamMenuItemSize: calc(var(--bxStreamMenuItemSize) + 40px) !important;
 }
 
-.better-xcloud-badges {
+.bx-badges {
     top: calc(var(--streamMenuItemSize) - 20px);
 }
 
-body[data-media-type=tv] .better-xcloud-badges {
+body[data-media-type=tv] .bx-badges {
     top: calc(var(--streamMenuItemSize) - 10px) !important;
 }
 
@@ -2446,11 +2446,11 @@ svg[class*=MenuItem-module__icon] {
 `;
     } else {
         css += `
-body[data-media-type=tv] .better-xcloud-badges {
+body[data-media-type=tv] .bx-badges {
     top: calc(var(--streamMenuItemSize) + 30px);
 }
 
-body:not([data-media-type=tv]) .better-xcloud-badges {
+body:not([data-media-type=tv]) .bx-badges {
     top: calc(var(--streamMenuItemSize) + 20px);
 }
 
@@ -2821,10 +2821,10 @@ function injectSettingsButton($parent) {
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
 
     // Setup Settings button
-    const $button = CE('button', {'class': 'better-xcloud-settings-button'}, PREF_PREFERRED_REGION);
+    const $button = CE('button', {'class': 'bx-settings-button'}, PREF_PREFERRED_REGION);
     $button.addEventListener('click', e => {
         const $settings = document.querySelector('.better_xcloud_settings');
-        $settings.classList.toggle('better-xcloud-gone');
+        $settings.classList.toggle('bx-gone');
         $settings.scrollIntoView();
     });
 
@@ -2838,19 +2838,19 @@ function injectSettingsButton($parent) {
 
     // Setup Settings UI
     const $container = CE('div', {
-        'class': 'better_xcloud_settings better-xcloud-gone',
+        'class': 'better_xcloud_settings bx-gone',
     });
 
     let $updateAvailable;
-    const $wrapper = CE('div', {'class': 'better-xcloud-settings-wrapper'},
-                        CE('div', {'class': 'better-xcloud-settings-title-wrapper'},
+    const $wrapper = CE('div', {'class': 'bx-settings-wrapper'},
+                        CE('div', {'class': 'bx-settings-title-wrapper'},
                            CE('a', {
-                                'class': 'better-xcloud-settings-title',
+                                'class': 'bx-settings-title',
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
                            $updateAvailable = CE('a', {
-                                'class': 'better-xcloud-settings-update',
+                                'class': 'bx-settings-update',
                                 'href': 'https://github.com/redphx/better-xcloud/releases',
                                 'target': '_blank',
                            })
@@ -2905,7 +2905,7 @@ function injectSettingsButton($parent) {
     };
 
     for (let groupLabel in SETTINGS_UI) {
-        const $group = CE('span', {'class': 'better-xcloud-settings-group-label'}, groupLabel);
+        const $group = CE('span', {'class': 'bx-settings-group-label'}, groupLabel);
         $wrapper.appendChild($group);
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
@@ -2920,7 +2920,7 @@ function injectSettingsButton($parent) {
                 $inpCustomUserAgent = CE('input', {
                     'type': 'text',
                     'placeholder': defaultUserAgent,
-                    'class': 'better-xcloud-settings-custom-user-agent',
+                    'class': 'bx-settings-custom-user-agent',
                 });
                 $inpCustomUserAgent.addEventListener('change', e => {
                     PREFS.set(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
@@ -2984,7 +2984,7 @@ function injectSettingsButton($parent) {
             }
             $control.disabled && ($control.style.cursor = 'help');
 
-            const $elm = CE('div', {'class': 'better-xcloud-settings-row'},
+            const $elm = CE('div', {'class': 'bx-settings-row'},
                             CE('label', labelAttrs, settingLabel),
                             $control
                            );
@@ -3001,7 +3001,7 @@ function injectSettingsButton($parent) {
     }
 
     // Setup Reload button
-    const $reloadBtn = CE('button', {'class': 'better-xcloud-settings-reload-button', 'tabindex': 0}, 'Reload page to reflect changes');
+    const $reloadBtn = CE('button', {'class': 'bx-settings-reload-button', 'tabindex': 0}, 'Reload page to reflect changes');
     $reloadBtn.addEventListener('click', e => {
         window.location.reload();
         $reloadBtn.textContent = 'Reloading...';
@@ -3012,7 +3012,7 @@ function injectSettingsButton($parent) {
     try {
         const appVersion = document.querySelector('meta[name=gamepass-app-version]').content;
         const appDate = new Date(document.querySelector('meta[name=gamepass-app-date]').content).toISOString().substring(0, 10);
-        $wrapper.appendChild(CE('div', {'class': 'better-xcloud-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
+        $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
     } catch (e) {}
 
     // Add Settings UI to the web page
@@ -3027,9 +3027,9 @@ function getVideoPlayerFilterStyle() {
     if (clarity != 0) {
         const level = (7 - (clarity - 1) * 0.5).toFixed(1); // 5, 5.5, 6, 6.5, 7
         const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
-        document.getElementById('better-xcloud-filter-clarity-matrix').setAttributeNS(null, 'kernelMatrix', matrix);
+        document.getElementById('bx-filter-clarity-matrix').setAttributeNS(null, 'kernelMatrix', matrix);
 
-        filters.push(`url(#better-xcloud-filter-clarity)`);
+        filters.push(`url(#bx-filter-clarity)`);
     }
 
     const saturation = PREFS.get(Preferences.VIDEO_SATURATION);
@@ -3052,21 +3052,21 @@ function getVideoPlayerFilterStyle() {
 
 
 function updateVideoPlayerCss() {
-    let $elm = document.getElementById('better-xcloud-video-css');
+    let $elm = document.getElementById('bx-video-css');
     if (!$elm) {
         const CE = createElement;
 
-        $elm = CE('style', {id: 'better-xcloud-video-css'});
+        $elm = CE('style', {id: 'bx-video-css'});
         document.documentElement.appendChild($elm);
 
         // Setup SVG filters
         const $svg = CE('svg', {
-            'id': 'better-xcloud-video-filters',
+            'id': 'bx-video-filters',
             'xmlns': 'http://www.w3.org/2000/svg',
-            'class': 'better-xcloud-gone',
+            'class': 'bx-gone',
         }, CE('defs', {'xmlns': 'http://www.w3.org/2000/svg'},
-              CE('filter', {'id': 'better-xcloud-filter-clarity', 'xmlns': 'http://www.w3.org/2000/svg'},
-                CE('feConvolveMatrix', {'id': 'better-xcloud-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
+              CE('filter', {'id': 'bx-filter-clarity', 'xmlns': 'http://www.w3.org/2000/svg'},
+                CE('feConvolveMatrix', {'id': 'bx-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
              )
         );
         document.documentElement.appendChild($svg);
@@ -3116,7 +3116,7 @@ div[data-testid="media-container"] {
 
 
 function checkHeader() {
-    const $button = document.querySelector('.better-xcloud-settings-button');
+    const $button = document.querySelector('.bx-settings-button');
 
     if (!$button) {
         const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
@@ -3167,7 +3167,7 @@ function injectStreamMenuButtons() {
 
     $screen.xObserving = true;
 
-    const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
+    const $quickBar = document.querySelector('.bx-quick-settings-bar');
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
         if (e) {
@@ -3248,7 +3248,7 @@ function injectStreamMenuButtons() {
                 });
 
                 const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
-                $btnStreamStats.classList.toggle('better-xcloud-stream-menu-button-on', btnStreamStatsOn);
+                $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
 
                 // Insert after Stream Settings button
                 $orgButton.parentElement.insertBefore($btnStreamStats, $btnStreamSettings);
@@ -3383,7 +3383,7 @@ function setupVideoSettingsBar() {
     }
 
     let $stretchInp;
-    const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
+    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
                         CE('h2', {}, 'Audio'),
                         CE('div', {},
                             CE('label', {}, 'Volume'),
@@ -3392,9 +3392,9 @@ function setupVideoSettingsBar() {
                             }, {suffix: '%', ticks: 100})),
 
                         CE('h2', {}, 'Video'),
-                        CE('div', {'class': 'better-xcloud-clarity-boost-warning'}, '⚠️ These settings don\'t work when the Clarity Boost mode is ON'),
+                        CE('div', {'class': 'bx-clarity-boost-warning'}, '⚠️ These settings don\'t work when the Clarity Boost mode is ON'),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Ratio'),
+                            CE('label', {'for': 'bx-quick-setting-stretch'}, 'Ratio'),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, 'Clarity'),
@@ -3415,13 +3415,13 @@ function setupVideoSettingsBar() {
 
 
 function setupScreenshotButton() {
-    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'better-xcloud-screenshot-canvas'});
+    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'bx-screenshot-canvas'});
     document.documentElement.appendChild($SCREENSHOT_CANVAS);
 
     const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
     const delay = 2000;
-    const $btn = createElement('div', {'class': 'better-xcloud-screenshot-button', 'data-showing': false});
+    const $btn = createElement('div', {'class': 'bx-screenshot-button', 'data-showing': false});
 
     let timeout;
     const detectDbClick = e => {
@@ -3498,10 +3498,10 @@ function patchHistoryMethod(type) {
 function onHistoryChanged() {
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
-        $settings.classList.add('better-xcloud-gone');
+        $settings.classList.add('bx-gone');
     }
 
-    const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
+    const $quickBar = document.querySelector('.bx-quick-settings-bar');
     if ($quickBar) {
         $quickBar.style.display = 'none';
     }
@@ -3509,7 +3509,7 @@ function onHistoryChanged() {
     STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
-    document.querySelector('.better-xcloud-screenshot-button').style = '';
+    document.querySelector('.bx-screenshot-button').style = '';
 
     MouseCursorHider.stop();
     TouchController.reset();
@@ -3610,7 +3610,7 @@ function onStreamStarted($video) {
 
     // Setup screenshot button
     if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-        const $btn = document.querySelector('.better-xcloud-screenshot-button');
+        const $btn = document.querySelector('.bx-screenshot-button');
         $btn.style.display = 'block';
 
         if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
