@@ -63,7 +63,12 @@ function createElement(elmName, props = {}) {
 
 const Translations = {
     getLocale: () => {
-        return localStorage.getItem('better_xcloud_locale') || 'en-US';
+        let locale = localStorage.getItem('better_xcloud_locale');
+        if (!locale) {
+            locale = window.navigator.language || 'en-US;
+            localStorage.setItem('better_xcloud_locale', locale);
+        }
+        return locale;
     },
 
     get: (key) => {
