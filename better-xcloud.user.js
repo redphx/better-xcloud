@@ -3465,6 +3465,7 @@ function injectSettingsButton($parent) {
                 if (settingId === Preferences.BETTER_XCLOUD_LOCALE) {
                     onChange = e => {
                         localStorage.setItem('better_xcloud_locale', e.target.value);
+                        window.location.reload();
                     }
                 }
 
