@@ -2386,6 +2386,7 @@ function addCss() {
 }
 
 .bx-settings-reload-button {
+    width: 100%;
     padding: 8px 32px;
     margin: 10px auto 0;
     border: none;
@@ -2397,6 +2398,7 @@ function addCss() {
     text-transform: uppercase;
     font-family: var(--bx-title-font);
     font-weight: 400;
+    font-size: 14px;
     line-height: 24px;
 }
 
