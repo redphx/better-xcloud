@@ -153,14 +153,17 @@ const Translations = {
     },
     "stat-ping": {
         "en-US": "Ping",
+        "pt-BR": "Ping",
         "vi-VN": "Ping",
     },
     "stat-fps": {
         "en-US": "FPS",
+        "pt-BR": "FPS",
         "vi-VN": "FPS",
     },
     "stat-bitrate": {
         "en-US": "Bitrate",
+        "pt-BR": "Bitrate",
         "vi-VN": "Bitrate",
     },
     "stat-decode-time": {
@@ -205,6 +208,7 @@ const Translations = {
     },
     "stream": {
         "en-US": "Stream",
+        "pt-BR": "Stream",
         "vi-VN": "Stream",
     },
     "target-resolution": {
@@ -304,7 +308,7 @@ const Translations = {
     },
     "simplify-stream-menu": {
         "en-US": "Simplify Stream's menu",
-        "pt-BR": "Simplificar o menu do streaming",
+        "pt-BR": "Simplificar menu do streaming",
         "vi-VN": "Đơn giản hóa menu của Stream",
     },
     "skip-splash-video": {
@@ -374,7 +378,7 @@ const Translations = {
     },
     "stream-stats-settings": {
         "en-US": "Stream stats settings",
-        "pt-BR": "Configurações de estatísticas do stream",
+        "pt-BR": "Ajustes de estatísticas",
         "vi-VN": "Cấu hình thông số của stream",
     },
     "show-stats-on-startup": {
@@ -414,7 +418,7 @@ const Translations = {
     },
     "conditional-formatting": {
         "en-US": "Conditional formatting text color",
-        "pt-BR": "Cor do texto de formatação condicional",
+        "pt-BR": "Cor do texto do formato condicional",
         "vi-VN": "Thay đổi màu chữ tùy theo giá trị",
     },
     "confirm-reload-stream": {
@@ -429,7 +433,7 @@ const Translations = {
     },
     "menu-stream-settings": {
         "en-US": "Stream settings",
-        "pt-BR": "Configurações de transmissão",
+        "pt-BR": "Ajustes de transmissão",
         "vi-VN": "Cấu hình stream",
     },
     "audio": {
@@ -449,7 +453,7 @@ const Translations = {
     },
     "ratio": {
         "en-US": "Ratio",
-        "pt-BR": "Taxa",
+        "pt-BR": "Proporção",
         "vi-VN": "Tỉ lệ",
     },
     "clarity": {
@@ -489,12 +493,12 @@ const Translations = {
     },
     "badge-in": {
         "en-US": "In",
-        "pt-BR": "Entrar",
+        "pt-BR": "Recebidos",
         "vi-VN": "Nhận",
     },
     "badge-out": {
         "en-US": "Out",
-        "pt-BR": "Sair",
+        "pt-BR": "Enviados",
         "vi-VN": "Gởi",
     },
     "badge-server": {
@@ -529,6 +533,7 @@ const Translations = {
     },
     "tc-muted-colors": {
         "en-US": "Muted colors",
+        "pt-BR": "Cores silenciadas",
         "vi-VN": "Màu câm",
     },
 }
