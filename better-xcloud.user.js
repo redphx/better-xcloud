@@ -61,6 +61,446 @@ function createElement(elmName, props = {}) {
 }
 
 
+const Translations = {
+    getLocale: () => {
+        return localStorage.getItem('better_xcloud_locale') || 'en-US';
+    },
+
+    get: (key) => {
+        const texts = Translations[key] || alert(`Missing translation key: ${key}`);
+        return texts[LOCALE] || texts['en-US'];
+    },
+
+    'default': {
+        'en-US': 'Default',
+        'vi-VN': 'Mặc định',
+    },
+    'custom': {
+        'en-US': 'Custom',
+        'vi-VN': 'Tùy chọn',
+    },
+    'auto': {
+        'en-US': 'Auto',
+        'vi-VN': 'Tự động',
+    },
+    'stretch': {
+        'en-US': 'Stretch',
+        'vi-VN': 'Kéo dãn',
+    },
+    'off': {
+        'en-US': 'Off',
+        'vi-VN': 'Tắt',
+    },
+    'disable': {
+        'en-US': 'Disable',
+        'vi-VN': 'Vô hiệu hóa',
+    },
+    'bottom-left': {
+        'en-US': 'Bottom-left',
+        'vi-VN': 'Góc dưới bên trái',
+    },
+    'bottom-right': {
+        'en-US': 'Bottom-right',
+        'vi-VN': 'Góc dưới bên phải',
+    },
+    'top-left': {
+        'en-US': 'Top-left',
+        'vi-VN': 'Góc trên bên trái',
+    },
+    'top-center': {
+        'en-US': 'Top-center',
+        'vi-VN': 'Canh giữa',
+    },
+    'top-right': {
+        'en-US': 'Top-right',
+        'vi-VN': 'Góc trên bên phải',
+    },
+    'small': {
+        'en-US': 'Small',
+        'vi-VN': 'Nhỏ',
+    },
+    'normal': {
+        'en-US': 'Normal',
+        'vi-VN': 'Thường',
+    },
+    'large': {
+        'en-US': 'Large',
+        'vi-VN': 'Lớn',
+    },
+    'close': {
+        'en-US': 'Close',
+        'vi-VN': 'Đóng',
+    },
+
+    'stat-ping': {
+        'en-US': 'Ping',
+        'vi-VN': 'Ping',
+    },
+    'stat-fps': {
+        'en-US': 'FPS',
+        'vi-VN': 'FPS',
+    },
+    'stat-bitrate': {
+        'en-US': 'Bitrate',
+        'vi-VN': 'Tốc độ bit',
+    },
+    'stat-decode-time': {
+        'en-US': 'Decode time',
+        'vi-VN': 'Thời gian giải mã',
+    },
+    'stat-packets-lost': {
+        'en-US': 'Packets lost',
+        'vi-VN': 'Số gói tin bị mất',
+    },
+    'stat-frames-lost': {
+        'en-US': 'Frames lost',
+        'vi-VN': 'Số khung hình bị mất',
+    },
+
+    'better-xcloud': {
+        'en-US': 'Better xCloud',
+    },
+    'language': {
+        'en-US': 'Language',
+        'vi-VN': 'Ngôn ngữ',
+    },
+    'server': {
+        'en-US': 'Server',
+        'vi-VN': 'Máy chủ',
+    },
+    'region': {
+        'en-US': 'Region',
+        'vi-VN': 'Khu vực',
+    },
+    'preferred-game-language': {
+        'en-US': 'Preferred game\'s language',
+        'vi-VN': 'Ngôn ngữ game ưu tiên',
+    },
+    'prefer-ipv6-server': {
+        'en-US': 'Prefer IPv6 server',
+        'vi-VN': 'Ưu tiên máy chủ IPv6',
+    },
+    'stream': {
+        'en-US': 'Stream',
+        'vi-VN': 'Stream',
+    },
+    'target-resolution': {
+        'en-US': 'Target resolution',
+        'vi-VN': 'Độ phân giải',
+    },
+    'force-hq-codec': {
+        'en-US': 'Force high-quality codec',
+        'vi-VN': 'Codec chất lượng cao',
+    },
+    'disable-bandwidth-checking': {
+        'en-US': 'Disable bandwidth checking',
+        'vi-VN': 'Tắt kiểm tra băng thông',
+    },
+    'enable-mic-on-startup': {
+        'en-US': 'Enable microphone on game launch',
+        'vi-VN': 'Bật mic lúc vào game',
+    },
+    'hide-idle-cursor': {
+        'en-US': 'Hide mouse cursor on idle',
+        'vi-VN': 'Ẩn con trỏ chuột khi không di chuyển',
+    },
+    'touch-controller': {
+        'en-US': 'Touch controller',
+        'vi-VN': 'Bộ điều khiển cảm ứng',
+    },
+    'tc-availability': {
+        'en-US': 'Availability',
+        'vi-VN': 'Kích hoạt',
+    },
+    'all-games': {
+        'en-US': 'All games',
+        'vi-VN': 'Tất cả các game',
+    },
+
+    'tc-standard-layout-style': {
+        'en-US': 'Standard layout\'s button style',
+        'vi-VN': 'Màu của bố cục tiêu chuẩn',
+    },
+    'tc-custom-layout-style': {
+        'en-US': 'Custom layout\'s button style',
+        'vi-VN': 'Màu của bố cục tùy chọn',
+    },
+    'tc-all-white': {
+        'en-US': 'All white',
+        'vi-VN': 'Trắng hoàn toàn',
+    },
+    'tc-muted-colors': {
+        'en-US': 'Muted colors',
+        'vi-VN': 'Màu câm',
+    },
+    'loading-screen': {
+        'en-US': 'Loading screen',
+        'vi-VN': 'Màn hình chờ',
+    },
+    'show-game-art': {
+        'en-US': 'Show game art',
+        'vi-VN': 'Hiển thị ảnh game',
+    },
+    'show-wait-time': {
+        'en-US': 'Show the estimated wait time',
+        'vi-VN': 'Hiển thị thời gian chờ dự kiến',
+    },
+    'rocket-animation': {
+        'en-US': 'Rocket animation',
+        'vi-VN': 'Chuyển động của Phi thuyền',
+    },
+    'rocket-always-show': {
+        'en-US': 'Always show',
+        'vi-VN': 'Luôn hiển thị',
+    },
+    'rocket-hide-queue': {
+        'en-US': 'Hide when queuing',
+        'vi-VN': 'Ẩn khi đang xếp hàng chờ',
+    },
+    'rocket-always-hide': {
+        'en-US': 'Always hide',
+        'vi-VN': 'Luôn ẩn',
+    },
+    'ui': {
+        'en-US': 'UI',
+        'vi-VN': 'Giao diện',
+    },
+    'simplify-stream-menu': {
+        'en-US': 'Simplify Stream\'s menu',
+        'vi-VN': 'Đơn giản hóa menu của Stream',
+    },
+    'skip-splash-video': {
+        'en-US': 'Skip Xbox splash video',
+        'vi-VN': 'Bỏ qua video Xbox',
+    },
+    'hide-system-menu-icon': {
+        'en-US': 'Hide System menu\'s icon',
+        'vi-VN': 'Ẩn biểu tượng của menu Hệ thống',
+    },
+    'reduce-animations': {
+        'en-US': 'Reduce UI animations',
+        'vi-VN': 'Giảm hiệu ứng chuyển động',
+    },
+    'screenshot-button-position': {
+        'en-US': 'Screenshot button\'s position',
+        'vi-VN': 'Vị trí của nút Chụp màn hình',
+    },
+    'other': {
+        'en-US': 'Other',
+        'vi-VN': 'Khác',
+    },
+    'disable-social-features': {
+        'en-US': 'Disable social features',
+        'vi-VN': 'Khóa các tính năng xã hội',
+    },
+    'disable-xcloud-analytics': {
+        'en-US': 'Disable xCloud analytics',
+        'vi-VN': 'Khóa phân tích thông tin của xCloud',
+    },
+    'advanced': {
+        'en-US': 'Advanced',
+        'vi-VN': 'Nâng cao',
+    },
+    'user-agent-profile': {
+        'en-US': 'User-Agent profile',
+        'vi-VN': 'Giá trị của User-Agent',
+    },
+    'browser-unsupported-feature': {
+        'en-US': 'Your browser doesn\'t support this feature',
+        'vi-VN': 'Trình duyệt không hỗ trợ tính năng này',
+    },
+    'device-unsupported-touch': {
+        'en-US': 'Your device doesn\'t have touch support',
+        'vi-VN': 'Thiết bị này không hỗ trợ cảm ứng',
+    },
+    'settings-reload': {
+        'en-US': 'Reload page to reflect changes',
+        'vi-VN': 'Tải lại trang để áp dụng các thay đổi',
+    },
+    'settings-reloading': {
+        'en-US': 'Reloading...',
+        'vi-VN': 'Đang tải lại...',
+    },
+
+    'stream-stats-settings': {
+        'en-US': 'Stream stats settings',
+        'vi-VN': 'Cấu hình thông số của stream',
+    },
+    'show-stats-on-startup': {
+        'en-US': 'Show stats when starting the game',
+        'vi-VN': 'Hiển thị thông số khi vào game',
+    },
+    'enable-quick-glance-mode': {
+        'en-US': 'Enable "Quick Glance" mode',
+        'vi-VN': 'Bật chế độ "Xem nhanh"',
+    },
+    'stats': {
+        'en-US': 'Stats',
+        'vi-VN': 'Các thông số',
+    },
+    'position': {
+        'en-US': 'Position',
+        'vi-VN': 'Vị trí',
+    },
+    'text-size': {
+        'en-US': 'Text size',
+        'vi-VN': 'Cỡ chữ',
+    },
+    'text-size': {
+        'en-US': 'Text size',
+        'vi-VN': 'Cỡ chữ',
+    },
+    'opacity': {
+        'en-US': 'Opacity',
+        'vi-VN': 'Độ mờ đục',
+    },
+    'transparent-background': {
+        'en-US': 'Transparent background',
+        'vi-VN': 'Trong suốt màu nền',
+    },
+    'conditional-formatting': {
+        'en-US': 'Conditional formatting text color',
+        'vi-VN': 'Thay đổi màu chữ tùy theo giá trị',
+    },
+    'confirm-reload-stream': {
+        'en-US': 'Do you want to refresh the stream?',
+        'vi-VN': 'Bạn có muốn kết nối lại stream không?',
+    },
+    'menu-stream-stats': {
+        'en-US': 'Stream stats',
+        'vi-VN': 'Thông số stream',
+    },
+    'menu-stream-settings': {
+        'en-US': 'Stream settings',
+        'vi-VN': 'Cấu hình stream',
+    },
+    'audio': {
+        'en-US': 'Audio',
+        'vi-VN': 'Âm thanh',
+    },
+    'volume': {
+        'en-US': 'Volume',
+        'vi-VN': 'Âm lượng',
+    },
+    'video': {
+        'en-US': 'Video',
+        'vi-VN': 'Hình ảnh',
+    },
+    'ratio': {
+        'en-US': 'Ratio',
+        'vi-VN': 'Tỉ lệ',
+    },
+    'clarity': {
+        'en-US': 'Clarity',
+        'vi-VN': 'Độ nét',
+    },
+    'saturation': {
+        'en-US': 'Saturation',
+        'vi-VN': 'Độ bão hòa',
+    },
+    'contrast': {
+        'en-US': 'Contrast',
+        'vi-VN': 'Độ tương phản',
+    },
+    'brightness': {
+        'en-US': 'Brightness',
+        'vi-VN': 'Độ sáng',
+    },
+    'clarity-boost-warning': {
+        'en-US': 'These settings don\'t work when the Clarity Boost mode is ON',
+        'vi-VN': 'Các tùy chỉnh này không hoạt động khi chế độ Clarity Boost đang được bật',
+    },
+
+    'badge-playtime': {
+        'en-US': 'Playtime',
+        'vi-VN': 'Giờ chơi',
+    },
+    'badge-battery': {
+        'en-US': 'Battery',
+        'vi-VN': 'Pin',
+    },
+    'badge-in': {
+        'en-US': 'In',
+        'vi-VN': 'Nhận',
+    },
+    'badge-out': {
+        'en-US': 'Out',
+        'vi-VN': 'Gởi',
+    },
+    'badge-server': {
+        'en-US': 'Server',
+        'vi-VN': 'Máy chủ',
+    },
+    'badge-video': {
+        'en-US': 'Video',
+        'vi-VN': 'Hình',
+    },
+    'badge-audio': {
+        'en-US': 'Audio',
+        'vi-VN': 'Tiếng',
+    },
+    'safari-failed-message': {
+        'en-US': 'Failed to run Better xCloud. Retrying, please wait...',
+        'vi-VN': 'Không thể chạy Better xCloud. Đang thử lại, vui lòng chờ...',
+    },
+    'wait-time-estimated': {
+        'en-US': 'Estimated finish time',
+        'vi-VN': 'Thời gian hoàn thành dự kiến',
+    },
+    'wait-time-countdown': {
+        'en-US': 'Countdown',
+        'vi-VN': 'Đếm ngược',
+    },
+}
+
+const LOCALE = Translations.getLocale();
+const __ = Translations.get;
+
+
+const ENABLE_SAFARI_WORKAROUND = true;
+if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
+    // Stop loading
+    window.stop();
+
+    // Show the reloading overlay
+    const $elm = createElement('div', {'class': 'bx-reload-overlay'}, __('safari-failed-message'));
+    const css = `
+.bx-reload-overlay {
+    position: fixed;
+    top: 0;
+    background: #000000cc;
+    z-index: 9999;
+    width: 100%;
+    line-height: 100vh;
+    color: #fff;
+    text-align: center;
+    font-weight: 400;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-size: 1.3rem;
+}
+`;
+    document.documentElement.appendChild(createElement('style', {}, css));
+    document.documentElement.appendChild($elm);
+
+    // Reload the page
+    window.location.reload(true);
+
+    // Stop processing the script
+    throw new Error('[Better xCloud] Executing workaround for Safari');
+}
+
+// Automatically reload the page when running into the "We are sorry..." error message
+window.addEventListener('load', e => {
+    setTimeout(() => {
+        if (document.body.classList.contains('legacyBackground')) {
+            // Has error message -> reload page
+            window.stop();
+            window.location.reload(true);
+        }
+    }, 3000);
+});
+
+
 const SERVER_REGIONS = {};
 var STREAM_WEBRTC;
 var STREAM_AUDIO_CONTEXT;
@@ -249,9 +689,9 @@ class LoadingScreen {
         let $waitTimeBox = LoadingScreen.#$waitTimeBox;
         if (!$waitTimeBox) {
             $waitTimeBox = CE('div', {'class': 'bx-wait-time-box'},
-                                    CE('label', {}, 'Estimated finish time'),
+                                    CE('label', {}, __('wait-time-estimated')),
                                     $estimated = CE('span', {'class': 'bx-wait-time-estimated'}),
-                                    CE('label', {}, 'Countdown'),
+                                    CE('label', {}, __('wait-time-countdown')),
                                     $countDown = CE('span', {'class': 'bx-wait-time-countdown'}),
                                    );
 
@@ -529,7 +969,7 @@ class StreamBadges {
         }
 
         $badge = CE('div', {'class': 'bx-badge'},
-                    CE('span', {'class': 'bx-badge-name'}, name),
+                    CE('span', {'class': 'bx-badge-name'}, __(`badge-${name}`)),
                     CE('span', {'class': 'bx-badge-value', 'style': `background-color: ${color}`}, value));
 
         if (name === StreamBadges.BADGE_BATTERY) {
@@ -920,36 +1360,36 @@ class StreamStats {
 
         const STATS_UI = {
             [Preferences.STATS_SHOW_WHEN_PLAYING]: {
-                'label': 'Show stats when starting the game',
+                'label': __('show-stats-on-startup'),
             },
             [Preferences.STATS_QUICK_GLANCE]: {
-                'label': 'Enable "Quick Glance" mode',
+                'label': __('enable-quick-glance-mode'),
                 'onChange': e => {
                     e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
                 },
             },
             [Preferences.STATS_ITEMS]: {
-                'label': 'Stats',
+                'label': __('stats'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_POSITION]: {
-                'label': 'Position',
+                'label': __('position'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_TEXT_SIZE]: {
-                'label': 'Text size',
+                'label': __('text-size'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_OPACITY]: {
-                'label': 'Opacity (50-100%)',
+                'label': `${__('opacity')} (50-100%)`,
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_TRANSPARENT]: {
-                'label': 'Transparent background',
+                'label': __('transparent-background'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_CONDITIONAL_FORMATTING]: {
-                'label': 'Conditional formatting text color',
+                'label': __('conditional-formatting'),
                 'onChange': refreshFunc,
             },
         };
@@ -965,9 +1405,9 @@ class StreamStats {
         }
 
         StreamStats.#$settings = CE('div', {'class': 'bx-stats-settings'},
-                                    CE('b', {}, 'Stream Stats Settings'),
+                                    CE('b', {}, __('stream-stats-settings')),
                                     $fragment,
-                                    $close = CE('button', {}, 'Close'));
+                                    $close = CE('button', {}, __('close')));
 
         $close.addEventListener('click', e => StreamStats.hideSettingsUi());
         document.documentElement.appendChild(StreamStats.#$settings);
@@ -1135,6 +1575,7 @@ class Preferences {
             'default': 'en-US',
             'options': {
                 'en-US': 'English (United States)',
+                'vi-VN': 'Tiếng Việt',
             },
         },
         [Preferences.SERVER_REGION]: {
@@ -1143,7 +1584,7 @@ class Preferences {
         [Preferences.STREAM_PREFERRED_LOCALE]: {
             'default': 'default',
             'options': {
-                'default': 'Default',
+                'default': __('default'),
                 'ar-SA': '\u0627\u0644\u0639\u0631\u0628\u064a\u0629',
                 'cs-CZ': '\u010de\u0161tina',
                 'da-DK': 'dansk',
@@ -1176,7 +1617,7 @@ class Preferences {
         [Preferences.STREAM_TARGET_RESOLUTION]: {
             'default': 'auto',
             'options': {
-                'auto': 'Auto',
+                'auto': __('auto'),
                 '1080p': '1080p',
                 '720p': '720p',
             },
@@ -1192,11 +1633,10 @@ class Preferences {
         },
         [Preferences.SCREENSHOT_BUTTON_POSITION]: {
             'default': 'bottom-left',
-            'options':
-            {
-                'bottom-left': 'Bottom Left',
-                'bottom-right': 'Bottom Right',
-                'none': 'Disable',
+            'options': {
+                'bottom-left': __('bottom-left'),
+                'bottom-right': __('bottom-right'),
+                'none': __('disable'),
             },
         },
         [Preferences.SKIP_SPLASH_VIDEO]: {
@@ -1208,24 +1648,24 @@ class Preferences {
         [Preferences.STREAM_TOUCH_CONTROLLER]: {
             'default': 'default',
             'options': {
-                'default': 'Default',
-                'all': 'All games',
-                'off': 'Off',
+                'default': __('default'),
+                'all': __('all-games'),
+                'off': __('off'),
             },
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
             'options': {
-                'default': 'Default colors',
-                'white': 'All white',
-                'muted': 'Muted colors',
+                'default': __('default'),
+                'white': __('tc-all-white'),
+                'muted': __('tc-muted-colors'),
             },
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             'default': 'default',
             'options': {
-                'default': 'Default colors',
-                'muted': 'Muted colors',
+                'default': __('default'),
+                'muted': __('tc-muted-colors'),
             },
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
@@ -1246,9 +1686,9 @@ class Preferences {
         [Preferences.UI_LOADING_SCREEN_ROCKET]: {
             'default': 'show',
             'options': {
-                'show': 'Always show',
-                'hide-queue': 'Hide when queuing',
-                'hide': 'Always hide',
+                'show': __('rocket-always-show'),
+                'hide-queue': __('rocket-hide-queue'),
+                'hide': __('rocket-always-hide'),
             },
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
@@ -1260,11 +1700,11 @@ class Preferences {
         [Preferences.USER_AGENT_PROFILE]: {
             'default': 'default',
             'options': {
-                [UserAgent.PROFILE_DEFAULT]: 'Default',
-                [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge on Windows',
-                [UserAgent.PROFILE_SAFARI_MACOS]: 'Safari on macOS',
+                [UserAgent.PROFILE_DEFAULT]: __('default'),
+                [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge + Windows',
+                [UserAgent.PROFILE_SAFARI_MACOS]: 'Safari + macOS',
                 [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Samsung Smart TV',
-                [UserAgent.PROFILE_CUSTOM]: 'Custom',
+                [UserAgent.PROFILE_CUSTOM]: __('custom'),
             },
         },
         [Preferences.USER_AGENT_CUSTOM]: {
@@ -1283,8 +1723,8 @@ class Preferences {
                 '16:10': '16:10',
                 '4:3': '4:3',
 
-                'fill': 'Stretch',
-                'cover': 'Cover',
+                'fill': __('stretch'),
+                //'cover': 'Cover',
             },
         },
         [Preferences.VIDEO_SATURATION]: {
@@ -1316,12 +1756,12 @@ class Preferences {
         [Preferences.STATS_ITEMS]: {
             'default': [StreamStats.PING, StreamStats.FPS, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
-                [StreamStats.PING]: 'Ping',
-                [StreamStats.FPS]: 'FPS',
-                [StreamStats.BITRATE]: 'Bitrate',
-                [StreamStats.DECODE_TIME]: 'Decode time',
-                [StreamStats.PACKETS_LOST]: 'Packets lost',
-                [StreamStats.FRAMES_LOST]: 'Frames lost',
+                [StreamStats.PING]: __('stat-ping'),
+                [StreamStats.FPS]: __('stat-fps'),
+                [StreamStats.BITRATE]: __('stat-bitrate'),
+                [StreamStats.DECODE_TIME]: __('stat-decode-time'),
+                [StreamStats.PACKETS_LOST]: __('stat-packets-lost'),
+                [StreamStats.FRAMES_LOST]: __('stat-frames-lost'),
             },
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
@@ -1333,17 +1773,17 @@ class Preferences {
         [Preferences.STATS_POSITION]: {
             'default': 'top-left',
             'options': {
-                'top-left': 'Top Left',
-                'top-center': 'Top Center',
-                'top-right': 'Top Right',
+                'top-left': __('top-left'),
+                'top-center': __('top-center'),
+                'top-right': __('top-right'),
             },
         },
         [Preferences.STATS_TEXT_SIZE]: {
             'default': '0.9rem',
             'options': {
-                '0.9rem': 'Small',
-                '1.0rem': 'Normal',
-                '1.1rem': 'Large',
+                '0.9rem': __('small'),
+                '1.0rem': __('normal'),
+                '1.1rem': __('large'),
             },
         },
         [Preferences.STATS_TRANSPARENT]: {
@@ -2830,44 +3270,44 @@ function injectSettingsButton($parent) {
 
     // Render settings
     const SETTINGS_UI = {
-        'Better xCloud': {
-            [Preferences.BETTER_XCLOUD_LOCALE]: 'Language',
+        [__('better-xcloud')]: {
+            [Preferences.BETTER_XCLOUD_LOCALE]: __('language'),
         },
-        'Server': {
-            [Preferences.SERVER_REGION]: 'Region',
-            [Preferences.STREAM_PREFERRED_LOCALE]: 'Preferred game\'s language',
-            [Preferences.PREFER_IPV6_SERVER]: 'Prefer IPv6 server',
+        [__('server')]: {
+            [Preferences.SERVER_REGION]: __('region'),
+            [Preferences.STREAM_PREFERRED_LOCALE]: __('preferred-game-language'),
+            [Preferences.PREFER_IPV6_SERVER]: __('prefer-ipv6-server'),
         },
-        'Stream': {
-            [Preferences.STREAM_TARGET_RESOLUTION]: 'Target resolution',
-            [Preferences.USE_DESKTOP_CODEC]: 'Force high-quality codec',
-            [Preferences.DISABLE_BANDWIDTH_CHECKING]: 'Disable bandwidth checking',
-            [Preferences.AUDIO_MIC_ON_PLAYING]: 'Enable microphone on game launch',
-            [Preferences.STREAM_HIDE_IDLE_CURSOR]: 'Hide mouse cursor on idle',
+        [__('stream')]: {
+            [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
+            [Preferences.USE_DESKTOP_CODEC]: __('force-hq-codec'),
+            [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
+            [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
+            [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
         },
-        'Touch controller': {
-            [Preferences.STREAM_TOUCH_CONTROLLER]: 'Availability',
-            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: 'Standard layout\'s button style',
-            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: 'Custom layout\'s button style',
+        [__('touch-controller')]: {
+            [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
         },
-        'Loading screen': {
-            [Preferences.UI_LOADING_SCREEN_GAME_ART]: 'Show game art',
-            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: 'Show the estimated wait time',
-            [Preferences.UI_LOADING_SCREEN_ROCKET]: 'Rocket animation',
+        [__('loading-screen')]: {
+            [Preferences.UI_LOADING_SCREEN_GAME_ART]: __('show-game-art'),
+            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: __('show-wait-time'),
+            [Preferences.UI_LOADING_SCREEN_ROCKET]: __('rocket-animation'),
         },
-        'UI': {
-            [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
-            [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
-            [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
-            [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
-            [Preferences.SCREENSHOT_BUTTON_POSITION]: 'Screenshot button\'s position',
+        [__('ui')]: {
+            [Preferences.STREAM_SIMPLIFY_MENU]: __('simplify-stream-menu'),
+            [Preferences.SKIP_SPLASH_VIDEO]: __('skip-splash-video'),
+            [Preferences.HIDE_DOTS_ICON]: __('hide-system-menu-icon'),
+            [Preferences.REDUCE_ANIMATIONS]: __('reduce-animations'),
+            [Preferences.SCREENSHOT_BUTTON_POSITION]: __('screenshot-button-position'),
         },
-        'Other': {
-            [Preferences.BLOCK_SOCIAL_FEATURES]: 'Disable social features',
-            [Preferences.BLOCK_TRACKING]: 'Disable xCloud analytics',
+        [__('other')]: {
+            [Preferences.BLOCK_SOCIAL_FEATURES]: __('disable-social-features'),
+            [Preferences.BLOCK_TRACKING]: __('disable-xcloud-analytics'),
         },
-        'Advanced': {
-            [Preferences.USER_AGENT_PROFILE]: 'User-Agent profile',
+        [__('advanced')]: {
+            [Preferences.USER_AGENT_PROFILE]: __('user-agent-profile'),
         },
     };
 
@@ -2918,7 +3358,7 @@ function injectSettingsButton($parent) {
 
                     let label = regionName;
                     if (region.isDefault) {
-                        label += ' (Default)';
+                        label += ` (${__('default')})`;
                         value = 'default';
                     }
 
@@ -2933,7 +3373,14 @@ function injectSettingsButton($parent) {
                     $control.appendChild($option);
                 }
             } else {
-                $control = PREFS.toElement(settingId);
+                let onChange = null;
+                if (settingId === Preferences.BETTER_XCLOUD_LOCALE) {
+                    onChange = e => {
+                        localStorage.setItem('better_xcloud_locale', e.target.value);
+                    }
+                }
+
+                $control = PREFS.toElement(settingId, onChange);
                 labelAttrs = {'for': $control.id, 'tabindex': 0};
             }
 
@@ -2941,12 +3388,12 @@ function injectSettingsButton($parent) {
             if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
                 $control.disabled = true;
                 $control.checked = false;
-                $control.title = 'Your browser doesn\'t support this feature';
+                $control.title = __('browser-unsupported-feature');
             } else if (!HAS_TOUCH_SUPPORT) {
                 // Disable this setting for non-touchable devices
                 if ([Preferences.STREAM_TOUCH_CONTROLLER, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM].indexOf(settingId) > -1) {
                     $control.disabled = true;
-                    $control.title = 'Your device doesn\'t have touch support';
+                    $control.title = __('device-unsupported-touch');
                 }
             }
             $control.disabled && ($control.style.cursor = 'help');
@@ -2968,10 +3415,10 @@ function injectSettingsButton($parent) {
     }
 
     // Setup Reload button
-    const $reloadBtn = CE('button', {'class': 'bx-settings-reload-button', 'tabindex': 0}, 'Reload page to reflect changes');
+    const $reloadBtn = CE('button', {'class': 'bx-settings-reload-button', 'tabindex': 0}, __('settings-reload'));
     $reloadBtn.addEventListener('click', e => {
         window.location.reload();
-        $reloadBtn.textContent = 'Reloading...';
+        $reloadBtn.textContent = __('settings-reloading');
     });
     $wrapper.appendChild($reloadBtn);
 
@@ -3172,7 +3619,7 @@ function injectStreamMenuButtons() {
                 }
 
                 // Create Stream Settings button
-                const $btnStreamSettings = cloneStreamMenuButton($orgButton, 'Stream settings', ICON_VIDEO_SETTINGS);
+                const $btnStreamSettings = cloneStreamMenuButton($orgButton, __('menu-stream-settings'), ICON_VIDEO_SETTINGS);
                 $btnStreamSettings.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3203,7 +3650,7 @@ function injectStreamMenuButtons() {
                 });
 
                 // Create Stream Stats button
-                const $btnStreamStats = cloneStreamMenuButton($orgButton, 'Stream stats', ICON_STREAM_STATS);
+                const $btnStreamStats = cloneStreamMenuButton($orgButton, __('menu-stream-stats'), ICON_STREAM_STATS);
                 $btnStreamStats.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3224,7 +3671,7 @@ function injectStreamMenuButtons() {
                 const $btnQuit = $orgButton.parentElement.querySelector('button:last-of-type');
                 // Hold "Quit game" button to refresh the stream
                 new MouseHoldEvent($btnQuit, () => {
-                    confirm('Do you want to refresh the stream?') && window.location.reload();
+                    confirm(__('confirm-reload-stream')) && window.location.reload();
                 }, 1000);
 
                 // Render stream badges
@@ -3351,29 +3798,29 @@ function setupVideoSettingsBar() {
 
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
-                        CE('h2', {}, 'Audio'),
+                        CE('h2', {}, __('audio')),
                         CE('div', {},
-                            CE('label', {}, 'Volume'),
+                            CE('label', {}, __('volume')),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
                             }, {suffix: '%', ticks: 100})),
 
-                        CE('h2', {}, 'Video'),
-                        CE('div', {'class': 'bx-clarity-boost-warning'}, '⚠️ These settings don\'t work when the Clarity Boost mode is ON'),
+                        CE('h2', {}, __('video')),
+                        CE('div', {'class': 'bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {'for': 'bx-quick-setting-stretch'}, 'Ratio'),
+                            CE('label', {'for': 'bx-quick-setting-stretch'}, __('ratio')),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Clarity'),
+                            CE('label', {}, __('clarity')),
                             PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Saturation'),
+                            CE('label', {}, __('saturation')),
                             PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25})),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Contrast'),
+                            CE('label', {}, __('contrast')),
                             PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Brightness'),
+                            CE('label', {}, __('brightness')),
                             PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}))
                      );
 
@@ -3603,50 +4050,6 @@ function disablePwa() {
         });
     }
 }
-
-
-const ENABLE_SAFARI_WORKAROUND = true;
-if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
-    // Stop loading
-    window.stop();
-
-    // Show the reloading overlay
-    const $elm = createElement('div', {'class': 'bx-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
-    const css = `
-.bx-reload-overlay {
-    position: fixed;
-    top: 0;
-    background: #000000cc;
-    z-index: 9999;
-    width: 100%;
-    line-height: 100vh;
-    color: #fff;
-    text-align: center;
-    font-weight: 400;
-    font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 1.3rem;
-}
-`;
-    document.documentElement.appendChild(createElement('style', {}, css));
-    document.documentElement.appendChild($elm);
-
-    // Reload the page
-    window.location.reload(true);
-
-    // Stop processing the script
-    throw new Error('[Better xCloud] Executing workaround for Safari');
-}
-
-// Automatically reload the page when running into the "We are sorry..." error message
-window.addEventListener('load', e => {
-    setTimeout(() => {
-        if (document.body.classList.contains('legacyBackground')) {
-            // Has error message -> reload page
-            window.stop();
-            window.location.reload(true);
-        }
-    }, 3000);
-});
 
 
 // Hide Settings UI when navigate to another page
