@@ -217,7 +217,7 @@ const Translations = {
         'en-US': 'Availability',
         'vi-VN': 'Kích hoạt',
     },
-    'all-games': {
+    'tc-all-games': {
         'en-US': 'All games',
         'vi-VN': 'Tất cả các game',
     },
@@ -346,10 +346,6 @@ const Translations = {
     'position': {
         'en-US': 'Position',
         'vi-VN': 'Vị trí',
-    },
-    'text-size': {
-        'en-US': 'Text size',
-        'vi-VN': 'Cỡ chữ',
     },
     'text-size': {
         'en-US': 'Text size',
@@ -1654,7 +1650,7 @@ class Preferences {
             'default': 'default',
             'options': {
                 'default': __('default'),
-                'all': __('all-games'),
+                'all': __('tc-all-games'),
                 'off': __('off'),
             },
         },
