@@ -65,7 +65,7 @@ const Translations = {
     getLocale: () => {
         let locale = localStorage.getItem('better_xcloud_locale');
         if (!locale) {
-            locale = window.navigator.language || 'en-US;
+            locale = window.navigator.language || 'en-US';
             localStorage.setItem('better_xcloud_locale', locale);
         }
         return locale;
@@ -76,381 +76,460 @@ const Translations = {
         return texts[LOCALE] || texts['en-US'];
     },
 
-    'default': {
-        'en-US': 'Default',
-        'vi-VN': 'Mặc định',
-    },
-    'custom': {
-        'en-US': 'Custom',
-        'vi-VN': 'Tùy chọn',
-    },
-    'auto': {
-        'en-US': 'Auto',
-        'vi-VN': 'Tự động',
-    },
-    'stretch': {
-        'en-US': 'Stretch',
-        'vi-VN': 'Kéo dãn',
-    },
-    'off': {
-        'en-US': 'Off',
-        'vi-VN': 'Tắt',
-    },
-    'disable': {
-        'en-US': 'Disable',
-        'vi-VN': 'Vô hiệu hóa',
-    },
-    'bottom-left': {
-        'en-US': 'Bottom-left',
-        'vi-VN': 'Góc dưới bên trái',
-    },
-    'bottom-right': {
-        'en-US': 'Bottom-right',
-        'vi-VN': 'Góc dưới bên phải',
-    },
-    'top-left': {
-        'en-US': 'Top-left',
-        'vi-VN': 'Góc trên bên trái',
-    },
-    'top-center': {
-        'en-US': 'Top-center',
-        'vi-VN': 'Canh giữa',
-    },
-    'top-right': {
-        'en-US': 'Top-right',
-        'vi-VN': 'Góc trên bên phải',
-    },
-    'small': {
-        'en-US': 'Small',
-        'vi-VN': 'Nhỏ',
-    },
-    'normal': {
-        'en-US': 'Normal',
-        'vi-VN': 'Thường',
-    },
-    'large': {
-        'en-US': 'Large',
-        'vi-VN': 'Lớn',
-    },
-    'close': {
-        'en-US': 'Close',
-        'vi-VN': 'Đóng',
-    },
-
-    'stat-ping': {
-        'en-US': 'Ping',
-        'vi-VN': 'Ping',
-    },
-    'stat-fps': {
-        'en-US': 'FPS',
-        'vi-VN': 'FPS',
-    },
-    'stat-bitrate': {
-        'en-US': 'Bitrate',
-        'vi-VN': 'Tốc độ bit',
-    },
-    'stat-decode-time': {
-        'en-US': 'Decode time',
-        'vi-VN': 'Thời gian giải mã',
-    },
-    'stat-packets-lost': {
-        'en-US': 'Packets lost',
-        'vi-VN': 'Số gói tin bị mất',
-    },
-    'stat-frames-lost': {
-        'en-US': 'Frames lost',
-        'vi-VN': 'Số khung hình bị mất',
-    },
-
-    'better-xcloud': {
-        'en-US': 'Better xCloud',
-    },
-    'language': {
-        'en-US': 'Language',
-        'vi-VN': 'Ngôn ngữ',
-    },
-    'server': {
-        'en-US': 'Server',
-        'vi-VN': 'Máy chủ',
-    },
-    'region': {
-        'en-US': 'Region',
-        'vi-VN': 'Khu vực',
-    },
-    'preferred-game-language': {
-        'en-US': 'Preferred game\'s language',
-        'vi-VN': 'Ngôn ngữ game ưu tiên',
-    },
-    'prefer-ipv6-server': {
-        'en-US': 'Prefer IPv6 server',
-        'vi-VN': 'Ưu tiên máy chủ IPv6',
-    },
-    'stream': {
-        'en-US': 'Stream',
-        'vi-VN': 'Stream',
-    },
-    'target-resolution': {
-        'en-US': 'Target resolution',
-        'vi-VN': 'Độ phân giải',
-    },
-    'force-hq-codec': {
-        'en-US': 'Force high-quality codec',
-        'vi-VN': 'Codec chất lượng cao',
-    },
-    'disable-bandwidth-checking': {
-        'en-US': 'Disable bandwidth checking',
-        'vi-VN': 'Tắt kiểm tra băng thông',
-    },
-    'enable-mic-on-startup': {
-        'en-US': 'Enable microphone on game launch',
-        'vi-VN': 'Bật mic lúc vào game',
-    },
-    'hide-idle-cursor': {
-        'en-US': 'Hide mouse cursor on idle',
-        'vi-VN': 'Ẩn con trỏ chuột khi không di chuyển',
-    },
-    'touch-controller': {
-        'en-US': 'Touch controller',
-        'vi-VN': 'Bộ điều khiển cảm ứng',
-    },
-    'tc-availability': {
-        'en-US': 'Availability',
-        'vi-VN': 'Kích hoạt',
-    },
-    'tc-all-games': {
-        'en-US': 'All games',
-        'vi-VN': 'Tất cả các game',
-    },
-
-    'tc-standard-layout-style': {
-        'en-US': 'Standard layout\'s button style',
-        'vi-VN': 'Màu của bố cục tiêu chuẩn',
-    },
-    'tc-custom-layout-style': {
-        'en-US': 'Custom layout\'s button style',
-        'vi-VN': 'Màu của bố cục tùy chọn',
-    },
-    'tc-all-white': {
-        'en-US': 'All white',
-        'vi-VN': 'Trắng hoàn toàn',
-    },
-    'tc-muted-colors': {
-        'en-US': 'Muted colors',
-        'vi-VN': 'Màu câm',
-    },
-    'loading-screen': {
-        'en-US': 'Loading screen',
-        'vi-VN': 'Màn hình chờ',
-    },
-    'show-game-art': {
-        'en-US': 'Show game art',
-        'vi-VN': 'Hiển thị ảnh game',
-    },
-    'show-wait-time': {
-        'en-US': 'Show the estimated wait time',
-        'vi-VN': 'Hiển thị thời gian chờ dự kiến',
-    },
-    'rocket-animation': {
-        'en-US': 'Rocket animation',
-        'vi-VN': 'Chuyển động của Phi thuyền',
-    },
-    'rocket-always-show': {
-        'en-US': 'Always show',
-        'vi-VN': 'Luôn hiển thị',
-    },
-    'rocket-hide-queue': {
-        'en-US': 'Hide when queuing',
-        'vi-VN': 'Ẩn khi đang xếp hàng chờ',
-    },
-    'rocket-always-hide': {
-        'en-US': 'Always hide',
-        'vi-VN': 'Luôn ẩn',
-    },
-    'ui': {
-        'en-US': 'UI',
-        'vi-VN': 'Giao diện',
-    },
-    'simplify-stream-menu': {
-        'en-US': 'Simplify Stream\'s menu',
-        'vi-VN': 'Đơn giản hóa menu của Stream',
-    },
-    'skip-splash-video': {
-        'en-US': 'Skip Xbox splash video',
-        'vi-VN': 'Bỏ qua video Xbox',
-    },
-    'hide-system-menu-icon': {
-        'en-US': 'Hide System menu\'s icon',
-        'vi-VN': 'Ẩn biểu tượng của menu Hệ thống',
-    },
-    'reduce-animations': {
-        'en-US': 'Reduce UI animations',
-        'vi-VN': 'Giảm hiệu ứng chuyển động',
-    },
-    'screenshot-button-position': {
-        'en-US': 'Screenshot button\'s position',
-        'vi-VN': 'Vị trí của nút Chụp màn hình',
-    },
-    'other': {
-        'en-US': 'Other',
-        'vi-VN': 'Khác',
-    },
-    'disable-social-features': {
-        'en-US': 'Disable social features',
-        'vi-VN': 'Khóa các tính năng xã hội',
-    },
-    'disable-xcloud-analytics': {
-        'en-US': 'Disable xCloud analytics',
-        'vi-VN': 'Khóa phân tích thông tin của xCloud',
-    },
-    'advanced': {
-        'en-US': 'Advanced',
-        'vi-VN': 'Nâng cao',
-    },
-    'user-agent-profile': {
-        'en-US': 'User-Agent profile',
-        'vi-VN': 'Giá trị của User-Agent',
-    },
-    'browser-unsupported-feature': {
-        'en-US': 'Your browser doesn\'t support this feature',
-        'vi-VN': 'Trình duyệt không hỗ trợ tính năng này',
-    },
-    'device-unsupported-touch': {
-        'en-US': 'Your device doesn\'t have touch support',
-        'vi-VN': 'Thiết bị này không hỗ trợ cảm ứng',
-    },
-    'settings-reload': {
-        'en-US': 'Reload page to reflect changes',
-        'vi-VN': 'Tải lại trang để áp dụng các thay đổi',
-    },
-    'settings-reloading': {
-        'en-US': 'Reloading...',
-        'vi-VN': 'Đang tải lại...',
-    },
-
-    'stream-stats-settings': {
-        'en-US': 'Stream stats settings',
-        'vi-VN': 'Cấu hình thông số của stream',
-    },
-    'show-stats-on-startup': {
-        'en-US': 'Show stats when starting the game',
-        'vi-VN': 'Hiển thị thông số khi vào game',
-    },
-    'enable-quick-glance-mode': {
-        'en-US': 'Enable "Quick Glance" mode',
-        'vi-VN': 'Bật chế độ "Xem nhanh"',
-    },
-    'stats': {
-        'en-US': 'Stats',
-        'vi-VN': 'Các thông số',
-    },
-    'position': {
-        'en-US': 'Position',
-        'vi-VN': 'Vị trí',
-    },
-    'text-size': {
-        'en-US': 'Text size',
-        'vi-VN': 'Cỡ chữ',
-    },
-    'opacity': {
-        'en-US': 'Opacity',
-        'vi-VN': 'Độ mờ đục',
-    },
-    'transparent-background': {
-        'en-US': 'Transparent background',
-        'vi-VN': 'Trong suốt màu nền',
-    },
-    'conditional-formatting': {
-        'en-US': 'Conditional formatting text color',
-        'vi-VN': 'Thay đổi màu chữ tùy theo giá trị',
-    },
-    'confirm-reload-stream': {
-        'en-US': 'Do you want to refresh the stream?',
-        'vi-VN': 'Bạn có muốn kết nối lại stream không?',
-    },
-    'menu-stream-stats': {
-        'en-US': 'Stream stats',
-        'vi-VN': 'Thông số stream',
-    },
-    'menu-stream-settings': {
-        'en-US': 'Stream settings',
-        'vi-VN': 'Cấu hình stream',
-    },
-    'audio': {
-        'en-US': 'Audio',
-        'vi-VN': 'Âm thanh',
-    },
-    'volume': {
-        'en-US': 'Volume',
-        'vi-VN': 'Âm lượng',
-    },
-    'video': {
-        'en-US': 'Video',
-        'vi-VN': 'Hình ảnh',
-    },
-    'ratio': {
-        'en-US': 'Ratio',
-        'vi-VN': 'Tỉ lệ',
-    },
-    'clarity': {
-        'en-US': 'Clarity',
-        'vi-VN': 'Độ nét',
-    },
-    'saturation': {
-        'en-US': 'Saturation',
-        'vi-VN': 'Độ bão hòa',
-    },
-    'contrast': {
-        'en-US': 'Contrast',
-        'vi-VN': 'Độ tương phản',
-    },
-    'brightness': {
-        'en-US': 'Brightness',
-        'vi-VN': 'Độ sáng',
-    },
-    'clarity-boost-warning': {
-        'en-US': 'These settings don\'t work when the Clarity Boost mode is ON',
-        'vi-VN': 'Các tùy chỉnh này không hoạt động khi chế độ Clarity Boost đang được bật',
-    },
-
-    'badge-playtime': {
-        'en-US': 'Playtime',
-        'vi-VN': 'Giờ chơi',
-    },
-    'badge-battery': {
-        'en-US': 'Battery',
-        'vi-VN': 'Pin',
-    },
-    'badge-in': {
-        'en-US': 'In',
-        'vi-VN': 'Nhận',
-    },
-    'badge-out': {
-        'en-US': 'Out',
-        'vi-VN': 'Gởi',
-    },
-    'badge-server': {
-        'en-US': 'Server',
-        'vi-VN': 'Máy chủ',
-    },
-    'badge-video': {
-        'en-US': 'Video',
-        'vi-VN': 'Hình',
-    },
-    'badge-audio': {
-        'en-US': 'Audio',
-        'vi-VN': 'Tiếng',
-    },
-    'safari-failed-message': {
-        'en-US': 'Failed to run Better xCloud. Retrying, please wait...',
-        'vi-VN': 'Không thể chạy Better xCloud. Đang thử lại, vui lòng chờ...',
-    },
-    'wait-time-estimated': {
-        'en-US': 'Estimated finish time',
-        'vi-VN': 'Thời gian hoàn thành dự kiến',
-    },
-    'wait-time-countdown': {
-        'en-US': 'Countdown',
-        'vi-VN': 'Đếm ngược',
+    "default": {
+        "en-US": "Default",
+        "pt-BR": "Padrão",
+        "vi-VN": "Mặc định",
+    },
+    "custom": {
+        "en-US": "Custom",
+        "pt-BR": "Customizado",
+        "vi-VN": "Tùy chỉnh",
+    },
+    "auto": {
+        "en-US": "Auto",
+        "pt-BR": "Automático",
+        "vi-VN": "Tự động",
+    },
+    "stretch": {
+        "en-US": "Stretch",
+        "pt-BR": "Esticar",
+        "vi-VN": "Kéo giãn",
+    },
+    "off": {
+        "en-US": "Off",
+        "pt-BR": "Desligado",
+        "vi-VN": "Tắt",
+    },
+    "disable": {
+        "en-US": "Disable",
+        "pt-BR": "Desabilitar",
+        "vi-VN": "Vô hiệu hóa",
+    },
+    "bottom-left": {
+        "en-US": "Bottom-left",
+        "pt-BR": "Inferior Esquerdo",
+        "vi-VN": "Phía dưới bên trái",
+    },
+    "bottom-right": {
+        "en-US": "Bottom-right",
+        "pt-BR": "Inferior-direito",
+        "vi-VN": "Phía dưới bên phải",
+    },
+    "top-left": {
+        "en-US": "Top-left",
+        "pt-BR": "Superior-esquerdo",
+        "vi-VN": "Phía trên bên trái",
+    },
+    "top-center": {
+        "en-US": "Top-center",
+        "pt-BR": "Superior-centralizado",
+        "vi-VN": "Chính giữa phía trên",
+    },
+    "top-right": {
+        "en-US": "Top-right",
+        "pt-BR": "Superior-direito",
+        "vi-VN": "Phía trên bên phải",
+    },
+    "small": {
+        "en-US": "Small",
+        "pt-BR": "Pequeno",
+        "vi-VN": "Nhỏ",
+    },
+    "normal": {
+        "en-US": "Normal",
+        "pt-BR": "Normal",
+        "vi-VN": "Thường",
+    },
+    "large": {
+        "en-US": "Large",
+        "pt-BR": "Largo",
+        "vi-VN": "Lớn",
+    },
+    "close": {
+        "en-US": "Close",
+        "pt-BR": "Fechar",
+        "vi-VN": "Đóng",
+    },
+    "stat-ping": {
+        "en-US": "Ping",
+        "vi-VN": "Ping",
+    },
+    "stat-fps": {
+        "en-US": "FPS",
+        "vi-VN": "FPS",
+    },
+    "stat-bitrate": {
+        "en-US": "Bitrate",
+        "vi-VN": "Bitrate",
+    },
+    "stat-decode-time": {
+        "en-US": "Decode time",
+        "pt-BR": "Tempo de decodificação",
+        "vi-VN": "Thời gian giải mã",
+    },
+    "stat-packets-lost": {
+        "en-US": "Packets lost",
+        "pt-BR": "Pacotes perdidos",
+        "vi-VN": "Số gói tin bị mất",
+    },
+    "stat-frames-lost": {
+        "en-US": "Frames lost",
+        "pt-BR": "Quadros perdidos",
+        "vi-VN": "Số khung hình bị mất",
+    },
+    "language": {
+        "en-US": "Language",
+        "pt-BR": "Linguagem",
+        "vi-VN": "Ngôn ngữ",
+    },
+    "server": {
+        "en-US": "Server",
+        "pt-BR": "Servidor",
+        "vi-VN": "Máy chủ",
+    },
+    "region": {
+        "en-US": "Region",
+        "pt-BR": "Região",
+        "vi-VN": "Khu vực",
+    },
+    "preferred-game-language": {
+        "en-US": "Preferred game's language",
+        "pt-BR": "Idioma preferencial do jogo",
+        "vi-VN": "Ngôn ngữ game ưu tiên",
+    },
+    "prefer-ipv6-server": {
+        "en-US": "Prefer IPv6 server",
+        "pt-BR": "Preferir servidor IPV6",
+        "vi-VN": "Ưu tiên máy chủ IPv6",
+    },
+    "stream": {
+        "en-US": "Stream",
+        "vi-VN": "Stream",
+    },
+    "target-resolution": {
+        "en-US": "Target resolution",
+        "pt-BR": "Resolução alvo",
+        "vi-VN": "Độ phân giải",
+    },
+    "force-hq-codec": {
+        "en-US": "Force high-quality codec",
+        "pt-BR": "Forçar codec de alta qualidade",
+        "vi-VN": "Áp đặt codec chất lượng cao",
+    },
+    "disable-bandwidth-checking": {
+        "en-US": "Disable bandwidth checking",
+        "pt-BR": "Desativar verificação de banda",
+        "vi-VN": "Tắt kiểm tra băng thông",
+    },
+    "enable-mic-on-startup": {
+        "en-US": "Enable microphone on game launch",
+        "pt-BR": "Ativar microfone na inicialização do jogo",
+        "vi-VN": "Bật mic lúc vào game",
+    },
+    "hide-idle-cursor": {
+        "en-US": "Hide mouse cursor on idle",
+        "pt-BR": "Ocultar o cursor do mouse no ocioso",
+        "vi-VN": "Ẩn con trỏ chuột khi không di chuyển",
+    },
+    "touch-controller": {
+        "en-US": "Touch controller",
+        "pt-BR": "Controle de toque",
+        "vi-VN": "Bộ điều khiển cảm ứng",
+    },
+    "tc-availability": {
+        "en-US": "Availability",
+        "pt-BR": "Disponibilidade",
+        "vi-VN": "Khả dụng",
+    },
+    "tc-all-games": {
+        "en-US": "All games",
+        "pt-BR": "Todos os jogos",
+        "vi-VN": "Tất cả các game",
+    },
+    "tc-standard-layout-style": {
+        "en-US": "Standard layout's button style",
+        "pt-BR": "Estilo padrão de botões do layout",
+        "vi-VN": "Màu của bố cục tiêu chuẩn",
+    },
+    "tc-custom-layout-style": {
+        "en-US": "Custom layout's button style",
+        "pt-BR": "Estilo de botão do layout personalizado",
+        "vi-VN": "Màu của bố cục tùy chọn",
+    },
+    "tc-all-white": {
+        "en-US": "All white",
+        "pt-BR": "Tudo branco",
+        "vi-VN": "Trắng hoàn toàn",
+    },
+    "loading-screen": {
+        "en-US": "Loading screen",
+        "pt-BR": "Tela de Carregamento",
+        "vi-VN": "Màn hình chờ",
+    },
+    "show-game-art": {
+        "en-US": "Show game art",
+        "pt-BR": "Mostrar arte do jogo",
+        "vi-VN": "Hiển thị ảnh game",
+    },
+    "show-wait-time": {
+        "en-US": "Show the estimated wait time",
+        "pt-BR": "Mostrar o tempo estimado de espera",
+        "vi-VN": "Hiển thị thời gian chờ dự kiến",
+    },
+    "rocket-animation": {
+        "en-US": "Rocket animation",
+        "pt-BR": "Animação do foguete",
+        "vi-VN": "Chuyển động của Phi thuyền",
+    },
+    "rocket-always-show": {
+        "en-US": "Always show",
+        "pt-BR": "Sempre mostrar",
+        "vi-VN": "Luôn hiển thị",
+    },
+    "rocket-hide-queue": {
+        "en-US": "Hide when queuing",
+        "pt-BR": "Ocultar quando estiver na fila",
+        "vi-VN": "Ẩn khi đang xếp hàng chờ",
+    },
+    "rocket-always-hide": {
+        "en-US": "Always hide",
+        "pt-BR": "Sempre ocultar",
+        "vi-VN": "Luôn ẩn",
+    },
+    "ui": {
+        "en-US": "UI",
+        "pt-BR": "Interface",
+        "vi-VN": "Giao diện",
+    },
+    "simplify-stream-menu": {
+        "en-US": "Simplify Stream's menu",
+        "pt-BR": "Simplificar o menu do streaming",
+        "vi-VN": "Đơn giản hóa menu của Stream",
+    },
+    "skip-splash-video": {
+        "en-US": "Skip Xbox splash video",
+        "pt-BR": "Pular vídeo de abertura do Xbox",
+        "vi-VN": "Bỏ qua video Xbox",
+    },
+    "hide-system-menu-icon": {
+        "en-US": "Hide System menu's icon",
+        "pt-BR": "Ocultar ícone do menu do sistema",
+        "vi-VN": "Ẩn biểu tượng của menu Hệ thống",
+    },
+    "reduce-animations": {
+        "en-US": "Reduce UI animations",
+        "pt-BR": "Reduzir animações da interface",
+        "vi-VN": "Giảm hiệu ứng chuyển động",
+    },
+    "screenshot-button-position": {
+        "en-US": "Screenshot button's position",
+        "pt-BR": "Posição do botão de Screenshot",
+        "vi-VN": "Vị trí của nút Chụp màn hình",
+    },
+    "other": {
+        "en-US": "Other",
+        "pt-BR": "Outros",
+        "vi-VN": "Khác",
+    },
+    "disable-social-features": {
+        "en-US": "Disable social features",
+        "pt-BR": "Desativar recursos sociais",
+        "vi-VN": "Khóa các tính năng xã hội",
+    },
+    "disable-xcloud-analytics": {
+        "en-US": "Disable xCloud analytics",
+        "pt-BR": "Desativar telemetria do xCloud",
+        "vi-VN": "Khóa phân tích thông tin của xCloud",
+    },
+    "advanced": {
+        "en-US": "Advanced",
+        "pt-BR": "Avançado",
+        "vi-VN": "Nâng cao",
+    },
+    "user-agent-profile": {
+        "en-US": "User-Agent profile",
+        "pt-BR": "Perfil do User-Agent",
+        "vi-VN": "User-Agent",
+    },
+    "browser-unsupported-feature": {
+        "en-US": "Your browser doesn't support this feature",
+        "pt-BR": "Seu navegador não suporta este recurso",
+        "vi-VN": "Trình duyệt không hỗ trợ tính năng này",
+    },
+    "device-unsupported-touch": {
+        "en-US": "Your device doesn't have touch support",
+        "pt-BR": "Seu dispositivo não possui suporte de toque",
+        "vi-VN": "Thiết bị này không hỗ trợ cảm ứng",
+    },
+    "settings-reload": {
+        "en-US": "Reload page to reflect changes",
+        "pt-BR": "Recarregue a página para refletir as alterações",
+        "vi-VN": "Tải lại trang để áp dụng các thay đổi",
+    },
+    "settings-reloading": {
+        "en-US": "Reloading...",
+        "pt-BR": "Recarregando...",
+        "vi-VN": "Đang tải lại...",
+    },
+    "stream-stats-settings": {
+        "en-US": "Stream stats settings",
+        "pt-BR": "Configurações de estatísticas do stream",
+        "vi-VN": "Cấu hình thông số của stream",
+    },
+    "show-stats-on-startup": {
+        "en-US": "Show stats when starting the game",
+        "pt-BR": "Mostrar estatísticas ao iniciar o jogo",
+        "vi-VN": "Hiển thị thông số khi vào game",
+    },
+    "enable-quick-glance-mode": {
+        "en-US": "Enable \"Quick Glance\" mode",
+        "pt-BR": "Ativar modo \"Revisão Rápida\"",
+        "vi-VN": "Bật chế độ \"Xem nhanh\"",
+    },
+    "stats": {
+        "en-US": "Stats",
+        "pt-BR": "Estatísticas",
+        "vi-VN": "Các thông số",
+    },
+    "position": {
+        "en-US": "Position",
+        "pt-BR": "Posição",
+        "vi-VN": "Vị trí",
+    },
+    "text-size": {
+        "en-US": "Text size",
+        "pt-BR": "Tamanho do texto",
+        "vi-VN": "Cỡ chữ",
+    },
+    "opacity": {
+        "en-US": "Opacity",
+        "pt-BR": "Transparência",
+        "vi-VN": "Độ mờ",
+    },
+    "transparent-background": {
+        "en-US": "Transparent background",
+        "pt-BR": "Fundo transparente",
+        "vi-VN": "Trong suốt màu nền",
+    },
+    "conditional-formatting": {
+        "en-US": "Conditional formatting text color",
+        "pt-BR": "Cor do texto de formatação condicional",
+        "vi-VN": "Thay đổi màu chữ tùy theo giá trị",
+    },
+    "confirm-reload-stream": {
+        "en-US": "Do you want to refresh the stream?",
+        "pt-BR": "Você deseja atualizar o stream?",
+        "vi-VN": "Bạn có muốn kết nối lại stream không?",
+    },
+    "menu-stream-stats": {
+        "en-US": "Stream stats",
+        "pt-BR": "Estatísticas da transmissão",
+        "vi-VN": "Thông số stream",
+    },
+    "menu-stream-settings": {
+        "en-US": "Stream settings",
+        "pt-BR": "Configurações de transmissão",
+        "vi-VN": "Cấu hình stream",
+    },
+    "audio": {
+        "en-US": "Audio",
+        "pt-BR": "Áudio",
+        "vi-VN": "Âm thanh",
+    },
+    "volume": {
+        "en-US": "Volume",
+        "pt-BR": "Volume",
+        "vi-VN": "Âm lượng",
+    },
+    "video": {
+        "en-US": "Video",
+        "pt-BR": "Vídeo",
+        "vi-VN": "Hình ảnh",
+    },
+    "ratio": {
+        "en-US": "Ratio",
+        "pt-BR": "Taxa",
+        "vi-VN": "Tỉ lệ",
+    },
+    "clarity": {
+        "en-US": "Clarity",
+        "pt-BR": "Clareza",
+        "vi-VN": "Độ nét",
+    },
+    "saturation": {
+        "en-US": "Saturation",
+        "pt-BR": "Saturação",
+        "vi-VN": "Độ bão hòa",
+    },
+    "contrast": {
+        "en-US": "Contrast",
+        "pt-BR": "Contraste",
+        "vi-VN": "Độ tương phản",
+    },
+    "brightness": {
+        "en-US": "Brightness",
+        "pt-BR": "Brilho",
+        "vi-VN": "Độ sáng",
+    },
+    "clarity-boost-warning": {
+        "en-US": "These settings don't work when the Clarity Boost mode is ON",
+        "pt-BR": "Essas configurações não funcionam quando o modo de \"Clarity Boost\" está ATIVADO",
+        "vi-VN": "Các tùy chỉnh này không hoạt động khi chế độ Clarity Boost đang được bật",
+    },
+    "badge-playtime": {
+        "en-US": "Playtime",
+        "pt-BR": "Tempo de jogo",
+        "vi-VN": "Giờ chơi",
+    },
+    "badge-battery": {
+        "en-US": "Battery",
+        "pt-BR": "Bateria",
+        "vi-VN": "Pin",
+    },
+    "badge-in": {
+        "en-US": "In",
+        "pt-BR": "Entrar",
+        "vi-VN": "Nhận",
+    },
+    "badge-out": {
+        "en-US": "Out",
+        "pt-BR": "Sair",
+        "vi-VN": "Gởi",
+    },
+    "badge-server": {
+        "en-US": "Server",
+        "pt-BR": "Servidor",
+        "vi-VN": "Máy chủ",
+    },
+    "badge-video": {
+        "en-US": "Video",
+        "pt-BR": "Vídeo",
+        "vi-VN": "Hình",
+    },
+    "badge-audio": {
+        "en-US": "Audio",
+        "pt-BR": "Áudio",
+        "vi-VN": "Tiếng",
+    },
+    "safari-failed-message": {
+        "en-US": "Failed to run Better xCloud. Retrying, please wait...",
+        "pt-BR": "Falha ao executar o Better xCloud. Tentando novamente, aguarde...",
+        "vi-VN": "Không thể chạy Better xCloud. Đang thử lại, vui lòng chờ...",
+    },
+    "wait-time-estimated": {
+        "en-US": "Estimated finish time",
+        "pt-BR": "Tempo estimado de conclusão",
+        "vi-VN": "Thời gian hoàn thành dự kiến",
+    },
+    "wait-time-countdown": {
+        "en-US": "Countdown",
+        "pt-BR": "Contagem regressiva",
+        "vi-VN": "Đếm ngược",
+    },
+    "tc-muted-colors": {
+        "en-US": "Muted colors",
+        "vi-VN": "Màu câm",
     },
 }
 
@@ -1576,6 +1655,7 @@ class Preferences {
             'default': 'en-US',
             'options': {
                 'en-US': 'English (United States)',
+                'pt-BR': 'portugu\xeas (Brasil)',
                 'vi-VN': 'Tiếng Việt',
             },
         },
@@ -3271,7 +3351,7 @@ function injectSettingsButton($parent) {
 
     // Render settings
     const SETTINGS_UI = {
-        [__('better-xcloud')]: {
+        'Better xCloud': {
             [Preferences.BETTER_XCLOUD_LOCALE]: __('language'),
         },
         [__('server')]: {
