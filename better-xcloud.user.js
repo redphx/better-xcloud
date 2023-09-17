@@ -252,12 +252,6 @@ const Translations = {
         "pt-BR": "Ativar modo \"Revisão Rápida\"",
         "vi-VN": "Bật chế độ \"Xem nhanh\"",
     },
-    "force-hq-codec": {
-        "en-US": "Force high-quality codec",
-        "it-IT": "Forza l'utilizzo di codec di alta qualità",
-        "pt-BR": "Forçar codec de alta qualidade",
-        "vi-VN": "Áp đặt codec chất lượng cao",
-    },
     "hide-idle-cursor": {
         "en-US": "Hide mouse cursor on idle",
         "it-IT": "Nascondi il cursore previa inattività",
