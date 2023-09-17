@@ -63,11 +63,21 @@ function createElement(elmName, props = {}) {
 
 const Translations = {
     getLocale: () => {
+        const supportedLocales = [
+            'en-US',
+            'pt-BR',
+            'vi-VN',
+        ];
+
         let locale = localStorage.getItem('better_xcloud_locale');
         if (!locale) {
             locale = window.navigator.language || 'en-US';
+            if (supportedLocales.indexOf(locale) === -1) {
+                locale = 'en-US';
+            }
             localStorage.setItem('better_xcloud_locale', locale);
         }
+
         return locale;
     },
 
@@ -1600,7 +1610,7 @@ class Preferences {
     static get LATEST_VERSION() { return 'version_latest'; }
     static get CURRENT_VERSION() { return 'version_current'; }
 
-    static get BETTER_XCLOUD_LOCALE() { return 'better_xcloud_locale'};
+    static get BETTER_XCLOUD_LOCALE() { return 'bx_locale'};
 
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
@@ -1657,7 +1667,7 @@ class Preferences {
             'default': '',
         },
         [Preferences.BETTER_XCLOUD_LOCALE]: {
-            'default': 'en-US',
+            'default': localStorage.getItem('better_xcloud_locale') || 'en-US',
             'options': {
                 'en-US': 'English (United States)',
                 'pt-BR': 'portugu\xeas (Brasil)',
