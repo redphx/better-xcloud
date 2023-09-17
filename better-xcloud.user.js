@@ -2012,12 +2012,12 @@ class Preferences {
         [Preferences.STATS_ITEMS]: {
             'default': [StreamStats.PING, StreamStats.FPS, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
-                [StreamStats.PING]: __('stat-ping'),
-                [StreamStats.FPS]: __('stat-fps'),
-                [StreamStats.BITRATE]: __('stat-bitrate'),
-                [StreamStats.DECODE_TIME]: __('stat-decode-time'),
-                [StreamStats.PACKETS_LOST]: __('stat-packets-lost'),
-                [StreamStats.FRAMES_LOST]: __('stat-frames-lost'),
+                [StreamStats.PING]: `${StreamStats.PING.toUpperCase()}: ${__('stat-ping')}`,
+                [StreamStats.FPS]: `${StreamStats.FPS.toUpperCase()}: ${__('stat-fps')}`,
+                [StreamStats.BITRATE]: `${StreamStats.BITRATE.toUpperCase()}: ${__('stat-bitrate')}`,
+                [StreamStats.DECODE_TIME]: `${StreamStats.DECODE_TIME.toUpperCase()}: ${__('stat-decode-time')}`,
+                [StreamStats.PACKETS_LOST]: `${StreamStats.PACKETS_LOST.toUpperCase()}: ${__('stat-packets-lost')}`,
+                [StreamStats.FRAMES_LOST]: `${StreamStats.FRAMES_LOST.toUpperCase()}: ${__('stat-frames-lost')}`,
             },
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
