@@ -1266,7 +1266,16 @@ class StreamBadges {
             video += StreamBadges.video.codec;
             if (StreamBadges.video.profile) {
                 const profile = StreamBadges.video.profile;
-                const quality = profile.startsWith('4d') ? 'High' : (profile.startsWith('420') ? 'Low' : 'Normal');
+
+                let quality = profile;
+                if (profile.startsWith('4d')) {
+                    quality = __('visual-quality-high');
+                } else if (profile.startsWith('42e')) {
+                    quality = __('visual-quality-normal');
+                } else if (profile.startsWith('420')) {
+                    quality = __('visual-quality-low');
+                }
+
                 video += ` (${quality})`;
             }
         }
@@ -1850,23 +1859,23 @@ class Preferences {
 
                 if (hasLowCodec) {
                     if (!hasNormalCodec && !hasHighCodec) {
-                        options.default = `Low (Default)`;
+                        options.default = `${__('visual-quality-low')} (${__('default')})`;
                     } else {
-                        options.low = 'Low';
+                        options.low = __('visual-quality-low');
                     }
                 }
                 if (hasNormalCodec) {
                     if (!hasLowCodec && !hasHighCodec) {
-                        options.default = `Normal (Default)`;
+                        options.default = `${__('visual-quality-normal')} (${__('default')})`;
                     } else {
-                        options.normal = 'Normal';
+                        options.normal = __('visual-quality-normal');
                     }
                 }
                 if (hasHighCodec) {
                     if (!hasLowCodec && !hasNormalCodec) {
-                        options.default = `High (Default)`;
+                        options.default = `${__('visual-quality-high')} (${__('default')})`;
                     } else {
-                        options.high = 'High';
+                        options.high = __('visual-quality-high');
                     }
                 }
 
@@ -3531,7 +3540,7 @@ function injectSettingsButton($parent) {
         [__('stream')]: {
             [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
             [Preferences.USE_DESKTOP_CODEC]: __('force-hq-codec'),
-            [Preferences.STREAM_CODEC_PROFILE]: 'Test',
+            [Preferences.STREAM_CODEC_PROFILE]: __('visual-quality'),
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
