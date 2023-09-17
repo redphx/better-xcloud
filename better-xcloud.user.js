@@ -1175,9 +1175,9 @@ class StreamBadges {
             video && (video += '/');
             video += StreamBadges.video.codec;
             if (StreamBadges.video.profile) {
-                let profile = StreamBadges.video.profile;
-                profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
-                video += ` (${profile})`;
+                const profile = StreamBadges.video.profile;
+                const quality = profile.startsWith('4d') ? 'High' : (profile.startsWith('420') ? 'Low' : 'Normal');
+                video += ` (${quality})`;
             }
         }
 
@@ -1616,7 +1616,9 @@ class Preferences {
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
     static get STREAM_TARGET_RESOLUTION() { return 'stream_target_resolution'; }
     static get STREAM_PREFERRED_LOCALE() { return 'stream_preferred_locale'; }
-    static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
+    static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }  // deprecated
+    static get STREAM_CODEC_PROFILE() { return 'stream_codec_profile'; }
+
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_HIDE_IDLE_CURSOR() { return 'stream_hide_idle_cursor';}
@@ -1720,6 +1722,66 @@ class Preferences {
         },
         [Preferences.USE_DESKTOP_CODEC]: {
             'default': false,
+        },
+        [Preferences.STREAM_CODEC_PROFILE]: {
+            'default': 'default',
+            'options': (() => {
+                const options = {
+                    'default': __('default'),
+                };
+
+                if (typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
+                    return options;
+                }
+
+                if (!('getCapabilities' in RTCRtpReceiver)) {
+                    return options;
+                }
+
+                let hasLowCodec = false;
+                let hasNormalCodec = false;
+                let hasHighCodec = false;
+
+                const codecs = RTCRtpReceiver.getCapabilities('video').codecs;
+                for (let codec of codecs) {
+                    if (codec.mimeType.toLowerCase() !== 'video/h264' || !codec.sdpFmtpLine) {
+                        continue;
+                    }
+
+                    const fmtp = codec.sdpFmtpLine.toLowerCase();
+                    if (!hasHighCodec && fmtp.includes('profile-level-id=4d')) {
+                        hasHighCodec = true;
+                    } else if (!hasNormalCodec && fmtp.includes('profile-level-id=42e')) {
+                        hasNormalCodec = true;
+                    } else if (!hasLowCodec && fmtp.includes('profile-level-id=420')) {
+                        hasLowCodec = true;
+                    }
+                }
+
+                if (hasLowCodec) {
+                    if (!hasNormalCodec && !hasHighCodec) {
+                        options.default = `Low (Default)`;
+                    } else {
+                        options.low = 'Low';
+                    }
+                }
+                if (hasNormalCodec) {
+                    if (!hasLowCodec && !hasHighCodec) {
+                        options.default = `Normal (Default)`;
+                    } else {
+                        options.normal = 'Normal';
+                    }
+                }
+                if (hasHighCodec) {
+                    if (!hasLowCodec && !hasNormalCodec) {
+                        options.default = `High (Default)`;
+                    } else {
+                        options.high = 'High';
+                    }
+                }
+
+                return options;
+            })(),
         },
         [Preferences.PREFER_IPV6_SERVER]: {
             'default': false,
@@ -3379,6 +3441,7 @@ function injectSettingsButton($parent) {
         [__('stream')]: {
             [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
             [Preferences.USE_DESKTOP_CODEC]: __('force-hq-codec'),
+            [Preferences.STREAM_CODEC_PROFILE]: 'Test',
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
@@ -3484,11 +3547,7 @@ function injectSettingsButton($parent) {
             }
 
             // Disable unsupported settings
-            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
-                $control.disabled = true;
-                $control.checked = false;
-                $control.title = __('browser-unsupported-feature');
-            } else if (!HAS_TOUCH_SUPPORT) {
+            if (!HAS_TOUCH_SUPPORT) {
                 // Disable this setting for non-touchable devices
                 if ([Preferences.STREAM_TOUCH_CONTROLLER, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM].indexOf(settingId) > -1) {
                     $control.disabled = true;
@@ -3828,40 +3887,18 @@ function patchVideoApi() {
 }
 
 
-function hasHighQualityCodecSupport() {
-    if (typeof HAS_HIGH_QUALITY_CODEC_SUPPORT !== 'undefined') {
-        return HAS_HIGH_QUALITY_CODEC_SUPPORT;
+function patchRtcCodecs() {
+    const codecProfile = PREFS.get(Preferences.STREAM_CODEC_PROFILE);
+    if (codecProfile === 'default') {
+        return;
     }
 
     if (typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
         return false;
     }
 
-    if (!('getCapabilities' in RTCRtpReceiver)) {
-        return false;
-    }
-
-    const codecs = RTCRtpReceiver.getCapabilities('video').codecs;
-    for (let codec of codecs) {
-        if (codec.mimeType.toLowerCase() !== 'video/h264' || !codec.sdpFmtpLine) {
-            continue;
-        }
-
-        const fmtp = codec.sdpFmtpLine.toLowerCase();
-        if (fmtp.includes('profile-level-id=4d')) {
-            return true;
-        }
-    }
-
-    return false;
-}
-var HAS_HIGH_QUALITY_CODEC_SUPPORT = hasHighQualityCodecSupport();
-
-
-function patchRtcCodecs() {
-    if (!PREFS.get(Preferences.USE_DESKTOP_CODEC) || !hasHighQualityCodecSupport()) {
-        return;
-    }
+    const profilePrefix = codecProfile === 'high' ? '4d' : (codecProfile === 'low' ? '420' : '42e');
+    const profileLevelId = `profile-level-id=${profilePrefix}`;
 
     RTCRtpTransceiver.prototype.orgSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
     RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
@@ -3870,7 +3907,7 @@ function patchRtcCodecs() {
         let pos = 0;
         newCodecs.forEach((codec, i) => {
             // Find high-quality codecs
-            if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes('profile-level-id=4d')) {
+            if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes(profileLevelId)) {
                 // Move it to the top of the array
                 newCodecs.splice(i, 1);
                 newCodecs.splice(pos, 0, codec);
@@ -3881,6 +3918,7 @@ function patchRtcCodecs() {
         try {
             this.orgSetCodecPreferences.apply(this, [newCodecs]);
         } catch (e) {
+            // Didn't work -> use default codecs
             console.log(e);
             this.orgSetCodecPreferences.apply(this, [codecs]);
         }
