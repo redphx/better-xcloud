@@ -1715,7 +1715,6 @@ class Preferences {
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
     static get STREAM_TARGET_RESOLUTION() { return 'stream_target_resolution'; }
     static get STREAM_PREFERRED_LOCALE() { return 'stream_preferred_locale'; }
-    static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }  // deprecated
     static get STREAM_CODEC_PROFILE() { return 'stream_codec_profile'; }
 
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
@@ -1756,6 +1755,9 @@ class Preferences {
     static get STATS_TRANSPARENT() { return 'stats_transparent'; }
     static get STATS_OPACITY() { return 'stats_opacity'; }
     static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
+
+    // Deprecated
+    static get DEPRECATED_USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
 
     static SETTINGS = {
         [Preferences.LAST_UPDATE_CHECK]: {
@@ -1818,9 +1820,6 @@ class Preferences {
                 '1080p': '1080p',
                 '720p': '720p',
             },
-        },
-        [Preferences.USE_DESKTOP_CODEC]: {
-            'default': false,
         },
         [Preferences.STREAM_CODEC_PROFILE]: {
             'default': 'default',
@@ -2054,6 +2053,16 @@ class Preferences {
         [Preferences.STATS_CONDITIONAL_FORMATTING]: {
             'default': false,
         },
+
+        // Deprecated
+        [Preferences.DEPRECATED_USE_DESKTOP_CODEC]: {
+            'default': false,
+            'migrate': function(savedPrefs, value) {
+                const quality = value ? 'high' : 'default';
+                this.set(Preferences.STREAM_CODEC_PROFILE, quality);
+                savedPrefs[Preferences.STREAM_CODEC_PROFILE] = quality;
+            },
+        },
     }
 
     #storage = localStorage;
@@ -2068,13 +2077,26 @@ class Preferences {
         savedPrefs = JSON.parse(savedPrefs);
 
         for (let settingId in Preferences.SETTINGS) {
-            if (!settingId) {
-                alert('Undefined setting key');
+            if (!(settingId in savedPrefs)) {
+                continue;
+            }
+            const setting = Preferences.SETTINGS[settingId];
+            setting && setting.migrate && setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
+        }
+
+        for (let settingId in Preferences.SETTINGS) {
+            const setting = Preferences.SETTINGS[settingId];
+            if (!setting) {
+                alert(`Undefined setting key: ${settingId}`);
                 console.log('Undefined setting key');
                 continue;
             }
 
-            const setting = Preferences.SETTINGS[settingId];
+            // Ignore deprecated settings
+            if (setting.migrate) {
+                continue;
+            }
+
             if (settingId in savedPrefs) {
                 this.#prefs[settingId] = savedPrefs[settingId];
             } else {
@@ -3244,7 +3266,6 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
-    const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
     const PREF_UI_LOADING_SCREEN_GAME_ART = PREFS.get(Preferences.UI_LOADING_SCREEN_GAME_ART);
     const PREF_UI_LOADING_SCREEN_WAIT_TIME = PREFS.get(Preferences.UI_LOADING_SCREEN_WAIT_TIME);
 
@@ -3539,7 +3560,6 @@ function injectSettingsButton($parent) {
         },
         [__('stream')]: {
             [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
-            [Preferences.USE_DESKTOP_CODEC]: __('force-hq-codec'),
             [Preferences.STREAM_CODEC_PROFILE]: __('visual-quality'),
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
