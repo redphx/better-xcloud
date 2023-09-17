@@ -2717,7 +2717,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-stats-bar > div {
     display: none;
     margin-right: 8px;
-    border-right: 2px solid #fff;
+    border-right: 1px solid #fff;
     padding-right: 8px;
 }
 
