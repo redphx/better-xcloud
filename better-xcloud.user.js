@@ -3591,7 +3591,13 @@ function injectSettingsButton($parent) {
             }
 
             // Disable unsupported settings
-            if (!HAS_TOUCH_SUPPORT) {
+            if (settingId === Preferences.STREAM_CODEC_PROFILE) {
+                const options = Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].options;
+                if (Object.keys(options).length <= 1) {
+                    $control.disabled = true;
+                    $control.title = __('browser-unsupported-feature');
+                }
+            } else if (!HAS_TOUCH_SUPPORT) {
                 // Disable this setting for non-touchable devices
                 if ([Preferences.STREAM_TOUCH_CONTROLLER, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM].indexOf(settingId) > -1) {
                     $control.disabled = true;
