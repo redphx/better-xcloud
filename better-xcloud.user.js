@@ -61,15 +61,521 @@ function createElement(elmName, props = {}) {
 }
 
 
+const Translations = {
+    getLocale: () => {
+        const supportedLocales = [
+            'en-US',
+            'pt-BR',
+            'vi-VN',
+        ];
+
+        let locale = localStorage.getItem('better_xcloud_locale');
+        if (!locale) {
+            locale = window.navigator.language || 'en-US';
+            if (supportedLocales.indexOf(locale) === -1) {
+                locale = 'en-US';
+            }
+            localStorage.setItem('better_xcloud_locale', locale);
+        }
+
+        return locale;
+    },
+
+    get: (key) => {
+        const texts = Translations[key] || alert(`Missing translation key: ${key}`);
+        return texts[LOCALE] || texts['en-US'];
+    },
+
+    "advanced": {
+        "en-US": "Advanced",
+        "pt-BR": "Avançado",
+        "vi-VN": "Nâng cao",
+    },
+    "audio": {
+        "en-US": "Audio",
+        "pt-BR": "Áudio",
+        "vi-VN": "Âm thanh",
+    },
+    "auto": {
+        "en-US": "Auto",
+        "pt-BR": "Automático",
+        "vi-VN": "Tự động",
+    },
+    "badge-audio": {
+        "en-US": "Audio",
+        "pt-BR": "Áudio",
+        "vi-VN": "Tiếng",
+    },
+    "badge-battery": {
+        "en-US": "Battery",
+        "pt-BR": "Bateria",
+        "vi-VN": "Pin",
+    },
+    "badge-in": {
+        "en-US": "In",
+        "pt-BR": "Recebidos",
+        "vi-VN": "Nhận",
+    },
+    "badge-out": {
+        "en-US": "Out",
+        "pt-BR": "Enviados",
+        "vi-VN": "Gởi",
+    },
+    "badge-playtime": {
+        "en-US": "Playtime",
+        "pt-BR": "Tempo de jogo",
+        "vi-VN": "Giờ chơi",
+    },
+    "badge-server": {
+        "en-US": "Server",
+        "pt-BR": "Servidor",
+        "vi-VN": "Máy chủ",
+    },
+    "badge-video": {
+        "en-US": "Video",
+        "pt-BR": "Vídeo",
+        "vi-VN": "Hình",
+    },
+    "bottom-left": {
+        "en-US": "Bottom-left",
+        "pt-BR": "Inferior Esquerdo",
+        "vi-VN": "Phía dưới bên trái",
+    },
+    "bottom-right": {
+        "en-US": "Bottom-right",
+        "pt-BR": "Inferior-direito",
+        "vi-VN": "Phía dưới bên phải",
+    },
+    "brightness": {
+        "en-US": "Brightness",
+        "pt-BR": "Brilho",
+        "vi-VN": "Độ sáng",
+    },
+    "browser-unsupported-feature": {
+        "en-US": "Your browser doesn't support this feature",
+        "pt-BR": "Seu navegador não suporta este recurso",
+        "vi-VN": "Trình duyệt không hỗ trợ tính năng này",
+    },
+    "clarity": {
+        "en-US": "Clarity",
+        "pt-BR": "Clareza",
+        "vi-VN": "Độ nét",
+    },
+    "clarity-boost-warning": {
+        "en-US": "These settings don't work when the Clarity Boost mode is ON",
+        "pt-BR": "Essas configurações não funcionam quando o modo de \"Clarity Boost\" está ATIVADO",
+        "vi-VN": "Các tùy chỉnh này không hoạt động khi chế độ Clarity Boost đang được bật",
+    },
+    "close": {
+        "en-US": "Close",
+        "pt-BR": "Fechar",
+        "vi-VN": "Đóng",
+    },
+    "conditional-formatting": {
+        "en-US": "Conditional formatting text color",
+        "pt-BR": "Cor do texto do formato condicional",
+        "vi-VN": "Thay đổi màu chữ tùy theo giá trị",
+    },
+    "confirm-reload-stream": {
+        "en-US": "Do you want to refresh the stream?",
+        "pt-BR": "Você deseja atualizar o stream?",
+        "vi-VN": "Bạn có muốn kết nối lại stream không?",
+    },
+    "contrast": {
+        "en-US": "Contrast",
+        "pt-BR": "Contraste",
+        "vi-VN": "Độ tương phản",
+    },
+    "custom": {
+        "en-US": "Custom",
+        "pt-BR": "Customizado",
+        "vi-VN": "Tùy chỉnh",
+    },
+    "default": {
+        "en-US": "Default",
+        "pt-BR": "Padrão",
+        "vi-VN": "Mặc định",
+    },
+    "device-unsupported-touch": {
+        "en-US": "Your device doesn't have touch support",
+        "pt-BR": "Seu dispositivo não possui suporte de toque",
+        "vi-VN": "Thiết bị này không hỗ trợ cảm ứng",
+    },
+    "disable": {
+        "en-US": "Disable",
+        "pt-BR": "Desabilitar",
+        "vi-VN": "Vô hiệu hóa",
+    },
+    "disable-bandwidth-checking": {
+        "en-US": "Disable bandwidth checking",
+        "pt-BR": "Desativar verificação de banda",
+        "vi-VN": "Tắt kiểm tra băng thông",
+    },
+    "disable-social-features": {
+        "en-US": "Disable social features",
+        "pt-BR": "Desativar recursos sociais",
+        "vi-VN": "Khóa các tính năng xã hội",
+    },
+    "disable-xcloud-analytics": {
+        "en-US": "Disable xCloud analytics",
+        "pt-BR": "Desativar telemetria do xCloud",
+        "vi-VN": "Khóa phân tích thông tin của xCloud",
+    },
+    "enable-mic-on-startup": {
+        "en-US": "Enable microphone on game launch",
+        "pt-BR": "Ativar microfone na inicialização do jogo",
+        "vi-VN": "Bật mic lúc vào game",
+    },
+    "enable-quick-glance-mode": {
+        "en-US": "Enable \"Quick Glance\" mode",
+        "pt-BR": "Ativar modo \"Revisão Rápida\"",
+        "vi-VN": "Bật chế độ \"Xem nhanh\"",
+    },
+    "hide-idle-cursor": {
+        "en-US": "Hide mouse cursor on idle",
+        "pt-BR": "Ocultar o cursor do mouse no ocioso",
+        "vi-VN": "Ẩn con trỏ chuột khi không di chuyển",
+    },
+    "hide-system-menu-icon": {
+        "en-US": "Hide System menu's icon",
+        "pt-BR": "Ocultar ícone do menu do sistema",
+        "vi-VN": "Ẩn biểu tượng của menu Hệ thống",
+    },
+    "language": {
+        "en-US": "Language",
+        "pt-BR": "Linguagem",
+        "vi-VN": "Ngôn ngữ",
+    },
+    "large": {
+        "en-US": "Large",
+        "pt-BR": "Largo",
+        "vi-VN": "Lớn",
+    },
+    "loading-screen": {
+        "en-US": "Loading screen",
+        "pt-BR": "Tela de Carregamento",
+        "vi-VN": "Màn hình chờ",
+    },
+    "menu-stream-settings": {
+        "en-US": "Stream settings",
+        "pt-BR": "Ajustes de transmissão",
+        "vi-VN": "Cấu hình stream",
+    },
+    "menu-stream-stats": {
+        "en-US": "Stream stats",
+        "pt-BR": "Estatísticas da transmissão",
+        "vi-VN": "Thông số stream",
+    },
+    "normal": {
+        "en-US": "Normal",
+        "pt-BR": "Normal",
+        "vi-VN": "Thường",
+    },
+    "off": {
+        "en-US": "Off",
+        "pt-BR": "Desligado",
+        "vi-VN": "Tắt",
+    },
+    "opacity": {
+        "en-US": "Opacity",
+        "pt-BR": "Transparência",
+        "vi-VN": "Độ mờ",
+    },
+    "other": {
+        "en-US": "Other",
+        "pt-BR": "Outros",
+        "vi-VN": "Khác",
+    },
+    "position": {
+        "en-US": "Position",
+        "pt-BR": "Posição",
+        "vi-VN": "Vị trí",
+    },
+    "prefer-ipv6-server": {
+        "en-US": "Prefer IPv6 server",
+        "pt-BR": "Preferir servidor IPV6",
+        "vi-VN": "Ưu tiên máy chủ IPv6",
+    },
+    "preferred-game-language": {
+        "en-US": "Preferred game's language",
+        "pt-BR": "Idioma preferencial do jogo",
+        "vi-VN": "Ngôn ngữ game ưu tiên",
+    },
+    "ratio": {
+        "en-US": "Ratio",
+        "pt-BR": "Proporção",
+        "vi-VN": "Tỉ lệ",
+    },
+    "reduce-animations": {
+        "en-US": "Reduce UI animations",
+        "pt-BR": "Reduzir animações da interface",
+        "vi-VN": "Giảm hiệu ứng chuyển động",
+    },
+    "region": {
+        "en-US": "Region",
+        "pt-BR": "Região",
+        "vi-VN": "Khu vực",
+    },
+    "rocket-always-hide": {
+        "en-US": "Always hide",
+        "pt-BR": "Sempre ocultar",
+        "vi-VN": "Luôn ẩn",
+    },
+    "rocket-always-show": {
+        "en-US": "Always show",
+        "pt-BR": "Sempre mostrar",
+        "vi-VN": "Luôn hiển thị",
+    },
+    "rocket-animation": {
+        "en-US": "Rocket animation",
+        "pt-BR": "Animação do foguete",
+        "vi-VN": "Phi thuyền",
+    },
+    "rocket-hide-queue": {
+        "en-US": "Hide when queuing",
+        "pt-BR": "Ocultar quando estiver na fila",
+        "vi-VN": "Ẩn khi xếp hàng chờ",
+    },
+    "safari-failed-message": {
+        "en-US": "Failed to run Better xCloud. Retrying, please wait...",
+        "pt-BR": "Falha ao executar o Better xCloud. Tentando novamente, aguarde...",
+        "vi-VN": "Không thể chạy Better xCloud. Đang thử lại, vui lòng chờ...",
+    },
+    "saturation": {
+        "en-US": "Saturation",
+        "pt-BR": "Saturação",
+        "vi-VN": "Độ bão hòa",
+    },
+    "screenshot-button-position": {
+        "en-US": "Screenshot button's position",
+        "pt-BR": "Posição do botão de Screenshot",
+        "vi-VN": "Vị trí của nút Chụp màn hình",
+    },
+    "server": {
+        "en-US": "Server",
+        "pt-BR": "Servidor",
+        "vi-VN": "Máy chủ",
+    },
+    "settings-reload": {
+        "en-US": "Reload page to reflect changes",
+        "pt-BR": "Recarregue a página para refletir as alterações",
+        "vi-VN": "Tải lại trang để áp dụng các thay đổi",
+    },
+    "settings-reloading": {
+        "en-US": "Reloading...",
+        "pt-BR": "Recarregando...",
+        "vi-VN": "Đang tải lại...",
+    },
+    "show-game-art": {
+        "en-US": "Show game art",
+        "pt-BR": "Mostrar arte do jogo",
+        "vi-VN": "Hiển thị ảnh game",
+    },
+    "show-stats-on-startup": {
+        "en-US": "Show stats when starting the game",
+        "pt-BR": "Mostrar estatísticas ao iniciar o jogo",
+        "vi-VN": "Hiển thị thông số khi vào game",
+    },
+    "show-wait-time": {
+        "en-US": "Show the estimated wait time",
+        "pt-BR": "Mostrar o tempo estimado de espera",
+        "vi-VN": "Hiển thị thời gian chờ dự kiến",
+    },
+    "simplify-stream-menu": {
+        "en-US": "Simplify Stream's menu",
+        "pt-BR": "Simplificar menu do streaming",
+        "vi-VN": "Đơn giản hóa menu của Stream",
+    },
+    "skip-splash-video": {
+        "en-US": "Skip Xbox splash video",
+        "pt-BR": "Pular vídeo de abertura do Xbox",
+        "vi-VN": "Bỏ qua video Xbox",
+    },
+    "small": {
+        "en-US": "Small",
+        "pt-BR": "Pequeno",
+        "vi-VN": "Nhỏ",
+    },
+    "stat-bitrate": {
+        "en-US": "Bitrate",
+        "pt-BR": "Bitrate",
+        "vi-VN": "Bitrate",
+    },
+    "stat-decode-time": {
+        "en-US": "Decode time",
+        "pt-BR": "Tempo de decodificação",
+        "vi-VN": "Thời gian giải mã",
+    },
+    "stat-fps": {
+        "en-US": "FPS",
+        "pt-BR": "FPS",
+        "vi-VN": "FPS",
+    },
+    "stat-frames-lost": {
+        "en-US": "Frames lost",
+        "pt-BR": "Quadros perdidos",
+        "vi-VN": "Số khung hình bị mất",
+    },
+    "stat-packets-lost": {
+        "en-US": "Packets lost",
+        "pt-BR": "Pacotes perdidos",
+        "vi-VN": "Số gói tin bị mất",
+    },
+    "stat-ping": {
+        "en-US": "Ping",
+        "pt-BR": "Ping",
+        "vi-VN": "Ping",
+    },
+    "stats": {
+        "en-US": "Stats",
+        "pt-BR": "Estatísticas",
+        "vi-VN": "Các thông số",
+    },
+    "stream": {
+        "en-US": "Stream",
+        "pt-BR": "Stream",
+        "vi-VN": "Stream",
+    },
+    "stream-stats-settings": {
+        "en-US": "Stream stats settings",
+        "pt-BR": "Ajustes de estatísticas",
+        "vi-VN": "Cấu hình thông số của stream",
+    },
+    "stretch": {
+        "en-US": "Stretch",
+        "pt-BR": "Esticar",
+        "vi-VN": "Kéo giãn",
+    },
+    "target-resolution": {
+        "en-US": "Target resolution",
+        "pt-BR": "Resolução alvo",
+        "vi-VN": "Độ phân giải",
+    },
+    "tc-all-games": {
+        "en-US": "All games",
+        "pt-BR": "Todos os jogos",
+        "vi-VN": "Tất cả các game",
+    },
+    "tc-all-white": {
+        "en-US": "All white",
+        "pt-BR": "Tudo branco",
+        "vi-VN": "Trắng hoàn toàn",
+    },
+    "tc-availability": {
+        "en-US": "Availability",
+        "pt-BR": "Disponibilidade",
+        "vi-VN": "Khả dụng",
+    },
+    "tc-custom-layout-style": {
+        "en-US": "Custom layout's button style",
+        "pt-BR": "Estilo de botão do layout personalizado",
+        "vi-VN": "Màu của bố cục tùy chọn",
+    },
+    "tc-muted-colors": {
+        "en-US": "Muted colors",
+        "pt-BR": "Cores silenciadas",
+        "vi-VN": "Màu câm",
+    },
+    "tc-standard-layout-style": {
+        "en-US": "Standard layout's button style",
+        "pt-BR": "Estilo padrão de botões do layout",
+        "vi-VN": "Màu của bố cục tiêu chuẩn",
+    },
+    "text-size": {
+        "en-US": "Text size",
+        "pt-BR": "Tamanho do texto",
+        "vi-VN": "Cỡ chữ",
+    },
+    "top-center": {
+        "en-US": "Top-center",
+        "pt-BR": "Superior-centralizado",
+        "vi-VN": "Chính giữa phía trên",
+    },
+    "top-left": {
+        "en-US": "Top-left",
+        "pt-BR": "Superior-esquerdo",
+        "vi-VN": "Phía trên bên trái",
+    },
+    "top-right": {
+        "en-US": "Top-right",
+        "pt-BR": "Superior-direito",
+        "vi-VN": "Phía trên bên phải",
+    },
+    "touch-controller": {
+        "en-US": "Touch controller",
+        "pt-BR": "Controle de toque",
+        "vi-VN": "Bộ điều khiển cảm ứng",
+    },
+    "transparent-background": {
+        "en-US": "Transparent background",
+        "pt-BR": "Fundo transparente",
+        "vi-VN": "Trong suốt màu nền",
+    },
+    "ui": {
+        "en-US": "UI",
+        "pt-BR": "Interface",
+        "vi-VN": "Giao diện",
+    },
+    "user-agent-profile": {
+        "en-US": "User-Agent profile",
+        "pt-BR": "Perfil do User-Agent",
+        "vi-VN": "User-Agent",
+    },
+    "video": {
+        "en-US": "Video",
+        "pt-BR": "Vídeo",
+        "vi-VN": "Hình ảnh",
+    },
+    "visual-quality": {
+        "en-US": "Visual quality",
+        "pt-BR": "Qualidade visual",
+        "vi-VN": "Chất lượng hình ảnh",
+    },
+    "visual-quality-high": {
+        "en-US": "High",
+        "pt-BR": "Alto",
+        "vi-VN": "Cao",
+    },
+    "visual-quality-low": {
+        "en-US": "Low",
+        "pt-BR": "Baixo",
+        "vi-VN": "Thấp",
+    },
+    "visual-quality-normal": {
+        "en-US": "Normal",
+        "pt-BR": "Normal",
+        "vi-VN": "Thường",
+    },
+    "volume": {
+        "en-US": "Volume",
+        "pt-BR": "Volume",
+        "vi-VN": "Âm lượng",
+    },
+    "wait-time-countdown": {
+        "en-US": "Countdown",
+        "pt-BR": "Contagem regressiva",
+        "vi-VN": "Đếm ngược",
+    },
+    "wait-time-estimated": {
+        "en-US": "Estimated finish time",
+        "pt-BR": "Tempo estimado de conclusão",
+        "vi-VN": "Thời gian hoàn thành dự kiến",
+    },
+}
+
+const LOCALE = Translations.getLocale();
+const __ = Translations.get;
+
+
 const ENABLE_SAFARI_WORKAROUND = true;
 if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
     // Stop loading
     window.stop();
 
     // Show the reloading overlay
-    const $elm = createElement('div', {'class': 'better-xcloud-reload-overlay'}, 'Failed to run Better xCloud. Retrying, please wait...');
+    const $elm = createElement('div', {'class': 'bx-reload-overlay'}, __('safari-failed-message'));
     const css = `
-.better-xcloud-reload-overlay {
+.bx-reload-overlay {
     position: fixed;
     top: 0;
     background: #000000cc;
@@ -79,7 +585,7 @@ if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
     color: #fff;
     text-align: center;
     font-weight: 400;
-    font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     font-size: 1.3rem;
 }
 `;
@@ -101,7 +607,7 @@ window.addEventListener('load', e => {
             window.stop();
             window.location.reload(true);
         }
-    }, 2000);
+    }, 3000);
 });
 
 
@@ -292,19 +798,19 @@ class LoadingScreen {
 
         let $waitTimeBox = LoadingScreen.#$waitTimeBox;
         if (!$waitTimeBox) {
-            $waitTimeBox = CE('div', {'class': 'better-xcloud-wait-time-box'},
-                                    CE('label', {}, 'Estimated finish time'),
-                                    $estimated = CE('span', {'class': 'better-xcloud-wait-time-estimated'}),
-                                    CE('label', {}, 'Countdown'),
-                                    $countDown = CE('span', {'class': 'better-xcloud-wait-time-countdown'}),
+            $waitTimeBox = CE('div', {'class': 'bx-wait-time-box'},
+                                    CE('label', {}, __('wait-time-estimated')),
+                                    $estimated = CE('span', {'class': 'bx-wait-time-estimated'}),
+                                    CE('label', {}, __('wait-time-countdown')),
+                                    $countDown = CE('span', {'class': 'bx-wait-time-countdown'}),
                                    );
 
             document.documentElement.appendChild($waitTimeBox);
             LoadingScreen.#$waitTimeBox = $waitTimeBox;
         } else {
-            $waitTimeBox.classList.remove('better-xcloud-gone');
-            $estimated = $waitTimeBox.querySelector('.better-xcloud-wait-time-estimated');
-            $countDown = $waitTimeBox.querySelector('.better-xcloud-wait-time-countdown');
+            $waitTimeBox.classList.remove('bx-gone');
+            $estimated = $waitTimeBox.querySelector('.bx-wait-time-estimated');
+            $countDown = $waitTimeBox.querySelector('.bx-wait-time-countdown');
         }
 
         $estimated.textContent = endDateStr;
@@ -325,7 +831,7 @@ class LoadingScreen {
 
     static hide() {
         LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
 
         const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
         $rocketBg && $rocketBg.addEventListener('transitionend', e => {
@@ -344,7 +850,7 @@ class LoadingScreen {
     }
 
     static reset() {
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('better-xcloud-gone');
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
         LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
 
         LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
@@ -425,7 +931,7 @@ class TouchController {
         const $style = document.createElement('style');
         document.documentElement.appendChild($style);
 
-        const $bar = createElement('div', {'id': 'better-xcloud-touch-controller-bar'});
+        const $bar = createElement('div', {'id': 'bx-touch-controller-bar'});
         document.documentElement.appendChild($bar);
 
         // Setup double-tap event
@@ -572,12 +1078,12 @@ class StreamBadges {
             return $badge;
         }
 
-        $badge = CE('div', {'class': 'better-xcloud-badge'},
-                    CE('span', {'class': 'better-xcloud-badge-name'}, name),
-                    CE('span', {'class': 'better-xcloud-badge-value', 'style': `background-color: ${color}`}, value));
+        $badge = CE('div', {'class': 'bx-badge'},
+                    CE('span', {'class': 'bx-badge-name'}, __(`badge-${name}`)),
+                    CE('span', {'class': 'bx-badge-value', 'style': `background-color: ${color}`}, value));
 
         if (name === StreamBadges.BADGE_BATTERY) {
-            $badge.classList.add('better-xcloud-badge-battery');
+            $badge.classList.add('bx-badge-battery');
         }
 
         StreamBadges.#cachedDoms[name] = $badge;
@@ -585,7 +1091,7 @@ class StreamBadges {
     }
 
     static async #updateBadges(forceUpdate) {
-        if (!forceUpdate && !document.querySelector('.better-xcloud-badges')) {
+        if (!forceUpdate && !document.querySelector('.bx-badges')) {
             StreamBadges.#stop();
             return;
         }
@@ -684,9 +1190,18 @@ class StreamBadges {
             video && (video += '/');
             video += StreamBadges.video.codec;
             if (StreamBadges.video.profile) {
-                let profile = StreamBadges.video.profile;
-                profile = profile.startsWith('4d') ? 'High' : (profile.startsWith('42') ? 'Normal' : profile);
-                video += ` (${profile})`;
+                const profile = StreamBadges.video.profile;
+
+                let quality = profile;
+                if (profile.startsWith('4d')) {
+                    quality = __('visual-quality-high');
+                } else if (profile.startsWith('42e')) {
+                    quality = __('visual-quality-normal');
+                } else if (profile.startsWith('420')) {
+                    quality = __('visual-quality-low');
+                }
+
+                video += ` (${quality})`;
             }
         }
 
@@ -719,7 +1234,7 @@ class StreamBadges {
             audio ? [StreamBadges.BADGE_AUDIO, audio, '#5f574f'] : null,
         ];
 
-        const $wrapper = createElement('div', {'class': 'better-xcloud-badges'});
+        const $wrapper = createElement('div', {'class': 'bx-badges'});
         BADGES.forEach(item => item && $wrapper.appendChild(StreamBadges.#renderBadge(...item)));
 
         await StreamBadges.#updateBadges(true);
@@ -761,7 +1276,7 @@ class StreamStats {
             return;
         }
 
-        StreamStats.#$container.classList.remove('better-xcloud-gone');
+        StreamStats.#$container.classList.remove('bx-gone');
         StreamStats.#$container.setAttribute('data-display', glancing ? 'glancing' : 'fixed');
 
         StreamStats.#interval = setInterval(StreamStats.update, StreamStats.#updateInterval);
@@ -777,7 +1292,7 @@ class StreamStats {
         StreamStats.#lastStat = null;
 
         StreamStats.#$container.removeAttribute('data-display');
-        StreamStats.#$container.classList.add('better-xcloud-gone');
+        StreamStats.#$container.classList.add('bx-gone');
     }
 
     static toggle() {
@@ -794,7 +1309,7 @@ class StreamStats {
         StreamStats.hideSettingsUi();
     }
 
-    static isHidden = () => StreamStats.#$container.classList.contains('better-xcloud-gone');
+    static isHidden = () => StreamStats.#$container.classList.contains('bx-gone');
     static isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
 
     static quickGlanceSetup() {
@@ -932,11 +1447,11 @@ class StreamStats {
 
         const $barFragment = document.createDocumentFragment();
         for (let statKey in STATS) {
-            const $div = CE('div', {'class': `better-xcloud-stat-${statKey}`}, CE('label', {}, statKey.toUpperCase()), STATS[statKey]);
+            const $div = CE('div', {'class': `bx-stat-${statKey}`}, CE('label', {}, statKey.toUpperCase()), STATS[statKey]);
             $barFragment.appendChild($div);
         }
 
-        StreamStats.#$container = CE('div', {'class': 'better-xcloud-stats-bar better-xcloud-gone'}, $barFragment);
+        StreamStats.#$container = CE('div', {'class': 'bx-stats-bar bx-gone'}, $barFragment);
 
         let clickTimeout;
         StreamStats.#$container.addEventListener('mousedown', e => {
@@ -964,36 +1479,36 @@ class StreamStats {
 
         const STATS_UI = {
             [Preferences.STATS_SHOW_WHEN_PLAYING]: {
-                'label': 'Show stats when starting the game',
+                'label': __('show-stats-on-startup'),
             },
             [Preferences.STATS_QUICK_GLANCE]: {
-                'label': 'Enable "Quick Glance" mode',
+                'label': __('enable-quick-glance-mode'),
                 'onChange': e => {
                     e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
                 },
             },
             [Preferences.STATS_ITEMS]: {
-                'label': 'Stats',
+                'label': __('stats'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_POSITION]: {
-                'label': 'Position',
+                'label': __('position'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_TEXT_SIZE]: {
-                'label': 'Text size',
+                'label': __('text-size'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_OPACITY]: {
-                'label': 'Opacity (50-100%)',
+                'label': `${__('opacity')} (50-100%)`,
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_TRANSPARENT]: {
-                'label': 'Transparent background',
+                'label': __('transparent-background'),
                 'onChange': refreshFunc,
             },
             [Preferences.STATS_CONDITIONAL_FORMATTING]: {
-                'label': 'Conditional formatting text color',
+                'label': __('conditional-formatting'),
                 'onChange': refreshFunc,
             },
         };
@@ -1008,10 +1523,10 @@ class StreamStats {
             ));
         }
 
-        StreamStats.#$settings = CE('div', {'class': 'better-xcloud-stats-settings'},
-                                    CE('b', {}, 'Stream Stats Settings'),
+        StreamStats.#$settings = CE('div', {'class': 'bx-stats-settings'},
+                                    CE('b', {}, __('stream-stats-settings')),
                                     $fragment,
-                                    $close = CE('button', {}, 'Close'));
+                                    $close = CE('button', {}, __('close')));
 
         $close.addEventListener('click', e => StreamStats.hideSettingsUi());
         document.documentElement.appendChild(StreamStats.#$settings);
@@ -1119,11 +1634,14 @@ class Preferences {
     static get LATEST_VERSION() { return 'version_latest'; }
     static get CURRENT_VERSION() { return 'version_current'; }
 
+    static get BETTER_XCLOUD_LOCALE() { return 'bx_locale'};
+
     static get SERVER_REGION() { return 'server_region'; }
     static get PREFER_IPV6_SERVER() { return 'prefer_ipv6_server'; }
     static get STREAM_TARGET_RESOLUTION() { return 'stream_target_resolution'; }
     static get STREAM_PREFERRED_LOCALE() { return 'stream_preferred_locale'; }
-    static get USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
+    static get STREAM_CODEC_PROFILE() { return 'stream_codec_profile'; }
+
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_HIDE_IDLE_CURSOR() { return 'stream_hide_idle_cursor';}
@@ -1163,6 +1681,9 @@ class Preferences {
     static get STATS_OPACITY() { return 'stats_opacity'; }
     static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
 
+    // Deprecated
+    static get DEPRECATED_USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
+
     static SETTINGS = {
         [Preferences.LAST_UPDATE_CHECK]: {
             'default': 0,
@@ -1173,13 +1694,21 @@ class Preferences {
         [Preferences.CURRENT_VERSION]: {
             'default': '',
         },
+        [Preferences.BETTER_XCLOUD_LOCALE]: {
+            'default': localStorage.getItem('better_xcloud_locale') || 'en-US',
+            'options': {
+                'en-US': 'English (United States)',
+                'pt-BR': 'portugu\xeas (Brasil)',
+                'vi-VN': 'Tiếng Việt',
+            },
+        },
         [Preferences.SERVER_REGION]: {
             'default': 'default',
         },
         [Preferences.STREAM_PREFERRED_LOCALE]: {
             'default': 'default',
             'options': {
-                'default': 'Default',
+                'default': __('default'),
                 'ar-SA': '\u0627\u0644\u0639\u0631\u0628\u064a\u0629',
                 'cs-CZ': '\u010de\u0161tina',
                 'da-DK': 'dansk',
@@ -1212,13 +1741,70 @@ class Preferences {
         [Preferences.STREAM_TARGET_RESOLUTION]: {
             'default': 'auto',
             'options': {
-                'auto': 'Auto',
+                'auto': __('auto'),
                 '1080p': '1080p',
                 '720p': '720p',
             },
         },
-        [Preferences.USE_DESKTOP_CODEC]: {
-            'default': false,
+        [Preferences.STREAM_CODEC_PROFILE]: {
+            'default': 'default',
+            'options': (() => {
+                const options = {
+                    'default': __('default'),
+                };
+
+                if (typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
+                    return options;
+                }
+
+                if (!('getCapabilities' in RTCRtpReceiver)) {
+                    return options;
+                }
+
+                let hasLowCodec = false;
+                let hasNormalCodec = false;
+                let hasHighCodec = false;
+
+                const codecs = RTCRtpReceiver.getCapabilities('video').codecs;
+                for (let codec of codecs) {
+                    if (codec.mimeType.toLowerCase() !== 'video/h264' || !codec.sdpFmtpLine) {
+                        continue;
+                    }
+
+                    const fmtp = codec.sdpFmtpLine.toLowerCase();
+                    if (!hasHighCodec && fmtp.includes('profile-level-id=4d')) {
+                        hasHighCodec = true;
+                    } else if (!hasNormalCodec && fmtp.includes('profile-level-id=42e')) {
+                        hasNormalCodec = true;
+                    } else if (!hasLowCodec && fmtp.includes('profile-level-id=420')) {
+                        hasLowCodec = true;
+                    }
+                }
+
+                if (hasLowCodec) {
+                    if (!hasNormalCodec && !hasHighCodec) {
+                        options.default = `${__('visual-quality-low')} (${__('default')})`;
+                    } else {
+                        options.low = __('visual-quality-low');
+                    }
+                }
+                if (hasNormalCodec) {
+                    if (!hasLowCodec && !hasHighCodec) {
+                        options.default = `${__('visual-quality-normal')} (${__('default')})`;
+                    } else {
+                        options.normal = __('visual-quality-normal');
+                    }
+                }
+                if (hasHighCodec) {
+                    if (!hasLowCodec && !hasNormalCodec) {
+                        options.default = `${__('visual-quality-high')} (${__('default')})`;
+                    } else {
+                        options.high = __('visual-quality-high');
+                    }
+                }
+
+                return options;
+            })(),
         },
         [Preferences.PREFER_IPV6_SERVER]: {
             'default': false,
@@ -1228,11 +1814,10 @@ class Preferences {
         },
         [Preferences.SCREENSHOT_BUTTON_POSITION]: {
             'default': 'bottom-left',
-            'options':
-            {
-                'bottom-left': 'Bottom Left',
-                'bottom-right': 'Bottom Right',
-                'none': 'Disable',
+            'options': {
+                'bottom-left': __('bottom-left'),
+                'bottom-right': __('bottom-right'),
+                'none': __('disable'),
             },
         },
         [Preferences.SKIP_SPLASH_VIDEO]: {
@@ -1244,24 +1829,24 @@ class Preferences {
         [Preferences.STREAM_TOUCH_CONTROLLER]: {
             'default': 'default',
             'options': {
-                'default': 'Default',
-                'all': 'All games',
-                'off': 'Off',
+                'default': __('default'),
+                'all': __('tc-all-games'),
+                'off': __('off'),
             },
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
             'options': {
-                'default': 'Default colors',
-                'white': 'All white',
-                'muted': 'Muted colors',
+                'default': __('default'),
+                'white': __('tc-all-white'),
+                'muted': __('tc-muted-colors'),
             },
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             'default': 'default',
             'options': {
-                'default': 'Default colors',
-                'muted': 'Muted colors',
+                'default': __('default'),
+                'muted': __('tc-muted-colors'),
             },
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
@@ -1282,9 +1867,9 @@ class Preferences {
         [Preferences.UI_LOADING_SCREEN_ROCKET]: {
             'default': 'show',
             'options': {
-                'show': 'Always show',
-                'hide-queue': 'Hide when queuing',
-                'hide': 'Always hide',
+                'show': __('rocket-always-show'),
+                'hide-queue': __('rocket-hide-queue'),
+                'hide': __('rocket-always-hide'),
             },
         },
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
@@ -1296,11 +1881,11 @@ class Preferences {
         [Preferences.USER_AGENT_PROFILE]: {
             'default': 'default',
             'options': {
-                [UserAgent.PROFILE_DEFAULT]: 'Default',
-                [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge on Windows',
-                [UserAgent.PROFILE_SAFARI_MACOS]: 'Safari on macOS',
+                [UserAgent.PROFILE_DEFAULT]: __('default'),
+                [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge + Windows',
+                [UserAgent.PROFILE_SAFARI_MACOS]: 'Safari + macOS',
                 [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Samsung Smart TV',
-                [UserAgent.PROFILE_CUSTOM]: 'Custom',
+                [UserAgent.PROFILE_CUSTOM]: __('custom'),
             },
         },
         [Preferences.USER_AGENT_CUSTOM]: {
@@ -1319,8 +1904,8 @@ class Preferences {
                 '16:10': '16:10',
                 '4:3': '4:3',
 
-                'fill': 'Stretch',
-                'cover': 'Cover',
+                'fill': __('stretch'),
+                //'cover': 'Cover',
             },
         },
         [Preferences.VIDEO_SATURATION]: {
@@ -1352,12 +1937,12 @@ class Preferences {
         [Preferences.STATS_ITEMS]: {
             'default': [StreamStats.PING, StreamStats.FPS, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
-                [StreamStats.PING]: 'Ping',
-                [StreamStats.FPS]: 'FPS',
-                [StreamStats.BITRATE]: 'Bitrate',
-                [StreamStats.DECODE_TIME]: 'Decode time',
-                [StreamStats.PACKETS_LOST]: 'Packets lost',
-                [StreamStats.FRAMES_LOST]: 'Frames lost',
+                [StreamStats.PING]: `${StreamStats.PING.toUpperCase()}: ${__('stat-ping')}`,
+                [StreamStats.FPS]: `${StreamStats.FPS.toUpperCase()}: ${__('stat-fps')}`,
+                [StreamStats.BITRATE]: `${StreamStats.BITRATE.toUpperCase()}: ${__('stat-bitrate')}`,
+                [StreamStats.DECODE_TIME]: `${StreamStats.DECODE_TIME.toUpperCase()}: ${__('stat-decode-time')}`,
+                [StreamStats.PACKETS_LOST]: `${StreamStats.PACKETS_LOST.toUpperCase()}: ${__('stat-packets-lost')}`,
+                [StreamStats.FRAMES_LOST]: `${StreamStats.FRAMES_LOST.toUpperCase()}: ${__('stat-frames-lost')}`,
             },
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
@@ -1369,17 +1954,17 @@ class Preferences {
         [Preferences.STATS_POSITION]: {
             'default': 'top-left',
             'options': {
-                'top-left': 'Top Left',
-                'top-center': 'Top Center',
-                'top-right': 'Top Right',
+                'top-left': __('top-left'),
+                'top-center': __('top-center'),
+                'top-right': __('top-right'),
             },
         },
         [Preferences.STATS_TEXT_SIZE]: {
             'default': '0.9rem',
             'options': {
-                '0.9rem': 'Small',
-                '1.0rem': 'Normal',
-                '1.1rem': 'Large',
+                '0.9rem': __('small'),
+                '1.0rem': __('normal'),
+                '1.1rem': __('large'),
             },
         },
         [Preferences.STATS_TRANSPARENT]: {
@@ -1392,6 +1977,16 @@ class Preferences {
         },
         [Preferences.STATS_CONDITIONAL_FORMATTING]: {
             'default': false,
+        },
+
+        // Deprecated
+        [Preferences.DEPRECATED_USE_DESKTOP_CODEC]: {
+            'default': false,
+            'migrate': function(savedPrefs, value) {
+                const quality = value ? 'high' : 'default';
+                this.set(Preferences.STREAM_CODEC_PROFILE, quality);
+                savedPrefs[Preferences.STREAM_CODEC_PROFILE] = quality;
+            },
         },
     }
 
@@ -1407,13 +2002,26 @@ class Preferences {
         savedPrefs = JSON.parse(savedPrefs);
 
         for (let settingId in Preferences.SETTINGS) {
-            if (!settingId) {
-                alert('Undefined setting key');
+            if (!(settingId in savedPrefs)) {
+                continue;
+            }
+            const setting = Preferences.SETTINGS[settingId];
+            setting && setting.migrate && setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
+        }
+
+        for (let settingId in Preferences.SETTINGS) {
+            const setting = Preferences.SETTINGS[settingId];
+            if (!setting) {
+                alert(`Undefined setting key: ${settingId}`);
                 console.log('Undefined setting key');
                 continue;
             }
 
-            const setting = Preferences.SETTINGS[settingId];
+            // Ignore deprecated settings
+            if (setting.migrate) {
+                continue;
+            }
+
             if (settingId in savedPrefs) {
                 this.#prefs[settingId] = savedPrefs[settingId];
             } else {
@@ -1613,10 +2221,10 @@ class Preferences {
 
         if (options.disabled) {
             $incBtn.disabled = true;
-            $incBtn.classList.add('better-xcloud-hidden');
+            $incBtn.classList.add('bx-hidden');
 
             $decBtn.disabled = true;
-            $decBtn.classList.add('better-xcloud-hidden');
+            $decBtn.classList.add('bx-hidden');
             return $wrapper;
         }
 
@@ -1765,7 +2373,21 @@ class MouseHoldEvent {
 
 function addCss() {
     let css = `
-.better-xcloud-settings-button {
+:root {
+    --bx-title-font: Bahnschrift, Arial, Helvetica, sans-serif;
+    --bx-title-font-semibold: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    --bx-normal-font: "Segoe UI", Arial, Helvetica, sans-serif;
+    --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
+
+    --bx-wait-time-box-z-index: 9999;
+    --bx-stream-settings-z-index: 9999;
+    --bx-screenshot-z-index: 8888;
+    --bx-touch-controller-bar-z-index: 5555;
+    --bx-stats-settings-z-index: 1001;
+    --bx-stats-bar-z-index: 1000;
+}
+
+.bx-settings-button {
     background-color: transparent;
     border: none;
     color: white;
@@ -1775,11 +2397,11 @@ function addCss() {
     padding: 8px;
 }
 
-.better-xcloud-settings-button:hover, .better-xcloud-settings-button:focus {
+.bx-settings-button:hover, .bx-settings-button:focus {
     background-color: #515863;
 }
 
-.better-xcloud-settings-button[data-update-available]::after {
+.bx-settings-button[data-update-available]::after {
     content: ' 🌟';
 }
 
@@ -1788,33 +2410,33 @@ function addCss() {
     user-select: none;
     -webkit-user-select: none;
     color: #fff;
-    font-family: "Segoe UI", Arial, Helvetica, sans-serif
+    font-family: var(--bx-normal-font);
 }
 
-.better-xcloud-gone {
+.bx-gone {
     display: none !important;
 }
 
-.better-xcloud-hidden {
+.bx-hidden {
     visibility: hidden !important;
 }
 
-.better-xcloud-settings-wrapper {
+.bx-settings-wrapper {
     width: 450px;
     margin: auto;
     padding: 12px 6px;
 }
 
-.better-xcloud-settings-wrapper *:focus {
+.bx-settings-wrapper *:focus {
     outline: none !important;
 }
 
-.better-xcloud-settings-wrapper .better-xcloud-settings-title-wrapper {
+.bx-settings-wrapper .bx-settings-title-wrapper {
     display: flex;
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-title {
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+.bx-settings-wrapper a.bx-settings-title {
+    font-family: var(--bx-title-font);
     font-size: 1.4rem;
     text-decoration: none;
     font-weight: bold;
@@ -1824,47 +2446,47 @@ function addCss() {
     flex: 1;
 }
 
-.better-xcloud-settings-group-label {
+.bx-settings-group-label {
     font-weight: bold;
     display: block;
     font-size: 1.1rem;
 }
 
 @media (hover: hover) {
-    .better-xcloud-settings-wrapper a.better-xcloud-settings-title:hover {
+    .bx-settings-wrapper a.bx-settings-title:hover {
         color: #83f73a;
     }
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-title:focus {
+.bx-settings-wrapper a.bx-settings-title:focus {
     color: #83f73a;
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-update {
+.bx-settings-wrapper a.bx-settings-update {
     display: none;
     color: #ff834b;
     text-decoration: none;
 }
 
 @media (hover: hover) {
-    .better-xcloud-settings-wrapper a.better-xcloud-settings-update:hover {
+    .bx-settings-wrapper a.bx-settings-update:hover {
         color: #ff9869;
         text-decoration: underline;
     }
 }
 
-.better-xcloud-settings-wrapper a.better-xcloud-settings-update:focus {
+.bx-settings-wrapper a.bx-settings-update:focus {
     color: #ff9869;
     text-decoration: underline;
 }
 
-.better-xcloud-settings-row {
+.bx-settings-row {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
 }
 
-.better-xcloud-settings-row label {
+.bx-settings-row label {
     flex: 1;
     align-self: center;
     margin-bottom: 0;
@@ -1872,16 +2494,17 @@ function addCss() {
 }
 
 @media not (hover: hover) {
-    .better-xcloud-settings-row:focus-within {
+    .bx-settings-row:focus-within {
        background-color: #242424;
     }
 }
 
-.better-xcloud-settings-row input {
+.bx-settings-row input {
     align-self: center;
 }
 
-.better-xcloud-settings-reload-button {
+.bx-settings-reload-button {
+    width: 100%;
     padding: 8px 32px;
     margin: 10px auto 0;
     border: none;
@@ -1891,33 +2514,34 @@ function addCss() {
     text-align: center;
     color: white;
     text-transform: uppercase;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-weight: 400;
+    font-size: 14px;
     line-height: 24px;
 }
 
 @media (hover: hover) {
-    .better-xcloud-settings-reload-button:hover {
+    .bx-settings-reload-button:hover {
         background-color: #00753c;
     }
 }
 
-.better-xcloud-settings-reload-button:focus {
+.bx-settings-reload-button:focus {
     background-color: #00753c;
 }
 
-.better-xcloud-settings-reload-button:active {
+.bx-settings-reload-button:active {
     background-color: #00753c;
 }
 
-.better-xcloud-settings-app-version {
+.bx-settings-app-version {
     margin-top: 10px;
     text-align: center;
     color: #747474;
     font-size: 12px;
 }
 
-.better-xcloud-settings-custom-user-agent {
+.bx-settings-custom-user-agent {
     display: block;
     width: 100%;
 }
@@ -1926,19 +2550,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: visible;
 }
 
-.better-xcloud-badges {
+.bx-badges {
     position: absolute;
     margin-left: 0px;
     user-select: none;
     -webkit-user-select: none;
 }
 
-.better-xcloud-badge {
+.bx-badge {
     border: none;
     display: inline-block;
     line-height: 24px;
     color: #fff;
-    font-family: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font-semibold);
     font-size: 14px;
     font-weight: 400;
     margin: 0 8px 8px 0;
@@ -1946,7 +2570,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.better-xcloud-badge-name {
+.bx-badge-name {
     background-color: #2d3036;
     display: inline-block;
     padding: 2px 8px;
@@ -1954,18 +2578,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-transform: uppercase;
 }
 
-.better-xcloud-badge-value {
+.bx-badge-value {
     background-color: grey;
     display: inline-block;
     padding: 2px 8px;
     border-radius: 0 4px 4px 0;
 }
 
-.better-xcloud-badge-battery[data-charging=true] span:first-of-type::after {
+.bx-badge-battery[data-charging=true] span:first-of-type::after {
     content: ' ⚡️';
 }
 
-.better-xcloud-screenshot-button {
+.bx-screenshot-button {
     display: none;
     opacity: 0;
     position: fixed;
@@ -1982,25 +2606,25 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-origin: content-box;
     filter: drop-shadow(0 0 2px #000000B0);
     transition: opacity 0.1s ease-in-out 0s, padding 0.1s ease-in 0s;
-    z-index: 8888;
+    z-index: var(--bx-screenshot-z-index);
 
     /* Credit: https://phosphoricons.com */
     background-image: url(${ICON_SCREENSHOT_B64});
 }
 
-.better-xcloud-screenshot-button[data-showing=true] {
+.bx-screenshot-button[data-showing=true] {
     opacity: 0.9;
 }
 
-.better-xcloud-screenshot-button[data-capturing=true] {
+.bx-screenshot-button[data-capturing=true] {
     padding: 1vh;
 }
 
-.better-xcloud-screenshot-canvas {
+.bx-screenshot-canvas {
     display: none;
 }
 
-.better-xcloud-stats-bar {
+.bx-stats-bar {
     display: block;
     user-select: none;
     -webkit-user-select: none;
@@ -2008,97 +2632,97 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     top: 0;
     background-color: #000;
     color: #fff;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
     font-size: 0.9rem;
     padding-left: 8px;
-    z-index: 1000;
+    z-index: var(--bx-stats-bar-z-index);
     text-wrap: nowrap;
 }
 
-.better-xcloud-stats-bar > div {
+.bx-stats-bar > div {
     display: none;
     margin-right: 8px;
-    border-right: 2px solid #fff;
+    border-right: 1px solid #fff;
     padding-right: 8px;
 }
 
-.better-xcloud-stats-bar[data-stats*="[fps]"] > .better-xcloud-stat-fps,
-.better-xcloud-stats-bar[data-stats*="[ping]"] > .better-xcloud-stat-ping,
-.better-xcloud-stats-bar[data-stats*="[btr]"] > .better-xcloud-stat-btr,
-.better-xcloud-stats-bar[data-stats*="[dt]"] > .better-xcloud-stat-dt,
-.better-xcloud-stats-bar[data-stats*="[pl]"] > .better-xcloud-stat-pl,
-.better-xcloud-stats-bar[data-stats*="[fl]"] > .better-xcloud-stat-fl {
+.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,
+.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,
+.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,
+.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,
+.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,
+.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl {
     display: inline-block;
 }
 
-.better-xcloud-stats-bar[data-stats$="[fps]"] > .better-xcloud-stat-fps,
-.better-xcloud-stats-bar[data-stats$="[ping]"] > .better-xcloud-stat-ping,
-.better-xcloud-stats-bar[data-stats$="[btr]"] > .better-xcloud-stat-btr,
-.better-xcloud-stats-bar[data-stats$="[dt]"] > .better-xcloud-stat-dt,
-.better-xcloud-stats-bar[data-stats$="[pl]"] > .better-xcloud-stat-pl,
-.better-xcloud-stats-bar[data-stats$="[fl]"] > .better-xcloud-stat-fl {
+.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,
+.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,
+.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,
+.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,
+.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,
+.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl {
     margin-right: 0;
     border-right: none;
 }
 
-.better-xcloud-stats-bar[data-display=glancing]::before {
+.bx-stats-bar[data-display=glancing]::before {
     content: '👀 ';
     vertical-align: middle;
 }
 
-.better-xcloud-stats-bar[data-position=top-left] {
+.bx-stats-bar[data-position=top-left] {
     left: 0;
     border-radius: 0 0 4px 0;
 }
 
-.better-xcloud-stats-bar[data-position=top-right] {
+.bx-stats-bar[data-position=top-right] {
     right: 0;
     border-radius: 0 0 0 4px;
 }
 
-.better-xcloud-stats-bar[data-position=top-center] {
+.bx-stats-bar[data-position=top-center] {
     transform: translate(-50%, 0);
     left: 50%;
     border-radius: 0 0 4px 4px;
 }
 
-.better-xcloud-stats-bar[data-transparent=true] {
+.bx-stats-bar[data-transparent=true] {
     background: none;
     filter: drop-shadow(1px 0 0 #000000f0) drop-shadow(-1px 0 0 #000000f0) drop-shadow(0 1px 0 #000000f0) drop-shadow(0 -1px 0 #000000f0);
 }
 
-.better-xcloud-stats-bar label {
+.bx-stats-bar label {
     margin: 0 8px 0 0;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-size: inherit;
     font-weight: bold;
     vertical-align: middle;
 }
 
-.better-xcloud-stats-bar span {
+.bx-stats-bar span {
     min-width: 60px;
     display: inline-block;
     text-align: right;
     vertical-align: middle;
 }
 
-.better-xcloud-stats-bar span[data-grade=good] {
+.bx-stats-bar span[data-grade=good] {
     color: #6bffff;
 }
 
-.better-xcloud-stats-bar span[data-grade=ok] {
+.bx-stats-bar span[data-grade=ok] {
     color: #fff16b;
 }
 
-.better-xcloud-stats-bar span[data-grade=bad] {
+.bx-stats-bar span[data-grade=bad] {
     color: #ff5f5f;
 }
 
-.better-xcloud-stats-bar span:first-of-type {
+.bx-stats-bar span:first-of-type {
     min-width: 22px;
 }
 
-.better-xcloud-stats-settings {
+.bx-stats-settings {
     display: none;
     position: fixed;
     top: 50%;
@@ -2108,44 +2732,44 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     width: 420px;
     padding: 20px;
     border-radius: 8px;
-    z-index: 1000;
+    z-index: var(--bx-stats-settings-z-index);
     background: #1a1b1e;
     color: #fff;
     font-weight: 400;
     font-size: 16px;
-    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-family: var(--bx-normal-font);
     box-shadow: 0 0 6px #000;
     user-select: none;
     -webkit-user-select: none;
 }
 
-.better-xcloud-stats-settings *:focus {
+.bx-stats-settings *:focus {
     outline: none !important;
 }
 
-.better-xcloud-stats-settings > b {
+.bx-stats-settings > b {
     color: #fff;
     display: block;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-size: 26px;
     font-weight: 400;
     line-height: 32px;
     margin-bottom: 12px;
 }
 
-.better-xcloud-stats-settings > div {
+.bx-stats-settings > div {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
 }
 
-.better-xcloud-stats-settings label {
+.bx-stats-settings label {
     flex: 1;
     margin-bottom: 0;
     align-self: center;
 }
 
-.better-xcloud-stats-settings button {
+.bx-stats-settings button {
     padding: 8px 32px;
     margin: 20px auto 0;
     border: none;
@@ -2155,23 +2779,23 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-align: center;
     color: white;
     text-transform: uppercase;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     font-weight: 400;
     line-height: 18px;
     font-size: 14px;
 }
 
 @media (hover: hover) {
-    .better-xcloud-stats-settings button:hover {
+    .bx-stats-settings button:hover {
         background-color: #515863;
     }
 }
 
-.better-xcloud-stats-settings button:focus {
+.bx-stats-settings button:focus {
     background-color: #515863;
 }
 
-.better-xcloud-quick-settings-bar {
+.bx-quick-settings-bar {
     display: none;
     flex-direction: column;
     user-select: none;
@@ -2180,7 +2804,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     right: 0;
     top: 20px;
     bottom: 20px;
-    z-index: 9999;
+    z-index: var(--bx-stream-settings-z-index);
     padding: 8px;
     width: 220px;
     background: #1a1b1e;
@@ -2188,18 +2812,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 8px 0 0 8px;
     font-weight: 400;
     font-size: 16px;
-    font-family: Bahnschrift, Arial, Helvetica, sans-serif;
+    font-family: var(--bx-title-font);
     text-align: center;
     box-shadow: 0px 0px 6px #000;
     opacity: 0.95;
     overflow: overlay;
 }
 
-.better-xcloud-quick-settings-bar:not([data-clarity-boost="true"]) .better-xcloud-clarity-boost-warning {
+.bx-quick-settings-bar:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
     display: none;
 }
 
-.better-xcloud-quick-settings-bar[data-clarity-boost="true"] .better-xcloud-clarity-boost-warning {
+.bx-quick-settings-bar[data-clarity-boost="true"] .bx-clarity-boost-warning {
     display: block;
     margin: 0px 8px;
     padding: 12px;
@@ -2209,39 +2833,39 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.better-xcloud-quick-settings-bar[data-clarity-boost="true"] > div[data-type="video"] {
+.bx-quick-settings-bar[data-clarity-boost="true"] > div[data-type="video"] {
     display: none;
 }
 
-.better-xcloud-quick-settings-bar *:focus {
+.bx-quick-settings-bar *:focus {
     outline: none !important;
 }
 
-.better-xcloud-quick-settings-bar > div {
+.bx-quick-settings-bar > div {
     margin-bottom: 16px;
 }
 
-.better-xcloud-quick-settings-bar h2 {
+.bx-quick-settings-bar h2 {
     font-size: 32px;
     font-weight: bold;
     margin-bottom: 8px;
 }
 
-.better-xcloud-quick-settings-bar input[type="range"] {
+.bx-quick-settings-bar input[type="range"] {
     display: block;
     margin: 12px auto;
     width: 80%;
     color: #959595 !important;
 }
 
-.better-xcloud-quick-settings-bar label {
+.bx-quick-settings-bar label {
     font-size: 16px;
     font-weight: bold;
     display: block;
     margin-bottom: 8px;
 }
 
-.better-xcloud-quick-settings-bar button {
+.bx-quick-settings-bar button {
     border: none;
     width: 24px;
     height: 24px;
@@ -2252,35 +2876,35 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
     font-weight: bold;
     font-size: 14px;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
 }
 
 @media (hover: hover) {
-    .better-xcloud-quick-settings-bar button:hover {
+    .bx-quick-settings-bar button:hover {
         background-color: #414141;
         color: white;
     }
 }
 
-.better-xcloud-quick-settings-bar button:active {
+.bx-quick-settings-bar button:active {
         background-color: #414141;
         color: white;
     }
 
-.better-xcloud-quick-settings-bar span {
+.bx-quick-settings-bar span {
     display: inline-block;
     width: 40px;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
     font-size: 14px;
 }
 
-.better-xcloud-stream-menu-button-on {
+.bx-stream-menu-button-on {
     fill: #000 !important;
     background-color: #fff !important;
     color: #000 !important;
 }
 
-#better-xcloud-touch-controller-bar {
+#bx-touch-controller-bar {
     display: none;
     opacity: 0;
     position: fixed;
@@ -2288,25 +2912,25 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     left: 0;
     right: 0;
     height: 6vh;
-    z-index: 5555;
+    z-index: var(--bx-touch-controller-bar-z-index);
 }
 
-#better-xcloud-touch-controller-bar[data-showing=true] {
+#bx-touch-controller-bar[data-showing=true] {
     display: block !important;
 }
 
-.better-xcloud-wait-time-box {
+.bx-wait-time-box {
     position: fixed;
     top: 0;
     right: 0;
     background-color: #000000cc;
     color: #fff;
-    z-index: 9999;
+    z-index: var(--bx-wait-time-box-z-index);
     padding: 12px;
     border-radius: 0 0 0 8px;
 }
 
-.better-xcloud-wait-time-box label {
+.bx-wait-time-box label {
     display: block;
     text-transform: uppercase;
     text-align: right;
@@ -2315,14 +2939,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin: 0;
 }
 
-.better-xcloud-wait-time-estimated, .better-xcloud-wait-time-countdown {
+.bx-wait-time-estimated, .bx-wait-time-countdown {
     display: block;
-    font-family: Consolas, "Courier New", Courier, monospace;
+    font-family: var(--bx-monospaced-font);
     text-align: right;
     font-size: 16px;
 }
 
-.better-xcloud-wait-time-estimated {
+.bx-wait-time-estimated {
     margin-bottom: 10px;
 }
 
@@ -2404,11 +3028,11 @@ div[class*=Menu-module__scrollable] {
     --streamMenuItemSize: calc(var(--bxStreamMenuItemSize) + 40px) !important;
 }
 
-.better-xcloud-badges {
+.bx-badges {
     top: calc(var(--streamMenuItemSize) - 20px);
 }
 
-body[data-media-type=tv] .better-xcloud-badges {
+body[data-media-type=tv] .bx-badges {
     top: calc(var(--streamMenuItemSize) - 10px) !important;
 }
 
@@ -2432,11 +3056,11 @@ svg[class*=MenuItem-module__icon] {
 `;
     } else {
         css += `
-body[data-media-type=tv] .better-xcloud-badges {
+body[data-media-type=tv] .bx-badges {
     top: calc(var(--streamMenuItemSize) + 30px);
 }
 
-body:not([data-media-type=tv]) .better-xcloud-badges {
+body:not([data-media-type=tv]) .bx-badges {
     top: calc(var(--streamMenuItemSize) + 20px);
 }
 
@@ -2567,7 +3191,6 @@ function interceptHttpRequests() {
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
     const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
     const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
-    const PREF_USE_DESKTOP_CODEC = PREFS.get(Preferences.USE_DESKTOP_CODEC);
     const PREF_UI_LOADING_SCREEN_GAME_ART = PREFS.get(Preferences.UI_LOADING_SCREEN_GAME_ART);
     const PREF_UI_LOADING_SCREEN_WAIT_TIME = PREFS.get(Preferences.UI_LOADING_SCREEN_WAIT_TIME);
 
@@ -2807,10 +3430,10 @@ function injectSettingsButton($parent) {
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
 
     // Setup Settings button
-    const $button = CE('button', {'class': 'better-xcloud-settings-button'}, PREF_PREFERRED_REGION);
+    const $button = CE('button', {'class': 'bx-settings-button'}, PREF_PREFERRED_REGION);
     $button.addEventListener('click', e => {
         const $settings = document.querySelector('.better_xcloud_settings');
-        $settings.classList.toggle('better-xcloud-gone');
+        $settings.classList.toggle('bx-gone');
         $settings.scrollIntoView();
     });
 
@@ -2824,19 +3447,19 @@ function injectSettingsButton($parent) {
 
     // Setup Settings UI
     const $container = CE('div', {
-        'class': 'better_xcloud_settings better-xcloud-gone',
+        'class': 'better_xcloud_settings bx-gone',
     });
 
     let $updateAvailable;
-    const $wrapper = CE('div', {'class': 'better-xcloud-settings-wrapper'},
-                        CE('div', {'class': 'better-xcloud-settings-title-wrapper'},
+    const $wrapper = CE('div', {'class': 'bx-settings-wrapper'},
+                        CE('div', {'class': 'bx-settings-title-wrapper'},
                            CE('a', {
-                                'class': 'better-xcloud-settings-title',
+                                'class': 'bx-settings-title',
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
                            $updateAvailable = CE('a', {
-                                'class': 'better-xcloud-settings-update',
+                                'class': 'bx-settings-update',
                                 'href': 'https://github.com/redphx/better-xcloud/releases',
                                 'target': '_blank',
                            })
@@ -2852,46 +3475,49 @@ function injectSettingsButton($parent) {
 
     // Render settings
     const SETTINGS_UI = {
-        'Server': {
-            [Preferences.SERVER_REGION]: 'Region',
-            [Preferences.STREAM_PREFERRED_LOCALE]: 'Preferred game\'s language',
-            [Preferences.PREFER_IPV6_SERVER]: 'Prefer IPv6 server',
+        'Better xCloud': {
+            [Preferences.BETTER_XCLOUD_LOCALE]: __('language'),
         },
-        'Stream': {
-            [Preferences.STREAM_TARGET_RESOLUTION]: 'Target resolution',
-            [Preferences.USE_DESKTOP_CODEC]: 'Force high-quality codec',
-            [Preferences.DISABLE_BANDWIDTH_CHECKING]: 'Disable bandwidth checking',
-            [Preferences.AUDIO_MIC_ON_PLAYING]: 'Enable microphone on game launch',
-            [Preferences.STREAM_HIDE_IDLE_CURSOR]: 'Hide mouse cursor on idle',
+        [__('server')]: {
+            [Preferences.SERVER_REGION]: __('region'),
+            [Preferences.STREAM_PREFERRED_LOCALE]: __('preferred-game-language'),
+            [Preferences.PREFER_IPV6_SERVER]: __('prefer-ipv6-server'),
         },
-        'Touch controller': {
-            [Preferences.STREAM_TOUCH_CONTROLLER]: 'Availability',
-            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: 'Standard layout\'s button style',
-            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: 'Custom layout\'s button style',
+        [__('stream')]: {
+            [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
+            [Preferences.STREAM_CODEC_PROFILE]: __('visual-quality'),
+            [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
+            [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
+            [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
         },
-        'Loading screen': {
-            [Preferences.UI_LOADING_SCREEN_GAME_ART]: 'Show game art',
-            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: 'Show the estimated wait time',
-            [Preferences.UI_LOADING_SCREEN_ROCKET]: 'Rocket animation',
+        [__('touch-controller')]: {
+            [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
         },
-        'UI': {
-            [Preferences.STREAM_SIMPLIFY_MENU]: 'Simplify Stream\'s menu',
-            [Preferences.SKIP_SPLASH_VIDEO]: 'Skip Xbox splash video',
-            [Preferences.HIDE_DOTS_ICON]: 'Hide System menu\'s icon',
-            [Preferences.REDUCE_ANIMATIONS]: 'Reduce UI animations',
-            [Preferences.SCREENSHOT_BUTTON_POSITION]: 'Screenshot button\'s position',
+        [__('loading-screen')]: {
+            [Preferences.UI_LOADING_SCREEN_GAME_ART]: __('show-game-art'),
+            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: __('show-wait-time'),
+            [Preferences.UI_LOADING_SCREEN_ROCKET]: __('rocket-animation'),
         },
-        'Other': {
-            [Preferences.BLOCK_SOCIAL_FEATURES]: 'Disable social features',
-            [Preferences.BLOCK_TRACKING]: 'Disable xCloud analytics',
+        [__('ui')]: {
+            [Preferences.STREAM_SIMPLIFY_MENU]: __('simplify-stream-menu'),
+            [Preferences.SKIP_SPLASH_VIDEO]: __('skip-splash-video'),
+            [Preferences.HIDE_DOTS_ICON]: __('hide-system-menu-icon'),
+            [Preferences.REDUCE_ANIMATIONS]: __('reduce-animations'),
+            [Preferences.SCREENSHOT_BUTTON_POSITION]: __('screenshot-button-position'),
         },
-        'Advanced': {
-            [Preferences.USER_AGENT_PROFILE]: 'User-Agent profile',
+        [__('other')]: {
+            [Preferences.BLOCK_SOCIAL_FEATURES]: __('disable-social-features'),
+            [Preferences.BLOCK_TRACKING]: __('disable-xcloud-analytics'),
+        },
+        [__('advanced')]: {
+            [Preferences.USER_AGENT_PROFILE]: __('user-agent-profile'),
         },
     };
 
     for (let groupLabel in SETTINGS_UI) {
-        const $group = CE('span', {'class': 'better-xcloud-settings-group-label'}, groupLabel);
+        const $group = CE('span', {'class': 'bx-settings-group-label'}, groupLabel);
         $wrapper.appendChild($group);
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
@@ -2906,7 +3532,7 @@ function injectSettingsButton($parent) {
                 $inpCustomUserAgent = CE('input', {
                     'type': 'text',
                     'placeholder': defaultUserAgent,
-                    'class': 'better-xcloud-settings-custom-user-agent',
+                    'class': 'bx-settings-custom-user-agent',
                 });
                 $inpCustomUserAgent.addEventListener('change', e => {
                     PREFS.set(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
@@ -2937,7 +3563,7 @@ function injectSettingsButton($parent) {
 
                     let label = regionName;
                     if (region.isDefault) {
-                        label += ' (Default)';
+                        label += ` (${__('default')})`;
                         value = 'default';
                     }
 
@@ -2952,25 +3578,29 @@ function injectSettingsButton($parent) {
                     $control.appendChild($option);
                 }
             } else {
-                $control = PREFS.toElement(settingId);
+                let onChange = null;
+                if (settingId === Preferences.BETTER_XCLOUD_LOCALE) {
+                    onChange = e => {
+                        localStorage.setItem('better_xcloud_locale', e.target.value);
+                        window.location.reload();
+                    }
+                }
+
+                $control = PREFS.toElement(settingId, onChange);
                 labelAttrs = {'for': $control.id, 'tabindex': 0};
             }
 
             // Disable unsupported settings
-            if (settingId === Preferences.USE_DESKTOP_CODEC && !hasHighQualityCodecSupport()) {
-                $control.disabled = true;
-                $control.checked = false;
-                $control.title = 'Your browser doesn\'t support this feature';
-            } else if (!HAS_TOUCH_SUPPORT) {
+            if (!HAS_TOUCH_SUPPORT) {
                 // Disable this setting for non-touchable devices
                 if ([Preferences.STREAM_TOUCH_CONTROLLER, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM].indexOf(settingId) > -1) {
                     $control.disabled = true;
-                    $control.title = 'Your device doesn\'t have touch support';
+                    $control.title = __('device-unsupported-touch');
                 }
             }
             $control.disabled && ($control.style.cursor = 'help');
 
-            const $elm = CE('div', {'class': 'better-xcloud-settings-row'},
+            const $elm = CE('div', {'class': 'bx-settings-row'},
                             CE('label', labelAttrs, settingLabel),
                             $control
                            );
@@ -2987,10 +3617,10 @@ function injectSettingsButton($parent) {
     }
 
     // Setup Reload button
-    const $reloadBtn = CE('button', {'class': 'better-xcloud-settings-reload-button', 'tabindex': 0}, 'Reload page to reflect changes');
+    const $reloadBtn = CE('button', {'class': 'bx-settings-reload-button', 'tabindex': 0}, __('settings-reload'));
     $reloadBtn.addEventListener('click', e => {
         window.location.reload();
-        $reloadBtn.textContent = 'Reloading...';
+        $reloadBtn.textContent = __('settings-reloading');
     });
     $wrapper.appendChild($reloadBtn);
 
@@ -2998,7 +3628,7 @@ function injectSettingsButton($parent) {
     try {
         const appVersion = document.querySelector('meta[name=gamepass-app-version]').content;
         const appDate = new Date(document.querySelector('meta[name=gamepass-app-date]').content).toISOString().substring(0, 10);
-        $wrapper.appendChild(CE('div', {'class': 'better-xcloud-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
+        $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
     } catch (e) {}
 
     // Add Settings UI to the web page
@@ -3013,9 +3643,9 @@ function getVideoPlayerFilterStyle() {
     if (clarity != 0) {
         const level = (7 - (clarity - 1) * 0.5).toFixed(1); // 5, 5.5, 6, 6.5, 7
         const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
-        document.getElementById('better-xcloud-filter-clarity-matrix').setAttributeNS(null, 'kernelMatrix', matrix);
+        document.getElementById('bx-filter-clarity-matrix').setAttributeNS(null, 'kernelMatrix', matrix);
 
-        filters.push(`url(#better-xcloud-filter-clarity)`);
+        filters.push(`url(#bx-filter-clarity)`);
     }
 
     const saturation = PREFS.get(Preferences.VIDEO_SATURATION);
@@ -3038,21 +3668,21 @@ function getVideoPlayerFilterStyle() {
 
 
 function updateVideoPlayerCss() {
-    let $elm = document.getElementById('better-xcloud-video-css');
+    let $elm = document.getElementById('bx-video-css');
     if (!$elm) {
         const CE = createElement;
 
-        $elm = CE('style', {id: 'better-xcloud-video-css'});
+        $elm = CE('style', {id: 'bx-video-css'});
         document.documentElement.appendChild($elm);
 
         // Setup SVG filters
         const $svg = CE('svg', {
-            'id': 'better-xcloud-video-filters',
+            'id': 'bx-video-filters',
             'xmlns': 'http://www.w3.org/2000/svg',
-            'class': 'better-xcloud-gone',
+            'class': 'bx-gone',
         }, CE('defs', {'xmlns': 'http://www.w3.org/2000/svg'},
-              CE('filter', {'id': 'better-xcloud-filter-clarity', 'xmlns': 'http://www.w3.org/2000/svg'},
-                CE('feConvolveMatrix', {'id': 'better-xcloud-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
+              CE('filter', {'id': 'bx-filter-clarity', 'xmlns': 'http://www.w3.org/2000/svg'},
+                CE('feConvolveMatrix', {'id': 'bx-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
              )
         );
         document.documentElement.appendChild($svg);
@@ -3102,7 +3732,7 @@ div[data-testid="media-container"] {
 
 
 function checkHeader() {
-    const $button = document.querySelector('.better-xcloud-settings-button');
+    const $button = document.querySelector('.bx-settings-button');
 
     if (!$button) {
         const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
@@ -3153,7 +3783,7 @@ function injectStreamMenuButtons() {
 
     $screen.xObserving = true;
 
-    const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
+    const $quickBar = document.querySelector('.bx-quick-settings-bar');
     const $parent = $screen.parentElement;
     const hideQuickBarFunc = e => {
         if (e) {
@@ -3191,7 +3821,7 @@ function injectStreamMenuButtons() {
                 }
 
                 // Create Stream Settings button
-                const $btnStreamSettings = cloneStreamMenuButton($orgButton, 'Stream settings', ICON_VIDEO_SETTINGS);
+                const $btnStreamSettings = cloneStreamMenuButton($orgButton, __('menu-stream-settings'), ICON_VIDEO_SETTINGS);
                 $btnStreamSettings.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3222,7 +3852,7 @@ function injectStreamMenuButtons() {
                 });
 
                 // Create Stream Stats button
-                const $btnStreamStats = cloneStreamMenuButton($orgButton, 'Stream stats', ICON_STREAM_STATS);
+                const $btnStreamStats = cloneStreamMenuButton($orgButton, __('menu-stream-stats'), ICON_STREAM_STATS);
                 $btnStreamStats.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -3234,7 +3864,7 @@ function injectStreamMenuButtons() {
                 });
 
                 const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
-                $btnStreamStats.classList.toggle('better-xcloud-stream-menu-button-on', btnStreamStatsOn);
+                $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
 
                 // Insert after Stream Settings button
                 $orgButton.parentElement.insertBefore($btnStreamStats, $btnStreamSettings);
@@ -3243,7 +3873,7 @@ function injectStreamMenuButtons() {
                 const $btnQuit = $orgButton.parentElement.querySelector('button:last-of-type');
                 // Hold "Quit game" button to refresh the stream
                 new MouseHoldEvent($btnQuit, () => {
-                    confirm('Do you want to refresh the stream?') && window.location.reload();
+                    confirm(__('confirm-reload-stream')) && window.location.reload();
                 }, 1000);
 
                 // Render stream badges
@@ -3301,40 +3931,18 @@ function patchVideoApi() {
 }
 
 
-function hasHighQualityCodecSupport() {
-    if (typeof HAS_HIGH_QUALITY_CODEC_SUPPORT !== 'undefined') {
-        return HAS_HIGH_QUALITY_CODEC_SUPPORT;
+function patchRtcCodecs() {
+    const codecProfile = PREFS.get(Preferences.STREAM_CODEC_PROFILE);
+    if (codecProfile === 'default') {
+        return;
     }
 
     if (typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
         return false;
     }
 
-    if (!('getCapabilities' in RTCRtpReceiver)) {
-        return false;
-    }
-
-    const codecs = RTCRtpReceiver.getCapabilities('video').codecs;
-    for (let codec of codecs) {
-        if (codec.mimeType.toLowerCase() !== 'video/h264' || !codec.sdpFmtpLine) {
-            continue;
-        }
-
-        const fmtp = codec.sdpFmtpLine.toLowerCase();
-        if (fmtp.includes('profile-level-id=4d')) {
-            return true;
-        }
-    }
-
-    return false;
-}
-var HAS_HIGH_QUALITY_CODEC_SUPPORT = hasHighQualityCodecSupport();
-
-
-function patchRtcCodecs() {
-    if (!PREFS.get(Preferences.USE_DESKTOP_CODEC) || !hasHighQualityCodecSupport()) {
-        return;
-    }
+    const profilePrefix = codecProfile === 'high' ? '4d' : (codecProfile === 'low' ? '420' : '42e');
+    const profileLevelId = `profile-level-id=${profilePrefix}`;
 
     RTCRtpTransceiver.prototype.orgSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
     RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
@@ -3343,7 +3951,7 @@ function patchRtcCodecs() {
         let pos = 0;
         newCodecs.forEach((codec, i) => {
             // Find high-quality codecs
-            if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes('profile-level-id=4d')) {
+            if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes(profileLevelId)) {
                 // Move it to the top of the array
                 newCodecs.splice(i, 1);
                 newCodecs.splice(pos, 0, codec);
@@ -3354,6 +3962,7 @@ function patchRtcCodecs() {
         try {
             this.orgSetCodecPreferences.apply(this, [newCodecs]);
         } catch (e) {
+            // Didn't work -> use default codecs
             console.log(e);
             this.orgSetCodecPreferences.apply(this, [codecs]);
         }
@@ -3369,30 +3978,30 @@ function setupVideoSettingsBar() {
     }
 
     let $stretchInp;
-    const $wrapper = CE('div', {'class': 'better-xcloud-quick-settings-bar'},
-                        CE('h2', {}, 'Audio'),
+    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
+                        CE('h2', {}, __('audio')),
                         CE('div', {},
-                            CE('label', {}, 'Volume'),
+                            CE('label', {}, __('volume')),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
                             }, {suffix: '%', ticks: 100})),
 
-                        CE('h2', {}, 'Video'),
-                        CE('div', {'class': 'better-xcloud-clarity-boost-warning'}, '⚠️ These settings don\'t work when the Clarity Boost mode is ON'),
+                        CE('h2', {}, __('video')),
+                        CE('div', {'class': 'bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {'for': 'better-xcloud-quick-setting-stretch'}, 'Ratio'),
+                            CE('label', {'for': 'bx-quick-setting-stretch'}, __('ratio')),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Clarity'),
+                            CE('label', {}, __('clarity')),
                             PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Saturation'),
+                            CE('label', {}, __('saturation')),
                             PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25})),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Contrast'),
+                            CE('label', {}, __('contrast')),
                             PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {}, 'Brightness'),
+                            CE('label', {}, __('brightness')),
                             PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}))
                      );
 
@@ -3401,13 +4010,13 @@ function setupVideoSettingsBar() {
 
 
 function setupScreenshotButton() {
-    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'better-xcloud-screenshot-canvas'});
+    $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'bx-screenshot-canvas'});
     document.documentElement.appendChild($SCREENSHOT_CANVAS);
 
     const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
     const delay = 2000;
-    const $btn = createElement('div', {'class': 'better-xcloud-screenshot-button', 'data-showing': false});
+    const $btn = createElement('div', {'class': 'bx-screenshot-button', 'data-showing': false});
 
     let timeout;
     const detectDbClick = e => {
@@ -3484,10 +4093,10 @@ function patchHistoryMethod(type) {
 function onHistoryChanged() {
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
-        $settings.classList.add('better-xcloud-gone');
+        $settings.classList.add('bx-gone');
     }
 
-    const $quickBar = document.querySelector('.better-xcloud-quick-settings-bar');
+    const $quickBar = document.querySelector('.bx-quick-settings-bar');
     if ($quickBar) {
         $quickBar.style.display = 'none';
     }
@@ -3495,7 +4104,7 @@ function onHistoryChanged() {
     STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
-    document.querySelector('.better-xcloud-screenshot-button').style = '';
+    document.querySelector('.bx-screenshot-button').style = '';
 
     MouseCursorHider.stop();
     TouchController.reset();
@@ -3596,7 +4205,7 @@ function onStreamStarted($video) {
 
     // Setup screenshot button
     if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-        const $btn = document.querySelector('.better-xcloud-screenshot-button');
+        const $btn = document.querySelector('.bx-screenshot-button');
         $btn.style.display = 'block';
 
         if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
