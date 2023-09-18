@@ -17,6 +17,7 @@ If you like this project please give it a 🌟. Thank you 🙏.
 - [**Stream stats**](#stream-stats)
 - [**Capture screenshot**](#capture-screenshot)
 - [**FAQ**](#faq)
+- [**Translators**](#translators)
 - [**Donation**](#donation)
 - [**Acknowledgements**](#acknowledgements)
 - [**Disclaimers**](#disclaimers)
@@ -60,7 +61,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/0eedde97-74c7-44df-bc89-2ebf8edb6e2c">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/f759db0b-dcb6-46d9-99a0-044d2d431ee5">
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/51bdb96c-79ab-402f-902a-a9e6229973b2">
 <br>
@@ -96,11 +97,8 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - **Set target resolution**
   > By default you only get 1080p stream when playing on desktop.  
   > This feature can give you 1080p stream even on mobile, without having to change User-Agent.  
-- **Force high-quality codec (if supported)<sup>(\*)</sup>**
-  > Force xCloud to use the best streaming codec profile (same as desktop & TV) if possible. You don't have to change User-Agent anymore.  
-  > You should enable this feature even if you're on desktop.  
-  > Not available for some browsers (Firefox, Safari...).  
-  > Use more bandwidth & battery.  
+- **Change visual quality**
+  > Increase/decrease the quality of the stream to your liking. Only works in Chrome/Edge/Kiwi...  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
 - **Disable bandwidth checking**  
   > xCloud won't warn about slow connection speed.  
@@ -268,12 +266,16 @@ Sorry, no. The server decides all these settings.
 8. **What's the meaning behind the name "Better xCloud"?**  
 It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
 
+## Translators
+  - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404)
+  - **Vietnamese**: [@redphx](https://github.com/redphx)
+
+Visit [here](https://crowdin.com/project/better-xcloud) if you want to translate **Better xCloud** to more languages.  
+Use [this post](https://github.com/redphx/better-xcloud/discussions/131) for discussion.  
+
 ## Donation
 I'm doing this for fun, so you don't have to donate anything. You're already supporting me by using this script. Save that money toward your Xbox Game Pass Ultimate subscription 😄.  
 But if you still really want to donate, I have a [Ko-fi page](https://ko-fi.com/redphx). Thank you.
-
-## User-Agent
-Moved to [wiki](https://github.com/redphx/better-xcloud/wiki/User‐Agent).
 
 ## Acknowledgements  
 - [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
