@@ -163,7 +163,7 @@ const Translations = {
     },
     "clarity-boost-warning": {
         "en-US": "These settings don't work when the Clarity Boost mode is ON",
-        "pt-BR": "Essas configurações não funcionam quando o modo de \"Clarity Boost\" está ATIVADO",
+        "pt-BR": "Estas configurações não funcionam quando o modo de \"Clarity Boost\" está ATIVADO",
         "vi-VN": "Các tùy chỉnh này không hoạt động khi chế độ Clarity Boost đang được bật",
     },
     "close": {
@@ -348,7 +348,7 @@ const Translations = {
     },
     "screenshot-button-position": {
         "en-US": "Screenshot button's position",
-        "pt-BR": "Posição do botão de Screenshot",
+        "pt-BR": "Posição do botão de captura de tela",
         "vi-VN": "Vị trí của nút Chụp màn hình",
     },
     "server": {
