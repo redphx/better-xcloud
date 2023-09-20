@@ -66,6 +66,8 @@ const Translations = {
         const supportedLocales = [
             'en-US',
             'pt-BR',
+            'ru-RU',
+            'tr-TR',
             'vi-VN',
         ];
 
@@ -1889,6 +1891,8 @@ class Preferences {
             'options': {
                 'en-US': 'English (United States)',
                 'pt-BR': 'portugu\xeas (Brasil)',
+                'ru-RU': '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
+                'tr-TR': 'T\xfcrk\xe7e',
                 'vi-VN': 'Tiếng Việt',
             },
         },
