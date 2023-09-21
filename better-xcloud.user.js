@@ -239,7 +239,7 @@ const Translations = {
         "en-US": "Default",
         "pt-BR": "Padrão",
         "ru-RU": "По умолчанию",
-        "tr-TR": "Varsayılan dil",
+        "tr-TR": "Varsayılan",
         "vi-VN": "Mặc định",
     },
     "device-unsupported-touch": {
@@ -456,7 +456,7 @@ const Translations = {
         "en-US": "Screenshot button's position",
         "pt-BR": "Posição do botão de captura de tela",
         "ru-RU": "Расположение кнопки скриншота",
-        "tr-TR": "Ekran görüntüsü alma düğmesinin konumu",
+        "tr-TR": "Ekran görüntüsü düğmesi konumu",
         "vi-VN": "Vị trí của nút Chụp màn hình",
     },
     "server": {
