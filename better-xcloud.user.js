@@ -4484,42 +4484,32 @@ if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
     TouchController.setup();
 }
 
+HTMLAudioElement.prototype.orgPlay = HTMLAudioElement.prototype.play;
+HTMLAudioElement.prototype.play = function() {
+    this.muted = true;
+
+    const promise = this.orgPlay.apply(this);
+    if (STREAM_AUDIO_GAIN_NODE) {
+        return promise;
+    }
+
+    this.addEventListener('playing', e => e.target.pause());
+
+    const audioCtx = STREAM_AUDIO_CONTEXT;
+    const audioStream = audioCtx.createMediaStreamSource(this.srcObject);
+    const gainNode = audioCtx.createGain();
+
+    audioStream.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+    STREAM_AUDIO_GAIN_NODE = gainNode;
+
+    return promise;
+}
+
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
     const peer = new OrgRTCPeerConnection();
-    peer.addEventListener('track', e => {
-        if (e.track.kind !== 'audio') {
-            return;
-        }
-
-        const $audio = document.querySelector('#game-stream audio');
-        if (!$audio) {
-            return;
-        }
-
-        try {
-            // Prevent double sounds
-            $audio.muted = true;
-
-            const audioCtx = STREAM_AUDIO_CONTEXT;
-            const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
-            const gainNode = audioCtx.createGain();
-
-            audioStream.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
-
-            STREAM_AUDIO_GAIN_NODE = gainNode;
-
-            $audio.pause();
-            $audio.addEventListener('play', e => {
-                $audio.pause();
-            });
-        } catch (e) {
-            $audio && ($audio.muted = false);
-        }
-    });
-
     STREAM_WEBRTC = peer;
     return peer;
 }
