@@ -293,6 +293,8 @@ const Translations = {
     },
     "enable-volume-control": {
         "en-US": "Enable volume control feature",
+        "pt-BR": "Ativar recurso de controle de volume",
+        "tr-TR": "Ses düzeyini yönetmeyi etkinleştir",
         "vi-VN": "Bật tính năng điều khiển âm lượng",
     },
     "hide-idle-cursor": {
