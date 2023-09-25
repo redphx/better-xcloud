@@ -291,6 +291,12 @@ const Translations = {
         "tr-TR": "\"Seri Bakış\" modunu aç",
         "vi-VN": "Bật chế độ \"Xem nhanh\"",
     },
+    "enable-volume-control": {
+        "en-US": "Enable volume control feature",
+        "pt-BR": "Ativar recurso de controle de volume",
+        "tr-TR": "Ses düzeyini yönetmeyi etkinleştir",
+        "vi-VN": "Bật tính năng điều khiển âm lượng",
+    },
     "hide-idle-cursor": {
         "en-US": "Hide mouse cursor on idle",
         "pt-BR": "Ocultar o cursor do mouse no ocioso",
@@ -1862,6 +1868,7 @@ class Preferences {
     static get VIDEO_SATURATION() { return 'video_saturation'; }
 
     static get AUDIO_MIC_ON_PLAYING() { return 'audio_mic_on_playing'; }
+    static get AUDIO_ENABLE_VOLUME_CONTROL() { return 'audio_enable_volume_control'; }
     static get AUDIO_VOLUME() { return 'audio_volume'; }
 
     static get STATS_ITEMS() { return 'stats_items'; };
@@ -2121,6 +2128,9 @@ class Preferences {
         [Preferences.AUDIO_MIC_ON_PLAYING]: {
             'default': false,
         },
+        [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: {
+            'default': true,
+        },
         [Preferences.AUDIO_VOLUME]: {
             'default': 100,
             'min': 0,
@@ -2376,6 +2386,9 @@ class Preferences {
 
         const setting = Preferences.SETTINGS[key]
         let value = PREFS.get(key);
+        if (options.disabled) {
+            value = Preferences.SETTINGS[key].default;
+        }
 
         let $text, $decBtn, $incBtn, $range;
 
@@ -3681,6 +3694,7 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
             [Preferences.STREAM_CODEC_PROFILE]: __('visual-quality'),
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
+            [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: __('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
         },
@@ -4184,7 +4198,7 @@ function setupVideoSettingsBar() {
                             CE('label', {}, __('volume')),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, {suffix: '%', ticks: 100})),
+                            }, {suffix: '%', ticks: 100, disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)})),
 
                         CE('h2', {}, __('video')),
                         CE('div', {'class': 'bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
@@ -4453,21 +4467,46 @@ if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
 checkForUpdate();
 
 // Monkey patches
-if (UserAgent.isSafari(true)) {
-    window.AudioContext.prototype.orgCreateGain = window.AudioContext.prototype.createGain;
-    window.AudioContext.prototype.createGain = function() {
-        const gainNode = this.orgCreateGain.apply(this);
+if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
+    if (UserAgent.isSafari(true)) {
+        window.AudioContext.prototype.orgCreateGain = window.AudioContext.prototype.createGain;
+        window.AudioContext.prototype.createGain = function() {
+            const gainNode = this.orgCreateGain.apply(this);
+            gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+            STREAM_AUDIO_GAIN_NODE = gainNode;
+            return gainNode;
+        }
+    }
+
+    const OrgAudioContext = window.AudioContext;
+    window.AudioContext = function() {
+        const ctx = new OrgAudioContext();
+        STREAM_AUDIO_CONTEXT = ctx;
+        return ctx;
+    }
+
+    HTMLAudioElement.prototype.orgPlay = HTMLAudioElement.prototype.play;
+    HTMLAudioElement.prototype.play = function() {
+        this.muted = true;
+
+        const promise = this.orgPlay.apply(this);
+        if (STREAM_AUDIO_GAIN_NODE) {
+            return promise;
+        }
+
+        this.addEventListener('playing', e => e.target.pause());
+
+        const audioCtx = STREAM_AUDIO_CONTEXT;
+        const audioStream = audioCtx.createMediaStreamSource(this.srcObject);
+        const gainNode = audioCtx.createGain();
+
+        audioStream.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
         gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
         STREAM_AUDIO_GAIN_NODE = gainNode;
-        return gainNode;
-    }
-}
 
-const OrgAudioContext = window.AudioContext;
-window.AudioContext = function() {
-    const ctx = new OrgAudioContext();
-    STREAM_AUDIO_CONTEXT = ctx;
-    return ctx;
+        return promise;
+    }
 }
 
 RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
@@ -4487,39 +4526,6 @@ if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
     const peer = new OrgRTCPeerConnection();
-    peer.addEventListener('track', e => {
-        if (e.track.kind !== 'audio') {
-            return;
-        }
-
-        const $audio = document.querySelector('#game-stream audio');
-        if (!$audio) {
-            return;
-        }
-
-        try {
-            // Prevent double sounds
-            $audio.muted = true;
-
-            const audioCtx = STREAM_AUDIO_CONTEXT;
-            const audioStream = audioCtx.createMediaStreamSource(e.streams[0]);
-            const gainNode = audioCtx.createGain();
-
-            audioStream.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
-
-            STREAM_AUDIO_GAIN_NODE = gainNode;
-
-            $audio.pause();
-            $audio.addEventListener('play', e => {
-                $audio.pause();
-            });
-        } catch (e) {
-            $audio && ($audio.muted = false);
-        }
-    });
-
     STREAM_WEBRTC = peer;
     return peer;
 }
