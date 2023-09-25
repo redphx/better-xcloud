@@ -62,7 +62,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/f759db0b-dcb6-46d9-99a0-044d2d431ee5">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/8baddcfa-b528-4ba7-9392-7b5fe60cea11">
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/51bdb96c-79ab-402f-902a-a9e6229973b2">
 <br>
@@ -102,7 +102,10 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
   > Increase/decrease the quality of the stream to your liking. Only works in Chrome/Edge/Kiwi...  
   > Comparison video with the setting ON & OFF: https://youtu.be/-9PuBJJSgR4  
 - **Disable bandwidth checking**  
-  > xCloud won't warn about slow connection speed.  
+  > xCloud won't warn about slow connection speed.
+- **Enable volume control feature**
+  > Allow increasing stream's volume up to 600%  
+  > ⚠️ Disable this setting if you experience slowdown, choppy/muted stream  
 - **Enable microphone on game launch**  
   > Automatically enable the mic when starting to play a game.  
 - **Hide mouse cursor on idle**  
@@ -158,6 +161,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 ### In-game settings
 - **Volume control**
   > Increase stream's volume up to 600%  
+  > Can be disabled in the Main Settings  
 - **🔥 Improve stream's clarity**
   > Similar to (but not as good as) the "Clarity Boost" of xCloud on Edge browser. [Demo video](https://youtu.be/ZhW2choAHUs).  
   > Also known as poor man's "Clarity Boost".  
@@ -268,7 +272,9 @@ Sorry, no. The server decides all these settings.
 It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
 
 ## Translators
-  - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404)
+  - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404), [@Haisom](https://github.com/Haisom)
+  - **Russian**: [anpom6](https://crowdin.com/profile/anpom6)
+  - **Turkish**: [@transbebek](https://github.com/transbebek)
   - **Vietnamese**: [@redphx](https://github.com/redphx)
 
 Visit [here](https://crowdin.com/project/better-xcloud) if you want to translate **Better xCloud** to more languages.  
