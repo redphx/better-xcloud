@@ -69,6 +69,7 @@ const Translations = {
             'ru-RU',
             'tr-TR',
             'vi-VN',
+            'zh-CN',
         ];
 
         let locale = localStorage.getItem('better_xcloud_locale');
@@ -94,6 +95,7 @@ const Translations = {
         "ru-RU": "Продвинутые",
         "tr-TR": "Gelişmiş ayarlar",
         "vi-VN": "Nâng cao",
+        "zh-CN": "高级选项",
     },
     "audio": {
         "en-US": "Audio",
@@ -101,6 +103,7 @@ const Translations = {
         "ru-RU": "Звук",
         "tr-TR": "Ses",
         "vi-VN": "Âm thanh",
+        "zh-CN": "音频",
     },
     "auto": {
         "en-US": "Auto",
@@ -108,6 +111,7 @@ const Translations = {
         "ru-RU": "Автоматически",
         "tr-TR": "Otomatik",
         "vi-VN": "Tự động",
+        "zh-CN": "自动",
     },
     "badge-audio": {
         "en-US": "Audio",
@@ -115,6 +119,7 @@ const Translations = {
         "ru-RU": "Звук",
         "tr-TR": "Ses",
         "vi-VN": "Tiếng",
+        "zh-CN": "音频",
     },
     "badge-battery": {
         "en-US": "Battery",
@@ -122,6 +127,7 @@ const Translations = {
         "ru-RU": "Батарея",
         "tr-TR": "Pil",
         "vi-VN": "Pin",
+        "zh-CN": "电量",
     },
     "badge-in": {
         "en-US": "In",
@@ -129,6 +135,7 @@ const Translations = {
         "ru-RU": "Входящие",
         "tr-TR": "Gelen",
         "vi-VN": "Nhận",
+        "zh-CN": "下载",
     },
     "badge-out": {
         "en-US": "Out",
@@ -136,6 +143,7 @@ const Translations = {
         "ru-RU": "Исходящие",
         "tr-TR": "Giden",
         "vi-VN": "Gởi",
+        "zh-CN": "上传",
     },
     "badge-playtime": {
         "en-US": "Playtime",
@@ -143,6 +151,7 @@ const Translations = {
         "ru-RU": "Время в игре",
         "tr-TR": "Oynanış süresi",
         "vi-VN": "Giờ chơi",
+        "zh-CN": "游玩时间",
     },
     "badge-server": {
         "en-US": "Server",
@@ -150,6 +159,7 @@ const Translations = {
         "ru-RU": "Сервер",
         "tr-TR": "Sunucu",
         "vi-VN": "Máy chủ",
+        "zh-CN": "服务器",
     },
     "badge-video": {
         "en-US": "Video",
@@ -157,6 +167,7 @@ const Translations = {
         "ru-RU": "Видео",
         "tr-TR": "Görüntü",
         "vi-VN": "Hình",
+        "zh-CN": "视频",
     },
     "bottom-left": {
         "en-US": "Bottom-left",
@@ -164,6 +175,7 @@ const Translations = {
         "ru-RU": "Левый нижний угол",
         "tr-TR": "Sol alt",
         "vi-VN": "Phía dưới bên trái",
+        "zh-CN": "左下角",
     },
     "bottom-right": {
         "en-US": "Bottom-right",
@@ -171,6 +183,7 @@ const Translations = {
         "ru-RU": "Правый нижний угол",
         "tr-TR": "Sağ alt",
         "vi-VN": "Phía dưới bên phải",
+        "zh-CN": "右下角",
     },
     "brightness": {
         "en-US": "Brightness",
@@ -178,6 +191,7 @@ const Translations = {
         "ru-RU": "Яркость",
         "tr-TR": "Aydınlık",
         "vi-VN": "Độ sáng",
+        "zh-CN": "亮度",
     },
     "browser-unsupported-feature": {
         "en-US": "Your browser doesn't support this feature",
@@ -185,6 +199,7 @@ const Translations = {
         "ru-RU": "Ваш браузер не поддерживает эту функцию",
         "tr-TR": "Web tarayıcınız bu özelliği desteklemiyor",
         "vi-VN": "Trình duyệt không hỗ trợ tính năng này",
+        "zh-CN": "您的浏览器不支持此功能",
     },
     "clarity": {
         "en-US": "Clarity",
@@ -192,6 +207,7 @@ const Translations = {
         "ru-RU": "Чёткость",
         "tr-TR": "Netlik",
         "vi-VN": "Độ nét",
+        "zh-CN": "清晰度",
     },
     "clarity-boost-warning": {
         "en-US": "These settings don't work when the Clarity Boost mode is ON",
@@ -199,6 +215,7 @@ const Translations = {
         "ru-RU": "Эти настройки не работают, когда включен режим Clarity Boost",
         "tr-TR": "Netliği Artırma modu açıkken bu ayarlar ETKİSİZDİR",
         "vi-VN": "Các tùy chỉnh này không hoạt động khi chế độ Clarity Boost đang được bật",
+        "zh-CN": "这些设置在 Clarity Boost 清晰度增强 开启时不可用",
     },
     "close": {
         "en-US": "Close",
@@ -206,6 +223,7 @@ const Translations = {
         "ru-RU": "Закрыть",
         "tr-TR": "Kapat",
         "vi-VN": "Đóng",
+        "zh-CN": "关闭",
     },
     "conditional-formatting": {
         "en-US": "Conditional formatting text color",
@@ -213,6 +231,7 @@ const Translations = {
         "ru-RU": "Цвет текста в зависимости от условий",
         "tr-TR": "Metin renginin koşullu biçimlendirilmesi",
         "vi-VN": "Thay đổi màu chữ tùy theo giá trị",
+        "zh-CN": "更改文本颜色",
     },
     "confirm-reload-stream": {
         "en-US": "Do you want to refresh the stream?",
@@ -220,6 +239,7 @@ const Translations = {
         "ru-RU": "Вы хотите перезапустить поток?",
         "tr-TR": "Yayını yeniden başlatmak istiyor musunuz?",
         "vi-VN": "Bạn có muốn kết nối lại stream không?",
+        "zh-CN": "您想要刷新吗？",
     },
     "contrast": {
         "en-US": "Contrast",
@@ -227,6 +247,7 @@ const Translations = {
         "ru-RU": "Контрастность",
         "tr-TR": "Karşıtlık",
         "vi-VN": "Độ tương phản",
+        "zh-CN": "对比度",
     },
     "custom": {
         "en-US": "Custom",
@@ -234,6 +255,7 @@ const Translations = {
         "ru-RU": "Вручную",
         "tr-TR": "Özel",
         "vi-VN": "Tùy chỉnh",
+        "zh-CN": "自定义",
     },
     "default": {
         "en-US": "Default",
@@ -241,6 +263,7 @@ const Translations = {
         "ru-RU": "По умолчанию",
         "tr-TR": "Varsayılan",
         "vi-VN": "Mặc định",
+        "zh-CN": "默认",
     },
     "device-unsupported-touch": {
         "en-US": "Your device doesn't have touch support",
@@ -248,6 +271,7 @@ const Translations = {
         "ru-RU": "Ваше устройство не поддерживает сенсорное управление",
         "tr-TR": "Cihazınızda dokunmatik ekran özelliği yoktur",
         "vi-VN": "Thiết bị này không hỗ trợ cảm ứng",
+        "zh-CN": "您的设备不支持触摸",
     },
     "disable": {
         "en-US": "Disable",
@@ -255,6 +279,7 @@ const Translations = {
         "ru-RU": "Отключить",
         "tr-TR": "Devre dışı bırak",
         "vi-VN": "Vô hiệu hóa",
+        "zh-CN": "禁用",
     },
     "disable-bandwidth-checking": {
         "en-US": "Disable bandwidth checking",
@@ -262,6 +287,7 @@ const Translations = {
         "ru-RU": "Отключить проверку интернета",
         "tr-TR": "İnternet hız testini atla",
         "vi-VN": "Tắt kiểm tra băng thông",
+        "zh-CN": "禁用带宽测速",
     },
     "disable-social-features": {
         "en-US": "Disable social features",
@@ -269,6 +295,7 @@ const Translations = {
         "ru-RU": "Отключить социальные функции",
         "tr-TR": "Sosyal özellikleri kapat",
         "vi-VN": "Khóa các tính năng xã hội",
+        "zh-CN": "禁用社交功能",
     },
     "disable-xcloud-analytics": {
         "en-US": "Disable xCloud analytics",
@@ -276,6 +303,7 @@ const Translations = {
         "ru-RU": "Отключить аналитику xCloud",
         "tr-TR": "xCloud'un veri toplamasını devre dışı bırak",
         "vi-VN": "Khóa phân tích thông tin của xCloud",
+        "zh-CN": "关闭 xCloud 遥测数据统计",
     },
     "enable-mic-on-startup": {
         "en-US": "Enable microphone on game launch",
@@ -283,6 +311,7 @@ const Translations = {
         "ru-RU": "Автоматически включать микрофон при запуске игры",
         "tr-TR": "Oyun başlarken mikrofonu aç",
         "vi-VN": "Bật mic lúc vào game",
+        "zh-CN": "游戏启动时打开麦克风",
     },
     "enable-quick-glance-mode": {
         "en-US": "Enable \"Quick Glance\" mode",
@@ -290,12 +319,14 @@ const Translations = {
         "ru-RU": "Включить режим «Быстрый взгляд»",
         "tr-TR": "\"Seri Bakış\" modunu aç",
         "vi-VN": "Bật chế độ \"Xem nhanh\"",
+        "zh-CN": "仅在打开设置时显示统计信息",
     },
     "enable-volume-control": {
         "en-US": "Enable volume control feature",
         "pt-BR": "Ativar recurso de controle de volume",
         "tr-TR": "Ses düzeyini yönetmeyi etkinleştir",
         "vi-VN": "Bật tính năng điều khiển âm lượng",
+        "zh-CN": "启用音量控制",
     },
     "hide-idle-cursor": {
         "en-US": "Hide mouse cursor on idle",
@@ -303,6 +334,7 @@ const Translations = {
         "ru-RU": "Скрыть курсор мыши при бездействии",
         "tr-TR": "Boştayken fare imlecini gizle",
         "vi-VN": "Ẩn con trỏ chuột khi không di chuyển",
+        "zh-CN": "空闲时隐藏鼠标",
     },
     "hide-system-menu-icon": {
         "en-US": "Hide System menu's icon",
@@ -310,6 +342,7 @@ const Translations = {
         "ru-RU": "Скрыть значок системного меню",
         "tr-TR": "Sistem menüsü simgesini gizle",
         "vi-VN": "Ẩn biểu tượng của menu Hệ thống",
+        "zh-CN": "隐藏系统菜单图标",
     },
     "language": {
         "en-US": "Language",
@@ -317,6 +350,7 @@ const Translations = {
         "ru-RU": "Язык",
         "tr-TR": "Dil",
         "vi-VN": "Ngôn ngữ",
+        "zh-CN": "切换语言",
     },
     "large": {
         "en-US": "Large",
@@ -324,6 +358,7 @@ const Translations = {
         "ru-RU": "Большой",
         "tr-TR": "Büyük",
         "vi-VN": "Lớn",
+        "zh-CN": "大",
     },
     "loading-screen": {
         "en-US": "Loading screen",
@@ -331,6 +366,7 @@ const Translations = {
         "ru-RU": "Экран загрузки",
         "tr-TR": "Yükleme ekranı",
         "vi-VN": "Màn hình chờ",
+        "zh-CN": "载入画面",
     },
     "menu-stream-settings": {
         "en-US": "Stream settings",
@@ -338,6 +374,7 @@ const Translations = {
         "ru-RU": "Настройки потоковой передачи",
         "tr-TR": "Yayın ayarları",
         "vi-VN": "Cấu hình stream",
+        "zh-CN": "串流设置",
     },
     "menu-stream-stats": {
         "en-US": "Stream stats",
@@ -345,6 +382,7 @@ const Translations = {
         "ru-RU": "Статистика потоковой передачи",
         "tr-TR": "Yayın durumu",
         "vi-VN": "Thông số stream",
+        "zh-CN": "串流统计数据",
     },
     "normal": {
         "en-US": "Normal",
@@ -352,6 +390,7 @@ const Translations = {
         "ru-RU": "Средний",
         "tr-TR": "Normal",
         "vi-VN": "Thường",
+        "zh-CN": "中",
     },
     "off": {
         "en-US": "Off",
@@ -359,6 +398,7 @@ const Translations = {
         "ru-RU": "Выключен",
         "tr-TR": "Kapalı",
         "vi-VN": "Tắt",
+        "zh-CN": "关",
     },
     "opacity": {
         "en-US": "Opacity",
@@ -366,6 +406,7 @@ const Translations = {
         "ru-RU": "Непрозрачность",
         "tr-TR": "Saydamsızlık",
         "vi-VN": "Độ mờ",
+        "zh-CN": "透明度",
     },
     "other": {
         "en-US": "Other",
@@ -373,6 +414,7 @@ const Translations = {
         "ru-RU": "Прочее",
         "tr-TR": "Diğer",
         "vi-VN": "Khác",
+        "zh-CN": "其他",
     },
     "position": {
         "en-US": "Position",
@@ -380,6 +422,7 @@ const Translations = {
         "ru-RU": "Расположение",
         "tr-TR": "Konum",
         "vi-VN": "Vị trí",
+        "zh-CN": "位置",
     },
     "prefer-ipv6-server": {
         "en-US": "Prefer IPv6 server",
@@ -387,6 +430,7 @@ const Translations = {
         "ru-RU": "Предпочитать IPv6 сервер",
         "tr-TR": "IPv6 sunucusunu tercih et",
         "vi-VN": "Ưu tiên máy chủ IPv6",
+        "zh-CN": "优先使用 IPv6 服务器",
     },
     "preferred-game-language": {
         "en-US": "Preferred game's language",
@@ -394,6 +438,7 @@ const Translations = {
         "ru-RU": "Предпочитаемый язык игры",
         "tr-TR": "Oyunda tercih edilen dil",
         "vi-VN": "Ngôn ngữ game ưu tiên",
+        "zh-CN": "首选游戏语言",
     },
     "ratio": {
         "en-US": "Ratio",
@@ -401,6 +446,7 @@ const Translations = {
         "ru-RU": "Соотношение сторон",
         "tr-TR": "Görüntü oranı",
         "vi-VN": "Tỉ lệ",
+        "zh-CN": "宽高比",
     },
     "reduce-animations": {
         "en-US": "Reduce UI animations",
@@ -408,6 +454,7 @@ const Translations = {
         "ru-RU": "Убрать анимации интерфейса",
         "tr-TR": "Arayüz animasyonlarını azalt",
         "vi-VN": "Giảm hiệu ứng chuyển động",
+        "zh-CN": "减少UI动画",
     },
     "region": {
         "en-US": "Region",
@@ -415,6 +462,7 @@ const Translations = {
         "ru-RU": "Регион",
         "tr-TR": "Bölge",
         "vi-VN": "Khu vực",
+        "zh-CN": "地区",
     },
     "rocket-always-hide": {
         "en-US": "Always hide",
@@ -422,6 +470,7 @@ const Translations = {
         "ru-RU": "Всегда скрывать",
         "tr-TR": "Her zaman gizle",
         "vi-VN": "Luôn ẩn",
+        "zh-CN": "始终隐藏",
     },
     "rocket-always-show": {
         "en-US": "Always show",
@@ -429,6 +478,7 @@ const Translations = {
         "ru-RU": "Всегда показывать",
         "tr-TR": "Her zaman göster",
         "vi-VN": "Luôn hiển thị",
+        "zh-CN": "始终显示",
     },
     "rocket-animation": {
         "en-US": "Rocket animation",
@@ -436,6 +486,7 @@ const Translations = {
         "ru-RU": "Анимация ракеты",
         "tr-TR": "Roket animasyonu",
         "vi-VN": "Phi thuyền",
+        "zh-CN": "火箭动画",
     },
     "rocket-hide-queue": {
         "en-US": "Hide when queuing",
@@ -443,6 +494,7 @@ const Translations = {
         "ru-RU": "Скрыть, когда есть очередь",
         "tr-TR": "Sıradayken gizle",
         "vi-VN": "Ẩn khi xếp hàng chờ",
+        "zh-CN": "排队时隐藏",
     },
     "safari-failed-message": {
         "en-US": "Failed to run Better xCloud. Retrying, please wait...",
@@ -450,6 +502,7 @@ const Translations = {
         "ru-RU": "Не удалось запустить Better xCloud. Идет перезапуск, пожалуйста, подождите...",
         "tr-TR": "Better xCloud çalıştırılamadı. Yeniden deneniyor...",
         "vi-VN": "Không thể chạy Better xCloud. Đang thử lại, vui lòng chờ...",
+        "zh-CN": "插件无法运行。正在重试，请稍候...",
     },
     "saturation": {
         "en-US": "Saturation",
@@ -457,6 +510,7 @@ const Translations = {
         "ru-RU": "Насыщенность",
         "tr-TR": "Renk doygunluğu",
         "vi-VN": "Độ bão hòa",
+        "zh-CN": "饱和度",
     },
     "screenshot-button-position": {
         "en-US": "Screenshot button's position",
@@ -464,6 +518,7 @@ const Translations = {
         "ru-RU": "Расположение кнопки скриншота",
         "tr-TR": "Ekran görüntüsü düğmesi konumu",
         "vi-VN": "Vị trí của nút Chụp màn hình",
+        "zh-CN": "截图按钮位置",
     },
     "server": {
         "en-US": "Server",
@@ -471,6 +526,7 @@ const Translations = {
         "ru-RU": "Сервер",
         "tr-TR": "Sunucu",
         "vi-VN": "Máy chủ",
+        "zh-CN": "服务器",
     },
     "settings-reload": {
         "en-US": "Reload page to reflect changes",
@@ -478,6 +534,7 @@ const Translations = {
         "ru-RU": "Перезагрузить страницу, чтобы применить изменения",
         "tr-TR": "Kaydetmek için sayfayı yenile",
         "vi-VN": "Tải lại trang để áp dụng các thay đổi",
+        "zh-CN": "重新加载页面以应用更改",
     },
     "settings-reloading": {
         "en-US": "Reloading...",
@@ -485,6 +542,7 @@ const Translations = {
         "ru-RU": "Перезагрузка...",
         "tr-TR": "Sayfa yenileniyor...",
         "vi-VN": "Đang tải lại...",
+        "zh-CN": "正在重新加载...",
     },
     "show-game-art": {
         "en-US": "Show game art",
@@ -492,6 +550,7 @@ const Translations = {
         "ru-RU": "Показывать игровую обложку",
         "tr-TR": "Oyun resmini göster",
         "vi-VN": "Hiển thị ảnh game",
+        "zh-CN": "显示游戏封面",
     },
     "show-stats-on-startup": {
         "en-US": "Show stats when starting the game",
@@ -499,6 +558,7 @@ const Translations = {
         "ru-RU": "Показывать статистику при запуске игры",
         "tr-TR": "Oyun başlatırken yayın durumunu göster",
         "vi-VN": "Hiển thị thông số khi vào game",
+        "zh-CN": "开始游戏时显示统计信息",
     },
     "show-wait-time": {
         "en-US": "Show the estimated wait time",
@@ -506,6 +566,7 @@ const Translations = {
         "ru-RU": "Показать предполагаемое время до запуска",
         "tr-TR": "Tahminî bekleme süresini göster",
         "vi-VN": "Hiển thị thời gian chờ dự kiến",
+        "zh-CN": "显示预计等待时间",
     },
     "simplify-stream-menu": {
         "en-US": "Simplify Stream's menu",
@@ -513,6 +574,7 @@ const Translations = {
         "ru-RU": "Упростить меню потока",
         "tr-TR": "Yayın menüsünü basitleştir",
         "vi-VN": "Đơn giản hóa menu của Stream",
+        "zh-CN": "简化菜单",
     },
     "skip-splash-video": {
         "en-US": "Skip Xbox splash video",
@@ -520,6 +582,7 @@ const Translations = {
         "ru-RU": "Пропустить видео с заставкой Xbox",
         "tr-TR": "Xbox açılış ekranını atla",
         "vi-VN": "Bỏ qua video Xbox",
+        "zh-CN": "跳过 Xbox 启动动画",
     },
     "small": {
         "en-US": "Small",
@@ -527,6 +590,7 @@ const Translations = {
         "ru-RU": "Маленький",
         "tr-TR": "Küçük",
         "vi-VN": "Nhỏ",
+        "zh-CN": "小",
     },
     "stat-bitrate": {
         "en-US": "Bitrate",
@@ -534,6 +598,7 @@ const Translations = {
         "ru-RU": "Скорость соединения",
         "tr-TR": "Bit hızı",
         "vi-VN": "Bitrate",
+        "zh-CN": "码率",
     },
     "stat-decode-time": {
         "en-US": "Decode time",
@@ -541,6 +606,7 @@ const Translations = {
         "ru-RU": "Время декодирования",
         "tr-TR": "Kod çözme süresi",
         "vi-VN": "Thời gian giải mã",
+        "zh-CN": "解码时间",
     },
     "stat-fps": {
         "en-US": "FPS",
@@ -548,6 +614,7 @@ const Translations = {
         "ru-RU": "Кадр/сек",
         "tr-TR": "FPS",
         "vi-VN": "FPS",
+        "zh-CN": "FPS",
     },
     "stat-frames-lost": {
         "en-US": "Frames lost",
@@ -555,6 +622,7 @@ const Translations = {
         "ru-RU": "Потери кадров",
         "tr-TR": "Kare kaybı",
         "vi-VN": "Số khung hình bị mất",
+        "zh-CN": "丢帧",
     },
     "stat-packets-lost": {
         "en-US": "Packets lost",
@@ -562,6 +630,7 @@ const Translations = {
         "ru-RU": "Потери пакетов",
         "tr-TR": "Paket kaybı",
         "vi-VN": "Số gói tin bị mất",
+        "zh-CN": "丢包",
     },
     "stat-ping": {
         "en-US": "Ping",
@@ -569,6 +638,7 @@ const Translations = {
         "ru-RU": "Задержка соединения",
         "tr-TR": "Gecikme",
         "vi-VN": "Ping",
+        "zh-CN": "Ping",
     },
     "stats": {
         "en-US": "Stats",
@@ -576,6 +646,7 @@ const Translations = {
         "ru-RU": "Статистика",
         "tr-TR": "Durum",
         "vi-VN": "Các thông số",
+        "zh-CN": "统计信息",
     },
     "stream": {
         "en-US": "Stream",
@@ -583,6 +654,7 @@ const Translations = {
         "ru-RU": "Видеопоток",
         "tr-TR": "Yayın",
         "vi-VN": "Stream",
+        "zh-CN": "串流",
     },
     "stream-stats-settings": {
         "en-US": "Stream stats settings",
@@ -590,6 +662,7 @@ const Translations = {
         "ru-RU": "Настройки потоковой передачи",
         "tr-TR": "Yayın durumu ayarları",
         "vi-VN": "Cấu hình thông số của stream",
+        "zh-CN": "串流统计信息设置",
     },
     "stretch": {
         "en-US": "Stretch",
@@ -597,6 +670,7 @@ const Translations = {
         "ru-RU": "Растянуть",
         "tr-TR": "Genişlet",
         "vi-VN": "Kéo giãn",
+        "zh-CN": "拉伸",
     },
     "target-resolution": {
         "en-US": "Target resolution",
@@ -604,6 +678,7 @@ const Translations = {
         "ru-RU": "Целевое разрешение",
         "tr-TR": "Tercih edilen çözünürlük",
         "vi-VN": "Độ phân giải",
+        "zh-CN": "目标分辨率",
     },
     "tc-all-games": {
         "en-US": "All games",
@@ -611,6 +686,7 @@ const Translations = {
         "ru-RU": "Все игры",
         "tr-TR": "Tüm oyunlar",
         "vi-VN": "Tất cả các game",
+        "zh-CN": "所有游戏",
     },
     "tc-all-white": {
         "en-US": "All white",
@@ -618,6 +694,7 @@ const Translations = {
         "ru-RU": "Полностью белые",
         "tr-TR": "Hepsi beyaz",
         "vi-VN": "Trắng hoàn toàn",
+        "zh-CN": "白色",
     },
     "tc-availability": {
         "en-US": "Availability",
@@ -625,6 +702,7 @@ const Translations = {
         "ru-RU": "В каких играх включить",
         "tr-TR": "Uygunluk durumu",
         "vi-VN": "Khả dụng",
+        "zh-CN": "启用",
     },
     "tc-custom-layout-style": {
         "en-US": "Custom layout's button style",
@@ -632,6 +710,7 @@ const Translations = {
         "ru-RU": "Пользовательский стиль кнопок",
         "tr-TR": "Özelleştirilmiş düğme düzeninin biçimi",
         "vi-VN": "Màu của bố cục tùy chọn",
+        "zh-CN": "自定义按钮样式",
     },
     "tc-muted-colors": {
         "en-US": "Muted colors",
@@ -639,6 +718,7 @@ const Translations = {
         "ru-RU": "Приглушенные цвета",
         "tr-TR": "Yumuşak renkler",
         "vi-VN": "Màu câm",
+        "zh-CN": "饱和度较低的颜色",
     },
     "tc-standard-layout-style": {
         "en-US": "Standard layout's button style",
@@ -646,6 +726,7 @@ const Translations = {
         "ru-RU": "Стандартный стиль кнопок",
         "tr-TR": "Varsayılan düğme düzeninin biçimi",
         "vi-VN": "Màu của bố cục tiêu chuẩn",
+        "zh-CN": "标准按钮样式",
     },
     "text-size": {
         "en-US": "Text size",
@@ -653,6 +734,7 @@ const Translations = {
         "ru-RU": "Размер текста",
         "tr-TR": "Metin boyutu",
         "vi-VN": "Cỡ chữ",
+        "zh-CN": "文字大小",
     },
     "top-center": {
         "en-US": "Top-center",
@@ -660,6 +742,7 @@ const Translations = {
         "ru-RU": "Сверху",
         "tr-TR": "Orta üst",
         "vi-VN": "Chính giữa phía trên",
+        "zh-CN": "顶部居中",
     },
     "top-left": {
         "en-US": "Top-left",
@@ -667,6 +750,7 @@ const Translations = {
         "ru-RU": "Левый верхний угол",
         "tr-TR": "Sol üst",
         "vi-VN": "Phía trên bên trái",
+        "zh-CN": "左上角",
     },
     "top-right": {
         "en-US": "Top-right",
@@ -674,6 +758,7 @@ const Translations = {
         "ru-RU": "Справа",
         "tr-TR": "Sağ üst",
         "vi-VN": "Phía trên bên phải",
+        "zh-CN": "右上角",
     },
     "touch-controller": {
         "en-US": "Touch controller",
@@ -681,6 +766,7 @@ const Translations = {
         "ru-RU": "Сенсорные кнопки",
         "tr-TR": "Dokunmatik oyun kumandası",
         "vi-VN": "Bộ điều khiển cảm ứng",
+        "zh-CN": "虚拟摇杆",
     },
     "transparent-background": {
         "en-US": "Transparent background",
@@ -688,6 +774,7 @@ const Translations = {
         "ru-RU": "Прозрачный фон",
         "tr-TR": "Saydam arka plan",
         "vi-VN": "Trong suốt màu nền",
+        "zh-CN": "透明背景",
     },
     "ui": {
         "en-US": "UI",
@@ -695,6 +782,7 @@ const Translations = {
         "ru-RU": "Интерфейс",
         "tr-TR": "Kullanıcı arayüzü",
         "vi-VN": "Giao diện",
+        "zh-CN": "UI",
     },
     "user-agent-profile": {
         "en-US": "User-Agent profile",
@@ -702,6 +790,7 @@ const Translations = {
         "ru-RU": "Профиль устройства",
         "tr-TR": "Kullanıcı aracısı profili",
         "vi-VN": "User-Agent",
+        "zh-CN": "浏览器UA伪装",
     },
     "video": {
         "en-US": "Video",
@@ -709,6 +798,7 @@ const Translations = {
         "ru-RU": "Видео",
         "tr-TR": "Görüntü",
         "vi-VN": "Hình ảnh",
+        "zh-CN": "视频",
     },
     "visual-quality": {
         "en-US": "Visual quality",
@@ -716,6 +806,7 @@ const Translations = {
         "ru-RU": "Качество видеопотока",
         "tr-TR": "Görüntü kalitesi",
         "vi-VN": "Chất lượng hình ảnh",
+        "zh-CN": "画质",
     },
     "visual-quality-high": {
         "en-US": "High",
@@ -723,6 +814,7 @@ const Translations = {
         "ru-RU": "Высокое",
         "tr-TR": "Yüksek",
         "vi-VN": "Cao",
+        "zh-CN": "高",
     },
     "visual-quality-low": {
         "en-US": "Low",
@@ -730,6 +822,7 @@ const Translations = {
         "ru-RU": "Низкое",
         "tr-TR": "Düşük",
         "vi-VN": "Thấp",
+        "zh-CN": "低",
     },
     "visual-quality-normal": {
         "en-US": "Normal",
@@ -737,6 +830,7 @@ const Translations = {
         "ru-RU": "Среднее",
         "tr-TR": "Normal",
         "vi-VN": "Thường",
+        "zh-CN": "中",
     },
     "volume": {
         "en-US": "Volume",
@@ -744,6 +838,7 @@ const Translations = {
         "ru-RU": "Громкость",
         "tr-TR": "Ses düzeyi",
         "vi-VN": "Âm lượng",
+        "zh-CN": "音量",
     },
     "wait-time-countdown": {
         "en-US": "Countdown",
@@ -751,6 +846,7 @@ const Translations = {
         "ru-RU": "Время до запуска",
         "tr-TR": "Geri sayım",
         "vi-VN": "Đếm ngược",
+        "zh-CN": "倒计时",
     },
     "wait-time-estimated": {
         "en-US": "Estimated finish time",
@@ -758,6 +854,7 @@ const Translations = {
         "ru-RU": "Примерное время запуска",
         "tr-TR": "Tahminî bitiş süresi",
         "vi-VN": "Thời gian hoàn thành dự kiến",
+        "zh-CN": "预计等待时间",
     },
 }
 
@@ -1901,6 +1998,7 @@ class Preferences {
                 'ru-RU': '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
                 'tr-TR': 'T\xfcrk\xe7e',
                 'vi-VN': 'Tiếng Việt',
+                'zh-CN': '\u4e2d\u6587(\u7b80\u4f53)',
             },
         },
         [Preferences.SERVER_REGION]: {
