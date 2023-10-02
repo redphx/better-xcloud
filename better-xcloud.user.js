@@ -1713,7 +1713,7 @@ class StreamStats {
     }
 
     static hideSettingsUi() {
-        StreamStats.#$settings.style.display = 'none';
+        StreamStats.#$settings.classList.add('bx-gone');
 
         if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
@@ -1721,8 +1721,7 @@ class StreamStats {
     }
 
     static #toggleSettingsUi() {
-        const display = StreamStats.#$settings.style.display;
-        StreamStats.#$settings.style.display = display === 'block' ? 'none' : 'block';
+        StreamStats.#$settings.classList.toggle('bx-gone');
     }
 
     static render() {
@@ -1818,9 +1817,9 @@ class StreamStats {
             ));
         }
 
-        StreamStats.#$settings = CE('div', {'class': 'bx-stats-settings'},
+        StreamStats.#$settings = CE('div', {'class': 'bx-stats-settings bx-gone'},
                                     CE('b', {}, __('stream-stats-settings')),
-                                    $fragment,
+                                    CE('div', {}, $fragment),
                                     $close = CE('button', {}, __('close')));
 
         $close.addEventListener('click', e => StreamStats.hideSettingsUi());
@@ -3028,7 +3027,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-stats-settings {
-    display: none;
+    display: flex;
+    flex-flow: column;
+    max-height: 90vh;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -3063,6 +3064,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-stats-settings > div {
+    overflow: auto;
+}
+
+.bx-stats-settings > div > div {
     display: flex;
     margin-bottom: 8px;
     padding: 2px 4px;
