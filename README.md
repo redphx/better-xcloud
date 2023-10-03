@@ -277,6 +277,8 @@ Sorry, no. The server decides all these settings.
 It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
 
 ## Translators
+  - **Chinese (Simplified)**: [@nyavana](https://github.com/nyavana)
+  - **Korean**: [@rightones](https://github.com/rightones)
   - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404), [@Haisom](https://github.com/Haisom)
   - **Russian**: [anpom6](https://crowdin.com/profile/anpom6)
   - **Turkish**: [@transbebek](https://github.com/transbebek)
