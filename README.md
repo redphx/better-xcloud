@@ -2,6 +2,11 @@
 Improve [Xbox Cloud Gaming (xCloud)](https://www.xbox.com/play/) experience on web browser.  
 The main target of this script is mobile users, but it should work great on desktop too.  
 
+Supported platforms:  
+- Windows, macOS, Linux
+- Android, Android TV
+- iOS, iPadOS
+
 This script makes me spend more time with xCloud, and I hope the same thing happens to you.  
 If you like this project please give it a 🌟. Thank you 🙏.
 
