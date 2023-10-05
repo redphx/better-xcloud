@@ -65,7 +65,9 @@ const Translations = {
     getLocale: () => {
         const supportedLocales = [
             'en-US',
+            'es-ES',
             'ko-KR',
+            'pl-PL',
             'pt-BR',
             'ru-RU',
             'tr-TR',
@@ -92,7 +94,9 @@ const Translations = {
 
     "advanced": {
         "en-US": "Advanced",
+        "es-ES": "Avanzado",
         "ko-KR": "고급",
+        "pl-PL": "Zaawansowane",
         "pt-BR": "Avançado",
         "ru-RU": "Продвинутые",
         "tr-TR": "Gelişmiş ayarlar",
@@ -101,7 +105,9 @@ const Translations = {
     },
     "audio": {
         "en-US": "Audio",
+        "es-ES": "Audio",
         "ko-KR": "오디오",
+        "pl-PL": "Dźwięk",
         "pt-BR": "Áudio",
         "ru-RU": "Звук",
         "tr-TR": "Ses",
@@ -110,7 +116,9 @@ const Translations = {
     },
     "auto": {
         "en-US": "Auto",
+        "es-ES": "Auto",
         "ko-KR": "자동",
+        "pl-PL": "Automatyczne",
         "pt-BR": "Automático",
         "ru-RU": "Автоматически",
         "tr-TR": "Otomatik",
@@ -119,7 +127,9 @@ const Translations = {
     },
     "badge-audio": {
         "en-US": "Audio",
+        "es-ES": "Audio",
         "ko-KR": "오디오",
+        "pl-PL": "Dźwięk",
         "pt-BR": "Áudio",
         "ru-RU": "Звук",
         "tr-TR": "Ses",
@@ -128,7 +138,9 @@ const Translations = {
     },
     "badge-battery": {
         "en-US": "Battery",
+        "es-ES": "Batería",
         "ko-KR": "배터리",
+        "pl-PL": "Bateria",
         "pt-BR": "Bateria",
         "ru-RU": "Батарея",
         "tr-TR": "Pil",
@@ -137,7 +149,9 @@ const Translations = {
     },
     "badge-in": {
         "en-US": "In",
+        "es-ES": "En",
         "ko-KR": "다운로드",
+        "pl-PL": "Pobieranie",
         "pt-BR": "Recebidos",
         "ru-RU": "Входящие",
         "tr-TR": "Gelen",
@@ -146,7 +160,9 @@ const Translations = {
     },
     "badge-out": {
         "en-US": "Out",
+        "es-ES": "Fuera",
         "ko-KR": "업로드",
+        "pl-PL": "Wysyłanie",
         "pt-BR": "Enviados",
         "ru-RU": "Исходящие",
         "tr-TR": "Giden",
@@ -155,7 +171,9 @@ const Translations = {
     },
     "badge-playtime": {
         "en-US": "Playtime",
+        "es-ES": "Tiempo jugado",
         "ko-KR": "플레이한 시간",
+        "pl-PL": "Czas gry",
         "pt-BR": "Tempo de jogo",
         "ru-RU": "Время в игре",
         "tr-TR": "Oynanış süresi",
@@ -164,7 +182,9 @@ const Translations = {
     },
     "badge-server": {
         "en-US": "Server",
+        "es-ES": "Servidor",
         "ko-KR": "서버",
+        "pl-PL": "Serwer",
         "pt-BR": "Servidor",
         "ru-RU": "Сервер",
         "tr-TR": "Sunucu",
@@ -173,7 +193,9 @@ const Translations = {
     },
     "badge-video": {
         "en-US": "Video",
+        "es-ES": "Video",
         "ko-KR": "비디오",
+        "pl-PL": "Obraz",
         "pt-BR": "Vídeo",
         "ru-RU": "Видео",
         "tr-TR": "Görüntü",
@@ -182,7 +204,9 @@ const Translations = {
     },
     "bottom-left": {
         "en-US": "Bottom-left",
+        "es-ES": "Inferior izquierdo",
         "ko-KR": "좌측 하단",
+        "pl-PL": "Lewy dolny róg",
         "pt-BR": "Inferior Esquerdo",
         "ru-RU": "Левый нижний угол",
         "tr-TR": "Sol alt",
@@ -191,7 +215,9 @@ const Translations = {
     },
     "bottom-right": {
         "en-US": "Bottom-right",
+        "es-ES": "Inferior derecha",
         "ko-KR": "우측 하단",
+        "pl-PL": "Prawy dolny róg",
         "pt-BR": "Inferior-direito",
         "ru-RU": "Правый нижний угол",
         "tr-TR": "Sağ alt",
@@ -200,7 +226,9 @@ const Translations = {
     },
     "brightness": {
         "en-US": "Brightness",
+        "es-ES": "Brillo",
         "ko-KR": "밝기",
+        "pl-PL": "Jasność",
         "pt-BR": "Brilho",
         "ru-RU": "Яркость",
         "tr-TR": "Aydınlık",
@@ -209,7 +237,9 @@ const Translations = {
     },
     "browser-unsupported-feature": {
         "en-US": "Your browser doesn't support this feature",
+        "es-ES": "Su navegador no soporta esta característica",
         "ko-KR": "브라우저에서 이 기능을 지원하지 않습니다.",
+        "pl-PL": "Twoja przeglądarka nie obsługuje tej funkcji",
         "pt-BR": "Seu navegador não suporta este recurso",
         "ru-RU": "Ваш браузер не поддерживает эту функцию",
         "tr-TR": "Web tarayıcınız bu özelliği desteklemiyor",
@@ -218,7 +248,9 @@ const Translations = {
     },
     "clarity": {
         "en-US": "Clarity",
+        "es-ES": "Claridad",
         "ko-KR": "선명도",
+        "pl-PL": "Ostrość",
         "pt-BR": "Clareza",
         "ru-RU": "Чёткость",
         "tr-TR": "Netlik",
@@ -227,7 +259,9 @@ const Translations = {
     },
     "clarity-boost-warning": {
         "en-US": "These settings don't work when the Clarity Boost mode is ON",
+        "es-ES": "Estos ajustes no funcionan cuando el modo Clarity Boost está activado",
         "ko-KR": "이 설정들은 선명도 향상 기능이 켜져 있을 때는 동작하지 않습니다.",
+        "pl-PL": "Te ustawienia nie będą działać, gdy tryb \"Clarity Boost\" jest włączony",
         "pt-BR": "Estas configurações não funcionam quando o modo de \"Clarity Boost\" está ATIVADO",
         "ru-RU": "Эти настройки не работают, когда включен режим Clarity Boost",
         "tr-TR": "Netliği Artırma modu açıkken bu ayarlar ETKİSİZDİR",
@@ -236,7 +270,9 @@ const Translations = {
     },
     "close": {
         "en-US": "Close",
+        "es-ES": "Cerrar",
         "ko-KR": "닫기",
+        "pl-PL": "Zamknij",
         "pt-BR": "Fechar",
         "ru-RU": "Закрыть",
         "tr-TR": "Kapat",
@@ -245,7 +281,9 @@ const Translations = {
     },
     "conditional-formatting": {
         "en-US": "Conditional formatting text color",
+        "es-ES": "Color condicional de formato de texto",
         "ko-KR": "통계에 따라 글자 색 지정",
+        "pl-PL": "Kolor tekstu zależny od wartości",
         "pt-BR": "Cor do texto do formato condicional",
         "ru-RU": "Цвет текста в зависимости от условий",
         "tr-TR": "Metin renginin koşullu biçimlendirilmesi",
@@ -254,7 +292,9 @@ const Translations = {
     },
     "confirm-reload-stream": {
         "en-US": "Do you want to refresh the stream?",
+        "es-ES": "¿Quieres actualizar el stream?\n",
         "ko-KR": "스트리밍을 재시작할까요?",
+        "pl-PL": "Czy chcesz odświeżyć transmisję?",
         "pt-BR": "Você deseja atualizar o stream?",
         "ru-RU": "Вы хотите перезапустить поток?",
         "tr-TR": "Yayını yeniden başlatmak istiyor musunuz?",
@@ -263,7 +303,9 @@ const Translations = {
     },
     "contrast": {
         "en-US": "Contrast",
+        "es-ES": "Contraste",
         "ko-KR": "대비",
+        "pl-PL": "Kontrast",
         "pt-BR": "Contraste",
         "ru-RU": "Контрастность",
         "tr-TR": "Karşıtlık",
@@ -272,7 +314,9 @@ const Translations = {
     },
     "custom": {
         "en-US": "Custom",
+        "es-ES": "Personalizado",
         "ko-KR": "사용자 지정",
+        "pl-PL": "Niestandardowe",
         "pt-BR": "Customizado",
         "ru-RU": "Вручную",
         "tr-TR": "Özel",
@@ -281,7 +325,9 @@ const Translations = {
     },
     "default": {
         "en-US": "Default",
+        "es-ES": "Por defecto",
         "ko-KR": "기본값",
+        "pl-PL": "Domyślny",
         "pt-BR": "Padrão",
         "ru-RU": "По умолчанию",
         "tr-TR": "Varsayılan",
@@ -290,7 +336,9 @@ const Translations = {
     },
     "device-unsupported-touch": {
         "en-US": "Your device doesn't have touch support",
+        "es-ES": "Tu dispositivo no tiene soporte táctil",
         "ko-KR": "브라우저에서 터치를 지원하지 않습니다.",
+        "pl-PL": "Twoje urządzenie nie obsługuję tej funkcji",
         "pt-BR": "Seu dispositivo não possui suporte de toque",
         "ru-RU": "Ваше устройство не поддерживает сенсорное управление",
         "tr-TR": "Cihazınızda dokunmatik ekran özelliği yoktur",
@@ -299,7 +347,9 @@ const Translations = {
     },
     "disable": {
         "en-US": "Disable",
+        "es-ES": "Deshabilitar",
         "ko-KR": "비활성화",
+        "pl-PL": "Wyłącz",
         "pt-BR": "Desabilitar",
         "ru-RU": "Отключить",
         "tr-TR": "Devre dışı bırak",
@@ -308,7 +358,9 @@ const Translations = {
     },
     "disable-bandwidth-checking": {
         "en-US": "Disable bandwidth checking",
+        "es-ES": "Desactivar comprobación de ancho de banda",
         "ko-KR": "대역폭 확인 비활성화",
+        "pl-PL": "Wyłącz sprawdzanie przepustowości",
         "pt-BR": "Desativar verificação de banda",
         "ru-RU": "Отключить проверку интернета",
         "tr-TR": "İnternet hız testini atla",
@@ -317,7 +369,9 @@ const Translations = {
     },
     "disable-social-features": {
         "en-US": "Disable social features",
+        "es-ES": "Desactivar características sociales",
         "ko-KR": "소셜 기능 비활성화",
+        "pl-PL": "Wyłącz funkcje społecznościowe",
         "pt-BR": "Desativar recursos sociais",
         "ru-RU": "Отключить социальные функции",
         "tr-TR": "Sosyal özellikleri kapat",
@@ -326,7 +380,9 @@ const Translations = {
     },
     "disable-xcloud-analytics": {
         "en-US": "Disable xCloud analytics",
+        "es-ES": "Desactivar análisis de xCloud",
         "ko-KR": "xCloud 통계 비활성화",
+        "pl-PL": "Wyłącz analitykę xCloud",
         "pt-BR": "Desativar telemetria do xCloud",
         "ru-RU": "Отключить аналитику xCloud",
         "tr-TR": "xCloud'un veri toplamasını devre dışı bırak",
@@ -335,7 +391,9 @@ const Translations = {
     },
     "enable-mic-on-startup": {
         "en-US": "Enable microphone on game launch",
+        "es-ES": "Activar micrófono al iniciar el juego",
         "ko-KR": "게임 시작 시 마이크 활성화",
+        "pl-PL": "Włącz mikrofon przy uruchomieniu gry",
         "pt-BR": "Ativar microfone na inicialização do jogo",
         "ru-RU": "Автоматически включать микрофон при запуске игры",
         "tr-TR": "Oyun başlarken mikrofonu aç",
@@ -344,7 +402,9 @@ const Translations = {
     },
     "enable-quick-glance-mode": {
         "en-US": "Enable \"Quick Glance\" mode",
+        "es-ES": "Activar modo \"Vista rápida\"",
         "ko-KR": "\"퀵 글랜스\" 모드 활성화",
+        "pl-PL": "Włącz tryb \"Quick Glance\"",
         "pt-BR": "Ativar modo \"Revisão Rápida\"",
         "ru-RU": "Включить режим «Быстрый взгляд»",
         "tr-TR": "\"Seri Bakış\" modunu aç",
@@ -353,7 +413,9 @@ const Translations = {
     },
     "enable-volume-control": {
         "en-US": "Enable volume control feature",
+        "es-ES": "Habilitar la función de control de volumen",
         "ko-KR": "음량 조절 기능 활성화",
+        "pl-PL": "Włącz funkcję kontroli głośności",
         "pt-BR": "Ativar recurso de controle de volume",
         "tr-TR": "Ses düzeyini yönetmeyi etkinleştir",
         "vi-VN": "Bật tính năng điều khiển âm lượng",
@@ -361,7 +423,9 @@ const Translations = {
     },
     "hide-idle-cursor": {
         "en-US": "Hide mouse cursor on idle",
+        "es-ES": "Ocultar el cursor del ratón al estar inactivo",
         "ko-KR": "대기 상태에서 마우스 커서 숨기기",
+        "pl-PL": "Ukryj kursor myszy podczas bezczynności",
         "pt-BR": "Ocultar o cursor do mouse no ocioso",
         "ru-RU": "Скрыть курсор мыши при бездействии",
         "tr-TR": "Boştayken fare imlecini gizle",
@@ -370,7 +434,9 @@ const Translations = {
     },
     "hide-system-menu-icon": {
         "en-US": "Hide System menu's icon",
+        "es-ES": "Ocultar el icono del menú del sistema",
         "ko-KR": "시스템 메뉴 아이콘 숨기기",
+        "pl-PL": "Ukryj ikonę menu systemu",
         "pt-BR": "Ocultar ícone do menu do sistema",
         "ru-RU": "Скрыть значок системного меню",
         "tr-TR": "Sistem menüsü simgesini gizle",
@@ -379,7 +445,9 @@ const Translations = {
     },
     "language": {
         "en-US": "Language",
+        "es-ES": "Idioma",
         "ko-KR": "언어",
+        "pl-PL": "Język",
         "pt-BR": "Linguagem",
         "ru-RU": "Язык",
         "tr-TR": "Dil",
@@ -388,7 +456,9 @@ const Translations = {
     },
     "large": {
         "en-US": "Large",
+        "es-ES": "Grande",
         "ko-KR": "크게",
+        "pl-PL": "Duży",
         "pt-BR": "Largo",
         "ru-RU": "Большой",
         "tr-TR": "Büyük",
@@ -397,7 +467,9 @@ const Translations = {
     },
     "loading-screen": {
         "en-US": "Loading screen",
+        "es-ES": "Pantalla de carga",
         "ko-KR": "로딩 화면",
+        "pl-PL": "Ekran wczytywania",
         "pt-BR": "Tela de Carregamento",
         "ru-RU": "Экран загрузки",
         "tr-TR": "Yükleme ekranı",
@@ -406,7 +478,9 @@ const Translations = {
     },
     "menu-stream-settings": {
         "en-US": "Stream settings",
+        "es-ES": "Ajustes del stream",
         "ko-KR": "스트리밍 설정",
+        "pl-PL": "Ustawienia strumienia",
         "pt-BR": "Ajustes de transmissão",
         "ru-RU": "Настройки потоковой передачи",
         "tr-TR": "Yayın ayarları",
@@ -415,7 +489,9 @@ const Translations = {
     },
     "menu-stream-stats": {
         "en-US": "Stream stats",
+        "es-ES": "Estadísticas del stream",
         "ko-KR": "통계",
+        "pl-PL": "Statystyki strumienia",
         "pt-BR": "Estatísticas da transmissão",
         "ru-RU": "Статистика потоковой передачи",
         "tr-TR": "Yayın durumu",
@@ -424,7 +500,9 @@ const Translations = {
     },
     "normal": {
         "en-US": "Normal",
+        "es-ES": "Normal",
         "ko-KR": "보통",
+        "pl-PL": "Normalny",
         "pt-BR": "Normal",
         "ru-RU": "Средний",
         "tr-TR": "Normal",
@@ -433,7 +511,9 @@ const Translations = {
     },
     "off": {
         "en-US": "Off",
+        "es-ES": "Apagado",
         "ko-KR": "꺼짐",
+        "pl-PL": "Wyłączone",
         "pt-BR": "Desligado",
         "ru-RU": "Выключен",
         "tr-TR": "Kapalı",
@@ -442,7 +522,9 @@ const Translations = {
     },
     "opacity": {
         "en-US": "Opacity",
+        "es-ES": "Opacidad",
         "ko-KR": "불투명도",
+        "pl-PL": "Przezroczystość",
         "pt-BR": "Transparência",
         "ru-RU": "Непрозрачность",
         "tr-TR": "Saydamsızlık",
@@ -451,7 +533,9 @@ const Translations = {
     },
     "other": {
         "en-US": "Other",
+        "es-ES": "Otro",
         "ko-KR": "기타",
+        "pl-PL": "Inne",
         "pt-BR": "Outros",
         "ru-RU": "Прочее",
         "tr-TR": "Diğer",
@@ -460,7 +544,9 @@ const Translations = {
     },
     "position": {
         "en-US": "Position",
+        "es-ES": "Posición",
         "ko-KR": "위치",
+        "pl-PL": "Pozycja",
         "pt-BR": "Posição",
         "ru-RU": "Расположение",
         "tr-TR": "Konum",
@@ -469,7 +555,9 @@ const Translations = {
     },
     "prefer-ipv6-server": {
         "en-US": "Prefer IPv6 server",
+        "es-ES": "Servidor IPv6 preferido",
         "ko-KR": "IPv6 서버 우선",
+        "pl-PL": "Preferuj serwer IPv6",
         "pt-BR": "Preferir servidor IPV6",
         "ru-RU": "Предпочитать IPv6 сервер",
         "tr-TR": "IPv6 sunucusunu tercih et",
@@ -478,7 +566,9 @@ const Translations = {
     },
     "preferred-game-language": {
         "en-US": "Preferred game's language",
+        "es-ES": "Idioma preferencial del juego",
         "ko-KR": "선호하는 게임 언어",
+        "pl-PL": "Preferowany język gry",
         "pt-BR": "Idioma preferencial do jogo",
         "ru-RU": "Предпочитаемый язык игры",
         "tr-TR": "Oyunda tercih edilen dil",
@@ -487,7 +577,9 @@ const Translations = {
     },
     "ratio": {
         "en-US": "Ratio",
+        "es-ES": "Relación de aspecto",
         "ko-KR": "화면 비율",
+        "pl-PL": "Współczynnik proporcji",
         "pt-BR": "Proporção",
         "ru-RU": "Соотношение сторон",
         "tr-TR": "Görüntü oranı",
@@ -496,7 +588,9 @@ const Translations = {
     },
     "reduce-animations": {
         "en-US": "Reduce UI animations",
+        "es-ES": "Reduce las animaciones de la interfaz",
         "ko-KR": "애니메이션 감소",
+        "pl-PL": "Ogranicz animacje interfejsu",
         "pt-BR": "Reduzir animações da interface",
         "ru-RU": "Убрать анимации интерфейса",
         "tr-TR": "Arayüz animasyonlarını azalt",
@@ -505,7 +599,9 @@ const Translations = {
     },
     "region": {
         "en-US": "Region",
+        "es-ES": "Región",
         "ko-KR": "지역",
+        "pl-PL": "Region",
         "pt-BR": "Região",
         "ru-RU": "Регион",
         "tr-TR": "Bölge",
@@ -514,7 +610,9 @@ const Translations = {
     },
     "rocket-always-hide": {
         "en-US": "Always hide",
+        "es-ES": "Ocultar siempre",
         "ko-KR": "항상 숨기기",
+        "pl-PL": "Zawsze ukrywaj",
         "pt-BR": "Sempre ocultar",
         "ru-RU": "Всегда скрывать",
         "tr-TR": "Her zaman gizle",
@@ -523,7 +621,9 @@ const Translations = {
     },
     "rocket-always-show": {
         "en-US": "Always show",
+        "es-ES": "Mostrar siempre",
         "ko-KR": "항상 표시",
+        "pl-PL": "Zawsze pokazuj",
         "pt-BR": "Sempre mostrar",
         "ru-RU": "Всегда показывать",
         "tr-TR": "Her zaman göster",
@@ -532,7 +632,9 @@ const Translations = {
     },
     "rocket-animation": {
         "en-US": "Rocket animation",
+        "es-ES": "Animación del cohete",
         "ko-KR": "로켓 애니메이션",
+        "pl-PL": "Animacja rakiety",
         "pt-BR": "Animação do foguete",
         "ru-RU": "Анимация ракеты",
         "tr-TR": "Roket animasyonu",
@@ -541,7 +643,9 @@ const Translations = {
     },
     "rocket-hide-queue": {
         "en-US": "Hide when queuing",
+        "es-ES": "Ocultar al hacer cola",
         "ko-KR": "대기 중에는 숨기기",
+        "pl-PL": "Ukryj podczas czekania w kolejce",
         "pt-BR": "Ocultar quando estiver na fila",
         "ru-RU": "Скрыть, когда есть очередь",
         "tr-TR": "Sıradayken gizle",
@@ -550,7 +654,9 @@ const Translations = {
     },
     "safari-failed-message": {
         "en-US": "Failed to run Better xCloud. Retrying, please wait...",
+        "es-ES": "No se pudo ejecutar Better xCloud. Reintentando, por favor espera...",
         "ko-KR": "Better xCloud 시작에 실패했습니다. 재시도중이니 잠시만 기다려 주세요.",
+        "pl-PL": "Nie udało się uruchomić Better xCloud. Ponawiam próbę...",
         "pt-BR": "Falha ao executar o Better xCloud. Tentando novamente, aguarde...",
         "ru-RU": "Не удалось запустить Better xCloud. Идет перезапуск, пожалуйста, подождите...",
         "tr-TR": "Better xCloud çalıştırılamadı. Yeniden deneniyor...",
@@ -559,7 +665,9 @@ const Translations = {
     },
     "saturation": {
         "en-US": "Saturation",
+        "es-ES": "Saturación",
         "ko-KR": "채도",
+        "pl-PL": "Nasycenie",
         "pt-BR": "Saturação",
         "ru-RU": "Насыщенность",
         "tr-TR": "Renk doygunluğu",
@@ -568,7 +676,9 @@ const Translations = {
     },
     "screenshot-button-position": {
         "en-US": "Screenshot button's position",
+        "es-ES": "Posición del botón de captura de pantalla",
         "ko-KR": "스크린샷 버튼 위치",
+        "pl-PL": "Pozycja przycisku zrzutu ekranu",
         "pt-BR": "Posição do botão de captura de tela",
         "ru-RU": "Расположение кнопки скриншота",
         "tr-TR": "Ekran görüntüsü düğmesi konumu",
@@ -577,7 +687,9 @@ const Translations = {
     },
     "server": {
         "en-US": "Server",
+        "es-ES": "Servidor",
         "ko-KR": "서버",
+        "pl-PL": "Serwer",
         "pt-BR": "Servidor",
         "ru-RU": "Сервер",
         "tr-TR": "Sunucu",
@@ -586,7 +698,9 @@ const Translations = {
     },
     "settings-reload": {
         "en-US": "Reload page to reflect changes",
+        "es-ES": "Actualice la página para aplicar los cambios",
         "ko-KR": "변경 사항을 적용하려면 페이지를 다시 로드하세요.",
+        "pl-PL": "Odśwież stronę, aby zastosować zmiany",
         "pt-BR": "Recarregue a página para refletir as alterações",
         "ru-RU": "Перезагрузить страницу, чтобы применить изменения",
         "tr-TR": "Kaydetmek için sayfayı yenile",
@@ -595,7 +709,9 @@ const Translations = {
     },
     "settings-reloading": {
         "en-US": "Reloading...",
+        "es-ES": "Recargando...",
         "ko-KR": "새로고침하는 중...",
+        "pl-PL": "Ponowne ładowanie...",
         "pt-BR": "Recarregando...",
         "ru-RU": "Перезагрузка...",
         "tr-TR": "Sayfa yenileniyor...",
@@ -604,7 +720,9 @@ const Translations = {
     },
     "show-game-art": {
         "en-US": "Show game art",
+        "es-ES": "Mostrar imagen del juego",
         "ko-KR": "게임 아트 표시",
+        "pl-PL": "Pokaż okładkę gry",
         "pt-BR": "Mostrar arte do jogo",
         "ru-RU": "Показывать игровую обложку",
         "tr-TR": "Oyun resmini göster",
@@ -613,7 +731,9 @@ const Translations = {
     },
     "show-stats-on-startup": {
         "en-US": "Show stats when starting the game",
+        "es-ES": "Mostrar estadísticas al iniciar el juego",
         "ko-KR": "게임 시작 시 통계 보여주기",
+        "pl-PL": "Pokaż statystyki podczas uruchamiania gry",
         "pt-BR": "Mostrar estatísticas ao iniciar o jogo",
         "ru-RU": "Показывать статистику при запуске игры",
         "tr-TR": "Oyun başlatırken yayın durumunu göster",
@@ -622,7 +742,9 @@ const Translations = {
     },
     "show-wait-time": {
         "en-US": "Show the estimated wait time",
+        "es-ES": "Mostrar el tiempo de espera estimado",
         "ko-KR": "예상 대기 시간 표시",
+        "pl-PL": "Pokaż szacowany czas oczekiwania",
         "pt-BR": "Mostrar o tempo estimado de espera",
         "ru-RU": "Показать предполагаемое время до запуска",
         "tr-TR": "Tahminî bekleme süresini göster",
@@ -631,7 +753,9 @@ const Translations = {
     },
     "simplify-stream-menu": {
         "en-US": "Simplify Stream's menu",
+        "es-ES": "Simplificar el menú del stream",
         "ko-KR": "메뉴 간단히 보기",
+        "pl-PL": "Uprość menu strumienia",
         "pt-BR": "Simplificar menu do streaming",
         "ru-RU": "Упростить меню потока",
         "tr-TR": "Yayın menüsünü basitleştir",
@@ -640,7 +764,9 @@ const Translations = {
     },
     "skip-splash-video": {
         "en-US": "Skip Xbox splash video",
+        "es-ES": "Saltar vídeo de presentación de Xbox",
         "ko-KR": "Xbox 스플래시 건너뛰기",
+        "pl-PL": "Pomiń wstępne intro Xbox",
         "pt-BR": "Pular vídeo de abertura do Xbox",
         "ru-RU": "Пропустить видео с заставкой Xbox",
         "tr-TR": "Xbox açılış ekranını atla",
@@ -649,7 +775,9 @@ const Translations = {
     },
     "small": {
         "en-US": "Small",
+        "es-ES": "Pequeño",
         "ko-KR": "작게",
+        "pl-PL": "Mały",
         "pt-BR": "Pequeno",
         "ru-RU": "Маленький",
         "tr-TR": "Küçük",
@@ -658,7 +786,9 @@ const Translations = {
     },
     "stat-bitrate": {
         "en-US": "Bitrate",
+        "es-ES": "Tasa de bits",
         "ko-KR": "비트레이트",
+        "pl-PL": "Bitrate",
         "pt-BR": "Bitrate",
         "ru-RU": "Скорость соединения",
         "tr-TR": "Bit hızı",
@@ -667,7 +797,9 @@ const Translations = {
     },
     "stat-decode-time": {
         "en-US": "Decode time",
+        "es-ES": "Tiempo de decodificación",
         "ko-KR": "디코딩 시간",
+        "pl-PL": "Czas dekodowania",
         "pt-BR": "Tempo de decodificação",
         "ru-RU": "Время декодирования",
         "tr-TR": "Kod çözme süresi",
@@ -676,7 +808,9 @@ const Translations = {
     },
     "stat-fps": {
         "en-US": "FPS",
+        "es-ES": "FPS",
         "ko-KR": "FPS",
+        "pl-PL": "FPS",
         "pt-BR": "FPS",
         "ru-RU": "Кадр/сек",
         "tr-TR": "FPS",
@@ -685,7 +819,9 @@ const Translations = {
     },
     "stat-frames-lost": {
         "en-US": "Frames lost",
+        "es-ES": "Pérdida de fotogramas",
         "ko-KR": "프레임 손실",
+        "pl-PL": "Utracone klatki",
         "pt-BR": "Quadros perdidos",
         "ru-RU": "Потери кадров",
         "tr-TR": "Kare kaybı",
@@ -694,7 +830,9 @@ const Translations = {
     },
     "stat-packets-lost": {
         "en-US": "Packets lost",
+        "es-ES": "Pérdida de paquetes",
         "ko-KR": "패킷 손실",
+        "pl-PL": "Utracone pakiety",
         "pt-BR": "Pacotes perdidos",
         "ru-RU": "Потери пакетов",
         "tr-TR": "Paket kaybı",
@@ -703,7 +841,9 @@ const Translations = {
     },
     "stat-ping": {
         "en-US": "Ping",
+        "es-ES": "Latencia",
         "ko-KR": "지연 시간",
+        "pl-PL": "Ping",
         "pt-BR": "Ping",
         "ru-RU": "Задержка соединения",
         "tr-TR": "Gecikme",
@@ -712,7 +852,9 @@ const Translations = {
     },
     "stats": {
         "en-US": "Stats",
+        "es-ES": "Estadísticas",
         "ko-KR": "통계",
+        "pl-PL": "Statystyki",
         "pt-BR": "Estatísticas",
         "ru-RU": "Статистика",
         "tr-TR": "Durum",
@@ -721,7 +863,9 @@ const Translations = {
     },
     "stream": {
         "en-US": "Stream",
+        "es-ES": "Stream",
         "ko-KR": "스트리밍",
+        "pl-PL": "Stream",
         "pt-BR": "Stream",
         "ru-RU": "Видеопоток",
         "tr-TR": "Yayın",
@@ -730,7 +874,9 @@ const Translations = {
     },
     "stream-stats-settings": {
         "en-US": "Stream stats settings",
+        "es-ES": "Ajustes de estadísticas de stream",
         "ko-KR": "스트리밍 통계 설정",
+        "pl-PL": "Ustawienia statystyk strumienia",
         "pt-BR": "Ajustes de estatísticas",
         "ru-RU": "Настройки потоковой передачи",
         "tr-TR": "Yayın durumu ayarları",
@@ -739,7 +885,9 @@ const Translations = {
     },
     "stretch": {
         "en-US": "Stretch",
+        "es-ES": "Estirado",
         "ko-KR": "채우기",
+        "pl-PL": "Rozciągnij",
         "pt-BR": "Esticar",
         "ru-RU": "Растянуть",
         "tr-TR": "Genişlet",
@@ -748,7 +896,9 @@ const Translations = {
     },
     "target-resolution": {
         "en-US": "Target resolution",
+        "es-ES": "Calidad de imagen",
         "ko-KR": "목표 해상도",
+        "pl-PL": "Rozdzielczość docelowa",
         "pt-BR": "Resolução alvo",
         "ru-RU": "Целевое разрешение",
         "tr-TR": "Tercih edilen çözünürlük",
@@ -757,7 +907,9 @@ const Translations = {
     },
     "tc-all-games": {
         "en-US": "All games",
+        "es-ES": "Todos los juegos",
         "ko-KR": "모든 게임",
+        "pl-PL": "Wszystkie gry",
         "pt-BR": "Todos os jogos",
         "ru-RU": "Все игры",
         "tr-TR": "Tüm oyunlar",
@@ -766,7 +918,9 @@ const Translations = {
     },
     "tc-all-white": {
         "en-US": "All white",
+        "es-ES": "Todo blanco",
         "ko-KR": "모두 하얗게",
+        "pl-PL": "Wszystkie białe",
         "pt-BR": "Tudo branco",
         "ru-RU": "Полностью белые",
         "tr-TR": "Hepsi beyaz",
@@ -775,7 +929,9 @@ const Translations = {
     },
     "tc-availability": {
         "en-US": "Availability",
+        "es-ES": "Disponibilidad",
         "ko-KR": "사용 여부",
+        "pl-PL": "Dostępność",
         "pt-BR": "Disponibilidade",
         "ru-RU": "В каких играх включить",
         "tr-TR": "Uygunluk durumu",
@@ -784,7 +940,9 @@ const Translations = {
     },
     "tc-custom-layout-style": {
         "en-US": "Custom layout's button style",
+        "es-ES": "Estilo de botones de diseño personalizado",
         "ko-KR": "커스텀 레이아웃의 버튼 스타일",
+        "pl-PL": "Niestandardowy układ przycisków",
         "pt-BR": "Estilo de botão do layout personalizado",
         "ru-RU": "Пользовательский стиль кнопок",
         "tr-TR": "Özelleştirilmiş düğme düzeninin biçimi",
@@ -793,7 +951,9 @@ const Translations = {
     },
     "tc-muted-colors": {
         "en-US": "Muted colors",
+        "es-ES": "Colores apagados",
         "ko-KR": "저채도 색상",
+        "pl-PL": "Stonowane kolory",
         "pt-BR": "Cores silenciadas",
         "ru-RU": "Приглушенные цвета",
         "tr-TR": "Yumuşak renkler",
@@ -802,7 +962,9 @@ const Translations = {
     },
     "tc-standard-layout-style": {
         "en-US": "Standard layout's button style",
+        "es-ES": "Estilo de botones de diseño estándar",
         "ko-KR": "표준 레이아웃의 버튼 스타일",
+        "pl-PL": "Standardowy układ przycisków",
         "pt-BR": "Estilo padrão de botões do layout",
         "ru-RU": "Стандартный стиль кнопок",
         "tr-TR": "Varsayılan düğme düzeninin biçimi",
@@ -811,7 +973,9 @@ const Translations = {
     },
     "text-size": {
         "en-US": "Text size",
+        "es-ES": "Tamano del texto",
         "ko-KR": "글자 크기",
+        "pl-PL": "Rozmiar tekstu",
         "pt-BR": "Tamanho do texto",
         "ru-RU": "Размер текста",
         "tr-TR": "Metin boyutu",
@@ -820,7 +984,9 @@ const Translations = {
     },
     "top-center": {
         "en-US": "Top-center",
+        "es-ES": "Superior centrado",
         "ko-KR": "중앙 상단",
+        "pl-PL": "Wyśrodkowany na górze",
         "pt-BR": "Superior-centralizado",
         "ru-RU": "Сверху",
         "tr-TR": "Orta üst",
@@ -829,7 +995,9 @@ const Translations = {
     },
     "top-left": {
         "en-US": "Top-left",
+        "es-ES": "Superior izquierdo",
         "ko-KR": "좌측 상단",
+        "pl-PL": "Lewy górny róg",
         "pt-BR": "Superior-esquerdo",
         "ru-RU": "Левый верхний угол",
         "tr-TR": "Sol üst",
@@ -838,7 +1006,9 @@ const Translations = {
     },
     "top-right": {
         "en-US": "Top-right",
+        "es-ES": "Superior derecho",
         "ko-KR": "우측 상단",
+        "pl-PL": "Prawy górny róg",
         "pt-BR": "Superior-direito",
         "ru-RU": "Справа",
         "tr-TR": "Sağ üst",
@@ -847,7 +1017,9 @@ const Translations = {
     },
     "touch-controller": {
         "en-US": "Touch controller",
+        "es-ES": "Controles táctiles",
         "ko-KR": "터치 컨트롤",
+        "pl-PL": "Sterowanie dotykiem",
         "pt-BR": "Controle de toque",
         "ru-RU": "Сенсорные кнопки",
         "tr-TR": "Dokunmatik oyun kumandası",
@@ -856,7 +1028,9 @@ const Translations = {
     },
     "transparent-background": {
         "en-US": "Transparent background",
+        "es-ES": "Fondo transparente",
         "ko-KR": "투명 배경",
+        "pl-PL": "Przezroczyste tło",
         "pt-BR": "Fundo transparente",
         "ru-RU": "Прозрачный фон",
         "tr-TR": "Saydam arka plan",
@@ -865,7 +1039,9 @@ const Translations = {
     },
     "ui": {
         "en-US": "UI",
+        "es-ES": "Interfaz de usuario",
         "ko-KR": "UI",
+        "pl-PL": "Interfejs",
         "pt-BR": "Interface",
         "ru-RU": "Интерфейс",
         "tr-TR": "Kullanıcı arayüzü",
@@ -874,7 +1050,9 @@ const Translations = {
     },
     "user-agent-profile": {
         "en-US": "User-Agent profile",
+        "es-ES": "Perfil del agente de usuario",
         "ko-KR": "사용자 에이전트 프로파일",
+        "pl-PL": "Profil User-Agent",
         "pt-BR": "Perfil do User-Agent",
         "ru-RU": "Профиль устройства",
         "tr-TR": "Kullanıcı aracısı profili",
@@ -883,7 +1061,9 @@ const Translations = {
     },
     "video": {
         "en-US": "Video",
+        "es-ES": "Video",
         "ko-KR": "비디오",
+        "pl-PL": "Obraz",
         "pt-BR": "Vídeo",
         "ru-RU": "Видео",
         "tr-TR": "Görüntü",
@@ -892,7 +1072,9 @@ const Translations = {
     },
     "visual-quality": {
         "en-US": "Visual quality",
+        "es-ES": "Calidad visual",
         "ko-KR": "시각적 품질",
+        "pl-PL": "Jakość grafiki",
         "pt-BR": "Qualidade visual",
         "ru-RU": "Качество видеопотока",
         "tr-TR": "Görüntü kalitesi",
@@ -901,7 +1083,9 @@ const Translations = {
     },
     "visual-quality-high": {
         "en-US": "High",
+        "es-ES": "Alto",
         "ko-KR": "높음",
+        "pl-PL": "Wysoka",
         "pt-BR": "Alto",
         "ru-RU": "Высокое",
         "tr-TR": "Yüksek",
@@ -910,7 +1094,9 @@ const Translations = {
     },
     "visual-quality-low": {
         "en-US": "Low",
+        "es-ES": "Bajo",
         "ko-KR": "낮음",
+        "pl-PL": "Niska",
         "pt-BR": "Baixo",
         "ru-RU": "Низкое",
         "tr-TR": "Düşük",
@@ -919,7 +1105,9 @@ const Translations = {
     },
     "visual-quality-normal": {
         "en-US": "Normal",
+        "es-ES": "Normal",
         "ko-KR": "보통",
+        "pl-PL": "Normalna",
         "pt-BR": "Normal",
         "ru-RU": "Среднее",
         "tr-TR": "Normal",
@@ -928,7 +1116,9 @@ const Translations = {
     },
     "volume": {
         "en-US": "Volume",
+        "es-ES": "Volumen",
         "ko-KR": "음량",
+        "pl-PL": "Głośność",
         "pt-BR": "Volume",
         "ru-RU": "Громкость",
         "tr-TR": "Ses düzeyi",
@@ -937,7 +1127,9 @@ const Translations = {
     },
     "wait-time-countdown": {
         "en-US": "Countdown",
+        "es-ES": "Cuenta Regresiva",
         "ko-KR": "카운트다운",
+        "pl-PL": "Pozostały czas oczekiwania",
         "pt-BR": "Contagem regressiva",
         "ru-RU": "Время до запуска",
         "tr-TR": "Geri sayım",
@@ -946,7 +1138,9 @@ const Translations = {
     },
     "wait-time-estimated": {
         "en-US": "Estimated finish time",
+        "es-ES": "Tiempo estimado de finalización",
         "ko-KR": "예상 완료 시간",
+        "pl-PL": "Szacowany czas zakończenia",
         "pt-BR": "Tempo estimado de conclusão",
         "ru-RU": "Примерное время запуска",
         "tr-TR": "Tahminî bitiş süresi",
@@ -2090,7 +2284,9 @@ class Preferences {
             'default': localStorage.getItem('better_xcloud_locale') || 'en-US',
             'options': {
                 'en-US': 'English (United States)',
+                'es-ES': 'espa\xf1ol (Espa\xf1a)',
                 'ko-KR': '\ud55c\uad6d\uc5b4',
+                'pl-PL': 'polski',
                 'pt-BR': 'portugu\xeas (Brasil)',
                 'ru-RU': '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
                 'tr-TR': 'T\xfcrk\xe7e',
