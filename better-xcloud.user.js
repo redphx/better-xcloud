@@ -4524,7 +4524,7 @@ function injectStreamMenuButtons() {
                 }
 
                 // Get the second last button
-                const $orgButton = node.querySelector('div > div > button:nth-last-child(2)');
+                const $orgButton = node.querySelector('div[class^=StreamMenu] > div > button:nth-last-child(2)');
                 if (!$orgButton) {
                     return;
                 }
@@ -4539,7 +4539,7 @@ function injectStreamMenuButtons() {
                     $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
 
                     // Close HUD
-                    $btnCloseHud.click();
+                    $btnCloseHud && $btnCloseHud.click();
 
                     // Show Quick settings bar
                     $quickBar.style.display = 'flex';
@@ -4556,7 +4556,7 @@ function injectStreamMenuButtons() {
 
                 // Hide Quick bar when closing HUD
                 const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
-                $btnCloseHud.addEventListener('click', e => {
+                $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
                     $quickBar.style.display = 'none';
                 });
 
@@ -4567,7 +4567,7 @@ function injectStreamMenuButtons() {
                     e.stopPropagation();
 
                     // Close HUD
-                    $btnCloseHud.click();
+                    $btnCloseHud && $btnCloseHud.click();
                     // Toggle Stream Stats
                     StreamStats.toggle();
                 });
