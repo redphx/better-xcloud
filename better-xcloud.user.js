@@ -395,6 +395,8 @@ const Translations = {
     },
     "disable-post-stream-feedback-dialog": {
         "en-US": "Disable post-stream feedback dialog",
+        "pl-PL": "Wyłącz okno opinii po zakończeniu transmisji",
+        "tr-TR": "Yayın sonrası geribildirim ekranını kapat",
         "vi-VN": "Tắt hộp thoại góp ý sau khi chơi xong",
     },
     "disable-social-features": {
