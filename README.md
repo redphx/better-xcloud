@@ -278,9 +278,12 @@ It's a reference to an Userscript called "better360" that I created many years a
 
 ## Translators
   - **Chinese (Simplified)**: [@nyavana](https://github.com/nyavana)
+  - **German**: [@KingNothing81](https://github.com/KingNothing81)
   - **Korean**: [@rightones](https://github.com/rightones)
   - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404), [@Haisom](https://github.com/Haisom)
+  - **Polish**: [@aleksishere](https://github.com/aleksishere)
   - **Russian**: [anpom6](https://crowdin.com/profile/anpom6)
+  - **Spanish**: [@PabloSebas](https://github.com/PabloSebas)
   - **Turkish**: [@transbebek](https://github.com/transbebek)
   - **Vietnamese**: [@redphx](https://github.com/redphx)
 
