@@ -3679,6 +3679,16 @@ div[class*=NotFocusedDialog] {
 }
 `;
 
+    // Hide "Play with friends" section
+    if (PREFS.get(Preferences.BLOCK_SOCIAL_FEATURES)) {
+        css += `
+div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
+button[class*=SocialEmptyCard] {
+    display: none;
+}
+`;
+    }
+
     // Reduce animations
     if (PREFS.get(Preferences.REDUCE_ANIMATIONS)) {
         css += `
