@@ -393,6 +393,10 @@ const Translations = {
         "vi-VN": "Tắt kiểm tra băng thông",
         "zh-CN": "禁用带宽测速",
     },
+    "disable-post-stream-feedback-dialog": {
+        "en-US": "Disable post-stream feedback dialog",
+        "vi-VN": "Tắt hộp thoại góp ý sau khi chơi xong",
+    },
     "disable-social-features": {
         "de-DE": "Soziale Funktionen deaktivieren",
         "en-US": "Disable social features",
@@ -801,7 +805,7 @@ const Translations = {
         "zh-CN": "开始游戏时显示统计信息",
     },
     "show-wait-time": {
-        "de-DE": "Die geschätzte Wartezeit anzeigen",
+        "de-DE": "Geschätzte Wartezeit anzeigen",
         "en-US": "Show the estimated wait time",
         "es-ES": "Mostrar el tiempo de espera estimado",
         "ko-KR": "예상 대기 시간 표시",
@@ -1017,7 +1021,7 @@ const Translations = {
         "zh-CN": "启用",
     },
     "tc-custom-layout-style": {
-        "de-DE": "Benutzerdefiniertes Layout Button Stil",
+        "de-DE": "Angepasstes Layout Button Stil",
         "en-US": "Custom layout's button style",
         "es-ES": "Estilo de botones de diseño personalizado",
         "ko-KR": "커스텀 레이아웃의 버튼 스타일",
@@ -1029,7 +1033,7 @@ const Translations = {
         "zh-CN": "特殊游戏按钮样式",
     },
     "tc-muted-colors": {
-        "de-DE": "Gedämpfte Farben",
+        "de-DE": "Matte Farben",
         "en-US": "Muted colors",
         "es-ES": "Colores apagados",
         "ko-KR": "저채도 색상",
@@ -2333,6 +2337,8 @@ class Preferences {
     static get STREAM_TOUCH_CONTROLLER_STYLE_STANDARD() { return 'stream_touch_controller_style_standard'; }
     static get STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM() { return 'stream_touch_controller_style_custom'; }
 
+    static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
+
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
@@ -2543,6 +2549,9 @@ class Preferences {
             'default': false,
         },
         [Preferences.STREAM_HIDE_IDLE_CURSOR]: {
+            'default': false,
+        },
+        [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
             'default': false,
         },
         [Preferences.REDUCE_ANIMATIONS]: {
@@ -4192,6 +4201,7 @@ function injectSettingsButton($parent) {
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: __('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
+            [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
         [__('touch-controller')]: {
             [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
@@ -4512,19 +4522,30 @@ function injectStreamMenuButtons() {
         $parent.removeEventListener('touchstart', hideQuickBarFunc);
     }
 
+    const PREF_DISABLE_FEEDBACK_DIALOG = PREFS.get(Preferences.STREAM_DISABLE_FEEDBACK_DIALOG);
     const observer = new MutationObserver(mutationList => {
         mutationList.forEach(item => {
             if (item.type !== 'childList') {
                 return;
             }
 
-            item.addedNodes.forEach(async node => {
-                if (!node.className || !node.className.startsWith('StreamMenu')) {
+            item.addedNodes.forEach(async $node => {
+                if (!$node.className) {
+                    return;
+                }
+
+                if (PREF_DISABLE_FEEDBACK_DIALOG && $node.className.startsWith('PostStreamFeedbackScreen')) {
+                    const $btnClose = $node.querySelector('button');
+                    $btnClose && $btnClose.click();
+                    return;
+                }
+
+                if (!$node.className.startsWith('StreamMenu')) {
                     return;
                 }
 
                 // Get the second last button
-                const $orgButton = node.querySelector('div[class^=StreamMenu] > div > button:nth-last-child(2)');
+                const $orgButton = $node.querySelector('div[class^=StreamMenu] > div > button:nth-last-child(2)');
                 if (!$orgButton) {
                     return;
                 }
