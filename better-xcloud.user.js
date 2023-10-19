@@ -4033,7 +4033,6 @@ function interceptHttpRequests() {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
 
             if (PREFS.get(Preferences.STREAM_ENABLE_READY_NOTIFICATION)){
-                console.log("AAAAAAAAAAAAAA");
                 new Notification('Game is Ready', { //TODO make this strings with localization
                     body: 'Queue finished.'
                   });
