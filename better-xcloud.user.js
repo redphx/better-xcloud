@@ -4038,7 +4038,7 @@ function interceptHttpRequests() {
             }
 
             if (PREFS.get(Preferences.STREAM_ENABLE_READY_NOTIFICATION)){
-                Notification('Game is Ready', { //TODO make this strings with localization
+                new Notification('Game is Ready', { //TODO make this strings with localization
                     body: 'Queue finished.'
                   });
             }
