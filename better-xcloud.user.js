@@ -2343,7 +2343,7 @@ class Preferences {
     static get STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM() { return 'stream_touch_controller_style_custom'; }
 
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
-    static get STREAM_ENABLE_READY_NOTIFICATION() { return 'stream_enable_ready_notificarion'; }
+    static get STREAM_ENABLE_READY_NOTIFICATION() { return 'stream_enable_ready_notification'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -4032,15 +4032,16 @@ function interceptHttpRequests() {
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
 
-            const promise = orgFetch(...arg);
-            if (!PREF_OVERRIDE_CONFIGURATION) {
-                return promise;
-            }
-
             if (PREFS.get(Preferences.STREAM_ENABLE_READY_NOTIFICATION)){
+                console.log("AAAAAAAAAAAAAA");
                 new Notification('Game is Ready', { //TODO make this strings with localization
                     body: 'Queue finished.'
                   });
+            }
+
+            const promise = orgFetch(...arg);
+            if (!PREF_OVERRIDE_CONFIGURATION) {
+                return promise;
             }
 
             // Touch controller for all games
