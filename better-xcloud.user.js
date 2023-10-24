@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Better xCloud MOD
+// @name         Better xCloud
 // @namespace    https://github.com/redphx
 // @version      1.18
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
@@ -434,6 +434,9 @@ const Translations = {
         "tr-TR": "Oyun başlarken mikrofonu aç",
         "vi-VN": "Bật mic lúc vào game",
         "zh-CN": "游戏启动时打开麦克风",
+    },
+    "enable-queue-ready-notification": { //TODO
+        "en-US": "Enable notification when game is ready",
     },
     "enable-quick-glance-mode": {
         "de-DE": "\"Kurzer Blick\"-Modus aktivieren",
@@ -2343,6 +2346,7 @@ class Preferences {
     static get STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM() { return 'stream_touch_controller_style_custom'; }
 
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
+    static get STREAM_ENABLE_READY_NOTIFICATION() { return 'stream_enable_ready_notification'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -2365,6 +2369,7 @@ class Preferences {
     static get AUDIO_MIC_ON_PLAYING() { return 'audio_mic_on_playing'; }
     static get AUDIO_ENABLE_VOLUME_CONTROL() { return 'audio_enable_volume_control'; }
     static get AUDIO_VOLUME() { return 'audio_volume'; }
+    static get AUDIO_VOLUME_BEFORE() { return 'audio_volume_before'; }
 
     static get STATS_ITEMS() { return 'stats_items'; };
     static get STATS_SHOW_WHEN_PLAYING() { return 'stats_show_when_playing'; }
@@ -2559,6 +2564,9 @@ class Preferences {
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
             'default': false,
         },
+        [Preferences.STREAM_ENABLE_READY_NOTIFICATION]: {
+            'default': false,
+        },
         [Preferences.REDUCE_ANIMATIONS]: {
             'default': false,
         },
@@ -2635,6 +2643,11 @@ class Preferences {
             'default': true,
         },
         [Preferences.AUDIO_VOLUME]: {
+            'default': 100,
+            'min': 0,
+            'max': 600,
+        },
+        [Preferences.AUDIO_VOLUME_BEFORE]: {
             'default': 100,
             'min': 0,
             'max': 600,
@@ -3872,6 +3885,9 @@ function updateIceCandidates(candidates) {
 
 function interceptHttpRequests() {
 
+   if (PREFS.get(Preferences.STREAM_ENABLE_READY_NOTIFICATION)){
+        Notification.requestPermission();  //TODO IDK WHERE TO PUT THIS!
+    }
     var BLOCKED_URLS = [];
     if (PREFS.get(Preferences.BLOCK_TRACKING)) {
         BLOCKED_URLS = BLOCKED_URLS.concat([
@@ -4024,6 +4040,12 @@ function interceptHttpRequests() {
 
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
+
+            if (PREFS.get(Preferences.STREAM_ENABLE_READY_NOTIFICATION)){
+                new Notification('Game is Ready', { //TODO make this strings with localization
+                    body: 'Queue finished.'
+                  });
+            }
 
             const promise = orgFetch(...arg);
             if (!PREF_OVERRIDE_CONFIGURATION) {
@@ -4239,6 +4261,7 @@ function injectSettingsButton($parent) {
         [__('other')]: {
             [Preferences.BLOCK_SOCIAL_FEATURES]: __('disable-social-features'),
             [Preferences.BLOCK_TRACKING]: __('disable-xcloud-analytics'),
+            [Preferences.STREAM_ENABLE_READY_NOTIFICATION]: __('enable-queue-ready-notification')
         },
         [__('advanced')]: {
             [Preferences.USER_AGENT_PROFILE]: __('user-agent-profile'),
@@ -4618,13 +4641,13 @@ function injectStreamMenuButtons() {
                     // Close HUD
                     $btnCloseHud && $btnCloseHud.click();
                     // Toggle Stream Mute
-                    console.log(PREFS.get(Preferences.AUDIO_VOLUME));
                     if (PREFS.get(Preferences.AUDIO_VOLUME) != '0'){
+                        PREFS.set(Preferences.AUDIO_VOLUME_BEFORE, PREFS.get(Preferences.AUDIO_VOLUME));
                         PREFS.set(Preferences.AUDIO_VOLUME, 0);
-                        STREAM_AUDIO_GAIN_NODE.gain.value = (0).toFixed(2)
+                        STREAM_AUDIO_GAIN_NODE.gain.value = (0).toFixed(2);
                     } else {
-                        PREFS.set(Preferences.AUDIO_VOLUME, 100);
-                        STREAM_AUDIO_GAIN_NODE.gain.value = (1).toFixed(2)
+                        PREFS.set(Preferences.AUDIO_VOLUME, PREFS.get(Preferences.AUDIO_VOLUME_BEFORE));
+                        STREAM_AUDIO_GAIN_NODE.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME_BEFORE) / 100).toFixed(2);
                     }
                 });
 
