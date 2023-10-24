@@ -435,9 +435,6 @@ const Translations = {
         "vi-VN": "Bật mic lúc vào game",
         "zh-CN": "游戏启动时打开麦克风",
     },
-    "enable-queue-ready-notification": { //TODO
-        "en-US": "Enable notification when game is ready",
-    },
     "enable-quick-glance-mode": {
         "de-DE": "\"Kurzer Blick\"-Modus aktivieren",
         "en-US": "Enable \"Quick Glance\" mode",
@@ -2346,7 +2343,6 @@ class Preferences {
     static get STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM() { return 'stream_touch_controller_style_custom'; }
 
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
-    static get STREAM_ENABLE_READY_NOTIFICATION() { return 'stream_enable_ready_notification'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -2561,9 +2557,6 @@ class Preferences {
             'default': false,
         },
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
-            'default': false,
-        },
-        [Preferences.STREAM_ENABLE_READY_NOTIFICATION]: {
             'default': false,
         },
         [Preferences.REDUCE_ANIMATIONS]: {
@@ -3879,9 +3872,6 @@ function updateIceCandidates(candidates) {
 
 function interceptHttpRequests() {
 
-   if (PREFS.get(Preferences.STREAM_ENABLE_READY_NOTIFICATION)){
-        Notification.requestPermission();  //TODO IDK WHERE TO PUT THIS!
-    }
     var BLOCKED_URLS = [];
     if (PREFS.get(Preferences.BLOCK_TRACKING)) {
         BLOCKED_URLS = BLOCKED_URLS.concat([
@@ -4034,12 +4024,6 @@ function interceptHttpRequests() {
 
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
-
-            if (PREFS.get(Preferences.STREAM_ENABLE_READY_NOTIFICATION)){
-                new Notification('Game is Ready', { //TODO make this strings with localization
-                    body: 'Queue finished.'
-                  });
-            }
 
             const promise = orgFetch(...arg);
             if (!PREF_OVERRIDE_CONFIGURATION) {
@@ -4255,7 +4239,6 @@ function injectSettingsButton($parent) {
         [__('other')]: {
             [Preferences.BLOCK_SOCIAL_FEATURES]: __('disable-social-features'),
             [Preferences.BLOCK_TRACKING]: __('disable-xcloud-analytics'),
-            [Preferences.STREAM_ENABLE_READY_NOTIFICATION]: __('enable-queue-ready-notification')
         },
         [__('advanced')]: {
             [Preferences.USER_AGENT_PROFILE]: __('user-agent-profile'),
