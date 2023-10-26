@@ -3870,6 +3870,10 @@ function updateIceCandidates(candidates) {
 function interceptHttpRequests() {
     var BLOCKED_URLS = [];
     if (PREFS.get(Preferences.BLOCK_TRACKING)) {
+        // Clear Analytics Insight buffers
+        window.sessionStorage.removeItem('AI_buffer');
+        window.sessionStorage.removeItem('AI_sentBuffer');
+
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://arc.msn.com',
             'https://browser.events.data.microsoft.com',
