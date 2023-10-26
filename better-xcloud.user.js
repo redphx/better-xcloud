@@ -4068,12 +4068,17 @@ function updateIceCandidates(candidates) {
 }
 
 
+function clearApplicationInsightsBuffers() {
+    window.sessionStorage.removeItem('AI_buffer');
+    window.sessionStorage.removeItem('AI_sentBuffer');
+}
+
+
 function interceptHttpRequests() {
     var BLOCKED_URLS = [];
     if (PREFS.get(Preferences.BLOCK_TRACKING)) {
-        // Clear Analytics Insight buffers
-        window.sessionStorage.removeItem('AI_buffer');
-        window.sessionStorage.removeItem('AI_sentBuffer');
+        // Clear Applications Insight buffers
+        clearApplicationInsightsBuffers();
 
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://arc.msn.com',
@@ -4109,6 +4114,9 @@ function interceptHttpRequests() {
     xhrPrototype.send = function(...arg) {
         for (let blocked of BLOCKED_URLS) {
             if (this._url.startsWith(blocked)) {
+                if (blocked === 'https://dc.services.visualstudio.com') {
+                    setTimeout(clearApplicationInsightsBuffers, 1000);
+                }
                 return false;
             }
         }
