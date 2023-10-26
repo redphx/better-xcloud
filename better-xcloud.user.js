@@ -1340,9 +1340,9 @@ class TitlesInfo {
 
     static saveFromCatalogInfo(catalogInfo) {
         const titleId = catalogInfo.StoreId;
-
+        const imageHero = (catalogInfo.Image_Hero || catalogInfo.Image_Tile || {}).URL;
         TitlesInfo.update(titleId, {
-            imageHero: catalogInfo.Image_Hero ? catalogInfo.Image_Hero.URL : '',
+            imageHero: imageHero,
         });
     }
 
