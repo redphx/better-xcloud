@@ -1530,11 +1530,11 @@ class TitlesInfo {
 
     static saveFromTitleInfo(titleInfo) {
         const details = titleInfo.details;
-        TitlesInfo.#INFO[details.productId] = {
+        TitlesInfo.update(details.productId, {
             titleId: titleInfo.titleId,
             // Has more than one input type -> must have touch support
             hasTouchSupport: (details.supportedInputTypes.length > 1),
-        };
+        });
     }
 
     static saveFromCatalogInfo(catalogInfo) {
