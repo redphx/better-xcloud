@@ -2644,7 +2644,7 @@ class Preferences {
         [Preferences.STREAM_TARGET_RESOLUTION]: {
             'default': 'auto',
             'options': {
-                'auto': __('auto'),
+                'auto': __('default'),
                 '1080p': '1080p',
                 '720p': '720p',
             },
