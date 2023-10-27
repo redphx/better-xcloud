@@ -1763,6 +1763,8 @@ class TouchController {
     }
 
     static #$bar;
+    static #$style;
+
     static #enable = false;
     static #showing = false;
     static #dataChannel;
@@ -1807,6 +1809,7 @@ class TouchController {
         TouchController.#dataChannel = null;
 
         TouchController.#$bar && TouchController.#$bar.removeAttribute('data-showing');
+        TouchController.#$style && (TouchController.#$style.textContent = '');
     }
 
     static #dispatchMessage(msg) {
@@ -1839,6 +1842,7 @@ class TouchController {
         });
 
         TouchController.#$bar = $bar;
+        TouchController.#$style = $style;
 
         const PREF_STYLE_STANDARD = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
         const PREF_STYLE_CUSTOM = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
