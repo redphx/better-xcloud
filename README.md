@@ -301,5 +301,5 @@ But if you still really want to donate, I have a [Ko-fi page](https://ko-fi.com/
 - Icons by [Phosphor Icons](https://phosphoricons.com)
 
 ## Disclaimers  
-- Use as it your own risk.  
+- Use it at your own risk.
 - This project is not affiliated with Xbox in any way. All Xbox logos/icons/trademarks are copyright of their respective owners.
