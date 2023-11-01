@@ -1986,7 +1986,7 @@ class GamepadHandler {
 
             // Check pressed button
             if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_RB)) {
-                console.log('pressed RB');
+                takeScreenshot();
             } else if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_B)) {
                 console.log('pressed B');
             }
@@ -5110,11 +5110,31 @@ function setupVideoSettingsBar() {
 }
 
 
+function takeScreenshot(callback) {
+    const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
+
+    $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+    $SCREENSHOT_CANVAS.toBlob(blob => {
+        // Download screenshot
+        const now = +new Date;
+        const $anchor = createElement('a', {
+            'download': `${GAME_TITLE_ID}-${now}.png`,
+            'href': URL.createObjectURL(blob),
+        });
+        $anchor.click();
+
+        // Free screenshot from memory
+        URL.revokeObjectURL($anchor.href);
+        $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+
+        callback && callback();
+    }, 'image/png');
+}
+
+
 function setupScreenshotButton() {
     $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'bx-screenshot-canvas'});
     document.documentElement.appendChild($SCREENSHOT_CANVAS);
-
-    const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
     const delay = 2000;
     const $btn = createElement('div', {'class': 'bx-screenshot-button', 'data-showing': false});
@@ -5132,20 +5152,7 @@ function setupScreenshotButton() {
             timeout = null;
             $btn.setAttribute('data-capturing', 'true');
 
-            $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
-            $SCREENSHOT_CANVAS.toBlob(blob => {
-                // Download screenshot
-                const now = +new Date;
-                const $anchor = createElement('a', {
-                    'download': `${GAME_TITLE_ID}-${now}.png`,
-                    'href': URL.createObjectURL(blob),
-                });
-                $anchor.click();
-
-                // Free screenshot from memory
-                URL.revokeObjectURL($anchor.href);
-                $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
-
+            takeScreenshot(() => {
                 // Hide button
                 $btn.setAttribute('data-showing', 'false');
                 setTimeout(() => {
@@ -5153,7 +5160,7 @@ function setupScreenshotButton() {
                         $btn.setAttribute('data-capturing', 'false');
                     }
                 }, 100);
-            }, 'image/png');
+            });
 
             return;
         }
