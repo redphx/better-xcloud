@@ -375,6 +375,11 @@ const Translations = {
         "vi-VN": "Độ tương phản",
         "zh-CN": "对比度",
     },
+    "controller": {
+        "en-US": "Controller",
+        "ja-JP": "コントローラー",
+        "vi-VN": "Bộ điều khiển",
+    },
     "custom": {
         "de-DE": "Benutzerdefiniert",
         "en-US": "Custom",
@@ -483,6 +488,11 @@ const Translations = {
         "tr-TR": "xCloud'un veri toplamasını devre dışı bırak",
         "vi-VN": "Khóa phân tích thông tin của xCloud",
         "zh-CN": "关闭 xCloud 遥测数据统计",
+    },
+    "enable-controller-shortcuts": {
+        "en-US": "Enable controller shortcuts",
+        "ja-JP": "コントローラーショートカットを有効化",
+        "vi-VN": "Bật tính năng phím tắt cho bộ điều khiển",
     },
     "enable-mic-on-startup": {
         "de-DE": "Mikrofon bei Spielstart aktivieren",
@@ -623,6 +633,16 @@ const Translations = {
         "vi-VN": "Thông số stream",
         "zh-CN": "串流统计数据",
     },
+    "microphone": {
+        "en-US": "Microphone",
+        "ja-JP": "マイク",
+        "vi-VN": "Mic",
+    },
+    "muted": {
+        "en-US": "Muted",
+        "ja-JP": "ミュート",
+        "vi-VN": "Đã tắt âm",
+    },
     "normal": {
         "de-DE": "Mittel",
         "en-US": "Normal",
@@ -650,6 +670,11 @@ const Translations = {
         "tr-TR": "Kapalı",
         "vi-VN": "Tắt",
         "zh-CN": "关",
+    },
+    "on": {
+        "en-US": "On",
+        "ja-JP": "オン",
+        "vi-VN": "Bật",
     },
     "opacity": {
         "de-DE": "Deckkraft",
@@ -987,6 +1012,11 @@ const Translations = {
         "vi-VN": "Nhỏ",
         "zh-CN": "小",
     },
+    "sound": {
+        "en-US": "Sound",
+        "ja-JP": "サウンド",
+        "vi-VN": "Âm thanh",
+    },
     "stat-bitrate": {
         "de-DE": "Bitrate",
         "en-US": "Bitrate",
@@ -1322,6 +1352,11 @@ const Translations = {
         "tr-TR": "Kullanıcı arayüzü",
         "vi-VN": "Giao diện",
         "zh-CN": "UI",
+    },
+    "unmuted": {
+        "en-US": "Unmuted",
+        "ja-JP": "ミュート解除",
+        "vi-VN": "Đã mở âm",
     },
     "user-agent-profile": {
         "de-DE": "User-Agent Profil",
@@ -1914,6 +1949,7 @@ class GamepadHandler {
     static #BUTTON_START = 9;
     static #BUTTON_HOME = 16;
 
+    static #allowPolling = false;
     static #isPolling = false;
     static #pollingInterval;
     static #isHoldingHome = false;
@@ -1950,6 +1986,10 @@ class GamepadHandler {
     }
 
     static #poll() {
+        if (!GamepadHandler.#allowPolling) {
+            return;
+        }
+
         // Move the buttons status from the previous frame to the cache
         GamepadHandler.#buttonsCache = GamepadHandler.#buttonsStatus.slice(0);
         // Clear the buttons status
@@ -1999,13 +2039,14 @@ class GamepadHandler {
     static initialSetup() {
         window.addEventListener('gamepadconnected', e => {
             const gamepad = e.gamepad;
-            console.log(gamepad);
+            console.log('Gamepad connected', gamepad);
+
             GamepadHandler.#emulatedGamepads[gamepad.index] = GamepadHandler.#cloneGamepad(gamepad);
             GamepadHandler.setup();
         });
 
         window.addEventListener('gamepaddisconnected', e => {
-            console.log(e.gamepad);
+            console.log('Gamepad disconnected', e.gamepad);
             GamepadHandler.#emulatedGamepads[e.gamepad.index] = null;
 
             // No gamepads left
@@ -2016,20 +2057,28 @@ class GamepadHandler {
         });
     }
 
+    static enablePolling() {
+        GamepadHandler.#allowPolling = true;
+    }
+
+    static disablePolling() {
+        GamepadHandler.#allowPolling = false;
+    }
+
     static setup() {
         if (GamepadHandler.#isPolling) {
             return;
         }
-        console.log('setup');
+
         GamepadHandler.destroy();
 
         GamepadHandler.#isPolling = true;
-        GamepadHandler.#isHoldingHome = false;
         GamepadHandler.#pollingInterval = setInterval(GamepadHandler.#poll, 50);
     }
 
     static destroy() {
         GamepadHandler.#isPolling = false;
+        GamepadHandler.#isHoldingHome = false;
         GamepadHandler.#pollingInterval && clearInterval(GamepadHandler.#pollingInterval);
         GamepadHandler.#pollingInterval = null;
     }
@@ -2686,6 +2735,8 @@ class Preferences {
 
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
+    static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
+
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
@@ -2901,6 +2952,9 @@ class Preferences {
             'default': false,
         },
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
+            'default': false,
+        },
+        [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
         },
         [Preferences.REDUCE_ANIMATIONS]: {
@@ -4574,6 +4628,9 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
+        [__('controller')]: {
+            [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
+        },
         [__('touch-controller')]: {
             [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
@@ -5218,6 +5275,8 @@ function onHistoryChanged() {
 
     LoadingScreen.reset();
 
+    GamepadHandler.disablePolling();
+
     setTimeout(checkHeader, 2000);
 }
 
@@ -5228,6 +5287,10 @@ function onStreamStarted($video) {
 
     if (TouchController.isEnabled()) {
         TouchController.enableBar();
+    }
+
+    if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+        GamepadHandler.enablePolling();
     }
 
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
@@ -5438,4 +5501,6 @@ StreamStats.render();
 
 disablePwa();
 
-GamepadHandler.initialSetup();
+if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+    GamepadHandler.initialSetup();
+}
