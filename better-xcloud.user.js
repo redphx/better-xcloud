@@ -1535,6 +1535,7 @@ window.addEventListener('load', e => {
 
 
 const SERVER_REGIONS = {};
+var IS_PLAYING = false;
 var STREAM_WEBRTC;
 var STREAM_AUDIO_CONTEXT;
 var STREAM_AUDIO_GAIN_NODE;
@@ -1949,7 +1950,6 @@ class GamepadHandler {
     static #BUTTON_START = 9;
     static #BUTTON_HOME = 16;
 
-    static #allowPolling = false;
     static #isPolling = false;
     static #pollingInterval;
     static #isHoldingHome = false;
@@ -1986,10 +1986,6 @@ class GamepadHandler {
     }
 
     static #poll() {
-        if (!GamepadHandler.#allowPolling) {
-            return;
-        }
-
         // Move the buttons status from the previous frame to the cache
         GamepadHandler.#buttonsCache = GamepadHandler.#buttonsStatus.slice(0);
         // Clear the buttons status
@@ -2019,7 +2015,6 @@ class GamepadHandler {
             GamepadHandler.#emulatedGamepads.forEach(gamepad => {
                 gamepad && (gamepad.timestamp = timestamps[gamepad.index]);
             });
-            // console.log('pressed', pressed);
 
             // Patch getGamepads()
             window.navigator.getGamepads = GamepadHandler.#customGetGamepads;
@@ -2042,7 +2037,9 @@ class GamepadHandler {
             console.log('Gamepad connected', gamepad);
 
             GamepadHandler.#emulatedGamepads[gamepad.index] = GamepadHandler.#cloneGamepad(gamepad);
-            GamepadHandler.setup();
+            if (IS_PLAYING) {
+                GamepadHandler.startPolling();
+            }
         });
 
         window.addEventListener('gamepaddisconnected', e => {
@@ -2052,31 +2049,23 @@ class GamepadHandler {
             // No gamepads left
             const noGamepads = GamepadHandler.#nativeGetGamepads().every(gamepad => gamepad === null);
             if (noGamepads) {
-                GamepadHandler.destroy();
+                GamepadHandler.stopPolling();
             }
         });
     }
 
-    static enablePolling() {
-        GamepadHandler.#allowPolling = true;
-    }
-
-    static disablePolling() {
-        GamepadHandler.#allowPolling = false;
-    }
-
-    static setup() {
+    static startPolling() {
         if (GamepadHandler.#isPolling) {
             return;
         }
 
-        GamepadHandler.destroy();
+        GamepadHandler.stopPolling();
 
         GamepadHandler.#isPolling = true;
         GamepadHandler.#pollingInterval = setInterval(GamepadHandler.#poll, 50);
     }
 
-    static destroy() {
+    static stopPolling() {
         GamepadHandler.#isPolling = false;
         GamepadHandler.#isHoldingHome = false;
         GamepadHandler.#pollingInterval && clearInterval(GamepadHandler.#pollingInterval);
@@ -5255,6 +5244,8 @@ function patchHistoryMethod(type) {
 
 
 function onHistoryChanged() {
+    IS_PLAYING = false;
+
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
         $settings.classList.add('bx-gone');
@@ -5275,13 +5266,15 @@ function onHistoryChanged() {
 
     LoadingScreen.reset();
 
-    GamepadHandler.disablePolling();
+    GamepadHandler.stopPolling();
 
     setTimeout(checkHeader, 2000);
 }
 
 
 function onStreamStarted($video) {
+    IS_PLAYING = true;
+
     // Get title ID for screenshot's name
     GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
 
@@ -5290,7 +5283,7 @@ function onStreamStarted($video) {
     }
 
     if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
-        GamepadHandler.enablePolling();
+        GamepadHandler.startPolling();
     }
 
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
