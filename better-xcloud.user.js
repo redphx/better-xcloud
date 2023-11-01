@@ -1893,6 +1893,148 @@ class TouchController {
     }
 }
 
+
+class GamepadHandler {
+    static #BUTTON_A = 0;
+    static #BUTTON_B = 1;
+    static #BUTTON_X = 2;
+    static #BUTTON_Y = 3;
+
+    static #BUTTON_UP = 12;
+    static #BUTTON_DOWN = 13;
+    static #BUTTON_LEFT = 14;
+    static #BUTTON_RIGHT = 15;
+
+    static #BUTTON_LB = 4;
+    static #BUTTON_LT = 6;
+    static #BUTTON_RB = 5;
+    static #BUTTON_RT = 7;
+
+    static #BUTTON_SELECT = 8;
+    static #BUTTON_START = 9;
+    static #BUTTON_HOME = 16;
+
+    static #isPolling = false;
+    static #pollingInterval;
+    static #isHoldingHome = false;
+    static #buttonsCache = [];
+    static #buttonsStatus = [];
+
+    static #emulatedGamepads = [null, null, null, null];
+    static #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
+
+    static #cloneGamepad(gamepad) {
+        const buttons = Array(gamepad.buttons.length).fill({pressed: false, value: 0});
+        buttons[GamepadHandler.#BUTTON_HOME] = {
+            pressed: true,
+            value: 0,
+        };
+
+        return {
+            timestamp: gamepad.timestamp,
+            id: gamepad.id,
+            index: gamepad.index,
+            connected: gamepad.connected,
+            mapping: gamepad.mapping,
+            axes: [0, 0, 0, 0],
+            buttons: buttons,
+        };
+    }
+
+    static #customGetGamepads() {
+        return GamepadHandler.#emulatedGamepads;
+    }
+
+    static #isPressed(buttonIndex) {
+        return !GamepadHandler.#buttonsCache[buttonIndex] && GamepadHandler.#buttonsStatus[buttonIndex];
+    }
+
+    static #poll() {
+        // Move the buttons status from the previous frame to the cache
+        GamepadHandler.#buttonsCache = GamepadHandler.#buttonsStatus.slice(0);
+        // Clear the buttons status
+        GamepadHandler.#buttonsStatus = [];
+
+        const pressed = [];
+        const timestamps = [0, 0, 0, 0];
+        GamepadHandler.#nativeGetGamepads().forEach(gamepad => {
+            if (!gamepad || gamepad.mapping !== 'standard' || !gamepad.buttons) {
+                return;
+            }
+
+            gamepad.buttons.forEach((button, index) => {
+                // Only add the newly pressed button to the array (holding doesn't count)
+                if (button.pressed) {
+                    timestamps[index] = gamepad.timestamp;
+                    pressed[index] = true;
+                }
+            });
+        });
+
+        GamepadHandler.#buttonsStatus = pressed;
+        GamepadHandler.#isHoldingHome = !!pressed[GamepadHandler.#BUTTON_HOME];
+
+        if (GamepadHandler.#isHoldingHome) {
+            // Update timestamps
+            GamepadHandler.#emulatedGamepads.forEach(gamepad => {
+                gamepad && (gamepad.timestamp = timestamps[gamepad.index]);
+            });
+            // console.log('pressed', pressed);
+
+            // Patch getGamepads()
+            window.navigator.getGamepads = GamepadHandler.#customGetGamepads;
+
+            // Check pressed button
+            if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_RB)) {
+                console.log('pressed RB');
+            } else if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_B)) {
+                console.log('pressed B');
+            }
+        } else {
+            // Restore to native getGamepads()
+            window.navigator.getGamepads = GamepadHandler.#nativeGetGamepads;
+        }
+    }
+
+    static initialSetup() {
+        window.addEventListener('gamepadconnected', e => {
+            const gamepad = e.gamepad;
+            console.log(gamepad);
+            GamepadHandler.#emulatedGamepads[gamepad.index] = GamepadHandler.#cloneGamepad(gamepad);
+            GamepadHandler.setup();
+        });
+
+        window.addEventListener('gamepaddisconnected', e => {
+            console.log(e.gamepad);
+            GamepadHandler.#emulatedGamepads[e.gamepad.index] = null;
+
+            // No gamepads left
+            const noGamepads = GamepadHandler.#nativeGetGamepads().every(gamepad => gamepad === null);
+            if (noGamepads) {
+                GamepadHandler.destroy();
+            }
+        });
+    }
+
+    static setup() {
+        if (GamepadHandler.#isPolling) {
+            return;
+        }
+        console.log('setup');
+        GamepadHandler.destroy();
+
+        GamepadHandler.#isPolling = true;
+        GamepadHandler.#isHoldingHome = false;
+        GamepadHandler.#pollingInterval = setInterval(GamepadHandler.#poll, 50);
+    }
+
+    static destroy() {
+        GamepadHandler.#isPolling = false;
+        GamepadHandler.#pollingInterval && clearInterval(GamepadHandler.#pollingInterval);
+        GamepadHandler.#pollingInterval = null;
+    }
+}
+
 class MouseCursorHider {
     static #timeout;
     static #cursorVisible = true;
@@ -5033,7 +5175,6 @@ function setupScreenshotButton() {
 
     $btn.addEventListener('mousedown', detectDbClick);
     document.documentElement.appendChild($btn);
-
 }
 
 
@@ -5275,7 +5416,6 @@ window.RTCPeerConnection = function() {
     return peer;
 }
 
-
 patchRtcCodecs();
 interceptHttpRequests();
 patchVideoApi();
@@ -5290,3 +5430,5 @@ setupScreenshotButton();
 StreamStats.render();
 
 disablePwa();
+
+GamepadHandler.initialSetup();
