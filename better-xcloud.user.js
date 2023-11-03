@@ -2022,8 +2022,8 @@ class GamepadHandler {
             // Check pressed button
             if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_RB)) {
                 takeScreenshot();
-            } else if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_B)) {
-                console.log('pressed B');
+            } else if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_SELECT)) {
+                StreamStats.toggle();
             }
         } else {
             // Restore to native getGamepads()
