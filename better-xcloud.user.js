@@ -378,6 +378,8 @@ const Translations = {
     "controller": {
         "en-US": "Controller",
         "ja-JP": "コントローラー",
+        "pl-PL": "Kontroler",
+        "pt-BR": "Controle",
         "vi-VN": "Bộ điều khiển",
     },
     "custom": {
@@ -492,6 +494,8 @@ const Translations = {
     "enable-controller-shortcuts": {
         "en-US": "Enable controller shortcuts",
         "ja-JP": "コントローラーショートカットを有効化",
+        "pl-PL": "Włącz skróty kontrolera",
+        "pt-BR": "Ativar atalhos do controle",
         "vi-VN": "Bật tính năng phím tắt cho bộ điều khiển",
     },
     "enable-mic-on-startup": {
@@ -636,11 +640,15 @@ const Translations = {
     "microphone": {
         "en-US": "Microphone",
         "ja-JP": "マイク",
+        "pl-PL": "Mikrofon",
+        "pt-BR": "Microfone",
         "vi-VN": "Mic",
     },
     "muted": {
         "en-US": "Muted",
         "ja-JP": "ミュート",
+        "pl-PL": "Wyciszony",
+        "pt-BR": "Mutado",
         "vi-VN": "Đã tắt âm",
     },
     "normal": {
@@ -674,6 +682,8 @@ const Translations = {
     "on": {
         "en-US": "On",
         "ja-JP": "オン",
+        "pl-PL": "Włącz",
+        "pt-BR": "Ativado",
         "vi-VN": "Bật",
     },
     "opacity": {
@@ -1015,6 +1025,8 @@ const Translations = {
     "sound": {
         "en-US": "Sound",
         "ja-JP": "サウンド",
+        "pl-PL": "Dźwięk",
+        "pt-BR": "Som",
         "vi-VN": "Âm thanh",
     },
     "stat-bitrate": {
@@ -1356,6 +1368,8 @@ const Translations = {
     "unmuted": {
         "en-US": "Unmuted",
         "ja-JP": "ミュート解除",
+        "pl-PL": "Wyciszenie wyłączone",
+        "pt-BR": "Desmutado",
         "vi-VN": "Đã mở âm",
     },
     "user-agent-profile": {
