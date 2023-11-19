@@ -1930,6 +1930,20 @@ class TouchController {
 }
 
 
+class Toast {
+    static #$wrapper;
+    static #$msg;
+    static #$status;
+
+    static setup() {
+        Toast.#$wrapper = createElement('div', {'class': 'bx-toast bx-gone'},
+                                        Toast.#$msg = createElement('span', {'class': 'bx-toast-msg'}),
+                                        Toast.#$status = createElement('span', {'class': 'bx-toast-status'}));
+
+        document.documentElement.appendChild(Toast.#$wrapper);
+    }
+}
+
 class GamepadHandler {
     static #BUTTON_A = 0;
     static #BUTTON_B = 1;
@@ -3982,6 +3996,35 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: var(--bx-monospaced-font);
 }
 
+.bx-toast {
+    position: fixed;
+    left: 50%;
+    top: 24px;
+    transform: translate(-50%, 0);
+    background: #000000cc;
+    border-radius: 40px;
+    padding: 8px 18px;
+    color: white;
+    z-index: 999;
+    font-family: var(--bx-normal-font);
+    border: 1px solid #fff;
+}
+
+.bx-toast-msg {
+    font-size: 12px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.bx-toast-status {
+    font-weight: bold;
+    font-size: 18px;
+    text-transform: uppercase;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
 @media (hover: hover) {
     .bx-quick-settings-bar button:hover {
         background-color: #414141;
@@ -5487,6 +5530,7 @@ patchVideoApi();
 addCss();
 updateVideoPlayerCss();
 window.addEventListener('resize', updateVideoPlayerCss);
+Toast.setup();
 
 setupVideoSettingsBar();
 setupScreenshotButton();
