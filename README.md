@@ -67,7 +67,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/8baddcfa-b528-4ba7-9392-7b5fe60cea11">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/6f1e67b3-65a4-406e-91e0-19be58fc0ff6">
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/51bdb96c-79ab-402f-902a-a9e6229973b2">
 <br>
@@ -116,6 +116,16 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - **Hide mouse cursor on idle**  
   > Hide the mouse cursor after 3 seconds of not moving.  
 
+### Controller
+- Enable controller shortcuts
+  > `Home` is  the button which activates the Xbox sidebar menu (similar to the Xbox/Nexus button on the official controller).  
+  > Not all controllers have this button. It's the `B16` button on the [Gamepad Tester site](https://hardwaretester.com/gamepad).  
+  > More shortcuts will be added later.
+  
+  | Shortcut      | Action           |
+  |---------------|------------------|
+  | Home + RB     | Take screenshot  |
+  | Home + Select | Toggle stats bar |
 
 ### 🔥 Touch controller
 - **Availability**
