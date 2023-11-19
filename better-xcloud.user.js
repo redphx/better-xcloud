@@ -375,6 +375,13 @@ const Translations = {
         "vi-VN": "Độ tương phản",
         "zh-CN": "对比度",
     },
+    "controller": {
+        "en-US": "Controller",
+        "ja-JP": "コントローラー",
+        "pl-PL": "Kontroler",
+        "pt-BR": "Controle",
+        "vi-VN": "Bộ điều khiển",
+    },
     "custom": {
         "de-DE": "Benutzerdefiniert",
         "en-US": "Custom",
@@ -483,6 +490,13 @@ const Translations = {
         "tr-TR": "xCloud'un veri toplamasını devre dışı bırak",
         "vi-VN": "Khóa phân tích thông tin của xCloud",
         "zh-CN": "关闭 xCloud 遥测数据统计",
+    },
+    "enable-controller-shortcuts": {
+        "en-US": "Enable controller shortcuts",
+        "ja-JP": "コントローラーショートカットを有効化",
+        "pl-PL": "Włącz skróty kontrolera",
+        "pt-BR": "Ativar atalhos do controle",
+        "vi-VN": "Bật tính năng phím tắt cho bộ điều khiển",
     },
     "enable-mic-on-startup": {
         "de-DE": "Mikrofon bei Spielstart aktivieren",
@@ -623,6 +637,20 @@ const Translations = {
         "vi-VN": "Thông số stream",
         "zh-CN": "串流统计数据",
     },
+    "microphone": {
+        "en-US": "Microphone",
+        "ja-JP": "マイク",
+        "pl-PL": "Mikrofon",
+        "pt-BR": "Microfone",
+        "vi-VN": "Mic",
+    },
+    "muted": {
+        "en-US": "Muted",
+        "ja-JP": "ミュート",
+        "pl-PL": "Wyciszony",
+        "pt-BR": "Mutado",
+        "vi-VN": "Đã tắt âm",
+    },
     "normal": {
         "de-DE": "Mittel",
         "en-US": "Normal",
@@ -650,6 +678,13 @@ const Translations = {
         "tr-TR": "Kapalı",
         "vi-VN": "Tắt",
         "zh-CN": "关",
+    },
+    "on": {
+        "en-US": "On",
+        "ja-JP": "オン",
+        "pl-PL": "Włącz",
+        "pt-BR": "Ativado",
+        "vi-VN": "Bật",
     },
     "opacity": {
         "de-DE": "Deckkraft",
@@ -987,6 +1022,13 @@ const Translations = {
         "vi-VN": "Nhỏ",
         "zh-CN": "小",
     },
+    "sound": {
+        "en-US": "Sound",
+        "ja-JP": "サウンド",
+        "pl-PL": "Dźwięk",
+        "pt-BR": "Som",
+        "vi-VN": "Âm thanh",
+    },
     "stat-bitrate": {
         "de-DE": "Bitrate",
         "en-US": "Bitrate",
@@ -1323,6 +1365,13 @@ const Translations = {
         "vi-VN": "Giao diện",
         "zh-CN": "UI",
     },
+    "unmuted": {
+        "en-US": "Unmuted",
+        "ja-JP": "ミュート解除",
+        "pl-PL": "Wyciszenie wyłączone",
+        "pt-BR": "Desmutado",
+        "vi-VN": "Đã mở âm",
+    },
     "user-agent-profile": {
         "de-DE": "User-Agent Profil",
         "en-US": "User-Agent profile",
@@ -1500,6 +1549,7 @@ window.addEventListener('load', e => {
 
 
 const SERVER_REGIONS = {};
+var IS_PLAYING = false;
 var STREAM_WEBRTC;
 var STREAM_AUDIO_CONTEXT;
 var STREAM_AUDIO_GAIN_NODE;
@@ -1890,6 +1940,164 @@ class TouchController {
 
             return dataChannel;
         };
+    }
+}
+
+
+class Toast {
+    static #$wrapper;
+    static #$msg;
+    static #$status;
+
+    static setup() {
+        Toast.#$wrapper = createElement('div', {'class': 'bx-toast bx-gone'},
+                                        Toast.#$msg = createElement('span', {'class': 'bx-toast-msg'}),
+                                        Toast.#$status = createElement('span', {'class': 'bx-toast-status'}));
+
+        document.documentElement.appendChild(Toast.#$wrapper);
+    }
+}
+
+class GamepadHandler {
+    static #BUTTON_A = 0;
+    static #BUTTON_B = 1;
+    static #BUTTON_X = 2;
+    static #BUTTON_Y = 3;
+
+    static #BUTTON_UP = 12;
+    static #BUTTON_DOWN = 13;
+    static #BUTTON_LEFT = 14;
+    static #BUTTON_RIGHT = 15;
+
+    static #BUTTON_LB = 4;
+    static #BUTTON_LT = 6;
+    static #BUTTON_RB = 5;
+    static #BUTTON_RT = 7;
+
+    static #BUTTON_SELECT = 8;
+    static #BUTTON_START = 9;
+    static #BUTTON_HOME = 16;
+
+    static #isPolling = false;
+    static #pollingInterval;
+    static #isHoldingHome = false;
+    static #buttonsCache = [];
+    static #buttonsStatus = [];
+
+    static #emulatedGamepads = [null, null, null, null];
+    static #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
+
+    static #cloneGamepad(gamepad) {
+        const buttons = Array(gamepad.buttons.length).fill({pressed: false, value: 0});
+        buttons[GamepadHandler.#BUTTON_HOME] = {
+            pressed: true,
+            value: 0,
+        };
+
+        return {
+            timestamp: gamepad.timestamp,
+            id: gamepad.id,
+            index: gamepad.index,
+            connected: gamepad.connected,
+            mapping: gamepad.mapping,
+            axes: [0, 0, 0, 0],
+            buttons: buttons,
+        };
+    }
+
+    static #customGetGamepads() {
+        return GamepadHandler.#emulatedGamepads;
+    }
+
+    static #isPressed(buttonIndex) {
+        return !GamepadHandler.#buttonsCache[buttonIndex] && GamepadHandler.#buttonsStatus[buttonIndex];
+    }
+
+    static #poll() {
+        // Move the buttons status from the previous frame to the cache
+        GamepadHandler.#buttonsCache = GamepadHandler.#buttonsStatus.slice(0);
+        // Clear the buttons status
+        GamepadHandler.#buttonsStatus = [];
+
+        const pressed = [];
+        const timestamps = [0, 0, 0, 0];
+        GamepadHandler.#nativeGetGamepads().forEach(gamepad => {
+            if (!gamepad || gamepad.mapping !== 'standard' || !gamepad.buttons) {
+                return;
+            }
+
+            gamepad.buttons.forEach((button, index) => {
+                // Only add the newly pressed button to the array (holding doesn't count)
+                if (button.pressed) {
+                    timestamps[index] = gamepad.timestamp;
+                    pressed[index] = true;
+                }
+            });
+        });
+
+        GamepadHandler.#buttonsStatus = pressed;
+        GamepadHandler.#isHoldingHome = !!pressed[GamepadHandler.#BUTTON_HOME];
+
+        if (GamepadHandler.#isHoldingHome) {
+            // Update timestamps
+            GamepadHandler.#emulatedGamepads.forEach(gamepad => {
+                gamepad && (gamepad.timestamp = timestamps[gamepad.index]);
+            });
+
+            // Patch getGamepads()
+            window.navigator.getGamepads = GamepadHandler.#customGetGamepads;
+
+            // Check pressed button
+            if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_RB)) {
+                takeScreenshot();
+            } else if (GamepadHandler.#isPressed(GamepadHandler.#BUTTON_SELECT)) {
+                StreamStats.toggle();
+            }
+        } else {
+            // Restore to native getGamepads()
+            window.navigator.getGamepads = GamepadHandler.#nativeGetGamepads;
+        }
+    }
+
+    static initialSetup() {
+        window.addEventListener('gamepadconnected', e => {
+            const gamepad = e.gamepad;
+            console.log('Gamepad connected', gamepad);
+
+            GamepadHandler.#emulatedGamepads[gamepad.index] = GamepadHandler.#cloneGamepad(gamepad);
+            if (IS_PLAYING) {
+                GamepadHandler.startPolling();
+            }
+        });
+
+        window.addEventListener('gamepaddisconnected', e => {
+            console.log('Gamepad disconnected', e.gamepad);
+            GamepadHandler.#emulatedGamepads[e.gamepad.index] = null;
+
+            // No gamepads left
+            const noGamepads = GamepadHandler.#nativeGetGamepads().every(gamepad => gamepad === null);
+            if (noGamepads) {
+                GamepadHandler.stopPolling();
+            }
+        });
+    }
+
+    static startPolling() {
+        if (GamepadHandler.#isPolling) {
+            return;
+        }
+
+        GamepadHandler.stopPolling();
+
+        GamepadHandler.#isPolling = true;
+        GamepadHandler.#pollingInterval = setInterval(GamepadHandler.#poll, 50);
+    }
+
+    static stopPolling() {
+        GamepadHandler.#isPolling = false;
+        GamepadHandler.#isHoldingHome = false;
+        GamepadHandler.#pollingInterval && clearInterval(GamepadHandler.#pollingInterval);
+        GamepadHandler.#pollingInterval = null;
     }
 }
 
@@ -2544,6 +2752,8 @@ class Preferences {
 
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
+    static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
+
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
@@ -2759,6 +2969,9 @@ class Preferences {
             'default': false,
         },
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
+            'default': false,
+        },
+        [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
         },
         [Preferences.REDUCE_ANIMATIONS]: {
@@ -3797,6 +4010,35 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: var(--bx-monospaced-font);
 }
 
+.bx-toast {
+    position: fixed;
+    left: 50%;
+    top: 24px;
+    transform: translate(-50%, 0);
+    background: #000000cc;
+    border-radius: 40px;
+    padding: 8px 18px;
+    color: white;
+    z-index: 999;
+    font-family: var(--bx-normal-font);
+    border: 1px solid #fff;
+}
+
+.bx-toast-msg {
+    font-size: 12px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.bx-toast-status {
+    font-weight: bold;
+    font-size: 18px;
+    text-transform: uppercase;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
 @media (hover: hover) {
     .bx-quick-settings-bar button:hover {
         background-color: #414141;
@@ -4432,6 +4674,9 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
+        [__('controller')]: {
+            [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
+        },
         [__('touch-controller')]: {
             [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
@@ -4968,11 +5213,31 @@ function setupVideoSettingsBar() {
 }
 
 
+function takeScreenshot(callback) {
+    const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
+
+    $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+    $SCREENSHOT_CANVAS.toBlob(blob => {
+        // Download screenshot
+        const now = +new Date;
+        const $anchor = createElement('a', {
+            'download': `${GAME_TITLE_ID}-${now}.png`,
+            'href': URL.createObjectURL(blob),
+        });
+        $anchor.click();
+
+        // Free screenshot from memory
+        URL.revokeObjectURL($anchor.href);
+        $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+
+        callback && callback();
+    }, 'image/png');
+}
+
+
 function setupScreenshotButton() {
     $SCREENSHOT_CANVAS = createElement('canvas', {'class': 'bx-screenshot-canvas'});
     document.documentElement.appendChild($SCREENSHOT_CANVAS);
-
-    const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
     const delay = 2000;
     const $btn = createElement('div', {'class': 'bx-screenshot-button', 'data-showing': false});
@@ -4990,20 +5255,7 @@ function setupScreenshotButton() {
             timeout = null;
             $btn.setAttribute('data-capturing', 'true');
 
-            $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
-            $SCREENSHOT_CANVAS.toBlob(blob => {
-                // Download screenshot
-                const now = +new Date;
-                const $anchor = createElement('a', {
-                    'download': `${GAME_TITLE_ID}-${now}.png`,
-                    'href': URL.createObjectURL(blob),
-                });
-                $anchor.click();
-
-                // Free screenshot from memory
-                URL.revokeObjectURL($anchor.href);
-                $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
-
+            takeScreenshot(() => {
                 // Hide button
                 $btn.setAttribute('data-showing', 'false');
                 setTimeout(() => {
@@ -5011,7 +5263,7 @@ function setupScreenshotButton() {
                         $btn.setAttribute('data-capturing', 'false');
                     }
                 }, 100);
-            }, 'image/png');
+            });
 
             return;
         }
@@ -5033,7 +5285,6 @@ function setupScreenshotButton() {
 
     $btn.addEventListener('mousedown', detectDbClick);
     document.documentElement.appendChild($btn);
-
 }
 
 
@@ -5050,6 +5301,8 @@ function patchHistoryMethod(type) {
 
 
 function onHistoryChanged() {
+    IS_PLAYING = false;
+
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
         $settings.classList.add('bx-gone');
@@ -5070,16 +5323,24 @@ function onHistoryChanged() {
 
     LoadingScreen.reset();
 
+    GamepadHandler.stopPolling();
+
     setTimeout(checkHeader, 2000);
 }
 
 
 function onStreamStarted($video) {
+    IS_PLAYING = true;
+
     // Get title ID for screenshot's name
     GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
 
     if (TouchController.isEnabled()) {
         TouchController.enableBar();
+    }
+
+    if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+        GamepadHandler.startPolling();
     }
 
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
@@ -5275,7 +5536,6 @@ window.RTCPeerConnection = function() {
     return peer;
 }
 
-
 patchRtcCodecs();
 interceptHttpRequests();
 patchVideoApi();
@@ -5284,9 +5544,14 @@ patchVideoApi();
 addCss();
 updateVideoPlayerCss();
 window.addEventListener('resize', updateVideoPlayerCss);
+Toast.setup();
 
 setupVideoSettingsBar();
 setupScreenshotButton();
 StreamStats.render();
 
 disablePwa();
+
+if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+    GamepadHandler.initialSetup();
+}
