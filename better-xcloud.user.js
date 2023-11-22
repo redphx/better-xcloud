@@ -1816,13 +1816,14 @@ class RemotePlay {
     }
 
     static detect() {
-        IS_REMOTE_PLAYING = window.location.hash.startsWith('#remote-play=');
+        IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play=');
         REMOTE_PLAY_CONFIG = {}
         window.BX_REMOTE_PLAY_CONFIG = null;
         if (IS_REMOTE_PLAYING) {
             REMOTE_PLAY_CONFIG = JSON.parse(decodeURIComponent(window.location.hash.substring(13)));
             window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
             console.log(REMOTE_PLAY_CONFIG);
+            window.history.replaceState({origin: 'better-xcloud'}, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play');
         }
     }
 
@@ -5760,6 +5761,10 @@ function patchHistoryMethod(type) {
 
 
 function onHistoryChanged(e) {
+    if (e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
+        return;
+    }
+
     IS_PLAYING = false;
     setTimeout(RemotePlay.detect, 10);
 
