@@ -1823,7 +1823,6 @@ class RemotePlay {
             REMOTE_PLAY_CONFIG = JSON.parse(decodeURIComponent(window.location.hash.substring(13)));
             window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
             console.log(REMOTE_PLAY_CONFIG);
-            // window.history.replaceState(null, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play/dev-tools');
         }
     }
 
@@ -4804,10 +4803,35 @@ function interceptHttpRequests() {
 
             const index = request.url.indexOf(".xboxlive.com");
             request = new Request('https://wus.core.gssv-play-prod' + request.url.substring(index), {
-                method: 'POST',
+                method: clone.method,
                 body: await clone.text(),
                 headers: headers,
             });
+
+            arg[0] = request;
+            return orgFetch(...arg);
+        }
+
+        if (IS_REMOTE_PLAYING && url.includes('/sessions/home')) {
+            const clone = request.clone();
+
+            const headers = {};
+            for (const pair of clone.headers.entries()) {
+                headers[pair[0]] = pair[1];
+            }
+            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+
+            const opts = {
+                method: clone.method,
+                headers: headers,
+            };
+
+            if (clone.method === 'POST') {
+                opts.body = await clone.text();
+            }
+
+            const index = request.url.indexOf(".xboxlive.com");
+            request = new Request('https://wus2.gssv-play-prodxhome' + request.url.substring(index), opts);
 
             arg[0] = request;
             return orgFetch(...arg);
