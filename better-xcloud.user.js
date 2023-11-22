@@ -4981,7 +4981,12 @@ function injectSettingsButton($parent) {
                            })
                         )
                        );
-    $container.appendChild($wrapper);
+
+    const $remotePlayLink = CE('div', {}, CE('a', {'href': '/play/dev-tools'}, 'Remote Play'));
+    $remotePlayLink.addEventListener('click', e => {
+        window.location = window.location.href.substring(0, 31) + '/dev-tools';
+    });
+    $wrapper.appendChild($remotePlayLink);
 
     // Show new version indicator
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
@@ -5157,6 +5162,8 @@ function injectSettingsButton($parent) {
         const appDate = new Date(document.querySelector('meta[name=gamepass-app-date]').content).toISOString().substring(0, 10);
         $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
     } catch (e) {}
+
+    $container.appendChild($wrapper);
 
     // Add Settings UI to the web page
     const $pageContent = document.getElementById('PageContent');
