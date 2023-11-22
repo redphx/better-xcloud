@@ -4801,7 +4801,8 @@ function interceptHttpRequests() {
             }
             headers['authorization'] = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
 
-            request = new Request(request.url.replace('wus2.gssv-play-prodxhome', 'wus.core.gssv-play-prod'), {
+            const index = request.url.indexOf(".xboxlive.com");
+            request = new Request('https://wus.core.gssv-play-prod' + request.url.substring(index), {
                 method: 'POST',
                 body: await clone.text(),
                 headers: headers,
@@ -5735,7 +5736,7 @@ function patchHistoryMethod(type) {
 
 function onHistoryChanged(e) {
     IS_PLAYING = false;
-    RemotePlay.detect();
+    setTimeout(RemotePlay.detect, 10);
 
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
