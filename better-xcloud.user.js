@@ -4754,6 +4754,7 @@ function interceptHttpRequests() {
                 headers[pair[0]] = pair[1];
             }
             headers['x-ms-device-info'] = JSON.stringify(RemotePlay.BASE_DEVICE_INFO);
+            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
 
             request = new Request('https://wus2.gssv-play-prodxhome.xboxlive.com/v5/sessions/home/play', {
                 method: 'POST',
