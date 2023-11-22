@@ -4755,7 +4755,7 @@ function interceptHttpRequests() {
             }
             headers['x-ms-device-info'] = JSON.stringify(RemotePlay.BASE_DEVICE_INFO);
 
-            request = new Request(request.url, {
+            request = new Request('https://wus2.gssv-play-prodxhome.xboxlive.com/v5/sessions/home/play', {
                 method: 'POST',
                 body: JSON.stringify(cloneBody),
                 headers: headers,
