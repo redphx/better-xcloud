@@ -274,7 +274,7 @@ const Translations = {
         "pt-BR": "Brilho",
         "ru-RU": "Яркость",
         "tr-TR": "Aydınlık",
-        "vi-VN": "Độ sáng",
+        "vi-VN": "Độ sáng",
         "zh-CN": "亮度",
     },
     "browser-unsupported-feature": {
@@ -290,6 +290,16 @@ const Translations = {
         "tr-TR": "Web tarayıcınız bu özelliği desteklemiyor",
         "vi-VN": "Trình duyệt không hỗ trợ tính năng này",
         "zh-CN": "您的浏览器不支持此功能",
+    },
+    "can-stream-xbox-360-games": {
+        "en-US": "Can stream Xbox 360 games",
+        "ja-JP": "Xbox 360ゲームのストリーミング可能",
+        "vi-VN": "Có thể stream các game Xbox 360",
+    },
+    "cant-stream-xbox-360-games": {
+        "en-US": "Can't stream Xbox 360 games",
+        "ja-JP": "Xbox 360ゲームのストリーミング不可",
+        "vi-VN": "Không thể stream các game Xbox 360",
     },
     "clarity": {
         "de-DE": "Klarheit",
@@ -361,6 +371,14 @@ const Translations = {
         "vi-VN": "Bạn có muốn kết nối lại stream không?",
         "zh-CN": "您想要刷新吗？",
     },
+    "console-connect": {
+        "de-DE": "Verbinden",
+        "en-US": "Connect",
+        "ja-JP": "本体に接続",
+        "tr-TR": "Bağlan",
+        "vi-VN": "Kết nối",
+        "zh-CN": "连接",
+    },
     "contrast": {
         "de-DE": "Kontrast",
         "en-US": "Contrast",
@@ -376,11 +394,14 @@ const Translations = {
         "zh-CN": "对比度",
     },
     "controller": {
+        "de-DE": "Controller",
         "en-US": "Controller",
         "ja-JP": "コントローラー",
         "pl-PL": "Kontroler",
         "pt-BR": "Controle",
+        "tr-TR": "Oyun Kumandası",
         "vi-VN": "Bộ điều khiển",
+        "zh-CN": "手柄",
     },
     "custom": {
         "de-DE": "Benutzerdefiniert",
@@ -462,6 +483,7 @@ const Translations = {
         "pt-BR": "Desativar o diálogo de feedback pós-stream",
         "tr-TR": "Yayın sonrası geribildirim ekranını kapat",
         "vi-VN": "Tắt hộp thoại góp ý sau khi chơi xong",
+        "zh-CN": "禁用反馈问卷",
     },
     "disable-social-features": {
         "de-DE": "Soziale Funktionen deaktivieren",
@@ -492,11 +514,14 @@ const Translations = {
         "zh-CN": "关闭 xCloud 遥测数据统计",
     },
     "enable-controller-shortcuts": {
+        "de-DE": "Controller-Shortcuts aktivieren",
         "en-US": "Enable controller shortcuts",
         "ja-JP": "コントローラーショートカットを有効化",
         "pl-PL": "Włącz skróty kontrolera",
         "pt-BR": "Ativar atalhos do controle",
+        "tr-TR": "Oyun kumandası kısayollarını aç",
         "vi-VN": "Bật tính năng phím tắt cho bộ điều khiển",
+        "zh-CN": "启用手柄快捷方式",
     },
     "enable-mic-on-startup": {
         "de-DE": "Mikrofon bei Spielstart aktivieren",
@@ -538,6 +563,10 @@ const Translations = {
         "tr-TR": "Ses düzeyini yönetmeyi etkinleştir",
         "vi-VN": "Bật tính năng điều khiển âm lượng",
         "zh-CN": "启用音量控制",
+    },
+    "getting-consoles-list": {
+        "en-US": "Getting the list of consoles...",
+        "vi-VN": "Đang lấy danh sách các console...",
     },
     "hide-idle-cursor": {
         "de-DE": "Mauszeiger bei Inaktivität ausblenden",
@@ -638,18 +667,32 @@ const Translations = {
         "zh-CN": "串流统计数据",
     },
     "microphone": {
+        "de-DE": "Mikrofon",
         "en-US": "Microphone",
         "ja-JP": "マイク",
         "pl-PL": "Mikrofon",
         "pt-BR": "Microfone",
+        "tr-TR": "Mikrofon",
         "vi-VN": "Mic",
+        "zh-CN": "麦克风",
     },
     "muted": {
+        "de-DE": "Stumm",
         "en-US": "Muted",
         "ja-JP": "ミュート",
         "pl-PL": "Wyciszony",
         "pt-BR": "Mutado",
+        "tr-TR": "Kapalı",
         "vi-VN": "Đã tắt âm",
+        "zh-CN": "静音",
+    },
+    "no-consoles-found": {
+        "de-DE": "Keine Konsolen gefunden",
+        "en-US": "No consoles found",
+        "ja-JP": "本体が見つかりません",
+        "tr-TR": "Konsol bulunamadı",
+        "vi-VN": "Không tìm thấy console nào",
+        "zh-CN": "未找到主机",
     },
     "normal": {
         "de-DE": "Mittel",
@@ -680,11 +723,14 @@ const Translations = {
         "zh-CN": "关",
     },
     "on": {
+        "de-DE": "An",
         "en-US": "On",
         "ja-JP": "オン",
         "pl-PL": "Włącz",
         "pt-BR": "Ativado",
+        "tr-TR": "Açık",
         "vi-VN": "Bật",
+        "zh-CN": "开启",
     },
     "opacity": {
         "de-DE": "Deckkraft",
@@ -727,6 +773,22 @@ const Translations = {
         "tr-TR": "Konum",
         "vi-VN": "Vị trí",
         "zh-CN": "位置",
+    },
+    "powered-off": {
+        "de-DE": "Ausgeschaltet",
+        "en-US": "Powered off",
+        "ja-JP": "電源オフ",
+        "tr-TR": "Kapalı",
+        "vi-VN": "Đã tắt nguồn",
+        "zh-CN": "关机",
+    },
+    "powered-on": {
+        "de-DE": "Eingeschaltet",
+        "en-US": "Powered on",
+        "ja-JP": "電源オン",
+        "tr-TR": "Açık",
+        "vi-VN": "Đang bật nguồn",
+        "zh-CN": "开机",
     },
     "prefer-ipv6-server": {
         "de-DE": "IPv6-Server bevorzugen",
@@ -797,6 +859,14 @@ const Translations = {
         "tr-TR": "Bölge",
         "vi-VN": "Khu vực",
         "zh-CN": "地区",
+    },
+    "remote-play": {
+        "de-DE": "Remote Play",
+        "en-US": "Remote Play",
+        "ja-JP": "リモートプレイ",
+        "tr-TR": "Uzaktan Bağlanma",
+        "vi-VN": "Chơi từ xa",
+        "zh-CN": "远程游玩",
     },
     "rocket-always-hide": {
         "de-DE": "Immer ausblenden",
@@ -995,7 +1065,7 @@ const Translations = {
         "zh-CN": "简化菜单",
     },
     "skip-splash-video": {
-        "de-DE": "Xbox Logo überspringen",
+        "de-DE": "Xbox-Logo bei Spielstart überspringen",
         "en-US": "Skip Xbox splash video",
         "es-ES": "Saltar vídeo de presentación de Xbox",
         "fr-FR": "Ignorer la vidéo de démarrage Xbox",
@@ -1023,11 +1093,22 @@ const Translations = {
         "zh-CN": "小",
     },
     "sound": {
+        "de-DE": "Ton",
         "en-US": "Sound",
         "ja-JP": "サウンド",
         "pl-PL": "Dźwięk",
         "pt-BR": "Som",
+        "tr-TR": "Ses",
         "vi-VN": "Âm thanh",
+        "zh-CN": "声音",
+    },
+    "standby": {
+        "de-DE": "Standby",
+        "en-US": "Standby",
+        "ja-JP": "スタンバイ",
+        "tr-TR": "Beklemede",
+        "vi-VN": "Đang chờ",
+        "zh-CN": "待机",
     },
     "stat-bitrate": {
         "de-DE": "Bitrate",
@@ -1365,12 +1446,23 @@ const Translations = {
         "vi-VN": "Giao diện",
         "zh-CN": "UI",
     },
+    "unknown": {
+        "de-DE": "Unbekannt",
+        "en-US": "Unknown",
+        "ja-JP": "不明",
+        "tr-TR": "Bilinmiyor",
+        "vi-VN": "Không rõ",
+        "zh-CN": "未知",
+    },
     "unmuted": {
+        "de-DE": "Ton an",
         "en-US": "Unmuted",
         "ja-JP": "ミュート解除",
         "pl-PL": "Wyciszenie wyłączone",
         "pt-BR": "Desmutado",
+        "tr-TR": "Açık",
         "vi-VN": "Đã mở âm",
+        "zh-CN": "已取消静音",
     },
     "user-agent-profile": {
         "de-DE": "User-Agent Profil",
@@ -1558,12 +1650,189 @@ var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 var APP_CONTEXT;
 
+// const IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play=');
+const IS_REMOTE_PLAYING = window.location.hash.startsWith('#remote-play=');
+let REMOTE_PLAY_CONFIG;
+if (IS_REMOTE_PLAYING) {
+    REMOTE_PLAY_CONFIG = JSON.parse(decodeURIComponent(window.location.hash.substring(13)));
+    console.log(REMOTE_PLAY_CONFIG);
+    // window.history.replaceState(null, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play/dev-tools');
+}
+
 const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 // Credit: https://phosphoricons.com
 const ICON_VIDEO_SETTINGS = '<path d="M16 9.144A6.89 6.89 0 0 0 9.144 16 6.89 6.89 0 0 0 16 22.856 6.89 6.89 0 0 0 22.856 16 6.9 6.9 0 0 0 16 9.144zm0 11.427c-2.507 0-4.571-2.064-4.571-4.571s2.064-4.571 4.571-4.571 4.571 2.064 4.571 4.571-2.064 4.571-4.571 4.571zm15.704-7.541c-.065-.326-.267-.607-.556-.771l-4.26-2.428-.017-4.802c-.001-.335-.15-.652-.405-.868-1.546-1.307-3.325-2.309-5.245-2.953-.306-.103-.641-.073-.923.085L16 3.694l-4.302-2.407c-.282-.158-.618-.189-.924-.086a16.02 16.02 0 0 0-5.239 2.964 1.14 1.14 0 0 0-.403.867L5.109 9.84.848 12.268a1.14 1.14 0 0 0-.555.771 15.22 15.22 0 0 0 0 5.936c.064.326.267.607.555.771l4.261 2.428.017 4.802c.001.335.149.652.403.868 1.546 1.307 3.326 2.309 5.245 2.953.306.103.641.073.923-.085L16 28.306l4.302 2.407a1.13 1.13 0 0 0 .558.143 1.18 1.18 0 0 0 .367-.059c1.917-.648 3.695-1.652 5.239-2.962.255-.216.402-.532.405-.866l.021-4.807 4.261-2.428a1.14 1.14 0 0 0 .555-.771 15.21 15.21 0 0 0-.003-5.931zm-2.143 4.987l-4.082 2.321a1.15 1.15 0 0 0-.429.429l-.258.438a1.13 1.13 0 0 0-.174.601l-.022 4.606a13.71 13.71 0 0 1-3.623 2.043l-4.117-2.295a1.15 1.15 0 0 0-.559-.143h-.546c-.205-.005-.407.045-.586.143l-4.119 2.3a13.74 13.74 0 0 1-3.634-2.033l-.016-4.599a1.14 1.14 0 0 0-.174-.603l-.257-.437c-.102-.182-.249-.333-.429-.437l-4.085-2.328a12.92 12.92 0 0 1 0-4.036l4.074-2.325a1.15 1.15 0 0 0 .429-.429l.258-.438a1.14 1.14 0 0 0 .175-.601l.021-4.606a13.7 13.7 0 0 1 3.625-2.043l4.11 2.295a1.14 1.14 0 0 0 .585.143h.52c.205.005.407-.045.586-.143l4.119-2.3a13.74 13.74 0 0 1 3.634 2.033l.016 4.599a1.14 1.14 0 0 0 .174.603l.257.437c.102.182.249.333.429.438l4.085 2.327a12.88 12.88 0 0 1 .007 4.041h.007z" fill-rule="nonzero"/>';
 const ICON_STREAM_STATS = '<path d="M27.295 9.31C24.303 6.313 20.234 4.631 16 4.643h-.057C7.153 4.673 0 11.929 0 20.804v3.267a2.3 2.3 0 0 0 2.286 2.286h27.429A2.3 2.3 0 0 0 32 24.072v-3.429A15.9 15.9 0 0 0 27.294 9.31zm2.419 14.761H14.816l7.823-10.757a1.15 1.15 0 0 0-.925-1.817c-.366 0-.71.176-.925.471l-8.801 12.103H2.286v-3.267c0-.44.022-.874.062-1.304h3.367a1.15 1.15 0 0 0 1.143-1.143 1.15 1.15 0 0 0-1.143-1.143H2.753c1.474-5.551 6.286-9.749 12.104-10.237v3.379A1.15 1.15 0 0 0 16 11.5a1.15 1.15 0 0 0 1.143-1.143V6.975c5.797.488 10.682 4.608 12.143 10.239h-3a1.15 1.15 0 0 0-1.143 1.143 1.15 1.15 0 0 0 1.143 1.143h3.382a14.58 14.58 0 0 1 .047 1.143v3.429z" fill-rule="nonzero"/>';
 const ICON_SCREENSHOT_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=';
+
+
+class RemotePlay {
+    static XCLOUD_TOKEN;
+    static get BASE_DEVICE_INFO() {
+        return {
+            appInfo: {
+                env: {
+                    clientAppId: 'Microsoft.GamingApp',
+                    clientAppType: 'native',
+                    clientAppVersion: '2203.1001.4.0',
+                    clientSdkVersion: '8.5.2',
+                    httpEnvironment: 'prod',
+                    sdkInstallId: '',
+                },
+            },
+            dev: {
+                displayInfo: {
+                    dimensions: {
+                        widthInPixels: 1920,
+                        heightInPixels: 1080,
+                    },
+                    pixelDensity: {
+                        dpiX: 2,
+                        dpiY: 2,
+                    },
+                },
+                hw: {
+                    make: 'Microsoft',
+                    model: 'Surface Pro',
+                    sdktype: 'native',
+                },
+                os: {
+                    name: 'Windows 11',
+                    ver: '22631.2715',
+                    platform: 'desktop',
+                },
+            },
+        };
+    }
+
+    static #renderUi(consoles) {
+        const CE = createElement;
+
+        const $consolesWrapper = CE('div', {});
+        for (let con of consoles) {
+            let $connectButton;
+            const $child = CE('div', {'class': 'bx-device-wrapper'},
+                CE('div', {'class': 'bx-device-info'},
+                    CE('div', {},
+                        CE('span', {'class': 'bx-device-name'}, con.deviceName),
+                        CE('span', {'class': 'bx-console-type'}, con.consoleType)
+                    ),
+                    CE('div', {'class': 'bx-power-state'}, con.powerState),
+                ),
+                $connectButton = CE('button', {'class': 'bx-primary-button bx-connect-button'}, __('console-connect')),
+            );
+
+            $connectButton.addEventListener('click', e => {
+                const remoteConfig = {
+                    quality: 1080,
+                    serverId: con.serverId,
+                };
+
+                const url = window.location.href.substring(0, 31) + '/launch/starfield/9NCJSXWZTP88#remote-play=' + JSON.stringify(remoteConfig);
+                window.location = url;
+            });
+
+            $consolesWrapper.appendChild($child);
+
+            const $ui = document.getElementById('bxUi');
+            $ui.innerHTML = '';
+            $ui.appendChild($consolesWrapper, $ui);
+        }
+    }
+
+    static handlePage() {
+        if (!window.location.pathname.endsWith('/dev-tools')) {
+            return;
+        }
+
+        const CE = createElement;
+        const $style = CE('style', {}, `
+h2[class*=LandingPage], div[class*=LandingPage], button[class*=XboxButton] {
+    display: none;
+}
+
+.bx-container {
+    width: 480px;
+    margin: 0 auto;
+}
+
+#bxUi {
+    margin-top: 14px;
+}
+
+.bx-device-wrapper {
+    display: flex;
+}
+
+.bx-device-info {
+    flex: 1;
+}
+
+.bx-device-name {
+    font-size: 20px;
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.bx-console-type {
+    font-size: 12px;
+    background: #888;
+    color: #fff;
+    display: inline-block;
+    border-radius: 14px;
+    padding: 2px 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.bx-power-state {
+    color: #888;
+    font-size: 14px;
+}
+
+.bx-connect-button {
+    margin: 0;
+}
+`);
+        document.documentElement.appendChild($style);
+
+        const nativeFetch = window.fetch;
+        window.fetch = async (...arg) => {
+            const request = arg[0];
+            const promise = await nativeFetch(...arg);
+
+            if (request.url && request.url.includes('/servers/home')) {
+                const obj = await promise.json();
+                RemotePlay.#renderUi(obj.results);
+            }
+
+            return promise;
+        }
+
+        window.addEventListener('load', () => {
+            const $ui = CE('div', {'class': 'bx-container'},
+                CE('h2', {}, __('remote-play')),
+                CE('div', {'id': 'bxUi'}, __('getting-consoles-list')),
+            );
+
+            const $landingPageHeader = document.querySelector('h2[class*=LandingPage-module__header]');
+            $landingPageHeader.parentElement.insertBefore($ui, $landingPageHeader);
+
+            const $cloudButton = document.querySelector('h1[class*=CloudGamingButton]').parentElement;
+            setTimeout(() => {
+                const $cloneElm = $cloudButton.cloneNode(true);
+                $cloneElm.addEventListener('click', e => {
+                    e.preventDefault();
+                    window.location = window.location.href.substring(0, 31);  // redirect to /play
+                });
+
+                $cloudButton.parentElement.replaceChild($cloneElm, $cloudButton);
+            }, 1000);
+        });
+    }
+}
 
 
 class TitlesInfo {
@@ -3538,6 +3807,10 @@ function addCss() {
     font-family: var(--bx-normal-font);
 }
 
+.bx-full-width {
+    width: 100%;
+}
+
 .bx-gone {
     display: none !important;
 }
@@ -3628,8 +3901,7 @@ function addCss() {
     align-self: center;
 }
 
-.bx-settings-reload-button {
-    width: 100%;
+.bx-primary-button {
     padding: 8px 32px;
     margin: 10px auto 0;
     border: none;
@@ -3646,17 +3918,22 @@ function addCss() {
 }
 
 @media (hover: hover) {
-    .bx-settings-reload-button:hover {
+    .bx-primary-button:hover {
         background-color: #00753c;
     }
 }
 
-.bx-settings-reload-button:focus {
+.bx-primary-button:focus {
     background-color: #00753c;
 }
 
-.bx-settings-reload-button:active {
+.bx-primary-button:active {
     background-color: #00753c;
+}
+
+.bx-primary-button[disabled] {
+    background: #393939;
+    color: #a2a2a2;
 }
 
 .bx-settings-app-version {
@@ -4382,8 +4659,65 @@ function interceptHttpRequests() {
 
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
-        const request = arg[0];
+        let request = arg[0];
         const url = (typeof request === 'string') ? request : request.url;
+
+        // Remote Play
+        if (IS_REMOTE_PLAYING && url.includes('/home/play')) {
+            const clone = request.clone();
+            const cloneBody = await clone.json();
+            cloneBody.settings.osName = 'windows';
+
+            // Clone headers
+            const headers = {};
+            for (const pair of clone.headers.entries()) {
+                headers[pair[0]] = pair[1];
+            }
+            headers['x-ms-device-info'] = JSON.stringify(RemotePlay.BASE_DEVICE_INFO);
+
+            request = new Request(request.url, {
+                method: 'POST',
+                body: JSON.stringify(cloneBody),
+                headers: headers,
+            });
+            arg[0] = request;
+
+            return orgFetch(...arg);
+        }
+
+        if (IS_REMOTE_PLAYING && url.includes('/login/user')) {
+            try {
+                const clone = request.clone();
+
+                const resp = (await (await orgFetch(...arg)).json());
+                RemotePlay.XCLOUD_TOKEN = resp.gsToken;
+
+                const obj = await clone.json();
+                obj.offeringId = 'xhome';
+
+                request = new Request('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
+                    method: 'POST',
+                    body: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                arg[0] = request;
+            } catch (e) {
+                alert(e);
+                console.log(e);
+            }
+
+            return orgFetch(...arg);
+        }
+
+        if (IS_REMOTE_PLAYING && url.includes('/title')) {
+            return new Response('{"results":[]}', {
+                status: 200,
+                statusText: '200 OK',
+            });
+        }
 
         // Server list
         if (url.endsWith('/v2/login/user')) {
@@ -4810,7 +5144,7 @@ function injectSettingsButton($parent) {
     }
 
     // Setup Reload button
-    const $reloadBtn = CE('button', {'class': 'bx-settings-reload-button', 'tabindex': 0}, __('settings-reload'));
+    const $reloadBtn = CE('button', {'class': 'bx-primary-button bx-full-width', 'tabindex': 0}, __('settings-reload'));
     $reloadBtn.addEventListener('click', e => {
         window.location.reload();
         $reloadBtn.textContent = __('settings-reloading');
@@ -5555,3 +5889,31 @@ disablePwa();
 if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
     GamepadHandler.initialSetup();
 }
+
+Function.prototype.nativeBind = Function.prototype.bind;
+IS_REMOTE_PLAYING && (Function.prototype.bind = function() {
+    if (arguments.length !== 2 || arguments[0] !== null || typeof arguments[1] !== 'function' || arguments[1].name !== 'bound push') {
+        return this.nativeBind.apply(this, arguments);
+    }
+
+    Function.prototype.bind = Function.prototype.nativeBind;
+
+    const orgFunc = this;
+    const newFunc = (a, item) => {
+        for (let id in item[1]) {
+            const func = item[1][id];
+            let funcStr = func.toString();
+
+            if (funcStr.includes('connectMode:"cloud-connect"')) {
+                funcStr = funcStr.replace('connectMode:"cloud-connect"', `connectMode:"xhome-connect",remotePlayServerId:"${REMOTE_PLAY_CONFIG.serverId}"`);
+                item[1][id] = eval(funcStr);
+                console.log('Patched connectMode');
+            }
+        }
+        orgFunc(a, item);
+    }
+
+    return newFunc.nativeBind.apply(newFunc, arguments);
+});
+
+RemotePlay.handlePage();
