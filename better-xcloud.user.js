@@ -1651,13 +1651,8 @@ var GAME_TITLE_ID;
 var APP_CONTEXT;
 
 // const IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play=');
-const IS_REMOTE_PLAYING = window.location.hash.startsWith('#remote-play=');
+let IS_REMOTE_PLAYING;
 let REMOTE_PLAY_CONFIG;
-if (IS_REMOTE_PLAYING) {
-    REMOTE_PLAY_CONFIG = JSON.parse(decodeURIComponent(window.location.hash.substring(13)));
-    console.log(REMOTE_PLAY_CONFIG);
-    // window.history.replaceState(null, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play/dev-tools');
-}
 
 const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
@@ -1667,8 +1662,43 @@ const ICON_STREAM_STATS = '<path d="M27.295 9.31C24.303 6.313 20.234 4.631 16 4.
 const ICON_SCREENSHOT_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=';
 
 
+class Dialog {
+    constructor(title, className, $content, onClose) {
+        const CE = createElement;
+        let $close;
+
+        this.onClose = onClose;
+        this.$dialog = CE('div', {'class': `bx-dialog ${className} bx-gone`},
+                                    CE('b', {}, title),
+                                    CE('div', {'class': 'bx-dialog-content'}, $content),
+                                    $close = CE('button', {}, __('close')));
+
+        $close.addEventListener('click', e => {
+            this.hide(e);
+        });
+        document.documentElement.appendChild(this.$dialog);
+    }
+
+    show() {
+        this.$dialog.classList.remove('bx-gone');
+    }
+
+    hide(e) {
+        this.$dialog.classList.add('bx-gone');
+        this.onClose && this.onClose(e);
+    }
+
+    toggle() {
+        this.$dialog.classList.toggle('bx-gone');
+    }
+}
+
+
 class RemotePlay {
     static XCLOUD_TOKEN;
+    static XHOME_TOKEN;
+    static #CONSOLES;
+
     static get BASE_DEVICE_INFO() {
         return {
             appInfo: {
@@ -1706,11 +1736,33 @@ class RemotePlay {
         };
     }
 
-    static #renderUi(consoles) {
+    static #dialog;
+    static #$content;
+    static #$consoles;
+
+    static #initialize() {
+        if (RemotePlay.#$content) {
+            return;
+        }
+
         const CE = createElement;
 
-        const $consolesWrapper = CE('div', {});
-        for (let con of consoles) {
+        RemotePlay.#$content = CE('div', {}, __('getting-consoles-list'));
+        RemotePlay.#dialog = new Dialog(__('remote-play'), '', RemotePlay.#$content);
+
+        RemotePlay.#getXhomeToken(() => {
+            RemotePlay.#getConsolesList(() => {
+                console.log(RemotePlay.#CONSOLES);
+                RemotePlay.#renderConsoles();
+            });
+        });
+    }
+
+    static #renderConsoles() {
+        const CE = createElement;
+
+        const $fragment = document.createDocumentFragment();
+        for (let con of RemotePlay.#CONSOLES) {
             let $connectButton;
             const $child = CE('div', {'class': 'bx-device-wrapper'},
                 CE('div', {'class': 'bx-device-info'},
@@ -1723,114 +1775,103 @@ class RemotePlay {
                 $connectButton = CE('button', {'class': 'bx-primary-button bx-connect-button'}, __('console-connect')),
             );
 
-            $connectButton.addEventListener('click', e => {
-                const remoteConfig = {
+            const remoteConfig = {
                     quality: 1080,
                     serverId: con.serverId,
                 };
 
+            $connectButton.addEventListener('click', e => {
                 const url = window.location.href.substring(0, 31) + '/launch/starfield/9NCJSXWZTP88#remote-play=' + JSON.stringify(remoteConfig);
-                window.location = url;
+                // const url = '/play';
+
+                const $pageContent = document.getElementById('PageContent');
+                const $anchor = CE('a', {href: url, class: 'bx-hidden', style: 'position:absolute;top:-9990px;left:-9999px'}, '');
+                $anchor.addEventListener('click', e => {
+                    setTimeout(() => {
+                        $pageContent.removeChild($anchor);
+                    }, 1000);
+                });
+
+                $pageContent.appendChild($anchor);
+                $anchor.click();
+
+                RemotePlay.#dialog.hide();
             });
+            $fragment.appendChild($child);
+        }
 
-            $consolesWrapper.appendChild($child);
+        RemotePlay.#$content.innerHTML = '';
+        RemotePlay.#$content.appendChild($fragment);
+    }
 
-            const $ui = document.getElementById('bxUi');
-            $ui.innerHTML = '';
-            $ui.appendChild($consolesWrapper, $ui);
+    static #onLoad() {
+        const CE = createElement;
+        const $ui = CE('div', {'class': 'bx-container'},
+                       CE('h2', {}, __('remote-play')),
+                       CE('div', {'id': 'bxUi'}, __('getting-consoles-list')),
+                      );
+
+        const $landingPageHeader = document.querySelector('h2[class*=LandingPage-module__header]');
+        $landingPageHeader.parentElement.insertBefore($ui, $landingPageHeader);
+    }
+
+    static detect() {
+        IS_REMOTE_PLAYING = window.location.hash.startsWith('#remote-play=');
+        REMOTE_PLAY_CONFIG = {}
+        window.BX_REMOTE_PLAY_CONFIG = null;
+        if (IS_REMOTE_PLAYING) {
+            REMOTE_PLAY_CONFIG = JSON.parse(decodeURIComponent(window.location.hash.substring(13)));
+            window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
+            console.log(REMOTE_PLAY_CONFIG);
+            // window.history.replaceState(null, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play/dev-tools');
         }
     }
 
-    static handlePage() {
-        if (!window.location.pathname.endsWith('/dev-tools')) {
+    static #getXhomeToken(callback) {
+        if (RemotePlay.XHOME_TOKEN) {
+            callback();
             return;
         }
 
-        const CE = createElement;
-        const $style = CE('style', {}, `
-h2[class*=LandingPage], div[class*=LandingPage], button[class*=XboxButton] {
-    display: none;
-}
+        const GSSV_TOKEN = JSON.parse(localStorage.getItem('xboxcom_xbl_user_info')).tokens['http://gssv.xboxlive.com/'].token;
 
-.bx-container {
-    width: 480px;
-    margin: 0 auto;
-}
+        fetch('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
+            method: 'POST',
+            body: JSON.stringify({
+                offeringId: 'xhome',
+                token: GSSV_TOKEN,
+            }),
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+            },
+        }).then(resp => resp.json())
+            .then(json => {
+                RemotePlay.XHOME_TOKEN = json.gsToken;
+                callback();
+            });
+    }
 
-#bxUi {
-    margin-top: 14px;
-}
-
-.bx-device-wrapper {
-    display: flex;
-}
-
-.bx-device-info {
-    flex: 1;
-}
-
-.bx-device-name {
-    font-size: 20px;
-    font-weight: bold;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.bx-console-type {
-    font-size: 12px;
-    background: #888;
-    color: #fff;
-    display: inline-block;
-    border-radius: 14px;
-    padding: 2px 10px;
-    margin-left: 8px;
-    vertical-align: middle;
-}
-
-.bx-power-state {
-    color: #888;
-    font-size: 14px;
-}
-
-.bx-connect-button {
-    margin: 0;
-}
-`);
-        document.documentElement.appendChild($style);
-
-        const nativeFetch = window.fetch;
-        window.fetch = async (...arg) => {
-            const request = arg[0];
-            const promise = await nativeFetch(...arg);
-
-            if (request.url && request.url.includes('/servers/home')) {
-                const obj = await promise.json();
-                RemotePlay.#renderUi(obj.results);
-            }
-
-            return promise;
+    static #getConsolesList(callback) {
+        if (RemotePlay.#CONSOLES) {
+            callback();
+            return;
         }
 
-        window.addEventListener('load', () => {
-            const $ui = CE('div', {'class': 'bx-container'},
-                CE('h2', {}, __('remote-play')),
-                CE('div', {'id': 'bxUi'}, __('getting-consoles-list')),
-            );
+        fetch('https://wus2.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${RemotePlay.XHOME_TOKEN}`,
+            },
+        }).then(resp => resp.json())
+            .then(json => {
+                RemotePlay.#CONSOLES = json.results;
+                callback();
+            });
+    }
 
-            const $landingPageHeader = document.querySelector('h2[class*=LandingPage-module__header]');
-            $landingPageHeader.parentElement.insertBefore($ui, $landingPageHeader);
-
-            const $cloudButton = document.querySelector('h1[class*=CloudGamingButton]').parentElement;
-            setTimeout(() => {
-                const $cloneElm = $cloudButton.cloneNode(true);
-                $cloneElm.addEventListener('click', e => {
-                    e.preventDefault();
-                    window.location = window.location.href.substring(0, 31);  // redirect to /play
-                });
-
-                $cloudButton.parentElement.replaceChild($cloneElm, $cloudButton);
-            }, 1000);
-        });
+    static showDialog() {
+        RemotePlay.#initialize();
+        RemotePlay.#dialog.show();
     }
 }
 
@@ -2634,7 +2675,7 @@ class StreamStats {
     static #$fl;
     static #$br;
 
-    static #$settings;
+    static #$dialog;
 
     static #lastStat;
 
@@ -2787,15 +2828,13 @@ class StreamStats {
     }
 
     static hideSettingsUi() {
-        StreamStats.#$settings.classList.add('bx-gone');
-
         if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
     }
 
     static #toggleSettingsUi() {
-        StreamStats.#$settings.classList.toggle('bx-gone');
+        StreamStats.#$dialog.toggle();
     }
 
     static render() {
@@ -2891,14 +2930,7 @@ class StreamStats {
             ));
         }
 
-        StreamStats.#$settings = CE('div', {'class': 'bx-stats-settings bx-gone'},
-                                    CE('b', {}, __('stream-stats-settings')),
-                                    CE('div', {}, $fragment),
-                                    $close = CE('button', {}, __('close')));
-
-        $close.addEventListener('click', e => StreamStats.hideSettingsUi());
-        document.documentElement.appendChild(StreamStats.#$settings);
-
+        StreamStats.#$dialog = new Dialog(__('stream-stats-settings'), 'bx-stats-settings-dialog', $fragment, StreamStats.hideSettingsUi);
         StreamStats.#refreshStyles();
     }
 }
@@ -3777,7 +3809,7 @@ function addCss() {
     --bx-stream-settings-z-index: 9999;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
-    --bx-stats-settings-z-index: 1001;
+    --bx-dialog-z-index: 1001;
     --bx-stats-bar-z-index: 1000;
 }
 
@@ -4124,7 +4156,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     min-width: 22px;
 }
 
-.bx-stats-settings {
+.bx-dialog {
     display: flex;
     flex-flow: column;
     max-height: 90vh;
@@ -4136,7 +4168,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     width: 420px;
     padding: 20px;
     border-radius: 8px;
-    z-index: var(--bx-stats-settings-z-index);
+    z-index: var(--bx-dialog-z-index);
     background: #1a1b1e;
     color: #fff;
     font-weight: 400;
@@ -4147,11 +4179,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     -webkit-user-select: none;
 }
 
-.bx-stats-settings *:focus {
+.bx-dialog *:focus {
     outline: none !important;
 }
 
-.bx-stats-settings > b {
+.bx-dialog > b {
     color: #fff;
     display: block;
     font-family: var(--bx-title-font);
@@ -4161,23 +4193,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 12px;
 }
 
-.bx-stats-settings > div {
+.bx-dialog > div {
     overflow: auto;
 }
 
-.bx-stats-settings > div > div {
-    display: flex;
-    margin-bottom: 8px;
-    padding: 2px 4px;
-}
-
-.bx-stats-settings label {
-    flex: 1;
-    margin-bottom: 0;
-    align-self: center;
-}
-
-.bx-stats-settings button {
+.bx-dialog > button {
     padding: 8px 32px;
     margin: 20px auto 0;
     border: none;
@@ -4194,13 +4214,25 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 @media (hover: hover) {
-    .bx-stats-settings button:hover {
+    .bx-dialog > button:hover {
         background-color: #515863;
     }
 }
 
-.bx-stats-settings button:focus {
+.bx-dialog > button:focus {
     background-color: #515863;
+}
+
+.bx-stats-settings-dialog > div > div {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 2px 4px;
+}
+
+.bx-stats-settings-dialog label {
+    flex: 1;
+    margin-bottom: 0;
+    align-self: center;
 }
 
 .bx-quick-settings-bar {
@@ -4386,6 +4418,54 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-wait-time-estimated {
     margin-bottom: 10px;
 }
+
+/* REMOTE PLAY */
+
+.bx-container {
+    width: 480px;
+    margin: 0 auto;
+}
+
+#bxUi {
+    margin-top: 14px;
+}
+
+.bx-device-wrapper {
+    display: flex;
+}
+
+.bx-device-info {
+    flex: 1;
+}
+
+.bx-device-name {
+    font-size: 20px;
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.bx-console-type {
+    font-size: 12px;
+    background: #888;
+    color: #fff;
+    display: inline-block;
+    border-radius: 14px;
+    padding: 2px 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.bx-power-state {
+    color: #888;
+    font-size: 14px;
+}
+
+.bx-connect-button {
+    margin: 0;
+}
+
+/* ----------- */
 
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
@@ -4712,15 +4792,27 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (IS_REMOTE_PLAYING && url.includes('/title')) {
-            return new Response('{"results":[]}', {
-                status: 200,
-                statusText: '200 OK',
+        if (IS_REMOTE_PLAYING && url.includes('/titles')) {
+            const clone = request.clone();
+
+            const headers = {};
+            for (const pair of clone.headers.entries()) {
+                headers[pair[0]] = pair[1];
+            }
+            headers['authorization'] = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
+
+            request = new Request(request.url.replace('wus2.gssv-play-prodxhome', 'wus.core.gssv-play-prod'), {
+                method: 'POST',
+                body: await clone.text(),
+                headers: headers,
             });
+
+            arg[0] = request;
+            return orgFetch(...arg);
         }
 
         // Server list
-        if (url.endsWith('/v2/login/user')) {
+        if (!url.includes('xhome.') && url.endsWith('/v2/login/user')) {
             const promise = orgFetch(...arg);
 
             return promise.then(response => {
@@ -4982,9 +5074,9 @@ function injectSettingsButton($parent) {
                         )
                        );
 
-    const $remotePlayLink = CE('div', {}, CE('a', {'href': '/play/dev-tools'}, 'Remote Play'));
+    const $remotePlayLink = CE('a', {}, __('remote-play'));
     $remotePlayLink.addEventListener('click', e => {
-        window.location = window.location.href.substring(0, 31) + '/dev-tools';
+        RemotePlay.showDialog();
     });
     $wrapper.appendChild($remotePlayLink);
 
@@ -5641,8 +5733,9 @@ function patchHistoryMethod(type) {
 };
 
 
-function onHistoryChanged() {
+function onHistoryChanged(e) {
     IS_PLAYING = false;
+    RemotePlay.detect();
 
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
@@ -5898,7 +5991,7 @@ if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
 }
 
 Function.prototype.nativeBind = Function.prototype.bind;
-IS_REMOTE_PLAYING && (Function.prototype.bind = function() {
+Function.prototype.bind = function() {
     if (arguments.length !== 2 || arguments[0] !== null || typeof arguments[1] !== 'function' || arguments[1].name !== 'bound push') {
         return this.nativeBind.apply(this, arguments);
     }
@@ -5912,7 +6005,7 @@ IS_REMOTE_PLAYING && (Function.prototype.bind = function() {
             let funcStr = func.toString();
 
             if (funcStr.includes('connectMode:"cloud-connect"')) {
-                funcStr = funcStr.replace('connectMode:"cloud-connect"', `connectMode:"xhome-connect",remotePlayServerId:"${REMOTE_PLAY_CONFIG.serverId}"`);
+                funcStr = funcStr.replace('connectMode:"cloud-connect"', `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
                 item[1][id] = eval(funcStr);
                 console.log('Patched connectMode');
             }
@@ -5921,6 +6014,6 @@ IS_REMOTE_PLAYING && (Function.prototype.bind = function() {
     }
 
     return newFunc.nativeBind.apply(newFunc, arguments);
-});
+};
 
-RemotePlay.handlePage();
+RemotePlay.detect();
