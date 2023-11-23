@@ -6066,6 +6066,7 @@ if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
     GamepadHandler.initialSetup();
 }
 
+let PATCHES_LEFT = 2;
 Function.prototype.nativeBind = Function.prototype.bind;
 Function.prototype.bind = function() {
     let valid = false;
@@ -6086,6 +6087,11 @@ Function.prototype.bind = function() {
 
     const orgFunc = this;
     const newFunc = (a, item) => {
+        if (PATCHES_LEFT === 0) {
+            orgFunc(a, item);
+            return;
+        }
+
         for (let id in item[1]) {
             const func = item[1][id];
             let funcStr = func.toString();
@@ -6094,6 +6100,7 @@ Function.prototype.bind = function() {
                 funcStr = funcStr.replace('connectMode:"cloud-connect"', `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
                 item[1][id] = eval(funcStr);
                 console.log('Patched connectMode');
+                PATCHES_LEFT -= 1;
             } else {
                 const index = funcStr.indexOf('/direct-connect');
                 if (index === -1) {
@@ -6103,6 +6110,7 @@ Function.prototype.bind = function() {
                 funcStr = funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
                 item[1][id] = eval(funcStr);
                 console.log('Patched /direct-connect');
+                PATCHES_LEFT -= 1;
             }
         }
         orgFunc(a, item);
