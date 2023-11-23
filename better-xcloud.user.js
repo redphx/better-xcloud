@@ -6084,6 +6084,14 @@ Function.prototype.bind = function() {
                 funcStr = funcStr.replace('connectMode:"cloud-connect"', `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
                 item[1][id] = eval(funcStr);
                 console.log('Patched connectMode');
+            } else {
+                const index = funcStr.indexOf('/direct-connect');
+                if (index === -1) {
+                    continue;
+                }
+
+                funcStr = funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
+                item[1][id] = eval(funcStr);
             }
         }
         orgFunc(a, item);
