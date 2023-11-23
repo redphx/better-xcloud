@@ -5139,6 +5139,9 @@ function injectSettingsButton($parent) {
 
     $remotePlayLink.addEventListener('click', e => {
         RemotePlay.showDialog();
+
+        // Hide Settings
+        $container.classList.add('bx-gone');
     });
     $wrapper.appendChild($updateAvailable);
 
