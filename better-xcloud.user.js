@@ -5843,7 +5843,11 @@ function onStreamStarted($video) {
     IS_PLAYING = true;
 
     // Get title ID for screenshot's name
-    GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+    if (window.location.pathname.includes('/launch/')) {
+        GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+    } else {
+        GAME_TITLE_ID = 'remote-play';
+    }
 
     if (TouchController.isEnabled()) {
         TouchController.enableBar();
