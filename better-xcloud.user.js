@@ -1665,8 +1665,15 @@ const ICON_SCREENSHOT_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL
 class Dialog {
     constructor(title, className, $content, onClose) {
         const CE = createElement;
-        let $close;
 
+        // Create dialog overlay
+        this.$overlay = document.querySelector('.bx-dialog-overlay');
+        if (!this.$overlay) {
+            this.$overlay = CE('div', {'class': 'bx-dialog-overlay bx-gone'});
+            document.documentElement.appendChild(this.$overlay);
+        }
+
+        let $close;
         this.onClose = onClose;
         this.$dialog = CE('div', {'class': `bx-dialog ${className} bx-gone`},
                                     CE('b', {}, title),
@@ -1681,15 +1688,18 @@ class Dialog {
 
     show() {
         this.$dialog.classList.remove('bx-gone');
+        this.$overlay.classList.remove('bx-gone');
     }
 
     hide(e) {
         this.$dialog.classList.add('bx-gone');
+        this.$overlay.classList.add('bx-gone');
         this.onClose && this.onClose(e);
     }
 
     toggle() {
         this.$dialog.classList.toggle('bx-gone');
+        this.$overlay.classList.toggle('bx-gone');
     }
 }
 
@@ -3809,8 +3819,9 @@ function addCss() {
     --bx-stream-settings-z-index: 9999;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
-    --bx-dialog-z-index: 1001;
+    --bx-dialog-z-index: 1010;
     --bx-stats-bar-z-index: 1000;
+    --bx-dialog-overlay-z-index: 900;
 }
 
 .bx-settings-button {
@@ -4168,6 +4179,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-stats-bar span:first-of-type {
     min-width: 22px;
+}
+
+.bx-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--bx-dialog-overlay-z-index);
+    background: black;
+    opacity: 50%;
 }
 
 .bx-dialog {
