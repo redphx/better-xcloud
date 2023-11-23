@@ -1772,6 +1772,11 @@ class RemotePlay {
         const CE = createElement;
 
         const $fragment = document.createDocumentFragment();
+
+        if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
+            $fragment.appendChild(CE('span', {}, __('no-consoles-found')));
+        }
+
         for (let con of RemotePlay.#CONSOLES) {
             let $connectButton;
             const $child = CE('div', {'class': 'bx-device-wrapper'},
@@ -1782,7 +1787,7 @@ class RemotePlay {
                     ),
                     CE('div', {'class': 'bx-power-state'}, con.powerState),
                 ),
-                $connectButton = CE('button', {'class': 'bx-primary-button bx-connect-button'}, __('console-connect')),
+                $connectButton = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('console-connect')),
             );
 
             const remoteConfig = {
@@ -4466,10 +4471,16 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-device-wrapper {
     display: flex;
+    margin-bottom: 8px;
+}
+
+.bx-device-wrapper:not(:last-child) {
+  margin-bottom: 14px;
 }
 
 .bx-device-info {
     flex: 1;
+    padding: 4px 0;
 }
 
 .bx-device-name {
@@ -4493,10 +4504,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-power-state {
     color: #888;
     font-size: 14px;
-}
-
-.bx-connect-button {
-    margin: 0;
 }
 
 /* ----------- */
@@ -5128,7 +5135,7 @@ function injectSettingsButton($parent) {
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
-                           $remotePlayLink = CE('b', {'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
+                           $remotePlayLink = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
                         )
                        );
     $updateAvailable = CE('a', {
