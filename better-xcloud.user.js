@@ -3840,7 +3840,7 @@ function addCss() {
 }
 
 .bx-full-width {
-    width: 100%;
+    width: 100% !important;
 }
 
 .bx-gone {
@@ -3849,6 +3849,14 @@ function addCss() {
 
 .bx-hidden {
     visibility: hidden !important;
+}
+
+.bx-no-margin {
+    margin: 0 !important;
+}
+
+.bx-no-padding {
+    padding: 0 !important;
 }
 
 .bx-settings-wrapper {
@@ -3863,6 +3871,8 @@ function addCss() {
 
 .bx-settings-wrapper .bx-settings-title-wrapper {
     display: flex;
+    margin-bottom: 10px;
+    align-items: center;
 }
 
 .bx-settings-wrapper a.bx-settings-title {
@@ -3871,7 +3881,6 @@ function addCss() {
     text-decoration: none;
     font-weight: bold;
     display: block;
-    margin-bottom: 8px;
     color: #5dc21e;
     flex: 1;
 }
@@ -3893,9 +3902,14 @@ function addCss() {
 }
 
 .bx-settings-wrapper a.bx-settings-update {
-    display: none;
+    display: block;
     color: #ff834b;
     text-decoration: none;
+    margin-bottom: px;
+    text-align: center;
+    background: #222;
+    border-radius: 4px;
+    padding: 4px;
 }
 
 @media (hover: hover) {
@@ -4195,6 +4209,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-dialog > div {
     overflow: auto;
+    padding: 2px 0;
 }
 
 .bx-dialog > button {
@@ -5086,6 +5101,7 @@ function injectSettingsButton($parent) {
     });
 
     let $updateAvailable;
+    let $remotePlayLink;
     const $wrapper = CE('div', {'class': 'bx-settings-wrapper'},
                         CE('div', {'class': 'bx-settings-title-wrapper'},
                            CE('a', {
@@ -5093,24 +5109,24 @@ function injectSettingsButton($parent) {
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
-                           $updateAvailable = CE('a', {
-                                'class': 'bx-settings-update',
-                                'href': 'https://github.com/redphx/better-xcloud/releases',
-                                'target': '_blank',
-                           })
+                           $remotePlayLink = CE('b', {'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
                         )
                        );
+    $updateAvailable = CE('a', {
+        'class': 'bx-settings-update bx-gone',
+        'href': 'https://github.com/redphx/better-xcloud/releases',
+        'target': '_blank',
+    });
 
-    const $remotePlayLink = CE('a', {}, __('remote-play'));
     $remotePlayLink.addEventListener('click', e => {
         RemotePlay.showDialog();
     });
-    $wrapper.appendChild($remotePlayLink);
+    $wrapper.appendChild($updateAvailable);
 
     // Show new version indicator
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
         $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
-        $updateAvailable.style.display = 'block';
+        $updateAvailable.classList.remove('bx-gone');
     }
 
     // Render settings
