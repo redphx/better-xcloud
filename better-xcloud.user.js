@@ -6068,11 +6068,21 @@ if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
 
 Function.prototype.nativeBind = Function.prototype.bind;
 Function.prototype.bind = function() {
-    if (arguments.length !== 2 || arguments[0] !== null || typeof arguments[1] !== 'function' || arguments[1].name !== 'bound push') {
+    let valid = false;
+    if (arguments.length === 2 && arguments[0] === null) {
+        if (arguments[1] === 0 || (typeof arguments[1] === 'function')) {
+            valid = true;
+        }
+    }
+
+    if (!valid) {
         return this.nativeBind.apply(this, arguments);
     }
 
-    Function.prototype.bind = Function.prototype.nativeBind;
+    if (typeof arguments[1] === 'function') {
+        console.log('Restored bind()');
+        Function.prototype.bind = Function.prototype.nativeBind;
+    }
 
     const orgFunc = this;
     const newFunc = (a, item) => {
@@ -6092,6 +6102,7 @@ Function.prototype.bind = function() {
 
                 funcStr = funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
                 item[1][id] = eval(funcStr);
+                console.log('Patched /direct-connect');
             }
         }
         orgFunc(a, item);
