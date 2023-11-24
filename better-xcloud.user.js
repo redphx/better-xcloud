@@ -292,13 +292,19 @@ const Translations = {
         "zh-CN": "您的浏览器不支持此功能",
     },
     "can-stream-xbox-360-games": {
+        "de-DE": "Kann Xbox 360 Spiele streamen",
         "en-US": "Can stream Xbox 360 games",
         "ja-JP": "Xbox 360ゲームのストリーミング可能",
+        "pl-PL": "Można strumieniować gry Xbox 360",
+        "tr-TR": "Xbox 360 oyunlarına erişim sağlanabilir",
         "vi-VN": "Có thể stream các game Xbox 360",
     },
     "cant-stream-xbox-360-games": {
+        "de-DE": "Kann Xbox 360 Spiele nicht streamen",
         "en-US": "Can't stream Xbox 360 games",
         "ja-JP": "Xbox 360ゲームのストリーミング不可",
+        "pl-PL": "Nie można strumieniować gier Xbox 360",
+        "tr-TR": "Xbox 360 oyunlarına erişim sağlanamaz",
         "vi-VN": "Không thể stream các game Xbox 360",
     },
     "clarity": {
@@ -375,6 +381,7 @@ const Translations = {
         "de-DE": "Verbinden",
         "en-US": "Connect",
         "ja-JP": "本体に接続",
+        "pl-PL": "Połącz",
         "tr-TR": "Bağlan",
         "vi-VN": "Kết nối",
         "zh-CN": "连接",
@@ -565,7 +572,11 @@ const Translations = {
         "zh-CN": "启用音量控制",
     },
     "getting-consoles-list": {
+        "de-DE": "Rufe Liste der Konsolen ab...",
         "en-US": "Getting the list of consoles...",
+        "ja-JP": "本体のリストを取得中...",
+        "pl-PL": "Pobieranie listy konsoli...",
+        "tr-TR": "Konsol listesine erişiliyor...",
         "vi-VN": "Đang lấy danh sách các console...",
     },
     "hide-idle-cursor": {
@@ -690,6 +701,7 @@ const Translations = {
         "de-DE": "Keine Konsolen gefunden",
         "en-US": "No consoles found",
         "ja-JP": "本体が見つかりません",
+        "pl-PL": "Nie znaleziono konsoli",
         "tr-TR": "Konsol bulunamadı",
         "vi-VN": "Không tìm thấy console nào",
         "zh-CN": "未找到主机",
@@ -778,6 +790,7 @@ const Translations = {
         "de-DE": "Ausgeschaltet",
         "en-US": "Powered off",
         "ja-JP": "電源オフ",
+        "pl-PL": "Zasilanie wyłączone",
         "tr-TR": "Kapalı",
         "vi-VN": "Đã tắt nguồn",
         "zh-CN": "关机",
@@ -786,6 +799,7 @@ const Translations = {
         "de-DE": "Eingeschaltet",
         "en-US": "Powered on",
         "ja-JP": "電源オン",
+        "pl-PL": "Zasilanie włączone",
         "tr-TR": "Açık",
         "vi-VN": "Đang bật nguồn",
         "zh-CN": "开机",
@@ -864,6 +878,7 @@ const Translations = {
         "de-DE": "Remote Play",
         "en-US": "Remote Play",
         "ja-JP": "リモートプレイ",
+        "pl-PL": "Gra zdalna",
         "tr-TR": "Uzaktan Bağlanma",
         "vi-VN": "Chơi từ xa",
         "zh-CN": "远程游玩",
@@ -1102,12 +1117,12 @@ const Translations = {
         "vi-VN": "Âm thanh",
         "zh-CN": "声音",
     },
-    "standby": {
-        "de-DE": "Standby",
-        "en-US": "Standby",
+    "stand-by": {
+        "en-US": "Stand by",
         "ja-JP": "スタンバイ",
+        "pl-PL": "Stan czuwania",
         "tr-TR": "Beklemede",
-        "vi-VN": "Đang chờ",
+        "vi-VN": "Sẵn sàng",
         "zh-CN": "待机",
     },
     "stat-bitrate": {
@@ -1450,6 +1465,7 @@ const Translations = {
         "de-DE": "Unbekannt",
         "en-US": "Unknown",
         "ja-JP": "不明",
+        "pl-PL": "Nieznane",
         "tr-TR": "Bilinmiyor",
         "vi-VN": "Không rõ",
         "zh-CN": "未知",
@@ -1708,6 +1724,13 @@ class RemotePlay {
     static XHOME_TOKEN;
     static #CONSOLES;
 
+    static #STATE_LABELS = {
+        'On': __('powered-on'),
+        'Off': __('powered-off'),
+        'ConnectedStandby': __('stand-by'),
+        'Unknown': __('unknown'),
+    };
+
     static get BASE_DEVICE_INFO() {
         return {
             appInfo: {
@@ -1816,7 +1839,7 @@ class RemotePlay {
                         CE('span', {'class': 'bx-remote-play-device-name'}, con.deviceName),
                         CE('span', {'class': 'bx-remote-play-console-type'}, con.consoleType)
                     ),
-                    CE('div', {'class': 'bx-remote-play-power-state'}, con.powerState),
+                    CE('div', {'class': 'bx-remote-play-power-state'}, RemotePlay.#STATE_LABELS[con.powerState]),
                 ),
                 $connectButton = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('console-connect')),
             );
