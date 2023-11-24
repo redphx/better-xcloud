@@ -6145,7 +6145,53 @@ if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
     GamepadHandler.initialSetup();
 }
 
-let PATCHES_LEFT = 2;
+
+class Patcher {
+    static #PATCHES = {
+        connectMode: function(funcStr) {
+            const text = 'connectMode:"cloud-connect"';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
+        },
+
+        directConnectUrl: function(funcStr) {
+            const index = funcStr.indexOf('/direct-connect');
+            if (index === -1) {
+                return false;
+            }
+
+            return funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
+        },
+    };
+
+    static length() { return Object.keys(Patcher.#PATCHES).length };
+
+    static patch(item) {
+        for (let id in item[1]) {
+            if (Patcher.length() <= 0) {
+                return;
+            }
+
+            for (const patchName in Patcher.#PATCHES) {
+                const func = item[1][id];
+                let funcStr = func.toString();
+
+                const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
+                if (patchedFuncStr) {
+                    item[1][id] = eval(patchedFuncStr);
+                    delete Patcher.#PATCHES[patchName];
+
+                    console.log(`Patched ${patchName}`);
+                    break;
+                }
+            }
+        }
+    }
+}
+
 Function.prototype.nativeBind = Function.prototype.bind;
 Function.prototype.bind = function() {
     let valid = false;
@@ -6166,36 +6212,15 @@ Function.prototype.bind = function() {
 
     const orgFunc = this;
     const newFunc = (a, item) => {
-        if (PATCHES_LEFT === 0) {
+        if (Patcher.length() === 0) {
             orgFunc(a, item);
             return;
         }
 
-        for (let id in item[1]) {
-            const func = item[1][id];
-            let funcStr = func.toString();
-
-            if (funcStr.includes('connectMode:"cloud-connect"')) {
-                funcStr = funcStr.replace('connectMode:"cloud-connect"', `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
-                item[1][id] = eval(funcStr);
-                console.log('Patched connectMode');
-                PATCHES_LEFT -= 1;
-            } else {
-                const index = funcStr.indexOf('/direct-connect');
-                if (index === -1) {
-                    continue;
-                }
-
-                funcStr = funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
-                item[1][id] = eval(funcStr);
-                console.log('Patched /direct-connect');
-                PATCHES_LEFT -= 1;
-            }
-        }
+        Patcher.patch(item);
         orgFunc(a, item);
     }
 
     return newFunc.nativeBind.apply(newFunc, arguments);
 };
-
 RemotePlay.detect();
