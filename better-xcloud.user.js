@@ -1775,17 +1775,49 @@ class RemotePlay {
 
         if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
             $fragment.appendChild(CE('span', {}, __('no-consoles-found')));
+        } else {
+            const $settingNote = CE('p', {});
+
+            const resolutions = [1080, 720];
+            const currentResolution = PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION);
+            const $resolutionSelect = CE('select', {});
+            for (const resolution of resolutions) {
+                const value = `${resolution}p`;
+
+                const $option = CE('option', {'value': value}, value);
+                if (currentResolution === value) {
+                    $option.selected = true;
+                }
+
+                $resolutionSelect.appendChild($option);
+            }
+            $resolutionSelect.addEventListener('change', e => {
+                const value = $resolutionSelect.value;
+
+                $settingNote.textContent = value === '1080p' ? '✅ ' + __('can-stream-xbox-360-games') : '❌ ' + __('cant-stream-xbox-360-games');
+                PREFS.set(Preferences.REMOTE_PLAY_RESOLUTION, value);
+            });
+            $resolutionSelect.dispatchEvent(new Event('change'));
+
+            const $qualitySettings = CE('div', {'class': 'bx-remote-play-settings'},
+                CE('div', {},
+                    CE('label', {}, __('target-resolution'), $settingNote),
+                    $resolutionSelect,
+                )
+            );
+
+            $fragment.appendChild($qualitySettings);
         }
 
         for (let con of RemotePlay.#CONSOLES) {
             let $connectButton;
-            const $child = CE('div', {'class': 'bx-device-wrapper'},
-                CE('div', {'class': 'bx-device-info'},
+            const $child = CE('div', {'class': 'bx-remote-play-device-wrapper'},
+                CE('div', {'class': 'bx-remote-play-device-info'},
                     CE('div', {},
-                        CE('span', {'class': 'bx-device-name'}, con.deviceName),
-                        CE('span', {'class': 'bx-console-type'}, con.consoleType)
+                        CE('span', {'class': 'bx-remote-play-device-name'}, con.deviceName),
+                        CE('span', {'class': 'bx-remote-play-console-type'}, con.consoleType)
                     ),
-                    CE('div', {'class': 'bx-power-state'}, con.powerState),
+                    CE('div', {'class': 'bx-remote-play-power-state'}, con.powerState),
                 ),
                 $connectButton = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('console-connect')),
             );
@@ -1815,8 +1847,7 @@ class RemotePlay {
             $fragment.appendChild($child);
         }
 
-        RemotePlay.#$content.innerHTML = '';
-        RemotePlay.#$content.appendChild($fragment);
+        RemotePlay.#$content.parentElement.replaceChild($fragment, RemotePlay.#$content);
     }
 
     static #onLoad() {
@@ -3101,6 +3132,8 @@ class Preferences {
     static get STATS_OPACITY() { return 'stats_opacity'; }
     static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
 
+    static get REMOTE_PLAY_RESOLUTION() { return 'xhome_resolution'; }
+
     // Deprecated
     static get DEPRECATED_USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
 
@@ -3415,6 +3448,14 @@ class Preferences {
         },
         [Preferences.STATS_CONDITIONAL_FORMATTING]: {
             'default': false,
+        },
+
+        [Preferences.REMOTE_PLAY_RESOLUTION]: {
+            'default': 1080,
+            'options': {
+                '1080p': '1080p',
+                '720p': '720p',
+            },
         },
 
         // Deprecated
@@ -4469,28 +4510,62 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-top: 14px;
 }
 
-.bx-device-wrapper {
+.bx-remote-play-settings {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2d2d2d;
+}
+
+.bx-remote-play-settings > div {
+    display: flex;
+}
+
+.bx-remote-play-settings label {
+    flex: 1;
+}
+
+.bx-remote-play-settings label p {
+    margin: 4px 0 0;
+    padding: 0;
+    color: #888;
+    font-size: 12px;
+}
+
+.bx-remote-play-settings input {
+    display: block;
+    margin: 0 auto;
+}
+
+.bx-remote-play-settings span {
+    font-weight: bold;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.bx-remote-play-device-wrapper {
     display: flex;
     margin-bottom: 8px;
 }
 
-.bx-device-wrapper:not(:last-child) {
+.bx-remote-play-device-wrapper:not(:last-child) {
   margin-bottom: 14px;
 }
 
-.bx-device-info {
+.bx-remote-play-device-info {
     flex: 1;
     padding: 4px 0;
 }
 
-.bx-device-name {
+.bx-remote-play-device-name {
     font-size: 20px;
     font-weight: bold;
     display: inline-block;
     vertical-align: middle;
 }
 
-.bx-console-type {
+.bx-remote-play-console-type {
     font-size: 12px;
     background: #888;
     color: #fff;
@@ -4501,7 +4576,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     vertical-align: middle;
 }
 
-.bx-power-state {
+.bx-remote-play-power-state {
     color: #888;
     font-size: 14px;
 }
