@@ -4849,6 +4849,8 @@ function interceptHttpRequests() {
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
     const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
+    const PREF_REMOTE_PLAY_RESOLUTION = PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION);
+
     const orgFetch = window.fetch;
     window.fetch = async (...arg) => {
         let request = arg[0];
@@ -4865,7 +4867,13 @@ function interceptHttpRequests() {
             for (const pair of clone.headers.entries()) {
                 headers[pair[0]] = pair[1];
             }
-            headers['x-ms-device-info'] = JSON.stringify(RemotePlay.BASE_DEVICE_INFO);
+
+            const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
+            if (PREF_REMOTE_PLAY_RESOLUTION === '720p') {
+                deviceInfo.dev.os.name = 'android';
+            }
+
+            headers['x-ms-device-info'] = JSON.stringify(deviceInfo);
             headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
 
             request = new Request('https://wus2.gssv-play-prodxhome.xboxlive.com/v5/sessions/home/play', {
