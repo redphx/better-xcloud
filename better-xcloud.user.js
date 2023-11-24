@@ -1650,7 +1650,6 @@ var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 var APP_CONTEXT;
 
-// const IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play=');
 let IS_REMOTE_PLAYING;
 let REMOTE_PLAY_CONFIG;
 
@@ -1822,13 +1821,12 @@ class RemotePlay {
                 $connectButton = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('console-connect')),
             );
 
-            const remoteConfig = {
-                    quality: 1080,
-                    serverId: con.serverId,
-                };
+            REMOTE_PLAY_CONFIG = {
+                serverId: con.serverId,
+            };
 
             $connectButton.addEventListener('click', e => {
-                const url = window.location.href.substring(0, 31) + '/launch/starfield/9NCJSXWZTP88#remote-play=' + JSON.stringify(remoteConfig);
+                const url = window.location.href.substring(0, 31) + '/launch/starfield/9NCJSXWZTP88#remote-play';
                 // const url = '/play';
 
                 const $pageContent = document.getElementById('PageContent');
@@ -1862,14 +1860,12 @@ class RemotePlay {
     }
 
     static detect() {
-        IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play=');
-        REMOTE_PLAY_CONFIG = {}
-        window.BX_REMOTE_PLAY_CONFIG = null;
+        IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
         if (IS_REMOTE_PLAYING) {
-            REMOTE_PLAY_CONFIG = JSON.parse(decodeURIComponent(window.location.hash.substring(13)));
             window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
-            console.log(REMOTE_PLAY_CONFIG);
             window.history.replaceState({origin: 'better-xcloud'}, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play');
+        } else {
+            window.BX_REMOTE_PLAY_CONFIG = null;
         }
     }
 
