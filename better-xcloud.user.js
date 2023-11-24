@@ -4875,6 +4875,37 @@ function interceptHttpRequests() {
     const PREF_REMOTE_PLAY_RESOLUTION = PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION);
 
     const orgFetch = window.fetch;
+
+    const patchIpv6 = function(...arg) {
+        // ICE server candidates
+        const request = arg[0];
+        const url = (typeof request === 'string') ? request : request.url;
+
+        if (PREF_PREFER_IPV6_SERVER && url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
+            const promise = orgFetch(...arg);
+
+            return promise.then(response => {
+                return response.clone().text().then(text => {
+                    if (!text.length) {
+                        return response;
+                    }
+
+                    const obj = JSON.parse(text);
+                    let exchangeResponse = JSON.parse(obj.exchangeResponse);
+                    exchangeResponse = updateIceCandidates(exchangeResponse)
+                    obj.exchangeResponse = JSON.stringify(exchangeResponse);
+
+                    response.json = () => Promise.resolve(obj);
+                    response.text = () => Promise.resolve(JSON.stringify(obj));
+
+                    return response;
+                });
+            });
+        }
+
+        return null;
+    }
+
     window.fetch = async (...arg) => {
         let request = arg[0];
         const url = (typeof request === 'string') ? request : request.url;
@@ -4945,7 +4976,7 @@ function interceptHttpRequests() {
             }
             headers['authorization'] = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
 
-            const index = request.url.indexOf(".xboxlive.com");
+            const index = request.url.indexOf('.xboxlive.com');
             request = new Request('https://wus.core.gssv-play-prod' + request.url.substring(index), {
                 method: clone.method,
                 body: await clone.text(),
@@ -4974,11 +5005,20 @@ function interceptHttpRequests() {
                 opts.body = await clone.text();
             }
 
-            const index = request.url.indexOf(".xboxlive.com");
+            const index = request.url.indexOf('.xboxlive.com');
             request = new Request('https://wus2.gssv-play-prodxhome' + request.url.substring(index), opts);
 
             arg[0] = request;
-            return orgFetch(...arg);
+
+            return patchIpv6(...arg) || orgFetch(...arg);
+        }
+
+        // ICE server candidates
+        if (!IS_REMOTE_PLAYING) {
+            const patchedIpv6 = patchIpv6(...arg);
+            if (patchedIpv6) {
+                return patchedIpv6;
+            }
         }
 
         // Server list
@@ -5153,29 +5193,6 @@ function interceptHttpRequests() {
                     for (let game of json.results) {
                         TitlesInfo.saveFromTitleInfo(game);
                     }
-
-                    return response;
-                });
-            });
-        }
-
-        // ICE server candidates
-        if (PREF_PREFER_IPV6_SERVER && url.endsWith('/ice') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            const promise = orgFetch(...arg);
-
-            return promise.then(response => {
-                return response.clone().text().then(text => {
-                    if (!text.length) {
-                        return response;
-                    }
-
-                    const obj = JSON.parse(text);
-                    let exchangeResponse = JSON.parse(obj.exchangeResponse);
-                    exchangeResponse = updateIceCandidates(exchangeResponse)
-                    obj.exchangeResponse = JSON.stringify(exchangeResponse);
-
-                    response.json = () => Promise.resolve(obj);
-                    response.text = () => Promise.resolve(JSON.stringify(obj));
 
                     return response;
                 });
