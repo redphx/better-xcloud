@@ -296,6 +296,7 @@ const Translations = {
         "en-US": "Can stream Xbox 360 games",
         "ja-JP": "Xbox 360ゲームのストリーミング可能",
         "pl-PL": "Można strumieniować gry Xbox 360",
+        "pt-BR": "Pode transmitir jogos de Xbox 360",
         "tr-TR": "Xbox 360 oyunlarına erişim sağlanabilir",
         "vi-VN": "Có thể stream các game Xbox 360",
     },
@@ -304,6 +305,7 @@ const Translations = {
         "en-US": "Can't stream Xbox 360 games",
         "ja-JP": "Xbox 360ゲームのストリーミング不可",
         "pl-PL": "Nie można strumieniować gier Xbox 360",
+        "pt-BR": "Não pode transmitir jogos de Xbox 360",
         "tr-TR": "Xbox 360 oyunlarına erişim sağlanamaz",
         "vi-VN": "Không thể stream các game Xbox 360",
     },
@@ -382,6 +384,7 @@ const Translations = {
         "en-US": "Connect",
         "ja-JP": "本体に接続",
         "pl-PL": "Połącz",
+        "pt-BR": "Conectar",
         "tr-TR": "Bağlan",
         "vi-VN": "Kết nối",
         "zh-CN": "连接",
@@ -409,6 +412,12 @@ const Translations = {
         "tr-TR": "Oyun Kumandası",
         "vi-VN": "Bộ điều khiển",
         "zh-CN": "手柄",
+    },
+    "controller-polling-rate": {
+        "en-US": "Controller polling rate",
+        "ja-JP": "コントローラーポーリングレート",
+        "pt-BR": "Taxa de consulta do controle",
+        "vi-VN": "Tần suất cập nhật của bộ điều khiển",
     },
     "custom": {
         "de-DE": "Benutzerdefiniert",
@@ -571,11 +580,17 @@ const Translations = {
         "vi-VN": "Bật tính năng điều khiển âm lượng",
         "zh-CN": "启用音量控制",
     },
+    "fast": {
+        "en-US": "Fast",
+        "ja-JP": "高速",
+        "vi-VN": "Nhanh",
+    },
     "getting-consoles-list": {
         "de-DE": "Rufe Liste der Konsolen ab...",
         "en-US": "Getting the list of consoles...",
         "ja-JP": "本体のリストを取得中...",
         "pl-PL": "Pobieranie listy konsoli...",
+        "pt-BR": "Obtendo a lista de consoles...",
         "tr-TR": "Konsol listesine erişiliyor...",
         "vi-VN": "Đang lấy danh sách các console...",
     },
@@ -637,6 +652,8 @@ const Translations = {
     },
     "layout": {
         "en-US": "Layout",
+        "ja-JP": "レイアウト",
+        "pt-BR": "Layout",
         "vi-VN": "Bố cục",
     },
     "loading-screen": {
@@ -652,6 +669,11 @@ const Translations = {
         "tr-TR": "Yükleme ekranı",
         "vi-VN": "Màn hình chờ",
         "zh-CN": "载入画面",
+    },
+    "max-bitrate": {
+        "en-US": "Max bitrate",
+        "ja-JP": "最大ビットレート",
+        "vi-VN": "Bitrate tối đa",
     },
     "menu-stream-settings": {
         "de-DE": "Stream Einstellungen",
@@ -706,6 +728,7 @@ const Translations = {
         "en-US": "No consoles found",
         "ja-JP": "本体が見つかりません",
         "pl-PL": "Nie znaleziono konsoli",
+        "pt-BR": "Nenhum console encontrado",
         "tr-TR": "Konsol bulunamadı",
         "vi-VN": "Không tìm thấy console nào",
         "zh-CN": "未找到主机",
@@ -795,6 +818,7 @@ const Translations = {
         "en-US": "Powered off",
         "ja-JP": "電源オフ",
         "pl-PL": "Zasilanie wyłączone",
+        "pt-BR": "Desligado",
         "tr-TR": "Kapalı",
         "vi-VN": "Đã tắt nguồn",
         "zh-CN": "关机",
@@ -804,6 +828,7 @@ const Translations = {
         "en-US": "Powered on",
         "ja-JP": "電源オン",
         "pl-PL": "Zasilanie włączone",
+        "pt-BR": "Ligado",
         "tr-TR": "Açık",
         "vi-VN": "Đang bật nguồn",
         "zh-CN": "开机",
@@ -883,6 +908,7 @@ const Translations = {
         "en-US": "Remote Play",
         "ja-JP": "リモートプレイ",
         "pl-PL": "Gra zdalna",
+        "pt-BR": "Jogo Remoto",
         "tr-TR": "Uzaktan Bağlanma",
         "vi-VN": "Chơi từ xa",
         "zh-CN": "远程游玩",
@@ -1097,6 +1123,11 @@ const Translations = {
         "vi-VN": "Bỏ qua video Xbox",
         "zh-CN": "跳过 Xbox 启动动画",
     },
+    "slow": {
+        "en-US": "Slow",
+        "ja-JP": "低速",
+        "vi-VN": "Chậm",
+    },
     "small": {
         "de-DE": "Klein",
         "en-US": "Small",
@@ -1113,6 +1144,8 @@ const Translations = {
     },
     "smart-tv": {
         "en-US": "Smart TV",
+        "ja-JP": "スマートTV",
+        "pt-BR": "Smart TV",
         "vi-VN": "TV thông minh",
     },
     "sound": {
@@ -1130,6 +1163,7 @@ const Translations = {
         "en-US": "Standby",
         "ja-JP": "スタンバイ",
         "pl-PL": "Stan czuwania",
+        "pt-BR": "Suspenso",
         "tr-TR": "Beklemede",
         "vi-VN": "Đang ở chế độ chờ",
         "zh-CN": "待机",
@@ -1475,9 +1509,15 @@ const Translations = {
         "en-US": "Unknown",
         "ja-JP": "不明",
         "pl-PL": "Nieznane",
+        "pt-BR": "Desconhecido",
         "tr-TR": "Bilinmiyor",
         "vi-VN": "Không rõ",
         "zh-CN": "未知",
+    },
+    "unlimited": {
+        "en-US": "Unlimited",
+        "ja-JP": "無制限",
+        "vi-VN": "Không giới hạn",
     },
     "unmuted": {
         "de-DE": "Ton an",
@@ -3128,6 +3168,7 @@ class Preferences {
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
+    static get CONTROLLER_POLLING_RATE() { return 'controller_polling_rate'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -3350,9 +3391,20 @@ class Preferences {
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
             'default': false,
         },
+
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
         },
+        [Preferences.CONTROLLER_POLLING_RATE]: {
+            'type': 'number',
+            'default': 50,
+            'options': {
+                16: '62.5 Hz (16ms)',
+                32: '31.25 Hz (32ms)',
+                50: `20 Hz (50ms - ${__('default')})`,
+            },
+        },
+
         [Preferences.REDUCE_ANIMATIONS]: {
             'default': false,
         },
@@ -3629,7 +3681,8 @@ class Preferences {
 
             $control.value = currentValue;
             $control.addEventListener('change', e => {
-                PREFS.set(key, e.target.value);
+                const value = (setting.type && setting.type === 'number') ? parseInt(e.target.value) : e.target.value;
+                PREFS.set(key, value);
                 onChange && onChange(e);
             });
         } else if ('multiple_options' in setting) {
@@ -3675,7 +3728,7 @@ class Preferences {
                 let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
                 e.target.value = value;
 
-                PREFS.set(key, e.target.value);
+                PREFS.set(key, value);
                 onChange && onChange(e);
             });
         } else {
@@ -3814,6 +3867,18 @@ const PREFS = new Preferences();
 
 class Patcher {
     static #PATCHES = {
+        // Modify controller polling rate
+        controllerPollingRate: (PREFS.get(Preferences.CONTROLLER_POLLING_RATE) !== 50) && function(funcStr) {
+            const text = '.startGamepadPolling=()';
+            const index = funcStr.indexOf(text);
+            if (index === -1) {
+                return false;
+            }
+
+            const patchedStr = funcStr.substring(index, index + 100).replace(/setInterval\((\w+),(\d+)\)/, `setInterval($1,${PREFS.get(Preferences.CONTROLLER_POLLING_RATE)})`);
+            return funcStr.substring(0, index) + patchedStr + funcStr.substring(index + 100);
+        },
+
         // Enable Remote Play feature
         connectMode: function(funcStr) {
             const text = 'connectMode:"cloud-connect"';
@@ -5441,6 +5506,7 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
         [__('controller')]: {
+            [Preferences.CONTROLLER_POLLING_RATE]: __('controller-polling-rate'),
             [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
         },
         [__('touch-controller')]: {
