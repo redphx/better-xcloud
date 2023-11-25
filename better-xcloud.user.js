@@ -16,6 +16,8 @@
 const SCRIPT_VERSION = '1.19';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
+const ENABLE_MKB = false;
+
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
 
@@ -69,6 +71,7 @@ const Translations = {
             'es-ES',
             'fr-FR',
             'ko-KR',
+            'it-IT',
             'ja-JP',
             'pl-PL',
             'pt-BR',
@@ -100,6 +103,7 @@ const Translations = {
         "en-US": "Advanced",
         "es-ES": "Avanzado",
         "fr-FR": "Options avancées",
+        "it-IT": "Avanzate",
         "ja-JP": "高度な設定",
         "ko-KR": "고급",
         "pl-PL": "Zaawansowane",
@@ -114,6 +118,7 @@ const Translations = {
         "en-US": "Audio",
         "es-ES": "Audio",
         "fr-FR": "Audio",
+        "it-IT": "Audio",
         "ja-JP": "音声",
         "ko-KR": "오디오",
         "pl-PL": "Dźwięk",
@@ -128,6 +133,7 @@ const Translations = {
         "en-US": "Auto",
         "es-ES": "Auto",
         "fr-FR": "Auto",
+        "it-IT": "Automatico",
         "ja-JP": "自動",
         "ko-KR": "자동",
         "pl-PL": "Automatyczne",
@@ -142,6 +148,7 @@ const Translations = {
         "en-US": "Audio",
         "es-ES": "Audio",
         "fr-FR": "Audio",
+        "it-IT": "Audio",
         "ja-JP": "音声",
         "ko-KR": "오디오",
         "pl-PL": "Dźwięk",
@@ -156,6 +163,7 @@ const Translations = {
         "en-US": "Battery",
         "es-ES": "Batería",
         "fr-FR": "Batterie",
+        "it-IT": "Batteria",
         "ja-JP": "バッテリー",
         "ko-KR": "배터리",
         "pl-PL": "Bateria",
@@ -170,6 +178,7 @@ const Translations = {
         "en-US": "In",
         "es-ES": "Entrada",
         "fr-FR": "Dans",
+        "it-IT": "DL",
         "ja-JP": "IN",
         "ko-KR": "다운로드",
         "pl-PL": "Pobieranie",
@@ -184,6 +193,7 @@ const Translations = {
         "en-US": "Out",
         "es-ES": "Salida",
         "fr-FR": "Sorti",
+        "it-IT": "UP",
         "ja-JP": "OUT",
         "ko-KR": "업로드",
         "pl-PL": "Wysyłanie",
@@ -198,6 +208,7 @@ const Translations = {
         "en-US": "Playtime",
         "es-ES": "Tiempo jugado",
         "fr-FR": "Temps de jeu",
+        "it-IT": "In gioco da",
         "ja-JP": "プレイ時間",
         "ko-KR": "플레이한 시간",
         "pl-PL": "Czas gry",
@@ -212,6 +223,7 @@ const Translations = {
         "en-US": "Server",
         "es-ES": "Servidor",
         "fr-FR": "Serveur",
+        "it-IT": "Server",
         "ja-JP": "サーバー",
         "ko-KR": "서버",
         "pl-PL": "Serwer",
@@ -226,6 +238,7 @@ const Translations = {
         "en-US": "Video",
         "es-ES": "Video",
         "fr-FR": "Vidéo",
+        "it-IT": "Video",
         "ja-JP": "映像",
         "ko-KR": "비디오",
         "pl-PL": "Obraz",
@@ -240,6 +253,7 @@ const Translations = {
         "en-US": "Bottom-left",
         "es-ES": "Inferior izquierdo",
         "fr-FR": "En bas à gauche",
+        "it-IT": "In basso a sinistra",
         "ja-JP": "左下",
         "ko-KR": "좌측 하단",
         "pl-PL": "Lewy dolny róg",
@@ -254,6 +268,7 @@ const Translations = {
         "en-US": "Bottom-right",
         "es-ES": "Inferior derecha",
         "fr-FR": "Bas-droit",
+        "it-IT": "In basso a destra",
         "ja-JP": "右下",
         "ko-KR": "우측 하단",
         "pl-PL": "Prawy dolny róg",
@@ -268,6 +283,7 @@ const Translations = {
         "en-US": "Brightness",
         "es-ES": "Brillo",
         "fr-FR": "Luminosité",
+        "it-IT": "Luminosità",
         "ja-JP": "輝度",
         "ko-KR": "밝기",
         "pl-PL": "Jasność",
@@ -282,6 +298,7 @@ const Translations = {
         "en-US": "Your browser doesn't support this feature",
         "es-ES": "Su navegador no soporta esta característica",
         "fr-FR": "Votre navigateur ne supporte pas cette fonctionnalité",
+        "it-IT": "Il tuo browser non supporta questa funzione",
         "ja-JP": "お使いのブラウザはこの機能をサポートしていません。",
         "ko-KR": "브라우저에서 이 기능을 지원하지 않습니다.",
         "pl-PL": "Twoja przeglądarka nie obsługuje tej funkcji",
@@ -291,11 +308,32 @@ const Translations = {
         "vi-VN": "Trình duyệt không hỗ trợ tính năng này",
         "zh-CN": "您的浏览器不支持此功能",
     },
+    "can-stream-xbox-360-games": {
+        "de-DE": "Kann Xbox 360 Spiele streamen",
+        "en-US": "Can stream Xbox 360 games",
+        "it-IT": "Puoi riprodurre i giochi Xbox 360",
+        "ja-JP": "Xbox 360ゲームのストリーミング可能",
+        "pl-PL": "Można strumieniować gry Xbox 360",
+        "pt-BR": "Pode transmitir jogos de Xbox 360",
+        "tr-TR": "Xbox 360 oyunlarına erişim sağlanabilir",
+        "vi-VN": "Có thể stream các game Xbox 360",
+    },
+    "cant-stream-xbox-360-games": {
+        "de-DE": "Kann Xbox 360 Spiele nicht streamen",
+        "en-US": "Can't stream Xbox 360 games",
+        "it-IT": "Impossibile riprodurre i giochi Xbox 360",
+        "ja-JP": "Xbox 360ゲームのストリーミング不可",
+        "pl-PL": "Nie można strumieniować gier Xbox 360",
+        "pt-BR": "Não pode transmitir jogos de Xbox 360",
+        "tr-TR": "Xbox 360 oyunlarına erişim sağlanamaz",
+        "vi-VN": "Không thể stream các game Xbox 360",
+    },
     "clarity": {
         "de-DE": "Klarheit",
         "en-US": "Clarity",
         "es-ES": "Claridad",
         "fr-FR": "Clarté",
+        "it-IT": "Nitidezza",
         "ja-JP": "明瞭度（クラリティ）",
         "ko-KR": "선명도",
         "pl-PL": "Ostrość",
@@ -310,6 +348,7 @@ const Translations = {
         "en-US": "These settings don't work when the Clarity Boost mode is ON",
         "es-ES": "Estos ajustes no funcionan cuando el modo Clarity Boost está activado",
         "fr-FR": "Ces paramètres ne fonctionnent pas lorsque le mode Clarity Boost est activé",
+        "it-IT": "Queste impostazioni non funzionano quando la modalità Clarity Boost è attiva",
         "ja-JP": "クラリティブーストが有効の場合、映像設定は無効化されます。",
         "ko-KR": "이 설정들은 선명도 향상 기능이 켜져 있을 때는 동작하지 않습니다.",
         "pl-PL": "Te ustawienia nie będą działać, gdy tryb \"Clarity Boost\" jest włączony",
@@ -324,6 +363,7 @@ const Translations = {
         "en-US": "Close",
         "es-ES": "Cerrar",
         "fr-FR": "Fermer",
+        "it-IT": "Chiudi",
         "ja-JP": "閉じる",
         "ko-KR": "닫기",
         "pl-PL": "Zamknij",
@@ -338,6 +378,7 @@ const Translations = {
         "en-US": "Conditional formatting text color",
         "es-ES": "Color condicional de formato de texto",
         "fr-FR": "Couleur du texte de mise en forme conditionnelle",
+        "it-IT": "Colore testo formattazione condizionale",
         "ja-JP": "状態に応じた文字色で表示",
         "ko-KR": "통계에 따라 글자 색 지정",
         "pl-PL": "Kolor tekstu zależny od wartości",
@@ -352,6 +393,7 @@ const Translations = {
         "en-US": "Do you want to refresh the stream?",
         "es-ES": "¿Quieres actualizar el stream?\n",
         "fr-FR": "Voulez-vous actualiser le stream ?",
+        "it-IT": "Vuoi aggiornare lo stream?",
         "ja-JP": "ストリーミングをリフレッシュしますか？",
         "ko-KR": "스트리밍을 재시작할까요?",
         "pl-PL": "Czy chcesz odświeżyć transmisję?",
@@ -361,11 +403,23 @@ const Translations = {
         "vi-VN": "Bạn có muốn kết nối lại stream không?",
         "zh-CN": "您想要刷新吗？",
     },
+    "console-connect": {
+        "de-DE": "Verbinden",
+        "en-US": "Connect",
+        "it-IT": "Connetti",
+        "ja-JP": "本体に接続",
+        "pl-PL": "Połącz",
+        "pt-BR": "Conectar",
+        "tr-TR": "Bağlan",
+        "vi-VN": "Kết nối",
+        "zh-CN": "连接",
+    },
     "contrast": {
         "de-DE": "Kontrast",
         "en-US": "Contrast",
         "es-ES": "Contraste",
         "fr-FR": "Contraste",
+        "it-IT": "Contrasto",
         "ja-JP": "コントラスト",
         "ko-KR": "대비",
         "pl-PL": "Kontrast",
@@ -376,17 +430,29 @@ const Translations = {
         "zh-CN": "对比度",
     },
     "controller": {
+        "de-DE": "Controller",
         "en-US": "Controller",
+        "it-IT": "Controller",
         "ja-JP": "コントローラー",
         "pl-PL": "Kontroler",
         "pt-BR": "Controle",
+        "tr-TR": "Oyun Kumandası",
         "vi-VN": "Bộ điều khiển",
+        "zh-CN": "手柄",
+    },
+    "controller-polling-rate": {
+        "en-US": "Controller polling rate",
+        "ja-JP": "コントローラーポーリングレート",
+        "pt-BR": "Taxa de consulta do controle",
+        "tr-TR": "Oyun kumandası işlem hızı",
+        "vi-VN": "Tần suất cập nhật của bộ điều khiển",
     },
     "custom": {
         "de-DE": "Benutzerdefiniert",
         "en-US": "Custom",
         "es-ES": "Personalizado",
         "fr-FR": "Personnalisée",
+        "it-IT": "Personalizzato",
         "ja-JP": "カスタム",
         "ko-KR": "사용자 지정",
         "pl-PL": "Niestandardowe",
@@ -401,6 +467,7 @@ const Translations = {
         "en-US": "Default",
         "es-ES": "Por defecto",
         "fr-FR": "Par défaut",
+        "it-IT": "Predefinito",
         "ja-JP": "デフォルト",
         "ko-KR": "기본값",
         "pl-PL": "Domyślny",
@@ -415,6 +482,7 @@ const Translations = {
         "en-US": "Your device doesn't have touch support",
         "es-ES": "Tu dispositivo no tiene soporte táctil",
         "fr-FR": "Votre appareil n'a pas de support tactile",
+        "it-IT": "Il tuo dispositivo non ha uno schermo touch",
         "ja-JP": "お使いのデバイスはタッチ機能をサポートしていません。",
         "ko-KR": "브라우저에서 터치를 지원하지 않습니다.",
         "pl-PL": "Twoje urządzenie nie obsługuję tej funkcji",
@@ -429,6 +497,7 @@ const Translations = {
         "en-US": "Disable",
         "es-ES": "Deshabilitar",
         "fr-FR": "Désactiver",
+        "it-IT": "Disabilita",
         "ja-JP": "無効",
         "ko-KR": "비활성화",
         "pl-PL": "Wyłącz",
@@ -443,6 +512,7 @@ const Translations = {
         "en-US": "Disable bandwidth checking",
         "es-ES": "Desactivar comprobación de ancho de banda",
         "fr-FR": "Désactiver la vérification de bande passante",
+        "it-IT": "Disabilita il controllo della larghezza di banda",
         "ja-JP": "帯域幅の警告を非表示",
         "ko-KR": "대역폭 확인 비활성화",
         "pl-PL": "Wyłącz sprawdzanie przepustowości",
@@ -457,17 +527,20 @@ const Translations = {
         "en-US": "Disable post-stream feedback dialog",
         "es-ES": "Desactivar diálogo de retroalimentación post-stream",
         "fr-FR": "Désactiver la boîte de dialogue de commentaires post-stream",
+        "it-IT": "Disabilita la finestra di feedback al termine dello stream",
         "ja-JP": "ストリーミング終了後のフィードバック画面を非表示",
         "pl-PL": "Wyłącz okno opinii po zakończeniu transmisji",
         "pt-BR": "Desativar o diálogo de feedback pós-stream",
         "tr-TR": "Yayın sonrası geribildirim ekranını kapat",
         "vi-VN": "Tắt hộp thoại góp ý sau khi chơi xong",
+        "zh-CN": "禁用反馈问卷",
     },
     "disable-social-features": {
         "de-DE": "Soziale Funktionen deaktivieren",
         "en-US": "Disable social features",
         "es-ES": "Desactivar características sociales",
         "fr-FR": "Désactiver les fonctionnalités sociales",
+        "it-IT": "Disabilita le funzioni social",
         "ja-JP": "ソーシャル機能を無効",
         "ko-KR": "소셜 기능 비활성화",
         "pl-PL": "Wyłącz funkcje społecznościowe",
@@ -482,6 +555,7 @@ const Translations = {
         "en-US": "Disable xCloud analytics",
         "es-ES": "Desactivar análisis de xCloud",
         "fr-FR": "Désactiver les analyses xCloud",
+        "it-IT": "Disabilita l'analitica di xCloud",
         "ja-JP": "xCloudアナリティクスを無効",
         "ko-KR": "xCloud 통계 비활성화",
         "pl-PL": "Wyłącz analitykę xCloud",
@@ -492,17 +566,22 @@ const Translations = {
         "zh-CN": "关闭 xCloud 遥测数据统计",
     },
     "enable-controller-shortcuts": {
+        "de-DE": "Controller-Shortcuts aktivieren",
         "en-US": "Enable controller shortcuts",
+        "it-IT": "Consenti scorciatoie da controller",
         "ja-JP": "コントローラーショートカットを有効化",
         "pl-PL": "Włącz skróty kontrolera",
         "pt-BR": "Ativar atalhos do controle",
+        "tr-TR": "Oyun kumandası kısayollarını aç",
         "vi-VN": "Bật tính năng phím tắt cho bộ điều khiển",
+        "zh-CN": "启用手柄快捷方式",
     },
     "enable-mic-on-startup": {
         "de-DE": "Mikrofon bei Spielstart aktivieren",
         "en-US": "Enable microphone on game launch",
         "es-ES": "Activar micrófono al iniciar el juego",
         "fr-FR": "Activer le microphone lors du lancement du jeu",
+        "it-IT": "Abilita il microfono all'avvio del gioco",
         "ja-JP": "ゲーム起動時にマイクを有効化",
         "ko-KR": "게임 시작 시 마이크 활성화",
         "pl-PL": "Włącz mikrofon przy uruchomieniu gry",
@@ -512,11 +591,18 @@ const Translations = {
         "vi-VN": "Bật mic lúc vào game",
         "zh-CN": "游戏启动时打开麦克风",
     },
+    "enable-mkb": {
+        "en-US": "Enable Mouse & Keyboard support",
+        "ja-JP": "マウス＆キーボードのサポートを有効化",
+        "tr-TR": "Klavye ve fare desteğini aktive et",
+        "vi-VN": "Kích hoạt hỗ trợ Chuột & Bàn phím",
+    },
     "enable-quick-glance-mode": {
         "de-DE": "\"Kurzer Blick\"-Modus aktivieren",
         "en-US": "Enable \"Quick Glance\" mode",
         "es-ES": "Activar modo \"Vista rápida\"",
         "fr-FR": "Activer le mode \"Aperçu rapide\"",
+        "it-IT": "Abilita la modalità Quick Glance",
         "ja-JP": "クイック確認モードを有効化",
         "ko-KR": "\"퀵 글랜스\" 모드 활성화",
         "pl-PL": "Włącz tryb \"Quick Glance\"",
@@ -531,6 +617,7 @@ const Translations = {
         "en-US": "Enable volume control feature",
         "es-ES": "Habilitar la función de control de volumen",
         "fr-FR": "Activer la fonction de contrôle du volume",
+        "it-IT": "Abilità controlli volume",
         "ja-JP": "音量調節機能を有効化",
         "ko-KR": "음량 조절 기능 활성화",
         "pl-PL": "Włącz funkcję kontroli głośności",
@@ -539,11 +626,28 @@ const Translations = {
         "vi-VN": "Bật tính năng điều khiển âm lượng",
         "zh-CN": "启用音量控制",
     },
+    "fast": {
+        "en-US": "Fast",
+        "ja-JP": "高速",
+        "tr-TR": "Hızlı",
+        "vi-VN": "Nhanh",
+    },
+    "getting-consoles-list": {
+        "de-DE": "Rufe Liste der Konsolen ab...",
+        "en-US": "Getting the list of consoles...",
+        "it-IT": "Ottenere la lista delle consoles...",
+        "ja-JP": "本体のリストを取得中...",
+        "pl-PL": "Pobieranie listy konsoli...",
+        "pt-BR": "Obtendo a lista de consoles...",
+        "tr-TR": "Konsol listesine erişiliyor...",
+        "vi-VN": "Đang lấy danh sách các console...",
+    },
     "hide-idle-cursor": {
         "de-DE": "Mauszeiger bei Inaktivität ausblenden",
         "en-US": "Hide mouse cursor on idle",
         "es-ES": "Ocultar el cursor del ratón al estar inactivo",
         "fr-FR": "Masquer le curseur de la souris",
+        "it-IT": "Nascondi il cursore previa inattività",
         "ja-JP": "マウスカーソルを3秒間動かしていない場合に非表示",
         "ko-KR": "대기 상태에서 마우스 커서 숨기기",
         "pl-PL": "Ukryj kursor myszy podczas bezczynności",
@@ -558,6 +662,7 @@ const Translations = {
         "en-US": "Hide System menu's icon",
         "es-ES": "Ocultar el icono del menú del sistema",
         "fr-FR": "Masquer l'icône du menu système",
+        "it-IT": "Nascondi icona del menu a tendina",
         "ja-JP": "システムメニューのアイコンを非表示",
         "ko-KR": "시스템 메뉴 아이콘 숨기기",
         "pl-PL": "Ukryj ikonę menu systemu",
@@ -572,6 +677,7 @@ const Translations = {
         "en-US": "Language",
         "es-ES": "Idioma",
         "fr-FR": "Langue",
+        "it-IT": "Lingua",
         "ja-JP": "言語",
         "ko-KR": "언어",
         "pl-PL": "Język",
@@ -586,6 +692,7 @@ const Translations = {
         "en-US": "Large",
         "es-ES": "Grande",
         "fr-FR": "Grande",
+        "it-IT": "Grande",
         "ja-JP": "大",
         "ko-KR": "크게",
         "pl-PL": "Duży",
@@ -595,11 +702,19 @@ const Translations = {
         "vi-VN": "Lớn",
         "zh-CN": "大",
     },
+    "layout": {
+        "en-US": "Layout",
+        "ja-JP": "レイアウト",
+        "pt-BR": "Layout",
+        "tr-TR": "Arayüz Görünümü",
+        "vi-VN": "Bố cục",
+    },
     "loading-screen": {
         "de-DE": "Ladebildschirm",
         "en-US": "Loading screen",
         "es-ES": "Pantalla de carga",
         "fr-FR": "Écran de chargement",
+        "it-IT": "Schermata di caricamento",
         "ja-JP": "ロード画面",
         "ko-KR": "로딩 화면",
         "pl-PL": "Ekran wczytywania",
@@ -609,11 +724,24 @@ const Translations = {
         "vi-VN": "Màn hình chờ",
         "zh-CN": "载入画面",
     },
+    "max-bitrate": {
+        "en-US": "Max bitrate",
+        "ja-JP": "最大ビットレート",
+        "tr-TR": "Maksimum bithızı",
+        "vi-VN": "Bitrate tối đa",
+    },
+    "may-not-work-properly": {
+        "en-US": "May not work properly!",
+        "ja-JP": "正常に動作しない場合があります！",
+        "tr-TR": "Düzgün çalışmayabilir!",
+        "vi-VN": "Có thể không hoạt động!",
+    },
     "menu-stream-settings": {
         "de-DE": "Stream Einstellungen",
         "en-US": "Stream settings",
         "es-ES": "Ajustes del stream",
         "fr-FR": "Réglages Stream",
+        "it-IT": "Impostazioni dello stream",
         "ja-JP": "ストリーミング設定",
         "ko-KR": "스트리밍 설정",
         "pl-PL": "Ustawienia strumienia",
@@ -628,6 +756,7 @@ const Translations = {
         "en-US": "Stream stats",
         "es-ES": "Estadísticas del stream",
         "fr-FR": "Statistiques du stream",
+        "it-IT": "Statistiche dello stream",
         "ja-JP": "ストリーミング統計情報",
         "ko-KR": "통계",
         "pl-PL": "Statystyki strumienia",
@@ -638,24 +767,50 @@ const Translations = {
         "zh-CN": "串流统计数据",
     },
     "microphone": {
+        "de-DE": "Mikrofon",
         "en-US": "Microphone",
+        "it-IT": "Microfono",
         "ja-JP": "マイク",
         "pl-PL": "Mikrofon",
         "pt-BR": "Microfone",
-        "vi-VN": "Mic",
+        "tr-TR": "Mikrofon",
+        "vi-VN": "Micro",
+        "zh-CN": "麦克风",
+    },
+    "mouse-and-keyboard": {
+        "en-US": "Mouse & Keyboard",
+        "ja-JP": "マウス＆キーボード",
+        "tr-TR": "Klavye ve Fare",
+        "vi-VN": "Chuột và Bàn phím",
     },
     "muted": {
+        "de-DE": "Stumm",
         "en-US": "Muted",
+        "it-IT": "Microfono disattivato",
         "ja-JP": "ミュート",
         "pl-PL": "Wyciszony",
         "pt-BR": "Mutado",
+        "tr-TR": "Kapalı",
         "vi-VN": "Đã tắt âm",
+        "zh-CN": "静音",
+    },
+    "no-consoles-found": {
+        "de-DE": "Keine Konsolen gefunden",
+        "en-US": "No consoles found",
+        "it-IT": "Nessuna console trovata",
+        "ja-JP": "本体が見つかりません",
+        "pl-PL": "Nie znaleziono konsoli",
+        "pt-BR": "Nenhum console encontrado",
+        "tr-TR": "Konsol bulunamadı",
+        "vi-VN": "Không tìm thấy console nào",
+        "zh-CN": "未找到主机",
     },
     "normal": {
         "de-DE": "Mittel",
         "en-US": "Normal",
         "es-ES": "Normal",
         "fr-FR": "Normal",
+        "it-IT": "Normale",
         "ja-JP": "標準",
         "ko-KR": "보통",
         "pl-PL": "Normalny",
@@ -670,6 +825,7 @@ const Translations = {
         "en-US": "Off",
         "es-ES": "Apagado",
         "fr-FR": "Désactivé",
+        "it-IT": "Off",
         "ja-JP": "オフ",
         "ko-KR": "꺼짐",
         "pl-PL": "Wyłączone",
@@ -680,17 +836,28 @@ const Translations = {
         "zh-CN": "关",
     },
     "on": {
+        "de-DE": "An",
         "en-US": "On",
+        "it-IT": "Attivo",
         "ja-JP": "オン",
         "pl-PL": "Włącz",
         "pt-BR": "Ativado",
+        "tr-TR": "Açık",
         "vi-VN": "Bật",
+        "zh-CN": "开启",
+    },
+    "only-support-some-games": {
+        "en-US": "Only support some games",
+        "ja-JP": "一部のゲームのみサポート",
+        "tr-TR": "Yalnızca belli oyunlar destekleniyor",
+        "vi-VN": "Chỉ hỗ trợ một vài game",
     },
     "opacity": {
         "de-DE": "Deckkraft",
         "en-US": "Opacity",
         "es-ES": "Opacidad",
         "fr-FR": "Opacité",
+        "it-IT": "Opacità",
         "ja-JP": "透過度",
         "ko-KR": "불투명도",
         "pl-PL": "Przezroczystość",
@@ -705,6 +872,7 @@ const Translations = {
         "en-US": "Other",
         "es-ES": "Otro",
         "fr-FR": "Autres",
+        "it-IT": "Altro",
         "ja-JP": "その他",
         "ko-KR": "기타",
         "pl-PL": "Inne",
@@ -719,6 +887,7 @@ const Translations = {
         "en-US": "Position",
         "es-ES": "Posición",
         "fr-FR": "Position",
+        "it-IT": "Posizione",
         "ja-JP": "位置",
         "ko-KR": "위치",
         "pl-PL": "Pozycja",
@@ -728,11 +897,34 @@ const Translations = {
         "vi-VN": "Vị trí",
         "zh-CN": "位置",
     },
+    "powered-off": {
+        "de-DE": "Ausgeschaltet",
+        "en-US": "Powered off",
+        "it-IT": "Spento",
+        "ja-JP": "電源オフ",
+        "pl-PL": "Zasilanie wyłączone",
+        "pt-BR": "Desligado",
+        "tr-TR": "Kapalı",
+        "vi-VN": "Đã tắt nguồn",
+        "zh-CN": "关机",
+    },
+    "powered-on": {
+        "de-DE": "Eingeschaltet",
+        "en-US": "Powered on",
+        "it-IT": "Acceso",
+        "ja-JP": "電源オン",
+        "pl-PL": "Zasilanie włączone",
+        "pt-BR": "Ligado",
+        "tr-TR": "Açık",
+        "vi-VN": "Đang bật nguồn",
+        "zh-CN": "开机",
+    },
     "prefer-ipv6-server": {
         "de-DE": "IPv6-Server bevorzugen",
         "en-US": "Prefer IPv6 server",
         "es-ES": "Servidor IPv6 preferido",
         "fr-FR": "Préférer le serveur IPv6",
+        "it-IT": "Preferisci server IPv6",
         "ja-JP": "IPv6 サーバーを優先",
         "ko-KR": "IPv6 서버 우선",
         "pl-PL": "Preferuj serwer IPv6",
@@ -747,6 +939,7 @@ const Translations = {
         "en-US": "Preferred game's language",
         "es-ES": "Idioma preferencial del juego",
         "fr-FR": "Langue préférée du jeu",
+        "it-IT": "Lingua del gioco preferita",
         "ja-JP": "ゲームの優先言語設定",
         "ko-KR": "선호하는 게임 언어",
         "pl-PL": "Preferowany język gry",
@@ -761,6 +954,7 @@ const Translations = {
         "en-US": "Ratio",
         "es-ES": "Relación de aspecto",
         "fr-FR": "Ratio",
+        "it-IT": "Rapporto",
         "ja-JP": "比率",
         "ko-KR": "화면 비율",
         "pl-PL": "Współczynnik proporcji",
@@ -775,6 +969,7 @@ const Translations = {
         "en-US": "Reduce UI animations",
         "es-ES": "Reduce las animaciones de la interfaz",
         "fr-FR": "Réduire les animations dans l’interface",
+        "it-IT": "Animazioni ridottte",
         "ja-JP": "UIアニメーションを減らす",
         "ko-KR": "애니메이션 감소",
         "pl-PL": "Ogranicz animacje interfejsu",
@@ -789,6 +984,7 @@ const Translations = {
         "en-US": "Region",
         "es-ES": "Región",
         "fr-FR": "Région",
+        "it-IT": "Regione",
         "ja-JP": "地域",
         "ko-KR": "지역",
         "pl-PL": "Region",
@@ -798,11 +994,23 @@ const Translations = {
         "vi-VN": "Khu vực",
         "zh-CN": "地区",
     },
+    "remote-play": {
+        "de-DE": "Remote Play",
+        "en-US": "Remote Play",
+        "it-IT": "Riproduzione Remota",
+        "ja-JP": "リモートプレイ",
+        "pl-PL": "Gra zdalna",
+        "pt-BR": "Jogo Remoto",
+        "tr-TR": "Uzaktan Bağlanma",
+        "vi-VN": "Chơi từ xa",
+        "zh-CN": "远程游玩",
+    },
     "rocket-always-hide": {
         "de-DE": "Immer ausblenden",
         "en-US": "Always hide",
         "es-ES": "Ocultar siempre",
         "fr-FR": "Toujours masquer",
+        "it-IT": "Nascondi sempre",
         "ja-JP": "常に非表示",
         "ko-KR": "항상 숨기기",
         "pl-PL": "Zawsze ukrywaj",
@@ -817,6 +1025,7 @@ const Translations = {
         "en-US": "Always show",
         "es-ES": "Mostrar siempre",
         "fr-FR": "Toujours afficher",
+        "it-IT": "Mostra sempre",
         "ja-JP": "常に表示",
         "ko-KR": "항상 표시",
         "pl-PL": "Zawsze pokazuj",
@@ -831,6 +1040,7 @@ const Translations = {
         "en-US": "Rocket animation",
         "es-ES": "Animación del cohete",
         "fr-FR": "Animation de la fusée",
+        "it-IT": "Razzo animato",
         "ja-JP": "ロケットのアニメーション",
         "ko-KR": "로켓 애니메이션",
         "pl-PL": "Animacja rakiety",
@@ -845,6 +1055,7 @@ const Translations = {
         "en-US": "Hide when queuing",
         "es-ES": "Ocultar al hacer cola",
         "fr-FR": "Masquer lors de la file d'attente",
+        "it-IT": "Nascondi durante la coda",
         "ja-JP": "待機中は非表示",
         "ko-KR": "대기 중에는 숨기기",
         "pl-PL": "Ukryj podczas czekania w kolejce",
@@ -859,6 +1070,7 @@ const Translations = {
         "en-US": "Failed to run Better xCloud. Retrying, please wait...",
         "es-ES": "No se pudo ejecutar Better xCloud. Reintentando, por favor espera...",
         "fr-FR": "Impossible d'exécuter Better xCloud. Nouvelle tentative, veuillez patienter...",
+        "it-IT": "Si è verificato un errore durante l'esecuzione di Better xCloud. Nuovo tentativo, attendere...",
         "ja-JP": "Better xCloud の実行に失敗しました。再試行中...",
         "ko-KR": "Better xCloud 시작에 실패했습니다. 재시도중이니 잠시만 기다려 주세요.",
         "pl-PL": "Nie udało się uruchomić Better xCloud. Ponawiam próbę...",
@@ -873,6 +1085,7 @@ const Translations = {
         "en-US": "Saturation",
         "es-ES": "Saturación",
         "fr-FR": "Saturation",
+        "it-IT": "Saturazione",
         "ja-JP": "彩度",
         "ko-KR": "채도",
         "pl-PL": "Nasycenie",
@@ -887,6 +1100,7 @@ const Translations = {
         "en-US": "Screenshot button's position",
         "es-ES": "Posición del botón de captura de pantalla",
         "fr-FR": "Position du bouton de capture d'écran",
+        "it-IT": "Posizione del pulsante screenshot",
         "ja-JP": "スクリーンショットボタンの位置",
         "ko-KR": "스크린샷 버튼 위치",
         "pl-PL": "Pozycja przycisku zrzutu ekranu",
@@ -901,6 +1115,7 @@ const Translations = {
         "en-US": "Server",
         "es-ES": "Servidor",
         "fr-FR": "Serveur",
+        "it-IT": "Server",
         "ja-JP": "サーバー",
         "ko-KR": "서버",
         "pl-PL": "Serwer",
@@ -915,6 +1130,7 @@ const Translations = {
         "en-US": "Reload page to reflect changes",
         "es-ES": "Actualice la página para aplicar los cambios",
         "fr-FR": "Recharger la page pour bénéficier des changements",
+        "it-IT": "Applica e ricarica la pagina",
         "ja-JP": "ページを更新をして設定変更を適用",
         "ko-KR": "변경 사항을 적용하려면 페이지를 다시 로드하세요.",
         "pl-PL": "Odśwież stronę, aby zastosować zmiany",
@@ -929,6 +1145,7 @@ const Translations = {
         "en-US": "Reloading...",
         "es-ES": "Recargando...",
         "fr-FR": "Actualisation...",
+        "it-IT": "Ricaricamento...",
         "ja-JP": "更新中...",
         "ko-KR": "새로고침하는 중...",
         "pl-PL": "Ponowne ładowanie...",
@@ -943,6 +1160,7 @@ const Translations = {
         "en-US": "Show game art",
         "es-ES": "Mostrar imagen del juego",
         "fr-FR": "Afficher la couverture du jeu",
+        "it-IT": "Mostra immagine del gioco",
         "ja-JP": "ゲームアートを表示",
         "ko-KR": "게임 아트 표시",
         "pl-PL": "Pokaż okładkę gry",
@@ -957,6 +1175,7 @@ const Translations = {
         "en-US": "Show stats when starting the game",
         "es-ES": "Mostrar estadísticas al iniciar el juego",
         "fr-FR": "Afficher les statistiques au démarrage de la partie",
+        "it-IT": "Mostra le statistiche quando si avvia la partita",
         "ja-JP": "ゲーム開始時に統計情報を表示",
         "ko-KR": "게임 시작 시 통계 보여주기",
         "pl-PL": "Pokaż statystyki podczas uruchamiania gry",
@@ -971,6 +1190,7 @@ const Translations = {
         "en-US": "Show the estimated wait time",
         "es-ES": "Mostrar el tiempo de espera estimado",
         "fr-FR": "Afficher le temps d'attente estimé",
+        "it-IT": "Mostra una stima del tempo di attesa",
         "ja-JP": "推定待機時間を表示",
         "ko-KR": "예상 대기 시간 표시",
         "pl-PL": "Pokaż szacowany czas oczekiwania",
@@ -985,6 +1205,7 @@ const Translations = {
         "en-US": "Simplify Stream's menu",
         "es-ES": "Simplificar el menú del stream",
         "fr-FR": "Simplifier le menu Stream",
+        "it-IT": "Semplifica il menu della trasmissione",
         "ja-JP": "ストリーミングメニューのラベルを非表示",
         "ko-KR": "메뉴 간단히 보기",
         "pl-PL": "Uprość menu strumienia",
@@ -995,10 +1216,11 @@ const Translations = {
         "zh-CN": "简化菜单",
     },
     "skip-splash-video": {
-        "de-DE": "Xbox Logo überspringen",
+        "de-DE": "Xbox-Logo bei Spielstart überspringen",
         "en-US": "Skip Xbox splash video",
         "es-ES": "Saltar vídeo de presentación de Xbox",
         "fr-FR": "Ignorer la vidéo de démarrage Xbox",
+        "it-IT": "Salta il logo Xbox iniziale",
         "ja-JP": "Xboxの起動画面をスキップ",
         "ko-KR": "Xbox 스플래시 건너뛰기",
         "pl-PL": "Pomiń wstępne intro Xbox",
@@ -1008,11 +1230,18 @@ const Translations = {
         "vi-VN": "Bỏ qua video Xbox",
         "zh-CN": "跳过 Xbox 启动动画",
     },
+    "slow": {
+        "en-US": "Slow",
+        "ja-JP": "低速",
+        "tr-TR": "Yavaş",
+        "vi-VN": "Chậm",
+    },
     "small": {
         "de-DE": "Klein",
         "en-US": "Small",
         "es-ES": "Pequeño",
         "fr-FR": "Petite",
+        "it-IT": "Piccolo",
         "ja-JP": "小",
         "ko-KR": "작게",
         "pl-PL": "Mały",
@@ -1022,18 +1251,41 @@ const Translations = {
         "vi-VN": "Nhỏ",
         "zh-CN": "小",
     },
+    "smart-tv": {
+        "en-US": "Smart TV",
+        "ja-JP": "スマートTV",
+        "pt-BR": "Smart TV",
+        "tr-TR": "Akıllı TV",
+        "vi-VN": "TV thông minh",
+    },
     "sound": {
+        "de-DE": "Ton",
         "en-US": "Sound",
+        "it-IT": "Suoni",
         "ja-JP": "サウンド",
         "pl-PL": "Dźwięk",
         "pt-BR": "Som",
+        "tr-TR": "Ses",
         "vi-VN": "Âm thanh",
+        "zh-CN": "声音",
+    },
+    "standby": {
+        "de-DE": "Standby",
+        "en-US": "Standby",
+        "it-IT": "Sospendi",
+        "ja-JP": "スタンバイ",
+        "pl-PL": "Stan czuwania",
+        "pt-BR": "Suspenso",
+        "tr-TR": "Beklemede",
+        "vi-VN": "Đang ở chế độ chờ",
+        "zh-CN": "待机",
     },
     "stat-bitrate": {
         "de-DE": "Bitrate",
         "en-US": "Bitrate",
         "es-ES": "Tasa de bits",
         "fr-FR": "Bitrate",
+        "it-IT": "Bitrate",
         "ja-JP": "ビットレート",
         "ko-KR": "비트레이트",
         "pl-PL": "Bitrate",
@@ -1048,6 +1300,7 @@ const Translations = {
         "en-US": "Decode time",
         "es-ES": "Tiempo de decodificación",
         "fr-FR": "Décodage",
+        "it-IT": "Decodifica",
         "ja-JP": "デコード時間",
         "ko-KR": "디코딩 시간",
         "pl-PL": "Czas dekodowania",
@@ -1062,6 +1315,7 @@ const Translations = {
         "en-US": "FPS",
         "es-ES": "FPS",
         "fr-FR": "FPS",
+        "it-IT": "FPS",
         "ja-JP": "FPS",
         "ko-KR": "FPS",
         "pl-PL": "FPS",
@@ -1076,6 +1330,7 @@ const Translations = {
         "en-US": "Frames lost",
         "es-ES": "Pérdida de fotogramas",
         "fr-FR": "Images perdues",
+        "it-IT": "Perdita di fotogrammi",
         "ja-JP": "フレームロス",
         "ko-KR": "프레임 손실",
         "pl-PL": "Utracone klatki",
@@ -1090,6 +1345,7 @@ const Translations = {
         "en-US": "Packets lost",
         "es-ES": "Pérdida de paquetes",
         "fr-FR": "Perte paquets",
+        "it-IT": "Perdita di pacchetti",
         "ja-JP": "パケットロス",
         "ko-KR": "패킷 손실",
         "pl-PL": "Utracone pakiety",
@@ -1104,6 +1360,7 @@ const Translations = {
         "en-US": "Ping",
         "es-ES": "Latencia",
         "fr-FR": "Ping",
+        "it-IT": "Ping",
         "ja-JP": "Ping",
         "ko-KR": "지연 시간",
         "pl-PL": "Ping",
@@ -1118,6 +1375,7 @@ const Translations = {
         "en-US": "Stats",
         "es-ES": "Estadísticas",
         "fr-FR": "Stats",
+        "it-IT": "Statistiche",
         "ja-JP": "統計情報",
         "ko-KR": "통계",
         "pl-PL": "Statystyki",
@@ -1132,6 +1390,7 @@ const Translations = {
         "en-US": "Stream",
         "es-ES": "Stream",
         "fr-FR": "Stream",
+        "it-IT": "Stream",
         "ja-JP": "ストリーミング",
         "ko-KR": "스트리밍",
         "pl-PL": "Stream",
@@ -1146,6 +1405,7 @@ const Translations = {
         "en-US": "Stream stats settings",
         "es-ES": "Ajustes de estadísticas de stream",
         "fr-FR": "Paramètres des statistiques du stream",
+        "it-IT": "Impostazioni statistiche dello streaming",
         "ja-JP": "ストリーミング統計の設定",
         "ko-KR": "스트리밍 통계 설정",
         "pl-PL": "Ustawienia statystyk strumienia",
@@ -1160,6 +1420,7 @@ const Translations = {
         "en-US": "Stretch",
         "es-ES": "Estirado",
         "fr-FR": "Étirer",
+        "it-IT": "Riempi",
         "ja-JP": "引き伸ばし",
         "ko-KR": "채우기",
         "pl-PL": "Rozciągnij",
@@ -1174,6 +1435,7 @@ const Translations = {
         "en-US": "Target resolution",
         "es-ES": "Calidad de imagen",
         "fr-FR": "Résolution cible",
+        "it-IT": "Risoluzione prevista",
         "ja-JP": "ターゲット解像度",
         "ko-KR": "목표 해상도",
         "pl-PL": "Rozdzielczość docelowa",
@@ -1188,6 +1450,7 @@ const Translations = {
         "en-US": "All games",
         "es-ES": "Todos los juegos",
         "fr-FR": "Tous les jeux",
+        "it-IT": "Tutti i giochi",
         "ja-JP": "全てのゲームで有効",
         "ko-KR": "모든 게임",
         "pl-PL": "Wszystkie gry",
@@ -1202,6 +1465,7 @@ const Translations = {
         "en-US": "All white",
         "es-ES": "Todo blanco",
         "fr-FR": "Tout blanc",
+        "it-IT": "Tutti bianchi",
         "ja-JP": "オールホワイト",
         "ko-KR": "모두 하얗게",
         "pl-PL": "Wszystkie białe",
@@ -1216,6 +1480,7 @@ const Translations = {
         "en-US": "Availability",
         "es-ES": "Disponibilidad",
         "fr-FR": "Disponibilité",
+        "it-IT": "Disponibilità",
         "ja-JP": "強制的に有効化",
         "ko-KR": "사용 여부",
         "pl-PL": "Dostępność",
@@ -1230,6 +1495,7 @@ const Translations = {
         "en-US": "Custom layout's button style",
         "es-ES": "Estilo de botones de diseño personalizado",
         "fr-FR": "Style personnalisé des boutons",
+        "it-IT": "Layout dei tasti personalizzato",
         "ja-JP": "カスタムレイアウト",
         "ko-KR": "커스텀 레이아웃의 버튼 스타일",
         "pl-PL": "Niestandardowy układ przycisków",
@@ -1244,6 +1510,7 @@ const Translations = {
         "en-US": "Muted colors",
         "es-ES": "Colores apagados",
         "fr-FR": "Couleurs adoucies",
+        "it-IT": "Riduci intensità colori",
         "ja-JP": "ミュートカラー",
         "ko-KR": "저채도 색상",
         "pl-PL": "Stonowane kolory",
@@ -1258,6 +1525,7 @@ const Translations = {
         "en-US": "Standard layout's button style",
         "es-ES": "Estilo de botones de diseño estándar",
         "fr-FR": "Style standard des boutons",
+        "it-IT": "Layout dei tasti standard",
         "ja-JP": "標準レイアウト",
         "ko-KR": "표준 레이아웃의 버튼 스타일",
         "pl-PL": "Standardowy układ przycisków",
@@ -1272,6 +1540,7 @@ const Translations = {
         "en-US": "Text size",
         "es-ES": "Tamano del texto",
         "fr-FR": "Taille du texte",
+        "it-IT": "Dimensione del testo",
         "ja-JP": "文字サイズ",
         "ko-KR": "글자 크기",
         "pl-PL": "Rozmiar tekstu",
@@ -1286,6 +1555,7 @@ const Translations = {
         "en-US": "Top-center",
         "es-ES": "Superior centrado",
         "fr-FR": "En haut au centre",
+        "it-IT": "In alto al centro",
         "ja-JP": "上",
         "ko-KR": "중앙 상단",
         "pl-PL": "Wyśrodkowany na górze",
@@ -1300,6 +1570,7 @@ const Translations = {
         "en-US": "Top-left",
         "es-ES": "Superior izquierdo",
         "fr-FR": "Haut-gauche",
+        "it-IT": "In alto a sinistra",
         "ja-JP": "左上",
         "ko-KR": "좌측 상단",
         "pl-PL": "Lewy górny róg",
@@ -1314,6 +1585,7 @@ const Translations = {
         "en-US": "Top-right",
         "es-ES": "Superior derecho",
         "fr-FR": "En haut à droite",
+        "it-IT": "In alto a destra",
         "ja-JP": "右上",
         "ko-KR": "우측 상단",
         "pl-PL": "Prawy górny róg",
@@ -1328,6 +1600,7 @@ const Translations = {
         "en-US": "Touch controller",
         "es-ES": "Controles táctiles",
         "fr-FR": "Commandes tactiles",
+        "it-IT": "Controller Touch",
         "ja-JP": "タッチコントローラー",
         "ko-KR": "터치 컨트롤",
         "pl-PL": "Sterowanie dotykiem",
@@ -1342,6 +1615,7 @@ const Translations = {
         "en-US": "Transparent background",
         "es-ES": "Fondo transparente",
         "fr-FR": "Fond transparent",
+        "it-IT": "Sfondo trasparente",
         "ja-JP": "背景の透過",
         "ko-KR": "투명 배경",
         "pl-PL": "Przezroczyste tło",
@@ -1356,6 +1630,7 @@ const Translations = {
         "en-US": "UI",
         "es-ES": "Interfaz de usuario",
         "fr-FR": "Interface utilisateur",
+        "it-IT": "Interfaccia",
         "ja-JP": "UI",
         "ko-KR": "UI",
         "pl-PL": "Interfejs",
@@ -1365,18 +1640,46 @@ const Translations = {
         "vi-VN": "Giao diện",
         "zh-CN": "UI",
     },
+    "unknown": {
+        "de-DE": "Unbekannt",
+        "en-US": "Unknown",
+        "it-IT": "Sconosciuto",
+        "ja-JP": "不明",
+        "pl-PL": "Nieznane",
+        "pt-BR": "Desconhecido",
+        "tr-TR": "Bilinmiyor",
+        "vi-VN": "Không rõ",
+        "zh-CN": "未知",
+    },
+    "unlimited": {
+        "en-US": "Unlimited",
+        "ja-JP": "無制限",
+        "tr-TR": "Limitsiz",
+        "vi-VN": "Không giới hạn",
+    },
     "unmuted": {
+        "de-DE": "Ton an",
         "en-US": "Unmuted",
+        "it-IT": "Microfono attivato",
         "ja-JP": "ミュート解除",
         "pl-PL": "Wyciszenie wyłączone",
         "pt-BR": "Desmutado",
+        "tr-TR": "Açık",
         "vi-VN": "Đã mở âm",
+        "zh-CN": "已取消静音",
+    },
+    "use-mouse-absolute-position": {
+        "en-US": "Use mouse's absolute position",
+        "ja-JP": "マウスの絶対座標を使用",
+        "tr-TR": "Farenin mutlak pozisyonunu baz al",
+        "vi-VN": "Sử dụng vị trí tuyệt đối của chuột",
     },
     "user-agent-profile": {
         "de-DE": "User-Agent Profil",
         "en-US": "User-Agent profile",
         "es-ES": "Perfil del agente de usuario",
         "fr-FR": "Profil de l'agent utilisateur",
+        "it-IT": "User-Agent",
         "ja-JP": "ユーザーエージェントプロファイル",
         "ko-KR": "사용자 에이전트 프로파일",
         "pl-PL": "Profil User-Agent",
@@ -1391,6 +1694,7 @@ const Translations = {
         "en-US": "Video",
         "es-ES": "Video",
         "fr-FR": "Vidéo",
+        "it-IT": "Video",
         "ja-JP": "映像",
         "ko-KR": "비디오",
         "pl-PL": "Obraz",
@@ -1405,6 +1709,7 @@ const Translations = {
         "en-US": "Visual quality",
         "es-ES": "Calidad visual",
         "fr-FR": "Qualité visuelle",
+        "it-IT": "Profilo codec preferito",
         "ja-JP": "画質",
         "ko-KR": "시각적 품질",
         "pl-PL": "Jakość grafiki",
@@ -1419,6 +1724,7 @@ const Translations = {
         "en-US": "High",
         "es-ES": "Alto",
         "fr-FR": "Élevée",
+        "it-IT": "Alta",
         "ja-JP": "高",
         "ko-KR": "높음",
         "pl-PL": "Wysoka",
@@ -1433,6 +1739,7 @@ const Translations = {
         "en-US": "Low",
         "es-ES": "Bajo",
         "fr-FR": "Basse",
+        "it-IT": "Bassa",
         "ja-JP": "低",
         "ko-KR": "낮음",
         "pl-PL": "Niska",
@@ -1447,6 +1754,7 @@ const Translations = {
         "en-US": "Normal",
         "es-ES": "Normal",
         "fr-FR": "Normal",
+        "it-IT": "Normale",
         "ja-JP": "中",
         "ko-KR": "보통",
         "pl-PL": "Normalna",
@@ -1461,6 +1769,7 @@ const Translations = {
         "en-US": "Volume",
         "es-ES": "Volumen",
         "fr-FR": "Volume",
+        "it-IT": "Volume",
         "ja-JP": "音量",
         "ko-KR": "음량",
         "pl-PL": "Głośność",
@@ -1475,6 +1784,7 @@ const Translations = {
         "en-US": "Countdown",
         "es-ES": "Cuenta Regresiva",
         "fr-FR": "Compte à rebours",
+        "it-IT": "Countdown",
         "ja-JP": "カウントダウン",
         "ko-KR": "카운트다운",
         "pl-PL": "Pozostały czas oczekiwania",
@@ -1489,6 +1799,7 @@ const Translations = {
         "en-US": "Estimated finish time",
         "es-ES": "Tiempo estimado de finalización",
         "fr-FR": "Temps estimé avant la fin",
+        "it-IT": "Tempo residuo stimato",
         "ja-JP": "推定完了時間",
         "ko-KR": "예상 완료 시간",
         "pl-PL": "Szacowany czas zakończenia",
@@ -1558,12 +1869,279 @@ var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
 var APP_CONTEXT;
 
+let IS_REMOTE_PLAYING;
+let REMOTE_PLAY_CONFIG;
+
 const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 // Credit: https://phosphoricons.com
 const ICON_VIDEO_SETTINGS = '<path d="M16 9.144A6.89 6.89 0 0 0 9.144 16 6.89 6.89 0 0 0 16 22.856 6.89 6.89 0 0 0 22.856 16 6.9 6.9 0 0 0 16 9.144zm0 11.427c-2.507 0-4.571-2.064-4.571-4.571s2.064-4.571 4.571-4.571 4.571 2.064 4.571 4.571-2.064 4.571-4.571 4.571zm15.704-7.541c-.065-.326-.267-.607-.556-.771l-4.26-2.428-.017-4.802c-.001-.335-.15-.652-.405-.868-1.546-1.307-3.325-2.309-5.245-2.953-.306-.103-.641-.073-.923.085L16 3.694l-4.302-2.407c-.282-.158-.618-.189-.924-.086a16.02 16.02 0 0 0-5.239 2.964 1.14 1.14 0 0 0-.403.867L5.109 9.84.848 12.268a1.14 1.14 0 0 0-.555.771 15.22 15.22 0 0 0 0 5.936c.064.326.267.607.555.771l4.261 2.428.017 4.802c.001.335.149.652.403.868 1.546 1.307 3.326 2.309 5.245 2.953.306.103.641.073.923-.085L16 28.306l4.302 2.407a1.13 1.13 0 0 0 .558.143 1.18 1.18 0 0 0 .367-.059c1.917-.648 3.695-1.652 5.239-2.962.255-.216.402-.532.405-.866l.021-4.807 4.261-2.428a1.14 1.14 0 0 0 .555-.771 15.21 15.21 0 0 0-.003-5.931zm-2.143 4.987l-4.082 2.321a1.15 1.15 0 0 0-.429.429l-.258.438a1.13 1.13 0 0 0-.174.601l-.022 4.606a13.71 13.71 0 0 1-3.623 2.043l-4.117-2.295a1.15 1.15 0 0 0-.559-.143h-.546c-.205-.005-.407.045-.586.143l-4.119 2.3a13.74 13.74 0 0 1-3.634-2.033l-.016-4.599a1.14 1.14 0 0 0-.174-.603l-.257-.437c-.102-.182-.249-.333-.429-.437l-4.085-2.328a12.92 12.92 0 0 1 0-4.036l4.074-2.325a1.15 1.15 0 0 0 .429-.429l.258-.438a1.14 1.14 0 0 0 .175-.601l.021-4.606a13.7 13.7 0 0 1 3.625-2.043l4.11 2.295a1.14 1.14 0 0 0 .585.143h.52c.205.005.407-.045.586-.143l4.119-2.3a13.74 13.74 0 0 1 3.634 2.033l.016 4.599a1.14 1.14 0 0 0 .174.603l.257.437c.102.182.249.333.429.438l4.085 2.327a12.88 12.88 0 0 1 .007 4.041h.007z" fill-rule="nonzero"/>';
 const ICON_STREAM_STATS = '<path d="M27.295 9.31C24.303 6.313 20.234 4.631 16 4.643h-.057C7.153 4.673 0 11.929 0 20.804v3.267a2.3 2.3 0 0 0 2.286 2.286h27.429A2.3 2.3 0 0 0 32 24.072v-3.429A15.9 15.9 0 0 0 27.294 9.31zm2.419 14.761H14.816l7.823-10.757a1.15 1.15 0 0 0-.925-1.817c-.366 0-.71.176-.925.471l-8.801 12.103H2.286v-3.267c0-.44.022-.874.062-1.304h3.367a1.15 1.15 0 0 0 1.143-1.143 1.15 1.15 0 0 0-1.143-1.143H2.753c1.474-5.551 6.286-9.749 12.104-10.237v3.379A1.15 1.15 0 0 0 16 11.5a1.15 1.15 0 0 0 1.143-1.143V6.975c5.797.488 10.682 4.608 12.143 10.239h-3a1.15 1.15 0 0 0-1.143 1.143 1.15 1.15 0 0 0 1.143 1.143h3.382a14.58 14.58 0 0 1 .047 1.143v3.429z" fill-rule="nonzero"/>';
 const ICON_SCREENSHOT_B64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=';
+
+
+class Dialog {
+    constructor(title, className, $content, onClose) {
+        const CE = createElement;
+
+        // Create dialog overlay
+        this.$overlay = document.querySelector('.bx-dialog-overlay');
+        if (!this.$overlay) {
+            this.$overlay = CE('div', {'class': 'bx-dialog-overlay bx-gone'});
+            document.documentElement.appendChild(this.$overlay);
+        }
+
+        let $close;
+        this.onClose = onClose;
+        this.$dialog = CE('div', {'class': `bx-dialog ${className} bx-gone`},
+                                    CE('b', {}, title),
+                                    CE('div', {'class': 'bx-dialog-content'}, $content),
+                                    $close = CE('button', {}, __('close')));
+
+        $close.addEventListener('click', e => {
+            this.hide(e);
+        });
+        document.documentElement.appendChild(this.$dialog);
+    }
+
+    show() {
+        this.$dialog.classList.remove('bx-gone');
+        this.$overlay.classList.remove('bx-gone');
+    }
+
+    hide(e) {
+        this.$dialog.classList.add('bx-gone');
+        this.$overlay.classList.add('bx-gone');
+        this.onClose && this.onClose(e);
+    }
+
+    toggle() {
+        this.$dialog.classList.toggle('bx-gone');
+        this.$overlay.classList.toggle('bx-gone');
+    }
+}
+
+
+class RemotePlay {
+    static XCLOUD_TOKEN;
+    static XHOME_TOKEN;
+    static #CONSOLES;
+
+    static #STATE_LABELS = {
+        'On': __('powered-on'),
+        'Off': __('powered-off'),
+        'ConnectedStandby': __('standby'),
+        'Unknown': __('unknown'),
+    };
+
+    static get BASE_DEVICE_INFO() {
+        return {
+            appInfo: {
+                env: {
+                    clientAppId: 'Microsoft.GamingApp',
+                    clientAppType: 'native',
+                    clientAppVersion: '2203.1001.4.0',
+                    clientSdkVersion: '8.5.2',
+                    httpEnvironment: 'prod',
+                    sdkInstallId: '',
+                },
+            },
+            dev: {
+                displayInfo: {
+                    dimensions: {
+                        widthInPixels: 1920,
+                        heightInPixels: 1080,
+                    },
+                    pixelDensity: {
+                        dpiX: 2,
+                        dpiY: 2,
+                    },
+                },
+                hw: {
+                    make: 'Microsoft',
+                    model: 'Surface Pro',
+                    sdktype: 'native',
+                },
+                os: {
+                    name: 'Windows 11',
+                    ver: '22631.2715',
+                    platform: 'desktop',
+                },
+            },
+        };
+    }
+
+    static #dialog;
+    static #$content;
+    static #$consoles;
+
+    static #initialize() {
+        if (RemotePlay.#$content) {
+            return;
+        }
+
+        const CE = createElement;
+
+        RemotePlay.#$content = CE('div', {}, __('getting-consoles-list'));
+        RemotePlay.#dialog = new Dialog(__('remote-play'), '', RemotePlay.#$content);
+
+        RemotePlay.#getXhomeToken(() => {
+            RemotePlay.#getConsolesList(() => {
+                console.log(RemotePlay.#CONSOLES);
+                RemotePlay.#renderConsoles();
+            });
+        });
+    }
+
+    static #renderConsoles() {
+        const CE = createElement;
+
+        const $fragment = document.createDocumentFragment();
+
+        if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
+            $fragment.appendChild(CE('span', {}, __('no-consoles-found')));
+        } else {
+            const $settingNote = CE('p', {});
+
+            const resolutions = [1080, 720];
+            const currentResolution = PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION);
+            const $resolutionSelect = CE('select', {});
+            for (const resolution of resolutions) {
+                const value = `${resolution}p`;
+
+                const $option = CE('option', {'value': value}, value);
+                if (currentResolution === value) {
+                    $option.selected = true;
+                }
+
+                $resolutionSelect.appendChild($option);
+            }
+            $resolutionSelect.addEventListener('change', e => {
+                const value = $resolutionSelect.value;
+
+                $settingNote.textContent = value === '1080p' ? '✅ ' + __('can-stream-xbox-360-games') : '❌ ' + __('cant-stream-xbox-360-games');
+                PREFS.set(Preferences.REMOTE_PLAY_RESOLUTION, value);
+            });
+            $resolutionSelect.dispatchEvent(new Event('change'));
+
+            const $qualitySettings = CE('div', {'class': 'bx-remote-play-settings'},
+                CE('div', {},
+                    CE('label', {}, __('target-resolution'), $settingNote),
+                    $resolutionSelect,
+                )
+            );
+
+            $fragment.appendChild($qualitySettings);
+        }
+
+        for (let con of RemotePlay.#CONSOLES) {
+            let $connectButton;
+            const $child = CE('div', {'class': 'bx-remote-play-device-wrapper'},
+                CE('div', {'class': 'bx-remote-play-device-info'},
+                    CE('div', {},
+                        CE('span', {'class': 'bx-remote-play-device-name'}, con.deviceName),
+                        CE('span', {'class': 'bx-remote-play-console-type'}, con.consoleType)
+                    ),
+                    CE('div', {'class': 'bx-remote-play-power-state'}, RemotePlay.#STATE_LABELS[con.powerState]),
+                ),
+                $connectButton = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('console-connect')),
+            );
+
+            REMOTE_PLAY_CONFIG = {
+                serverId: con.serverId,
+            };
+
+            $connectButton.addEventListener('click', e => {
+                const url = window.location.href.substring(0, 31) + '/launch/starfield/9NCJSXWZTP88#remote-play';
+                // const url = '/play';
+
+                const $pageContent = document.getElementById('PageContent');
+                const $anchor = CE('a', {href: url, class: 'bx-hidden', style: 'position:absolute;top:-9990px;left:-9999px'}, '');
+                $anchor.addEventListener('click', e => {
+                    setTimeout(() => {
+                        $pageContent.removeChild($anchor);
+                    }, 1000);
+                });
+
+                $pageContent.appendChild($anchor);
+                $anchor.click();
+
+                RemotePlay.#dialog.hide();
+            });
+            $fragment.appendChild($child);
+        }
+
+        RemotePlay.#$content.parentElement.replaceChild($fragment, RemotePlay.#$content);
+    }
+
+    static #onLoad() {
+        const CE = createElement;
+        const $ui = CE('div', {'class': 'bx-container'},
+                       CE('h2', {}, __('remote-play')),
+                       CE('div', {'id': 'bxUi'}, __('getting-consoles-list')),
+                      );
+
+        const $landingPageHeader = document.querySelector('h2[class*=LandingPage-module__header]');
+        $landingPageHeader.parentElement.insertBefore($ui, $landingPageHeader);
+    }
+
+    static detect() {
+        IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
+        if (IS_REMOTE_PLAYING) {
+            window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
+            window.history.replaceState({origin: 'better-xcloud'}, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play');
+        } else {
+            window.BX_REMOTE_PLAY_CONFIG = null;
+        }
+    }
+
+    static #getXhomeToken(callback) {
+        if (RemotePlay.XHOME_TOKEN) {
+            callback();
+            return;
+        }
+
+        const GSSV_TOKEN = JSON.parse(localStorage.getItem('xboxcom_xbl_user_info')).tokens['http://gssv.xboxlive.com/'].token;
+
+        fetch('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
+            method: 'POST',
+            body: JSON.stringify({
+                offeringId: 'xhome',
+                token: GSSV_TOKEN,
+            }),
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+            },
+        }).then(resp => resp.json())
+            .then(json => {
+                RemotePlay.XHOME_TOKEN = json.gsToken;
+                callback();
+            });
+    }
+
+    static #getConsolesList(callback) {
+        if (RemotePlay.#CONSOLES) {
+            callback();
+            return;
+        }
+
+        fetch('https://wus2.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${RemotePlay.XHOME_TOKEN}`,
+            },
+        }).then(resp => resp.json())
+            .then(json => {
+                RemotePlay.#CONSOLES = json.results;
+                callback();
+            });
+    }
+
+    static showDialog() {
+        RemotePlay.#initialize();
+        RemotePlay.#dialog.show();
+    }
+}
 
 
 class TitlesInfo {
@@ -2365,7 +2943,7 @@ class StreamStats {
     static #$fl;
     static #$br;
 
-    static #$settings;
+    static #$dialog;
 
     static #lastStat;
 
@@ -2518,15 +3096,13 @@ class StreamStats {
     }
 
     static hideSettingsUi() {
-        StreamStats.#$settings.classList.add('bx-gone');
-
         if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
     }
 
     static #toggleSettingsUi() {
-        StreamStats.#$settings.classList.toggle('bx-gone');
+        StreamStats.#$dialog.toggle();
     }
 
     static render() {
@@ -2622,14 +3198,7 @@ class StreamStats {
             ));
         }
 
-        StreamStats.#$settings = CE('div', {'class': 'bx-stats-settings bx-gone'},
-                                    CE('b', {}, __('stream-stats-settings')),
-                                    CE('div', {}, $fragment),
-                                    $close = CE('button', {}, __('close')));
-
-        $close.addEventListener('click', e => StreamStats.hideSettingsUi());
-        document.documentElement.appendChild(StreamStats.#$settings);
-
+        StreamStats.#$dialog = new Dialog(__('stream-stats-settings'), 'bx-stats-settings-dialog', $fragment, StreamStats.hideSettingsUi);
         StreamStats.#refreshStyles();
     }
 }
@@ -2753,6 +3322,10 @@ class Preferences {
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
+    static get CONTROLLER_POLLING_RATE() { return 'controller_polling_rate'; }
+
+    static get MKB_ENABLED() { return 'mkb_enabled'; }
+    static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -2765,6 +3338,8 @@ class Preferences {
     static get UI_LOADING_SCREEN_GAME_ART() { return 'ui_loading_screen_game_art'; }
     static get UI_LOADING_SCREEN_WAIT_TIME() { return 'ui_loading_screen_wait_time'; }
     static get UI_LOADING_SCREEN_ROCKET() { return 'ui_loading_screen_rocket'; }
+
+    static get UI_LAYOUT() { return 'ui_layout'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_RATIO() { return 'video_ratio' }
@@ -2784,6 +3359,8 @@ class Preferences {
     static get STATS_TRANSPARENT() { return 'stats_transparent'; }
     static get STATS_OPACITY() { return 'stats_opacity'; }
     static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
+
+    static get REMOTE_PLAY_RESOLUTION() { return 'xhome_resolution'; }
 
     // Deprecated
     static get DEPRECATED_USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
@@ -2806,6 +3383,7 @@ class Preferences {
                 'es-ES': 'espa\xf1ol (Espa\xf1a)',
                 'fr-FR': 'fran\xe7ais',
                 'ko-KR': '\ud55c\uad6d\uc5b4',
+                'it-IT': 'italiano',
                 'ja-JP': '\u65e5\u672c\u8a9e',
                 'pl-PL': 'polski',
                 'pt-BR': 'portugu\xeas (Brasil)',
@@ -2971,12 +3549,32 @@ class Preferences {
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
             'default': false,
         },
+
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
         },
+        [Preferences.CONTROLLER_POLLING_RATE]: {
+            'type': 'number',
+            'default': 50,
+            'options': {
+                16: '62.5 Hz (16ms)',
+                32: '31.25 Hz (32ms)',
+                50: `20 Hz (50ms - ${__('default')})`,
+            },
+        },
+
+        [Preferences.MKB_ENABLED]: {
+            'default': false,
+        },
+
+        [Preferences.MKB_ABSOLUTE_MOUSE]: {
+            'default': false,
+        },
+
         [Preferences.REDUCE_ANIMATIONS]: {
             'default': false,
         },
+
         [Preferences.UI_LOADING_SCREEN_GAME_ART]: {
             'default': true,
         },
@@ -2991,6 +3589,14 @@ class Preferences {
                 'hide': __('rocket-always-hide'),
             },
         },
+        [Preferences.UI_LAYOUT]: {
+            'default': 'default',
+            'options': {
+                'default': __('default'),
+                'tv': __('smart-tv'),
+            },
+        },
+
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'default': false,
         },
@@ -3099,6 +3705,14 @@ class Preferences {
         },
         [Preferences.STATS_CONDITIONAL_FORMATTING]: {
             'default': false,
+        },
+
+        [Preferences.REMOTE_PLAY_RESOLUTION]: {
+            'default': 1080,
+            'options': {
+                '1080p': '1080p',
+                '720p': '720p',
+            },
         },
 
         // Deprecated
@@ -3233,7 +3847,8 @@ class Preferences {
 
             $control.value = currentValue;
             $control.addEventListener('change', e => {
-                PREFS.set(key, e.target.value);
+                const value = (setting.type && setting.type === 'number') ? parseInt(e.target.value) : e.target.value;
+                PREFS.set(key, value);
                 onChange && onChange(e);
             });
         } else if ('multiple_options' in setting) {
@@ -3279,7 +3894,7 @@ class Preferences {
                 let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
                 e.target.value = value;
 
-                PREFS.set(key, e.target.value);
+                PREFS.set(key, value);
                 onChange && onChange(e);
             });
         } else {
@@ -3416,6 +4031,156 @@ class Preferences {
 const PREFS = new Preferences();
 
 
+class Patcher {
+    static #PATCHES = {
+        // Modify controller polling rate
+        controllerPollingRate: (PREFS.get(Preferences.CONTROLLER_POLLING_RATE) !== 50) && function(funcStr) {
+            const text = '.startGamepadPolling=()';
+            const index = funcStr.indexOf(text);
+            if (index === -1) {
+                return false;
+            }
+
+            const patchedStr = funcStr.substring(index, index + 100).replace(/setInterval\((\w+),(\d+)\)/, `setInterval($1,${PREFS.get(Preferences.CONTROLLER_POLLING_RATE)})`);
+            return funcStr.substring(0, index) + patchedStr + funcStr.substring(index + 100);
+        },
+
+        // Enable Remote Play feature
+        connectMode: function(funcStr) {
+            const text = 'connectMode:"cloud-connect"';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
+        },
+
+        // Replace "/direct-connect" with "/play"
+        directConnectUrl: function(funcStr) {
+            const index = funcStr.indexOf('/direct-connect');
+            if (index === -1) {
+                return false;
+            }
+
+            return funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
+        },
+
+        // Set disableTelemetry() to true
+        disableTelemetry: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = '.disableTelemetry=function(){return!1}';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
+        },
+
+        // Disable trackEvent() function
+        disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = 'this.trackEvent=';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
+        },
+
+        // Set TV layout
+        tvLayout: PREFS.get(Preferences.UI_LAYOUT) === 'tv' && function(funcStr) {
+            const text = '?"tv":"default"';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, '?"tv":"tv"');
+        },
+
+        // Enable Mouse and Keyboard support
+        enableMouseAndKeyboard: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
+            if (!funcStr.includes('EnableMouseAndKeyboard:')) {
+                return false;
+            }
+
+            funcStr = funcStr.replace('EnableMouseAndKeyboard:!1', 'EnableMouseAndKeyboard:!0');
+            if (PREFS.get(Preferences.MKB_ABSOLUTE_MOUSE)) {
+                funcStr = funcStr.replace('EnableAbsoluteMouse:!1', 'EnableAbsoluteMouse:!0');
+            }
+
+            return funcStr;
+        }
+    };
+
+    static #patchFunctionBind() {
+        Function.prototype.nativeBind = Function.prototype.bind;
+        Function.prototype.bind = function() {
+            let valid = false;
+            if (arguments.length === 2 && arguments[0] === null) {
+                if (arguments[1] === 0 || (typeof arguments[1] === 'function')) {
+                    valid = true;
+                }
+            }
+
+            if (!valid) {
+                return this.nativeBind.apply(this, arguments);
+            }
+
+            if (typeof arguments[1] === 'function') {
+                console.log('[Better xCloud] Restored Function.prototype.bind()');
+                Function.prototype.bind = Function.prototype.nativeBind;
+            }
+
+            const orgFunc = this;
+            const newFunc = (a, item) => {
+                if (Patcher.length() === 0) {
+                    orgFunc(a, item);
+                    return;
+                }
+
+                Patcher.patch(item);
+                orgFunc(a, item);
+            }
+
+            return newFunc.nativeBind.apply(newFunc, arguments);
+        };
+    }
+
+    static length() { return Object.keys(Patcher.#PATCHES).length };
+
+    static patch(item) {
+        for (let id in item[1]) {
+            if (Patcher.length() <= 0) {
+                return;
+            }
+
+            for (const patchName in Patcher.#PATCHES) {
+                const func = item[1][id];
+                let funcStr = func.toString();
+
+                const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
+                if (patchedFuncStr) {
+                    item[1][id] = eval(patchedFuncStr);
+                    delete Patcher.#PATCHES[patchName];
+
+                    console.log(`[Better xCloud] Applied "${patchName}" patch`);
+                    break;
+                }
+            }
+        }
+    }
+
+    static initialize() {
+        // Remove disabled patches
+        for (const patchName in Patcher.#PATCHES) {
+            if (!Patcher.#PATCHES[patchName]) {
+                delete Patcher.#PATCHES[patchName];
+            }
+        }
+
+        Patcher.#patchFunctionBind();
+    }
+}
+
+
 function checkForUpdate() {
     const CHECK_INTERVAL_SECONDS = 4 * 3600; // check every 4 hours
 
@@ -3508,8 +4273,9 @@ function addCss() {
     --bx-stream-settings-z-index: 9999;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
-    --bx-stats-settings-z-index: 1001;
+    --bx-dialog-z-index: 1010;
     --bx-stats-bar-z-index: 1000;
+    --bx-dialog-overlay-z-index: 900;
 }
 
 .bx-settings-button {
@@ -3538,12 +4304,24 @@ function addCss() {
     font-family: var(--bx-normal-font);
 }
 
+.bx-full-width {
+    width: 100% !important;
+}
+
 .bx-gone {
     display: none !important;
 }
 
 .bx-hidden {
     visibility: hidden !important;
+}
+
+.bx-no-margin {
+    margin: 0 !important;
+}
+
+.bx-no-padding {
+    padding: 0 !important;
 }
 
 .bx-settings-wrapper {
@@ -3558,6 +4336,8 @@ function addCss() {
 
 .bx-settings-wrapper .bx-settings-title-wrapper {
     display: flex;
+    margin-bottom: 10px;
+    align-items: center;
 }
 
 .bx-settings-wrapper a.bx-settings-title {
@@ -3566,7 +4346,6 @@ function addCss() {
     text-decoration: none;
     font-weight: bold;
     display: block;
-    margin-bottom: 8px;
     color: #5dc21e;
     flex: 1;
 }
@@ -3588,9 +4367,14 @@ function addCss() {
 }
 
 .bx-settings-wrapper a.bx-settings-update {
-    display: none;
+    display: block;
     color: #ff834b;
     text-decoration: none;
+    margin-bottom: px;
+    text-align: center;
+    background: #222;
+    border-radius: 4px;
+    padding: 4px;
 }
 
 @media (hover: hover) {
@@ -3618,6 +4402,14 @@ function addCss() {
     padding-left: 10px;
 }
 
+.bx-settings-group-label b, .bx-settings-row label b {
+    display: block;
+    font-size: 12px;
+    font-style: italic;
+    font-weight: normal;
+    color: #828282;
+}
+
 @media not (hover: hover) {
     .bx-settings-row:focus-within {
        background-color: #242424;
@@ -3628,8 +4420,7 @@ function addCss() {
     align-self: center;
 }
 
-.bx-settings-reload-button {
-    width: 100%;
+.bx-primary-button {
     padding: 8px 32px;
     margin: 10px auto 0;
     border: none;
@@ -3646,17 +4437,22 @@ function addCss() {
 }
 
 @media (hover: hover) {
-    .bx-settings-reload-button:hover {
+    .bx-primary-button:hover {
         background-color: #00753c;
     }
 }
 
-.bx-settings-reload-button:focus {
+.bx-primary-button:focus {
     background-color: #00753c;
 }
 
-.bx-settings-reload-button:active {
+.bx-primary-button:active {
     background-color: #00753c;
+}
+
+.bx-primary-button[disabled] {
+    background: #393939;
+    color: #a2a2a2;
 }
 
 .bx-settings-app-version {
@@ -3847,7 +4643,15 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     min-width: 22px;
 }
 
-.bx-stats-settings {
+.bx-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--bx-dialog-overlay-z-index);
+    background: black;
+    opacity: 50%;
+}
+
+.bx-dialog {
     display: flex;
     flex-flow: column;
     max-height: 90vh;
@@ -3859,7 +4663,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     width: 420px;
     padding: 20px;
     border-radius: 8px;
-    z-index: var(--bx-stats-settings-z-index);
+    z-index: var(--bx-dialog-z-index);
     background: #1a1b1e;
     color: #fff;
     font-weight: 400;
@@ -3870,11 +4674,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     -webkit-user-select: none;
 }
 
-.bx-stats-settings *:focus {
+.bx-dialog *:focus {
     outline: none !important;
 }
 
-.bx-stats-settings > b {
+.bx-dialog > b {
     color: #fff;
     display: block;
     font-family: var(--bx-title-font);
@@ -3884,23 +4688,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 12px;
 }
 
-.bx-stats-settings > div {
+.bx-dialog > div {
     overflow: auto;
+    padding: 2px 0;
 }
 
-.bx-stats-settings > div > div {
-    display: flex;
-    margin-bottom: 8px;
-    padding: 2px 4px;
-}
-
-.bx-stats-settings label {
-    flex: 1;
-    margin-bottom: 0;
-    align-self: center;
-}
-
-.bx-stats-settings button {
+.bx-dialog > button {
     padding: 8px 32px;
     margin: 20px auto 0;
     border: none;
@@ -3917,13 +4710,25 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 @media (hover: hover) {
-    .bx-stats-settings button:hover {
+    .bx-dialog > button:hover {
         background-color: #515863;
     }
 }
 
-.bx-stats-settings button:focus {
+.bx-dialog > button:focus {
     background-color: #515863;
+}
+
+.bx-stats-settings-dialog > div > div {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 2px 4px;
+}
+
+.bx-stats-settings-dialog label {
+    flex: 1;
+    margin-bottom: 0;
+    align-self: center;
 }
 
 .bx-quick-settings-bar {
@@ -4109,6 +4914,90 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-wait-time-estimated {
     margin-bottom: 10px;
 }
+
+/* REMOTE PLAY */
+
+.bx-container {
+    width: 480px;
+    margin: 0 auto;
+}
+
+#bxUi {
+    margin-top: 14px;
+}
+
+.bx-remote-play-settings {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #2d2d2d;
+}
+
+.bx-remote-play-settings > div {
+    display: flex;
+}
+
+.bx-remote-play-settings label {
+    flex: 1;
+}
+
+.bx-remote-play-settings label p {
+    margin: 4px 0 0;
+    padding: 0;
+    color: #888;
+    font-size: 12px;
+}
+
+.bx-remote-play-settings input {
+    display: block;
+    margin: 0 auto;
+}
+
+.bx-remote-play-settings span {
+    font-weight: bold;
+    font-size: 18px;
+    display: block;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.bx-remote-play-device-wrapper {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.bx-remote-play-device-wrapper:not(:last-child) {
+  margin-bottom: 14px;
+}
+
+.bx-remote-play-device-info {
+    flex: 1;
+    padding: 4px 0;
+}
+
+.bx-remote-play-device-name {
+    font-size: 20px;
+    font-weight: bold;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.bx-remote-play-console-type {
+    font-size: 12px;
+    background: #888;
+    color: #fff;
+    display: inline-block;
+    border-radius: 14px;
+    padding: 2px 10px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.bx-remote-play-power-state {
+    color: #888;
+    font-size: 14px;
+}
+
+/* ----------- */
 
 /* Hide UI elements */
 #headerArea, #uhfSkipToMain, .uhf-footer {
@@ -4380,13 +5269,157 @@ function interceptHttpRequests() {
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
     const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
+    const PREF_REMOTE_PLAY_RESOLUTION = PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION);
+
     const orgFetch = window.fetch;
-    window.fetch = async (...arg) => {
+
+    const patchIpv6 = function(...arg) {
+        // ICE server candidates
         const request = arg[0];
         const url = (typeof request === 'string') ? request : request.url;
 
+        if (PREF_PREFER_IPV6_SERVER && url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
+            const promise = orgFetch(...arg);
+
+            return promise.then(response => {
+                return response.clone().text().then(text => {
+                    if (!text.length) {
+                        return response;
+                    }
+
+                    const obj = JSON.parse(text);
+                    let exchangeResponse = JSON.parse(obj.exchangeResponse);
+                    exchangeResponse = updateIceCandidates(exchangeResponse)
+                    obj.exchangeResponse = JSON.stringify(exchangeResponse);
+
+                    response.json = () => Promise.resolve(obj);
+                    response.text = () => Promise.resolve(JSON.stringify(obj));
+
+                    return response;
+                });
+            });
+        }
+
+        return null;
+    }
+
+    window.fetch = async (...arg) => {
+        let request = arg[0];
+        const url = (typeof request === 'string') ? request : request.url;
+
+        // Remote Play
+        if (IS_REMOTE_PLAYING && url.includes('/home/play')) {
+            const clone = request.clone();
+            const cloneBody = await clone.json();
+            cloneBody.settings.osName = 'windows';
+
+            // Clone headers
+            const headers = {};
+            for (const pair of clone.headers.entries()) {
+                headers[pair[0]] = pair[1];
+            }
+
+            const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
+            if (PREF_REMOTE_PLAY_RESOLUTION === '720p') {
+                deviceInfo.dev.os.name = 'android';
+            }
+
+            headers['x-ms-device-info'] = JSON.stringify(deviceInfo);
+            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+
+            request = new Request('https://wus2.gssv-play-prodxhome.xboxlive.com/v5/sessions/home/play', {
+                method: 'POST',
+                body: JSON.stringify(cloneBody),
+                headers: headers,
+            });
+            arg[0] = request;
+
+            return orgFetch(...arg);
+        }
+
+        if (IS_REMOTE_PLAYING && url.includes('/login/user')) {
+            try {
+                const clone = request.clone();
+
+                const resp = (await (await orgFetch(...arg)).json());
+                RemotePlay.XCLOUD_TOKEN = resp.gsToken;
+
+                const obj = await clone.json();
+                obj.offeringId = 'xhome';
+
+                request = new Request('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
+                    method: 'POST',
+                    body: JSON.stringify(obj),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                arg[0] = request;
+            } catch (e) {
+                alert(e);
+                console.log(e);
+            }
+
+            return orgFetch(...arg);
+        }
+
+        if (IS_REMOTE_PLAYING && url.includes('/titles')) {
+            const clone = request.clone();
+
+            const headers = {};
+            for (const pair of clone.headers.entries()) {
+                headers[pair[0]] = pair[1];
+            }
+            headers['authorization'] = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
+
+            const index = request.url.indexOf('.xboxlive.com');
+            request = new Request('https://wus.core.gssv-play-prod' + request.url.substring(index), {
+                method: clone.method,
+                body: await clone.text(),
+                headers: headers,
+            });
+
+            arg[0] = request;
+            return orgFetch(...arg);
+        }
+
+        if (IS_REMOTE_PLAYING && url.includes('/sessions/home')) {
+            const clone = request.clone();
+
+            const headers = {};
+            for (const pair of clone.headers.entries()) {
+                headers[pair[0]] = pair[1];
+            }
+            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+
+            const opts = {
+                method: clone.method,
+                headers: headers,
+            };
+
+            if (clone.method === 'POST') {
+                opts.body = await clone.text();
+            }
+
+            const index = request.url.indexOf('.xboxlive.com');
+            request = new Request('https://wus2.gssv-play-prodxhome' + request.url.substring(index), opts);
+
+            arg[0] = request;
+
+            return patchIpv6(...arg) || orgFetch(...arg);
+        }
+
+        // ICE server candidates
+        if (!IS_REMOTE_PLAYING) {
+            const patchedIpv6 = patchIpv6(...arg);
+            if (patchedIpv6) {
+                return patchedIpv6;
+            }
+        }
+
         // Server list
-        if (url.endsWith('/v2/login/user')) {
+        if (!url.includes('xhome.') && url.endsWith('/v2/login/user')) {
             const promise = orgFetch(...arg);
 
             return promise.then(response => {
@@ -4563,29 +5596,6 @@ function interceptHttpRequests() {
             });
         }
 
-        // ICE server candidates
-        if (PREF_PREFER_IPV6_SERVER && url.endsWith('/ice') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            const promise = orgFetch(...arg);
-
-            return promise.then(response => {
-                return response.clone().text().then(text => {
-                    if (!text.length) {
-                        return response;
-                    }
-
-                    const obj = JSON.parse(text);
-                    let exchangeResponse = JSON.parse(obj.exchangeResponse);
-                    exchangeResponse = updateIceCandidates(exchangeResponse)
-                    obj.exchangeResponse = JSON.stringify(exchangeResponse);
-
-                    response.json = () => Promise.resolve(obj);
-                    response.text = () => Promise.resolve(JSON.stringify(obj));
-
-                    return response;
-                });
-            });
-        }
-
         for (let blocked of BLOCKED_URLS) {
             if (!url.startsWith(blocked)) {
                 continue;
@@ -4633,6 +5643,7 @@ function injectSettingsButton($parent) {
     });
 
     let $updateAvailable;
+    let $remotePlayLink;
     const $wrapper = CE('div', {'class': 'bx-settings-wrapper'},
                         CE('div', {'class': 'bx-settings-title-wrapper'},
                            CE('a', {
@@ -4640,19 +5651,27 @@ function injectSettingsButton($parent) {
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
-                           $updateAvailable = CE('a', {
-                                'class': 'bx-settings-update',
-                                'href': 'https://github.com/redphx/better-xcloud/releases',
-                                'target': '_blank',
-                           })
+                           $remotePlayLink = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
                         )
                        );
-    $container.appendChild($wrapper);
+    $updateAvailable = CE('a', {
+        'class': 'bx-settings-update bx-gone',
+        'href': 'https://github.com/redphx/better-xcloud/releases',
+        'target': '_blank',
+    });
+
+    $remotePlayLink.addEventListener('click', e => {
+        RemotePlay.showDialog();
+
+        // Hide Settings
+        $container.classList.add('bx-gone');
+    });
+    $wrapper.appendChild($updateAvailable);
 
     // Show new version indicator
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
         $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
-        $updateAvailable.style.display = 'block';
+        $updateAvailable.classList.remove('bx-gone');
     }
 
     // Render settings
@@ -4675,6 +5694,7 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
         [__('controller')]: {
+            [Preferences.CONTROLLER_POLLING_RATE]: __('controller-polling-rate'),
             [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
         },
         [__('touch-controller')]: {
@@ -4682,12 +5702,20 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
         },
+
+        [__('mouse-and-keyboard')]: {
+            '_note': '⚠️ ' + __('may-not-work-properly'),
+            [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-support-some-games')],
+            [Preferences.MKB_ABSOLUTE_MOUSE]: __('use-mouse-absolute-position'),
+        },
+
         [__('loading-screen')]: {
             [Preferences.UI_LOADING_SCREEN_GAME_ART]: __('show-game-art'),
             [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: __('show-wait-time'),
             [Preferences.UI_LOADING_SCREEN_ROCKET]: __('rocket-animation'),
         },
         [__('ui')]: {
+            [Preferences.UI_LAYOUT]: __('layout'),
             [Preferences.STREAM_SIMPLIFY_MENU]: __('simplify-stream-menu'),
             [Preferences.SKIP_SPLASH_VIDEO]: __('skip-splash-video'),
             [Preferences.HIDE_DOTS_ICON]: __('hide-system-menu-icon'),
@@ -4704,12 +5732,35 @@ function injectSettingsButton($parent) {
     };
 
     for (let groupLabel in SETTINGS_UI) {
+        if (!ENABLE_MKB && groupLabel === __('mouse-and-keyboard')) {
+            continue;
+        }
+
         const $group = CE('span', {'class': 'bx-settings-group-label'}, groupLabel);
+
+        // Render note
+        if (SETTINGS_UI[groupLabel]._note) {
+            const $note = CE('b', {}, SETTINGS_UI[groupLabel]._note);
+            $group.appendChild($note);
+        }
+
         $wrapper.appendChild($group);
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
+            if (settingId.startsWith('_')) {
+                continue;
+            }
+
             const setting = Preferences.SETTINGS[settingId];
-            const settingLabel = SETTINGS_UI[groupLabel][settingId];
+
+            let settingLabel;
+            let settingNote;
+
+            if (Array.isArray(SETTINGS_UI[groupLabel][settingId])) {
+                [settingLabel, settingNote] = SETTINGS_UI[groupLabel][settingId];
+            } else {
+                settingLabel = SETTINGS_UI[groupLabel][settingId];
+            }
 
             let $control, $inpCustomUserAgent;
             let labelAttrs = {};
@@ -4793,8 +5844,12 @@ function injectSettingsButton($parent) {
             }
             $control.disabled && ($control.style.cursor = 'help');
 
+            const $label = CE('label', labelAttrs, settingLabel);
+            if (settingNote) {
+                $label.appendChild(CE('b', {}, settingNote));
+            }
             const $elm = CE('div', {'class': 'bx-settings-row'},
-                            CE('label', labelAttrs, settingLabel),
+                            $label,
                             $control
                            );
 
@@ -4810,7 +5865,7 @@ function injectSettingsButton($parent) {
     }
 
     // Setup Reload button
-    const $reloadBtn = CE('button', {'class': 'bx-settings-reload-button', 'tabindex': 0}, __('settings-reload'));
+    const $reloadBtn = CE('button', {'class': 'bx-primary-button bx-full-width', 'tabindex': 0}, __('settings-reload'));
     $reloadBtn.addEventListener('click', e => {
         window.location.reload();
         $reloadBtn.textContent = __('settings-reloading');
@@ -4823,6 +5878,8 @@ function injectSettingsButton($parent) {
         const appDate = new Date(document.querySelector('meta[name=gamepass-app-date]').content).toISOString().substring(0, 10);
         $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
     } catch (e) {}
+
+    $container.appendChild($wrapper);
 
     // Add Settings UI to the web page
     const $pageContent = document.getElementById('PageContent');
@@ -5300,8 +6357,13 @@ function patchHistoryMethod(type) {
 };
 
 
-function onHistoryChanged() {
+function onHistoryChanged(e) {
+    if (e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
+        return;
+    }
+
     IS_PLAYING = false;
+    setTimeout(RemotePlay.detect, 10);
 
     const $settings = document.querySelector('.better_xcloud_settings');
     if ($settings) {
@@ -5333,7 +6395,11 @@ function onStreamStarted($video) {
     IS_PLAYING = true;
 
     // Get title ID for screenshot's name
-    GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+    if (window.location.pathname.includes('/launch/')) {
+        GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+    } else {
+        GAME_TITLE_ID = 'remote-play';
+    }
 
     if (TouchController.isEnabled()) {
         TouchController.enableBar();
@@ -5555,3 +6621,6 @@ disablePwa();
 if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
     GamepadHandler.initialSetup();
 }
+
+Patcher.initialize();
+RemotePlay.detect();
