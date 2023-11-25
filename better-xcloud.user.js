@@ -635,6 +635,10 @@ const Translations = {
         "vi-VN": "Lớn",
         "zh-CN": "大",
     },
+    "layout": {
+        "en-US": "Layout",
+        "vi-VN": "Bố cục",
+    },
     "loading-screen": {
         "de-DE": "Ladebildschirm",
         "en-US": "Loading screen",
@@ -1106,6 +1110,10 @@ const Translations = {
         "tr-TR": "Küçük",
         "vi-VN": "Nhỏ",
         "zh-CN": "小",
+    },
+    "smart-tv": {
+        "en-US": "Smart TV",
+        "vi-VN": "TV thông minh",
     },
     "sound": {
         "de-DE": "Ton",
@@ -3133,6 +3141,8 @@ class Preferences {
     static get UI_LOADING_SCREEN_WAIT_TIME() { return 'ui_loading_screen_wait_time'; }
     static get UI_LOADING_SCREEN_ROCKET() { return 'ui_loading_screen_rocket'; }
 
+    static get UI_LAYOUT() { return 'ui_layout'; }
+
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_RATIO() { return 'video_ratio' }
     static get VIDEO_BRIGHTNESS() { return 'video_brightness'; }
@@ -3346,6 +3356,7 @@ class Preferences {
         [Preferences.REDUCE_ANIMATIONS]: {
             'default': false,
         },
+
         [Preferences.UI_LOADING_SCREEN_GAME_ART]: {
             'default': true,
         },
@@ -3360,6 +3371,14 @@ class Preferences {
                 'hide': __('rocket-always-hide'),
             },
         },
+        [Preferences.UI_LAYOUT]: {
+            'default': 'default',
+            'options': {
+                'default': __('default'),
+                'tv': __('smart-tv'),
+            },
+        },
+
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
             'default': false,
         },
@@ -3833,6 +3852,16 @@ class Patcher {
             }
 
             return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
+        },
+
+        // Set TV layout
+        tvLayout: PREFS.get(Preferences.UI_LAYOUT) === 'tv' && function(funcStr) {
+            const text = '?"tv":"default"';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, '?"tv":"tv"');
         },
     };
 
@@ -5425,6 +5454,7 @@ function injectSettingsButton($parent) {
             [Preferences.UI_LOADING_SCREEN_ROCKET]: __('rocket-animation'),
         },
         [__('ui')]: {
+            [Preferences.UI_LAYOUT]: __('layout'),
             [Preferences.STREAM_SIMPLIFY_MENU]: __('simplify-stream-menu'),
             [Preferences.SKIP_SPLASH_VIDEO]: __('skip-splash-video'),
             [Preferences.HIDE_DOTS_ICON]: __('hide-system-menu-icon'),
