@@ -1720,91 +1720,6 @@ class Dialog {
 }
 
 
-class Patcher {
-    static #PATCHES = {
-        connectMode: function(funcStr) {
-            const text = 'connectMode:"cloud-connect"';
-            if (!funcStr.includes(text)) {
-                return false;
-            }
-
-            return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
-        },
-
-        directConnectUrl: function(funcStr) {
-            const index = funcStr.indexOf('/direct-connect');
-            if (index === -1) {
-                return false;
-            }
-
-            return funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
-        },
-    };
-
-    static #patchFunctionBind() {
-        Function.prototype.nativeBind = Function.prototype.bind;
-        Function.prototype.bind = function() {
-            let valid = false;
-            if (arguments.length === 2 && arguments[0] === null) {
-                if (arguments[1] === 0 || (typeof arguments[1] === 'function')) {
-                    valid = true;
-                }
-            }
-
-            if (!valid) {
-                return this.nativeBind.apply(this, arguments);
-            }
-
-            if (typeof arguments[1] === 'function') {
-                console.log('Restored bind()');
-                Function.prototype.bind = Function.prototype.nativeBind;
-            }
-
-            const orgFunc = this;
-            const newFunc = (a, item) => {
-                if (Patcher.length() === 0) {
-                    orgFunc(a, item);
-                    return;
-                }
-
-                Patcher.patch(item);
-                orgFunc(a, item);
-            }
-
-            return newFunc.nativeBind.apply(newFunc, arguments);
-        };
-    }
-
-    static length() { return Object.keys(Patcher.#PATCHES).length };
-
-    static patch(item) {
-        for (let id in item[1]) {
-            if (Patcher.length() <= 0) {
-                return;
-            }
-
-            for (const patchName in Patcher.#PATCHES) {
-                const func = item[1][id];
-                let funcStr = func.toString();
-
-                const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
-                if (patchedFuncStr) {
-                    item[1][id] = eval(patchedFuncStr);
-                    delete Patcher.#PATCHES[patchName];
-
-                    console.log(`Patched ${patchName}`);
-                    break;
-                }
-            }
-        }
-    }
-
-    static initialize() {
-        Patcher.#patchFunctionBind();
-    }
-}
-
-
 class RemotePlay {
     static XCLOUD_TOKEN;
     static XHOME_TOKEN;
@@ -3876,6 +3791,120 @@ class Preferences {
 
 
 const PREFS = new Preferences();
+
+
+class Patcher {
+    static #PATCHES = {
+        // Enable Remote Play feature
+        connectMode: function(funcStr) {
+            const text = 'connectMode:"cloud-connect"';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
+        },
+
+        // Replace "/direct-connect" with "/play"
+        directConnectUrl: function(funcStr) {
+            const index = funcStr.indexOf('/direct-connect');
+            if (index === -1) {
+                return false;
+            }
+
+            return funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
+        },
+
+        // Set disableTelemetry() to true
+        disableTelemetry: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = '.disableTelemetry=function(){return!1}';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
+        },
+
+        // Disable trackEvent() function
+        disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = 'this.trackEvent=';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
+        },
+    };
+
+    static #patchFunctionBind() {
+        Function.prototype.nativeBind = Function.prototype.bind;
+        Function.prototype.bind = function() {
+            let valid = false;
+            if (arguments.length === 2 && arguments[0] === null) {
+                if (arguments[1] === 0 || (typeof arguments[1] === 'function')) {
+                    valid = true;
+                }
+            }
+
+            if (!valid) {
+                return this.nativeBind.apply(this, arguments);
+            }
+
+            if (typeof arguments[1] === 'function') {
+                console.log('[Better xCloud] Restored Function.prototype.bind()');
+                Function.prototype.bind = Function.prototype.nativeBind;
+            }
+
+            const orgFunc = this;
+            const newFunc = (a, item) => {
+                if (Patcher.length() === 0) {
+                    orgFunc(a, item);
+                    return;
+                }
+
+                Patcher.patch(item);
+                orgFunc(a, item);
+            }
+
+            return newFunc.nativeBind.apply(newFunc, arguments);
+        };
+    }
+
+    static length() { return Object.keys(Patcher.#PATCHES).length };
+
+    static patch(item) {
+        for (let id in item[1]) {
+            if (Patcher.length() <= 0) {
+                return;
+            }
+
+            for (const patchName in Patcher.#PATCHES) {
+                const func = item[1][id];
+                let funcStr = func.toString();
+
+                const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
+                if (patchedFuncStr) {
+                    item[1][id] = eval(patchedFuncStr);
+                    delete Patcher.#PATCHES[patchName];
+
+                    console.log(`[Better xCloud] Applied "${patchName}" patch`);
+                    break;
+                }
+            }
+        }
+    }
+
+    static initialize() {
+        // Remove disabled patches
+        for (const patchName in Patcher.#PATCHES) {
+            if (!Patcher.#PATCHES[patchName]) {
+                delete Patcher.#PATCHES[patchName];
+            }
+        }
+
+        Patcher.#patchFunctionBind();
+    }
+}
 
 
 function checkForUpdate() {
