@@ -16,6 +16,8 @@
 const SCRIPT_VERSION = '1.19';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
+const ENABLE_MKB = false;
+
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
 
@@ -94,6 +96,7 @@ const Translations = {
         const texts = Translations[key] || alert(`Missing translation key: ${key}`);
         return texts[LOCALE] || texts['en-US'];
     },
+
 
     "advanced": {
         "de-DE": "Erweitert",
@@ -274,7 +277,7 @@ const Translations = {
         "pt-BR": "Brilho",
         "ru-RU": "Яркость",
         "tr-TR": "Aydınlık",
-        "vi-VN": "Độ sáng",
+        "vi-VN": "Độ sáng",
         "zh-CN": "亮度",
     },
     "browser-unsupported-feature": {
@@ -417,6 +420,7 @@ const Translations = {
         "en-US": "Controller polling rate",
         "ja-JP": "コントローラーポーリングレート",
         "pt-BR": "Taxa de consulta do controle",
+        "tr-TR": "Oyun kumandası işlem hızı",
         "vi-VN": "Tần suất cập nhật của bộ điều khiển",
     },
     "custom": {
@@ -553,6 +557,12 @@ const Translations = {
         "vi-VN": "Bật mic lúc vào game",
         "zh-CN": "游戏启动时打开麦克风",
     },
+    "enable-mkb": {
+        "en-US": "Enable Mouse & Keyboard support",
+        "ja-JP": "マウス＆キーボードのサポートを有効化",
+        "tr-TR": "Klavye ve fare desteğini aktive et",
+        "vi-VN": "Kích hoạt hỗ trợ Chuột & Bàn phím",
+    },
     "enable-quick-glance-mode": {
         "de-DE": "\"Kurzer Blick\"-Modus aktivieren",
         "en-US": "Enable \"Quick Glance\" mode",
@@ -583,6 +593,7 @@ const Translations = {
     "fast": {
         "en-US": "Fast",
         "ja-JP": "高速",
+        "tr-TR": "Hızlı",
         "vi-VN": "Nhanh",
     },
     "getting-consoles-list": {
@@ -654,6 +665,7 @@ const Translations = {
         "en-US": "Layout",
         "ja-JP": "レイアウト",
         "pt-BR": "Layout",
+        "tr-TR": "Arayüz Görünümü",
         "vi-VN": "Bố cục",
     },
     "loading-screen": {
@@ -673,7 +685,14 @@ const Translations = {
     "max-bitrate": {
         "en-US": "Max bitrate",
         "ja-JP": "最大ビットレート",
+        "tr-TR": "Maksimum bithızı",
         "vi-VN": "Bitrate tối đa",
+    },
+    "may-not-work-properly": {
+        "en-US": "May not work properly!",
+        "ja-JP": "正常に動作しない場合があります！",
+        "tr-TR": "Düzgün çalışmayabilir!",
+        "vi-VN": "Có thể không hoạt động!",
     },
     "menu-stream-settings": {
         "de-DE": "Stream Einstellungen",
@@ -712,6 +731,12 @@ const Translations = {
         "tr-TR": "Mikrofon",
         "vi-VN": "Micro",
         "zh-CN": "麦克风",
+    },
+    "mouse-and-keyboard": {
+        "en-US": "Mouse & Keyboard",
+        "ja-JP": "マウス＆キーボード",
+        "tr-TR": "Klavye ve Fare",
+        "vi-VN": "Chuột và Bàn phím",
     },
     "muted": {
         "de-DE": "Stumm",
@@ -770,6 +795,12 @@ const Translations = {
         "tr-TR": "Açık",
         "vi-VN": "Bật",
         "zh-CN": "开启",
+    },
+    "only-support-some-games": {
+        "en-US": "Only support some games",
+        "ja-JP": "一部のゲームのみサポート",
+        "tr-TR": "Yalnızca belli oyunlar destekleniyor",
+        "vi-VN": "Chỉ hỗ trợ một vài game",
     },
     "opacity": {
         "de-DE": "Deckkraft",
@@ -1126,6 +1157,7 @@ const Translations = {
     "slow": {
         "en-US": "Slow",
         "ja-JP": "低速",
+        "tr-TR": "Yavaş",
         "vi-VN": "Chậm",
     },
     "small": {
@@ -1146,6 +1178,7 @@ const Translations = {
         "en-US": "Smart TV",
         "ja-JP": "スマートTV",
         "pt-BR": "Smart TV",
+        "tr-TR": "Akıllı TV",
         "vi-VN": "TV thông minh",
     },
     "sound": {
@@ -1517,6 +1550,7 @@ const Translations = {
     "unlimited": {
         "en-US": "Unlimited",
         "ja-JP": "無制限",
+        "tr-TR": "Limitsiz",
         "vi-VN": "Không giới hạn",
     },
     "unmuted": {
@@ -1528,6 +1562,12 @@ const Translations = {
         "tr-TR": "Açık",
         "vi-VN": "Đã mở âm",
         "zh-CN": "已取消静音",
+    },
+    "use-mouse-absolute-position": {
+        "en-US": "Use mouse's absolute position",
+        "ja-JP": "マウスの絶対座標を使用",
+        "tr-TR": "Farenin mutlak pozisyonunu baz al",
+        "vi-VN": "Sử dụng vị trí tuyệt đối của chuột",
     },
     "user-agent-profile": {
         "de-DE": "User-Agent Profil",
@@ -3170,6 +3210,9 @@ class Preferences {
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
     static get CONTROLLER_POLLING_RATE() { return 'controller_polling_rate'; }
 
+    static get MKB_ENABLED() { return 'mkb_enabled'; }
+    static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
+
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
@@ -3403,6 +3446,14 @@ class Preferences {
                 32: '31.25 Hz (32ms)',
                 50: `20 Hz (50ms - ${__('default')})`,
             },
+        },
+
+        [Preferences.MKB_ENABLED]: {
+            'default': false,
+        },
+
+        [Preferences.MKB_ABSOLUTE_MOUSE]: {
+            'default': false,
         },
 
         [Preferences.REDUCE_ANIMATIONS]: {
@@ -3928,6 +3979,20 @@ class Patcher {
 
             return funcStr.replace(text, '?"tv":"tv"');
         },
+
+        // Enable Mouse and Keyboard support
+        enableMouseAndKeyboard: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
+            if (!funcStr.includes('EnableMouseAndKeyboard:')) {
+                return false;
+            }
+
+            funcStr = funcStr.replace('EnableMouseAndKeyboard:!1', 'EnableMouseAndKeyboard:!0');
+            if (PREFS.get(Preferences.MKB_ABSOLUTE_MOUSE)) {
+                funcStr = funcStr.replace('EnableAbsoluteMouse:!1', 'EnableAbsoluteMouse:!0');
+            }
+
+            return funcStr;
+        }
     };
 
     static #patchFunctionBind() {
@@ -4220,6 +4285,14 @@ function addCss() {
     align-self: center;
     margin-bottom: 0;
     padding-left: 10px;
+}
+
+.bx-settings-group-label b, .bx-settings-row label b {
+    display: block;
+    font-size: 12px;
+    font-style: italic;
+    font-weight: normal;
+    color: #828282;
 }
 
 @media not (hover: hover) {
@@ -5514,6 +5587,13 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
         },
+
+        [__('mouse-and-keyboard')]: {
+            '_note': '⚠️ ' + __('may-not-work-properly'),
+            [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-support-some-games')],
+            [Preferences.MKB_ABSOLUTE_MOUSE]: __('use-mouse-absolute-position'),
+        },
+
         [__('loading-screen')]: {
             [Preferences.UI_LOADING_SCREEN_GAME_ART]: __('show-game-art'),
             [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: __('show-wait-time'),
@@ -5537,12 +5617,35 @@ function injectSettingsButton($parent) {
     };
 
     for (let groupLabel in SETTINGS_UI) {
+        if (!ENABLE_MKB && groupLabel === __('mouse-and-keyboard')) {
+            continue;
+        }
+
         const $group = CE('span', {'class': 'bx-settings-group-label'}, groupLabel);
+
+        // Render note
+        if (SETTINGS_UI[groupLabel]._note) {
+            const $note = CE('b', {}, SETTINGS_UI[groupLabel]._note);
+            $group.appendChild($note);
+        }
+
         $wrapper.appendChild($group);
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
+            if (settingId.startsWith('_')) {
+                continue;
+            }
+
             const setting = Preferences.SETTINGS[settingId];
-            const settingLabel = SETTINGS_UI[groupLabel][settingId];
+
+            let settingLabel;
+            let settingNote;
+
+            if (Array.isArray(SETTINGS_UI[groupLabel][settingId])) {
+                [settingLabel, settingNote] = SETTINGS_UI[groupLabel][settingId];
+            } else {
+                settingLabel = SETTINGS_UI[groupLabel][settingId];
+            }
 
             let $control, $inpCustomUserAgent;
             let labelAttrs = {};
@@ -5626,8 +5729,12 @@ function injectSettingsButton($parent) {
             }
             $control.disabled && ($control.style.cursor = 'help');
 
+            const $label = CE('label', labelAttrs, settingLabel);
+            if (settingNote) {
+                $label.appendChild(CE('b', {}, settingNote));
+            }
             const $elm = CE('div', {'class': 'bx-settings-row'},
-                            CE('label', labelAttrs, settingLabel),
+                            $label,
                             $control
                            );
 
