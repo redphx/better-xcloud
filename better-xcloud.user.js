@@ -684,7 +684,7 @@ const Translations = {
         "pl-PL": "Mikrofon",
         "pt-BR": "Microfone",
         "tr-TR": "Mikrofon",
-        "vi-VN": "Mic",
+        "vi-VN": "Micro",
         "zh-CN": "麦克风",
     },
     "muted": {
@@ -1117,12 +1117,13 @@ const Translations = {
         "vi-VN": "Âm thanh",
         "zh-CN": "声音",
     },
-    "stand-by": {
-        "en-US": "Stand by",
+    "standby": {
+        "de-DE": "Standby",
+        "en-US": "Standby",
         "ja-JP": "スタンバイ",
         "pl-PL": "Stan czuwania",
         "tr-TR": "Beklemede",
-        "vi-VN": "Sẵn sàng",
+        "vi-VN": "Đang ở chế độ chờ",
         "zh-CN": "待机",
     },
     "stat-bitrate": {
@@ -1727,7 +1728,7 @@ class RemotePlay {
     static #STATE_LABELS = {
         'On': __('powered-on'),
         'Off': __('powered-off'),
-        'ConnectedStandby': __('stand-by'),
+        'ConnectedStandby': __('standby'),
         'Unknown': __('unknown'),
     };
 
