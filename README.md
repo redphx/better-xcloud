@@ -67,7 +67,9 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/6f1e67b3-65a4-406e-91e0-19be58fc0ff6">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/70b754fa-a638-4d02-bd05-0a3bdf5e1fcd">
+<br>
+<img width="400" alt="Remote Play dialog" src="https://github.com/redphx/better-xcloud/assets/96280/daf7f698-a228-4f9c-8f23-9669e061a64c">
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/51bdb96c-79ab-402f-902a-a9e6229973b2">
 <br>
@@ -76,8 +78,9 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 &nbsp;  
   
 **Demo video:** [https://youtu.be/oDr5Eddp55E  ](https://youtu.be/AYb-EUcz72U)  
-
-- **🔥 Improve visual quality of the stream**
+- **🔥 Support [Remote Play](https://support.xbox.com/help/games-apps/game-setup-and-play/how-to-set-up-remote-play)**  
+  > 1080p resolution and can stream Xbox 360 games.  
+- **🔥 Improve visual quality of the stream**  
   > Similar to (but not as good as) the "Clarity Boost" of xCloud on Edge browser. [Demo video](https://youtu.be/ZhW2choAHUs). 
 - **🔥 Show stream stats**  
   > Check [Stream stats section](#stream-stats) for more info.  
@@ -117,6 +120,8 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
   > Hide the mouse cursor after 3 seconds of not moving.  
 
 ### Controller
+- Adjust controller polling rate  
+  > Higher is better (reduce input latency).  
 - Enable controller shortcuts
   > `Home` is  the button which activates the Xbox sidebar menu (similar to the Xbox/Nexus button on the official controller).  
   > Not all controllers have this button. It's the `B16` button on the [Gamepad Tester site](https://hardwaretester.com/gamepad).  
@@ -158,7 +163,9 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 
 ### UI
-- **Simplify Stream's menu**
+- **Switch website's layout**  
+  > Switch between default layout and Smart TV layout (without having to change User-Agent).  
+- **Simplify Stream's menu**  
   > Hide the labels of the menu buttons.  
 - **Skip Xbox splash video**
   > Save 3 seconds.
@@ -288,14 +295,15 @@ It's a reference to an Userscript called "better360" that I created many years a
 
 ## Translators
   - **Chinese (Simplified)**: [@nyavana](https://github.com/nyavana)
-  - **French**: rodolphe.chouteau
-  - **German**: [@KingNothing81](https://github.com/KingNothing81)
+  - **French**: rodolphe.chouteau, Stay34yth
+  - **German**: [@KingNothing81](https://github.com/KingNothing81), mynameismanu
   - **Korean**: [@rightones](https://github.com/rightones)
+  - **Italian**: Greenylie, Rakan129, Carza-104, graziequalcuno, DioCannabinoide
   - **Japanese**: Tak_attack, udonshi
-  - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404), [@Haisom](https://github.com/Haisom)
+  - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404), [@Haisom](https://github.com/Haisom), italorafael22062009, PotatoPTT
   - **Polish**: [@aleksishere](https://github.com/aleksishere)
   - **Russian**: anpom6
-  - **Spanish**: [@PabloSebas](https://github.com/PabloSebas)
+  - **Spanish**: [@PabloSebas](https://github.com/PabloSebas), csvnchzn
   - **Turkish**: [@transbebek](https://github.com/transbebek)
   - **Vietnamese**: [@redphx](https://github.com/redphx)
 
