@@ -4058,7 +4058,7 @@ class Patcher {
                 return false;
             }
 
-            return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId||''`);
+            return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
         },
 
         // Replace "/direct-connect" with "/play"
@@ -4068,7 +4068,7 @@ class Patcher {
                 return false;
             }
 
-            return funcStr.replace(funcStr.substring(index - 9, index + 15), '/play');
+            return funcStr.replace(funcStr.substring(index - 9, index + 15), 'https://www.xbox.com/play');
         },
 
         // Set disableTelemetry() to true
