@@ -443,6 +443,7 @@ const Translations = {
     "controller-polling-rate": {
         "en-US": "Controller polling rate",
         "ja-JP": "コントローラーポーリングレート",
+        "pl-PL": "Częstotliwości raportowania kontrolera",
         "pt-BR": "Taxa de consulta do controle",
         "tr-TR": "Oyun kumandası işlem hızı",
         "vi-VN": "Tần suất cập nhật của bộ điều khiển",
@@ -594,6 +595,7 @@ const Translations = {
     "enable-mkb": {
         "en-US": "Enable Mouse & Keyboard support",
         "ja-JP": "マウス＆キーボードのサポートを有効化",
+        "pl-PL": "Włącz obsługę myszy i klawiatury",
         "tr-TR": "Klavye ve fare desteğini aktive et",
         "vi-VN": "Kích hoạt hỗ trợ Chuột & Bàn phím",
     },
@@ -612,6 +614,13 @@ const Translations = {
         "vi-VN": "Bật chế độ \"Xem nhanh\"",
         "zh-CN": "仅在打开设置时显示统计信息",
     },
+    "enable-remote-play-feature": {
+        "en-US": "Enable \"Remote Play\" feature",
+        "ja-JP": "リモートプレイ機能を有効化",
+        "pl-PL": "Włącz funkcję \"Gra zdalna\"",
+        "tr-TR": "\"Uzaktan Oynama\" özelliğini aktive et",
+        "vi-VN": "Bật tính năng \"Chơi từ xa\"",
+    },
     "enable-volume-control": {
         "de-DE": "Lautstärkeregelung aktivieren",
         "en-US": "Enable volume control feature",
@@ -629,6 +638,7 @@ const Translations = {
     "fast": {
         "en-US": "Fast",
         "ja-JP": "高速",
+        "pl-PL": "Szybko",
         "tr-TR": "Hızlı",
         "vi-VN": "Nhanh",
     },
@@ -705,6 +715,7 @@ const Translations = {
     "layout": {
         "en-US": "Layout",
         "ja-JP": "レイアウト",
+        "pl-PL": "Układ",
         "pt-BR": "Layout",
         "tr-TR": "Arayüz Görünümü",
         "vi-VN": "Bố cục",
@@ -727,12 +738,14 @@ const Translations = {
     "max-bitrate": {
         "en-US": "Max bitrate",
         "ja-JP": "最大ビットレート",
+        "pl-PL": "Maksymalny bitrate",
         "tr-TR": "Maksimum bithızı",
         "vi-VN": "Bitrate tối đa",
     },
     "may-not-work-properly": {
         "en-US": "May not work properly!",
         "ja-JP": "正常に動作しない場合があります！",
+        "pl-PL": "Może nie działać poprawnie!",
         "tr-TR": "Düzgün çalışmayabilir!",
         "vi-VN": "Có thể không hoạt động!",
     },
@@ -780,6 +793,7 @@ const Translations = {
     "mouse-and-keyboard": {
         "en-US": "Mouse & Keyboard",
         "ja-JP": "マウス＆キーボード",
+        "pl-PL": "Mysz i klawiatura",
         "tr-TR": "Klavye ve Fare",
         "vi-VN": "Chuột và Bàn phím",
     },
@@ -849,6 +863,7 @@ const Translations = {
     "only-support-some-games": {
         "en-US": "Only support some games",
         "ja-JP": "一部のゲームのみサポート",
+        "pl-PL": "Wspiera tylko niektóre gry",
         "tr-TR": "Yalnızca belli oyunlar destekleniyor",
         "vi-VN": "Chỉ hỗ trợ một vài game",
     },
@@ -1233,6 +1248,7 @@ const Translations = {
     "slow": {
         "en-US": "Slow",
         "ja-JP": "低速",
+        "pl-PL": "Wolno",
         "tr-TR": "Yavaş",
         "vi-VN": "Chậm",
     },
@@ -1254,6 +1270,7 @@ const Translations = {
     "smart-tv": {
         "en-US": "Smart TV",
         "ja-JP": "スマートTV",
+        "pl-PL": "Smart TV",
         "pt-BR": "Smart TV",
         "tr-TR": "Akıllı TV",
         "vi-VN": "TV thông minh",
@@ -1654,6 +1671,7 @@ const Translations = {
     "unlimited": {
         "en-US": "Unlimited",
         "ja-JP": "無制限",
+        "pl-PL": "Bez ograniczeń",
         "tr-TR": "Limitsiz",
         "vi-VN": "Không giới hạn",
     },
@@ -1671,6 +1689,7 @@ const Translations = {
     "use-mouse-absolute-position": {
         "en-US": "Use mouse's absolute position",
         "ja-JP": "マウスの絶対座標を使用",
+        "pl-PL": "Użyj pozycji bezwzględnej myszy",
         "tr-TR": "Farenin mutlak pozisyonunu baz al",
         "vi-VN": "Sử dụng vị trí tuyệt đối của chuột",
     },
@@ -2086,6 +2105,10 @@ class RemotePlay {
     }
 
     static detect() {
+        if (!PREFS.get(Preferences.REMOTE_PLAY_ENABLED)) {
+            return;
+        }
+
         IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
         if (IS_REMOTE_PLAYING) {
             window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
@@ -3360,6 +3383,7 @@ class Preferences {
     static get STATS_OPACITY() { return 'stats_opacity'; }
     static get STATS_CONDITIONAL_FORMATTING() { return 'stats_conditional_formatting'; }
 
+    static get REMOTE_PLAY_ENABLED() { return 'xhome_enabled'; }
     static get REMOTE_PLAY_RESOLUTION() { return 'xhome_resolution'; }
 
     // Deprecated
@@ -3707,6 +3731,10 @@ class Preferences {
             'default': false,
         },
 
+        [Preferences.REMOTE_PLAY_ENABLED]: {
+            'default': false,
+        },
+
         [Preferences.REMOTE_PLAY_RESOLUTION]: {
             'default': 1080,
             'options': {
@@ -4046,7 +4074,7 @@ class Patcher {
         },
 
         // Enable Remote Play feature
-        connectMode: function(funcStr) {
+        remotePlayConnectMode: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
             const text = 'connectMode:"cloud-connect"';
             if (!funcStr.includes(text)) {
                 return false;
@@ -4056,7 +4084,7 @@ class Patcher {
         },
 
         // Replace "/direct-connect" with "/play"
-        directConnectUrl: function(funcStr) {
+        remotePlayDirectConnectUrl: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
             const index = funcStr.indexOf('/direct-connect');
             if (index === -1) {
                 return false;
@@ -5620,6 +5648,7 @@ function injectSettingsButton($parent) {
     const CE = createElement;
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
+    const PREF_REMOTE_PLAY_ENABLED = PREFS.get(Preferences.REMOTE_PLAY_ENABLED);
 
     // Setup Settings button
     const $button = CE('button', {'class': 'bx-settings-button'}, PREF_PREFERRED_REGION);
@@ -5643,7 +5672,7 @@ function injectSettingsButton($parent) {
     });
 
     let $updateAvailable;
-    let $remotePlayLink;
+    let $remotePlayBtn;
     const $wrapper = CE('div', {'class': 'bx-settings-wrapper'},
                         CE('div', {'class': 'bx-settings-title-wrapper'},
                            CE('a', {
@@ -5651,7 +5680,7 @@ function injectSettingsButton($parent) {
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
-                           $remotePlayLink = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
+                           $remotePlayBtn = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
                         )
                        );
     $updateAvailable = CE('a', {
@@ -5660,12 +5689,17 @@ function injectSettingsButton($parent) {
         'target': '_blank',
     });
 
-    $remotePlayLink.addEventListener('click', e => {
-        RemotePlay.showDialog();
+    if (PREF_REMOTE_PLAY_ENABLED) {
+        $remotePlayBtn.addEventListener('click', e => {
+            RemotePlay.showDialog();
 
-        // Hide Settings
-        $container.classList.add('bx-gone');
-    });
+            // Hide Settings
+            $container.classList.add('bx-gone');
+        });
+    } else {
+        $remotePlayBtn.classList.add('bx-gone');
+    }
+
     $wrapper.appendChild($updateAvailable);
 
     // Show new version indicator
@@ -5678,6 +5712,7 @@ function injectSettingsButton($parent) {
     const SETTINGS_UI = {
         'Better xCloud': {
             [Preferences.BETTER_XCLOUD_LOCALE]: __('language'),
+            [Preferences.REMOTE_PLAY_ENABLED]: __('enable-remote-play-feature'),
         },
         [__('server')]: {
             [Preferences.SERVER_REGION]: __('region'),
@@ -6623,4 +6658,5 @@ if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
 }
 
 Patcher.initialize();
+
 RemotePlay.detect();
