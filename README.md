@@ -120,9 +120,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
   > Hide the mouse cursor after 3 seconds of not moving.  
 
 ### Controller
-- Adjust controller polling rate  
-  > Higher is better (reduce input latency).  
-- Enable controller shortcuts
+- Enable controller shortcuts  
   > `Home` is  the button which activates the Xbox sidebar menu (similar to the Xbox/Nexus button on the official controller).  
   > Not all controllers have this button. It's the `B16` button on the [Gamepad Tester site](https://hardwaretester.com/gamepad).  
   > More shortcuts will be added later.
