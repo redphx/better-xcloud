@@ -618,7 +618,7 @@ const Translations = {
     },
     "enable-remote-play-feature": {
         "de-DE": "\"Remote Play\" Funktion aktivieren",
-        "en-US": "Enable \"Remote Play\" feature",
+        "en-US": "Enable the \"Remote Play\" feature",
         "ja-JP": "リモートプレイ機能を有効化",
         "pl-PL": "Włącz funkcję \"Gra zdalna\"",
         "tr-TR": "\"Uzaktan Oynama\" özelliğini aktive et",
@@ -925,7 +925,7 @@ const Translations = {
         "de-DE": "Ausgeschaltet",
         "en-US": "Powered off",
         "it-IT": "Spento",
-        "ja-JP": "電源オフ",
+        "ja-JP": "本体オフ",
         "pl-PL": "Zasilanie wyłączone",
         "pt-BR": "Desligado",
         "tr-TR": "Kapalı",
@@ -936,7 +936,7 @@ const Translations = {
         "de-DE": "Eingeschaltet",
         "en-US": "Powered on",
         "it-IT": "Acceso",
-        "ja-JP": "電源オン",
+        "ja-JP": "本体オン",
         "pl-PL": "Zasilanie włączone",
         "pt-BR": "Ligado",
         "tr-TR": "Açık",
@@ -2104,17 +2104,6 @@ class RemotePlay {
         }
 
         RemotePlay.#$content.parentElement.replaceChild($fragment, RemotePlay.#$content);
-    }
-
-    static #onLoad() {
-        const CE = createElement;
-        const $ui = CE('div', {'class': 'bx-container'},
-                       CE('h2', {}, __('remote-play')),
-                       CE('div', {'id': 'bxUi'}, __('getting-consoles-list')),
-                      );
-
-        const $landingPageHeader = document.querySelector('h2[class*=LandingPage-module__header]');
-        $landingPageHeader.parentElement.insertBefore($ui, $landingPageHeader);
     }
 
     static detect() {
