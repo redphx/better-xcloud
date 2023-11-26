@@ -3299,7 +3299,7 @@ class PreloadedState {
 
                 return this._state;
             },
-            set: (state) => {
+            set: state => {
                 this._state = state;
                 APP_CONTEXT = structuredClone(state.appContext);
 
@@ -4091,6 +4091,31 @@ class Patcher {
             return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
         },
 
+        // Disable ApplicationInsights.track() function
+        disableAiTrack: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = '.track=function(';
+            const index = funcStr.indexOf(text);
+            if (index === -1) {
+                return false;
+            }
+
+            if (funcStr.substring(0, index + 200).includes('"AppInsightsCore')) {
+                return false;
+            }
+
+            return funcStr.substring(0, index) + '.track=function(e){},!!function(' + funcStr.substring(index + text.length);
+        },
+
+        // Block WebRTC stats collector
+        blockWebRtcStatsCollector: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = 'this.intervalMs=0,';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, 'false,' + text);
+        },
+
         // Set TV layout
         tvLayout: PREFS.get(Preferences.UI_LAYOUT) === 'tv' && function(funcStr) {
             const text = '?"tv":"default"';
@@ -4113,7 +4138,7 @@ class Patcher {
             }
 
             return funcStr;
-        }
+        },
     };
 
     static #patchFunctionBind() {
