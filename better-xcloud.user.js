@@ -3345,7 +3345,6 @@ class Preferences {
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
-    static get CONTROLLER_POLLING_RATE() { return 'controller_polling_rate'; }
 
     static get MKB_ENABLED() { return 'mkb_enabled'; }
     static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
@@ -3576,15 +3575,6 @@ class Preferences {
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
-        },
-        [Preferences.CONTROLLER_POLLING_RATE]: {
-            'type': 'number',
-            'default': 50,
-            'options': {
-                16: '62.5 Hz (16ms)',
-                32: '31.25 Hz (32ms)',
-                50: `20 Hz (50ms - ${__('default')})`,
-            },
         },
 
         [Preferences.MKB_ENABLED]: {
@@ -4061,18 +4051,6 @@ const PREFS = new Preferences();
 
 class Patcher {
     static #PATCHES = {
-        // Modify controller polling rate
-        controllerPollingRate: (PREFS.get(Preferences.CONTROLLER_POLLING_RATE) !== 50) && function(funcStr) {
-            const text = '.startGamepadPolling=()';
-            const index = funcStr.indexOf(text);
-            if (index === -1) {
-                return false;
-            }
-
-            const patchedStr = funcStr.substring(index, index + 100).replace(/setInterval\((\w+),(\d+)\)/, `setInterval($1,${PREFS.get(Preferences.CONTROLLER_POLLING_RATE)})`);
-            return funcStr.substring(0, index) + patchedStr + funcStr.substring(index + 100);
-        },
-
         // Enable Remote Play feature
         remotePlayConnectMode: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
             const text = 'connectMode:"cloud-connect"';
@@ -5729,7 +5707,6 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
         [__('controller')]: {
-            [Preferences.CONTROLLER_POLLING_RATE]: __('controller-polling-rate'),
             [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
         },
         [__('touch-controller')]: {
