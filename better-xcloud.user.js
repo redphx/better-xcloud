@@ -441,6 +441,7 @@ const Translations = {
         "zh-CN": "手柄",
     },
     "controller-polling-rate": {
+        "de-DE": "Controller-Abfragerate",
         "en-US": "Controller polling rate",
         "ja-JP": "コントローラーポーリングレート",
         "pl-PL": "Częstotliwości raportowania kontrolera",
@@ -593,6 +594,7 @@ const Translations = {
         "zh-CN": "游戏启动时打开麦克风",
     },
     "enable-mkb": {
+        "de-DE": "Maus- und Tastaturunterstützung aktivieren",
         "en-US": "Enable Mouse & Keyboard support",
         "ja-JP": "マウス＆キーボードのサポートを有効化",
         "pl-PL": "Włącz obsługę myszy i klawiatury",
@@ -615,6 +617,7 @@ const Translations = {
         "zh-CN": "仅在打开设置时显示统计信息",
     },
     "enable-remote-play-feature": {
+        "de-DE": "\"Remote Play\" Funktion aktivieren",
         "en-US": "Enable \"Remote Play\" feature",
         "ja-JP": "リモートプレイ機能を有効化",
         "pl-PL": "Włącz funkcję \"Gra zdalna\"",
@@ -636,6 +639,7 @@ const Translations = {
         "zh-CN": "启用音量控制",
     },
     "fast": {
+        "de-DE": "Schnell",
         "en-US": "Fast",
         "ja-JP": "高速",
         "pl-PL": "Szybko",
@@ -713,6 +717,7 @@ const Translations = {
         "zh-CN": "大",
     },
     "layout": {
+        "de-DE": "Layout",
         "en-US": "Layout",
         "ja-JP": "レイアウト",
         "pl-PL": "Układ",
@@ -736,6 +741,7 @@ const Translations = {
         "zh-CN": "载入画面",
     },
     "max-bitrate": {
+        "de-DE": "Max. Bitrate",
         "en-US": "Max bitrate",
         "ja-JP": "最大ビットレート",
         "pl-PL": "Maksymalny bitrate",
@@ -743,6 +749,7 @@ const Translations = {
         "vi-VN": "Bitrate tối đa",
     },
     "may-not-work-properly": {
+        "de-DE": "Funktioniert evtl. nicht fehlerfrei!",
         "en-US": "May not work properly!",
         "ja-JP": "正常に動作しない場合があります！",
         "pl-PL": "Może nie działać poprawnie!",
@@ -791,6 +798,7 @@ const Translations = {
         "zh-CN": "麦克风",
     },
     "mouse-and-keyboard": {
+        "de-DE": "Maus & Tastatur",
         "en-US": "Mouse & Keyboard",
         "ja-JP": "マウス＆キーボード",
         "pl-PL": "Mysz i klawiatura",
@@ -860,8 +868,9 @@ const Translations = {
         "vi-VN": "Bật",
         "zh-CN": "开启",
     },
-    "only-support-some-games": {
-        "en-US": "Only support some games",
+    "only-supports-some-games": {
+        "de-DE": "Unterstützt nur einige Spiele",
+        "en-US": "Only supports some games",
         "ja-JP": "一部のゲームのみサポート",
         "pl-PL": "Wspiera tylko niektóre gry",
         "tr-TR": "Yalnızca belli oyunlar destekleniyor",
@@ -1246,6 +1255,7 @@ const Translations = {
         "zh-CN": "跳过 Xbox 启动动画",
     },
     "slow": {
+        "de-DE": "Langsam",
         "en-US": "Slow",
         "ja-JP": "低速",
         "pl-PL": "Wolno",
@@ -1268,6 +1278,7 @@ const Translations = {
         "zh-CN": "小",
     },
     "smart-tv": {
+        "de-DE": "Smart TV",
         "en-US": "Smart TV",
         "ja-JP": "スマートTV",
         "pl-PL": "Smart TV",
@@ -1669,6 +1680,7 @@ const Translations = {
         "zh-CN": "未知",
     },
     "unlimited": {
+        "de-DE": "Unbegrenzt",
         "en-US": "Unlimited",
         "ja-JP": "無制限",
         "pl-PL": "Bez ograniczeń",
@@ -1687,6 +1699,7 @@ const Translations = {
         "zh-CN": "已取消静音",
     },
     "use-mouse-absolute-position": {
+        "de-DE": "Absolute Position der Maus verwenden",
         "en-US": "Use mouse's absolute position",
         "ja-JP": "マウスの絶対座標を使用",
         "pl-PL": "Użyj pozycji bezwzględnej myszy",
@@ -5742,7 +5755,7 @@ function injectSettingsButton($parent) {
 
         [__('mouse-and-keyboard')]: {
             '_note': '⚠️ ' + __('may-not-work-properly'),
-            [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-support-some-games')],
+            [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-supports-some-games')],
             [Preferences.MKB_ABSOLUTE_MOUSE]: __('use-mouse-absolute-position'),
         },
 
