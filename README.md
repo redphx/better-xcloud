@@ -67,7 +67,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/70b754fa-a638-4d02-bd05-0a3bdf5e1fcd">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ca38b3fa-1e89-4b37-937c-a6796c07cdf1">
 <br>
 <img width="400" alt="Remote Play dialog" src="https://github.com/redphx/better-xcloud/assets/96280/daf7f698-a228-4f9c-8f23-9669e061a64c">
 <br>
