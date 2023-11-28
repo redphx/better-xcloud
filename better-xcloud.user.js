@@ -2079,13 +2079,12 @@ class RemotePlay {
                 $connectButton = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('console-connect')),
             );
 
-            REMOTE_PLAY_CONFIG = {
-                serverId: con.serverId,
-            };
-
             $connectButton.addEventListener('click', e => {
+                REMOTE_PLAY_CONFIG = {
+                    serverId: con.serverId,
+                };
+
                 const url = window.location.href.substring(0, 31) + '/launch/starfield/9NCJSXWZTP88#remote-play';
-                // const url = '/play';
 
                 const $pageContent = document.getElementById('PageContent');
                 const $anchor = CE('a', {href: url, class: 'bx-hidden', style: 'position:absolute;top:-9990px;left:-9999px'}, '');
