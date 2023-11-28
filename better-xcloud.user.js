@@ -2084,7 +2084,7 @@ class RemotePlay {
                     serverId: con.serverId,
                 };
 
-                const url = window.location.href.substring(0, 31) + '/launch/starfield/9NCJSXWZTP88#remote-play';
+                const url = window.location.href.substring(0, 31) + '/launch/fortnite/BT5P2X999VH2#remote-play';
 
                 const $pageContent = document.getElementById('PageContent');
                 const $anchor = CE('a', {href: url, class: 'bx-hidden', style: 'position:absolute;top:-9990px;left:-9999px'}, '');
@@ -5373,9 +5373,6 @@ function interceptHttpRequests() {
             try {
                 const clone = request.clone();
 
-                const resp = (await (await orgFetch(...arg)).json());
-                RemotePlay.XCLOUD_TOKEN = resp.gsToken;
-
                 const obj = await clone.json();
                 obj.offeringId = 'xhome';
 
@@ -5456,6 +5453,9 @@ function interceptHttpRequests() {
 
             return promise.then(response => {
                 return response.clone().json().then(obj => {
+                    // Store xCloud token
+                    RemotePlay.XCLOUD_TOKEN = obj.gsToken;
+
                     // Get server list
                     if (!Object.keys(SERVER_REGIONS).length) {
                         for (let region of obj.offeringSettings.regions) {
