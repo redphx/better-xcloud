@@ -311,6 +311,7 @@ const Translations = {
     "can-stream-xbox-360-games": {
         "de-DE": "Kann Xbox 360 Spiele streamen",
         "en-US": "Can stream Xbox 360 games",
+        "es-ES": "Puede transmitir juegos de Xbox 360",
         "it-IT": "Puoi riprodurre i giochi Xbox 360",
         "ja-JP": "Xbox 360ゲームのストリーミング可能",
         "pl-PL": "Można strumieniować gry Xbox 360",
@@ -321,6 +322,7 @@ const Translations = {
     "cant-stream-xbox-360-games": {
         "de-DE": "Kann Xbox 360 Spiele nicht streamen",
         "en-US": "Can't stream Xbox 360 games",
+        "es-ES": "No puede transmitir juegos de Xbox 360",
         "it-IT": "Impossibile riprodurre i giochi Xbox 360",
         "ja-JP": "Xbox 360ゲームのストリーミング不可",
         "pl-PL": "Nie można strumieniować gier Xbox 360",
@@ -406,6 +408,7 @@ const Translations = {
     "console-connect": {
         "de-DE": "Verbinden",
         "en-US": "Connect",
+        "es-ES": "Conectar",
         "it-IT": "Connetti",
         "ja-JP": "本体に接続",
         "pl-PL": "Połącz",
@@ -432,6 +435,7 @@ const Translations = {
     "controller": {
         "de-DE": "Controller",
         "en-US": "Controller",
+        "es-ES": "Joystick",
         "it-IT": "Controller",
         "ja-JP": "コントローラー",
         "pl-PL": "Kontroler",
@@ -443,6 +447,7 @@ const Translations = {
     "controller-polling-rate": {
         "de-DE": "Controller-Abfragerate",
         "en-US": "Controller polling rate",
+        "es-ES": "Tasa de sondeo del Joystick",
         "ja-JP": "コントローラーポーリングレート",
         "pl-PL": "Częstotliwości raportowania kontrolera",
         "pt-BR": "Taxa de consulta do controle",
@@ -570,6 +575,7 @@ const Translations = {
     "enable-controller-shortcuts": {
         "de-DE": "Controller-Shortcuts aktivieren",
         "en-US": "Enable controller shortcuts",
+        "es-ES": "Habilitar accesos directos del Joystick",
         "it-IT": "Consenti scorciatoie da controller",
         "ja-JP": "コントローラーショートカットを有効化",
         "pl-PL": "Włącz skróty kontrolera",
@@ -596,8 +602,10 @@ const Translations = {
     "enable-mkb": {
         "de-DE": "Maus- und Tastaturunterstützung aktivieren",
         "en-US": "Enable Mouse & Keyboard support",
+        "es-ES": "Habilitar soporte para ratón y teclado",
         "ja-JP": "マウス＆キーボードのサポートを有効化",
         "pl-PL": "Włącz obsługę myszy i klawiatury",
+        "pt-BR": "Habilitar suporte ao Mouse & Teclado",
         "tr-TR": "Klavye ve fare desteğini aktive et",
         "vi-VN": "Kích hoạt hỗ trợ Chuột & Bàn phím",
     },
@@ -619,8 +627,10 @@ const Translations = {
     "enable-remote-play-feature": {
         "de-DE": "\"Remote Play\" Funktion aktivieren",
         "en-US": "Enable the \"Remote Play\" feature",
+        "es-ES": "Activar la función \"Reproducción remota\"",
         "ja-JP": "リモートプレイ機能を有効化",
         "pl-PL": "Włącz funkcję \"Gra zdalna\"",
+        "pt-BR": "Ativar o recurso \"Reprodução Remota\"",
         "tr-TR": "\"Uzaktan Oynama\" özelliğini aktive et",
         "vi-VN": "Bật tính năng \"Chơi từ xa\"",
     },
@@ -641,14 +651,17 @@ const Translations = {
     "fast": {
         "de-DE": "Schnell",
         "en-US": "Fast",
+        "es-ES": "Rápido",
         "ja-JP": "高速",
         "pl-PL": "Szybko",
+        "pt-BR": "Rápido",
         "tr-TR": "Hızlı",
         "vi-VN": "Nhanh",
     },
     "getting-consoles-list": {
         "de-DE": "Rufe Liste der Konsolen ab...",
         "en-US": "Getting the list of consoles...",
+        "es-ES": "Obteniendo la lista de consolas...",
         "it-IT": "Ottenere la lista delle consoles...",
         "ja-JP": "本体のリストを取得中...",
         "pl-PL": "Pobieranie listy konsoli...",
@@ -719,6 +732,7 @@ const Translations = {
     "layout": {
         "de-DE": "Layout",
         "en-US": "Layout",
+        "es-ES": "Diseño",
         "ja-JP": "レイアウト",
         "pl-PL": "Układ",
         "pt-BR": "Layout",
@@ -743,16 +757,20 @@ const Translations = {
     "max-bitrate": {
         "de-DE": "Max. Bitrate",
         "en-US": "Max bitrate",
+        "es-ES": "Tasa de bits máxima",
         "ja-JP": "最大ビットレート",
         "pl-PL": "Maksymalny bitrate",
+        "pt-BR": "Taxa máxima dos bits",
         "tr-TR": "Maksimum bithızı",
         "vi-VN": "Bitrate tối đa",
     },
     "may-not-work-properly": {
         "de-DE": "Funktioniert evtl. nicht fehlerfrei!",
         "en-US": "May not work properly!",
+        "es-ES": "¡Puede que no funcione correctamente!",
         "ja-JP": "正常に動作しない場合があります！",
         "pl-PL": "Może nie działać poprawnie!",
+        "pt-BR": "Pode não funcionar corretamente!",
         "tr-TR": "Düzgün çalışmayabilir!",
         "vi-VN": "Có thể không hoạt động!",
     },
@@ -789,6 +807,7 @@ const Translations = {
     "microphone": {
         "de-DE": "Mikrofon",
         "en-US": "Microphone",
+        "es-ES": "Micrófono",
         "it-IT": "Microfono",
         "ja-JP": "マイク",
         "pl-PL": "Mikrofon",
@@ -800,14 +819,17 @@ const Translations = {
     "mouse-and-keyboard": {
         "de-DE": "Maus & Tastatur",
         "en-US": "Mouse & Keyboard",
+        "es-ES": "Ratón y teclado",
         "ja-JP": "マウス＆キーボード",
         "pl-PL": "Mysz i klawiatura",
+        "pt-BR": "Mouse e Teclado",
         "tr-TR": "Klavye ve Fare",
         "vi-VN": "Chuột và Bàn phím",
     },
     "muted": {
         "de-DE": "Stumm",
         "en-US": "Muted",
+        "es-ES": "Silenciado",
         "it-IT": "Microfono disattivato",
         "ja-JP": "ミュート",
         "pl-PL": "Wyciszony",
@@ -819,6 +841,7 @@ const Translations = {
     "no-consoles-found": {
         "de-DE": "Keine Konsolen gefunden",
         "en-US": "No consoles found",
+        "es-ES": "No se encontraron consolas",
         "it-IT": "Nessuna console trovata",
         "ja-JP": "本体が見つかりません",
         "pl-PL": "Nie znaleziono konsoli",
@@ -860,6 +883,7 @@ const Translations = {
     "on": {
         "de-DE": "An",
         "en-US": "On",
+        "es-ES": "Activado",
         "it-IT": "Attivo",
         "ja-JP": "オン",
         "pl-PL": "Włącz",
@@ -871,8 +895,10 @@ const Translations = {
     "only-supports-some-games": {
         "de-DE": "Unterstützt nur einige Spiele",
         "en-US": "Only supports some games",
+        "es-ES": "Sólo soporta algunos juegos",
         "ja-JP": "一部のゲームのみサポート",
         "pl-PL": "Wspiera tylko niektóre gry",
+        "pt-BR": "Suporta apenas alguns jogos",
         "tr-TR": "Yalnızca belli oyunlar destekleniyor",
         "vi-VN": "Chỉ hỗ trợ một vài game",
     },
@@ -924,6 +950,7 @@ const Translations = {
     "powered-off": {
         "de-DE": "Ausgeschaltet",
         "en-US": "Powered off",
+        "es-ES": "Desactivado",
         "it-IT": "Spento",
         "ja-JP": "本体オフ",
         "pl-PL": "Zasilanie wyłączone",
@@ -935,6 +962,7 @@ const Translations = {
     "powered-on": {
         "de-DE": "Eingeschaltet",
         "en-US": "Powered on",
+        "es-ES": "Activado",
         "it-IT": "Acceso",
         "ja-JP": "本体オン",
         "pl-PL": "Zasilanie włączone",
@@ -1021,6 +1049,7 @@ const Translations = {
     "remote-play": {
         "de-DE": "Remote Play",
         "en-US": "Remote Play",
+        "es-ES": "Reproducción remota",
         "it-IT": "Riproduzione Remota",
         "ja-JP": "リモートプレイ",
         "pl-PL": "Gra zdalna",
@@ -1257,8 +1286,10 @@ const Translations = {
     "slow": {
         "de-DE": "Langsam",
         "en-US": "Slow",
+        "es-ES": "Lento",
         "ja-JP": "低速",
         "pl-PL": "Wolno",
+        "pt-BR": "Lento",
         "tr-TR": "Yavaş",
         "vi-VN": "Chậm",
     },
@@ -1280,6 +1311,7 @@ const Translations = {
     "smart-tv": {
         "de-DE": "Smart TV",
         "en-US": "Smart TV",
+        "es-ES": "Smart TV",
         "ja-JP": "スマートTV",
         "pl-PL": "Smart TV",
         "pt-BR": "Smart TV",
@@ -1289,6 +1321,7 @@ const Translations = {
     "sound": {
         "de-DE": "Ton",
         "en-US": "Sound",
+        "es-ES": "Sonido",
         "it-IT": "Suoni",
         "ja-JP": "サウンド",
         "pl-PL": "Dźwięk",
@@ -1300,6 +1333,7 @@ const Translations = {
     "standby": {
         "de-DE": "Standby",
         "en-US": "Standby",
+        "es-ES": "Modo de espera",
         "it-IT": "Sospendi",
         "ja-JP": "スタンバイ",
         "pl-PL": "Stan czuwania",
@@ -1671,6 +1705,7 @@ const Translations = {
     "unknown": {
         "de-DE": "Unbekannt",
         "en-US": "Unknown",
+        "es-ES": "Desconocido",
         "it-IT": "Sconosciuto",
         "ja-JP": "不明",
         "pl-PL": "Nieznane",
@@ -1682,14 +1717,17 @@ const Translations = {
     "unlimited": {
         "de-DE": "Unbegrenzt",
         "en-US": "Unlimited",
+        "es-ES": "Ilimitado",
         "ja-JP": "無制限",
         "pl-PL": "Bez ograniczeń",
+        "pt-BR": "Ilimitado",
         "tr-TR": "Limitsiz",
         "vi-VN": "Không giới hạn",
     },
     "unmuted": {
         "de-DE": "Ton an",
         "en-US": "Unmuted",
+        "es-ES": "Activar sonido",
         "it-IT": "Microfono attivato",
         "ja-JP": "ミュート解除",
         "pl-PL": "Wyciszenie wyłączone",
@@ -1701,8 +1739,10 @@ const Translations = {
     "use-mouse-absolute-position": {
         "de-DE": "Absolute Position der Maus verwenden",
         "en-US": "Use mouse's absolute position",
+        "es-ES": "Usar la posición absoluta del ratón",
         "ja-JP": "マウスの絶対座標を使用",
         "pl-PL": "Użyj pozycji bezwzględnej myszy",
+        "pt-BR": "Usar posição absoluta do mouse",
         "tr-TR": "Farenin mutlak pozisyonunu baz al",
         "vi-VN": "Sử dụng vị trí tuyệt đối của chuột",
     },
