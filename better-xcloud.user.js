@@ -2159,6 +2159,7 @@ class RemotePlay {
                 REMOTE_PLAY_CONFIG = {
                     serverId: con.serverId,
                 };
+                window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
 
                 const url = window.location.href.substring(0, 31) + '/launch/fortnite/BT5P2X999VH2#remote-play';
 
