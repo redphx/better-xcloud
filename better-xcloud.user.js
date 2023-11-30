@@ -2153,6 +2153,7 @@ class RemotePlay {
         IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
         if (IS_REMOTE_PLAYING) {
             window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
+            // Remove /launch/... from URL
             window.history.replaceState({origin: 'better-xcloud'}, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play');
         } else {
             window.BX_REMOTE_PLAY_CONFIG = null;
@@ -4092,6 +4093,23 @@ const PREFS = new Preferences();
 
 class Patcher {
     static #PATCHES = {
+        remotePlayKeepAlive: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
+            if (!funcStr.includes('onServerDisconnectMessage(e){')) {
+                return false;
+            }
+
+            funcStr = funcStr.replace('onServerDisconnectMessage(e){', `onServerDisconnectMessage (e) {
+                const msg = JSON.parse(e);
+                if (msg.reason === 'WarningForBeingIdle') {
+                    try {
+                        this.sendKeepAlive();
+                        return;
+                    } catch (ex) {}
+                }
+            `);
+            return funcStr;
+        },
+
         // Enable Remote Play feature
         remotePlayConnectMode: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
             const text = 'connectMode:"cloud-connect"';
