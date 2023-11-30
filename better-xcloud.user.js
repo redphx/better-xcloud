@@ -3800,7 +3800,7 @@ class Preferences {
         },
 
         [Preferences.REMOTE_PLAY_RESOLUTION]: {
-            'default': 1080,
+            'default': '1080p',
             'options': {
                 '1080p': '1080p',
                 '720p': '720p',
@@ -5391,8 +5391,6 @@ function interceptHttpRequests() {
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
     const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
-    const PREF_REMOTE_PLAY_RESOLUTION = PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION);
-
     const orgFetch = window.fetch;
 
     const patchIpv6 = function(...arg) {
@@ -5442,7 +5440,7 @@ function interceptHttpRequests() {
             }
 
             const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
-            if (PREF_REMOTE_PLAY_RESOLUTION === '720p') {
+            if (PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION) === '720p') {
                 deviceInfo.dev.os.name = 'android';
             }
 
