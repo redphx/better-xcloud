@@ -5506,7 +5506,7 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (IS_REMOTE_PLAYING && url.includes('/sessions/home')) {
+        if (url.includes('/sessions/home')) {
             const clone = request.clone();
 
             const headers = {};
