@@ -2042,10 +2042,10 @@ class RemotePlay {
         return {
             appInfo: {
                 env: {
-                    clientAppId: 'Microsoft.GamingApp',
-                    clientAppType: 'native',
-                    clientAppVersion: '2203.1001.4.0',
-                    clientSdkVersion: '8.5.2',
+                    clientAppId: window.location.host,
+                    clientAppType: 'browser',
+                    clientAppVersion: '21.1.98',
+                    clientSdkVersion: '8.5.3',
                     httpEnvironment: 'prod',
                     sdkInstallId: '',
                 },
@@ -2057,19 +2057,23 @@ class RemotePlay {
                         heightInPixels: 1080,
                     },
                     pixelDensity: {
-                        dpiX: 2,
-                        dpiY: 2,
+                        dpiX: 1,
+                        dpiY: 1,
                     },
                 },
                 hw: {
                     make: 'Microsoft',
-                    model: 'Surface Pro',
-                    sdktype: 'native',
+                    model: 'unknown',
+                    sdktype: 'web',
                 },
                 os: {
-                    name: 'Windows 11',
+                    name: 'windows',
                     ver: '22631.2715',
                     platform: 'desktop',
+                },
+                browser: {
+                    browserName: 'chrome',
+                    browserVersion: '119.0',
                 },
             },
         };
