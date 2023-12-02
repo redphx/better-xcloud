@@ -4403,6 +4403,7 @@ class Patcher {
     static length() { return Object.keys(Patcher.#PATCHES).length };
 
     static patch(item) {
+        let patchName;
         for (let id in item[1]) {
             if (Patcher.length() <= 0) {
                 return;
@@ -4411,16 +4412,18 @@ class Patcher {
             const func = item[1][id];
             const funcStr = func.toString();
 
-            let patchedFuncStr;
-            for (const patchName in Patcher.#PATCHES) {
-                patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
-                if (patchedFuncStr) {
-                    item[1][id] = eval(patchedFuncStr);
-                    delete Patcher.#PATCHES[patchName];
+            // Only check the first patch
+            if (!patchName) {
+                patchName = Object.keys(Patcher.#PATCHES)[0];
+            }
 
-                    console.log(`[Better xCloud] Applied "${patchName}" patch`);
-                    break;
-                }
+            const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
+            if (patchedFuncStr) {
+                console.log(`[Better xCloud] Applied "${patchName}" patch`);
+
+                item[1][id] = eval(patchedFuncStr);
+                delete Patcher.#PATCHES[patchName];
+                patchName = null;
             }
         }
     }
