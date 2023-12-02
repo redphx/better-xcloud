@@ -3619,7 +3619,7 @@ class Preferences {
                 'pt-BR': 'portugu\xeas (Brasil)',
                 'ru-RU': '\u0440\u0443\u0441\u0441\u043a\u0438\u0439',
                 'tr-TR': 'T\xfcrk\xe7e',
-                'uk-UA': 'українець',
+                'uk-UA': 'українська',
                 'vi-VN': 'Tiếng Việt',
                 'zh-CN': '\u4e2d\u6587(\u7b80\u4f53)',
             },
