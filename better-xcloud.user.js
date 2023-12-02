@@ -4259,6 +4259,61 @@ const PREFS = new Preferences();
 
 class Patcher {
     static #PATCHES = {
+        // Disable ApplicationInsights.track() function
+        disableAiTrack: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = '.track=function(';
+            const index = funcStr.indexOf(text);
+            if (index === -1) {
+                return false;
+            }
+
+            if (funcStr.substring(0, index + 200).includes('"AppInsightsCore')) {
+                return false;
+            }
+
+            return funcStr.substring(0, index) + '.track=function(e){},!!function(' + funcStr.substring(index + text.length);
+        },
+
+        // Set disableTelemetry() to true
+        disableTelemetry: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = '.disableTelemetry=function(){return!1}';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
+        },
+
+        // Set TV layout
+        tvLayout: PREFS.get(Preferences.UI_LAYOUT) === 'tv' && function(funcStr) {
+            const text = '?"tv":"default"';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, '?"tv":"tv"');
+        },
+
+        // Replace "/direct-connect" with "/play"
+        remotePlayDirectConnectUrl: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
+            const index = funcStr.indexOf('/direct-connect');
+            if (index === -1) {
+                return false;
+            }
+
+            return funcStr.replace(funcStr.substring(index - 9, index + 15), 'https://www.xbox.com/play');
+        },
+
+        // Disable trackEvent() function
+        disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = 'this.trackEvent=';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
+        },
+
         remotePlayKeepAlive: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
             if (!funcStr.includes('onServerDisconnectMessage(e){')) {
                 return false;
@@ -4286,51 +4341,6 @@ class Patcher {
             return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
         },
 
-        // Replace "/direct-connect" with "/play"
-        remotePlayDirectConnectUrl: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
-            const index = funcStr.indexOf('/direct-connect');
-            if (index === -1) {
-                return false;
-            }
-
-            return funcStr.replace(funcStr.substring(index - 9, index + 15), 'https://www.xbox.com/play');
-        },
-
-        // Set disableTelemetry() to true
-        disableTelemetry: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
-            const text = '.disableTelemetry=function(){return!1}';
-            if (!funcStr.includes(text)) {
-                return false;
-            }
-
-            return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
-        },
-
-        // Disable trackEvent() function
-        disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
-            const text = 'this.trackEvent=';
-            if (!funcStr.includes(text)) {
-                return false;
-            }
-
-            return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
-        },
-
-        // Disable ApplicationInsights.track() function
-        disableAiTrack: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
-            const text = '.track=function(';
-            const index = funcStr.indexOf(text);
-            if (index === -1) {
-                return false;
-            }
-
-            if (funcStr.substring(0, index + 200).includes('"AppInsightsCore')) {
-                return false;
-            }
-
-            return funcStr.substring(0, index) + '.track=function(e){},!!function(' + funcStr.substring(index + text.length);
-        },
-
         // Block WebRTC stats collector
         blockWebRtcStatsCollector: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
             const text = 'this.intervalMs=0,';
@@ -4339,16 +4349,6 @@ class Patcher {
             }
 
             return funcStr.replace(text, 'false,' + text);
-        },
-
-        // Set TV layout
-        tvLayout: PREFS.get(Preferences.UI_LAYOUT) === 'tv' && function(funcStr) {
-            const text = '?"tv":"default"';
-            if (!funcStr.includes(text)) {
-                return false;
-            }
-
-            return funcStr.replace(text, '?"tv":"tv"');
         },
 
         // Enable Mouse and Keyboard support
