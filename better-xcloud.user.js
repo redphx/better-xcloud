@@ -4408,11 +4408,12 @@ class Patcher {
                 return;
             }
 
-            for (const patchName in Patcher.#PATCHES) {
-                const func = item[1][id];
-                let funcStr = func.toString();
+            const func = item[1][id];
+            const funcStr = func.toString();
 
-                const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
+            let patchedFuncStr;
+            for (const patchName in Patcher.#PATCHES) {
+                patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
                 if (patchedFuncStr) {
                     item[1][id] = eval(patchedFuncStr);
                     delete Patcher.#PATCHES[patchName];
