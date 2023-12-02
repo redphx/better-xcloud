@@ -17,6 +17,7 @@ const SCRIPT_VERSION = '2.0.3';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_MKB = false;
+const ENABLE_XCLOUD_LOGGER = false;
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
@@ -4282,6 +4283,16 @@ class Patcher {
             }
 
             return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
+        },
+
+        enableXcloudLogger: ENABLE_XCLOUD_LOGGER && function(funcStr) {
+            const text = 'if(t!==Ke.LogLevel.Error&&t!==Ke.LogLevel.Warn)';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replaceAll(text, 'console.log(arguments);' + text);
+            return funcStr;
         },
 
         // Set TV layout
