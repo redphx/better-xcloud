@@ -300,9 +300,10 @@ It's a reference to an Userscript called "better360" that I created many years a
   - **Japanese**: Tak_attack, udonshi
   - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404), [@Haisom](https://github.com/Haisom), italorafael22062009, PotatoPTT, guilhermecursi
   - **Polish**: [@aleksishere](https://github.com/aleksishere)
-  - **Russian**: anpom6
+  - **Russian**: anpom6, soophik
   - **Spanish**: [@PabloSebas](https://github.com/PabloSebas), csvnchzn
   - **Turkish**: [@transbebek](https://github.com/transbebek)
+  - **Ukrainian**: glebanych
   - **Vietnamese**: [@redphx](https://github.com/redphx)
 
 Visit [here](https://crowdin.com/project/better-xcloud) if you want to translate **Better xCloud** to more languages.  
