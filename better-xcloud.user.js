@@ -4285,16 +4285,6 @@ class Patcher {
             return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
         },
 
-        enableXcloudLogger: ENABLE_XCLOUD_LOGGER && function(funcStr) {
-            const text = 'if(t!==Ke.LogLevel.Error&&t!==Ke.LogLevel.Warn)';
-            if (!funcStr.includes(text)) {
-                return false;
-            }
-
-            funcStr = funcStr.replaceAll(text, 'console.log(arguments);' + text);
-            return funcStr;
-        },
-
         // Set TV layout
         tvLayout: PREFS.get(Preferences.UI_LAYOUT) === 'tv' && function(funcStr) {
             const text = '?"tv":"default"';
@@ -4313,16 +4303,6 @@ class Patcher {
             }
 
             return funcStr.replace(funcStr.substring(index - 9, index + 15), 'https://www.xbox.com/play');
-        },
-
-        // Disable trackEvent() function
-        disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
-            const text = 'this.trackEvent=';
-            if (!funcStr.includes(text)) {
-                return false;
-            }
-
-            return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
         },
 
         remotePlayKeepAlive: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
@@ -4352,6 +4332,16 @@ class Patcher {
             return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
         },
 
+        // Disable trackEvent() function
+        disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+            const text = 'this.trackEvent=';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
+        },
+
         // Block WebRTC stats collector
         blockWebRtcStatsCollector: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
             const text = 'this.intervalMs=0,';
@@ -4360,6 +4350,16 @@ class Patcher {
             }
 
             return funcStr.replace(text, 'false,' + text);
+        },
+
+        enableXcloudLogger: ENABLE_XCLOUD_LOGGER && function(funcStr) {
+            const text = 'if(t!==Ke.LogLevel.Error&&t!==Ke.LogLevel.Warn)';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replaceAll(text, 'console.log(arguments);' + text);
+            return funcStr;
         },
 
         // Enable Mouse and Keyboard support
@@ -4376,6 +4376,26 @@ class Patcher {
             return funcStr;
         },
     };
+
+    static #PATCH_ORDERS = [
+        [
+            'disableAiTrack',
+            'disableTelemetry',
+        ],
+
+        ['tvLayout'],
+
+        [
+            'enableMouseAndKeyboard',
+            'enableXcloudLogger',
+            'remotePlayDirectConnectUrl',
+            'disableTrackEvent',
+            'remotePlayKeepAlive',
+            'blockWebRtcStatsCollector',
+        ],
+
+        ['remotePlayConnectMode'],
+    ];
 
     static #patchFunctionBind() {
         Function.prototype.nativeBind = Function.prototype.bind;
@@ -4411,39 +4431,67 @@ class Patcher {
         };
     }
 
-    static length() { return Object.keys(Patcher.#PATCHES).length };
+    static length() { return Patcher.#PATCH_ORDERS.length; };
 
     static patch(item) {
         let patchName;
         for (let id in item[1]) {
-            if (Patcher.length() <= 0) {
+            if (Patcher.#PATCH_ORDERS.length <= 0) {
                 return;
             }
 
             const func = item[1][id];
             const funcStr = func.toString();
 
-            // Only check the first patch
-            if (!patchName) {
-                patchName = Object.keys(Patcher.#PATCHES)[0];
-            }
+            for (let groupIndex = 0; groupIndex < Patcher.#PATCH_ORDERS.length; groupIndex++) {
+                const group = Patcher.#PATCH_ORDERS[groupIndex];
 
-            const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
-            if (patchedFuncStr) {
-                console.log(`[Better xCloud] Applied "${patchName}" patch`);
+                for (let patchIndex = 0; patchIndex < group.length; patchIndex++) {
+                    const patchName = group[patchIndex];
+                    const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
+                    if (!patchedFuncStr) {
+                        // Only stop if the first patch is failed
+                        if (patchIndex === 0) {
+                            break;
+                        } else {
+                            continue;
+                        }
+                    }
 
-                item[1][id] = eval(patchedFuncStr);
-                delete Patcher.#PATCHES[patchName];
-                patchName = null;
+                    console.log(`[Better xCloud] Applied "${patchName}" patch`);
+                    // Apply patched function
+                    item[1][id] = eval(patchedFuncStr);
+
+                    // Remove patch from group
+                    group.splice(patchIndex, 1);
+                    patchIndex--;
+                }
+
+                // Remove empty group
+                if (!group.length) {
+                    Patcher.#PATCH_ORDERS.splice(groupIndex, 1);
+                    groupIndex--;
+                }
             }
         }
     }
 
     static initialize() {
         // Remove disabled patches
-        for (const patchName in Patcher.#PATCHES) {
-            if (!Patcher.#PATCHES[patchName]) {
-                delete Patcher.#PATCHES[patchName];
+        for (let groupIndex = Patcher.#PATCH_ORDERS.length - 1; groupIndex >= 0; groupIndex--) {
+            const group = Patcher.#PATCH_ORDERS[groupIndex];
+
+            for (let patchIndex = group.length - 1; patchIndex >= 0; patchIndex--) {
+                const patchName = group[patchIndex];
+                if (!Patcher.#PATCHES[patchName]) {
+                    // Remove disabled patch
+                    group.splice(patchIndex, 1);
+                }
+            }
+
+            // Remove empty group
+            if (!group.length) {
+                Patcher.#PATCH_ORDERS.splice(groupIndex, 1);
             }
         }
 
