@@ -4310,15 +4310,16 @@ class Patcher {
                 return false;
             }
 
-            funcStr = funcStr.replace('onServerDisconnectMessage(e){', `onServerDisconnectMessage (e) {
+            funcStr = funcStr.replace('onServerDisconnectMessage(e){', `onServerDisconnectMessage(e) {
                 const msg = JSON.parse(e);
                 if (msg.reason === 'WarningForBeingIdle') {
                     try {
                         this.sendKeepAlive();
                         return;
-                    } catch (ex) {}
+                    } catch (ex) { console.log(ex); }
                 }
             `);
+
             return funcStr;
         },
 
@@ -4435,19 +4436,26 @@ class Patcher {
 
     static patch(item) {
         let patchName;
+        let appliedPatches;
+
         for (let id in item[1]) {
             if (Patcher.#PATCH_ORDERS.length <= 0) {
                 return;
             }
 
+            appliedPatches = [];
             const func = item[1][id];
-            const funcStr = func.toString();
+            let funcStr = func.toString();
 
             for (let groupIndex = 0; groupIndex < Patcher.#PATCH_ORDERS.length; groupIndex++) {
                 const group = Patcher.#PATCH_ORDERS[groupIndex];
 
                 for (let patchIndex = 0; patchIndex < group.length; patchIndex++) {
                     const patchName = group[patchIndex];
+                    if (appliedPatches.indexOf(patchName) > -1) {
+                        continue;
+                    }
+
                     const patchedFuncStr = Patcher.#PATCHES[patchName].call(null, funcStr);
                     if (!patchedFuncStr) {
                         // Only stop if the first patch is failed
@@ -4458,9 +4466,12 @@ class Patcher {
                         }
                     }
 
+                    funcStr = patchedFuncStr;
+
                     console.log(`[Better xCloud] Applied "${patchName}" patch`);
                     // Apply patched function
                     item[1][id] = eval(patchedFuncStr);
+                    appliedPatches.push(patchName);
 
                     // Remove patch from group
                     group.splice(patchIndex, 1);
