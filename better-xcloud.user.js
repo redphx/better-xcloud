@@ -4449,6 +4449,7 @@ class Patcher {
 
             for (let groupIndex = 0; groupIndex < Patcher.#PATCH_ORDERS.length; groupIndex++) {
                 const group = Patcher.#PATCH_ORDERS[groupIndex];
+                let modified = false;
 
                 for (let patchIndex = 0; patchIndex < group.length; patchIndex++) {
                     const patchName = group[patchIndex];
@@ -4466,16 +4467,20 @@ class Patcher {
                         }
                     }
 
+                    modified = true;
                     funcStr = patchedFuncStr;
 
                     console.log(`[Better xCloud] Applied "${patchName}" patch`);
-                    // Apply patched function
-                    item[1][id] = eval(patchedFuncStr);
                     appliedPatches.push(patchName);
 
                     // Remove patch from group
                     group.splice(patchIndex, 1);
                     patchIndex--;
+                }
+
+                // Apply patched functions
+                if (modified) {
+                    item[1][id] = eval(funcStr);
                 }
 
                 // Remove empty group
