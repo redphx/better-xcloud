@@ -4354,12 +4354,22 @@ class Patcher {
         },
 
         enableXcloudLogger: ENABLE_XCLOUD_LOGGER && function(funcStr) {
-            const text = 'if(t!==Ke.LogLevel.Error&&t!==Ke.LogLevel.Warn)';
+            const text = '}log(e,t,n){';
             if (!funcStr.includes(text)) {
                 return false;
             }
 
-            funcStr = funcStr.replaceAll(text, 'console.log(arguments);' + text);
+            funcStr = funcStr.replaceAll(text, text + 'console.log(arguments);');
+            return funcStr;
+        },
+
+        enableConsoleLogging: ENABLE_XCLOUD_LOGGER && function(funcStr) {
+            const text = 'static isConsoleLoggingAllowed(){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replaceAll(text, text + 'return true;');
             return funcStr;
         },
 
@@ -4386,16 +4396,20 @@ class Patcher {
 
         ['tvLayout'],
 
+        ['enableXcloudLogger'],
+
         [
             'enableMouseAndKeyboard',
-            'enableXcloudLogger',
             'remotePlayDirectConnectUrl',
             'disableTrackEvent',
+            'enableConsoleLogging',
             'remotePlayKeepAlive',
             'blockWebRtcStatsCollector',
         ],
 
+        // Only when playing
         ['remotePlayConnectMode'],
+        ['enableConsoleLogging'],
     ];
 
     static #patchFunctionBind() {
