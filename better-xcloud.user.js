@@ -5764,7 +5764,7 @@ function interceptHttpRequests() {
                         }
 
                         // Start rendering UI
-                        if (!document.getElementById('gamepass-root')) {
+                        if (document.querySelector('div[class^=UnsupportedMarketPage]')) {
                             setTimeout(watchHeader, 2000);
                         } else {
                             watchHeader();
