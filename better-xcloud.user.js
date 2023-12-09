@@ -3033,7 +3033,7 @@ class StreamBadges {
         let totalIn = 0;
         let totalOut = 0;
         stats.forEach(stat => {
-            if (stat.type === 'candidate-pair' && stat.state == 'succeeded') {
+            if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
                 totalIn += stat.bytesReceived;
                 totalOut += stat.bytesSent;
             }
@@ -6793,6 +6793,9 @@ function onStreamStarted($video) {
         const allAudioCodecs = {};
         let audioCodecId;
 
+        const allCandidates = {};
+        let candidateId;
+
         stats.forEach(stat => {
             if (stat.type == 'codec') {
                 const mimeType = stat.mimeType.split('/');
@@ -6810,6 +6813,10 @@ function onStreamStarted($video) {
                 } else if (stat.kind === 'audio') {
                     audioCodecId = stat.codecId;
                 }
+            } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+                candidateId = stat.remoteCandidateId;
+            } else if (stat.type === 'remote-candidate') {
+                allCandidates[stat.id] = stat.address;
             }
         });
 
@@ -6835,6 +6842,12 @@ function onStreamStarted($video) {
                 codec: audioStat.mimeType.substring(6),
                 bitrate: audioStat.clockRate,
             }
+        }
+
+        // Get server type
+        if (candidateId) {
+            console.log(candidateId, allCandidates);
+            StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
         }
 
         if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
@@ -6932,16 +6945,6 @@ if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
 
         return promise;
     }
-}
-
-RTCPeerConnection.prototype.orgAddIceCandidate = RTCPeerConnection.prototype.addIceCandidate;
-RTCPeerConnection.prototype.addIceCandidate = function(...args) {
-    const candidate = args[0].candidate;
-    if (candidate && candidate.startsWith('a=candidate:1 ')) {
-        StreamBadges.ipv6 = candidate.substring(20).includes(':');
-    }
-
-    return this.orgAddIceCandidate.apply(this, args);
 }
 
 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
