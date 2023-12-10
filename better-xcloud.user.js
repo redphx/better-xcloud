@@ -2910,6 +2910,129 @@ class GamepadHandler {
     }
 }
 
+
+class GamepadVibration {
+    static #ENABLE_DEVICE_VIBRATION = true;
+
+    static #detectVibrationSupport() {
+        GamepadVibration.#ENABLE_DEVICE_VIBRATION = true;
+
+        const gamepads = window.navigator.getGamepads();
+        for (const gamepad in gamepads) {
+            if (gamepad && gamepad.vibrationActuator) {
+                GamepadVibration.#ENABLE_DEVICE_VIBRATION = false;
+                break;
+            }
+        }
+    }
+
+    static #playVibration(data) {
+        console.log(data);
+
+        // Stop vibration
+        window.navigator.vibrate(0);
+
+        const maxPercent = Math.max(data.leftMotorPercent, data.rightMotorPercent);
+        if (maxPercent === 0) {
+            return;
+        }
+
+        const pattern = [];
+        if (maxPercent === 100) {
+            pattern.push(data.durationMs);
+        } else {
+            const parts = Math.ceil(100 / maxPercent);
+            const totalGaps = parts - 1;
+
+            /*
+            const partDuration = (data.durationMs / parts) - 10;
+            const gapDuration = 10 + (10 / totalGaps);
+            */
+            const partDuration = Math.floor(data.durationMs / parts);
+            const gapDuration = 0;
+
+            for (let i = 0; i < parts + totalGaps; i++) {
+                if (i % 2 === 0) {
+                    pattern.push(partDuration);
+                } else {
+                    pattern.push(gapDuration);
+                }
+            }
+        }
+
+        window.navigator.vibrate(pattern);
+    }
+
+    static initialSetup() {
+        window.addEventListener('gamepadconnected', GamepadVibration.#detectVibrationSupport);
+        window.addEventListener('gamepaddisconnected', GamepadVibration.#detectVibrationSupport);
+
+        const orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+        RTCPeerConnection.prototype.createDataChannel = function() {
+            const dataChannel = orgCreateDataChannel.apply(this, arguments);
+            if (dataChannel.label !== 'input') {
+                return dataChannel;
+            }
+
+            const VIBRATION_DATA_MAP = {
+                'gamepadIndex': 8,
+                'leftMotorPercent': 8,
+                'rightMotorPercent': 8,
+                'leftTriggerMotorPercent': 8,
+                'rightTriggerMotorPercent': 8,
+                'durationMs': 16,
+                'delayMs': 16,
+                'repeat': 8,
+            };
+
+            dataChannel.addEventListener('message', e => {
+                if (typeof e !== 'object') {
+                    return;
+                }
+
+                const dataView = new DataView(e.data);
+                let offset = 0;
+
+                let messageType;
+                if (dataView.byteLength === 13) { // version >= 8
+                    messageType = dataView.getUint16(offset, true);
+                    offset += Uint16Array.BYTES_PER_ELEMENT;
+                } else {
+                    messageType = dataView.getUint8(offset);
+                    offset += Uint8Array.BYTES_PER_ELEMENT;
+                }
+
+                if (!(messageType & 128)) { // Vibration
+                    return;
+                }
+
+                const vibrationType = dataView.getUint8(offset);
+                offset += Uint8Array.BYTES_PER_ELEMENT;
+
+                if (vibrationType !== 0) { // FourMotorRumble
+                    return;
+                }
+
+                const data = {};
+                for (const key in VIBRATION_DATA_MAP) {
+                    if (VIBRATION_DATA_MAP[key] === 16) {
+                        data[key] = dataView.getUint16(offset, true);
+                        offset += Uint16Array.BYTES_PER_ELEMENT;
+                    } else {
+                        data[key] = dataView.getUint8(offset);
+                        offset += Uint8Array.BYTES_PER_ELEMENT;
+                    }
+                }
+
+                GamepadVibration.#playVibration(data);
+            });
+
+            return dataChannel;
+        };
+    }
+}
+
+
 class MouseCursorHider {
     static #timeout;
     static #cursorVisible = true;
@@ -6950,6 +7073,8 @@ if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
     TouchController.setup();
 }
+
+GamepadVibration.initialSetup();
 
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
