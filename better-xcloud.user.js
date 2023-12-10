@@ -2927,13 +2927,12 @@ class GamepadVibration {
     }
 
     static #playVibration(data) {
-        console.log(data);
-
-        // Stop vibration
-        window.navigator.vibrate(0);
+        // console.log(+new Date, data);
 
         const maxPercent = Math.max(data.leftMotorPercent, data.rightMotorPercent);
         if (maxPercent === 0) {
+            // Stop vibration
+            window.navigator.vibrate(0);
             return;
         }
 
@@ -2942,12 +2941,12 @@ class GamepadVibration {
             patterns.push(data.durationMs);
         } else {
             const partDuration = data.durationMs / 100 / (100 / maxPercent);
-            for (let i = 10; i >= 1; i--) {
+            for (let i = 1; i <= 10; i++) {
+                patterns.push(i * partDuration);
+
                 if (i < 10) {
                     patterns.push((10 - i) * partDuration);
                 }
-
-                patterns.push(i * partDuration);
             }
         }
 
