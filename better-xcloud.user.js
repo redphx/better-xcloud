@@ -2941,10 +2941,7 @@ class GamepadVibration {
         if (maxPercent === 100) {
             patterns.push(data.durationMs);
         } else {
-            const parts = Math.ceil(100 / maxPercent);
-            const totalGaps = parts - 1;
-
-            const partDuration = data.durationMs / 100;
+            const partDuration = data.durationMs / 100 / (100 / maxPercent);
             for (let i = 10; i >= 1; i--) {
                 if (i < 10) {
                     patterns.push((10 - i) * partDuration);
