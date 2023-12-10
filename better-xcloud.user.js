@@ -2937,30 +2937,24 @@ class GamepadVibration {
             return;
         }
 
-        const pattern = [];
+        const patterns = [];
         if (maxPercent === 100) {
-            pattern.push(data.durationMs);
+            patterns.push(data.durationMs);
         } else {
             const parts = Math.ceil(100 / maxPercent);
             const totalGaps = parts - 1;
 
-            /*
-            const partDuration = (data.durationMs / parts) - 10;
-            const gapDuration = 10 + (10 / totalGaps);
-            */
-            const partDuration = Math.floor(data.durationMs / parts);
-            const gapDuration = 0;
-
-            for (let i = 0; i < parts + totalGaps; i++) {
-                if (i % 2 === 0) {
-                    pattern.push(partDuration);
-                } else {
-                    pattern.push(gapDuration);
+            const partDuration = data.durationMs / 100;
+            for (let i = 10; i >= 1; i--) {
+                if (i < 10) {
+                    patterns.push((10 - i) * partDuration);
                 }
+
+                patterns.push(i * partDuration);
             }
         }
 
-        window.navigator.vibrate(pattern);
+        window.navigator.vibrate(patterns);
     }
 
     static initialSetup() {
