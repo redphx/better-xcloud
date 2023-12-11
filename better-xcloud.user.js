@@ -3017,6 +3017,10 @@ class GamepadVibration {
             };
 
             dataChannel.addEventListener('message', e => {
+                if (!window.BX_ENABLE_DEVICE_VIBRATION) {
+                    return;
+                }
+
                 if (typeof e !== 'object') {
                     return;
                 }
@@ -4544,7 +4548,7 @@ class Patcher {
             }
 
             GamepadVibration.updateGlobalVars();
-            funcStr = funcStr.replaceAll(text, text + 'if (!window.BX_ENABLE_DEVICE_VIBRATION) {return (void 0);}');
+            funcStr = funcStr.replaceAll(text, text + 'if (!window.BX_ENABLE_DEVICE_VIBRATION) return void(0);');
             return funcStr;
         },
 
