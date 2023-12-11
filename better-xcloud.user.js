@@ -534,6 +534,14 @@ const Translations = {
         "vi-VN": "Thiết bị này không hỗ trợ cảm ứng",
         "zh-CN": "您的设备不支持触摸",
     },
+    "device-vibration": {
+        "en-US": "Device vibration",
+        "vi-VN": "Rung thiết bị",
+    },
+    "device-vibration-not-using-gamepad": {
+        "en-US": "On when not using gamepad",
+        "vi-VN": "Bật khi không dùng tay cầm",
+    },
     "disable": {
         "de-DE": "Deaktiviert",
         "en-US": "Disable",
@@ -647,6 +655,7 @@ const Translations = {
         "de-DE": "Maus- und Tastaturunterstützung aktivieren",
         "en-US": "Enable Mouse & Keyboard support",
         "es-ES": "Habilitar soporte para ratón y teclado",
+        "it-IT": "Abilitare il supporto di mouse e tastiera",
         "ja-JP": "マウス＆キーボードのサポートを有効化",
         "pl-PL": "Włącz obsługę myszy i klawiatury",
         "pt-BR": "Habilitar suporte ao Mouse & Teclado",
@@ -675,6 +684,7 @@ const Translations = {
         "de-DE": "\"Remote Play\" Funktion aktivieren",
         "en-US": "Enable the \"Remote Play\" feature",
         "es-ES": "Activar la función \"Reproducción remota\"",
+        "it-IT": "Abilitare la funzione \"Riproduzione remota\"",
         "ja-JP": "リモートプレイ機能を有効化",
         "pl-PL": "Włącz funkcję \"Gra zdalna\"",
         "pt-BR": "Ativar o recurso \"Reprodução Remota\"",
@@ -703,6 +713,7 @@ const Translations = {
         "de-DE": "Schnell",
         "en-US": "Fast",
         "es-ES": "Rápido",
+        "it-IT": "Veloce",
         "ja-JP": "高速",
         "pl-PL": "Szybko",
         "pt-BR": "Rápido",
@@ -792,6 +803,7 @@ const Translations = {
         "de-DE": "Layout",
         "en-US": "Layout",
         "es-ES": "Diseño",
+        "it-IT": "Layout",
         "ja-JP": "レイアウト",
         "pl-PL": "Układ",
         "pt-BR": "Layout",
@@ -820,6 +832,7 @@ const Translations = {
         "de-DE": "Max. Bitrate",
         "en-US": "Max bitrate",
         "es-ES": "Tasa de bits máxima",
+        "it-IT": "Bitrate massimo",
         "ja-JP": "最大ビットレート",
         "pl-PL": "Maksymalny bitrate",
         "pt-BR": "Taxa máxima dos bits",
@@ -832,6 +845,7 @@ const Translations = {
         "de-DE": "Funktioniert evtl. nicht fehlerfrei!",
         "en-US": "May not work properly!",
         "es-ES": "¡Puede que no funcione correctamente!",
+        "it-IT": "Potrebbe non funzionare correttamente!",
         "ja-JP": "正常に動作しない場合があります！",
         "pl-PL": "Może nie działać poprawnie!",
         "pt-BR": "Pode não funcionar corretamente!",
@@ -890,6 +904,7 @@ const Translations = {
         "de-DE": "Maus & Tastatur",
         "en-US": "Mouse & Keyboard",
         "es-ES": "Ratón y teclado",
+        "it-IT": "Mouse e tastiera",
         "ja-JP": "マウス＆キーボード",
         "pl-PL": "Mysz i klawiatura",
         "pt-BR": "Mouse e Teclado",
@@ -976,6 +991,7 @@ const Translations = {
         "de-DE": "Unterstützt nur einige Spiele",
         "en-US": "Only supports some games",
         "es-ES": "Sólo soporta algunos juegos",
+        "it-IT": "Supporta solo alcuni giochi",
         "ja-JP": "一部のゲームのみサポート",
         "pl-PL": "Wspiera tylko niektóre gry",
         "pt-BR": "Suporta apenas alguns jogos",
@@ -1398,6 +1414,7 @@ const Translations = {
         "de-DE": "Langsam",
         "en-US": "Slow",
         "es-ES": "Lento",
+        "it-IT": "Lento",
         "ja-JP": "低速",
         "pl-PL": "Wolno",
         "pt-BR": "Lento",
@@ -1426,6 +1443,7 @@ const Translations = {
         "de-DE": "Smart TV",
         "en-US": "Smart TV",
         "es-ES": "Smart TV",
+        "it-IT": "Smart TV",
         "ja-JP": "スマートTV",
         "pl-PL": "Smart TV",
         "pt-BR": "Smart TV",
@@ -1621,6 +1639,15 @@ const Translations = {
         "uk-UA": "Розтягнути",
         "vi-VN": "Kéo giãn",
         "zh-CN": "拉伸",
+    },
+    "swap-buttons": {
+        "de-DE": "Tasten tauschen",
+        "en-US": "Swap buttons",
+        "ja-JP": "ボタン入れ替え",
+        "pt-BR": "Trocar botões",
+        "tr-TR": "Düğme düzenini ters çevir",
+        "uk-UA": "Поміняти кнопки місцями",
+        "vi-VN": "Hoán đổi nút",
     },
     "target-resolution": {
         "de-DE": "Festgelegte Auflösung",
@@ -1864,6 +1891,7 @@ const Translations = {
         "de-DE": "Unbegrenzt",
         "en-US": "Unlimited",
         "es-ES": "Ilimitado",
+        "it-IT": "Illimitato",
         "ja-JP": "無制限",
         "pl-PL": "Bez ograniczeń",
         "pt-BR": "Ilimitado",
@@ -2912,20 +2940,6 @@ class GamepadHandler {
 
 
 class GamepadVibration {
-    static #ENABLE_DEVICE_VIBRATION = true;
-
-    static #detectVibrationSupport() {
-        GamepadVibration.#ENABLE_DEVICE_VIBRATION = true;
-
-        const gamepads = window.navigator.getGamepads();
-        for (const gamepad in gamepads) {
-            if (gamepad && gamepad.vibrationActuator) {
-                GamepadVibration.#ENABLE_DEVICE_VIBRATION = false;
-                break;
-            }
-        }
-    }
-
     static #playVibration(data) {
         // console.log(+new Date, data);
 
@@ -2953,9 +2967,36 @@ class GamepadVibration {
         window.navigator.vibrate(patterns);
     }
 
+    static updateGlobalVars() {
+        // Stop vibration
+        window.navigator.vibrate(0);
+
+        const value = PREFS.get(Preferences.CONTROLLER_DEVICE_VIBRATION);
+        let enabled;
+
+        if (value === 'on') {
+            enabled = true;
+        } else if (value === 'auto') {
+            enabled = true;
+            const gamepads = window.navigator.getGamepads();
+            for (const gamepad in gamepads) {
+                if (gamepad && gamepad.vibrationActuator) {
+                    enabled = false;
+                    break;
+                }
+            }
+        } else {
+            enabled = false;
+        }
+
+        window.BX_ENABLE_DEVICE_VIBRATION = enabled;
+    }
+
     static initialSetup() {
-        window.addEventListener('gamepadconnected', GamepadVibration.#detectVibrationSupport);
-        window.addEventListener('gamepaddisconnected', GamepadVibration.#detectVibrationSupport);
+        window.addEventListener('gamepadconnected', GamepadVibration.updateGlobalVars);
+        window.addEventListener('gamepaddisconnected', GamepadVibration.updateGlobalVars);
+
+        GamepadVibration.updateGlobalVars();
 
         const orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
@@ -3666,6 +3707,7 @@ class Preferences {
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
+    static get CONTROLLER_DEVICE_VIBRATION() { return 'controller_device_vibration'; }
 
     static get MKB_ENABLED() { return 'mkb_enabled'; }
     static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
@@ -3897,6 +3939,15 @@ class Preferences {
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
+        },
+
+        [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
+            'default': 'off',
+            'options': {
+                'on': __('on'),
+                'auto': __('device-vibration-not-using-gamepad'),
+                'off': __('off'),
+            },
         },
 
         [Preferences.MKB_ENABLED]: {
@@ -4486,6 +4537,17 @@ class Patcher {
             return funcStr;
         },
 
+        playVibration: function(funcStr) {
+            const text = '}playVibration(e){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            GamepadVibration.updateGlobalVars();
+            funcStr = funcStr.replaceAll(text, text + 'if (!window.BX_ENABLE_DEVICE_VIBRATION) {return (void 0);}');
+            return funcStr;
+        },
+
         // Enable Mouse and Keyboard support
         enableMouseAndKeyboard: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
             if (!funcStr.includes('EnableMouseAndKeyboard:')) {
@@ -4522,6 +4584,7 @@ class Patcher {
 
         // Only when playing
         ['remotePlayConnectMode'],
+        ['playVibration'],
         ['enableConsoleLogging'],
     ];
 
@@ -5204,7 +5267,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     bottom: 20px;
     z-index: var(--bx-stream-settings-z-index);
     padding: 8px;
-    width: 220px;
+    width: 320px;
     background: #1a1b1e;
     color: #fff;
     border-radius: 8px 0 0 8px;
@@ -6729,7 +6792,12 @@ function setupVideoSettingsBar() {
                             PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('brightness')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25})),
+
+                        CE('h2', {}, __('controller')),
+                        CE('div', {},
+                            CE('label', {}, __('device-vibration')),
+                            PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, GamepadVibration.updateGlobalVars)),
                      );
 
     document.documentElement.appendChild($wrapper);
