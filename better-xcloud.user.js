@@ -2943,28 +2943,23 @@ class GamepadVibration {
     static #playVibration(data) {
         // console.log(+new Date, data);
 
-        const maxPercent = Math.max(data.leftMotorPercent, data.rightMotorPercent);
-        if (maxPercent === 0) {
+        const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2);
+        if (intensity === 0 || intensity === 100) {
             // Stop vibration
-            window.navigator.vibrate(0);
+            window.navigator.vibrate(intensity);
             return;
         }
 
-        const patterns = [];
-        if (maxPercent === 100) {
-            patterns.push(data.durationMs);
-        } else {
-            const partDuration = data.durationMs / 100 / (100 / maxPercent);
-            for (let i = 1; i <= 10; i++) {
-                patterns.push(i * partDuration);
+        const pulseDuration = 200;
+        const onDuration = pulseDuration * intensity / 100;
+        const offDuration = pulseDuration - onDuration;
 
-                if (i < 10) {
-                    patterns.push((10 - i) * partDuration);
-                }
-            }
-        }
+        const repeats = Math.ceil(data.durationMs / pulseDuration);
 
-        window.navigator.vibrate(patterns);
+        const pulses = Array(repeats).fill([onDuration, offDuration]).flat();
+        // console.log(pulses);
+
+        window.navigator.vibrate(pulses);
     }
 
     static updateGlobalVars() {
