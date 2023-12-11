@@ -492,12 +492,6 @@ const Translations = {
         "ja-JP": "コントローラーの振動",
         "vi-VN": "Rung bộ điều khiển",
     },
-    "controller-vibration-intensity": {
-        "de-DE": "Vibrationsstärke des Controllers",
-        "en-US": "Controller vibration intensity",
-        "ja-JP": "コントローラーの振動強度",
-        "vi-VN": "Mức độ rung của bộ điều khiển",
-    },
     "custom": {
         "de-DE": "Benutzerdefiniert",
         "en-US": "Custom",
@@ -1962,6 +1956,12 @@ const Translations = {
         "vi-VN": "User-Agent",
         "zh-CN": "浏览器UA伪装",
     },
+    "vibration-intensity": {
+        "en-US": "Vibration intensity",
+        "ja-JP": "振動の強さ",
+        "tr-TR": "Titreşim gücü",
+        "vi-VN": "Cường độ rung",
+    },
     "video": {
         "de-DE": "Video",
         "en-US": "Video",
@@ -2984,6 +2984,7 @@ class VibrationManager {
 
     static updateGlobalVars() {
         window.BX_ENABLE_CONTROLLER_VIBRATION = PREFS.get(Preferences.CONTROLLER_ENABLE_VIBRATION);
+        window.BX_VIBRATION_INTENSITY = PREFS.get(Preferences.CONTROLLER_VIBRATION_INTENSITY) / 100;
 
         // Stop vibration
         window.navigator.vibrate(0);
@@ -3038,7 +3039,7 @@ class VibrationManager {
                     return;
                 }
 
-                if (typeof e !== 'object') {
+                if (typeof e !== 'object' || !(e.data instanceof ArrayBuffer)) {
                     return;
                 }
 
@@ -3730,6 +3731,7 @@ class Preferences {
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
     static get CONTROLLER_ENABLE_VIBRATION() { return 'controller_enable_vibration'; }
     static get CONTROLLER_DEVICE_VIBRATION() { return 'controller_device_vibration'; }
+    static get CONTROLLER_VIBRATION_INTENSITY() { return 'controller_vibration_intensity'; }
 
     static get MKB_ENABLED() { return 'mkb_enabled'; }
     static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
@@ -3974,6 +3976,12 @@ class Preferences {
                 'auto': __('device-vibration-not-using-gamepad'),
                 'off': __('off'),
             },
+        },
+
+        [Preferences.CONTROLLER_VIBRATION_INTENSITY]: {
+            'default': 100,
+            'min': 10,
+            'max': 100,
         },
 
         [Preferences.MKB_ENABLED]: {
@@ -4569,8 +4577,20 @@ class Patcher {
                 return false;
             }
 
+            const newCode = `
+if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {
+    return void(0);
+}
+if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
+    e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+}
+`;
+
             VibrationManager.updateGlobalVars();
-            funcStr = funcStr.replaceAll(text, text + 'if (!window.BX_ENABLE_CONTROLLER_VIBRATION) return void(0);');
+            funcStr = funcStr.replaceAll(text, text + newCode);
             return funcStr;
         },
 
@@ -6806,7 +6826,7 @@ function setupVideoSettingsBar() {
                         CE('h2', {}, __('video')),
                         CE('div', {'class': 'bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {'for': 'bx-quick-setting-stretch'}, __('ratio')),
+                            CE('label', {}, __('ratio')),
                             PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('clarity')),
@@ -6828,6 +6848,9 @@ function setupVideoSettingsBar() {
                         CE('div', {},
                             CE('label', {}, __('device-vibration')),
                             PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars)),
+                        CE('div', {},
+                            CE('label', {}, __('vibration-intensity')),
+                            PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 30})),
                      );
 
     document.documentElement.appendChild($wrapper);
