@@ -6816,6 +6816,17 @@ function setupVideoSettingsBar() {
 
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
+                        CE('h2', {}, __('controller')),
+                        CE('div', {},
+                            CE('label', {}, __('controller-vibration')),
+                            PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars)),
+                        CE('div', {},
+                            CE('label', {}, __('device-vibration')),
+                            PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars)),
+                        CE('div', {},
+                            CE('label', {}, __('vibration-intensity')),
+                            PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 30})),
+
                         CE('h2', {}, __('audio')),
                         CE('div', {},
                             CE('label', {}, __('volume')),
@@ -6840,17 +6851,6 @@ function setupVideoSettingsBar() {
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('brightness')),
                             PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25})),
-
-                        CE('h2', {}, __('controller')),
-                        CE('div', {},
-                            CE('label', {}, __('controller-vibration')),
-                            PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars)),
-                        CE('div', {},
-                            CE('label', {}, __('device-vibration')),
-                            PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars)),
-                        CE('div', {},
-                            CE('label', {}, __('vibration-intensity')),
-                            PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 30})),
                      );
 
     document.documentElement.appendChild($wrapper);
