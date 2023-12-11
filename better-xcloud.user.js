@@ -2980,7 +2980,7 @@ class GamepadVibration {
             enabled = true;
             const gamepads = window.navigator.getGamepads();
             for (const gamepad in gamepads) {
-                if (gamepad && gamepad.vibrationActuator) {
+                if (gamepad) {
                     enabled = false;
                     break;
                 }
