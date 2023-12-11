@@ -2963,7 +2963,7 @@ class VibrationManager {
     static #playDeviceVibration(data) {
         // console.log(+new Date, data);
 
-        const intensity = Math.min(100, (data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY);
+        const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY;
         if (intensity === 0 || intensity === 100) {
             // Stop vibration
             window.navigator.vibrate(intensity ? data.durationMs : 0);
@@ -2971,7 +2971,7 @@ class VibrationManager {
         }
 
         const pulseDuration = 200;
-        const onDuration = pulseDuration * intensity / 100;
+        const onDuration = Math.floor(pulseDuration * intensity / 100);
         const offDuration = pulseDuration - onDuration;
 
         const repeats = Math.ceil(data.durationMs / pulseDuration);
