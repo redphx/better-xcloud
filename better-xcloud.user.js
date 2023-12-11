@@ -535,11 +535,19 @@ const Translations = {
         "zh-CN": "您的设备不支持触摸",
     },
     "device-vibration": {
+        "de-DE": "Vibration des Geräts",
         "en-US": "Device vibration",
+        "ja-JP": "デバイスの振動",
+        "tr-TR": "Cihaz titreşimi",
+        "uk-UA": "Вібрація пристрою",
         "vi-VN": "Rung thiết bị",
     },
     "device-vibration-not-using-gamepad": {
+        "de-DE": "Aktiviert, wenn kein Gamepad verwendet wird",
         "en-US": "On when not using gamepad",
+        "ja-JP": "ゲームパッド未使用時にオン",
+        "tr-TR": "Oyun kumandası bağlanmadan titreşim",
+        "uk-UA": "Увімкнена, коли не використовується геймпад",
         "vi-VN": "Bật khi không dùng tay cầm",
     },
     "disable": {
@@ -2939,14 +2947,14 @@ class GamepadHandler {
 }
 
 
-class GamepadVibration {
-    static #playVibration(data) {
+class VibrationManager {
+    static #playDeviceVibration(data) {
         // console.log(+new Date, data);
 
         const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2);
         if (intensity === 0 || intensity === 100) {
             // Stop vibration
-            window.navigator.vibrate(intensity);
+            window.navigator.vibrate(intensity ? data.durationMs : 0);
             return;
         }
 
@@ -2988,10 +2996,10 @@ class GamepadVibration {
     }
 
     static initialSetup() {
-        window.addEventListener('gamepadconnected', GamepadVibration.updateGlobalVars);
-        window.addEventListener('gamepaddisconnected', GamepadVibration.updateGlobalVars);
+        window.addEventListener('gamepadconnected', VibrationManager.updateGlobalVars);
+        window.addEventListener('gamepaddisconnected', VibrationManager.updateGlobalVars);
 
-        GamepadVibration.updateGlobalVars();
+        VibrationManager.updateGlobalVars();
 
         const orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
@@ -3054,7 +3062,7 @@ class GamepadVibration {
                     }
                 }
 
-                GamepadVibration.#playVibration(data);
+                VibrationManager.#playDeviceVibration(data);
             });
 
             return dataChannel;
@@ -4542,7 +4550,7 @@ class Patcher {
                 return false;
             }
 
-            GamepadVibration.updateGlobalVars();
+            VibrationManager.updateGlobalVars();
             funcStr = funcStr.replaceAll(text, text + 'if (!window.BX_ENABLE_DEVICE_VIBRATION) return void(0);');
             return funcStr;
         },
@@ -6796,7 +6804,7 @@ function setupVideoSettingsBar() {
                         CE('h2', {}, __('controller')),
                         CE('div', {},
                             CE('label', {}, __('device-vibration')),
-                            PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, GamepadVibration.updateGlobalVars)),
+                            PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars)),
                      );
 
     document.documentElement.appendChild($wrapper);
@@ -7131,7 +7139,7 @@ if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
     TouchController.setup();
 }
 
-GamepadVibration.initialSetup();
+VibrationManager.initialSetup();
 
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
