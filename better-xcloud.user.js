@@ -486,6 +486,18 @@ const Translations = {
         "uk-UA": "Частота опитувань контролера",
         "vi-VN": "Tần suất cập nhật của bộ điều khiển",
     },
+    "controller-vibration": {
+        "de-DE": "Vibration des Controllers",
+        "en-US": "Controller vibration",
+        "ja-JP": "コントローラーの振動",
+        "vi-VN": "Rung bộ điều khiển",
+    },
+    "controller-vibration-intensity": {
+        "de-DE": "Vibrationsstärke des Controllers",
+        "en-US": "Controller vibration intensity",
+        "ja-JP": "コントローラーの振動強度",
+        "vi-VN": "Mức độ rung của bộ điều khiển",
+    },
     "custom": {
         "de-DE": "Benutzerdefiniert",
         "en-US": "Custom",
@@ -2971,6 +2983,8 @@ class VibrationManager {
     }
 
     static updateGlobalVars() {
+        window.BX_ENABLE_CONTROLLER_VIBRATION = PREFS.get(Preferences.CONTROLLER_ENABLE_VIBRATION);
+
         // Stop vibration
         window.navigator.vibrate(0);
 
@@ -2982,7 +2996,7 @@ class VibrationManager {
         } else if (value === 'auto') {
             enabled = true;
             const gamepads = window.navigator.getGamepads();
-            for (const gamepad in gamepads) {
+            for (const gamepad of gamepads) {
                 if (gamepad) {
                     enabled = false;
                     break;
@@ -3714,6 +3728,7 @@ class Preferences {
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
+    static get CONTROLLER_ENABLE_VIBRATION() { return 'controller_enable_vibration'; }
     static get CONTROLLER_DEVICE_VIBRATION() { return 'controller_device_vibration'; }
 
     static get MKB_ENABLED() { return 'mkb_enabled'; }
@@ -3946,6 +3961,10 @@ class Preferences {
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
+        },
+
+        [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
+            'default': true,
         },
 
         [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
@@ -4551,7 +4570,7 @@ class Patcher {
             }
 
             VibrationManager.updateGlobalVars();
-            funcStr = funcStr.replaceAll(text, text + 'if (!window.BX_ENABLE_DEVICE_VIBRATION) return void(0);');
+            funcStr = funcStr.replaceAll(text, text + 'if (!window.BX_ENABLE_CONTROLLER_VIBRATION) return void(0);');
             return funcStr;
         },
 
@@ -6079,6 +6098,7 @@ function interceptHttpRequests() {
                     // Enable touch controller
                     if (TouchController.isEnabled()) {
                         overrides.inputConfiguration = overrides.inputConfiguration || {};
+                        overrides.enableVibration = true;
                         overrides.inputConfiguration.enableTouchInput = true;
                         overrides.inputConfiguration.maxTouchPoints = 10;
                     }
@@ -6802,6 +6822,9 @@ function setupVideoSettingsBar() {
                             PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25})),
 
                         CE('h2', {}, __('controller')),
+                        CE('div', {},
+                            CE('label', {}, __('controller-vibration')),
+                            PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars)),
                         CE('div', {},
                             CE('label', {}, __('device-vibration')),
                             PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars)),
