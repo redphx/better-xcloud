@@ -3030,8 +3030,8 @@ class VibrationManager {
                 'leftTriggerMotorPercent': 8,
                 'rightTriggerMotorPercent': 8,
                 'durationMs': 16,
-                'delayMs': 16,
-                'repeat': 8,
+                // 'delayMs': 16,
+                // 'repeat': 8,
             };
 
             dataChannel.addEventListener('message', e => {
