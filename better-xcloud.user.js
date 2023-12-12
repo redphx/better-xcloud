@@ -3993,8 +3993,9 @@ class Preferences {
 
         [Preferences.CONTROLLER_VIBRATION_INTENSITY]: {
             'default': 100,
-            'min': 10,
+            'min': 0,
             'max': 100,
+            'steps': 10,
         },
 
         [Preferences.MKB_ENABLED]: {
@@ -4375,7 +4376,7 @@ class Preferences {
                            );
 
         if (!options.disabled && !options.hideSlider) {
-            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value});
+            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS});
             $range.addEventListener('input', e => {
                 value = parseInt(e.target.value);
 
@@ -6850,7 +6851,7 @@ function setupVideoSettingsBar() {
                         (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) &&
                             CE('div', {},
                                 CE('label', {}, __('vibration-intensity')),
-                                PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 30}),
+                                PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 50}),
                         ),
 
                         CE('h2', {}, __('audio')),
