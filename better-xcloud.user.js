@@ -4585,6 +4585,7 @@ class Patcher {
             return funcStr;
         },
 
+        // Control controller vibration
         playVibration: function(funcStr) {
             const text = '}playVibration(e){';
             if (!funcStr.includes(text)) {
@@ -4605,6 +4606,24 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
             VibrationManager.updateGlobalVars();
             funcStr = funcStr.replaceAll(text, text + newCode);
+            return funcStr;
+        },
+
+        // Override website's settings
+        overrideSettings: function(funcStr) {
+            const index = funcStr.indexOf(',EnableStreamGate:');
+            if (index === -1) {
+                return false;
+            }
+
+            // Find the next "},"
+            const endIndex = funcStr.indexOf('},', index);
+
+            const newCode = `
+EnableStreamGate: false,
+PwaPrompt: false,
+`;
+            funcStr = funcStr.substring(0, endIndex) + ',' + newCode + funcStr.substring(endIndex);
             return funcStr;
         },
 
@@ -4634,7 +4653,8 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         ['enableXcloudLogger'],
 
         [
-            'enableMouseAndKeyboard',
+            // 'enableMouseAndKeyboard',
+            'overrideSettings',
             'remotePlayDirectConnectUrl',
             'disableTrackEvent',
             'enableConsoleLogging',
