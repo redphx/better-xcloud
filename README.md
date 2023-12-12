@@ -73,7 +73,8 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/51bdb96c-79ab-402f-902a-a9e6229973b2">
 <br>
-<img width="600" alt="Stream settings" src="https://github.com/redphx/better-xcloud/assets/96280/18ed4598-4eca-4626-9434-5f74266b00e7">
+<img width="600" alt="Stream settings" src="https://github.com/redphx/better-xcloud/assets/96280/f7df312c-e6bc-49a1-8239-24c280ed7fa6">
+
 
 &nbsp;  
   
@@ -179,6 +180,9 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
   > The analytics contains statistics of your streaming session, so I'd recommend allowing analytics to help Xbox improve xCloud's experience in the future.
 
 ### In-game settings
+- **🔥 Controller & device vibrations**
+  > Control vibration settings  
+  > Adjust vibration intensity  
 - **Volume control**
   > Increase stream's volume up to 600%  
   > Can be disabled in the Main Settings  
