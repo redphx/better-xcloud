@@ -490,6 +490,7 @@ const Translations = {
         "de-DE": "Vibration des Controllers",
         "en-US": "Controller vibration",
         "ja-JP": "コントローラーの振動",
+        "tr-TR": "Oyun kumandası titreşimi",
         "vi-VN": "Rung bộ điều khiển",
     },
     "custom": {
@@ -1957,6 +1958,7 @@ const Translations = {
         "zh-CN": "浏览器UA伪装",
     },
     "vibration-intensity": {
+        "de-DE": "Vibrationsstärke",
         "en-US": "Vibration intensity",
         "ja-JP": "振動の強さ",
         "tr-TR": "Titreşim gücü",
