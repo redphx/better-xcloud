@@ -54,7 +54,7 @@ function createElement(elmName, props = {}) {
         const argType = typeof arg;
 
         if (argType === 'string' || argType === 'number') {
-            $elm.textContent = arg;
+            $elm.appendChild(document.createTextNode(arg));
         } else if (arg) {
             $elm.appendChild(arg);
         }
@@ -486,6 +486,13 @@ const Translations = {
         "uk-UA": "Частота опитувань контролера",
         "vi-VN": "Tần suất cập nhật của bộ điều khiển",
     },
+    "controller-vibration": {
+        "de-DE": "Vibration des Controllers",
+        "en-US": "Controller vibration",
+        "ja-JP": "コントローラーの振動",
+        "tr-TR": "Oyun kumandası titreşimi",
+        "vi-VN": "Rung bộ điều khiển",
+    },
     "custom": {
         "de-DE": "Benutzerdefiniert",
         "en-US": "Custom",
@@ -533,6 +540,22 @@ const Translations = {
         "uk-UA": "Ваш пристрій не має підтримки сенсорного керування",
         "vi-VN": "Thiết bị này không hỗ trợ cảm ứng",
         "zh-CN": "您的设备不支持触摸",
+    },
+    "device-vibration": {
+        "de-DE": "Vibration des Geräts",
+        "en-US": "Device vibration",
+        "ja-JP": "デバイスの振動",
+        "tr-TR": "Cihaz titreşimi",
+        "uk-UA": "Вібрація пристрою",
+        "vi-VN": "Rung thiết bị",
+    },
+    "device-vibration-not-using-gamepad": {
+        "de-DE": "Aktiviert, wenn kein Gamepad verwendet wird",
+        "en-US": "On when not using gamepad",
+        "ja-JP": "ゲームパッド未使用時にオン",
+        "tr-TR": "Oyun kumandası bağlanmadan titreşim",
+        "uk-UA": "Увімкнена, коли не використовується геймпад",
+        "vi-VN": "Bật khi không dùng tay cầm",
     },
     "disable": {
         "de-DE": "Deaktiviert",
@@ -647,6 +670,7 @@ const Translations = {
         "de-DE": "Maus- und Tastaturunterstützung aktivieren",
         "en-US": "Enable Mouse & Keyboard support",
         "es-ES": "Habilitar soporte para ratón y teclado",
+        "it-IT": "Abilitare il supporto di mouse e tastiera",
         "ja-JP": "マウス＆キーボードのサポートを有効化",
         "pl-PL": "Włącz obsługę myszy i klawiatury",
         "pt-BR": "Habilitar suporte ao Mouse & Teclado",
@@ -675,6 +699,7 @@ const Translations = {
         "de-DE": "\"Remote Play\" Funktion aktivieren",
         "en-US": "Enable the \"Remote Play\" feature",
         "es-ES": "Activar la función \"Reproducción remota\"",
+        "it-IT": "Abilitare la funzione \"Riproduzione remota\"",
         "ja-JP": "リモートプレイ機能を有効化",
         "pl-PL": "Włącz funkcję \"Gra zdalna\"",
         "pt-BR": "Ativar o recurso \"Reprodução Remota\"",
@@ -703,6 +728,7 @@ const Translations = {
         "de-DE": "Schnell",
         "en-US": "Fast",
         "es-ES": "Rápido",
+        "it-IT": "Veloce",
         "ja-JP": "高速",
         "pl-PL": "Szybko",
         "pt-BR": "Rápido",
@@ -792,6 +818,7 @@ const Translations = {
         "de-DE": "Layout",
         "en-US": "Layout",
         "es-ES": "Diseño",
+        "it-IT": "Layout",
         "ja-JP": "レイアウト",
         "pl-PL": "Układ",
         "pt-BR": "Layout",
@@ -820,6 +847,7 @@ const Translations = {
         "de-DE": "Max. Bitrate",
         "en-US": "Max bitrate",
         "es-ES": "Tasa de bits máxima",
+        "it-IT": "Bitrate massimo",
         "ja-JP": "最大ビットレート",
         "pl-PL": "Maksymalny bitrate",
         "pt-BR": "Taxa máxima dos bits",
@@ -832,6 +860,7 @@ const Translations = {
         "de-DE": "Funktioniert evtl. nicht fehlerfrei!",
         "en-US": "May not work properly!",
         "es-ES": "¡Puede que no funcione correctamente!",
+        "it-IT": "Potrebbe non funzionare correttamente!",
         "ja-JP": "正常に動作しない場合があります！",
         "pl-PL": "Może nie działać poprawnie!",
         "pt-BR": "Pode não funcionar corretamente!",
@@ -890,6 +919,7 @@ const Translations = {
         "de-DE": "Maus & Tastatur",
         "en-US": "Mouse & Keyboard",
         "es-ES": "Ratón y teclado",
+        "it-IT": "Mouse e tastiera",
         "ja-JP": "マウス＆キーボード",
         "pl-PL": "Mysz i klawiatura",
         "pt-BR": "Mouse e Teclado",
@@ -976,6 +1006,7 @@ const Translations = {
         "de-DE": "Unterstützt nur einige Spiele",
         "en-US": "Only supports some games",
         "es-ES": "Sólo soporta algunos juegos",
+        "it-IT": "Supporta solo alcuni giochi",
         "ja-JP": "一部のゲームのみサポート",
         "pl-PL": "Wspiera tylko niektóre gry",
         "pt-BR": "Suporta apenas alguns jogos",
@@ -1398,6 +1429,7 @@ const Translations = {
         "de-DE": "Langsam",
         "en-US": "Slow",
         "es-ES": "Lento",
+        "it-IT": "Lento",
         "ja-JP": "低速",
         "pl-PL": "Wolno",
         "pt-BR": "Lento",
@@ -1426,6 +1458,7 @@ const Translations = {
         "de-DE": "Smart TV",
         "en-US": "Smart TV",
         "es-ES": "Smart TV",
+        "it-IT": "Smart TV",
         "ja-JP": "スマートTV",
         "pl-PL": "Smart TV",
         "pt-BR": "Smart TV",
@@ -1621,6 +1654,15 @@ const Translations = {
         "uk-UA": "Розтягнути",
         "vi-VN": "Kéo giãn",
         "zh-CN": "拉伸",
+    },
+    "swap-buttons": {
+        "de-DE": "Tasten tauschen",
+        "en-US": "Swap buttons",
+        "ja-JP": "ボタン入れ替え",
+        "pt-BR": "Trocar botões",
+        "tr-TR": "Düğme düzenini ters çevir",
+        "uk-UA": "Поміняти кнопки місцями",
+        "vi-VN": "Hoán đổi nút",
     },
     "target-resolution": {
         "de-DE": "Festgelegte Auflösung",
@@ -1864,6 +1906,7 @@ const Translations = {
         "de-DE": "Unbegrenzt",
         "en-US": "Unlimited",
         "es-ES": "Ilimitado",
+        "it-IT": "Illimitato",
         "ja-JP": "無制限",
         "pl-PL": "Bez ograniczeń",
         "pt-BR": "Ilimitado",
@@ -1913,6 +1956,13 @@ const Translations = {
         "uk-UA": "Профіль User-Agent",
         "vi-VN": "User-Agent",
         "zh-CN": "浏览器UA伪装",
+    },
+    "vibration-intensity": {
+        "de-DE": "Vibrationsstärke",
+        "en-US": "Vibration intensity",
+        "ja-JP": "振動の強さ",
+        "tr-TR": "Titreşim gücü",
+        "vi-VN": "Cường độ rung",
     },
     "video": {
         "de-DE": "Video",
@@ -2910,6 +2960,147 @@ class GamepadHandler {
     }
 }
 
+
+class VibrationManager {
+    static #playDeviceVibration(data) {
+        // console.log(+new Date, data);
+
+        const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY;
+        if (intensity === 0 || intensity === 100) {
+            // Stop vibration
+            window.navigator.vibrate(intensity ? data.durationMs : 0);
+            return;
+        }
+
+        const pulseDuration = 200;
+        const onDuration = Math.floor(pulseDuration * intensity / 100);
+        const offDuration = pulseDuration - onDuration;
+
+        const repeats = Math.ceil(data.durationMs / pulseDuration);
+
+        const pulses = Array(repeats).fill([onDuration, offDuration]).flat();
+        // console.log(pulses);
+
+        window.navigator.vibrate(pulses);
+    }
+
+    static supportControllerVibration() {
+        return Gamepad.prototype.hasOwnProperty('vibrationActuator');
+    }
+
+    static supportDeviceVibration() {
+        return !!window.navigator.vibrate;
+    }
+
+    static updateGlobalVars() {
+        window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? PREFS.get(Preferences.CONTROLLER_ENABLE_VIBRATION) : false;
+        window.BX_VIBRATION_INTENSITY = PREFS.get(Preferences.CONTROLLER_VIBRATION_INTENSITY) / 100;
+
+        if (!VibrationManager.supportDeviceVibration()) {
+            window.BX_ENABLE_DEVICE_VIBRATION = false;
+            return;
+        }
+
+        // Stop vibration
+        window.navigator.vibrate(0);
+
+        const value = PREFS.get(Preferences.CONTROLLER_DEVICE_VIBRATION);
+        let enabled;
+
+        if (value === 'on') {
+            enabled = true;
+        } else if (value === 'auto') {
+            enabled = true;
+            const gamepads = window.navigator.getGamepads();
+            for (const gamepad of gamepads) {
+                if (gamepad) {
+                    enabled = false;
+                    break;
+                }
+            }
+        } else {
+            enabled = false;
+        }
+
+        window.BX_ENABLE_DEVICE_VIBRATION = enabled;
+    }
+
+    static initialSetup() {
+        window.addEventListener('gamepadconnected', VibrationManager.updateGlobalVars);
+        window.addEventListener('gamepaddisconnected', VibrationManager.updateGlobalVars);
+
+        VibrationManager.updateGlobalVars();
+
+        const orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+        RTCPeerConnection.prototype.createDataChannel = function() {
+            const dataChannel = orgCreateDataChannel.apply(this, arguments);
+            if (dataChannel.label !== 'input') {
+                return dataChannel;
+            }
+
+            const VIBRATION_DATA_MAP = {
+                'gamepadIndex': 8,
+                'leftMotorPercent': 8,
+                'rightMotorPercent': 8,
+                'leftTriggerMotorPercent': 8,
+                'rightTriggerMotorPercent': 8,
+                'durationMs': 16,
+                // 'delayMs': 16,
+                // 'repeat': 8,
+            };
+
+            dataChannel.addEventListener('message', e => {
+                if (!window.BX_ENABLE_DEVICE_VIBRATION) {
+                    return;
+                }
+
+                if (typeof e !== 'object' || !(e.data instanceof ArrayBuffer)) {
+                    return;
+                }
+
+                const dataView = new DataView(e.data);
+                let offset = 0;
+
+                let messageType;
+                if (dataView.byteLength === 13) { // version >= 8
+                    messageType = dataView.getUint16(offset, true);
+                    offset += Uint16Array.BYTES_PER_ELEMENT;
+                } else {
+                    messageType = dataView.getUint8(offset);
+                    offset += Uint8Array.BYTES_PER_ELEMENT;
+                }
+
+                if (!(messageType & 128)) { // Vibration
+                    return;
+                }
+
+                const vibrationType = dataView.getUint8(offset);
+                offset += Uint8Array.BYTES_PER_ELEMENT;
+
+                if (vibrationType !== 0) { // FourMotorRumble
+                    return;
+                }
+
+                const data = {};
+                for (const key in VIBRATION_DATA_MAP) {
+                    if (VIBRATION_DATA_MAP[key] === 16) {
+                        data[key] = dataView.getUint16(offset, true);
+                        offset += Uint16Array.BYTES_PER_ELEMENT;
+                    } else {
+                        data[key] = dataView.getUint8(offset);
+                        offset += Uint8Array.BYTES_PER_ELEMENT;
+                    }
+                }
+
+                VibrationManager.#playDeviceVibration(data);
+            });
+
+            return dataChannel;
+        };
+    }
+}
+
+
 class MouseCursorHider {
     static #timeout;
     static #cursorVisible = true;
@@ -3553,6 +3744,9 @@ class Preferences {
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
+    static get CONTROLLER_ENABLE_VIBRATION() { return 'controller_enable_vibration'; }
+    static get CONTROLLER_DEVICE_VIBRATION() { return 'controller_device_vibration'; }
+    static get CONTROLLER_VIBRATION_INTENSITY() { return 'controller_vibration_intensity'; }
 
     static get MKB_ENABLED() { return 'mkb_enabled'; }
     static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
@@ -3784,6 +3978,26 @@ class Preferences {
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
+        },
+
+        [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
+            'default': true,
+        },
+
+        [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
+            'default': 'off',
+            'options': {
+                'on': __('on'),
+                'auto': __('device-vibration-not-using-gamepad'),
+                'off': __('off'),
+            },
+        },
+
+        [Preferences.CONTROLLER_VIBRATION_INTENSITY]: {
+            'default': 100,
+            'min': 0,
+            'max': 100,
+            'steps': 10,
         },
 
         [Preferences.MKB_ENABLED]: {
@@ -4164,7 +4378,7 @@ class Preferences {
                            );
 
         if (!options.disabled && !options.hideSlider) {
-            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value});
+            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS});
             $range.addEventListener('input', e => {
                 value = parseInt(e.target.value);
 
@@ -4373,6 +4587,48 @@ class Patcher {
             return funcStr;
         },
 
+        // Control controller vibration
+        playVibration: function(funcStr) {
+            const text = '}playVibration(e){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            const newCode = `
+if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {
+    return void(0);
+}
+if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
+    e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+}
+`;
+
+            VibrationManager.updateGlobalVars();
+            funcStr = funcStr.replaceAll(text, text + newCode);
+            return funcStr;
+        },
+
+        // Override website's settings
+        overrideSettings: function(funcStr) {
+            const index = funcStr.indexOf(',EnableStreamGate:');
+            if (index === -1) {
+                return false;
+            }
+
+            // Find the next "},"
+            const endIndex = funcStr.indexOf('},', index);
+
+            const newCode = `
+EnableStreamGate: false,
+PwaPrompt: false,
+`;
+            funcStr = funcStr.substring(0, endIndex) + ',' + newCode + funcStr.substring(endIndex);
+            return funcStr;
+        },
+
         // Enable Mouse and Keyboard support
         enableMouseAndKeyboard: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
             if (!funcStr.includes('EnableMouseAndKeyboard:')) {
@@ -4399,7 +4655,8 @@ class Patcher {
         ['enableXcloudLogger'],
 
         [
-            'enableMouseAndKeyboard',
+            // 'enableMouseAndKeyboard',
+            'overrideSettings',
             'remotePlayDirectConnectUrl',
             'disableTrackEvent',
             'enableConsoleLogging',
@@ -4409,6 +4666,7 @@ class Patcher {
 
         // Only when playing
         ['remotePlayConnectMode'],
+        ['playVibration'],
         ['enableConsoleLogging'],
     ];
 
@@ -5091,7 +5349,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     bottom: 20px;
     z-index: var(--bx-stream-settings-z-index);
     padding: 8px;
-    width: 220px;
+    width: 320px;
     background: #1a1b1e;
     color: #fff;
     border-radius: 8px 0 0 8px;
@@ -5162,6 +5420,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-weight: bold;
     font-size: 14px;
     font-family: var(--bx-monospaced-font);
+}
+
+.bx-quick-settings-bar-note {
+    font-size: 12px;
+    font-weight: lighter;
+    font-style: italic;
 }
 
 .bx-toast {
@@ -5896,6 +6160,7 @@ function interceptHttpRequests() {
                     // Enable touch controller
                     if (TouchController.isEnabled()) {
                         overrides.inputConfiguration = overrides.inputConfiguration || {};
+                        overrides.enableVibration = true;
                         overrides.inputConfiguration.enableTouchInput = true;
                         overrides.inputConfiguration.maxTouchPoints = 10;
                     }
@@ -6593,30 +6858,54 @@ function setupVideoSettingsBar() {
 
     let $stretchInp;
     const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
+                        CE('h2', {}, __('controller')),
+                        CE('div', {},
+                            CE('label', {}, __('controller-vibration')),
+                            VibrationManager.supportControllerVibration() && PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars),
+                            !VibrationManager.supportControllerVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                        ),
+                        CE('div', {},
+                            CE('label', {}, __('device-vibration')),
+                            VibrationManager.supportDeviceVibration() && PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars),
+                            !VibrationManager.supportDeviceVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                        ),
+
+                        (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) &&
+                            CE('div', {},
+                                CE('label', {}, __('vibration-intensity')),
+                                PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 50}),
+                        ),
+
                         CE('h2', {}, __('audio')),
                         CE('div', {},
                             CE('label', {}, __('volume')),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, {suffix: '%', ticks: 100, disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)})),
+                            }, {suffix: '%', ticks: 100, disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)}),
+                        ),
 
                         CE('h2', {}, __('video')),
-                        CE('div', {'class': 'bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
+                        CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
                         CE('div', {'data-type': 'video'},
-                            CE('label', {'for': 'bx-quick-setting-stretch'}, __('ratio')),
-                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
+                            CE('label', {}, __('ratio')),
+                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange),
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('clarity')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
+                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true}), // disable this feature in Safari
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('saturation')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25})),
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25}),
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('contrast')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25}),
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('brightness')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}))
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}),
+                        ),
                      );
 
     document.documentElement.appendChild($wrapper);
@@ -6950,6 +7239,8 @@ if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
 if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
     TouchController.setup();
 }
+
+VibrationManager.initialSetup();
 
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
