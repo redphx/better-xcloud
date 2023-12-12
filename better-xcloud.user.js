@@ -54,7 +54,7 @@ function createElement(elmName, props = {}) {
         const argType = typeof arg;
 
         if (argType === 'string' || argType === 'number') {
-            $elm.textContent = arg;
+            $elm.appendChild(document.createTextNode(arg));
         } else if (arg) {
             $elm.appendChild(arg);
         }
@@ -2982,9 +2982,22 @@ class VibrationManager {
         window.navigator.vibrate(pulses);
     }
 
+    static supportControllerVibration() {
+        return Gamepad.prototype.hasOwnProperty('vibrationActuator');
+    }
+
+    static supportDeviceVibration() {
+        return !!window.navigator.vibrate;
+    }
+
     static updateGlobalVars() {
-        window.BX_ENABLE_CONTROLLER_VIBRATION = PREFS.get(Preferences.CONTROLLER_ENABLE_VIBRATION);
+        window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? PREFS.get(Preferences.CONTROLLER_ENABLE_VIBRATION) : false;
         window.BX_VIBRATION_INTENSITY = PREFS.get(Preferences.CONTROLLER_VIBRATION_INTENSITY) / 100;
+
+        if (!VibrationManager.supportDeviceVibration()) {
+            window.BX_ENABLE_DEVICE_VIBRATION = false;
+            return;
+        }
 
         // Stop vibration
         window.navigator.vibrate(0);
@@ -5386,6 +5399,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: var(--bx-monospaced-font);
 }
 
+.bx-quick-settings-bar-note {
+    font-size: 12px;
+    font-weight: lighter;
+    font-style: italic;
+}
+
 .bx-toast {
     position: fixed;
     left: 50%;
@@ -6819,38 +6838,51 @@ function setupVideoSettingsBar() {
                         CE('h2', {}, __('controller')),
                         CE('div', {},
                             CE('label', {}, __('controller-vibration')),
-                            PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars)),
+                            VibrationManager.supportControllerVibration() && PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars),
+                            !VibrationManager.supportControllerVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                        ),
                         CE('div', {},
                             CE('label', {}, __('device-vibration')),
-                            PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars)),
-                        CE('div', {},
-                            CE('label', {}, __('vibration-intensity')),
-                            PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 30})),
+                            VibrationManager.supportDeviceVibration() && PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars),
+                            !VibrationManager.supportDeviceVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                        ),
+
+                        (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) &&
+                            CE('div', {},
+                                CE('label', {}, __('vibration-intensity')),
+                                PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 30}),
+                        ),
 
                         CE('h2', {}, __('audio')),
                         CE('div', {},
                             CE('label', {}, __('volume')),
                             PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, {suffix: '%', ticks: 100, disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)})),
+                            }, {suffix: '%', ticks: 100, disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)}),
+                        ),
 
                         CE('h2', {}, __('video')),
-                        CE('div', {'class': 'bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
+                        CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('ratio')),
-                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange)),
+                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange),
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('clarity')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true})), // disable this feature in Safari
+                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true}), // disable this feature in Safari
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('saturation')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25})),
+                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25}),
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('contrast')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25})),
+                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25}),
+                        ),
                         CE('div', {'data-type': 'video'},
                             CE('label', {}, __('brightness')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25})),
+                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}),
+                        ),
                      );
 
     document.documentElement.appendChild($wrapper);
