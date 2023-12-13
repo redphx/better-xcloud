@@ -3365,8 +3365,6 @@ class StreamStats {
     static #$fl;
     static #$br;
 
-    static #$dialog;
-
     static #lastStat;
 
     static #quickGlanceObserver;
@@ -3503,28 +3501,25 @@ class StreamStats {
         });
     }
 
-    static #refreshStyles() {
+    static refreshStyles() {
         const PREF_ITEMS = PREFS.get(Preferences.STATS_ITEMS);
         const PREF_POSITION = PREFS.get(Preferences.STATS_POSITION);
         const PREF_TRANSPARENT = PREFS.get(Preferences.STATS_TRANSPARENT);
         const PREF_OPACITY = PREFS.get(Preferences.STATS_OPACITY);
         const PREF_TEXT_SIZE = PREFS.get(Preferences.STATS_TEXT_SIZE);
 
-        StreamStats.#$container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
-        StreamStats.#$container.setAttribute('data-position', PREF_POSITION);
-        StreamStats.#$container.setAttribute('data-transparent', PREF_TRANSPARENT);
-        StreamStats.#$container.style.opacity = PREF_OPACITY + '%';
-        StreamStats.#$container.style.fontSize = PREF_TEXT_SIZE;
+        const $container = StreamStats.#$container;
+        $container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
+        $container.setAttribute('data-position', PREF_POSITION);
+        $container.setAttribute('data-transparent', PREF_TRANSPARENT);
+        $container.style.opacity = PREF_OPACITY + '%';
+        $container.style.fontSize = PREF_TEXT_SIZE;
     }
 
     static hideSettingsUi() {
         if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
-    }
-
-    static #toggleSettingsUi() {
-        StreamStats.#$dialog.toggle();
     }
 
     static render() {
@@ -3549,79 +3544,9 @@ class StreamStats {
         }
 
         StreamStats.#$container = CE('div', {'class': 'bx-stats-bar bx-gone'}, $barFragment);
-
-        let clickTimeout;
-        StreamStats.#$container.addEventListener('mousedown', e => {
-            clearTimeout(clickTimeout);
-            if (clickTimeout) {
-                // Double-clicked
-                clickTimeout = null;
-                StreamStats.#toggleSettingsUi();
-                return;
-            }
-
-            clickTimeout = setTimeout(() => {
-                clickTimeout = null;
-            }, 400);
-        });
-
         document.documentElement.appendChild(StreamStats.#$container);
 
-        const refreshFunc = e => {
-            StreamStats.#refreshStyles()
-        };
-
-        let $close;
-
-
-        const STATS_UI = {
-            [Preferences.STATS_SHOW_WHEN_PLAYING]: {
-                'label': __('show-stats-on-startup'),
-            },
-            [Preferences.STATS_QUICK_GLANCE]: {
-                'label': __('enable-quick-glance-mode'),
-                'onChange': e => {
-                    e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
-                },
-            },
-            [Preferences.STATS_ITEMS]: {
-                'label': __('stats'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_POSITION]: {
-                'label': __('position'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_TEXT_SIZE]: {
-                'label': __('text-size'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_OPACITY]: {
-                'label': `${__('opacity')} (50-100%)`,
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_TRANSPARENT]: {
-                'label': __('transparent-background'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_CONDITIONAL_FORMATTING]: {
-                'label': __('conditional-formatting'),
-                'onChange': refreshFunc,
-            },
-        };
-
-        const $fragment = document.createDocumentFragment();
-        for (let settingKey in STATS_UI) {
-            const setting = STATS_UI[settingKey];
-
-            $fragment.appendChild(CE('div', {},
-               CE('label', {'for': `xcloud_setting_${settingKey}`}, setting.label),
-               PREFS.toElement(settingKey, setting.onChange)
-            ));
-        }
-
-        StreamStats.#$dialog = new Dialog(__('stream-stats-settings'), 'bx-stats-settings-dialog', $fragment, StreamStats.hideSettingsUi);
-        StreamStats.#refreshStyles();
+        StreamStats.refreshStyles();
     }
 }
 
@@ -6961,6 +6886,46 @@ function setupVideoSettingsBar() {
                         suffix: '%',
                         ticks: 25,
                     },
+                },
+            },
+        },
+
+        {
+            group: 'stats',
+            label: __('menu-stream-stats'),
+            items: {
+                [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+                    label: __('show-stats-on-startup'),
+                },
+                [Preferences.STATS_QUICK_GLANCE]: {
+                    label: __('enable-quick-glance-mode'),
+                    onChange: e => {
+                        e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+                    },
+                },
+                [Preferences.STATS_ITEMS]: {
+                    label: __('stats'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_POSITION]: {
+                    label: __('position'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_TEXT_SIZE]: {
+                    label: __('text-size'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_OPACITY]: {
+                    label: `${__('opacity')} (50-100%)`,
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_TRANSPARENT]: {
+                    label: __('transparent-background'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_CONDITIONAL_FORMATTING]: {
+                    label: __('conditional-formatting'),
+                    onChange: StreamStats.refreshStyles,
                 },
             },
         },
