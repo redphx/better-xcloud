@@ -18,6 +18,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_MKB = false;
 const ENABLE_XCLOUD_LOGGER = false;
+const ENABLE_PRELOAD_BX_UI = false;
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
@@ -3389,8 +3390,10 @@ class StreamStats {
         StreamStats.#interval = null;
         StreamStats.#lastStat = null;
 
-        StreamStats.#$container.removeAttribute('data-display');
-        StreamStats.#$container.classList.add('bx-gone');
+        if (StreamStats.#$container) {
+            StreamStats.#$container.removeAttribute('data-display');
+            StreamStats.#$container.classList.add('bx-gone');
+        }
     }
 
     static toggle() {
@@ -6583,6 +6586,8 @@ function injectStreamMenuButtons() {
         return;
     }
 
+    setupBxUi();
+
     $screen.xObserving = true;
 
     const $quickBar = document.querySelector('.bx-quick-settings-bar');
@@ -6783,7 +6788,7 @@ function patchRtcCodecs() {
 }
 
 
-function setupVideoSettingsBar() {
+function setupQuickSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
 
@@ -6850,6 +6855,7 @@ function setupVideoSettingsBar() {
                     label: __('clarity'),
                     onChange: updateVideoPlayerCss,
                     type: 'number-stepper',
+                    unsupported: isSafari,
                     params: {
                         hideSlider: true,
                     },
@@ -7219,6 +7225,21 @@ function disablePwa() {
     }
 }
 
+function setupBxUi() {
+    updateVideoPlayerCss();
+
+    // Prevent initializing multiple times
+    if (document.querySelector('.bx-quick-settings-bar')) {
+        return;
+    }
+
+    window.addEventListener('resize', updateVideoPlayerCss);
+
+    setupQuickSettingsBar();
+    setupScreenshotButton();
+    StreamStats.render();
+}
+
 
 // Hide Settings UI when navigate to another page
 window.addEventListener('xcloud_popstate', onHistoryChanged);
@@ -7301,12 +7322,7 @@ patchVideoApi();
 
 // Setup UI
 addCss();
-updateVideoPlayerCss();
-window.addEventListener('resize', updateVideoPlayerCss);
-
-setupVideoSettingsBar();
-setupScreenshotButton();
-StreamStats.render();
+ENABLE_PRELOAD_BX_UI && setupBxUi();
 
 disablePwa();
 
