@@ -305,7 +305,7 @@ const Translations = {
         "ru-RU": "Яркость",
         "tr-TR": "Aydınlık",
         "uk-UA": "Яскравість",
-        "vi-VN": "Độ sáng",
+        "vi-VN": "Độ sáng",
         "zh-CN": "亮度",
     },
     "browser-unsupported-feature": {
@@ -4203,7 +4203,7 @@ class Preferences {
 
         let $control;
         if ('options' in setting) {
-            $control = CE('select', {'id': 'xcloud_setting_' + key});
+            $control = CE('select', {'id': `bx_setting_${key}`});
             for (let value in setting.options) {
                 const label = setting.options[value];
 
@@ -4218,7 +4218,7 @@ class Preferences {
                 onChange && onChange(e);
             });
         } else if ('multiple_options' in setting) {
-            $control = CE('select', {'id': 'xcloud_setting_' + key, 'multiple': true});
+            $control = CE('select', {'id': `bx_setting_${key}`, 'multiple': true});
             for (let value in setting.multiple_options) {
                 const label = setting.multiple_options[value];
 
@@ -4273,7 +4273,7 @@ class Preferences {
             });
         }
 
-        $control.id = `xcloud_setting_${key}`;
+        $control.id = `bx_setting_${key}`;
         return $control;
     }
 
@@ -6340,7 +6340,7 @@ function injectSettingsButton($parent) {
             } else if (settingId === Preferences.SERVER_REGION) {
                 let selectedValue;
 
-                $control = CE('select', {id: 'xcloud_setting_' + settingId});
+                $control = CE('select', {id: `bx_setting_${settingId}`});
                 $control.addEventListener('change', e => {
                     PREFS.set(settingId, e.target.value);
                 });
@@ -6948,7 +6948,7 @@ function setupVideoSettingsBar() {
             }
 
             $wrapper.appendChild(CE('div', {'data-type': settingGroup.group},
-                CE('label', {},
+                CE('label', {for: `bx_setting_${pref}`},
                     setting.label,
                     setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
                 ),
