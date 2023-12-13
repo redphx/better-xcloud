@@ -1,5 +1,5 @@
 # Better xCloud
-Improve Xbox Cloud Gaming (xCloud) experience on [xbox.com/play](https://www.xbox.com/play).  
+Improve Xbox Cloud Gaming (xCloud) experience on [xbox.com/play](https://www.xbox.com/play). It also allows you to use Remote Play on the xCloud website.  
 The main target of this script is mobile users, but it should work great on desktop too.  
 
 Supported platforms:  
