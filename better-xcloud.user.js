@@ -4877,11 +4877,11 @@ function addCss() {
     --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
 
     --bx-wait-time-box-z-index: 9999;
-    --bx-stream-settings-z-index: 9999;
+    --bx-stats-bar-z-index: 9001;
+    --bx-stream-settings-z-index: 9000;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
     --bx-dialog-z-index: 1010;
-    --bx-stats-bar-z-index: 1000;
     --bx-dialog-overlay-z-index: 900;
 }
 
@@ -5345,20 +5345,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     -webkit-user-select: none;
     position: fixed;
     right: 0;
-    top: 20px;
-    bottom: 20px;
+    top: 0;
+    bottom: 0;
     z-index: var(--bx-stream-settings-z-index);
-    padding: 8px;
-    width: 320px;
+    padding: 16px;
+    width: 420px;
     background: #1a1b1e;
     color: #fff;
-    border-radius: 8px 0 0 8px;
     font-weight: 400;
     font-size: 16px;
     font-family: var(--bx-title-font);
     text-align: center;
     box-shadow: 0px 0px 6px #000;
-    opacity: 0.95;
+    opacity: 0.98;
     overflow: overlay;
 }
 
@@ -5385,27 +5384,34 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-quick-settings-bar > div {
+    display: flex;
+    border-bottom: 1px solid #40404080;
     margin-bottom: 16px;
+    padding-bottom: 16px;
 }
 
 .bx-quick-settings-bar h2 {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: bold;
     margin-bottom: 8px;
+    text-transform: uppercase;
+    text-align: left;
 }
 
 .bx-quick-settings-bar input[type="range"] {
     display: block;
-    margin: 12px auto;
-    width: 80%;
+    margin: 12px auto 2px;
+    width: 180px;
     color: #959595 !important;
 }
 
 .bx-quick-settings-bar label {
     font-size: 16px;
-    font-weight: bold;
     display: block;
-    margin-bottom: 8px;
+    text-align: left;
+    flex: 1;
+    align-self: center;
+    margin-bottom: 0 !important;
 }
 
 .bx-quick-settings-bar button {
@@ -5423,9 +5429,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-quick-settings-bar-note {
+    display: block;
+    text-align: center;
     font-size: 12px;
     font-weight: lighter;
     font-style: italic;
+    padding-top: 16px;
 }
 
 .bx-toast {
@@ -6856,57 +6865,132 @@ function setupVideoSettingsBar() {
         updateVideoPlayerCss();
     }
 
-    let $stretchInp;
-    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
-                        CE('h2', {}, __('controller')),
-                        CE('div', {},
-                            CE('label', {}, __('controller-vibration')),
-                            VibrationManager.supportControllerVibration() && PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars),
-                            !VibrationManager.supportControllerVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
-                        ),
-                        CE('div', {},
-                            CE('label', {}, __('device-vibration')),
-                            VibrationManager.supportDeviceVibration() && PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars),
-                            !VibrationManager.supportDeviceVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
-                        ),
+    const SETTINGS_UI = [
+        {
+            group: 'controller',
+            label: __('controller'),
+            items: {
+                [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
+                    label: __('controller-vibration'),
+                    unsupported: !VibrationManager.supportControllerVibration(),
+                    onChange: VibrationManager.updateGlobalVars,
+                },
 
-                        (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) &&
-                            CE('div', {},
-                                CE('label', {}, __('vibration-intensity')),
-                                PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 50}),
-                        ),
+                [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
+                    label: __('device-vibration'),
+                    unsupported: !VibrationManager.supportDeviceVibration(),
+                    onChange: VibrationManager.updateGlobalVars,
+                },
 
-                        CE('h2', {}, __('audio')),
-                        CE('div', {},
-                            CE('label', {}, __('volume')),
-                            PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
-                                STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, {suffix: '%', ticks: 100, disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)}),
-                        ),
+                [Preferences.CONTROLLER_VIBRATION_INTENSITY]: (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
+                    label: __('vibration-intensity'),
+                    unsupported: !VibrationManager.supportDeviceVibration(),
+                    onChange: VibrationManager.updateGlobalVars,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 50,
+                    },
+                },
+            },
+        },
 
-                        CE('h2', {}, __('video')),
-                        CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('ratio')),
-                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange),
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('clarity')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true}), // disable this feature in Safari
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('saturation')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25}),
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('contrast')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25}),
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('brightness')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}),
-                        ),
-                     );
+        {
+            group: 'audio',
+            label: __('audio'),
+            items: {
+                [Preferences.AUDIO_VOLUME]: {
+                    label: __('volume'),
+                    onChange: (e, value) => {
+                        STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
+                    },
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 100,
+                        disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
+                    },
+                },
+            },
+        },
+
+        {
+            group: 'video',
+            label: __('video'),
+            note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
+            items: {
+                [Preferences.VIDEO_RATIO]: {
+                    label: __('ratio'),
+                    onChange: onVideoChange,
+                },
+
+                [Preferences.VIDEO_CLARITY]: {
+                    label: __('clarity'),
+                    onChange: onVideoChange,
+                    type: 'number-stepper',
+                    params: {
+                        hideSlider: true,
+                    },
+                },
+
+                [Preferences.VIDEO_SATURATION]: {
+                    label: __('saturation'),
+                    onChange: onVideoChange,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 25,
+                    },
+                },
+
+                [Preferences.VIDEO_CONTRAST]: {
+                    label: __('contrast'),
+                    onChange: onVideoChange,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 25,
+                    },
+                },
+
+                [Preferences.VIDEO_BRIGHTNESS]: {
+                    label: __('brightness'),
+                    onChange: onVideoChange,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 25,
+                    },
+                },
+            },
+        },
+    ];
+
+    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'});
+    for (const settingGroup of SETTINGS_UI) {
+        $wrapper.appendChild(CE('h2', {}, settingGroup.label));
+        if (settingGroup.note) {
+            if (typeof settingGroup.note === 'string') {
+                settingGroup.note = document.createTextNode(settingGroup.note);
+            }
+            $wrapper.appendChild(settingGroup.note);
+        }
+
+        for (const pref in settingGroup.items) {
+            const setting = settingGroup.items[pref];
+            if (!setting) {
+                continue;
+            }
+
+            $wrapper.appendChild(CE('div', {'data-type': settingGroup.group},
+                CE('label', {},
+                    setting.label,
+                    setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                ),
+                !setting.unsupported && (setting.type === 'number-stepper' ? PREFS.toNumberStepper(pref, setting.onChange, setting.params) : PREFS.toElement(pref, setting.onChange)),
+            ));
+        }
+    }
 
     document.documentElement.appendChild($wrapper);
 }
