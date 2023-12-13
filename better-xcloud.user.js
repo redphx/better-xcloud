@@ -6786,9 +6786,6 @@ function patchRtcCodecs() {
 function setupVideoSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
-    const onVideoChange = e => {
-        updateVideoPlayerCss();
-    }
 
     const SETTINGS_UI = [
         {
@@ -6846,12 +6843,12 @@ function setupVideoSettingsBar() {
             items: {
                 [Preferences.VIDEO_RATIO]: {
                     label: __('ratio'),
-                    onChange: onVideoChange,
+                    onChange: updateVideoPlayerCss,
                 },
 
                 [Preferences.VIDEO_CLARITY]: {
                     label: __('clarity'),
-                    onChange: onVideoChange,
+                    onChange: updateVideoPlayerCss,
                     type: 'number-stepper',
                     params: {
                         hideSlider: true,
@@ -6860,7 +6857,7 @@ function setupVideoSettingsBar() {
 
                 [Preferences.VIDEO_SATURATION]: {
                     label: __('saturation'),
-                    onChange: onVideoChange,
+                    onChange: updateVideoPlayerCss,
                     type: 'number-stepper',
                     params: {
                         suffix: '%',
@@ -6870,7 +6867,7 @@ function setupVideoSettingsBar() {
 
                 [Preferences.VIDEO_CONTRAST]: {
                     label: __('contrast'),
-                    onChange: onVideoChange,
+                    onChange: updateVideoPlayerCss,
                     type: 'number-stepper',
                     params: {
                         suffix: '%',
@@ -6880,7 +6877,7 @@ function setupVideoSettingsBar() {
 
                 [Preferences.VIDEO_BRIGHTNESS]: {
                     label: __('brightness'),
-                    onChange: onVideoChange,
+                    onChange: updateVideoPlayerCss,
                     type: 'number-stepper',
                     params: {
                         suffix: '%',
