@@ -7303,7 +7303,6 @@ patchVideoApi();
 addCss();
 updateVideoPlayerCss();
 window.addEventListener('resize', updateVideoPlayerCss);
-Toast.setup();
 
 setupVideoSettingsBar();
 setupScreenshotButton();
