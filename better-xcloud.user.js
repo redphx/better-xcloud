@@ -18,6 +18,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_MKB = false;
 const ENABLE_XCLOUD_LOGGER = false;
+const ENABLE_PRELOAD_BX_UI = false;
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
@@ -305,7 +306,7 @@ const Translations = {
         "ru-RU": "Яркость",
         "tr-TR": "Aydınlık",
         "uk-UA": "Яскравість",
-        "vi-VN": "Độ sáng",
+        "vi-VN": "Độ sáng",
         "zh-CN": "亮度",
     },
     "browser-unsupported-feature": {
@@ -3365,8 +3366,6 @@ class StreamStats {
     static #$fl;
     static #$br;
 
-    static #$dialog;
-
     static #lastStat;
 
     static #quickGlanceObserver;
@@ -3391,8 +3390,10 @@ class StreamStats {
         StreamStats.#interval = null;
         StreamStats.#lastStat = null;
 
-        StreamStats.#$container.removeAttribute('data-display');
-        StreamStats.#$container.classList.add('bx-gone');
+        if (StreamStats.#$container) {
+            StreamStats.#$container.removeAttribute('data-display');
+            StreamStats.#$container.classList.add('bx-gone');
+        }
     }
 
     static toggle() {
@@ -3503,28 +3504,25 @@ class StreamStats {
         });
     }
 
-    static #refreshStyles() {
+    static refreshStyles() {
         const PREF_ITEMS = PREFS.get(Preferences.STATS_ITEMS);
         const PREF_POSITION = PREFS.get(Preferences.STATS_POSITION);
         const PREF_TRANSPARENT = PREFS.get(Preferences.STATS_TRANSPARENT);
         const PREF_OPACITY = PREFS.get(Preferences.STATS_OPACITY);
         const PREF_TEXT_SIZE = PREFS.get(Preferences.STATS_TEXT_SIZE);
 
-        StreamStats.#$container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
-        StreamStats.#$container.setAttribute('data-position', PREF_POSITION);
-        StreamStats.#$container.setAttribute('data-transparent', PREF_TRANSPARENT);
-        StreamStats.#$container.style.opacity = PREF_OPACITY + '%';
-        StreamStats.#$container.style.fontSize = PREF_TEXT_SIZE;
+        const $container = StreamStats.#$container;
+        $container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
+        $container.setAttribute('data-position', PREF_POSITION);
+        $container.setAttribute('data-transparent', PREF_TRANSPARENT);
+        $container.style.opacity = PREF_OPACITY + '%';
+        $container.style.fontSize = PREF_TEXT_SIZE;
     }
 
     static hideSettingsUi() {
         if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
-    }
-
-    static #toggleSettingsUi() {
-        StreamStats.#$dialog.toggle();
     }
 
     static render() {
@@ -3549,79 +3547,9 @@ class StreamStats {
         }
 
         StreamStats.#$container = CE('div', {'class': 'bx-stats-bar bx-gone'}, $barFragment);
-
-        let clickTimeout;
-        StreamStats.#$container.addEventListener('mousedown', e => {
-            clearTimeout(clickTimeout);
-            if (clickTimeout) {
-                // Double-clicked
-                clickTimeout = null;
-                StreamStats.#toggleSettingsUi();
-                return;
-            }
-
-            clickTimeout = setTimeout(() => {
-                clickTimeout = null;
-            }, 400);
-        });
-
         document.documentElement.appendChild(StreamStats.#$container);
 
-        const refreshFunc = e => {
-            StreamStats.#refreshStyles()
-        };
-
-        let $close;
-
-
-        const STATS_UI = {
-            [Preferences.STATS_SHOW_WHEN_PLAYING]: {
-                'label': __('show-stats-on-startup'),
-            },
-            [Preferences.STATS_QUICK_GLANCE]: {
-                'label': __('enable-quick-glance-mode'),
-                'onChange': e => {
-                    e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
-                },
-            },
-            [Preferences.STATS_ITEMS]: {
-                'label': __('stats'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_POSITION]: {
-                'label': __('position'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_TEXT_SIZE]: {
-                'label': __('text-size'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_OPACITY]: {
-                'label': `${__('opacity')} (50-100%)`,
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_TRANSPARENT]: {
-                'label': __('transparent-background'),
-                'onChange': refreshFunc,
-            },
-            [Preferences.STATS_CONDITIONAL_FORMATTING]: {
-                'label': __('conditional-formatting'),
-                'onChange': refreshFunc,
-            },
-        };
-
-        const $fragment = document.createDocumentFragment();
-        for (let settingKey in STATS_UI) {
-            const setting = STATS_UI[settingKey];
-
-            $fragment.appendChild(CE('div', {},
-               CE('label', {'for': `xcloud_setting_${settingKey}`}, setting.label),
-               PREFS.toElement(settingKey, setting.onChange)
-            ));
-        }
-
-        StreamStats.#$dialog = new Dialog(__('stream-stats-settings'), 'bx-stats-settings-dialog', $fragment, StreamStats.hideSettingsUi);
-        StreamStats.#refreshStyles();
+        StreamStats.refreshStyles();
     }
 }
 
@@ -4278,7 +4206,7 @@ class Preferences {
 
         let $control;
         if ('options' in setting) {
-            $control = CE('select', {'id': 'xcloud_setting_' + key});
+            $control = CE('select', {'id': `bx_setting_${key}`});
             for (let value in setting.options) {
                 const label = setting.options[value];
 
@@ -4293,7 +4221,7 @@ class Preferences {
                 onChange && onChange(e);
             });
         } else if ('multiple_options' in setting) {
-            $control = CE('select', {'id': 'xcloud_setting_' + key, 'multiple': true});
+            $control = CE('select', {'id': `bx_setting_${key}`, 'multiple': true});
             for (let value in setting.multiple_options) {
                 const label = setting.multiple_options[value];
 
@@ -4348,7 +4276,7 @@ class Preferences {
             });
         }
 
-        $control.id = `xcloud_setting_${key}`;
+        $control.id = `bx_setting_${key}`;
         return $control;
     }
 
@@ -4877,11 +4805,11 @@ function addCss() {
     --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
 
     --bx-wait-time-box-z-index: 9999;
-    --bx-stream-settings-z-index: 9999;
+    --bx-stats-bar-z-index: 9001;
+    --bx-stream-settings-z-index: 9000;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
     --bx-dialog-z-index: 1010;
-    --bx-stats-bar-z-index: 1000;
     --bx-dialog-overlay-z-index: 900;
 }
 
@@ -5345,20 +5273,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     -webkit-user-select: none;
     position: fixed;
     right: 0;
-    top: 20px;
-    bottom: 20px;
+    top: 0;
+    bottom: 0;
     z-index: var(--bx-stream-settings-z-index);
-    padding: 8px;
-    width: 320px;
+    padding: 16px;
+    width: 420px;
     background: #1a1b1e;
     color: #fff;
-    border-radius: 8px 0 0 8px;
     font-weight: 400;
     font-size: 16px;
     font-family: var(--bx-title-font);
     text-align: center;
     box-shadow: 0px 0px 6px #000;
-    opacity: 0.95;
+    opacity: 0.98;
     overflow: overlay;
 }
 
@@ -5385,27 +5312,34 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-quick-settings-bar > div {
+    display: flex;
+    border-bottom: 1px solid #40404080;
     margin-bottom: 16px;
+    padding-bottom: 16px;
 }
 
 .bx-quick-settings-bar h2 {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: bold;
     margin-bottom: 8px;
+    text-transform: uppercase;
+    text-align: left;
 }
 
 .bx-quick-settings-bar input[type="range"] {
     display: block;
-    margin: 12px auto;
-    width: 80%;
+    margin: 12px auto 2px;
+    width: 180px;
     color: #959595 !important;
 }
 
 .bx-quick-settings-bar label {
     font-size: 16px;
-    font-weight: bold;
     display: block;
-    margin-bottom: 8px;
+    text-align: left;
+    flex: 1;
+    align-self: center;
+    margin-bottom: 0 !important;
 }
 
 .bx-quick-settings-bar button {
@@ -5423,9 +5357,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-quick-settings-bar-note {
+    display: block;
+    text-align: center;
     font-size: 12px;
     font-weight: lighter;
     font-style: italic;
+    padding-top: 16px;
 }
 
 .bx-toast {
@@ -6406,7 +6343,7 @@ function injectSettingsButton($parent) {
             } else if (settingId === Preferences.SERVER_REGION) {
                 let selectedValue;
 
-                $control = CE('select', {id: 'xcloud_setting_' + settingId});
+                $control = CE('select', {id: `bx_setting_${settingId}`});
                 $control.addEventListener('change', e => {
                     PREFS.set(settingId, e.target.value);
                 });
@@ -6649,6 +6586,8 @@ function injectStreamMenuButtons() {
         return;
     }
 
+    setupBxUi();
+
     $screen.xObserving = true;
 
     const $quickBar = document.querySelector('.bx-quick-settings-bar');
@@ -6849,64 +6788,177 @@ function patchRtcCodecs() {
 }
 
 
-function setupVideoSettingsBar() {
+function setupQuickSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
-    const onVideoChange = e => {
-        updateVideoPlayerCss();
+
+    const SETTINGS_UI = [
+        {
+            group: 'controller',
+            label: __('controller'),
+            items: {
+                [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
+                    label: __('controller-vibration'),
+                    unsupported: !VibrationManager.supportControllerVibration(),
+                    onChange: VibrationManager.updateGlobalVars,
+                },
+
+                [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
+                    label: __('device-vibration'),
+                    unsupported: !VibrationManager.supportDeviceVibration(),
+                    onChange: VibrationManager.updateGlobalVars,
+                },
+
+                [Preferences.CONTROLLER_VIBRATION_INTENSITY]: (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
+                    label: __('vibration-intensity'),
+                    unsupported: !VibrationManager.supportDeviceVibration(),
+                    onChange: VibrationManager.updateGlobalVars,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 50,
+                    },
+                },
+            },
+        },
+
+        {
+            group: 'audio',
+            label: __('audio'),
+            items: {
+                [Preferences.AUDIO_VOLUME]: {
+                    label: __('volume'),
+                    onChange: (e, value) => {
+                        STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
+                    },
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 100,
+                        disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
+                    },
+                },
+            },
+        },
+
+        {
+            group: 'video',
+            label: __('video'),
+            note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
+            items: {
+                [Preferences.VIDEO_RATIO]: {
+                    label: __('ratio'),
+                    onChange: updateVideoPlayerCss,
+                },
+
+                [Preferences.VIDEO_CLARITY]: {
+                    label: __('clarity'),
+                    onChange: updateVideoPlayerCss,
+                    type: 'number-stepper',
+                    unsupported: isSafari,
+                    params: {
+                        hideSlider: true,
+                    },
+                },
+
+                [Preferences.VIDEO_SATURATION]: {
+                    label: __('saturation'),
+                    onChange: updateVideoPlayerCss,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 25,
+                    },
+                },
+
+                [Preferences.VIDEO_CONTRAST]: {
+                    label: __('contrast'),
+                    onChange: updateVideoPlayerCss,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 25,
+                    },
+                },
+
+                [Preferences.VIDEO_BRIGHTNESS]: {
+                    label: __('brightness'),
+                    onChange: updateVideoPlayerCss,
+                    type: 'number-stepper',
+                    params: {
+                        suffix: '%',
+                        ticks: 25,
+                    },
+                },
+            },
+        },
+
+        {
+            group: 'stats',
+            label: __('menu-stream-stats'),
+            items: {
+                [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+                    label: __('show-stats-on-startup'),
+                },
+                [Preferences.STATS_QUICK_GLANCE]: {
+                    label: __('enable-quick-glance-mode'),
+                    onChange: e => {
+                        e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+                    },
+                },
+                [Preferences.STATS_ITEMS]: {
+                    label: __('stats'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_POSITION]: {
+                    label: __('position'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_TEXT_SIZE]: {
+                    label: __('text-size'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_OPACITY]: {
+                    label: `${__('opacity')} (50-100%)`,
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_TRANSPARENT]: {
+                    label: __('transparent-background'),
+                    onChange: StreamStats.refreshStyles,
+                },
+                [Preferences.STATS_CONDITIONAL_FORMATTING]: {
+                    label: __('conditional-formatting'),
+                    onChange: StreamStats.refreshStyles,
+                },
+            },
+        },
+    ];
+
+    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'});
+    for (const settingGroup of SETTINGS_UI) {
+        $wrapper.appendChild(CE('h2', {}, settingGroup.label));
+        if (settingGroup.note) {
+            if (typeof settingGroup.note === 'string') {
+                settingGroup.note = document.createTextNode(settingGroup.note);
+            }
+            $wrapper.appendChild(settingGroup.note);
+        }
+
+        for (const pref in settingGroup.items) {
+            const setting = settingGroup.items[pref];
+            if (!setting) {
+                continue;
+            }
+
+            $wrapper.appendChild(CE('div', {'data-type': settingGroup.group},
+                CE('label', {for: `bx_setting_${pref}`},
+                    setting.label,
+                    setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                ),
+                !setting.unsupported && (setting.type === 'number-stepper' ? PREFS.toNumberStepper(pref, setting.onChange, setting.params) : PREFS.toElement(pref, setting.onChange)),
+            ));
+        }
     }
-
-    let $stretchInp;
-    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
-                        CE('h2', {}, __('controller')),
-                        CE('div', {},
-                            CE('label', {}, __('controller-vibration')),
-                            VibrationManager.supportControllerVibration() && PREFS.toElement(Preferences.CONTROLLER_ENABLE_VIBRATION, VibrationManager.updateGlobalVars),
-                            !VibrationManager.supportControllerVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
-                        ),
-                        CE('div', {},
-                            CE('label', {}, __('device-vibration')),
-                            VibrationManager.supportDeviceVibration() && PREFS.toElement(Preferences.CONTROLLER_DEVICE_VIBRATION, VibrationManager.updateGlobalVars),
-                            !VibrationManager.supportDeviceVibration() && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
-                        ),
-
-                        (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) &&
-                            CE('div', {},
-                                CE('label', {}, __('vibration-intensity')),
-                                PREFS.toNumberStepper(Preferences.CONTROLLER_VIBRATION_INTENSITY, VibrationManager.updateGlobalVars, {suffix: '%', ticks: 50}),
-                        ),
-
-                        CE('h2', {}, __('audio')),
-                        CE('div', {},
-                            CE('label', {}, __('volume')),
-                            PREFS.toNumberStepper(Preferences.AUDIO_VOLUME, (e, value) => {
-                                STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                            }, {suffix: '%', ticks: 100, disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)}),
-                        ),
-
-                        CE('h2', {}, __('video')),
-                        CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('ratio')),
-                            PREFS.toElement(Preferences.VIDEO_RATIO, onVideoChange),
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('clarity')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CLARITY, onVideoChange, {disabled: isSafari, hideSlider: true}), // disable this feature in Safari
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('saturation')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_SATURATION, onVideoChange, {suffix: '%', ticks: 25}),
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('contrast')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_CONTRAST, onVideoChange, {suffix: '%', ticks: 25}),
-                        ),
-                        CE('div', {'data-type': 'video'},
-                            CE('label', {}, __('brightness')),
-                            PREFS.toNumberStepper(Preferences.VIDEO_BRIGHTNESS, onVideoChange, {suffix: '%', ticks: 25}),
-                        ),
-                     );
 
     document.documentElement.appendChild($wrapper);
 }
@@ -7173,6 +7225,21 @@ function disablePwa() {
     }
 }
 
+function setupBxUi() {
+    updateVideoPlayerCss();
+
+    // Prevent initializing multiple times
+    if (document.querySelector('.bx-quick-settings-bar')) {
+        return;
+    }
+
+    window.addEventListener('resize', updateVideoPlayerCss);
+
+    setupQuickSettingsBar();
+    setupScreenshotButton();
+    StreamStats.render();
+}
+
 
 // Hide Settings UI when navigate to another page
 window.addEventListener('xcloud_popstate', onHistoryChanged);
@@ -7255,13 +7322,7 @@ patchVideoApi();
 
 // Setup UI
 addCss();
-updateVideoPlayerCss();
-window.addEventListener('resize', updateVideoPlayerCss);
-Toast.setup();
-
-setupVideoSettingsBar();
-setupScreenshotButton();
-StreamStats.render();
+ENABLE_PRELOAD_BX_UI && setupBxUi();
 
 disablePwa();
 
