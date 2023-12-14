@@ -1,8 +1,7 @@
 # Better xCloud
 Improve Xbox Cloud Gaming (xCloud) experience on [xbox.com/play](https://www.xbox.com/play). It also allows you to use Remote Play on the xCloud website.  
-The main target of this script is mobile users, but it should work great on desktop too.  
 
-Supported platforms:  
+**Supported platforms:**  
 - Windows
 - macOS
 - Linux, SteamOS (Steam Deck)
@@ -37,8 +36,8 @@ If you like this project please give it a 🌟. Thank you 🙏.
     - [Stable version](https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js)
     <!-- - [Dev version](https://github.com/redphx/better-xcloud/raw/main/better-xcloud.user.js)-->  
     I only distribute **Better xCloud** on GitHub, *DO NOT* download it on other websites or from unknown sources.
-4. Refresh [xCloud web page](https://www.xbox.com/play/).
-5. Click on the new "SERVER NAME" button next to your profile picture to adjust settings.
+4. Refresh the [xCloud web page](https://www.xbox.com/play/).
+5. Click on the new *\<SERVER NAME\>* button next to your profile picture to adjust settings.
 
 To update manually, just install the script again (you won't lose your settings).
 
