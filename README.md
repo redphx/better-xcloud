@@ -51,12 +51,12 @@ To update manually, just install the script again (you won't lose your settings)
 - ➖ = unavailable
 - 🗒️ = see custom notes
 
-|                                         | Windows/Linux    | macOS            | Android/Android TV | iOS              |
-|-----------------------------------------|:-----------------|:-----------------|:-------------------|:-----------------|
-| Chrome/Edge/Chromium variants           | 👍               | 👍               | ❌                  | ❌               |
-| Firefox                                 | ✅               | ✅               | 🗒️<sup>(1)</sup>    | ❌               |
-| Safari                                  | ➖               | ✅<sup>(2)</sup> | ➖                  | ✅<sup>(3)</sup> |
-| [Kiwi Browser](https://kiwibrowser.com) | ➖               | ➖               | 👍                  | ➖               |
+|                                         | Windows/Linux/SteamOS | macOS            | Android/Android TV | iOS              |
+|-----------------------------------------|:----------------------|:-----------------|:-------------------|:-----------------|
+| Chrome/Edge/Chromium...                 | 👍                    | 👍               | ❌                  | ❌               |
+| Firefox                                 | ✅                    | ✅               | 🗒️<sup>(1)</sup>    | ❌               |
+| Safari                                  | ➖                    | ✅<sup>(2)</sup> | ➖                  | ✅<sup>(3)</sup> |
+| [Kiwi Browser](https://kiwibrowser.com) | ➖                    | ➖               | 👍                  | ➖               |
 
 Don't see your browser in the table? If it supports Tampermonkey/Userscript then the answer is likely **"YES"**.
 
