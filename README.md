@@ -3,7 +3,9 @@ Improve Xbox Cloud Gaming (xCloud) experience on [xbox.com/play](https://www.xbo
 The main target of this script is mobile users, but it should work great on desktop too.  
 
 Supported platforms:  
-- Windows, macOS, Linux
+- Windows
+- macOS
+- Linux, SteamOS (Steam Deck)
 - Android, Android TV
 - iOS, iPadOS
 
