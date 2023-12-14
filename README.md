@@ -74,8 +74,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 <br>
 <img width="600" alt="Stream HUD" src="https://github.com/redphx/better-xcloud/assets/96280/51bdb96c-79ab-402f-902a-a9e6229973b2">
 <br>
-<img width="600" alt="Stream settings" src="https://github.com/redphx/better-xcloud/assets/96280/f7df312c-e6bc-49a1-8239-24c280ed7fa6">
-
+<img width="600" alt="Stream settings" src="https://github.com/redphx/better-xcloud/assets/96280/ed513cb3-6e6c-4e8e-9e06-c62e71e41c90">
 
 &nbsp;  
   
@@ -89,7 +88,7 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 - **🔥 Capture screenshot**
   > Exclusive to **Better xCloud**. Check the [**Capture screenshot** section](#capture-screenshot) for more info.
 - **🔥 Hold the "Quit game" button for one second to refresh the stream**
-  > Sometimes you can fix the bad connection to the stream simply by refreshing the page.  
+  > Sometimes you can fix the bad connection to the stream or low FPS simply by refreshing the page.  
   > Useful on mobile where the pull-to-refresh feature doesn't work while playing.  
 - **🔥 Touch controller**
   > Enable touch controller support for all games.
@@ -218,13 +217,12 @@ Don't see your browser in the table? If it supports Tampermonkey/Userscript then
 <sup>(\*)</sup> By default (for compatibility reasons) xCloud only uses high quality codec profile when you use Tizen TV or Chrome/Edge/Chromium browser on Chrome/MacOS. Enable this setting will give you the best experience no matter what platform & browser you're on.
 
 ## Stream stats  
+<img alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/9fb51941-85a9-47c4-8d48-331456b9ce73">  
+  
+<img width="418" alt="Stream stats settings" src="https://github.com/redphx/better-xcloud/assets/96280/6313a0c6-03bf-4325-b60d-18a23c681933">  
 
-![stats](https://github.com/redphx/better-xcloud/assets/96280/736548db-316d-4bb3-a0f8-467766ae810b)
-
-<img width="500" alt="Stream stats" src="https://github.com/redphx/better-xcloud/assets/96280/142625ea-20ab-4392-a111-0c5bc08bae09">
-
-- While playing > `...` > `Stream Stats`.
-- Double-click on the stats bar to show the Settings dialog.
+- While playing > `...` > `Stream Stats`.  
+- Change settings by opening `Stream settings` while playing.  
 - This bar is updated every second.  
 - **Quick glance** feature: only show the stats bar when the System menu is expanded. The 👀 emoji at the beginning indicates that the stats bar is in the quick glance mode.  
 - ⚠️ Using **Better xCloud** or showing the stats bar also affects the performance of the stream.  
