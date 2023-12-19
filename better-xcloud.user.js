@@ -5816,7 +5816,7 @@ function interceptHttpRequests() {
     let consoleIp;
     let consolePort;
 
-    const patchIpv6 = function(...arg) {
+    const patchIceCandidates = function(...arg) {
         // ICE server candidates
         const request = arg[0];
         const url = (typeof request === 'string') ? request : request.url;
@@ -5855,7 +5855,7 @@ function interceptHttpRequests() {
         let request = arg[0];
         let url = (typeof request === 'string') ? request : request.url;
 
-        if (url.includes('/sessions/home')) {
+        if (IS_REMOTE_PLAYING && url.includes('/sessions/home')) {
             const clone = request.clone();
 
             const headers = {};
@@ -5863,6 +5863,13 @@ function interceptHttpRequests() {
                 headers[pair[0]] = pair[1];
             }
             headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+
+            const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
+            if (PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION) === '720p') {
+                deviceInfo.dev.os.name = 'android';
+            }
+
+            headers['x-ms-device-info'] = JSON.stringify(deviceInfo);
 
             const opts = {
                 method: clone.method,
@@ -5874,40 +5881,30 @@ function interceptHttpRequests() {
             }
 
             const index = request.url.indexOf('.xboxlive.com');
-            request = new Request('https://wus2.gssv-play-prodxhome' + request.url.substring(index), opts);
+            let newUrl = 'https://wus2.gssv-play-prodxhome' + request.url.substring(index);
+
+            request = new Request(newUrl, opts);
 
             arg[0] = request;
             url = (typeof request === 'string') ? request : request.url;
-        }
 
-        // Remote Play
-        if (IS_REMOTE_PLAYING && url.includes('/home/play')) {
-            const clone = request.clone();
-            const cloneBody = await clone.json();
-            cloneBody.settings.osName = 'windows';
+            // Get console IP
+            if (url.includes('/configuration')) {
+                const promise = orgFetch(...arg);
 
-            // Clone headers
-            const headers = {};
-            for (const pair of clone.headers.entries()) {
-                headers[pair[0]] = pair[1];
+                return promise.then(response => {
+                    return response.clone().json().then(obj => {
+                        console.log(obj);
+                        consoleIp = obj.serverDetails.ipAddress;
+                        consolePort = obj.serverDetails.port;
+
+                        response.json = () => Promise.resolve(obj);
+                        return response;
+                    });
+                });
             }
 
-            const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
-            if (PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION) === '720p') {
-                deviceInfo.dev.os.name = 'android';
-            }
-
-            headers['x-ms-device-info'] = JSON.stringify(deviceInfo);
-            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
-
-            request = new Request('https://wus2.gssv-play-prodxhome.xboxlive.com/v5/sessions/home/play', {
-                method: 'POST',
-                body: JSON.stringify(cloneBody),
-                headers: headers,
-            });
-            arg[0] = request;
-
-            return orgFetch(...arg);
+            return patchIceCandidates(...arg) || orgFetch(...arg);
         }
 
         if (IS_REMOTE_PLAYING && url.includes('/login/user')) {
@@ -5954,24 +5951,8 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        // Get console IP
-        if (IS_REMOTE_PLAYING && url.includes('/sessions/home/') && url.includes('/configuration')) {
-            const promise = orgFetch(...arg);
-
-            return promise.then(response => {
-                return response.clone().json().then(obj => {
-                    console.log(obj);
-                    consoleIp = obj.serverDetails.ipAddress;
-                    consolePort = obj.serverDetails.port;
-
-                    response.json = () => Promise.resolve(obj);
-                    return response;
-                });
-            });
-        }
-
         // ICE server candidates
-        const patchedIpv6 = patchIpv6(...arg);
+        const patchedIpv6 = patchIceCandidates(...arg);
         if (patchedIpv6) {
             return patchedIpv6;
         }
