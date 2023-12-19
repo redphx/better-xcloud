@@ -5692,7 +5692,7 @@ function getPreferredServerRegion() {
 }
 
 
-function updateIceCandidates(candidates) {
+function updateIceCandidates(candidates, options) {
     const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<the_rest>.*)/);
 
     const lst = [];
@@ -5705,13 +5705,15 @@ function updateIceCandidates(candidates) {
         lst.push(groups);
     }
 
-    lst.sort((a, b) => (a.ip.includes(':') || a.ip > b.ip) ? -1 : 1);
+    if (options.preferIpv6) {
+        lst.sort((a, b) => (a.ip.includes(':') && a.ip < b.ip) ? -1 : 1);
+    }
 
     const newCandidates = [];
     let foundation = 1;
     lst.forEach(item => {
         item.foundation = foundation;
-        item.priority = (foundation == 1) ? 100 : 1;
+        item.priority = (foundation == 1) ? 10000 : 1;
 
         newCandidates.push({
             'candidate': `a=candidate:${item.foundation} 1 UDP ${item.priority} ${item.ip} ${item.the_rest}`,
@@ -5723,6 +5725,15 @@ function updateIceCandidates(candidates) {
         ++foundation;
     });
 
+    if (options.consoleIp) {
+        newCandidates.push({
+            'candidate': `a=candidate:${newCandidates.length + 1} 1 UDP 1 ${options.consoleIp} 9002 typ host`,
+            'messageType': 'iceCandidate',
+            'sdpMLineIndex': '0',
+            'sdpMid': '0',
+        });
+    }
+
     newCandidates.push({
         'candidate': 'a=end-of-candidates',
         'messageType': 'iceCandidate',
@@ -5730,6 +5741,7 @@ function updateIceCandidates(candidates) {
         'sdpMid': '0',
     });
 
+    console.log(newCandidates);
     return newCandidates;
 }
 
@@ -5801,13 +5813,15 @@ function interceptHttpRequests() {
     const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
     const orgFetch = window.fetch;
+    let consoleIp;
+    let consolePort;
 
     const patchIpv6 = function(...arg) {
         // ICE server candidates
         const request = arg[0];
         const url = (typeof request === 'string') ? request : request.url;
 
-        if (PREF_PREFER_IPV6_SERVER && url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
+        if (url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
             const promise = orgFetch(...arg);
 
             return promise.then(response => {
@@ -5816,9 +5830,14 @@ function interceptHttpRequests() {
                         return response;
                     }
 
+                    const options = {
+                        preferIpv6: PREF_PREFER_IPV6_SERVER,
+                        consoleIp: consoleIp,
+                    };
+
                     const obj = JSON.parse(text);
                     let exchangeResponse = JSON.parse(obj.exchangeResponse);
-                    exchangeResponse = updateIceCandidates(exchangeResponse)
+                    exchangeResponse = updateIceCandidates(exchangeResponse, options)
                     obj.exchangeResponse = JSON.stringify(exchangeResponse);
 
                     response.json = () => Promise.resolve(obj);
@@ -5834,7 +5853,32 @@ function interceptHttpRequests() {
 
     window.fetch = async (...arg) => {
         let request = arg[0];
-        const url = (typeof request === 'string') ? request : request.url;
+        let url = (typeof request === 'string') ? request : request.url;
+
+        if (url.includes('/sessions/home')) {
+            const clone = request.clone();
+
+            const headers = {};
+            for (const pair of clone.headers.entries()) {
+                headers[pair[0]] = pair[1];
+            }
+            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+
+            const opts = {
+                method: clone.method,
+                headers: headers,
+            };
+
+            if (clone.method === 'POST') {
+                opts.body = await clone.text();
+            }
+
+            const index = request.url.indexOf('.xboxlive.com');
+            request = new Request('https://wus2.gssv-play-prodxhome' + request.url.substring(index), opts);
+
+            arg[0] = request;
+            url = (typeof request === 'string') ? request : request.url;
+        }
 
         // Remote Play
         if (IS_REMOTE_PLAYING && url.includes('/home/play')) {
@@ -5910,38 +5954,26 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (url.includes('/sessions/home')) {
-            const clone = request.clone();
+        // Get console IP
+        if (IS_REMOTE_PLAYING && url.includes('/sessions/home/') && url.includes('/configuration')) {
+            const promise = orgFetch(...arg);
 
-            const headers = {};
-            for (const pair of clone.headers.entries()) {
-                headers[pair[0]] = pair[1];
-            }
-            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+            return promise.then(response => {
+                return response.clone().json().then(obj => {
+                    console.log(obj);
+                    consoleIp = obj.serverDetails.ipAddress;
+                    consolePort = obj.serverDetails.port;
 
-            const opts = {
-                method: clone.method,
-                headers: headers,
-            };
-
-            if (clone.method === 'POST') {
-                opts.body = await clone.text();
-            }
-
-            const index = request.url.indexOf('.xboxlive.com');
-            request = new Request('https://wus2.gssv-play-prodxhome' + request.url.substring(index), opts);
-
-            arg[0] = request;
-
-            return patchIpv6(...arg) || orgFetch(...arg);
+                    response.json = () => Promise.resolve(obj);
+                    return response;
+                });
+            });
         }
 
         // ICE server candidates
-        if (!IS_REMOTE_PLAYING) {
-            const patchedIpv6 = patchIpv6(...arg);
-            if (patchedIpv6) {
-                return patchedIpv6;
-            }
+        const patchedIpv6 = patchIpv6(...arg);
+        if (patchedIpv6) {
+            return patchedIpv6;
         }
 
         // Server list
