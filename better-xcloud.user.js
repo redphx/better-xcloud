@@ -5767,11 +5767,6 @@ function interceptHttpRequests() {
     }
 
     if (PREFS.get(Preferences.BLOCK_SOCIAL_FEATURES)) {
-        // Disable WebSocket
-        WebSocket = {
-            CLOSING: 2,
-        };
-
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://peoplehub.xboxlive.com/users/me',
             'https://accounts.xboxlive.com/family/memberXuid',
