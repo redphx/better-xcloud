@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      2.1.1
+// @version      2.1.2
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -13,7 +13,7 @@
 // ==/UserScript==
 'use strict';
 
-const SCRIPT_VERSION = '2.1.1';
+const SCRIPT_VERSION = '2.1.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_MKB = false;
