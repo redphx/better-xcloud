@@ -3206,7 +3206,7 @@ class StreamBadges {
         let totalIn = 0;
         let totalOut = 0;
         stats.forEach(stat => {
-            if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+            if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
                 totalIn += stat.bytesReceived;
                 totalOut += stat.bytesSent;
             }
@@ -3391,8 +3391,8 @@ class StreamStats {
         StreamStats.hideSettingsUi();
     }
 
-    static isHidden = () => StreamStats.#$container.classList.contains('bx-gone');
-    static isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
+    static isHidden = () => StreamStats.#$container && StreamStats.#$container.classList.contains('bx-gone');
+    static isGlancing = () => StreamStats.#$container && StreamStats.#$container.getAttribute('data-display') === 'glancing';
 
     static quickGlanceSetup() {
         if (StreamStats.#quickGlanceObserver) {
@@ -3471,7 +3471,7 @@ class StreamStats {
                     }
 
                     StreamStats.#lastStat = stat;
-                } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+                } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
                     StreamStats.#$ping.textContent = roundTripTime;
@@ -5692,7 +5692,7 @@ function getPreferredServerRegion() {
 }
 
 
-function updateIceCandidates(candidates) {
+function updateIceCandidates(candidates, options) {
     const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<the_rest>.*)/);
 
     const lst = [];
@@ -5705,13 +5705,15 @@ function updateIceCandidates(candidates) {
         lst.push(groups);
     }
 
-    lst.sort((a, b) => (a.ip.includes(':') || a.ip > b.ip) ? -1 : 1);
+    if (options.preferIpv6Server) {
+        lst.sort((a, b) => (!a.ip.includes(':') && b.ip.includes(':')) ? 1 : -1);
+    }
 
     const newCandidates = [];
     let foundation = 1;
     lst.forEach(item => {
         item.foundation = foundation;
-        item.priority = (foundation == 1) ? 100 : 1;
+        item.priority = (foundation == 1) ? 10000 : 1;
 
         newCandidates.push({
             'candidate': `a=candidate:${item.foundation} 1 UDP ${item.priority} ${item.ip} ${item.the_rest}`,
@@ -5723,6 +5725,15 @@ function updateIceCandidates(candidates) {
         ++foundation;
     });
 
+    if (options.consoleIp) {
+        newCandidates.push({
+            'candidate': `a=candidate:${newCandidates.length + 1} 1 UDP 1 ${options.consoleIp} 9002 typ host`,
+            'messageType': 'iceCandidate',
+            'sdpMLineIndex': '0',
+            'sdpMid': '0',
+        });
+    }
+
     newCandidates.push({
         'candidate': 'a=end-of-candidates',
         'messageType': 'iceCandidate',
@@ -5730,6 +5741,7 @@ function updateIceCandidates(candidates) {
         'sdpMid': '0',
     });
 
+    console.log(newCandidates);
     return newCandidates;
 }
 
@@ -5755,11 +5767,6 @@ function interceptHttpRequests() {
     }
 
     if (PREFS.get(Preferences.BLOCK_SOCIAL_FEATURES)) {
-        // Disable WebSocket
-        WebSocket = {
-            CLOSING: 2,
-        };
-
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://peoplehub.xboxlive.com/users/me',
             'https://accounts.xboxlive.com/family/memberXuid',
@@ -5801,13 +5808,15 @@ function interceptHttpRequests() {
     const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
     const orgFetch = window.fetch;
+    let consoleIp;
+    let consolePort;
 
-    const patchIpv6 = function(...arg) {
+    const patchIceCandidates = function(...arg) {
         // ICE server candidates
         const request = arg[0];
         const url = (typeof request === 'string') ? request : request.url;
 
-        if (PREF_PREFER_IPV6_SERVER && url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
+        if (url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
             const promise = orgFetch(...arg);
 
             return promise.then(response => {
@@ -5816,9 +5825,14 @@ function interceptHttpRequests() {
                         return response;
                     }
 
+                    const options = {
+                        preferIpv6Server: PREF_PREFER_IPV6_SERVER,
+                        consoleIp: consoleIp,
+                    };
+
                     const obj = JSON.parse(text);
                     let exchangeResponse = JSON.parse(obj.exchangeResponse);
-                    exchangeResponse = updateIceCandidates(exchangeResponse)
+                    exchangeResponse = updateIceCandidates(exchangeResponse, options)
                     obj.exchangeResponse = JSON.stringify(exchangeResponse);
 
                     response.json = () => Promise.resolve(obj);
@@ -5834,19 +5848,21 @@ function interceptHttpRequests() {
 
     window.fetch = async (...arg) => {
         let request = arg[0];
-        const url = (typeof request === 'string') ? request : request.url;
+        let url = (typeof request === 'string') ? request : request.url;
 
-        // Remote Play
-        if (IS_REMOTE_PLAYING && url.includes('/home/play')) {
+        if (url.endsWith('/play')) {
+            // Setup UI
+            setupBxUi();
+        }
+
+        if (IS_REMOTE_PLAYING && url.includes('/sessions/home')) {
             const clone = request.clone();
-            const cloneBody = await clone.json();
-            cloneBody.settings.osName = 'windows';
 
-            // Clone headers
             const headers = {};
             for (const pair of clone.headers.entries()) {
                 headers[pair[0]] = pair[1];
             }
+            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
 
             const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
             if (PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION) === '720p') {
@@ -5854,16 +5870,41 @@ function interceptHttpRequests() {
             }
 
             headers['x-ms-device-info'] = JSON.stringify(deviceInfo);
-            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
 
-            request = new Request('https://wus2.gssv-play-prodxhome.xboxlive.com/v5/sessions/home/play', {
-                method: 'POST',
-                body: JSON.stringify(cloneBody),
+            const opts = {
+                method: clone.method,
                 headers: headers,
-            });
-            arg[0] = request;
+            };
 
-            return orgFetch(...arg);
+            if (clone.method === 'POST') {
+                opts.body = await clone.text();
+            }
+
+            const index = request.url.indexOf('.xboxlive.com');
+            let newUrl = 'https://wus2.gssv-play-prodxhome' + request.url.substring(index);
+
+            request = new Request(newUrl, opts);
+
+            arg[0] = request;
+            url = (typeof request === 'string') ? request : request.url;
+
+            // Get console IP
+            if (url.includes('/configuration')) {
+                const promise = orgFetch(...arg);
+
+                return promise.then(response => {
+                    return response.clone().json().then(obj => {
+                        console.log(obj);
+                        consoleIp = obj.serverDetails.ipAddress;
+                        consolePort = obj.serverDetails.port;
+
+                        response.json = () => Promise.resolve(obj);
+                        return response;
+                    });
+                });
+            }
+
+            return patchIceCandidates(...arg) || orgFetch(...arg);
         }
 
         if (IS_REMOTE_PLAYING && url.includes('/login/user')) {
@@ -5910,38 +5951,10 @@ function interceptHttpRequests() {
             return orgFetch(...arg);
         }
 
-        if (url.includes('/sessions/home')) {
-            const clone = request.clone();
-
-            const headers = {};
-            for (const pair of clone.headers.entries()) {
-                headers[pair[0]] = pair[1];
-            }
-            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
-
-            const opts = {
-                method: clone.method,
-                headers: headers,
-            };
-
-            if (clone.method === 'POST') {
-                opts.body = await clone.text();
-            }
-
-            const index = request.url.indexOf('.xboxlive.com');
-            request = new Request('https://wus2.gssv-play-prodxhome' + request.url.substring(index), opts);
-
-            arg[0] = request;
-
-            return patchIpv6(...arg) || orgFetch(...arg);
-        }
-
         // ICE server candidates
-        if (!IS_REMOTE_PLAYING) {
-            const patchedIpv6 = patchIpv6(...arg);
-            if (patchedIpv6) {
-                return patchedIpv6;
-            }
+        const patchedIpv6 = patchIceCandidates(...arg);
+        if (patchedIpv6) {
+            return patchedIpv6;
         }
 
         // Server list
@@ -6567,8 +6580,6 @@ function injectStreamMenuButtons() {
         return;
     }
 
-    setupBxUi();
-
     $screen.xObserving = true;
 
     const $quickBar = document.querySelector('.bx-quick-settings-bar');
@@ -7033,7 +7044,7 @@ function patchHistoryMethod(type) {
 
 
 function onHistoryChanged(e) {
-    if (e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
+    if (e.arguments && e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
         return;
     }
 
@@ -7053,7 +7064,11 @@ function onHistoryChanged(e) {
     STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
-    document.querySelector('.bx-screenshot-button').style = '';
+
+    const $screenshotBtn = document.querySelector('.bx-screenshot-button');
+    if ($screenshotBtn) {
+        $screenshotBtn.style = '';
+    }
 
     MouseCursorHider.stop();
     TouchController.reset();
@@ -7135,7 +7150,7 @@ function onStreamStarted($video) {
                 } else if (stat.kind === 'audio') {
                     audioCodecId = stat.codecId;
                 }
-            } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+            } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
                 candidateId = stat.remoteCandidateId;
             } else if (stat.type === 'remote-candidate') {
                 allCandidates[stat.id] = stat.address;
