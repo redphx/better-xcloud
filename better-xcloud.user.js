@@ -3206,7 +3206,7 @@ class StreamBadges {
         let totalIn = 0;
         let totalOut = 0;
         stats.forEach(stat => {
-            if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+            if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
                 totalIn += stat.bytesReceived;
                 totalOut += stat.bytesSent;
             }
@@ -3471,7 +3471,7 @@ class StreamStats {
                     }
 
                     StreamStats.#lastStat = stat;
-                } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+                } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
                     // Round Trip Time
                     const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : '???';
                     StreamStats.#$ping.textContent = roundTripTime;
@@ -5705,8 +5705,8 @@ function updateIceCandidates(candidates, options) {
         lst.push(groups);
     }
 
-    if (options.preferIpv6) {
-        lst.sort((a, b) => (a.ip.includes(':') && a.ip < b.ip) ? -1 : 1);
+    if (options.preferIpv6Server) {
+        lst.sort((a, b) => (!a.ip.includes(':') && b.ip.includes(':')) ? 1 : -1);
     }
 
     const newCandidates = [];
@@ -5826,7 +5826,7 @@ function interceptHttpRequests() {
                     }
 
                     const options = {
-                        preferIpv6: PREF_PREFER_IPV6_SERVER,
+                        preferIpv6Server: PREF_PREFER_IPV6_SERVER,
                         consoleIp: consoleIp,
                     };
 
@@ -7150,7 +7150,7 @@ function onStreamStarted($video) {
                 } else if (stat.kind === 'audio') {
                     audioCodecId = stat.codecId;
                 }
-            } else if (stat.type === 'candidate-pair' && stat.selected && stat.state === 'succeeded') {
+            } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
                 candidateId = stat.remoteCandidateId;
             } else if (stat.type === 'remote-candidate') {
                 allCandidates[stat.id] = stat.address;
