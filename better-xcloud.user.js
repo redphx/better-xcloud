@@ -3391,8 +3391,8 @@ class StreamStats {
         StreamStats.hideSettingsUi();
     }
 
-    static isHidden = () => StreamStats.#$container.classList.contains('bx-gone');
-    static isGlancing = () => StreamStats.#$container.getAttribute('data-display') === 'glancing';
+    static isHidden = () => StreamStats.#$container && StreamStats.#$container.classList.contains('bx-gone');
+    static isGlancing = () => StreamStats.#$container && StreamStats.#$container.getAttribute('data-display') === 'glancing';
 
     static quickGlanceSetup() {
         if (StreamStats.#quickGlanceObserver) {
@@ -5855,6 +5855,11 @@ function interceptHttpRequests() {
         let request = arg[0];
         let url = (typeof request === 'string') ? request : request.url;
 
+        if (url.endsWith('/play')) {
+            // Setup UI
+            setupBxUi();
+        }
+
         if (IS_REMOTE_PLAYING && url.includes('/sessions/home')) {
             const clone = request.clone();
 
@@ -6580,8 +6585,6 @@ function injectStreamMenuButtons() {
         return;
     }
 
-    setupBxUi();
-
     $screen.xObserving = true;
 
     const $quickBar = document.querySelector('.bx-quick-settings-bar');
@@ -7046,7 +7049,7 @@ function patchHistoryMethod(type) {
 
 
 function onHistoryChanged(e) {
-    if (e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
+    if (e.arguments && e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
         return;
     }
 
@@ -7066,7 +7069,11 @@ function onHistoryChanged(e) {
     STREAM_AUDIO_GAIN_NODE = null;
     $STREAM_VIDEO = null;
     StreamStats.onStoppedPlaying();
-    document.querySelector('.bx-screenshot-button').style = '';
+
+    const $screenshotBtn = document.querySelector('.bx-screenshot-button');
+    if ($screenshotBtn) {
+        $screenshotBtn.style = '';
+    }
 
     MouseCursorHider.stop();
     TouchController.reset();
