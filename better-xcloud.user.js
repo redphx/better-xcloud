@@ -543,7 +543,7 @@ const Translations = {
         "vi-VN": "Rung thiết bị",
     },
     "device-vibration-not-using-gamepad": {
-        "de-DE": "Aktiviert, wenn kein Gamepad verwendet wird",
+        "de-DE": "An, wenn kein Gamepad verbunden",
         "en-US": "On when not using gamepad",
         "ja-JP": "ゲームパッド未使用時にオン",
         "pt-BR": "Ativar quando não estiver usando o dispositivo",
