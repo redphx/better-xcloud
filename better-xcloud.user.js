@@ -7167,7 +7167,7 @@ function onStreamStarted($video) {
                 } else if (stat.kind === 'audio') {
                     audioCodecId = stat.codecId;
                 }
-            } else if (stat.type === 'candidate-pair' && stat.state === 'succeeded') {
+            } else if (stat.type === 'candidate-pair' && stat.selected && stat.state === 'succeeded') {
                 candidateId = stat.remoteCandidateId;
             } else if (stat.type === 'remote-candidate') {
                 allCandidates[stat.id] = stat.address;
