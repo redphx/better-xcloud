@@ -4,8 +4,8 @@ Improve Xbox Cloud Gaming (xCloud) experience on [xbox.com/play](https://www.xbo
 **Supported platforms:**  
 - Windows
 - macOS
-- Linux, SteamOS (Steam Deck)
-- Android, Android TV
+- Linux, SteamOS (including Steam Deck)
+- Android, Android TV (including Meta Quest VR Headsets)
 - iOS, iPadOS
 
 This script makes me spend more time with xCloud, and I hope the same thing happens to you.  
