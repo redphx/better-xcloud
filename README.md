@@ -313,8 +313,9 @@ Visit [here](https://crowdin.com/project/better-xcloud) if you want to translate
 Use [this post](https://github.com/redphx/better-xcloud/discussions/131) for discussion.  
 
 ## Donation
-I'm doing this for fun, so you don't have to donate anything. You're already supporting me by using this script. Save that money toward your Xbox Game Pass Ultimate subscription 😄.  
-But if you still really want to donate, I have a [Ko-fi page](https://ko-fi.com/redphx). Thank you.
+If you think this project is useful and want to support future developments, please consider making a donate via [my Ko-fi page](https://ko-fi.com/redphx).  
+Or you can give this project a star, that's also helpful.  
+Thank you.  
 
 ## Acknowledgements  
 - [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
