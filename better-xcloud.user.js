@@ -16,7 +16,6 @@
 const SCRIPT_VERSION = '2.1.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
-const ENABLE_MKB = false;
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
 
@@ -2799,6 +2798,192 @@ class Toast {
     }
 }
 
+
+const GamepadKey = {};
+GamepadKey[GamepadKey.A = 0] = 'A';
+GamepadKey[GamepadKey.B = 1] = 'B';
+GamepadKey[GamepadKey.X = 2] = 'X';
+GamepadKey[GamepadKey.Y = 3] = 'Y';
+GamepadKey[GamepadKey.LB = 4] = 'LB';
+GamepadKey[GamepadKey.RB = 5] = 'RB';
+GamepadKey[GamepadKey.LT = 6] = 'LT';
+GamepadKey[GamepadKey.RT = 7] = 'RT';
+GamepadKey[GamepadKey.SELECT = 8] = 'SELECT';
+GamepadKey[GamepadKey.START = 9] = 'START';
+GamepadKey[GamepadKey.L3 = 10] = 'L3';
+GamepadKey[GamepadKey.R3 = 11] = 'R3';
+GamepadKey[GamepadKey.UP = 12] = 'UP';
+GamepadKey[GamepadKey.DOWN = 13] = 'DOWN';
+GamepadKey[GamepadKey.LEFT = 14] = 'LEFT';
+GamepadKey[GamepadKey.RIGHT = 15] = 'RIGHT';
+GamepadKey[GamepadKey.HOME = 16] = 'HOME';
+
+GamepadKey[GamepadKey.LEFT_STICK_UP = 100] = 'LEFT_STICK_UP';
+GamepadKey[GamepadKey.LEFT_STICK_DOWN = 101] = 'LEFT_STICK_DOWN';
+GamepadKey[GamepadKey.LEFT_STICK_LEFT = 102] = 'LEFT_STICK_LEFT';
+GamepadKey[GamepadKey.LEFT_STICK_RIGHT = 103] = 'LEFT_STICK_RIGHT';
+GamepadKey[GamepadKey.RIGHT_STICK_UP = 200] = 'RIGHT_STICK_UP';
+GamepadKey[GamepadKey.RIGHT_STICK_DOWN = 201] = 'RIGHT_STICK_DOWN';
+GamepadKey[GamepadKey.RIGHT_STICK_LEFT = 202] = 'RIGHT_STICK_LEFT';
+GamepadKey[GamepadKey.RIGHT_STICK_RIGHT = 203] = 'RIGHT_STICK_RIGHT';
+
+
+class InputManager {
+    static #KEY_MAP = {
+        // Use "e.code" value from https://keyjs.dev
+        'ArrowUp': GamepadKey.UP,
+        'ArrowDown': GamepadKey.DOWN,
+        'ArrowLeft': GamepadKey.LEFT,
+        'ArrowRight': GamepadKey.RIGHT,
+
+        'KeyW': GamepadKey.LEFT_STICK_UP,
+        'KeyS': GamepadKey.LEFT_STICK_DOWN,
+        'KeyA': GamepadKey.LEFT_STICK_LEFT,
+        'KeyD': GamepadKey.LEFT_STICK_RIGHT,
+
+        'Space': GamepadKey.A,
+        'KeyE': GamepadKey.A,
+        'KeyR': GamepadKey.X,
+        'ControlLeft': GamepadKey.B,
+        'KeyV': GamepadKey.Y,
+
+        'Enter': GamepadKey.START,
+        'Tab': GamepadKey.SELECT,
+
+        'KeyC': GamepadKey.LB,
+        'KeyG': GamepadKey.LB,
+
+        'KeyQ': GamepadKey.RB,
+
+        'Backquote': GamepadKey.HOME,
+
+        'Mouse0': GamepadKey.RT,
+        'Mouse2': GamepadKey.LT,
+
+        'ShiftLeft': GamepadKey.L3,
+        'KeyF': GamepadKey.R3,
+    };
+
+    static #VIRTUAL_CONTROLLER = {
+        axes: [0, 0, 0, 0],
+        buttons: new Array(17).fill(null).map(() => ({pressed: false, value: 0})),
+        hapticActuators: null,
+        id: 'Xbox360',
+        index: 3,
+        connected: true,
+        mapping: 'standard',
+        timestamp: performance.now(),
+    }
+
+    static #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
+
+    static #getVirtualGamepad() {
+        return InputManager.#VIRTUAL_CONTROLLER;
+    }
+
+    static #patchedGetGamepads() {
+        const gamepads = InputManager.#nativeGetGamepads();
+        gamepads[3] = InputManager.#VIRTUAL_CONTROLLER;
+
+        return gamepads;
+    }
+
+    static #onKeyboardEvent(e) {
+        console.log(e);
+
+        const virtualGamepad = InputManager.#getVirtualGamepad();
+        const isKeyDown = e.type === 'keydown';
+        let preventDefault = false;
+
+        const buttonIndex = InputManager.#KEY_MAP[e.code];
+        if (buttonIndex >= 100 && buttonIndex < 200) {
+            // Left stick
+            const axisIndex = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_RIGHT) ? 0 : 1;
+            const value = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_UP) ? -1 : 1;
+            virtualGamepad.axes[axisIndex] = isKeyDown ? value : 0;
+        } else if (buttonIndex >= 200) {
+            // Left stick
+            const axisIndex = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_RIGHT) ? 0 : 1;
+            const value = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_UP) ? -1 : 1;
+            virtualGamepad.axes[axisIndex] = isKeyDown ? value : 0;
+        } else if (typeof buttonIndex !== 'undefined') {
+            virtualGamepad.buttons[buttonIndex].pressed = isKeyDown;
+            virtualGamepad.buttons[buttonIndex].value = isKeyDown ? 1 : 0;
+
+            preventDefault = true;
+        }
+
+        virtualGamepad.timestamp = performance.now();
+        preventDefault && e.preventDefault();
+    }
+
+    static #onMouseEvent(e) {
+        console.log(e);
+
+        const virtualGamepad = InputManager.#getVirtualGamepad();
+        const isMouseDown = e.type === 'mousedown';
+        let preventDefault = false;
+
+        const code = `Mouse${e.button}`;
+        const buttonIndex = InputManager.#KEY_MAP[code];
+        if (typeof buttonIndex !== 'undefined') {
+            virtualGamepad.buttons[buttonIndex].pressed = isMouseDown;
+            virtualGamepad.buttons[buttonIndex].value = isMouseDown ? 1 : 0;
+
+            preventDefault = true;
+        }
+
+        virtualGamepad.timestamp = performance.now();
+        preventDefault && e.preventDefault();
+    }
+
+    static #onMouseMoveEvent(e) {
+        const virtualGamepad = InputManager.#getVirtualGamepad();
+
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        const deltaX = centerX - mouseX;
+        const deltaY = centerY - mouseY;
+
+        const sensitivity = 1.5;
+
+        virtualGamepad.axes[2] = -1 * Math.max(Math.min(sensitivity * deltaX / centerX, 1), -1);
+        virtualGamepad.axes[3] = -1 * Math.max(Math.min(sensitivity * deltaY / centerY, 1), -1);
+
+        virtualGamepad.timestamp = performance.now();
+    }
+
+    static #disableContextMenu(e) {
+        e.preventDefault();
+    }
+
+    static start() {
+        window.navigator.getGamepads = InputManager.#patchedGetGamepads;
+
+        window.addEventListener('keydown', InputManager.#onKeyboardEvent);
+        window.addEventListener('keyup', InputManager.#onKeyboardEvent);
+
+        window.addEventListener('mousemove', InputManager.#onMouseMoveEvent);
+        window.addEventListener('mousedown', InputManager.#onMouseEvent);
+        window.addEventListener('mouseup', InputManager.#onMouseEvent);
+        window.addEventListener('contextmenu', InputManager.#disableContextMenu);
+    }
+
+    static stop() {
+        window.navigator.getGamepads = InputManager.#nativeGetGamepads;
+
+        window.removeEventListener('mousemove', InputManager.#onMouseMoveEvent);
+        window.removeEventListener('mousedown', InputManager.#onMouseEvent);
+        window.removeEventListener('mouseup', InputManager.#onMouseEvent);
+        window.removeEventListener('contextmenu', InputManager.#disableContextMenu);
+    }
+}
+
+
 class GamepadHandler {
     static #BUTTON_A = 0;
     static #BUTTON_B = 1;
@@ -3643,7 +3828,6 @@ class Preferences {
 
     static get USER_AGENT_PROFILE() { return 'user_agent_profile'; }
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
-    static get STREAM_HIDE_IDLE_CURSOR() { return 'stream_hide_idle_cursor';}
     static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
     static get STREAM_TOUCH_CONTROLLER() { return 'stream_touch_controller'; }
@@ -3658,6 +3842,7 @@ class Preferences {
     static get CONTROLLER_VIBRATION_INTENSITY() { return 'controller_vibration_intensity'; }
 
     static get MKB_ENABLED() { return 'mkb_enabled'; }
+    static get MKB_HIDE_IDLE_CURSOR() { return 'mkb_hide_idle_cursor';}
     static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
@@ -3878,7 +4063,7 @@ class Preferences {
         [Preferences.STREAM_SIMPLIFY_MENU]: {
             'default': false,
         },
-        [Preferences.STREAM_HIDE_IDLE_CURSOR]: {
+        [Preferences.MKB_HIDE_IDLE_CURSOR]: {
             'default': false,
         },
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
@@ -6000,7 +6185,7 @@ function interceptHttpRequests() {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.setup();
 
             // Start hiding cursor
-            if (PREFS.get(Preferences.STREAM_HIDE_IDLE_CURSOR)) {
+            if (PREFS.get(Preferences.MKB_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
                 MouseCursorHider.hide();
             }
@@ -6240,7 +6425,6 @@ function injectSettingsButton($parent) {
             [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: __('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
-            [Preferences.STREAM_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
         [__('controller')]: {
@@ -6253,9 +6437,10 @@ function injectSettingsButton($parent) {
         },
 
         [__('mouse-and-keyboard')]: {
-            '_note': '⚠️ ' + __('may-not-work-properly'),
-            [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-supports-some-games')],
-            [Preferences.MKB_ABSOLUTE_MOUSE]: __('use-mouse-absolute-position'),
+            // '_note': '⚠️ ' + __('may-not-work-properly'),
+            // [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-supports-some-games')],
+            [Preferences.MKB_ENABLED]: __('enable-mkb'),
+            [Preferences.MKB_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
         },
 
         [__('loading-screen')]: {
@@ -6281,10 +6466,6 @@ function injectSettingsButton($parent) {
     };
 
     for (let groupLabel in SETTINGS_UI) {
-        if (!ENABLE_MKB && groupLabel === __('mouse-and-keyboard')) {
-            continue;
-        }
-
         const $group = CE('span', {'class': 'bx-settings-group-label'}, groupLabel);
 
         // Render note
@@ -7048,6 +7229,9 @@ function onHistoryChanged(e) {
         return;
     }
 
+    // Stop MKB listeners
+    InputManager.stop();
+
     IS_PLAYING = false;
     setTimeout(RemotePlay.detect, 10);
 
@@ -7083,6 +7267,11 @@ function onHistoryChanged(e) {
 
 function onStreamStarted($video) {
     IS_PLAYING = true;
+
+    // Enable MKB
+    if (PREFS.get(Preferences.MKB_ENABLED)) {
+        InputManager.start();
+    }
 
     // Get title ID for screenshot's name
     if (window.location.pathname.includes('/launch/')) {
