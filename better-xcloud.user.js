@@ -4773,11 +4773,18 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             }
             return funcStr.replace(text, 'get mouseAndKeyboardEnabled() {return this._titleSupportsMouseAndKeyboard;');
         },
+
+        patchStreamHudSize: function(funcStr) {
+            if (!funcStr.includes('="StreamHUD-module__button')) {
+                return false;
+            }
+
+            funcStr = funcStr.replace('=3;', '=5;');
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
-        ['mkbMouseAndKeyboardEnabled'],
-
         [
             'disableAiTrack',
             'disableTelemetry',
@@ -4801,6 +4808,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         ['remotePlayConnectMode'],
         ['playVibration'],
         ['enableConsoleLogging'],
+        ['mkbMouseAndKeyboardEnabled', 'patchStreamHudSize'],
     ];
 
     static #patchFunctionBind() {
@@ -5620,7 +5628,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-stream-menu-button-on {
     fill: #000 !important;
-    background-color: #fff !important;
+    background-color: #2d2d2d !important;
     color: #000 !important;
 }
 
@@ -6771,16 +6779,17 @@ function watchHeader() {
 }
 
 
-function cloneStreamMenuButton($orgButton, label, svg_icon) {
-    const $button = $orgButton.cloneNode(true);
-    $button.setAttribute('aria-label', label);
-    $button.querySelector('div[class*=label]').textContent = label;
+function cloneStreamHudButton($orgButton, label, svg_icon) {
+    const $container = $orgButton.cloneNode(true);
+
+    const $button = $container.querySelector('button');
+    $button.setAttribute('title', label);
 
     const $svg = $button.querySelector('svg');
     $svg.innerHTML = svg_icon;
     $svg.setAttribute('viewBox', '0 0 32 32');
 
-    return $button;
+    return $container;
 }
 
 
@@ -6824,7 +6833,7 @@ function injectStreamMenuButtons() {
             }
 
             item.addedNodes.forEach(async $node => {
-                if (!$node.className) {
+                if (!$node || !$node.className) {
                     return;
                 }
 
@@ -6834,27 +6843,54 @@ function injectStreamMenuButtons() {
                     return;
                 }
 
-                if (!$node.className.startsWith('StreamMenu')) {
+                // Render badges
+                if ($node.className.startsWith('StreamMenu')) {
+                    // Hide Quick bar when closing HUD
+                    const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
+                    $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
+                        $quickBar.style.display = 'none';
+                    });
+
+                    // Get "Quit game" button
+                    const $btnQuit = $node.querySelector('div[class^=StreamMenu] > div > button:last-child');
+                    // Hold "Quit game" button to refresh the stream
+                    new MouseHoldEvent($btnQuit, () => {
+                        confirm(__('confirm-reload-stream')) && window.location.reload();
+                    }, 1000);
+
+                    // Render stream badges
+                    const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
+                    $menu.appendChild(await StreamBadges.render());
+
+                    hideQuickBarFunc();
                     return;
                 }
 
+                if ($node.className.startsWith('Overlay-module_')) {
+                    $node = $node.querySelector('#StreamHud');
+                }
+
+                if (!$node.id || $node.id !== 'StreamHud') {
+                    return;
+                }
+
+                // Grip handle
+                const $gripHandle = $node.querySelector('button[class^=GripHandle]');
+
                 // Get the second last button
-                const $orgButton = $node.querySelector('div[class^=StreamMenu] > div > button:nth-last-child(2)');
+                const $orgButton = $node.querySelector('div[class^=HUDButton]');
                 if (!$orgButton) {
                     return;
                 }
 
                 // Create Stream Settings button
-                const $btnStreamSettings = cloneStreamMenuButton($orgButton, __('menu-stream-settings'), Icon.STREAM_SETTINGS);
+                const $btnStreamSettings = cloneStreamHudButton($orgButton, __('menu-stream-settings'), Icon.STREAM_SETTINGS);
                 $btnStreamSettings.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
 
                     const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
                     $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
-
-                    // Close HUD
-                    $btnCloseHud && $btnCloseHud.click();
 
                     // Show Quick settings bar
                     $quickBar.style.display = 'flex';
@@ -6864,47 +6900,31 @@ function injectStreamMenuButtons() {
 
                     const $touchSurface = document.getElementById('MultiTouchSurface');
                     $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
-                });
 
-                // Add button at the beginning
-                $orgButton.parentElement.insertBefore($btnStreamSettings, $orgButton.parentElement.firstChild);
-
-                // Hide Quick bar when closing HUD
-                const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
-                $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
-                    $quickBar.style.display = 'none';
+                    $gripHandle.click();
                 });
 
                 // Create Stream Stats button
-                const $btnStreamStats = cloneStreamMenuButton($orgButton, __('menu-stream-stats'), Icon.STREAM_STATS);
+                const $btnStreamStats = cloneStreamHudButton($orgButton, __('menu-stream-stats'), Icon.STREAM_STATS);
                 $btnStreamStats.addEventListener('click', e => {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    // Close HUD
-                    $btnCloseHud && $btnCloseHud.click();
                     // Toggle Stream Stats
                     StreamStats.toggle();
+
+                    const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
+                    $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
+
+                    $gripHandle.click();
                 });
 
                 const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
                 $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
 
-                // Insert after Stream Settings button
-                $orgButton.parentElement.insertBefore($btnStreamStats, $btnStreamSettings);
-
-                // Get "Quit game" button
-                const $btnQuit = $orgButton.parentElement.querySelector('button:last-of-type');
-                // Hold "Quit game" button to refresh the stream
-                new MouseHoldEvent($btnQuit, () => {
-                    confirm(__('confirm-reload-stream')) && window.location.reload();
-                }, 1000);
-
-                // Render stream badges
-                const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
-                $menu.appendChild(await StreamBadges.render());
-
-                hideQuickBarFunc();
+                // Insert buttons after Stream Settings button
+                $orgButton.parentElement.insertBefore($btnStreamStats, $orgButton.parentElement.lastChild);
+                $orgButton.parentElement.insertBefore($btnStreamSettings, $btnStreamStats);
             });
         });
     });
