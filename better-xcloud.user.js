@@ -2157,8 +2157,12 @@ const HAS_TOUCH_SUPPORT = ('ontouchstart' in window || navigator.maxTouchPoints 
 
 // Credit: https://phosphoricons.com
 const Icon = {
-    STREAM_SETTINGS: '<path d="M16 9.144A6.89 6.89 0 0 0 9.144 16 6.89 6.89 0 0 0 16 22.856 6.89 6.89 0 0 0 22.856 16 6.9 6.9 0 0 0 16 9.144zm0 11.427c-2.507 0-4.571-2.064-4.571-4.571s2.064-4.571 4.571-4.571 4.571 2.064 4.571 4.571-2.064 4.571-4.571 4.571zm15.704-7.541c-.065-.326-.267-.607-.556-.771l-4.26-2.428-.017-4.802c-.001-.335-.15-.652-.405-.868-1.546-1.307-3.325-2.309-5.245-2.953-.306-.103-.641-.073-.923.085L16 3.694l-4.302-2.407c-.282-.158-.618-.189-.924-.086a16.02 16.02 0 0 0-5.239 2.964 1.14 1.14 0 0 0-.403.867L5.109 9.84.848 12.268a1.14 1.14 0 0 0-.555.771 15.22 15.22 0 0 0 0 5.936c.064.326.267.607.555.771l4.261 2.428.017 4.802c.001.335.149.652.403.868 1.546 1.307 3.326 2.309 5.245 2.953.306.103.641.073.923-.085L16 28.306l4.302 2.407a1.13 1.13 0 0 0 .558.143 1.18 1.18 0 0 0 .367-.059c1.917-.648 3.695-1.652 5.239-2.962.255-.216.402-.532.405-.866l.021-4.807 4.261-2.428a1.14 1.14 0 0 0 .555-.771 15.21 15.21 0 0 0-.003-5.931zm-2.143 4.987l-4.082 2.321a1.15 1.15 0 0 0-.429.429l-.258.438a1.13 1.13 0 0 0-.174.601l-.022 4.606a13.71 13.71 0 0 1-3.623 2.043l-4.117-2.295a1.15 1.15 0 0 0-.559-.143h-.546c-.205-.005-.407.045-.586.143l-4.119 2.3a13.74 13.74 0 0 1-3.634-2.033l-.016-4.599a1.14 1.14 0 0 0-.174-.603l-.257-.437c-.102-.182-.249-.333-.429-.437l-4.085-2.328a12.92 12.92 0 0 1 0-4.036l4.074-2.325a1.15 1.15 0 0 0 .429-.429l.258-.438a1.14 1.14 0 0 0 .175-.601l.021-4.606a13.7 13.7 0 0 1 3.625-2.043l4.11 2.295a1.14 1.14 0 0 0 .585.143h.52c.205.005.407-.045.586-.143l4.119-2.3a13.74 13.74 0 0 1 3.634 2.033l.016 4.599a1.14 1.14 0 0 0 .174.603l.257.437c.102.182.249.333.429.438l4.085 2.327a12.88 12.88 0 0 1 .007 4.041h.007z" fill-rule="nonzero"/>',
-    STREAM_STATS: '<path d="M27.295 9.31C24.303 6.313 20.234 4.631 16 4.643h-.057C7.153 4.673 0 11.929 0 20.804v3.267a2.3 2.3 0 0 0 2.286 2.286h27.429A2.3 2.3 0 0 0 32 24.072v-3.429A15.9 15.9 0 0 0 27.294 9.31zm2.419 14.761H14.816l7.823-10.757a1.15 1.15 0 0 0-.925-1.817c-.366 0-.71.176-.925.471l-8.801 12.103H2.286v-3.267c0-.44.022-.874.062-1.304h3.367a1.15 1.15 0 0 0 1.143-1.143 1.15 1.15 0 0 0-1.143-1.143H2.753c1.474-5.551 6.286-9.749 12.104-10.237v3.379A1.15 1.15 0 0 0 16 11.5a1.15 1.15 0 0 0 1.143-1.143V6.975c5.797.488 10.682 4.608 12.143 10.239h-3a1.15 1.15 0 0 0-1.143 1.143 1.15 1.15 0 0 0 1.143 1.143h3.382a14.58 14.58 0 0 1 .047 1.143v3.429z" fill-rule="nonzero"/>',
+    STREAM_SETTINGS: '<g transform="matrix(.142357 0 0 .142357 -2.22021 -2.22164)" fill="none" stroke="#fff" stroke-width="16"><circle cx="128" cy="128" r="40"/><path d="M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z"/></g>',
+    STREAM_STATS: '<path d="M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z"/><path d="M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74"/>',
+    CONTROLLER: '<path d="M19.193 12.807h3.193m-13.836 0h4.257"/><path d="M10.678 10.678v4.257"/><path d="M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z"/><path d="M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194"/>',
+    DISPLAY: '<path d="M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08"/>',
+    MOUSE: '<path d="M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z"/><path d="M16 13.721V6.883"/>',
+
     SCREENSHOT_B64: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=',
 };
 
@@ -5481,14 +5485,46 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-quick-settings-bar {
     display: none;
-    flex-direction: column;
+    position: fixed;
+    z-index: var(--bx-stream-settings-z-index);
+    opacity: 0.98;
     user-select: none;
     -webkit-user-select: none;
+}
+
+.bx-quick-settings-tabs {
+    position: fixed;
+    right: 420px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 0 0 8px;
+    box-shadow: 0px 0px 6px #000;
+    overflow: clip;
+}
+
+.bx-quick-settings-tabs svg {
+    width: 32px;
+    height: 32px;
+    padding: 10px;
+    box-sizing: content-box;
+    background: #131313;
+    cursor: pointer;
+}
+
+.bx-quick-settings-tabs svg.bx-active {
+    background: #222;
+}
+
+.bx-quick-settings-tabs svg:hover {
+    background: #2f2f2f;
+}
+
+.bx-quick-settings-tab-contents {
+    flex-direction: column;
     position: fixed;
     right: 0;
     top: 0;
     bottom: 0;
-    z-index: var(--bx-stream-settings-z-index);
     padding: 16px;
     width: 420px;
     background: #1a1b1e;
@@ -5498,15 +5534,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: var(--bx-title-font);
     text-align: center;
     box-shadow: 0px 0px 6px #000;
-    opacity: 0.98;
     overflow: overlay;
 }
 
-.bx-quick-settings-bar:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
+.bx-quick-settings-tab-contents div:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
     display: none;
 }
 
-.bx-quick-settings-bar[data-clarity-boost="true"] .bx-clarity-boost-warning {
+.bx-quick-settings-tab-contents div[data-clarity-boost="true"] .bx-clarity-boost-warning {
     display: block;
     margin: 0px 8px;
     padding: 12px;
@@ -5516,22 +5551,22 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.bx-quick-settings-bar[data-clarity-boost="true"] > div[data-type="video"] {
+.bx-quick-settings-tab-contents div[data-clarity-boost="true"] > div[data-type="video"] {
     display: none;
 }
 
-.bx-quick-settings-bar *:focus {
+.bx-quick-settings-tab-contents *:focus {
     outline: none !important;
 }
 
-.bx-quick-settings-bar > div {
+.bx-quick-settings-tab-contents > div > div {
     display: flex;
     border-bottom: 1px solid #40404080;
     margin-bottom: 16px;
     padding-bottom: 16px;
 }
 
-.bx-quick-settings-bar h2 {
+.bx-quick-settings-tab-contents h2 {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 8px;
@@ -5539,14 +5574,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-align: left;
 }
 
-.bx-quick-settings-bar input[type="range"] {
+.bx-quick-settings-tab-contents input[type="range"] {
     display: block;
     margin: 12px auto 2px;
     width: 180px;
     color: #959595 !important;
 }
 
-.bx-quick-settings-bar label {
+.bx-quick-settings-tab-contents label {
     font-size: 16px;
     display: block;
     text-align: left;
@@ -5555,7 +5590,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 0 !important;
 }
 
-.bx-quick-settings-bar button {
+.bx-quick-settings-tab-contents button {
     border: none;
     width: 24px;
     height: 24px;
@@ -6787,7 +6822,21 @@ function cloneStreamHudButton($orgButton, label, svg_icon) {
 
     const $svg = $button.querySelector('svg');
     $svg.innerHTML = svg_icon;
-    $svg.setAttribute('viewBox', '0 0 32 32');
+    $svg.style.fill = 'none';
+
+    const attrs = {
+        'fill': 'none',
+        'stroke': '#fff',
+        'fill-rule': 'evenodd',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+        'stroke-width': 2,
+        'viewBox': '0 0 32 32'
+    };
+
+    for (const attr in attrs) {
+        $svg.setAttribute(attr, attrs[attr]);
+    }
 
     return $container;
 }
@@ -6825,6 +6874,10 @@ function injectStreamMenuButtons() {
         $parent.removeEventListener('touchstart', hideQuickBarFunc);
     }
 
+    let $btnStreamSettings;
+    let $btnStreamStats;
+    let $gripHandle;
+
     const PREF_DISABLE_FEEDBACK_DIALOG = PREFS.get(Preferences.STREAM_DISABLE_FEEDBACK_DIALOG);
     const observer = new MutationObserver(mutationList => {
         mutationList.forEach(item => {
@@ -6836,6 +6889,8 @@ function injectStreamMenuButtons() {
                 if (!$node || !$node.className) {
                     return;
                 }
+
+                console.log($node);
 
                 if (PREF_DISABLE_FEEDBACK_DIALOG && $node.className.startsWith('PostStreamFeedbackScreen')) {
                     const $btnClose = $node.querySelector('button');
@@ -6870,12 +6925,12 @@ function injectStreamMenuButtons() {
                     $node = $node.querySelector('#StreamHud');
                 }
 
-                if (!$node.id || $node.id !== 'StreamHud') {
+                if (($node.id || '') !== 'StreamHud' && !$node.className.startsWith('InProgressScreen')) {
                     return;
                 }
 
                 // Grip handle
-                const $gripHandle = $node.querySelector('button[class^=GripHandle]');
+                $gripHandle = $node.querySelector('button[class^=GripHandle]');
 
                 // Get the second last button
                 const $orgButton = $node.querySelector('div[class^=HUDButton]');
@@ -6884,40 +6939,44 @@ function injectStreamMenuButtons() {
                 }
 
                 // Create Stream Settings button
-                const $btnStreamSettings = cloneStreamHudButton($orgButton, __('menu-stream-settings'), Icon.STREAM_SETTINGS);
-                $btnStreamSettings.addEventListener('click', e => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                if (!$btnStreamSettings) {
+                    $btnStreamSettings = cloneStreamHudButton($orgButton, __('menu-stream-settings'), Icon.STREAM_SETTINGS);
+                    $btnStreamSettings.addEventListener('click', e => {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                    const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
-                    $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
+                        const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
+                        $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
 
-                    // Show Quick settings bar
-                    $quickBar.style.display = 'flex';
+                        // Show Quick settings bar
+                        $quickBar.style.display = 'flex';
 
-                    $parent.addEventListener('click', hideQuickBarFunc);
-                    $parent.addEventListener('touchstart', hideQuickBarFunc);
+                        $parent.addEventListener('click', hideQuickBarFunc);
+                        $parent.addEventListener('touchstart', hideQuickBarFunc);
 
-                    const $touchSurface = document.getElementById('MultiTouchSurface');
-                    $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
+                        const $touchSurface = document.getElementById('MultiTouchSurface');
+                        $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
 
-                    $gripHandle.click();
-                });
+                        $gripHandle.click();
+                    });
+                }
 
                 // Create Stream Stats button
-                const $btnStreamStats = cloneStreamHudButton($orgButton, __('menu-stream-stats'), Icon.STREAM_STATS);
-                $btnStreamStats.addEventListener('click', e => {
-                    e.preventDefault();
-                    e.stopPropagation();
+                if (!$btnStreamStats) {
+                    $btnStreamStats = cloneStreamHudButton($orgButton, __('menu-stream-stats'), Icon.STREAM_STATS);
+                    $btnStreamStats.addEventListener('click', e => {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                    // Toggle Stream Stats
-                    StreamStats.toggle();
+                        // Toggle Stream Stats
+                        StreamStats.toggle();
 
-                    const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
-                    $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
+                        const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
+                        $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
 
-                    $gripHandle.click();
-                });
+                        $gripHandle.click();
+                    });
+                }
 
                 const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
                 $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
@@ -7020,171 +7079,239 @@ function setupQuickSettingsBar() {
 
     const SETTINGS_UI = [
         {
+            icon: Icon.DISPLAY,
+            group: 'stream',
+            items: [
+                {
+                    group: 'audio',
+                    label: __('audio'),
+                    items: {
+                        [Preferences.AUDIO_VOLUME]: {
+                            label: __('volume'),
+                            onChange: (e, value) => {
+                                STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
+                            },
+                            type: 'number-stepper',
+                            params: {
+                                suffix: '%',
+                                ticks: 100,
+                                disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
+                            },
+                        },
+                    },
+                },
+
+                {
+                    group: 'video',
+                    label: __('video'),
+                    note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
+                    items: {
+                        [Preferences.VIDEO_RATIO]: {
+                            label: __('ratio'),
+                            onChange: updateVideoPlayerCss,
+                        },
+
+                        [Preferences.VIDEO_CLARITY]: {
+                            label: __('clarity'),
+                            onChange: updateVideoPlayerCss,
+                            type: 'number-stepper',
+                            unsupported: isSafari,
+                            params: {
+                                hideSlider: true,
+                            },
+                        },
+
+                        [Preferences.VIDEO_SATURATION]: {
+                            label: __('saturation'),
+                            onChange: updateVideoPlayerCss,
+                            type: 'number-stepper',
+                            params: {
+                                suffix: '%',
+                                ticks: 25,
+                            },
+                        },
+
+                        [Preferences.VIDEO_CONTRAST]: {
+                            label: __('contrast'),
+                            onChange: updateVideoPlayerCss,
+                            type: 'number-stepper',
+                            params: {
+                                suffix: '%',
+                                ticks: 25,
+                            },
+                        },
+
+                        [Preferences.VIDEO_BRIGHTNESS]: {
+                            label: __('brightness'),
+                            onChange: updateVideoPlayerCss,
+                            type: 'number-stepper',
+                            params: {
+                                suffix: '%',
+                                ticks: 25,
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+
+        {
+            icon: Icon.CONTROLLER,
             group: 'controller',
-            label: __('controller'),
-            items: {
-                [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
-                    label: __('controller-vibration'),
-                    unsupported: !VibrationManager.supportControllerVibration(),
-                    onChange: VibrationManager.updateGlobalVars,
-                },
+            items: [
+                {
+                    group: 'controller',
+                    label: __('controller'),
+                    items: {
+                        [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
+                            label: __('controller-vibration'),
+                            unsupported: !VibrationManager.supportControllerVibration(),
+                            onChange: VibrationManager.updateGlobalVars,
+                        },
 
-                [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
-                    label: __('device-vibration'),
-                    unsupported: !VibrationManager.supportDeviceVibration(),
-                    onChange: VibrationManager.updateGlobalVars,
-                },
+                        [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
+                            label: __('device-vibration'),
+                            unsupported: !VibrationManager.supportDeviceVibration(),
+                            onChange: VibrationManager.updateGlobalVars,
+                        },
 
-                [Preferences.CONTROLLER_VIBRATION_INTENSITY]: (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
-                    label: __('vibration-intensity'),
-                    unsupported: !VibrationManager.supportDeviceVibration(),
-                    onChange: VibrationManager.updateGlobalVars,
-                    type: 'number-stepper',
-                    params: {
-                        suffix: '%',
-                        ticks: 50,
+                        [Preferences.CONTROLLER_VIBRATION_INTENSITY]: (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
+                            label: __('vibration-intensity'),
+                            unsupported: !VibrationManager.supportDeviceVibration(),
+                            onChange: VibrationManager.updateGlobalVars,
+                            type: 'number-stepper',
+                            params: {
+                                suffix: '%',
+                                ticks: 50,
+                            },
+                        },
                     },
                 },
-            },
+            ],
         },
 
         {
-            group: 'audio',
-            label: __('audio'),
-            items: {
-                [Preferences.AUDIO_VOLUME]: {
-                    label: __('volume'),
-                    onChange: (e, value) => {
-                        STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
-                    },
-                    type: 'number-stepper',
-                    params: {
-                        suffix: '%',
-                        ticks: 100,
-                        disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
-                    },
-                },
-            },
-        },
-
-        {
-            group: 'video',
-            label: __('video'),
-            note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
-            items: {
-                [Preferences.VIDEO_RATIO]: {
-                    label: __('ratio'),
-                    onChange: updateVideoPlayerCss,
-                },
-
-                [Preferences.VIDEO_CLARITY]: {
-                    label: __('clarity'),
-                    onChange: updateVideoPlayerCss,
-                    type: 'number-stepper',
-                    unsupported: isSafari,
-                    params: {
-                        hideSlider: true,
-                    },
-                },
-
-                [Preferences.VIDEO_SATURATION]: {
-                    label: __('saturation'),
-                    onChange: updateVideoPlayerCss,
-                    type: 'number-stepper',
-                    params: {
-                        suffix: '%',
-                        ticks: 25,
-                    },
-                },
-
-                [Preferences.VIDEO_CONTRAST]: {
-                    label: __('contrast'),
-                    onChange: updateVideoPlayerCss,
-                    type: 'number-stepper',
-                    params: {
-                        suffix: '%',
-                        ticks: 25,
-                    },
-                },
-
-                [Preferences.VIDEO_BRIGHTNESS]: {
-                    label: __('brightness'),
-                    onChange: updateVideoPlayerCss,
-                    type: 'number-stepper',
-                    params: {
-                        suffix: '%',
-                        ticks: 25,
-                    },
-                },
-            },
-        },
-
-        {
+            icon: Icon.STREAM_STATS,
             group: 'stats',
-            label: __('menu-stream-stats'),
-            items: {
-                [Preferences.STATS_SHOW_WHEN_PLAYING]: {
-                    label: __('show-stats-on-startup'),
-                },
-                [Preferences.STATS_QUICK_GLANCE]: {
-                    label: __('enable-quick-glance-mode'),
-                    onChange: e => {
-                        e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+            items: [
+                {
+                    group: 'stats',
+                    label: __('menu-stream-stats'),
+                    items: {
+                        [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+                            label: __('show-stats-on-startup'),
+                        },
+                        [Preferences.STATS_QUICK_GLANCE]: {
+                            label: __('enable-quick-glance-mode'),
+                            onChange: e => {
+                                e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+                            },
+                        },
+                        [Preferences.STATS_ITEMS]: {
+                            label: __('stats'),
+                            onChange: StreamStats.refreshStyles,
+                        },
+                        [Preferences.STATS_POSITION]: {
+                            label: __('position'),
+                            onChange: StreamStats.refreshStyles,
+                        },
+                        [Preferences.STATS_TEXT_SIZE]: {
+                            label: __('text-size'),
+                            onChange: StreamStats.refreshStyles,
+                        },
+                        [Preferences.STATS_OPACITY]: {
+                            label: `${__('opacity')} (50-100%)`,
+                            onChange: StreamStats.refreshStyles,
+                        },
+                        [Preferences.STATS_TRANSPARENT]: {
+                            label: __('transparent-background'),
+                            onChange: StreamStats.refreshStyles,
+                        },
+                        [Preferences.STATS_CONDITIONAL_FORMATTING]: {
+                            label: __('conditional-formatting'),
+                            onChange: StreamStats.refreshStyles,
+                        },
                     },
                 },
-                [Preferences.STATS_ITEMS]: {
-                    label: __('stats'),
-                    onChange: StreamStats.refreshStyles,
-                },
-                [Preferences.STATS_POSITION]: {
-                    label: __('position'),
-                    onChange: StreamStats.refreshStyles,
-                },
-                [Preferences.STATS_TEXT_SIZE]: {
-                    label: __('text-size'),
-                    onChange: StreamStats.refreshStyles,
-                },
-                [Preferences.STATS_OPACITY]: {
-                    label: `${__('opacity')} (50-100%)`,
-                    onChange: StreamStats.refreshStyles,
-                },
-                [Preferences.STATS_TRANSPARENT]: {
-                    label: __('transparent-background'),
-                    onChange: StreamStats.refreshStyles,
-                },
-                [Preferences.STATS_CONDITIONAL_FORMATTING]: {
-                    label: __('conditional-formatting'),
-                    onChange: StreamStats.refreshStyles,
-                },
-            },
+            ],
         },
     ];
 
-    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'});
-    for (const settingGroup of SETTINGS_UI) {
-        $wrapper.appendChild(CE('h2', {}, settingGroup.label));
-        if (settingGroup.note) {
-            if (typeof settingGroup.note === 'string') {
-                settingGroup.note = document.createTextNode(settingGroup.note);
+    let $tabs;
+    let $settings;
+
+    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
+            $tabs = CE('div', {'class': 'bx-quick-settings-tabs'}),
+            $settings = CE('div', {'class': 'bx-quick-settings-tab-contents'}),
+        );
+
+    for (const settingTab of SETTINGS_UI) {
+        const $svg = CE('svg', {
+            'xmlns': 'http://www.w3.org/2000/svg',
+            'data-group': settingTab.group,
+            'fill': 'none',
+            'stroke': '#fff',
+            'fill-rule': 'evenodd',
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'stroke-width': 2,
+        });
+        $svg.innerHTML = settingTab.icon;
+        $svg.setAttribute('viewBox', '0 0 32 32');
+        $svg.addEventListener('click', e => {
+            // Switch tab
+            for (const $child of $settings.children) {
+                if ($child.getAttribute('data-group') === settingTab.group) {
+                    $child.classList.remove('bx-gone');
+                } else {
+                    $child.classList.add('bx-gone');
+                }
             }
-            $wrapper.appendChild(settingGroup.note);
+
+            // Highlight current tab button
+            for (const $child of $tabs.children) {
+                $child.classList.remove('bx-active');
+            }
+
+            $svg.classList.add('bx-active');
+        });
+
+        $tabs.appendChild($svg);
+
+        const $group = CE('div', {'data-group': settingTab.group, 'class': 'bx-gone'});
+
+        for (const settingGroup of settingTab.items) {
+            $group.appendChild(CE('h2', {}, settingGroup.label));
+            if (settingGroup.note) {
+                if (typeof settingGroup.note === 'string') {
+                    settingGroup.note = document.createTextNode(settingGroup.note);
+                }
+                $group.appendChild(settingGroup.note);
+            }
+
+            for (const pref in settingGroup.items) {
+                const setting = settingGroup.items[pref];
+                if (!setting) {
+                    continue;
+                }
+
+                const $content = CE('div', {'data-type': settingGroup.group},
+                            CE('label', {for: `bx_setting_${pref}`},
+                            setting.label,
+                            setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                        ),
+                        !setting.unsupported && (setting.type === 'number-stepper' ? PREFS.toNumberStepper(pref, setting.onChange, setting.params) : PREFS.toElement(pref, setting.onChange)),
+                    );
+
+                $group.appendChild($content);
+            }
         }
 
-        for (const pref in settingGroup.items) {
-            const setting = settingGroup.items[pref];
-            if (!setting) {
-                continue;
-            }
-
-            $wrapper.appendChild(CE('div', {'data-type': settingGroup.group},
-                CE('label', {for: `bx_setting_${pref}`},
-                    setting.label,
-                    setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
-                ),
-                !setting.unsupported && (setting.type === 'number-stepper' ? PREFS.toNumberStepper(pref, setting.onChange, setting.params) : PREFS.toElement(pref, setting.onChange)),
-            ));
-        }
+        $settings.appendChild($group);
     }
+
+    // Select first tab
+    $tabs.firstElementChild.dispatchEvent(new Event('click'));
 
     document.documentElement.appendChild($wrapper);
 }
