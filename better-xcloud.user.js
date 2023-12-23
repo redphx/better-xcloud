@@ -19,6 +19,22 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
 
+const NATIVE_MKB_TITLES = [
+    '9NP1P1WFS0LB', // Halo Infinite
+    '9PJTHRNVH62H', // Grounded
+    '9PMQDM08SNK9', // MS Flight Simulator
+    '9P2N57MC619K', // Sea of Thieves
+    '9NBR2VXT87SJ', // Psychonauts 2
+    '9N5JRWWGMS1R', // ARK
+    '9P4KMR76PLLQ', // Gears 5
+    '9NN3HCKW5TPC', // Gears Tactics
+
+    // Bugged
+    // '9NG07QJNK38J', // Among Us
+    // '9N2Z748SPMTM', // AoE 2
+    // '9P731Z4BBCT3', // Atomic Heart
+];
+
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
 
@@ -2131,6 +2147,7 @@ var STREAM_AUDIO_GAIN_NODE;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
+var GAME_PRODUCT_ID;
 var APP_CONTEXT;
 
 let IS_REMOTE_PLAYING;
@@ -2891,7 +2908,7 @@ class InputManager {
     }
 
     static #onKeyboardEvent(e) {
-        console.log(e);
+        // console.log(e);
 
         const virtualGamepad = InputManager.#getVirtualGamepad();
         const isKeyDown = e.type === 'keydown';
@@ -2920,7 +2937,7 @@ class InputManager {
     }
 
     static #onMouseEvent(e) {
-        console.log(e);
+        // console.log(e);
 
         const virtualGamepad = InputManager.#getVirtualGamepad();
         const isMouseDown = e.type === 'mousedown';
@@ -4717,30 +4734,50 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             // Find the next "},"
             const endIndex = funcStr.indexOf('},', index);
 
-            const newCode = `
-EnableStreamGate: false,
-PwaPrompt: false,
-`;
+            const newSettings = [
+                'EnableStreamGate: false',
+                'PwaPrompt: false',
+            ];
+
+            // Enable native Mouse and Keyboard support
+            if (PREFS.get(Preferences.MKB_ENABLED)) {
+                newSettings.push('EnableMouseAndKeyboard: true');
+                newSettings.push('ShowMouseKeyboardSetting: true');
+
+                if (PREFS.get(Preferences.MKB_ABSOLUTE_MOUSE)) {
+                    newSettings.push('EnableAbsoluteMouse: true');
+                }
+            }
+
+            const newCode = newSettings.join(',');
+            console.log(newCode);
+
             funcStr = funcStr.substring(0, endIndex) + ',' + newCode + funcStr.substring(endIndex);
             return funcStr;
         },
 
-        // Enable Mouse and Keyboard support
-        enableMouseAndKeyboard: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
-            if (!funcStr.includes('EnableMouseAndKeyboard:')) {
+        mkbIsMouseAndKeyboardTitle: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
+            const text = 'isMouseAndKeyboardTitle:()=>yn';
+            if (!funcStr.includes(text)) {
                 return false;
             }
 
-            funcStr = funcStr.replace('EnableMouseAndKeyboard:!1', 'EnableMouseAndKeyboard:!0');
-            if (PREFS.get(Preferences.MKB_ABSOLUTE_MOUSE)) {
-                funcStr = funcStr.replace('EnableAbsoluteMouse:!1', 'EnableAbsoluteMouse:!0');
-            }
+            const titlesStr = JSON.stringify(NATIVE_MKB_TITLES);
+            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return ${titlesStr}.includes(e.details.productId); })`);
+        },
 
-            return funcStr;
+        mkbMouseAndKeyboardEnabled: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
+            const text = 'get mouseAndKeyboardEnabled(){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+            return funcStr.replace(text, 'get mouseAndKeyboardEnabled() {return this._titleSupportsMouseAndKeyboard;');
         },
     };
 
     static #PATCH_ORDERS = [
+        ['mkbMouseAndKeyboardEnabled'],
+
         [
             'disableAiTrack',
             'disableTelemetry',
@@ -4751,10 +4788,10 @@ PwaPrompt: false,
         ['enableXcloudLogger'],
 
         [
-            // 'enableMouseAndKeyboard',
             'overrideSettings',
             'remotePlayDirectConnectUrl',
             'disableTrackEvent',
+            'mkbIsMouseAndKeyboardTitle',
             'enableConsoleLogging',
             'remotePlayKeepAlive',
             'blockWebRtcStatsCollector',
@@ -5992,7 +6029,6 @@ function interceptHttpRequests() {
 
     const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
-    const PREF_OVERRIDE_CONFIGURATION = PREF_AUDIO_MIC_ON_PLAYING || PREF_STREAM_TOUCH_CONTROLLER === 'all';
 
     const orgFetch = window.fetch;
     let consoleIp;
@@ -6243,9 +6279,6 @@ function interceptHttpRequests() {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
 
             const promise = orgFetch(...arg);
-            if (!PREF_OVERRIDE_CONFIGURATION) {
-                return promise;
-            }
 
             // Touch controller for all games
             if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
@@ -6259,10 +6292,6 @@ function interceptHttpRequests() {
                     !TitlesInfo.hasTouchSupport(titleId) && TouchController.enable();
                 }
 
-                // If both settings are invalid -> return promise
-                if (!PREF_AUDIO_MIC_ON_PLAYING && !TouchController.isEnabled()) {
-                    return promise;
-                }
             }
 
             // Intercept configurations
@@ -6275,10 +6304,12 @@ function interceptHttpRequests() {
                     const obj = JSON.parse(text);
                     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
 
+                    overrides.inputConfiguration = overrides.inputConfiguration || {};
+                    overrides.inputConfiguration.enableVibration = true;
+                    overrides.inputConfiguration.enableMouseAndKeyboard = PREFS.get(Preferences.MKB_ENABLED);
+
                     // Enable touch controller
                     if (TouchController.isEnabled()) {
-                        overrides.inputConfiguration = overrides.inputConfiguration || {};
-                        overrides.enableVibration = true;
                         overrides.inputConfiguration.enableTouchInput = true;
                         overrides.inputConfiguration.maxTouchPoints = 10;
                     }
@@ -7270,16 +7301,19 @@ function onHistoryChanged(e) {
 function onStreamStarted($video) {
     IS_PLAYING = true;
 
-    // Enable MKB
-    if (PREFS.get(Preferences.MKB_ENABLED)) {
-        InputManager.start();
-    }
-
     // Get title ID for screenshot's name
     if (window.location.pathname.includes('/launch/')) {
-        GAME_TITLE_ID = /\/launch\/([^/]+)/.exec(window.location.pathname)[1];
+        const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
+        GAME_TITLE_ID = matches.groups.title_id;
+        GAME_PRODUCT_ID = matches.groups.product_id;
     } else {
         GAME_TITLE_ID = 'remote-play';
+    }
+
+    // Enable MKB
+    if (PREFS.get(Preferences.MKB_ENABLED) && !NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID)) {
+        console.log('Emulate MKB');
+        InputManager.start();
     }
 
     if (TouchController.isEnabled()) {
