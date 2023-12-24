@@ -5028,14 +5028,14 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr;
         },
 
-        disableGamepadDisconnectedScreen: false && function(funcStr) {
+        disableGamepadDisconnectedScreen: function(funcStr) {
             const index = funcStr.indexOf('"GamepadDisconnected_Title",');
             if (index === -1) {
                 return false;
             }
 
             const constIndex = funcStr.indexOf('const', index - 30);
-            funcStr = funcStr.substring(0, constIndex) + 'return null;' + funcStr.substring(constIndex);
+            funcStr = funcStr.substring(0, constIndex) + 'e.onClose();return null;' + funcStr.substring(constIndex);
             return funcStr;
         },
     };
