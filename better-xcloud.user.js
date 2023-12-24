@@ -2997,8 +2997,30 @@ class Toast {
     static #$msg;
     static #$status;
 
+    static #timeout;
+    static #DURATION = 3000;
+
+    static show(msg, status) {
+        Toast.#$msg.textContent = msg;
+        if (status) {
+            Toast.#$status.classList.remove('bx-gone');
+            Toast.#$status.textContent = status;
+        } else {
+            Toast.#$status.classList.add('bx-gone');
+            Toast.#$status.textContent = '';
+        }
+
+        Toast.#timeout && clearTimeout(Toast.#timeout);
+        Toast.#timeout = setTimeout(Toast.#hide, Toast.#DURATION);
+    }
+
+    static #hide() {
+        Toast.#timeout = null;
+        Toast.#$wrapper.classList.add('bx-gone');
+    }
+
     static setup() {
-        Toast.#$wrapper = createElement('div', {'class': 'bx-toast bx-gone'},
+        Toast.#$wrapper = createElement('div', {'class': 'bx-toast'},
                                         Toast.#$msg = createElement('span', {'class': 'bx-toast-msg'}),
                                         Toast.#$status = createElement('span', {'class': 'bx-toast-status'}));
 
@@ -5206,13 +5228,14 @@ function addCss() {
     --bx-normal-font: "Segoe UI", Arial, Helvetica, sans-serif;
     --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
 
-    --bx-wait-time-box-z-index: 9999;
+    --bx-toast-z-index: 9999;
     --bx-stats-bar-z-index: 9001;
     --bx-stream-settings-z-index: 9000;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
     --bx-dialog-z-index: 1010;
     --bx-dialog-overlay-z-index: 900;
+    --bx-wait-time-box-z-index: 100;
 }
 
 .bx-settings-button {
@@ -5799,32 +5822,38 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-toast {
+    user-select: none;
+    -webkit-user-select: none;
     position: fixed;
     left: 50%;
     top: 24px;
     transform: translate(-50%, 0);
-    background: #000000cc;
-    border-radius: 40px;
-    padding: 8px 18px;
+    background: #000000;
+    border-radius: 16px;
     color: white;
-    z-index: 999;
+    z-index: var(--bx-toast-z-index);
     font-family: var(--bx-normal-font);
-    border: 1px solid #fff;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    opacity: 0.85;
+    overflow: clip;
 }
 
 .bx-toast-msg {
-    font-size: 12px;
+    font-size: 14px;
     display: inline-block;
-    vertical-align: middle;
+    padding: 12px 16px;
 }
 
 .bx-toast-status {
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     text-transform: uppercase;
     display: inline-block;
-    vertical-align: middle;
-    margin-left: 10px;
+    background: #515863;
+    padding: 12px 16px;
+    color: #fff;
 }
 
 @media (hover: hover) {
@@ -7791,6 +7820,8 @@ function setupBxUi() {
     setupQuickSettingsBar();
     setupScreenshotButton();
     StreamStats.render();
+
+    Toast.setup();
 }
 
 
