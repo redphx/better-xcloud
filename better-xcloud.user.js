@@ -5484,7 +5484,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-quick-settings-bar {
-    display: none;
+    display: flex;
     position: fixed;
     z-index: var(--bx-stream-settings-z-index);
     opacity: 0.98;
@@ -6868,7 +6868,7 @@ function injectStreamMenuButtons() {
         }
 
         // Hide Quick settings bar
-        $quickBar.style.display = 'none';
+        $quickBar.classList.add('bx-gone');
 
         $parent.removeEventListener('click', hideQuickBarFunc);
         $parent.removeEventListener('touchstart', hideQuickBarFunc);
@@ -6903,7 +6903,7 @@ function injectStreamMenuButtons() {
                     // Hide Quick bar when closing HUD
                     const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
                     $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
-                        $quickBar.style.display = 'none';
+                        $quickBar.classList.add('bx-none');
                     });
 
                     // Get "Quit game" button
@@ -6921,11 +6921,11 @@ function injectStreamMenuButtons() {
                     return;
                 }
 
-                if ($node.className.startsWith('Overlay-module_')) {
+                if ($node.className.startsWith('Overlay-module_') || $node.className.startsWith('InProgressScreen')) {
                     $node = $node.querySelector('#StreamHud');
                 }
 
-                if (($node.id || '') !== 'StreamHud' && !$node.className.startsWith('InProgressScreen')) {
+                if (!$node || ($node.id || '') !== 'StreamHud') {
                     return;
                 }
 
@@ -6949,7 +6949,7 @@ function injectStreamMenuButtons() {
                         $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
 
                         // Show Quick settings bar
-                        $quickBar.style.display = 'flex';
+                        $quickBar.classList.remove('bx-gone');
 
                         $parent.addEventListener('click', hideQuickBarFunc);
                         $parent.addEventListener('touchstart', hideQuickBarFunc);
@@ -7240,7 +7240,7 @@ function setupQuickSettingsBar() {
     let $tabs;
     let $settings;
 
-    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar'},
+    const $wrapper = CE('div', {'class': 'bx-quick-settings-bar bx-gone'},
             $tabs = CE('div', {'class': 'bx-quick-settings-tabs'}),
             $settings = CE('div', {'class': 'bx-quick-settings-tab-contents'}),
         );
@@ -7422,7 +7422,7 @@ function onHistoryChanged(e) {
 
     const $quickBar = document.querySelector('.bx-quick-settings-bar');
     if ($quickBar) {
-        $quickBar.style.display = 'none';
+        $quickBar.classList.add('bx-gone');
     }
 
     STREAM_AUDIO_GAIN_NODE = null;
