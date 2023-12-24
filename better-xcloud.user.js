@@ -3001,19 +3001,19 @@ class Toast {
     static #DURATION = 3000;
 
     static show(msg, status) {
+        Toast.#timeout && clearTimeout(Toast.#timeout);
+        Toast.#timeout = setTimeout(Toast.#hide, Toast.#DURATION);
+
         Toast.#$msg.textContent = msg;
-        Toast.#$wrapper.classList.remove('bx-gone');
 
         if (status) {
             Toast.#$status.classList.remove('bx-gone');
             Toast.#$status.textContent = status;
         } else {
             Toast.#$status.classList.add('bx-gone');
-            Toast.#$status.textContent = '';
         }
 
-        Toast.#timeout && clearTimeout(Toast.#timeout);
-        Toast.#timeout = setTimeout(Toast.#hide, Toast.#DURATION);
+        Toast.#$wrapper.classList.remove('bx-gone');
     }
 
     static #hide() {
@@ -3126,7 +3126,7 @@ class InputManager {
         // console.log(e);
 
         const isKeyDown = e.type === 'keydown';
-        if (isKeyDown && e.code === 'F9') {
+        if (isKeyDown && e.code === 'F8') {
             InputManager.toggle();
             return;
         }
@@ -3212,7 +3212,7 @@ class InputManager {
     }
 
     static init() {
-        Toast.show(__('press-key-to-toggle-mkb', {key: 'F9'}));
+        Toast.show(__('press-key-to-toggle-mkb', {key: 'F8'}));
 
         window.addEventListener('keydown', InputManager.#onKeyboardEvent);
         window.addEventListener('keyup', InputManager.#onKeyboardEvent);
