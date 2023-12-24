@@ -3002,6 +3002,8 @@ class Toast {
 
     static show(msg, status) {
         Toast.#$msg.textContent = msg;
+        Toast.#$wrapper.classList.remove('bx-gone');
+
         if (status) {
             Toast.#$status.classList.remove('bx-gone');
             Toast.#$status.textContent = status;
@@ -3020,7 +3022,7 @@ class Toast {
     }
 
     static setup() {
-        Toast.#$wrapper = createElement('div', {'class': 'bx-toast'},
+        Toast.#$wrapper = createElement('div', {'class': 'bx-toast bx-gone'},
                                         Toast.#$msg = createElement('span', {'class': 'bx-toast-msg'}),
                                         Toast.#$status = createElement('span', {'class': 'bx-toast-status'}));
 
@@ -3105,6 +3107,8 @@ class InputManager {
         timestamp: performance.now(),
     }
 
+    static #enabled = false;
+
     static #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
 
     static #getVirtualGamepad() {
@@ -3121,8 +3125,13 @@ class InputManager {
     static #onKeyboardEvent(e) {
         // console.log(e);
 
-        const virtualGamepad = InputManager.#getVirtualGamepad();
         const isKeyDown = e.type === 'keydown';
+        if (isKeyDown && e.code === 'F9') {
+            InputManager.toggle();
+            return;
+        }
+
+        const virtualGamepad = InputManager.#getVirtualGamepad();
         let preventDefault = false;
 
         const buttonIndex = InputManager.#KEY_MAP[e.code];
@@ -3191,11 +3200,37 @@ class InputManager {
         e.preventDefault();
     }
 
-    static start() {
-        window.navigator.getGamepads = InputManager.#patchedGetGamepads;
+    static toggle() {
+        InputManager.#enabled = !InputManager.#enabled;
+        if (InputManager.#enabled) {
+            InputManager.start();
+        } else {
+            InputManager.stop();
+        }
+
+        Toast.show(__('mouse-and-keyboard'), InputManager.#enabled ? __('enabled') : __('disabled'));
+    }
+
+    static init() {
+        Toast.show(__('press-key-to-toggle-mkb', {key: 'F9'}));
 
         window.addEventListener('keydown', InputManager.#onKeyboardEvent);
         window.addEventListener('keyup', InputManager.#onKeyboardEvent);
+
+        InputManager.#enabled = true;
+        InputManager.start();
+    }
+
+    static destroy() {
+        window.removeEventListener('keydown', InputManager.#onKeyboardEvent);
+        window.removeEventListener('keyup', InputManager.#onKeyboardEvent);
+
+        InputManager.#enabled = false;
+        InputManager.stop();
+    }
+
+    static start() {
+        window.navigator.getGamepads = InputManager.#patchedGetGamepads;
 
         window.addEventListener('mousemove', InputManager.#onMouseMoveEvent);
         window.addEventListener('mousedown', InputManager.#onMouseEvent);
@@ -4961,7 +4996,6 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             }
 
             const newCode = newSettings.join(',');
-            console.log(newCode);
 
             funcStr = funcStr.substring(0, endIndex) + ',' + newCode + funcStr.substring(endIndex);
             return funcStr;
@@ -7104,8 +7138,6 @@ function injectStreamMenuButtons() {
                     return;
                 }
 
-                console.log($node);
-
                 if (PREF_DISABLE_FEEDBACK_DIALOG && $node.className.startsWith('PostStreamFeedbackScreen')) {
                     const $btnClose = $node.querySelector('button');
                     $btnClose && $btnClose.click();
@@ -7624,7 +7656,7 @@ function onHistoryChanged(e) {
     }
 
     // Stop MKB listeners
-    InputManager.stop();
+    InputManager.destroy();
 
     IS_PLAYING = false;
     setTimeout(RemotePlay.detect, 10);
@@ -7674,7 +7706,7 @@ function onStreamStarted($video) {
     // Enable MKB
     if (PREFS.get(Preferences.MKB_ENABLED) && !NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID)) {
         console.log('Emulate MKB');
-        InputManager.start();
+        InputManager.init();
     }
 
     if (TouchController.isEnabled()) {
