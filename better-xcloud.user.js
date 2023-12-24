@@ -111,11 +111,22 @@ const Translations = {
         return locale;
     },
 
-    get: (key) => {
+    get: (key, values) => {
         const texts = Translations[key] || alert(`Missing translation key: ${key}`);
-        return texts[LOCALE] || texts['en-US'];
+        const translation = texts[LOCALE] || texts['en-US'];
+
+        return values ? translation(values) : translation;
     },
 
+    "active": {
+        "de-DE": "Aktiv",
+        "en-US": "Active",
+        "es-ES": "Activo",
+        "ja-JP": "有効",
+        "uk-UA": "Активний",
+        "vi-VN": "Kích hoạt",
+        "zh-CN": "已启用",
+    },
     "advanced": {
         "de-DE": "Erweitert",
         "en-US": "Advanced",
@@ -352,6 +363,16 @@ const Translations = {
         "tr-TR": "Xbox 360 oyunlarına erişim sağlanabilir",
         "uk-UA": "Дозволяє транслювати ігри Xbox 360",
         "vi-VN": "Có thể stream các game Xbox 360",
+        "zh-CN": "可以进行流式传输Xbox360游戏",
+    },
+    "cancel": {
+        "de-DE": "Abbrechen",
+        "en-US": "Cancel",
+        "es-ES": "Cancelar",
+        "ja-JP": "キャンセル",
+        "uk-UA": "Скасувати",
+        "vi-VN": "Hủy",
+        "zh-CN": "取消",
     },
     "cant-stream-xbox-360-games": {
         "de-DE": "Kann Xbox 360 Spiele nicht streamen",
@@ -365,6 +386,7 @@ const Translations = {
         "tr-TR": "Xbox 360 oyunlarına erişim sağlanamaz",
         "uk-UA": "Не дозволяє транслювати ігри Xbox 360",
         "vi-VN": "Không thể stream các game Xbox 360",
+        "zh-CN": "不可以进行流式传输Xbox360游戏",
     },
     "clarity": {
         "de-DE": "Klarheit",
@@ -398,6 +420,15 @@ const Translations = {
         "vi-VN": "Các tùy chỉnh này không hoạt động khi chế độ Clarity Boost đang được bật",
         "zh-CN": "这些设置在 Clarity Boost 清晰度增强 开启时不可用",
     },
+    "clear": {
+        "de-DE": "Zurücksetzen",
+        "en-US": "Clear",
+        "es-ES": "Borrar",
+        "ja-JP": "消去",
+        "uk-UA": "Очистити",
+        "vi-VN": "Xóa",
+        "zh-CN": "清空",
+    },
     "close": {
         "de-DE": "Schließen",
         "en-US": "Close",
@@ -429,6 +460,15 @@ const Translations = {
         "uk-UA": "Колір тексту в залежності від умов",
         "vi-VN": "Thay đổi màu chữ tùy theo giá trị",
         "zh-CN": "更改文本颜色",
+    },
+    "confirm-delete-preset": {
+        "de-DE": "Möchtest Du diese Voreinstellung löschen?",
+        "en-US": "Do you want to delete this preset?",
+        "es-ES": "¿Desea eliminar este preajuste?",
+        "ja-JP": "このプリセットを削除しますか？",
+        "uk-UA": "Ви бажаєте видалити цей пресет?",
+        "vi-VN": "Bạn có muốn xoá thiết lập sẵn này không?",
+        "zh-CN": "您想要删除此预设吗？",
     },
     "confirm-reload-stream": {
         "de-DE": "Möchtest Du den Stream aktualisieren?",
@@ -493,11 +533,23 @@ const Translations = {
     "controller-vibration": {
         "de-DE": "Vibration des Controllers",
         "en-US": "Controller vibration",
+        "es-ES": "Vibración del mando",
         "ja-JP": "コントローラーの振動",
         "pt-BR": "Vibração do controle",
         "ru-RU": "Вибрация контроллера",
         "tr-TR": "Oyun kumandası titreşimi",
+        "uk-UA": "Вібрація контролера",
         "vi-VN": "Rung bộ điều khiển",
+        "zh-CN": "控制器振动",
+    },
+    "copy-preset": {
+        "de-DE": "Voreinstellung kopieren",
+        "en-US": "Copy preset",
+        "es-ES": "Copiar preajuste",
+        "ja-JP": "プリセットをコピー",
+        "uk-UA": "Копіювати пресет",
+        "vi-VN": "Sao chép thiết lập sẵn",
+        "zh-CN": "复制预设",
     },
     "custom": {
         "de-DE": "Benutzerdefiniert",
@@ -531,6 +583,15 @@ const Translations = {
         "vi-VN": "Mặc định",
         "zh-CN": "默认",
     },
+    "delete": {
+        "de-DE": "Löschen",
+        "en-US": "Delete",
+        "es-ES": "Borrar",
+        "ja-JP": "削除",
+        "uk-UA": "Видалити",
+        "vi-VN": "Xóa",
+        "zh-CN": "删除",
+    },
     "device-unsupported-touch": {
         "de-DE": "Dein Gerät hat keine Touch-Unterstützung",
         "en-US": "Your device doesn't have touch support",
@@ -550,22 +611,26 @@ const Translations = {
     "device-vibration": {
         "de-DE": "Vibration des Geräts",
         "en-US": "Device vibration",
+        "es-ES": "Vibración del dispositivo",
         "ja-JP": "デバイスの振動",
         "pt-BR": "Vibração do dispositivo",
         "ru-RU": "Вибрация устройства",
         "tr-TR": "Cihaz titreşimi",
         "uk-UA": "Вібрація пристрою",
         "vi-VN": "Rung thiết bị",
+        "zh-CN": "设备振动",
     },
     "device-vibration-not-using-gamepad": {
         "de-DE": "An, wenn kein Gamepad verbunden",
         "en-US": "On when not using gamepad",
+        "es-ES": "Activado cuando no se utiliza el mando",
         "ja-JP": "ゲームパッド未使用時にオン",
         "pt-BR": "Ativar quando não estiver usando o dispositivo",
         "ru-RU": "Включить когда не используется геймпад",
         "tr-TR": "Oyun kumandası bağlanmadan titreşim",
         "uk-UA": "Увімкнена, коли не використовується геймпад",
         "vi-VN": "Bật khi không dùng tay cầm",
+        "zh-CN": "当不使用游戏手柄时",
     },
     "disable": {
         "de-DE": "Deaktiviert",
@@ -646,6 +711,19 @@ const Translations = {
         "vi-VN": "Khóa phân tích thông tin của xCloud",
         "zh-CN": "关闭 xCloud 遥测数据统计",
     },
+    "disabled": {
+        "en-US": "Disabled",
+        "vi-VN": "Đã tắt",
+    },
+    "edit": {
+        "de-DE": "Bearbeiten",
+        "en-US": "Edit",
+        "es-ES": "Editar",
+        "ja-JP": "編集",
+        "uk-UA": "Редагувати",
+        "vi-VN": "Sửa",
+        "zh-CN": "编辑",
+    },
     "enable-controller-shortcuts": {
         "de-DE": "Controller-Shortcuts aktivieren",
         "en-US": "Enable controller shortcuts",
@@ -688,6 +766,7 @@ const Translations = {
         "tr-TR": "Klavye ve fare desteğini aktive et",
         "uk-UA": "Увімкнути підтримку миші та клавіатури",
         "vi-VN": "Kích hoạt hỗ trợ Chuột & Bàn phím",
+        "zh-CN": "启用鼠标和键盘支持",
     },
     "enable-quick-glance-mode": {
         "de-DE": "\"Kurzer Blick\"-Modus aktivieren",
@@ -717,6 +796,7 @@ const Translations = {
         "tr-TR": "\"Uzaktan Oynama\" özelliğini aktive et",
         "uk-UA": "Увімкнути функцію \"Remote Play\"",
         "vi-VN": "Bật tính năng \"Chơi từ xa\"",
+        "zh-CN": "启用\"远程播放\"功能",
     },
     "enable-volume-control": {
         "de-DE": "Lautstärkeregelung aktivieren",
@@ -734,6 +814,19 @@ const Translations = {
         "vi-VN": "Bật tính năng điều khiển âm lượng",
         "zh-CN": "启用音量控制",
     },
+    "enabled": {
+        "en-US": "Enabled",
+        "vi-VN": "Đã bật",
+    },
+    "export": {
+        "de-DE": "Exportieren",
+        "en-US": "Export",
+        "es-ES": "Exportar",
+        "ja-JP": "エクスポート（書出し）",
+        "uk-UA": "Експорт",
+        "vi-VN": "Xuất",
+        "zh-CN": "导出",
+    },
     "fast": {
         "de-DE": "Schnell",
         "en-US": "Fast",
@@ -746,6 +839,7 @@ const Translations = {
         "tr-TR": "Hızlı",
         "uk-UA": "Швидкий",
         "vi-VN": "Nhanh",
+        "zh-CN": "快速",
     },
     "getting-consoles-list": {
         "de-DE": "Rufe Liste der Konsolen ab...",
@@ -759,6 +853,7 @@ const Translations = {
         "tr-TR": "Konsol listesine erişiliyor...",
         "uk-UA": "Отримання списку консолей...",
         "vi-VN": "Đang lấy danh sách các console...",
+        "zh-CN": "正在获取控制台列表...",
     },
     "hide-idle-cursor": {
         "de-DE": "Mauszeiger bei Inaktivität ausblenden",
@@ -791,6 +886,15 @@ const Translations = {
         "uk-UA": "Приховати іконку системного меню",
         "vi-VN": "Ẩn biểu tượng của menu Hệ thống",
         "zh-CN": "隐藏系统菜单图标",
+    },
+    "import": {
+        "de-DE": "Importieren",
+        "en-US": "Import",
+        "es-ES": "Importar",
+        "ja-JP": "インポート（読込み）",
+        "uk-UA": "Імпорт",
+        "vi-VN": "Nhập",
+        "zh-CN": "导入",
     },
     "language": {
         "de-DE": "Sprache",
@@ -836,6 +940,7 @@ const Translations = {
         "tr-TR": "Arayüz Görünümü",
         "uk-UA": "Розмітка",
         "vi-VN": "Bố cục",
+        "zh-CN": "布局",
     },
     "loading-screen": {
         "de-DE": "Ladebildschirm",
@@ -865,6 +970,7 @@ const Translations = {
         "tr-TR": "Maksimum bithızı",
         "uk-UA": "Максимальний бітрейт",
         "vi-VN": "Bitrate tối đa",
+        "zh-CN": "最大比特率",
     },
     "may-not-work-properly": {
         "de-DE": "Funktioniert evtl. nicht fehlerfrei!",
@@ -878,6 +984,7 @@ const Translations = {
         "tr-TR": "Düzgün çalışmayabilir!",
         "uk-UA": "Може працювати некоректно!",
         "vi-VN": "Có thể không hoạt động!",
+        "zh-CN": "可能无法正常工作！",
     },
     "menu-stream-settings": {
         "de-DE": "Stream Einstellungen",
@@ -937,6 +1044,7 @@ const Translations = {
         "tr-TR": "Klavye ve Fare",
         "uk-UA": "Миша та клавіатура",
         "vi-VN": "Chuột và Bàn phím",
+        "zh-CN": "鼠标和键盘",
     },
     "muted": {
         "de-DE": "Stumm",
@@ -951,6 +1059,24 @@ const Translations = {
         "uk-UA": "Без звуку",
         "vi-VN": "Đã tắt âm",
         "zh-CN": "静音",
+    },
+    "name": {
+        "de-DE": "Name",
+        "en-US": "Name",
+        "es-ES": "Nombre",
+        "ja-JP": "名前",
+        "uk-UA": "Назва",
+        "vi-VN": "Tên",
+        "zh-CN": "名称",
+    },
+    "new-preset": {
+        "de-DE": "Neue Voreinstellung",
+        "en-US": "New preset",
+        "es-ES": "Nuevo preajuste",
+        "ja-JP": "新しいプリセット",
+        "uk-UA": "Новий пресет",
+        "vi-VN": "Tạo mới thiết lập sẵn",
+        "zh-CN": "自定义预设",
     },
     "no-consoles-found": {
         "de-DE": "Keine Konsolen gefunden",
@@ -1024,6 +1150,7 @@ const Translations = {
         "tr-TR": "Yalnızca belli oyunlar destekleniyor",
         "uk-UA": "Підтримує лише деякі ігри",
         "vi-VN": "Chỉ hỗ trợ một vài game",
+        "zh-CN": "仅支持一些游戏",
     },
     "opacity": {
         "de-DE": "Deckkraft",
@@ -1056,6 +1183,15 @@ const Translations = {
         "uk-UA": "Інше",
         "vi-VN": "Khác",
         "zh-CN": "其他",
+    },
+    "playing": {
+        "de-DE": "Spielt",
+        "en-US": "Playing",
+        "es-ES": "Jugando",
+        "ja-JP": "プレイ中",
+        "uk-UA": "Гра триває",
+        "vi-VN": "Đang chơi",
+        "zh-CN": "游戏中",
     },
     "position": {
         "de-DE": "Position",
@@ -1132,6 +1268,37 @@ const Translations = {
         "uk-UA": "Бажана мова гри",
         "vi-VN": "Ngôn ngữ game ưu tiên",
         "zh-CN": "首选游戏语言",
+    },
+    "preset": {
+        "de-DE": "Voreinstellung",
+        "en-US": "Preset",
+        "es-ES": "Preajuste",
+        "ja-JP": "プリセット",
+        "uk-UA": "Пресет",
+        "vi-VN": "Thiết lập sẵn",
+        "zh-CN": "预设",
+    },
+    "press-esc-to-cancel": {
+        "de-DE": "Zum Abbrechen \"Esc\" drücken",
+        "en-US": "Press Esc to cancel",
+        "es-ES": "Presione Esc para cancelar",
+        "ja-JP": "Escを押してキャンセル",
+        "uk-UA": "Натисніть Esc, щоб скасувати",
+        "vi-VN": "Nhấn Esc để bỏ qua",
+        "zh-CN": "按下ESC键以取消",
+    },
+    "press-key-to-toggle-mkb": {
+        "en-US": e => `Press ${e.key} to toggle Mouse and Keyboard feature`,
+        "vi-VN": e => `Nhấn ${e.key} để bật/tắt tính năng Chuột và Bàn phím`,
+    },
+    "press-to-bind": {
+        "de-DE": "Zum Festlegen Taste drücken oder mit der Maus klicken...",
+        "en-US": "Press a key or do a mouse click to bind...",
+        "es-ES": "Presione una tecla o haga un clic del ratón para enlazar...",
+        "ja-JP": "キーを押すかマウスをクリックして割り当て...",
+        "uk-UA": "Натисніть клавішу або кнопку миші, щоб прив'язати...",
+        "vi-VN": "Nhấn nút hoặc nhấn chuột để gán...",
+        "zh-CN": "按相应按键或鼠标键来绑定",
     },
     "ratio": {
         "de-DE": "Seitenverhältnis",
@@ -1291,6 +1458,15 @@ const Translations = {
         "vi-VN": "Độ bão hòa",
         "zh-CN": "饱和度",
     },
+    "save": {
+        "de-DE": "Speichern",
+        "en-US": "Save",
+        "es-ES": "Guardar",
+        "ja-JP": "保存",
+        "uk-UA": "Зберегти",
+        "vi-VN": "Lưu",
+        "zh-CN": "保存",
+    },
     "screenshot-button-position": {
         "de-DE": "Position des Screenshot-Buttons",
         "en-US": "Screenshot button's position",
@@ -1447,6 +1623,7 @@ const Translations = {
         "tr-TR": "Yavaş",
         "uk-UA": "Повільний",
         "vi-VN": "Chậm",
+        "zh-CN": "慢速",
     },
     "small": {
         "de-DE": "Klein",
@@ -1476,6 +1653,7 @@ const Translations = {
         "tr-TR": "Akıllı TV",
         "uk-UA": "Smart TV",
         "vi-VN": "TV thông minh",
+        "zh-CN": "智能电视",
     },
     "sound": {
         "de-DE": "Ton",
@@ -1652,12 +1830,14 @@ const Translations = {
     "swap-buttons": {
         "de-DE": "Tasten tauschen",
         "en-US": "Swap buttons",
+        "es-ES": "Intercambiar botones",
         "ja-JP": "ボタン入れ替え",
         "pt-BR": "Trocar botões",
         "ru-RU": "Поменять кнопки",
         "tr-TR": "Düğme düzenini ters çevir",
         "uk-UA": "Поміняти кнопки місцями",
         "vi-VN": "Hoán đổi nút",
+        "zh-CN": "交换按钮",
     },
     "target-resolution": {
         "de-DE": "Festgelegte Auflösung",
@@ -1909,6 +2089,7 @@ const Translations = {
         "tr-TR": "Limitsiz",
         "uk-UA": "Необмежено",
         "vi-VN": "Không giới hạn",
+        "zh-CN": "无限制",
     },
     "unmuted": {
         "de-DE": "Ton an",
@@ -1935,6 +2116,7 @@ const Translations = {
         "tr-TR": "Farenin mutlak pozisyonunu baz al",
         "uk-UA": "Використовувати абсолютне положення миші",
         "vi-VN": "Sử dụng vị trí tuyệt đối của chuột",
+        "zh-CN": "使用鼠标的绝对位置",
     },
     "user-agent-profile": {
         "de-DE": "User-Agent Profil",
@@ -1955,11 +2137,14 @@ const Translations = {
     "vibration-intensity": {
         "de-DE": "Vibrationsstärke",
         "en-US": "Vibration intensity",
+        "es-ES": "Intensidad de la vibración",
         "ja-JP": "振動の強さ",
         "pt-BR": "Intensidade da vibração",
         "ru-RU": "Сила вибрации",
         "tr-TR": "Titreşim gücü",
+        "uk-UA": "Інтенсивність вібрації",
         "vi-VN": "Cường độ rung",
+        "zh-CN": "振动强度",
     },
     "video": {
         "de-DE": "Video",
