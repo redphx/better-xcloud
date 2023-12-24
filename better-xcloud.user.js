@@ -3126,7 +3126,7 @@ class InputManager {
         // console.log(e);
 
         const isKeyDown = e.type === 'keydown';
-        if (isKeyDown && e.code === 'F8') {
+        if (isKeyDown && e.code === 'F9') {
             InputManager.toggle();
             return;
         }
@@ -3212,7 +3212,7 @@ class InputManager {
     }
 
     static init() {
-        Toast.show(__('press-key-to-toggle-mkb', {key: 'F8'}));
+        Toast.show(__('press-key-to-toggle-mkb', {key: 'F9'}));
 
         window.addEventListener('keydown', InputManager.#onKeyboardEvent);
         window.addEventListener('keyup', InputManager.#onKeyboardEvent);
@@ -5028,7 +5028,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr;
         },
 
-        disableGamepadDisconnectedScreen: function(funcStr) {
+        disableGamepadDisconnectedScreen: false && function(funcStr) {
             const index = funcStr.indexOf('"GamepadDisconnected_Title",');
             if (index === -1) {
                 return false;
