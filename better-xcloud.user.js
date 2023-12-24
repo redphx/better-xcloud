@@ -5027,6 +5027,17 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             funcStr = funcStr.replace('=3;', '=5;');
             return funcStr;
         },
+
+        disableGamepadDisconnectedScreen: function(funcStr) {
+            const index = funcStr.indexOf('"GamepadDisconnected_Title",');
+            if (index === -1) {
+                return false;
+            }
+
+            const constIndex = funcStr.indexOf('const', index - 30);
+            funcStr = funcStr.substring(0, constIndex) + 'return null;' + funcStr.substring(constIndex);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -5053,7 +5064,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         ['remotePlayConnectMode'],
         ['playVibration'],
         ['enableConsoleLogging'],
-        ['mkbMouseAndKeyboardEnabled', 'patchStreamHudSize'],
+        ['disableGamepadDisconnectedScreen', 'mkbMouseAndKeyboardEnabled', 'patchStreamHudSize'],
     ];
 
     static #patchFunctionBind() {
