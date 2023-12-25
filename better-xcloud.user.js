@@ -3013,18 +3013,33 @@ class Toast {
             Toast.#$status.classList.add('bx-gone');
         }
 
-        Toast.#$wrapper.classList.remove('bx-gone');
+        const classList = Toast.#$wrapper.classList;
+        classList.remove('bx-offscreen');
+        classList.remove('bx-hide');
+        classList.add('bx-show');
     }
 
     static #hide() {
         Toast.#timeout = null;
-        Toast.#$wrapper.classList.add('bx-gone');
+
+        const classList = Toast.#$wrapper.classList;
+        classList.remove('bx-show');
+        classList.add('bx-hide');
     }
 
     static setup() {
-        Toast.#$wrapper = createElement('div', {'class': 'bx-toast bx-gone'},
+        Toast.#$wrapper = createElement('div', {'class': 'bx-toast bx-offscreen'},
                                         Toast.#$msg = createElement('span', {'class': 'bx-toast-msg'}),
                                         Toast.#$status = createElement('span', {'class': 'bx-toast-status'}));
+
+        Toast.#$wrapper.addEventListener('transitionend', e => {
+            const classList = Toast.#$wrapper.classList;
+            if (classList.contains('bx-hide')) {
+                classList.remove('bx-show');
+                classList.remove('bx-hide');
+                classList.add('bx-offscreen');
+            }
+        });
 
         document.documentElement.appendChild(Toast.#$wrapper);
     }
@@ -5317,6 +5332,13 @@ function addCss() {
     display: none !important;
 }
 
+.bx-offscreen {
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    visibility: hidden !important;
+}
+
 .bx-hidden {
     visibility: hidden !important;
 }
@@ -5881,8 +5903,17 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border: 2px solid #fff;
     display: flex;
     align-items: center;
-    opacity: 0.85;
+    opacity: 0;
     overflow: clip;
+    transition: opacity 0.2s ease-in;
+}
+
+.bx-toast.bx-show {
+    opacity: 0.85;
+}
+
+.bx-toast.bx-hide {
+    opacity: 0;
 }
 
 .bx-toast-msg {
