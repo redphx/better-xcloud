@@ -5769,6 +5769,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-quick-settings-tabs {
     position: fixed;
+    top: 0;
     right: 420px;
     display: flex;
     flex-direction: column;
