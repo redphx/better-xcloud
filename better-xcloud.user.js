@@ -5023,7 +5023,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             }
 
             const titlesStr = JSON.stringify(NATIVE_MKB_TITLES);
-            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return ${titlesStr}.includes(e.details.productId); })`);
+            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return e && e.details ? ${titlesStr}.includes(e.details.productId) : true; })`);
         },
 
         mkbMouseAndKeyboardEnabled: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
@@ -5053,6 +5053,18 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             funcStr = funcStr.substring(0, constIndex) + 'e.onClose();return null;' + funcStr.substring(constIndex);
             return funcStr;
         },
+
+        patchUpdateInputConfigurationAsync: HAS_TOUCH_SUPPORT && function(funcStr) {
+            const text = 'async updateInputConfigurationAsync(e){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            const newCode = 'e.enableTouchInput = true;';
+
+            funcStr = funcStr.replace(text, text + newCode);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -5069,6 +5081,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             'overrideSettings',
             'remotePlayDirectConnectUrl',
             'disableTrackEvent',
+            'patchUpdateInputConfigurationAsync',
             'mkbIsMouseAndKeyboardTitle',
             'enableConsoleLogging',
             'remotePlayKeepAlive',
@@ -5079,7 +5092,11 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         ['remotePlayConnectMode'],
         ['playVibration'],
         ['enableConsoleLogging'],
-        ['disableGamepadDisconnectedScreen', 'mkbMouseAndKeyboardEnabled', 'patchStreamHudSize'],
+        [
+            'disableGamepadDisconnectedScreen',
+            'mkbMouseAndKeyboardEnabled',
+            'patchStreamHudSize',
+        ],
     ];
 
     static #patchFunctionBind() {
@@ -5119,6 +5136,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     static length() { return Patcher.#PATCH_ORDERS.length; };
 
     static patch(item) {
+        // console.log('patch', '-----');
         let patchName;
         let appliedPatches;
 
@@ -6412,7 +6430,9 @@ function interceptHttpRequests() {
             setupBxUi();
         }
 
-        if (IS_REMOTE_PLAYING && url.includes('/sessions/home')) {
+        if (IS_REMOTE_PLAYING && (url.includes('/sessions/home') || url.includes('inputconfigs'))) {
+            TouchController.enable();
+
             const clone = request.clone();
 
             const headers = {};
@@ -6456,6 +6476,8 @@ function interceptHttpRequests() {
                         consolePort = obj.serverDetails.port;
 
                         response.json = () => Promise.resolve(obj);
+                        response.text = () => Promise.resolve(JSON.stringify(obj));
+
                         return response;
                     });
                 });
@@ -6625,7 +6647,6 @@ function interceptHttpRequests() {
                     const titleId = match[1];
                     !TitlesInfo.hasTouchSupport(titleId) && TouchController.enable();
                 }
-
             }
 
             // Intercept configurations
