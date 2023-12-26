@@ -3075,41 +3075,96 @@ GamepadKey[GamepadKey.RIGHT_STICK_LEFT = 202] = 'RIGHT_STICK_LEFT';
 GamepadKey[GamepadKey.RIGHT_STICK_RIGHT = 203] = 'RIGHT_STICK_RIGHT';
 
 
-class InputManager {
-    static #KEY_MAP = {
+const GamepadKeyName = {
+    [GamepadKey.A]: ['A', '⇓'],
+    [GamepadKey.B]: ['B', '⇒'],
+    [GamepadKey.X]: ['X', '⇐'],
+    [GamepadKey.Y]: ['Y', '⇑'],
+
+    [GamepadKey.LB]: ['LB', '↘'],
+    [GamepadKey.RB]: ['RB', '↙'],
+    [GamepadKey.LT]: ['LT', '↖'],
+    [GamepadKey.RT]: ['RT', '↗'],
+
+    [GamepadKey.L3]: ['L3', '↺'],
+    [GamepadKey.R3]: ['R3', '↻'],
+
+    [GamepadKey.UP]: ['Up', '≻'],
+    [GamepadKey.DOWN]: ['Down', '≽'],
+    [GamepadKey.LEFT]: ['Left', '≺'],
+    [GamepadKey.RIGHT]: ['Right', '≼'],
+
+    [GamepadKey.SELECT]: ['Select', '⇺'],
+    [GamepadKey.START]: ['Start', '⇻'],
+    [GamepadKey.HOME]: ['Home', ''],
+
+    [GamepadKey.LEFT_STICK_UP]: ['Left Stick Up', '↾'],
+    [GamepadKey.LEFT_STICK_DOWN]: ['Left Stick Down', '⇂'],
+    [GamepadKey.LEFT_STICK_LEFT]: ['Left Stick Left', '↼'],
+    [GamepadKey.LEFT_STICK_RIGHT]: ['Left Stick Right', '⇀'],
+
+    [GamepadKey.RIGHT_STICK_UP]: ['Right Stick Up', '↿'],
+    [GamepadKey.RIGHT_STICK_DOWN]: ['Right Stick Down', '⇃'],
+    [GamepadKey.RIGHT_STICK_LEFT]: ['Right Stick Left', '↽'],
+    [GamepadKey.RIGHT_STICK_RIGHT]: ['Right Stick Right', '⇁'],
+};
+
+
+class InputManagerPreset {
+    static DEFAULT = {
         // Use "e.code" value from https://keyjs.dev
-        'ArrowUp': GamepadKey.UP,
-        'ArrowDown': GamepadKey.DOWN,
-        'ArrowLeft': GamepadKey.LEFT,
-        'ArrowRight': GamepadKey.RIGHT,
+        [GamepadKey.UP]: ['ArrowUp'],
+        [GamepadKey.DOWN]: ['ArrowDown'],
+        [GamepadKey.LEFT]: ['ArrowLeft'],
+        [GamepadKey.RIGHT]: ['ArrowRight'],
 
-        'KeyW': GamepadKey.LEFT_STICK_UP,
-        'KeyS': GamepadKey.LEFT_STICK_DOWN,
-        'KeyA': GamepadKey.LEFT_STICK_LEFT,
-        'KeyD': GamepadKey.LEFT_STICK_RIGHT,
+        [GamepadKey.LEFT_STICK_UP]: ['KeyW'],
+        [GamepadKey.LEFT_STICK_DOWN]: ['KeyS'],
+        [GamepadKey.LEFT_STICK_LEFT]: ['KeyA'],
+        [GamepadKey.LEFT_STICK_RIGHT]: ['KeyD'],
 
-        'Space': GamepadKey.A,
-        'KeyE': GamepadKey.A,
-        'KeyR': GamepadKey.X,
-        'ControlLeft': GamepadKey.B,
-        'KeyV': GamepadKey.Y,
+        [GamepadKey.RIGHT_STICK_UP]: ['KeyI'],
+        [GamepadKey.RIGHT_STICK_DOWN]: ['KeyK'],
+        [GamepadKey.RIGHT_STICK_LEFT]: ['KeyJ'],
+        [GamepadKey.RIGHT_STICK_RIGHT]: ['KeyL'],
 
-        'Enter': GamepadKey.START,
-        'Tab': GamepadKey.SELECT,
+        [GamepadKey.A]: ['Space', 'KeyE'],
+        [GamepadKey.X]: ['KeyR'],
+        [GamepadKey.B]: ['ControlLeft'],
+        [GamepadKey.Y]: ['KeyV'],
 
-        'KeyC': GamepadKey.LB,
-        'KeyG': GamepadKey.LB,
+        [GamepadKey.START]: ['Enter'],
+        [GamepadKey.SELECT]: ['Tab'],
 
-        'KeyQ': GamepadKey.RB,
+        [GamepadKey.LB]: ['KeyC'],
+        [GamepadKey.RB]: ['KeyQ'],
 
-        'Backquote': GamepadKey.HOME,
+        [GamepadKey.HOME]: ['Backquote'],
 
-        'Mouse0': GamepadKey.RT,
-        'Mouse2': GamepadKey.LT,
+        [GamepadKey.RT]: ['Mouse0'],
+        [GamepadKey.LT]: ['Mouse2'],
 
-        'ShiftLeft': GamepadKey.L3,
-        'KeyF': GamepadKey.R3,
+        [GamepadKey.L3]: ['ShiftLeft'],
+        [GamepadKey.R3]: ['KeyF'],
     };
+
+    static convert(preset) {
+        const obj = {};
+
+        for (const buttonIndex in preset) {
+            for (const keyName of preset[buttonIndex]) {
+                obj[keyName] = parseInt(buttonIndex);
+            }
+        }
+
+        console.log(obj);
+        return obj;
+    }
+}
+
+
+class InputManager {
+    static #KEY_MAP = InputManagerPreset.convert(InputManagerPreset.DEFAULT);
 
     static #VIRTUAL_CONTROLLER = {
         axes: [0, 0, 0, 0],
@@ -5305,6 +5360,7 @@ function addCss() {
     --bx-title-font-semibold: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
     --bx-normal-font: "Segoe UI", Arial, Helvetica, sans-serif;
     --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
+    --bx-promptfont-font: promptfont;
 
     --bx-toast-z-index: 9999;
     --bx-stats-bar-z-index: 9001;
@@ -5314,6 +5370,11 @@ function addCss() {
     --bx-dialog-z-index: 1010;
     --bx-dialog-overlay-z-index: 900;
     --bx-wait-time-box-z-index: 100;
+}
+
+@font-face {
+    font-family: 'promptfont';
+    src: url('https://redphx.github.io/better-xcloud/fonts/promptfont.otf');
 }
 
 .bx-settings-button {
@@ -5853,7 +5914,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     outline: none !important;
 }
 
-.bx-quick-settings-tab-contents > div > div {
+.bx-quick-settings-tab-contents > div > div:not(.bx-mkb-settings) {
     display: flex;
     border-bottom: 1px solid #40404080;
     margin-bottom: 16px;
@@ -5884,7 +5945,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 0 !important;
 }
 
-.bx-quick-settings-tab-contents button {
+.bx-quick-settings-tab-contents div div:not(.bx-mkb-settings) div button {
     border: none;
     width: 24px;
     height: 24px;
@@ -5968,6 +6029,28 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     width: 40px;
     font-family: var(--bx-monospaced-font);
     font-size: 14px;
+}
+
+.bx-mkb-settings {
+
+}
+
+.bx-mkb-key-row {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.bx-mkb-key-row label {
+    margin-bottom: 12px;
+    font-family: var(--bx-promptfont-font);
+    font-size: 32px;
+    text-align: center;
+}
+
+.bx-mkb-key-row button {
+    width:  150px;
+    margin: 0 10px;
 }
 
 .bx-stream-menu-button-on {
@@ -7383,11 +7466,83 @@ function patchRtcCodecs() {
 }
 
 
+function renderMkbSettings() {
+    const CE = createElement;
+    const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
+
+    const onKeyDown = e => {
+        console.log(e);
+
+        e.target.textContent = e.code;
+        window.removeEventListener('keydown', onKeyDown);
+    };
+
+    const onKeyClick = e => {
+        console.log(e);
+
+        window.addEventListener('keydown', onKeyDown);
+    };
+
+    const onContextMenu = e => {
+        e.preventDefault();
+        e.target.textContent = '';
+    };
+
+    const preset = InputManagerPreset.DEFAULT;
+
+    for (const keyIndex in GamepadKeyName) {
+        const keyName = GamepadKeyName[keyIndex];
+        let $firstKey;
+        let $secondKey;
+
+        const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
+                CE('label', {'title': keyName[0]}, keyName[1]),
+                $firstKey = CE('button', {}, ' '),
+                $secondKey = CE('button', {}, ' '),
+            );
+
+        $firstKey.addEventListener('click', onKeyClick);
+        $secondKey.addEventListener('click', onKeyClick);
+
+        $firstKey.addEventListener('contextmenu', onContextMenu);
+        $secondKey.addEventListener('contextmenu', onContextMenu);
+
+        const buttonKeys = preset[keyIndex];
+        if (buttonKeys && buttonKeys.length > 0) {
+            if (buttonKeys[0]) {
+                $firstKey.textContent = buttonKeys[0];
+            }
+
+            if (1 in buttonKeys && buttonKeys[1]) {
+                $secondKey.textContent = buttonKeys[1];
+            }
+        }
+
+        $wrapper.appendChild($keyRow);
+    }
+    console.log(GamepadKey);
+
+    return $wrapper;
+}
+
+
 function setupQuickSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
 
     const SETTINGS_UI = [
+        PREFS.get(Preferences.MKB_ENABLED) && {
+            icon: Icon.MOUSE,
+            group: 'mkb',
+            items: [
+                {
+                    group: 'mkb',
+                    label: __('mouse-and-keyboard'),
+                    content: renderMkbSettings(),
+                },
+            ],
+        },
+
         {
             icon: Icon.DISPLAY,
             group: 'stream',
@@ -7556,6 +7711,10 @@ function setupQuickSettingsBar() {
         );
 
     for (const settingTab of SETTINGS_UI) {
+        if (!settingTab) {
+            continue;
+        }
+
         const $svg = CE('svg', {
             'xmlns': 'http://www.w3.org/2000/svg',
             'data-group': settingTab.group,
@@ -7597,6 +7756,11 @@ function setupQuickSettingsBar() {
                     settingGroup.note = document.createTextNode(settingGroup.note);
                 }
                 $group.appendChild(settingGroup.note);
+            }
+
+            if (settingGroup.content) {
+                $group.appendChild(settingGroup.content);
+                continue;
             }
 
             for (const pref in settingGroup.items) {
