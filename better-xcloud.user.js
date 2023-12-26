@@ -2353,8 +2353,15 @@ const Icon = {
 
 
 class Dialog {
-    constructor(title, className, $content, onClose) {
+    constructor(options) {
         const CE = createElement;
+        const {
+            title,
+            className,
+            content,
+            hideCloseButton,
+            onClose,
+        } = options;
 
         // Create dialog overlay
         this.$overlay = document.querySelector('.bx-dialog-overlay');
@@ -2365,12 +2372,13 @@ class Dialog {
 
         let $close;
         this.onClose = onClose;
-        this.$dialog = CE('div', {'class': `bx-dialog ${className} bx-gone`},
-                                    CE('b', {}, title),
-                                    CE('div', {'class': 'bx-dialog-content'}, $content),
-                                    $close = CE('button', {}, __('close')));
+        this.$dialog = CE('div', {'class': `bx-dialog ${className || ''} bx-gone`},
+                title && CE('b', {}, title),
+                content && CE('div', {'class': 'bx-dialog-content'}, content),
+                !hideCloseButton && ($close = CE('button', {}, __('close'))),
+            );
 
-        $close.addEventListener('click', e => {
+        $close && $close.addEventListener('click', e => {
             this.hide(e);
         });
         document.documentElement.appendChild(this.$dialog);
@@ -2459,7 +2467,10 @@ class RemotePlay {
         const CE = createElement;
 
         RemotePlay.#$content = CE('div', {}, __('getting-consoles-list'));
-        RemotePlay.#dialog = new Dialog(__('remote-play'), '', RemotePlay.#$content);
+        RemotePlay.#dialog = new Dialog({
+            title: __('remote-play'),
+            content: RemotePlay.#$content,
+        });
 
         RemotePlay.#getXhomeToken(() => {
             RemotePlay.#getConsolesList(() => {
@@ -3086,23 +3097,22 @@ const GamepadKeyName = {
     [GamepadKey.LT]: ['LT', '↖'],
     [GamepadKey.RT]: ['RT', '↗'],
 
-    [GamepadKey.L3]: ['L3', '↺'],
-    [GamepadKey.R3]: ['R3', '↻'],
+    [GamepadKey.SELECT]: ['Select', '⇺'],
+    [GamepadKey.START]: ['Start', '⇻'],
+    [GamepadKey.HOME]: ['Home', ''],
 
     [GamepadKey.UP]: ['Up', '≻'],
     [GamepadKey.DOWN]: ['Down', '≽'],
     [GamepadKey.LEFT]: ['Left', '≺'],
     [GamepadKey.RIGHT]: ['Right', '≼'],
 
-    [GamepadKey.SELECT]: ['Select', '⇺'],
-    [GamepadKey.START]: ['Start', '⇻'],
-    [GamepadKey.HOME]: ['Home', ''],
-
+    [GamepadKey.L3]: ['L3', '↺'],
     [GamepadKey.LEFT_STICK_UP]: ['Left Stick Up', '↾'],
     [GamepadKey.LEFT_STICK_DOWN]: ['Left Stick Down', '⇂'],
     [GamepadKey.LEFT_STICK_LEFT]: ['Left Stick Left', '↼'],
     [GamepadKey.LEFT_STICK_RIGHT]: ['Left Stick Right', '⇀'],
 
+    [GamepadKey.R3]: ['R3', '↻'],
     [GamepadKey.RIGHT_STICK_UP]: ['Right Stick Up', '↿'],
     [GamepadKey.RIGHT_STICK_DOWN]: ['Right Stick Down', '⇃'],
     [GamepadKey.RIGHT_STICK_LEFT]: ['Right Stick Left', '↽'],
@@ -5363,12 +5373,12 @@ function addCss() {
     --bx-promptfont-font: promptfont;
 
     --bx-toast-z-index: 9999;
+    --bx-dialog-z-index: 9101;
+    --bx-dialog-overlay-z-index: 9100;
     --bx-stats-bar-z-index: 9001;
     --bx-stream-settings-z-index: 9000;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
-    --bx-dialog-z-index: 1010;
-    --bx-dialog-overlay-z-index: 900;
     --bx-wait-time-box-z-index: 100;
 }
 
@@ -5766,7 +5776,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
-    width: 420px;
+    min-width: 420px;
     padding: 20px;
     border-radius: 8px;
     z-index: var(--bx-dialog-z-index);
@@ -7469,29 +7479,99 @@ function patchRtcCodecs() {
 function renderMkbSettings() {
     const CE = createElement;
     const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
+    let $currentBindingKey;
 
-    const onKeyDown = e => {
-        console.log(e);
-
-        e.target.textContent = e.code;
-        window.removeEventListener('keydown', onKeyDown);
-    };
-
-    const onKeyClick = e => {
-        console.log(e);
-
-        window.addEventListener('keydown', onKeyDown);
-    };
+    const bindingDialog = new Dialog({
+        title: __('press-to-bind'),
+        content: __('press-esc-to-cancel'),
+        hideCloseButton: true,
+    });
 
     const onContextMenu = e => {
+        console.log(e);
+        e.preventDefault();
+    };
+
+    const onMouseDown = e => {
+        e.preventDefault();
+
+        console.log(e);
+
+        $currentBindingKey.textContent = e.button;
+        window.removeEventListener('keydown', onKeyDown);
+        window.removeEventListener('mousedown', onMouseDown);
+
+        setTimeout(() => bindingDialog.hide(), 200);
+
+    };
+
+    const onKeyDown = e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log(e);
+
+        $currentBindingKey.textContent = e.code;
+        window.removeEventListener('keydown', onKeyDown);
+        window.removeEventListener('mousedown', onMouseDown);
+
+        setTimeout(() => bindingDialog.hide(), 200);
+    };
+
+    const onBindingKey = e => {
+        console.log(e);
+
+        $currentBindingKey = e.target;
+
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('mousedown', onMouseDown);
+
+        bindingDialog.show();
+    };
+
+    const onClearBinding = e => {
         e.preventDefault();
         e.target.textContent = '';
     };
 
     const preset = InputManagerPreset.DEFAULT;
 
-    for (const keyIndex in GamepadKeyName) {
+    const keyOrders = [
+        GamepadKey.UP,
+        GamepadKey.DOWN,
+        GamepadKey.LEFT,
+        GamepadKey.RIGHT,
+
+        GamepadKey.A,
+        GamepadKey.B,
+        GamepadKey.X,
+        GamepadKey.Y,
+
+        GamepadKey.LB,
+        GamepadKey.RB,
+        GamepadKey.LT,
+        GamepadKey.RT,
+
+        GamepadKey.SELECT,
+        GamepadKey.START,
+        GamepadKey.HOME,
+
+        GamepadKey.L3,
+        GamepadKey.LEFT_STICK_UP,
+        GamepadKey.LEFT_STICK_DOWN,
+        GamepadKey.LEFT_STICK_LEFT,
+        GamepadKey.LEFT_STICK_RIGHT,
+
+        GamepadKey.R3,
+        GamepadKey.RIGHT_STICK_UP,
+        GamepadKey.RIGHT_STICK_DOWN,
+        GamepadKey.RIGHT_STICK_LEFT,
+        GamepadKey.RIGHT_STICK_RIGHT,
+    ];
+
+    for (const keyIndex of keyOrders) {
         const keyName = GamepadKeyName[keyIndex];
+
         let $firstKey;
         let $secondKey;
 
@@ -7501,11 +7581,11 @@ function renderMkbSettings() {
                 $secondKey = CE('button', {}, ' '),
             );
 
-        $firstKey.addEventListener('click', onKeyClick);
-        $secondKey.addEventListener('click', onKeyClick);
+        $firstKey.addEventListener('mouseup', onBindingKey);
+        $secondKey.addEventListener('mouseup', onBindingKey);
 
-        $firstKey.addEventListener('contextmenu', onContextMenu);
-        $secondKey.addEventListener('contextmenu', onContextMenu);
+        $firstKey.addEventListener('contextmenu', onClearBinding);
+        $secondKey.addEventListener('contextmenu', onClearBinding);
 
         const buttonKeys = preset[keyIndex];
         if (buttonKeys && buttonKeys.length > 0) {
