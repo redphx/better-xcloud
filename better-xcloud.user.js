@@ -5874,14 +5874,17 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     box-sizing: content-box;
     background: #131313;
     cursor: pointer;
+    border-left: 4px solid #1e1e1e;
 }
 
 .bx-quick-settings-tabs svg.bx-active {
     background: #222;
+    border-color: #008746;
 }
 
-.bx-quick-settings-tabs svg:hover {
+.bx-quick-settings-tabs svg:not(.bx-active):hover {
     background: #2f2f2f;
+    border-color: #484848;
 }
 
 .bx-quick-settings-tab-contents {
