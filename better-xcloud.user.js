@@ -6059,8 +6059,28 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-mkb-key-row button {
-    width:  150px;
+    width: 150px;
+    height: 32px;
     margin: 0 10px;
+    background: transparent;
+    border: none;
+    color: white;
+    border-radius: 4px;
+}
+
+.bx-mkb-key-row button:hover {
+    background: transparent;
+    cursor: default;
+}
+
+.bx-mkb-settings.bx-editing .bx-mkb-key-row button {
+    background: #393939;
+    border: 1px solid #717171;
+}
+
+.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover {
+    background: #333;
+    cursor: pointer;
 }
 
 .bx-stream-menu-button-on {
@@ -7477,6 +7497,8 @@ function patchRtcCodecs() {
 
 
 function renderMkbSettings() {
+    let isEditing = false;
+
     const CE = createElement;
     const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
     let $currentBindingKey;
@@ -7486,11 +7508,6 @@ function renderMkbSettings() {
         content: __('press-esc-to-cancel'),
         hideCloseButton: true,
     });
-
-    const onContextMenu = e => {
-        console.log(e);
-        e.preventDefault();
-    };
 
     const onMouseDown = e => {
         e.preventDefault();
@@ -7511,14 +7528,21 @@ function renderMkbSettings() {
 
         console.log(e);
 
-        $currentBindingKey.textContent = e.code;
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('mousedown', onMouseDown);
 
         setTimeout(() => bindingDialog.hide(), 200);
+
+        if (e.code !== 'Escape') {
+            $currentBindingKey.textContent = e.code;
+        }
     };
 
     const onBindingKey = e => {
+        if (!isEditing || e.button !== 0) {
+            return;
+        }
+
         console.log(e);
 
         $currentBindingKey = e.target;
@@ -7531,6 +7555,10 @@ function renderMkbSettings() {
 
     const onClearBinding = e => {
         e.preventDefault();
+        if (!isEditing) {
+            return;
+        }
+
         e.target.textContent = '';
     };
 
@@ -7569,6 +7597,7 @@ function renderMkbSettings() {
         GamepadKey.RIGHT_STICK_RIGHT,
     ];
 
+    // Render keys
     for (const keyIndex of keyOrders) {
         const keyName = GamepadKeyName[keyIndex];
 
@@ -7601,6 +7630,21 @@ function renderMkbSettings() {
         $wrapper.appendChild($keyRow);
     }
     console.log(GamepadKey);
+
+    // Render action buttons
+    let $editButton;
+    const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
+            $editButton = CE('button', {}, __('edit')),
+        );
+
+    $editButton.addEventListener('click', e => {
+        isEditing = !isEditing;
+        $wrapper.classList.toggle('bx-editing');
+
+        $editButton.textContent = (isEditing) ? __('save') : __('edit');
+    });
+
+    $wrapper.appendChild($actionButtons);
 
     return $wrapper;
 }
