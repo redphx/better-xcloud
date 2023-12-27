@@ -3430,6 +3430,7 @@ class MkbRemapper {
 
     constructor() {
         this.isEditing = false;
+        this.allKeyElements = [];
         this.$currentBindingKey = null;
 
         const CE = createElement;
@@ -3496,62 +3497,69 @@ class MkbRemapper {
             return;
         }
 
-        self.unbindKey(e.target);
+        this.unbindKey(e.target);
     };
 
+    applyPreset = preset => {
+        for (const $key of this.allKeyElements) {
+            const buttonIndex = $key.getAttribute('data-button-index');
+            const keySlot = $key.getAttribute('data-key-slot');
+
+            const buttonKeys = preset[buttonIndex];
+            const totalKeys = buttonKeys.length
+
+            if (!buttonKeys || !totalKeys) {
+                continue;
+            }
+
+            if (totalKeys > keySlot && buttonKeys[keySlot]) {
+                $key.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
+            }
+        }
+    }
+
     render() {
-        const self = this;
-
-        let $allKeys = [];
-
         const CE = createElement;
         const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
         let $currentBindingKey;
 
-        const preset = InputManagerPreset.DEFAULT;
-
-
         // Render keys
-        for (const keyIndex of self.#BUTTON_ORDERS) {
-            const keyName = GamepadKeyName[keyIndex];
+        const keysPerButton = 2;
+        for (const buttonIndex of this.#BUTTON_ORDERS) {
+            const keyName = GamepadKeyName[buttonIndex];
 
-            let $firstKey;
-            let $secondKey;
+            let $key;
+            const $fragment = document.createDocumentFragment();
+            for (let i = 0; i < keysPerButton; i++) {
+                $key = CE('button', {
+                        'data-prompt': keyName[1],
+                        'data-button-index': buttonIndex,
+                        'data-key-slot': i,
+                    }, ' ');
+
+                $key.addEventListener('mouseup', this.onBindingKey);
+                $key.addEventListener('contextmenu', this.onContextMenu);
+
+                $fragment.appendChild($key);
+                this.allKeyElements.push($key);
+            }
 
             const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
-                               CE('label', {'title': keyName[0]}, keyName[1]),
-                               $firstKey = CE('button', {'data-prompt': keyName[1]}, ' '),
-                               $secondKey = CE('button', {'data-prompt': keyName[1]}, ' '),
-                              );
-
-            $firstKey.addEventListener('mouseup', self.onBindingKey);
-            $secondKey.addEventListener('mouseup', self.onBindingKey);
-
-            $firstKey.addEventListener('contextmenu', self.onContextMenu);
-            $secondKey.addEventListener('contextmenu', self.onContextMenu);
-
-            $allKeys.push($firstKey);
-            $allKeys.push($secondKey);
-
-            const buttonKeys = preset[keyIndex];
-            if (buttonKeys && buttonKeys.length > 0) {
-                if (buttonKeys[0]) {
-                    $firstKey.textContent = KeyHelper.codeToKeyName(buttonKeys[0]);
-                }
-
-                if (1 in buttonKeys && buttonKeys[1]) {
-                    $secondKey.textContent = KeyHelper.codeToKeyName(buttonKeys[1]);
-                }
-            }
+                    CE('label', {'title': keyName[0]}, keyName[1]),
+                    $fragment,
+                );
 
             $wrapper.appendChild($keyRow);
         }
 
+        const preset = InputManagerPreset.DEFAULT;
+        this.applyPreset(preset);
+
         // Render action buttons
         let $editButton;
         const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
-                                  $editButton = CE('button', {}, __('edit')),
-                                 );
+                $editButton = CE('button', {}, __('edit')),
+            );
 
         $editButton.addEventListener('click', e => {
             this.isEditing = !this.isEditing;
@@ -3561,7 +3569,6 @@ class MkbRemapper {
         });
 
         $wrapper.appendChild($actionButtons);
-
         return $wrapper;
     }
 }
