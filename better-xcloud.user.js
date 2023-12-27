@@ -7464,8 +7464,12 @@ function injectStreamMenuButtons() {
                 $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
 
                 // Insert buttons after Stream Settings button
-                $orgButton.parentElement.insertBefore($btnStreamStats, $orgButton.parentElement.lastChild);
+                $orgButton.parentElement.insertBefore($btnStreamStats, $orgButton.parentElement.lastElementChild);
                 $orgButton.parentElement.insertBefore($btnStreamSettings, $btnStreamStats);
+
+                // Move the Dots button to the beginning
+                const $dotsButton = $orgButton.parentElement.lastElementChild;
+                $dotsButton.parentElement.insertBefore($dotsButton, $dotsButton.parentElement.firstElementChild);
             });
         });
     });
