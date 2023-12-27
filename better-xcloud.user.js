@@ -3383,6 +3383,190 @@ class InputManager {
 }
 
 
+class MkbRemapper {
+    get #BUTTON_ORDERS() {
+        return [
+            GamepadKey.UP,
+            GamepadKey.DOWN,
+            GamepadKey.LEFT,
+            GamepadKey.RIGHT,
+
+            GamepadKey.A,
+            GamepadKey.B,
+            GamepadKey.X,
+            GamepadKey.Y,
+
+            GamepadKey.LB,
+            GamepadKey.RB,
+            GamepadKey.LT,
+            GamepadKey.RT,
+
+            GamepadKey.SELECT,
+            GamepadKey.START,
+            GamepadKey.HOME,
+
+            GamepadKey.L3,
+            GamepadKey.LEFT_STICK_UP,
+            GamepadKey.LEFT_STICK_DOWN,
+            GamepadKey.LEFT_STICK_LEFT,
+            GamepadKey.LEFT_STICK_RIGHT,
+
+            GamepadKey.R3,
+            GamepadKey.RIGHT_STICK_UP,
+            GamepadKey.RIGHT_STICK_DOWN,
+            GamepadKey.RIGHT_STICK_LEFT,
+            GamepadKey.RIGHT_STICK_RIGHT,
+        ];
+    };
+
+    static #instance;
+    static get INSTANCE() {
+        if (!MkbRemapper.#instance) {
+            MkbRemapper.#instance = new MkbRemapper();
+        }
+
+        return MkbRemapper.#instance;
+    };
+
+    constructor() {
+        this.isEditing = false;
+        this.$currentBindingKey = null;
+
+        const CE = createElement;
+        this.bindingDialog = new Dialog({
+            className: 'bx-binding-dialog',
+            content: CE('div', {},
+                        CE('p', {}, __('press-to-bind')),
+                        CE('i', {}, __('press-esc-to-cancel')),
+                       ),
+            hideCloseButton: true,
+        });
+    }
+
+    bindKey = ($key, keyName) => {
+        $key.textContent = keyName;
+    }
+
+    unbindKey = ($key) => {
+        $key.textContent = '';
+    }
+
+    onMouseDown = e => {
+        e.preventDefault();
+
+        this.$currentBindingKey.textContent = KeyHelper.getKeyNameFromEvent(e);
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('mousedown', this.onMouseDown);
+
+        setTimeout(() => this.bindingDialog.hide(), 200);
+    };
+
+    onKeyDown = e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('mousedown', this.onMouseDown);
+
+        setTimeout(() => this.bindingDialog.hide(), 200);
+
+        if (e.code !== 'Escape') {
+            this.bindKey(this.$currentBindingKey, KeyHelper.getKeyNameFromEvent(e));
+        }
+    };
+
+    onBindingKey = e => {
+        if (!this.isEditing || e.button !== 0) {
+            return;
+        }
+
+        console.log(e);
+
+        this.$currentBindingKey = e.target;
+
+        window.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('mousedown', this.onMouseDown);
+
+        this.bindingDialog.show({title: e.target.getAttribute('data-prompt')});
+    };
+
+    onContextMenu = e => {
+        e.preventDefault();
+        if (!this.isEditing) {
+            return;
+        }
+
+        self.unbindKey(e.target);
+    };
+
+    render() {
+        const self = this;
+
+        let $allKeys = [];
+
+        const CE = createElement;
+        const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
+        let $currentBindingKey;
+
+        const preset = InputManagerPreset.DEFAULT;
+
+
+        // Render keys
+        for (const keyIndex of self.#BUTTON_ORDERS) {
+            const keyName = GamepadKeyName[keyIndex];
+
+            let $firstKey;
+            let $secondKey;
+
+            const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
+                               CE('label', {'title': keyName[0]}, keyName[1]),
+                               $firstKey = CE('button', {'data-prompt': keyName[1]}, ' '),
+                               $secondKey = CE('button', {'data-prompt': keyName[1]}, ' '),
+                              );
+
+            $firstKey.addEventListener('mouseup', self.onBindingKey);
+            $secondKey.addEventListener('mouseup', self.onBindingKey);
+
+            $firstKey.addEventListener('contextmenu', self.onContextMenu);
+            $secondKey.addEventListener('contextmenu', self.onContextMenu);
+
+            $allKeys.push($firstKey);
+            $allKeys.push($secondKey);
+
+            const buttonKeys = preset[keyIndex];
+            if (buttonKeys && buttonKeys.length > 0) {
+                if (buttonKeys[0]) {
+                    $firstKey.textContent = KeyHelper.codeToKeyName(buttonKeys[0]);
+                }
+
+                if (1 in buttonKeys && buttonKeys[1]) {
+                    $secondKey.textContent = KeyHelper.codeToKeyName(buttonKeys[1]);
+                }
+            }
+
+            $wrapper.appendChild($keyRow);
+        }
+
+        // Render action buttons
+        let $editButton;
+        const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
+                                  $editButton = CE('button', {}, __('edit')),
+                                 );
+
+        $editButton.addEventListener('click', e => {
+            this.isEditing = !this.isEditing;
+            $wrapper.classList.toggle('bx-editing');
+
+            $editButton.textContent = (this.isEditing) ? __('save') : __('edit');
+        });
+
+        $wrapper.appendChild($actionButtons);
+
+        return $wrapper;
+    }
+}
+
+
 class GamepadHandler {
     static #BUTTON_A = 0;
     static #BUTTON_B = 1;
@@ -7584,159 +7768,6 @@ function patchRtcCodecs() {
 }
 
 
-function renderMkbSettings() {
-    let isEditing = false;
-
-    const CE = createElement;
-    const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
-    let $currentBindingKey;
-
-    const bindingDialog = new Dialog({
-        className: 'bx-binding-dialog',
-        content: CE('div', {},
-                CE('p', {}, __('press-to-bind')),
-                CE('i', {}, __('press-esc-to-cancel')),
-            ),
-        hideCloseButton: true,
-    });
-
-    const onMouseDown = e => {
-        e.preventDefault();
-
-        $currentBindingKey.textContent = KeyHelper.getKeyNameFromEvent(e);
-        window.removeEventListener('keydown', onKeyDown);
-        window.removeEventListener('mousedown', onMouseDown);
-
-        setTimeout(() => bindingDialog.hide(), 200);
-
-    };
-
-    const onKeyDown = e => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        window.removeEventListener('keydown', onKeyDown);
-        window.removeEventListener('mousedown', onMouseDown);
-
-        setTimeout(() => bindingDialog.hide(), 200);
-
-        if (e.code !== 'Escape') {
-            $currentBindingKey.textContent = KeyHelper.getKeyNameFromEvent(e);
-        }
-    };
-
-    const onBindingKey = e => {
-        if (!isEditing || e.button !== 0) {
-            return;
-        }
-
-        console.log(e);
-
-        $currentBindingKey = e.target;
-
-        window.addEventListener('keydown', onKeyDown);
-        window.addEventListener('mousedown', onMouseDown);
-
-        bindingDialog.show({title: e.target.getAttribute('data-prompt')});
-    };
-
-    const onClearBinding = e => {
-        e.preventDefault();
-        if (!isEditing) {
-            return;
-        }
-
-        e.target.textContent = '';
-    };
-
-    const preset = InputManagerPreset.DEFAULT;
-
-    const keyOrders = [
-        GamepadKey.UP,
-        GamepadKey.DOWN,
-        GamepadKey.LEFT,
-        GamepadKey.RIGHT,
-
-        GamepadKey.A,
-        GamepadKey.B,
-        GamepadKey.X,
-        GamepadKey.Y,
-
-        GamepadKey.LB,
-        GamepadKey.RB,
-        GamepadKey.LT,
-        GamepadKey.RT,
-
-        GamepadKey.SELECT,
-        GamepadKey.START,
-        GamepadKey.HOME,
-
-        GamepadKey.L3,
-        GamepadKey.LEFT_STICK_UP,
-        GamepadKey.LEFT_STICK_DOWN,
-        GamepadKey.LEFT_STICK_LEFT,
-        GamepadKey.LEFT_STICK_RIGHT,
-
-        GamepadKey.R3,
-        GamepadKey.RIGHT_STICK_UP,
-        GamepadKey.RIGHT_STICK_DOWN,
-        GamepadKey.RIGHT_STICK_LEFT,
-        GamepadKey.RIGHT_STICK_RIGHT,
-    ];
-
-    // Render keys
-    for (const keyIndex of keyOrders) {
-        const keyName = GamepadKeyName[keyIndex];
-
-        let $firstKey;
-        let $secondKey;
-
-        const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
-                CE('label', {'title': keyName[0]}, keyName[1]),
-                $firstKey = CE('button', {'data-prompt': keyName[1]}, ' '),
-                $secondKey = CE('button', {'data-prompt': keyName[1]}, ' '),
-            );
-
-        $firstKey.addEventListener('mouseup', onBindingKey);
-        $secondKey.addEventListener('mouseup', onBindingKey);
-
-        $firstKey.addEventListener('contextmenu', onClearBinding);
-        $secondKey.addEventListener('contextmenu', onClearBinding);
-
-        const buttonKeys = preset[keyIndex];
-        if (buttonKeys && buttonKeys.length > 0) {
-            if (buttonKeys[0]) {
-                $firstKey.textContent = KeyHelper.codeToKeyName(buttonKeys[0]);
-            }
-
-            if (1 in buttonKeys && buttonKeys[1]) {
-                $secondKey.textContent = KeyHelper.codeToKeyName(buttonKeys[1]);
-            }
-        }
-
-        $wrapper.appendChild($keyRow);
-    }
-    console.log(GamepadKey);
-
-    // Render action buttons
-    let $editButton;
-    const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
-            $editButton = CE('button', {}, __('edit')),
-        );
-
-    $editButton.addEventListener('click', e => {
-        isEditing = !isEditing;
-        $wrapper.classList.toggle('bx-editing');
-
-        $editButton.textContent = (isEditing) ? __('save') : __('edit');
-    });
-
-    $wrapper.appendChild($actionButtons);
-
-    return $wrapper;
-}
-
-
 function setupQuickSettingsBar() {
     const CE = createElement;
     const isSafari = UserAgent.isSafari();
@@ -7749,7 +7780,7 @@ function setupQuickSettingsBar() {
                 {
                     group: 'mkb',
                     label: __('mouse-and-keyboard'),
-                    content: renderMkbSettings(),
+                    content: MkbRemapper.INSTANCE.render(),
                 },
             ],
         },
