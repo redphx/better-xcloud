@@ -5183,6 +5183,19 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             funcStr = funcStr.replace(text, text + newCode);
             return funcStr;
         },
+
+        // Add patches that are only needed when start playing
+        loadingEndingChunks: function(funcStr) {
+            const text = 'Symbol("ChatSocketPlugin")';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            Patcher.#PATCH_ORDERS = Patcher.#PATCH_ORDERS.concat(Patcher.#PLAYING_PATCH_ORDERS);
+            Patcher.#cleanupPatches();
+
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -5205,8 +5218,10 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             'remotePlayKeepAlive',
             'blockWebRtcStatsCollector',
         ],
+    ];
 
-        // Only when playing
+    // Only when playing
+    static #PLAYING_PATCH_ORDERS = [
         ['remotePlayConnectMode'],
         ['playVibration'],
         ['enableConsoleLogging'],
@@ -5312,8 +5327,8 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         }
     }
 
-    static initialize() {
-        // Remove disabled patches
+    // Remove disabled patches
+    static #cleanupPatches() {
         for (let groupIndex = Patcher.#PATCH_ORDERS.length - 1; groupIndex >= 0; groupIndex--) {
             const group = Patcher.#PATCH_ORDERS[groupIndex];
 
@@ -5330,7 +5345,16 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 Patcher.#PATCH_ORDERS.splice(groupIndex, 1);
             }
         }
+    }
 
+    static initialize() {
+        if (window.location.pathname.includes('/play/')) {
+            Patcher.#PATCH_ORDERS = Patcher.#PATCH_ORDERS.concat(Patcher.#PLAYING_PATCH_ORDERS);
+        } else {
+            Patcher.#PATCH_ORDERS.push(['loadingEndingChunks']);
+        }
+
+        Patcher.#cleanupPatches();
         Patcher.#patchFunctionBind();
     }
 }
