@@ -2373,18 +2373,27 @@ class Dialog {
         let $close;
         this.onClose = onClose;
         this.$dialog = CE('div', {'class': `bx-dialog ${className || ''} bx-gone`},
-                title && CE('b', {}, title),
-                content && CE('div', {'class': 'bx-dialog-content'}, content),
+                this.$title = CE('b', {}, title),
+                this.$content = CE('div', {'class': 'bx-dialog-content'}, content),
                 !hideCloseButton && ($close = CE('button', {}, __('close'))),
             );
 
         $close && $close.addEventListener('click', e => {
             this.hide(e);
         });
+
+        !title && this.$title.classList.add('bx-gone');
+        !content && this.$content.classList.add('bx-gone');
+
         document.documentElement.appendChild(this.$dialog);
     }
 
-    show() {
+    show(newOptions) {
+        if (newOptions && newOptions.title) {
+            this.$title.textContent = newOptions.title;
+            this.$title.classList.remove('bx-gone');
+        }
+
         this.$dialog.classList.remove('bx-gone');
         this.$overlay.classList.remove('bx-gone');
     }
@@ -3118,6 +3127,49 @@ const GamepadKeyName = {
     [GamepadKey.RIGHT_STICK_LEFT]: ['Right Stick Left', '↽'],
     [GamepadKey.RIGHT_STICK_RIGHT]: ['Right Stick Right', '⇁'],
 };
+
+
+class KeyHelper {
+    static #NON_PRINTABLE_KEYS = {
+        'Backquote': '`',
+
+        // Mouse buttons
+        'Mouse1': 'Left Click',
+        'Mouse2': 'Right Click',
+        'Mouse4': 'Middle Click',
+    };
+
+    static getKeyNameFromEvent(e) {
+        console.log(e);
+        if (e.type.startsWith('key')) {
+            return KeyHelper.codeToKeyName(e.code);
+        } else if (e.type.startsWith('mouse')) {
+            return KeyHelper.codeToKeyName('Mouse' + e.buttons);
+        }
+    }
+
+    static codeToKeyName(code) {
+        return (
+            KeyHelper.#NON_PRINTABLE_KEYS[code]
+            ||
+            (code.startsWith('Key') && code.substring(3))
+            ||
+            (code.startsWith('Digit') && code.substring(5))
+            ||
+            (code.startsWith('Numpad') && ('Numpad ' + code.substring(6)))
+            ||
+            (code.startsWith('Arrow') && ('Arrow ' + code.substring(5)))
+            ||
+            (code.endsWith('Lock') && (code.replace('Lock', ' Lock')))
+            ||
+            (code.endsWith('Left') && ('Left ' + code.replace('Left', '')))
+            ||
+            (code.endsWith('Right') && ('Right ' + code.replace('Right', '')))
+            ||
+            code
+        );
+    }
+}
 
 
 class InputManagerPreset {
@@ -5804,6 +5856,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 12px;
 }
 
+.bx-dialog.bx-binding-dialog > b {
+    font-family: var(--bx-promptfont-font) !important;
+}
+
 .bx-dialog > div {
     overflow: auto;
     padding: 2px 0;
@@ -7507,17 +7563,18 @@ function renderMkbSettings() {
     let $currentBindingKey;
 
     const bindingDialog = new Dialog({
-        title: __('press-to-bind'),
-        content: __('press-esc-to-cancel'),
+        className: 'bx-binding-dialog',
+        content: CE('div', {},
+                CE('p', {}, __('press-to-bind')),
+                CE('i', {}, __('press-esc-to-cancel')),
+            ),
         hideCloseButton: true,
     });
 
     const onMouseDown = e => {
         e.preventDefault();
 
-        console.log(e);
-
-        $currentBindingKey.textContent = e.button;
+        $currentBindingKey.textContent = KeyHelper.getKeyNameFromEvent(e);
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('mousedown', onMouseDown);
 
@@ -7529,15 +7586,13 @@ function renderMkbSettings() {
         e.preventDefault();
         e.stopPropagation();
 
-        console.log(e);
-
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('mousedown', onMouseDown);
 
         setTimeout(() => bindingDialog.hide(), 200);
 
         if (e.code !== 'Escape') {
-            $currentBindingKey.textContent = e.code;
+            $currentBindingKey.textContent = KeyHelper.getKeyNameFromEvent(e);
         }
     };
 
@@ -7553,7 +7608,7 @@ function renderMkbSettings() {
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('mousedown', onMouseDown);
 
-        bindingDialog.show();
+        bindingDialog.show({title: e.target.getAttribute('data-prompt')});
     };
 
     const onClearBinding = e => {
@@ -7609,8 +7664,8 @@ function renderMkbSettings() {
 
         const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
                 CE('label', {'title': keyName[0]}, keyName[1]),
-                $firstKey = CE('button', {}, ' '),
-                $secondKey = CE('button', {}, ' '),
+                $firstKey = CE('button', {'data-prompt': keyName[1]}, ' '),
+                $secondKey = CE('button', {'data-prompt': keyName[1]}, ' '),
             );
 
         $firstKey.addEventListener('mouseup', onBindingKey);
@@ -7622,11 +7677,11 @@ function renderMkbSettings() {
         const buttonKeys = preset[keyIndex];
         if (buttonKeys && buttonKeys.length > 0) {
             if (buttonKeys[0]) {
-                $firstKey.textContent = buttonKeys[0];
+                $firstKey.textContent = KeyHelper.codeToKeyName(buttonKeys[0]);
             }
 
             if (1 in buttonKeys && buttonKeys[1]) {
-                $secondKey.textContent = buttonKeys[1];
+                $secondKey.textContent = KeyHelper.codeToKeyName(buttonKeys[1]);
             }
         }
 
