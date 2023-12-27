@@ -19,15 +19,17 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
 
-const NATIVE_MKB_TITLES = [
-    '9NP1P1WFS0LB', // Halo Infinite
-    '9PJTHRNVH62H', // Grounded
+window.NATIVE_MKB_TITLES = [
     '9PMQDM08SNK9', // MS Flight Simulator
-    '9P2N57MC619K', // Sea of Thieves
-    '9NBR2VXT87SJ', // Psychonauts 2
-    '9N5JRWWGMS1R', // ARK
-    '9P4KMR76PLLQ', // Gears 5
-    '9NN3HCKW5TPC', // Gears Tactics
+
+    // Not working anymore
+    // '9NP1P1WFS0LB', // Halo Infinite
+    // '9PJTHRNVH62H', // Grounded
+    // '9P2N57MC619K', // Sea of Thieves
+    // '9NBR2VXT87SJ', // Psychonauts 2
+    // '9N5JRWWGMS1R', // ARK
+    // '9P4KMR76PLLQ', // Gears 5
+    // '9NN3HCKW5TPC', // Gears Tactics
 
     // Bugged
     // '9NG07QJNK38J', // Among Us
@@ -5139,8 +5141,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 return false;
             }
 
-            const titlesStr = JSON.stringify(NATIVE_MKB_TITLES);
-            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return e && e.details ? ${titlesStr}.includes(e.details.productId) : true; })`);
+            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return e && e.details ? window.NATIVE_MKB_TITLES.includes(e.details.productId) : true; })`);
         },
 
         mkbMouseAndKeyboardEnabled: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
@@ -8118,7 +8119,7 @@ function onStreamStarted($video) {
     }
 
     // Enable MKB
-    if (PREFS.get(Preferences.MKB_ENABLED) && !NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID)) {
+    if (PREFS.get(Preferences.MKB_ENABLED) && !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID)) {
         console.log('Emulate MKB');
         InputManager.init();
     }
