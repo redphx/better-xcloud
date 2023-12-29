@@ -3131,6 +3131,12 @@ const GamepadKeyName = {
 };
 
 
+const GamepadStick = {
+    LEFT: 0,
+    RIGHT: 1,
+};
+
+
 class KeyHelper {
     static #NON_PRINTABLE_KEYS = {
         'Backquote': '`',
@@ -3174,7 +3180,7 @@ class KeyHelper {
 }
 
 
-class InputManagerPreset {
+class MkbPreset {
     static DEFAULT = {
         // Use "e.code" value from https://keyjs.dev
         [GamepadKey.UP]: ['ArrowUp'],
@@ -3227,158 +3233,243 @@ class InputManagerPreset {
 }
 
 
-class InputManager {
-    static #KEY_MAP = InputManagerPreset.convert(InputManagerPreset.DEFAULT);
+class MkbHandler {
+    static #instance;
+    static get INSTANCE() {
+        if (!MkbHandler.#instance) {
+            MkbHandler.#instance = new MkbHandler();
+        }
 
-    static #VIRTUAL_CONTROLLER = {
-        axes: [0, 0, 0, 0],
-        buttons: new Array(17).fill(null).map(() => ({pressed: false, value: 0})),
-        hapticActuators: null,
-        id: 'Xbox360',
-        index: 3,
-        connected: true,
-        mapping: 'standard',
-        timestamp: performance.now(),
+        return MkbHandler.#instance;
     }
 
-    static #enabled = false;
+    #KEY_MAP = MkbPreset.convert(MkbPreset.DEFAULT);
 
-    static #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
+    static get DEFAULT_PANNING_SENSITIVITY() { return 0.0010; }
+    static get DEFAULT_STICK_SENSITIVITY() { return 0.0006; }
+    static get DEFAULT_DEADZONE_COUNTERWEIGHT() { return 0.01; }
+    static get MAXIMUM_ROTATION_SPEED() { return 2.0; }
+    static get MAXIMUM_STICK_RANGE() { return 1.1; }
 
-    static #getVirtualGamepad() {
-        return InputManager.#VIRTUAL_CONTROLLER;
-    }
+    #VIRTUAL_GAMEPAD = {
+            id: 'Xbox 360 Controller (XInput STANDARD GAMEPAD)',
+            index: 3,
+            connected: true,
+            hapticActuators: null,
+            mapping: 'standard',
 
-    static #patchedGetGamepads() {
-        const gamepads = InputManager.#nativeGetGamepads();
-        gamepads[3] = InputManager.#VIRTUAL_CONTROLLER;
+            axes: [0, 0, 0, 0],
+            buttons: new Array(17).fill(null).map(() => ({pressed: false, value: 0})),
+            timestamp: performance.now(),
+        };
+    #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
+
+    #enabled = false;
+    #centerX;
+    #centerY;
+
+    #detectMouseStoppedTimeout;
+    #allowStickDecaying = false;
+
+    // constructor() {}
+
+    #patchedGetGamepads = () => {
+        const gamepads = this.#nativeGetGamepads();
+        gamepads[this.#VIRTUAL_GAMEPAD.index] = this.#VIRTUAL_GAMEPAD;
 
         return gamepads;
     }
 
-    static #onKeyboardEvent(e) {
-        // console.log(e);
+    #getVirtualGamepad = () => this.#VIRTUAL_GAMEPAD;
 
+    #updateStick(stick, x, y) {
+        const virtualGamepad = this.#getVirtualGamepad();
+        virtualGamepad.axes[stick * 2] = x;
+        virtualGamepad.axes[stick * 2 + 1] = y;
+
+        virtualGamepad.timestamp = performance.now();
+    }
+
+    #getStickAxes(stick) {
+        const virtualGamepad = this.#getVirtualGamepad();
+        return {
+            x: virtualGamepad.axes[stick * 2],
+            y: virtualGamepad.axes[stick * 2 + 1],
+        };
+    }
+
+    #vectorLength = (x, y) => Math.sqrt(x ** 2 + y ** 2);
+
+    #disableContextMenu = e => e.preventDefault();
+
+    #onKeyboardEvent = (e) => {
+        const virtualGamepad = this.#getVirtualGamepad();
         const isKeyDown = e.type === 'keydown';
+
+        // Toggle MKB feature
         if (isKeyDown && e.code === 'F9') {
-            InputManager.toggle();
+            e.preventDefault();
+            this.toggle();
             return;
         }
 
-        const virtualGamepad = InputManager.#getVirtualGamepad();
-        let preventDefault = false;
+        const buttonIndex = this.#KEY_MAP[e.code];
+        if (typeof buttonIndex === 'undefined') {
+            return;
+        }
 
-        const buttonIndex = InputManager.#KEY_MAP[e.code];
-        if (buttonIndex >= 100 && buttonIndex < 200) {
-            // Left stick
-            const axisIndex = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_RIGHT) ? 0 : 1;
-            const value = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_UP) ? -1 : 1;
+        e.preventDefault();
+
+        if (buttonIndex >= 100) {
+            let axisIndex;
+            let value;
+
+            if (buttonIndex >= 100 && buttonIndex < 200) { // Left stick
+                axisIndex = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_RIGHT) ? 0 : 1;
+                value = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_UP) ? -1 : 1;
+            } else { // Right stick
+                axisIndex = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_RIGHT) ? 2 : 3;
+                value = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_UP) ? -1 : 1;
+            }
+
             virtualGamepad.axes[axisIndex] = isKeyDown ? value : 0;
-        } else if (buttonIndex >= 200) {
-            // Left stick
-            const axisIndex = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_RIGHT) ? 0 : 1;
-            const value = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_UP) ? -1 : 1;
-            virtualGamepad.axes[axisIndex] = isKeyDown ? value : 0;
-        } else if (typeof buttonIndex !== 'undefined') {
+        } else {
             virtualGamepad.buttons[buttonIndex].pressed = isKeyDown;
             virtualGamepad.buttons[buttonIndex].value = isKeyDown ? 1 : 0;
-
-            preventDefault = true;
         }
 
         virtualGamepad.timestamp = performance.now();
-        preventDefault && e.preventDefault();
     }
 
-    static #onMouseEvent(e) {
-        // console.log(e);
-
-        const virtualGamepad = InputManager.#getVirtualGamepad();
+    #onMouseEvent = e => {
         const isMouseDown = e.type === 'mousedown';
-        let preventDefault = false;
 
         const code = `Mouse${e.button}`;
-        const buttonIndex = InputManager.#KEY_MAP[code];
-        if (typeof buttonIndex !== 'undefined') {
-            virtualGamepad.buttons[buttonIndex].pressed = isMouseDown;
-            virtualGamepad.buttons[buttonIndex].value = isMouseDown ? 1 : 0;
-
-            preventDefault = true;
+        const buttonIndex = this.#KEY_MAP[code];
+        if (typeof buttonIndex === 'undefined') {
+            return;
         }
 
-        virtualGamepad.timestamp = performance.now();
-        preventDefault && e.preventDefault();
-    }
-
-    static #onMouseMoveEvent(e) {
-        const virtualGamepad = InputManager.#getVirtualGamepad();
-
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-
-        const mouseX = e.clientX;
-        const mouseY = e.clientY;
-
-        const deltaX = centerX - mouseX;
-        const deltaY = centerY - mouseY;
-
-        const sensitivity = 1.5;
-
-        virtualGamepad.axes[2] = -1 * Math.max(Math.min(sensitivity * deltaX / centerX, 1), -1);
-        virtualGamepad.axes[3] = -1 * Math.max(Math.min(sensitivity * deltaY / centerY, 1), -1);
-
-        virtualGamepad.timestamp = performance.now();
-    }
-
-    static #disableContextMenu(e) {
         e.preventDefault();
+
+        const virtualGamepad = this.#getVirtualGamepad();
+        virtualGamepad.buttons[buttonIndex].pressed = isMouseDown;
+        virtualGamepad.buttons[buttonIndex].value = isMouseDown ? 1 : 0;
+
+        virtualGamepad.timestamp = performance.now();
     }
 
-    static toggle() {
-        InputManager.#enabled = !InputManager.#enabled;
-        if (InputManager.#enabled) {
-            InputManager.start();
-        } else {
-            InputManager.stop();
+    #decayStick = e => {
+        if (!this.#allowStickDecaying) {
+            return;
         }
 
-        Toast.show(__('mouse-and-keyboard'), InputManager.#enabled ? __('enabled') : __('disabled'));
+        const virtualGamepad = this.#getVirtualGamepad();
+        let { x, y } = this.#getStickAxes(GamepadStick.RIGHT);
+        const length = this.#vectorLength(x, y);
+
+        const clampedLength = Math.min(1.0, length);
+        const decayStrength = 30;
+        const decay = 1 - clampedLength * clampedLength * decayStrength * 0.01;
+        const minDecay = 12;
+        const clampedDecay = Math.min(1 - minDecay / 100.0, decay);
+
+        x *= clampedDecay;
+        y *= clampedDecay;
+
+        const deadzoneCounterweight = 20 * MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+        if (Math.abs(x) <= deadzoneCounterweight && Math.abs(y) <= deadzoneCounterweight) {
+            x = 0;
+            y = 0;
+        }
+
+        if (this.#allowStickDecaying) {
+            this.#updateStick(GamepadStick.RIGHT, x, y);
+
+            (x !== 0 || y !== 0) && requestAnimationFrame(this.#decayStick);
+        }
     }
 
-    static init() {
+    #onMouseStopped = e => {
+        this.#allowStickDecaying = true;
+
+        this.#centerX = e.clientX;
+        this.#centerY = e.clientY;
+        requestAnimationFrame(this.#decayStick);
+    }
+
+    #onMouseMoveEvent = e => {
+        this.#allowStickDecaying = false;
+        this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
+        this.#detectMouseStoppedTimeout = setTimeout(this.#onMouseStopped.bind(this, e), 100);
+
+        const deltaX = e.clientX - this.#centerX;
+        const deltaY = e.clientY - this.#centerY;
+
+        const deadzoneCounterweight = 20 * MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+
+        let x = deltaX * MkbHandler.DEFAULT_PANNING_SENSITIVITY * 5;
+        let y = deltaY * MkbHandler.DEFAULT_PANNING_SENSITIVITY * 5;
+
+        let length = this.#vectorLength(x, y);
+        if (length !== 0 && length < deadzoneCounterweight) {
+            x *= deadzoneCounterweight / length;
+            y *= deadzoneCounterweight / length;
+        } else if (length > MkbHandler.MAXIMUM_STICK_RANGE) {
+            x *= MkbHandler.MAXIMUM_STICK_RANGE / length;
+            y *= MkbHandler.MAXIMUM_STICK_RANGE / length;
+        }
+
+        this.#updateStick(GamepadStick.RIGHT, x, y);
+    }
+
+    toggle = () => {
+        this.#enabled = !this.#enabled;
+        this.#enabled ? this.start() : this.stop();
+
+        Toast.show(__('mouse-and-keyboard'), __(this.#enabled ? 'enabled' : 'disabled'));
+    }
+
+    init = () => {
+        this.#enabled = true;
         Toast.show(__('press-key-to-toggle-mkb', {key: 'F9'}));
 
-        window.addEventListener('keydown', InputManager.#onKeyboardEvent);
-        window.addEventListener('keyup', InputManager.#onKeyboardEvent);
+        window.addEventListener('keydown', this.#onKeyboardEvent);
+        window.addEventListener('keyup', this.#onKeyboardEvent);
 
-        InputManager.#enabled = true;
-        InputManager.start();
+        this.start();
     }
 
-    static destroy() {
-        window.removeEventListener('keydown', InputManager.#onKeyboardEvent);
-        window.removeEventListener('keyup', InputManager.#onKeyboardEvent);
+    destroy = () => {
+        this.#enabled = false;
+        this.stop();
 
-        InputManager.#enabled = false;
-        InputManager.stop();
+        window.removeEventListener('keydown', this.#onKeyboardEvent);
+        window.removeEventListener('keyup', this.#onKeyboardEvent);
     }
 
-    static start() {
-        window.navigator.getGamepads = InputManager.#patchedGetGamepads;
+    start = () => {
+        this.#centerX = null;
+        this.#centerY = null;
 
-        window.addEventListener('mousemove', InputManager.#onMouseMoveEvent);
-        window.addEventListener('mousedown', InputManager.#onMouseEvent);
-        window.addEventListener('mouseup', InputManager.#onMouseEvent);
-        window.addEventListener('contextmenu', InputManager.#disableContextMenu);
+        window.navigator.getGamepads = this.#patchedGetGamepads;
+
+        window.addEventListener('mousemove', this.#onMouseMoveEvent);
+        window.addEventListener('mousedown', this.#onMouseEvent);
+        window.addEventListener('mouseup', this.#onMouseEvent);
+        window.addEventListener('contextmenu', this.#disableContextMenu);
     }
 
-    static stop() {
-        window.navigator.getGamepads = InputManager.#nativeGetGamepads;
+    stop = () => {
+        window.navigator.getGamepads = this.#nativeGetGamepads;
 
-        window.removeEventListener('mousemove', InputManager.#onMouseMoveEvent);
-        window.removeEventListener('mousedown', InputManager.#onMouseEvent);
-        window.removeEventListener('mouseup', InputManager.#onMouseEvent);
-        window.removeEventListener('contextmenu', InputManager.#disableContextMenu);
+        this.#centerX = null;
+        this.#centerY = null;
+
+        window.removeEventListener('mousemove', this.onMouseMoveEvent);
+        window.removeEventListener('mousedown', this.#onMouseEvent);
+        window.removeEventListener('mouseup', this.#onMouseEvent);
+        window.removeEventListener('contextmenu', this.#disableContextMenu);
     }
 }
 
@@ -3552,7 +3643,7 @@ class MkbRemapper {
             $wrapper.appendChild($keyRow);
         }
 
-        const preset = InputManagerPreset.DEFAULT;
+        const preset = MkbPreset.DEFAULT;
         this.applyPreset(preset);
 
         // Render action buttons
@@ -8133,7 +8224,7 @@ function onHistoryChanged(e) {
     }
 
     // Stop MKB listeners
-    InputManager.destroy();
+    MkbHandler.INSTANCE.destroy();
 
     IS_PLAYING = false;
     setTimeout(RemotePlay.detect, 10);
@@ -8183,7 +8274,7 @@ function onStreamStarted($video) {
     // Enable MKB
     if (PREFS.get(Preferences.MKB_ENABLED) && !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID)) {
         console.log('Emulate MKB');
-        InputManager.init();
+        MkbHandler.INSTANCE.init();
     }
 
     if (TouchController.isEnabled()) {
