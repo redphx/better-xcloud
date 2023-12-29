@@ -318,8 +318,10 @@ Or you can give this project a star, that's also helpful.
 Thank you.  
 
 ## Acknowledgements  
+- The mouse controlling feature is heavily inspired by the "Mouse spinning" feature in [Yuzu emulator](https://github.com/yuzu-emu/yuzu-mainline)
 - [n-thumann/xbox-cloud-server-selector](https://github.com/n-thumann/xbox-cloud-server-selector) for the idea of IPv6 feature
 - Icons by [Phosphor Icons](https://phosphoricons.com)
+- [PromptFont](https://shinmera.com/promptfont) by Yukari "Shinmera" Hafner
 
 ## Disclaimers  
 - Use it at your own risk.
