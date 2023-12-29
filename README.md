@@ -15,6 +15,8 @@ If you like this project please give it a 🌟. Thank you 🙏.
 [![Total downloads](https://img.shields.io/github/downloads/redphx/better-xcloud/total?color=%23e15f2c)](https://github.com/redphx/better-xcloud/releases) 
 [![Total stars](https://img.shields.io/github/stars/redphx/better-xcloud?color=%23cca400)](https://github.com/redphx/better-xcloud/stargazers)  
 
+## 🔥 The Mouse & Keyboard feature is in development
+Follow [this issue](https://github.com/redphx/better-xcloud/issues/98#issuecomment-1866075541) if you want to help me test this feature. Thanks.
 
 ## Table of Contents
 - [**How to install**](#how-to-install)
