@@ -3305,14 +3305,14 @@ GamepadKey[GamepadKey.LEFT = 14] = 'LEFT';
 GamepadKey[GamepadKey.RIGHT = 15] = 'RIGHT';
 GamepadKey[GamepadKey.HOME = 16] = 'HOME';
 
-GamepadKey[GamepadKey.LEFT_STICK_UP = 100] = 'LEFT_STICK_UP';
-GamepadKey[GamepadKey.LEFT_STICK_DOWN = 101] = 'LEFT_STICK_DOWN';
-GamepadKey[GamepadKey.LEFT_STICK_LEFT = 102] = 'LEFT_STICK_LEFT';
-GamepadKey[GamepadKey.LEFT_STICK_RIGHT = 103] = 'LEFT_STICK_RIGHT';
-GamepadKey[GamepadKey.RIGHT_STICK_UP = 200] = 'RIGHT_STICK_UP';
-GamepadKey[GamepadKey.RIGHT_STICK_DOWN = 201] = 'RIGHT_STICK_DOWN';
-GamepadKey[GamepadKey.RIGHT_STICK_LEFT = 202] = 'RIGHT_STICK_LEFT';
-GamepadKey[GamepadKey.RIGHT_STICK_RIGHT = 203] = 'RIGHT_STICK_RIGHT';
+GamepadKey[GamepadKey.LS_UP = 100] = 'LS_UP';
+GamepadKey[GamepadKey.LS_DOWN = 101] = 'LS_DOWN';
+GamepadKey[GamepadKey.LS_LEFT = 102] = 'LS_LEFT';
+GamepadKey[GamepadKey.LS_RIGHT = 103] = 'LS_RIGHT';
+GamepadKey[GamepadKey.RS_UP = 200] = 'RS_UP';
+GamepadKey[GamepadKey.RS_DOWN = 201] = 'RS_DOWN';
+GamepadKey[GamepadKey.RS_LEFT = 202] = 'RS_LEFT';
+GamepadKey[GamepadKey.RS_RIGHT = 203] = 'RS_RIGHT';
 
 
 const GamepadKeyName = {
@@ -3336,16 +3336,16 @@ const GamepadKeyName = {
     [GamepadKey.RIGHT]: ['Right', '≼'],
 
     [GamepadKey.L3]: ['L3', '↺'],
-    [GamepadKey.LEFT_STICK_UP]: ['Left Stick Up', '↾'],
-    [GamepadKey.LEFT_STICK_DOWN]: ['Left Stick Down', '⇂'],
-    [GamepadKey.LEFT_STICK_LEFT]: ['Left Stick Left', '↼'],
-    [GamepadKey.LEFT_STICK_RIGHT]: ['Left Stick Right', '⇀'],
+    [GamepadKey.LS_UP]: ['Left Stick Up', '↾'],
+    [GamepadKey.LS_DOWN]: ['Left Stick Down', '⇂'],
+    [GamepadKey.LS_LEFT]: ['Left Stick Left', '↼'],
+    [GamepadKey.LS_RIGHT]: ['Left Stick Right', '⇀'],
 
     [GamepadKey.R3]: ['R3', '↻'],
-    [GamepadKey.RIGHT_STICK_UP]: ['Right Stick Up', '↿'],
-    [GamepadKey.RIGHT_STICK_DOWN]: ['Right Stick Down', '⇃'],
-    [GamepadKey.RIGHT_STICK_LEFT]: ['Right Stick Left', '↽'],
-    [GamepadKey.RIGHT_STICK_RIGHT]: ['Right Stick Right', '⇁'],
+    [GamepadKey.RS_UP]: ['Right Stick Up', '↿'],
+    [GamepadKey.RS_DOWN]: ['Right Stick Down', '⇃'],
+    [GamepadKey.RS_LEFT]: ['Right Stick Left', '↽'],
+    [GamepadKey.RS_RIGHT]: ['Right Stick Right', '⇁'],
 };
 
 
@@ -3399,11 +3399,13 @@ class KeyHelper {
 
 
 class MkbPreset {
-    static get KEY_MOUSE_DEADZONE_COUNTERWEIGHT() { return 'mouse_deadzone_counterweight'; }
-    static get KEY_MOUSE_SENSITIVITY_X() { return 'mouse_sensitivity_x'; }
-    static get KEY_MOUSE_SENSITIVITY_Y() { return 'mouse_sensitivity_y'; }
-    static get KEY_MOUSE_STICK_DECAY_STRENGTH() { return 'mouse_stick_decay_strength'; }
-    static get KEY_MOUSE_STICK_DECAY_MIN() { return 'mouse_stick_decay_min'; }
+    static get KEY_MOUSE_SENSITIVITY_X() { return 'sensitivity_x'; }
+    static get KEY_MOUSE_SENSITIVITY_Y() { return 'sensitivity_y'; }
+
+    static get KEY_MOUSE_DEADZONE_COUNTERWEIGHT() { return 'deadzone_counterweight'; }
+
+    static get KEY_MOUSE_STICK_DECAY_STRENGTH() { return 'stick_decay_strength'; }
+    static get KEY_MOUSE_STICK_DECAY_MIN() { return 'stick_decay_min'; }
 
     static MOUSE_SETTINGS = {
         [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: {
@@ -3473,48 +3475,61 @@ class MkbPreset {
     };
 
     static DEFAULT = {
-        // Use "e.code" value from https://keyjs.dev
-        [GamepadKey.UP]: ['ArrowUp'],
-        [GamepadKey.DOWN]: ['ArrowDown'],
-        [GamepadKey.LEFT]: ['ArrowLeft'],
-        [GamepadKey.RIGHT]: ['ArrowRight'],
+        'mapping': {
+            // Use "e.code" value from https://keyjs.dev
+            [GamepadKey.UP]: ['ArrowUp'],
+            [GamepadKey.DOWN]: ['ArrowDown'],
+            [GamepadKey.LEFT]: ['ArrowLeft'],
+            [GamepadKey.RIGHT]: ['ArrowRight'],
 
-        [GamepadKey.LEFT_STICK_UP]: ['KeyW'],
-        [GamepadKey.LEFT_STICK_DOWN]: ['KeyS'],
-        [GamepadKey.LEFT_STICK_LEFT]: ['KeyA'],
-        [GamepadKey.LEFT_STICK_RIGHT]: ['KeyD'],
+            [GamepadKey.LS_UP]: ['KeyW'],
+            [GamepadKey.LS_DOWN]: ['KeyS'],
+            [GamepadKey.LS_LEFT]: ['KeyA'],
+            [GamepadKey.LS_RIGHT]: ['KeyD'],
 
-        [GamepadKey.RIGHT_STICK_UP]: ['KeyI'],
-        [GamepadKey.RIGHT_STICK_DOWN]: ['KeyK'],
-        [GamepadKey.RIGHT_STICK_LEFT]: ['KeyJ'],
-        [GamepadKey.RIGHT_STICK_RIGHT]: ['KeyL'],
+            [GamepadKey.RS_UP]: ['KeyI'],
+            [GamepadKey.RS_DOWN]: ['KeyK'],
+            [GamepadKey.RS_LEFT]: ['KeyJ'],
+            [GamepadKey.RS_RIGHT]: ['KeyL'],
 
-        [GamepadKey.A]: ['Space', 'KeyE'],
-        [GamepadKey.X]: ['KeyR'],
-        [GamepadKey.B]: ['ControlLeft'],
-        [GamepadKey.Y]: ['KeyV'],
+            [GamepadKey.A]: ['Space', 'KeyE'],
+            [GamepadKey.X]: ['KeyR'],
+            [GamepadKey.B]: ['ControlLeft', 'Backspace'],
+            [GamepadKey.Y]: ['KeyV'],
 
-        [GamepadKey.START]: ['Enter'],
-        [GamepadKey.SELECT]: ['Tab'],
+            [GamepadKey.START]: ['Enter'],
+            [GamepadKey.SELECT]: ['Tab'],
 
-        [GamepadKey.LB]: ['KeyC'],
-        [GamepadKey.RB]: ['KeyQ'],
+            [GamepadKey.LB]: ['KeyC', 'KeyG'],
+            [GamepadKey.RB]: ['KeyQ'],
 
-        [GamepadKey.HOME]: ['Backquote'],
+            [GamepadKey.HOME]: ['Backquote'],
 
-        [GamepadKey.RT]: ['Mouse0'],
-        [GamepadKey.LT]: ['Mouse2'],
+            [GamepadKey.RT]: ['Mouse0'],
+            [GamepadKey.LT]: ['Mouse2'],
 
-        [GamepadKey.L3]: ['ShiftLeft'],
-        [GamepadKey.R3]: ['KeyF'],
+            [GamepadKey.L3]: ['ShiftLeft'],
+            [GamepadKey.R3]: ['KeyF'],
+        },
+
+        'mouse': {
+            [MkbPreset.KEY_MOUSE_SENSITIVITY_X]: 50,
+            [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: 50,
+            [MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
+            [MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH]: 18,
+            [MkbPreset.KEY_MOUSE_STICK_DECAY_MIN]: 6,
+        },
     };
 
     static convert(preset) {
-        const obj = {};
+        const obj = {
+            'mapping': {},
+            'mouse': Object.assign({}, preset.mouse),
+        };
 
-        for (const buttonIndex in preset) {
+        for (const buttonIndex in preset.mapping) {
             for (const keyName of preset[buttonIndex]) {
-                obj[keyName] = parseInt(buttonIndex);
+                obj.mapping[keyName] = parseInt(buttonIndex);
             }
         }
 
@@ -3534,7 +3549,7 @@ class MkbHandler {
         return MkbHandler.#instance;
     }
 
-    #KEY_MAP = MkbPreset.convert(MkbPreset.DEFAULT);
+    #CURRENT_MAPPING = MkbPreset.convert(MkbPreset.DEFAULT);
 
     static get DEFAULT_PANNING_SENSITIVITY() { return 0.0010; }
     static get DEFAULT_STICK_SENSITIVITY() { return 0.0006; }
@@ -3604,7 +3619,7 @@ class MkbHandler {
             return;
         }
 
-        const buttonIndex = this.#KEY_MAP[e.code];
+        const buttonIndex = this.#CURRENT_MAPPING.mapping[e.code];
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -3616,11 +3631,11 @@ class MkbHandler {
             let value;
 
             if (buttonIndex >= 100 && buttonIndex < 200) { // Left stick
-                axisIndex = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_RIGHT) ? 0 : 1;
-                value = (buttonIndex === GamepadKey.LEFT_STICK_LEFT || buttonIndex === GamepadKey.LEFT_STICK_UP) ? -1 : 1;
+                axisIndex = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_RIGHT) ? 0 : 1;
+                value = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_UP) ? -1 : 1;
             } else { // Right stick
-                axisIndex = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_RIGHT) ? 2 : 3;
-                value = (buttonIndex === GamepadKey.RIGHT_STICK_LEFT || buttonIndex === GamepadKey.RIGHT_STICK_UP) ? -1 : 1;
+                axisIndex = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_RIGHT) ? 2 : 3;
+                value = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_UP) ? -1 : 1;
             }
 
             virtualGamepad.axes[axisIndex] = isKeyDown ? value : 0;
@@ -3636,7 +3651,7 @@ class MkbHandler {
         const isMouseDown = e.type === 'mousedown';
 
         const code = `Mouse${e.button}`;
-        const buttonIndex = this.#KEY_MAP[code];
+        const buttonIndex = this.#CURRENT_MAPPING.mapping[code];
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -3788,16 +3803,16 @@ class MkbRemapper {
             GamepadKey.HOME,
 
             GamepadKey.L3,
-            GamepadKey.LEFT_STICK_UP,
-            GamepadKey.LEFT_STICK_DOWN,
-            GamepadKey.LEFT_STICK_LEFT,
-            GamepadKey.LEFT_STICK_RIGHT,
+            GamepadKey.LS_UP,
+            GamepadKey.LS_DOWN,
+            GamepadKey.LS_LEFT,
+            GamepadKey.LS_RIGHT,
 
             GamepadKey.R3,
-            GamepadKey.RIGHT_STICK_UP,
-            GamepadKey.RIGHT_STICK_DOWN,
-            GamepadKey.RIGHT_STICK_LEFT,
-            GamepadKey.RIGHT_STICK_RIGHT,
+            GamepadKey.RS_UP,
+            GamepadKey.RS_DOWN,
+            GamepadKey.RS_LEFT,
+            GamepadKey.RS_RIGHT,
         ];
     };
 
@@ -3887,7 +3902,7 @@ class MkbRemapper {
             const buttonIndex = $key.getAttribute('data-button-index');
             const keySlot = $key.getAttribute('data-key-slot');
 
-            const buttonKeys = preset[buttonIndex];
+            const buttonKeys = preset.mapping[buttonIndex];
             const totalKeys = buttonKeys.length
 
             if (!buttonKeys || !totalKeys) {
@@ -3939,7 +3954,7 @@ class MkbRemapper {
         const $mouseSettings = document.createDocumentFragment();
         for (const key in MkbPreset.MOUSE_SETTINGS) {
             const setting = MkbPreset.MOUSE_SETTINGS[key];
-            const value = 10;
+            const value = MkbPreset.DEFAULT.mouse[key];
 
             const onChange = () => {};
             const $row = CE('div', {'class': 'bx-quick-settings-row'},
@@ -6596,13 +6611,16 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-mkb-key-row label {
     margin-bottom: 0;
     font-family: var(--bx-promptfont-font);
-    font-size: 28px;
+    font-size: 26px;
     text-align: center;
+    height: 32px;
+    line-height: 32px;
 }
 
 .bx-mkb-key-row button {
     width: 150px;
     height: 32px;
+    line-height: 32px;
     margin: 0 10px;
     background: transparent;
     border: none;
@@ -6617,7 +6635,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-mkb-settings.bx-editing .bx-mkb-key-row button {
     background: #393939;
-    border: 1px solid #717171;
 }
 
 .bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover {
