@@ -4057,6 +4057,9 @@ class MkbRemapper {
 
         $wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
 
+        const $rows = CE('div', {'class': 'bx-mkb-settings-rows'});
+        $wrapper.appendChild($rows);
+
         // Render keys
         const keysPerButton = 2;
         for (const buttonIndex of this.#BUTTON_ORDERS) {
@@ -4083,7 +4086,7 @@ class MkbRemapper {
                     $fragment,
                 );
 
-            $wrapper.appendChild($keyRow);
+            $rows.appendChild($keyRow);
         }
 
         const $mouseSettings = document.createDocumentFragment();
@@ -4104,7 +4107,7 @@ class MkbRemapper {
             this.#allMouseElements[key] = $elm;
         }
 
-        $wrapper.appendChild($mouseSettings);
+        $rows.appendChild($mouseSettings);
 
         this.applyPreset(MkbPreset.DEFAULT_PRESET);
 
@@ -6614,6 +6617,13 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: overlay;
 }
 
+.bx-quick-settings-tab-contents > div[data-group=mkb] {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
 .bx-quick-settings-tab-contents div:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
     display: none;
 }
@@ -6754,7 +6764,14 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-mkb-settings {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: scroll;
+}
 
+.bx-mkb-settings-rows {
+    overflow: scroll;
 }
 
 .bx-mkb-key-row {
