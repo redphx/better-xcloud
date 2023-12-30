@@ -3557,7 +3557,7 @@ class MkbPreset {
 
             [GamepadKey.HOME]: ['Backquote'],
 
-            [GamepadKey.RT]: ['Mouse0'],
+            [GamepadKey.RT]: ['Mouse1'],
             [GamepadKey.LT]: ['Mouse2'],
 
             [GamepadKey.L3]: ['ShiftLeft'],
