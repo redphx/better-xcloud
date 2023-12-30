@@ -3206,13 +3206,20 @@ class SettingElement {
             });
             $wrapper.appendChild($range);
 
-            if (options.ticks) {
+            if (options.ticks || options.exactTicks) {
                 const markersId = `markers-${key}`;
                 const $markers = CE('datalist', {'id': markersId});
                 $range.setAttribute('list', markersId);
 
-                for (let i = MIN; i <= MAX; i += options.ticks) {
-                    $markers.appendChild(CE('option', {'value': i}));
+                if (options.exactTicks) {
+                    const start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
+                    for (let i = start; i < MAX; i += options.exactTicks) {
+                        $markers.appendChild(CE('option', {'value': i}));
+                    }
+                } else {
+                    for (let i = MIN; i <= MAX; i += options.ticks) {
+                        $markers.appendChild(CE('option', {'value': i}));
+                    }
                 }
                 $wrapper.appendChild($markers);
             }
@@ -3470,12 +3477,12 @@ class MkbPreset {
             label: 'Horizontal sensitivity',
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
-            min: 10,
+            min: 1,
             max: 100,
 
             params: {
                 suffix: '%',
-                ticks: 30,
+                exactTicks: 25,
             },
         },
 
@@ -3483,12 +3490,12 @@ class MkbPreset {
             label: 'Vertical sensitivity',
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
-            min: 10,
+            min: 1,
             max: 100,
 
             params: {
                 suffix: '%',
-                ticks: 30,
+                exactTicks: 25,
             },
         },
 
@@ -3496,12 +3503,12 @@ class MkbPreset {
             label: 'Deadzone counterweight',
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 20,
-            min: 10,
+            min: 1,
             max: 100,
 
             params: {
                 suffix: '%',
-                ticks: 30,
+                exactTicks: 25,
             },
         },
 
@@ -3514,7 +3521,7 @@ class MkbPreset {
 
             params: {
                 suffix: '%',
-                ticks: 30,
+                exactTicks: 25,
             },
         },
 
