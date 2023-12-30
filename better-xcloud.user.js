@@ -6773,14 +6773,15 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-mkb-key-row button {
-    width: 150px;
+    flex: 1;
     height: 32px;
     line-height: 32px;
-    margin: 0 10px;
+    margin: 0 0 0 10px;
     background: transparent;
     border: none;
     color: white;
-    border-radius: 4px;
+    border-radius: 0;
+    border-left: 1px solid #373737;
 }
 
 .bx-mkb-key-row button:hover {
@@ -6790,6 +6791,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-mkb-settings.bx-editing .bx-mkb-key-row button {
     background: #393939;
+    border-radius: 4px;
+    border: none;
 }
 
 .bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover {
