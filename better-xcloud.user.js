@@ -3470,12 +3470,12 @@ class MkbPreset {
             label: 'Horizontal sensitivity',
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
-            min: 1,
+            min: 10,
             max: 100,
 
             params: {
                 suffix: '%',
-                ticks: 25,
+                ticks: 30,
             },
         },
 
@@ -3483,12 +3483,12 @@ class MkbPreset {
             label: 'Vertical sensitivity',
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
-            min: 1,
+            min: 10,
             max: 100,
 
             params: {
                 suffix: '%',
-                ticks: 25,
+                ticks: 30,
             },
         },
 
@@ -3496,12 +3496,12 @@ class MkbPreset {
             label: 'Deadzone counterweight',
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 20,
-            min: 1,
+            min: 10,
             max: 100,
 
             params: {
                 suffix: '%',
-                ticks: 25,
+                ticks: 30,
             },
         },
 
@@ -3509,12 +3509,12 @@ class MkbPreset {
             label: 'Stick decay strength',
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 18,
-            min: 1,
+            min: 10,
             max: 100,
 
             params: {
                 suffix: '%',
-                ticks: 25,
+                ticks: 30,
             },
         },
 
@@ -3523,11 +3523,10 @@ class MkbPreset {
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 6,
             min: 1,
-            max: 100,
+            max: 10,
 
             params: {
                 suffix: '%',
-                ticks: 25,
             },
         },
     };
