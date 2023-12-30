@@ -3535,7 +3535,7 @@ class MkbPreset {
         };
 
         for (const buttonIndex in preset.mapping) {
-            for (const keyName of preset[buttonIndex]) {
+            for (const keyName of preset.mapping[buttonIndex]) {
                 obj.mapping[keyName] = parseInt(buttonIndex);
             }
         }
