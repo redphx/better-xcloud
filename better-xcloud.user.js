@@ -4494,6 +4494,224 @@ class PreloadedState {
 }
 
 
+class SettingElement {
+    static TYPE_OPTIONS = 'options';
+    static TYPE_MULTIPLE_OPTIONS = 'multiple-options';
+    static TYPE_NUMBER = 'number';
+    static TYPE_NUMBER_STEPPER = 'number-stepper';
+    static TYPE_CHECKBOX = 'checkbox';
+
+    static #renderOptions(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('select');
+        for (let value in setting.options) {
+            const label = setting.options[value];
+
+            const $option = CE('option', {value: value}, label);
+            $control.appendChild($option);
+        }
+
+        $control.value = currentValue;
+        onChange && $control.addEventListener('change', e => {
+            const value = (setting.type && setting.type === 'number') ? parseInt(e.target.value) : e.target.value;
+            onChange(e, value);
+        });
+
+        return $control;
+    }
+
+    static #renderMultipleOptions(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('select', {'multiple': true});
+        for (let value in setting.multiple_options) {
+            const label = setting.multiple_options[value];
+
+            const $option = CE('option', {value: value}, label);
+            $option.selected = currentValue.indexOf(value) > -1;
+
+            $option.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.target.selected = !e.target.selected;
+
+                const $parent = e.target.parentElement;
+                $parent.focus();
+                $parent.dispatchEvent(new Event('change'));
+            });
+
+            $control.appendChild($option);
+        }
+
+        $control.addEventListener('mousedown', e => {
+            const self = this;
+            const orgScrollTop = self.scrollTop;
+            setTimeout(() => (self.scrollTop = orgScrollTop), 0);
+        });
+
+        $control.addEventListener('mousemove', e => e.preventDefault());
+
+        onChange && $control.addEventListener('change', e => {
+            const values = Array.from(e.target.selectedOptions).map(e => e.value);
+            onChange(e, values);
+        });
+
+        return $control;
+    }
+
+    static #renderNumber(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max});
+        $control.value = currentValue;
+        onChange && $control.addEventListener('change', e => {
+            let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
+            e.target.value = value;
+
+            onChange(e, value);
+        });
+
+        return $control;
+    }
+
+    static #renderCheckbox(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('input', {'type': 'checkbox'});
+        $control.checked = currentValue;
+
+        onChange && $control.addEventListener('change', e => {
+            onChange(e, e.target.checked);
+        });
+
+        return $control;
+    }
+
+    static #renderNumberStepper(key, setting, value, onChange, options={}) {
+        options = options || {};
+        options.suffix = options.suffix || '';
+        options.disabled = !!options.disabled;
+        options.hideSlider = !!options.hideSlider;
+
+        let $text, $decBtn, $incBtn, $range;
+
+        const MIN = setting.min;
+        const MAX = setting.max;
+        const STEPS = Math.max(setting.steps || 1, 1);
+
+        const CE = createElement;
+        const $wrapper = CE('div', {},
+                            $decBtn = CE('button', {'data-type': 'dec'}, '-'),
+                            $text = CE('span', {}, value + options.suffix),
+                            $incBtn = CE('button', {'data-type': 'inc'}, '+'),
+                           );
+
+        if (!options.disabled && !options.hideSlider) {
+            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS});
+            $range.addEventListener('input', e => {
+                value = parseInt(e.target.value);
+
+                $text.textContent = value + options.suffix;
+                onChange && onChange(e, value);
+            });
+            $wrapper.appendChild($range);
+
+            if (options.ticks) {
+                const markersId = `markers-${key}`;
+                const $markers = CE('datalist', {'id': markersId});
+                $range.setAttribute('list', markersId);
+
+                for (let i = MIN; i <= MAX; i += options.ticks) {
+                    $markers.appendChild(CE('option', {'value': i}));
+                }
+                $wrapper.appendChild($markers);
+            }
+        }
+
+        if (options.disabled) {
+            $incBtn.disabled = true;
+            $incBtn.classList.add('bx-hidden');
+
+            $decBtn.disabled = true;
+            $decBtn.classList.add('bx-hidden');
+            return $wrapper;
+        }
+
+        let interval;
+        let isHolding = false;
+
+        const onClick = e => {
+            if (isHolding) {
+                e.preventDefault();
+                isHolding = false;
+
+                return;
+            }
+
+            const btnType = e.target.getAttribute('data-type');
+            if (btnType === 'dec') {
+                value = Math.max(MIN, value - STEPS);
+            } else {
+                value = Math.min(MAX, value + STEPS);
+            }
+
+            $text.textContent = value + options.suffix;
+            $range && ($range.value = value);
+
+            isHolding = false;
+            onChange && onChange(e, value);
+        }
+
+        const onMouseDown = e => {
+            isHolding = true;
+
+            const args = arguments;
+            interval = setInterval(() => {
+                const event = new Event('click');
+                event.arguments = args;
+
+                e.target.dispatchEvent(event);
+            }, 200);
+        };
+
+        const onMouseUp = e => {
+            clearInterval(interval);
+            isHolding = false;
+        };
+
+        $decBtn.addEventListener('click', onClick);
+        $decBtn.addEventListener('mousedown', onMouseDown);
+        $decBtn.addEventListener('mouseup', onMouseUp);
+        $decBtn.addEventListener('touchstart', onMouseDown);
+        $decBtn.addEventListener('touchend', onMouseUp);
+
+        $incBtn.addEventListener('click', onClick);
+        $incBtn.addEventListener('mousedown', onMouseDown);
+        $incBtn.addEventListener('mouseup', onMouseUp);
+        $incBtn.addEventListener('touchstart', onMouseDown);
+        $incBtn.addEventListener('touchend', onMouseUp);
+
+        return $wrapper;
+    }
+
+    static #METHOD_MAP = {
+        [SettingElement.TYPE_OPTIONS]: SettingElement.#renderOptions,
+        [SettingElement.TYPE_MULTIPLE_OPTIONS]: SettingElement.#renderMultipleOptions,
+        [SettingElement.TYPE_NUMBER]: SettingElement.#renderNumber,
+        [SettingElement.TYPE_NUMBER_STEPPER]: SettingElement.#renderNumberStepper,
+        [SettingElement.TYPE_CHECKBOX]: SettingElement.#renderCheckbox,
+    };
+
+    static render(type, key, setting, currentValue, onChange, options) {
+        const method = SettingElement.#METHOD_MAP[type];
+        const $control = method(...Array.from(arguments).slice(1));
+        $control.id = `bx_setting_${key}`;
+
+        return $control;
+    }
+}
+
+
 class Preferences {
     static get LAST_UPDATE_CHECK() { return 'version_last_check'; }
     static get LATEST_VERSION() { return 'version_latest'; }
@@ -4829,9 +5047,13 @@ class Preferences {
             'default': '',
         },
         [Preferences.VIDEO_CLARITY]: {
+            'type': SettingElement.TYPE_NUMBER_STEPPER,
             'default': 0,
             'min': 0,
             'max': 5,
+            'params': {
+                hideSlider: true,
+            },
         },
         [Preferences.VIDEO_RATIO]: {
             'default': '16:9',
@@ -4846,19 +5068,34 @@ class Preferences {
             },
         },
         [Preferences.VIDEO_SATURATION]: {
+            'type': SettingElement.TYPE_NUMBER_STEPPER,
             'default': 100,
             'min': 50,
             'max': 150,
+            'params': {
+                suffix: '%',
+                ticks: 100,
+            },
         },
         [Preferences.VIDEO_CONTRAST]: {
+            'type': SettingElement.TYPE_NUMBER_STEPPER,
             'default': 100,
             'min': 50,
             'max': 150,
+            'params': {
+                suffix: '%',
+                ticks: 25,
+            },
         },
         [Preferences.VIDEO_BRIGHTNESS]: {
+            'type': SettingElement.TYPE_NUMBER_STEPPER,
             'default': 100,
             'min': 50,
             'max': 150,
+            'params': {
+                suffix: '%',
+                ticks: 25,
+            },
         },
 
         [Preferences.AUDIO_MIC_ON_PLAYING]: {
@@ -4868,9 +5105,14 @@ class Preferences {
             'default': true,
         },
         [Preferences.AUDIO_VOLUME]: {
+            'type': SettingElement.TYPE_NUMBER_STEPPER,
             'default': 100,
             'min': 0,
             'max': 600,
+            'params': {
+                suffix: '%',
+                ticks: 100,
+            },
         },
 
 
@@ -5046,200 +5288,43 @@ class Preferences {
         this.#storage.setItem(this.#key, JSON.stringify(this.#prefs));
     }
 
-    toElement(key, onChange) {
+    toElement(key, onChange, overrideParams={}) {
         const CE = createElement;
         const setting = Preferences.SETTINGS[key];
-        const currentValue = PREFS.get(key);
+        let currentValue = PREFS.get(key);
 
         let $control;
-        if ('options' in setting) {
-            $control = CE('select', {'id': `bx_setting_${key}`});
-            for (let value in setting.options) {
-                const label = setting.options[value];
-
-                const $option = CE('option', {value: value}, label);
-                $control.appendChild($option);
-            }
-
-            $control.value = currentValue;
-            $control.addEventListener('change', e => {
-                const value = (setting.type && setting.type === 'number') ? parseInt(e.target.value) : e.target.value;
-                PREFS.set(key, value);
-                onChange && onChange(e);
-            });
+        let type;
+        if ('type' in setting) {
+            type = setting.type;
+        } else if ('options' in setting) {
+            type = SettingElement.TYPE_OPTIONS;
         } else if ('multiple_options' in setting) {
-            $control = CE('select', {'id': `bx_setting_${key}`, 'multiple': true});
-            for (let value in setting.multiple_options) {
-                const label = setting.multiple_options[value];
-
-                const $option = CE('option', {value: value}, label);
-                $option.selected = currentValue.indexOf(value) > -1;
-
-                $option.addEventListener('mousedown', function(e) {
-                    e.preventDefault();
-                    e.target.selected = !e.target.selected;
-
-                    const $parent = e.target.parentElement;
-                    $parent.focus();
-                    $parent.dispatchEvent(new Event('change'));
-                });
-
-                $control.appendChild($option);
-            }
-
-            $control.addEventListener('mousedown', e => {
-                const $this = this;
-                const orgScrollTop = $this.scrollTop;
-                setTimeout(() => ($this.scrollTop = orgScrollTop), 0);
-            });
-
-            $control.addEventListener('mousemove', e => e.preventDefault());
-
-            // $control.value = currentValue;
-            $control.addEventListener('change', e => {
-                const values = Array.from(e.target.selectedOptions).map(e => e.value);
-                PREFS.set(key, values);
-
-                onChange && onChange(e);
-            });
+            type = SettingElement.TYPE_MULTIPLE_OPTIONS;
         } else if (typeof setting.default === 'number') {
-            $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max});
-
-            $control.value = currentValue;
-            $control.addEventListener('change', e => {
-                let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
-                e.target.value = value;
-
-                PREFS.set(key, value);
-                onChange && onChange(e);
-            });
+            type = SettingElement.TYPE_NUMBER;
         } else {
-            $control = CE('input', {'type': 'checkbox'});
-            $control.checked = currentValue;
-
-            $control.addEventListener('change', e => {
-                PREFS.set(key, e.target.checked);
-                onChange && onChange(e);
-            });
+            type = SettingElement.TYPE_CHECKBOX;
         }
 
-        $control.id = `bx_setting_${key}`;
+        const params = Object.assign(overrideParams, setting.params || {});
+        if (params.disabled) {
+            currentValue = Preferences.SETTINGS[key].default;
+        }
+
+        $control = SettingElement.render(type, key, setting, currentValue, (e, value) => {
+                PREFS.set(key, value);
+                onChange && onChange(e, value);
+            }, params);
+
         return $control;
     }
 
     toNumberStepper(key, onChange, options={}) {
-        options = options || {};
-        options.suffix = options.suffix || '';
-        options.disabled = !!options.disabled;
-        options.hideSlider = !!options.hideSlider;
-
-        const setting = Preferences.SETTINGS[key]
-        let value = PREFS.get(key);
-        if (options.disabled) {
-            value = Preferences.SETTINGS[key].default;
-        }
-
-        let $text, $decBtn, $incBtn, $range;
-
-        const MIN = setting.min;
-        const MAX= setting.max;
-        const STEPS = Math.max(setting.steps || 1, 1);
-
-        const CE = createElement;
-        const $wrapper = CE('div', {},
-                            $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                            $text = CE('span', {}, value + options.suffix),
-                            $incBtn = CE('button', {'data-type': 'inc'}, '+'),
-                           );
-
-        if (!options.disabled && !options.hideSlider) {
-            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS});
-            $range.addEventListener('input', e => {
-                value = parseInt(e.target.value);
-
-                $text.textContent = value + options.suffix;
+        return SettingElement.render(SettingElement.TYPE_NUMBER_STEPPER, key, Preferences.SETTINGS[key], PREFS.get(key), (e, value) => {
                 PREFS.set(key, value);
                 onChange && onChange(e, value);
-            });
-            $wrapper.appendChild($range);
-
-            if (options.ticks) {
-                const markersId = `markers-${key}`;
-                const $markers = CE('datalist', {'id': markersId});
-                $range.setAttribute('list', markersId);
-
-                for (let i = MIN; i <= MAX; i += options.ticks) {
-                    $markers.appendChild(CE('option', {'value': i}));
-                }
-                $wrapper.appendChild($markers);
-            }
-        }
-
-        if (options.disabled) {
-            $incBtn.disabled = true;
-            $incBtn.classList.add('bx-hidden');
-
-            $decBtn.disabled = true;
-            $decBtn.classList.add('bx-hidden');
-            return $wrapper;
-        }
-
-        let interval;
-        let isHolding = false;
-
-        const onClick = e => {
-            if (isHolding) {
-                e.preventDefault();
-                isHolding = false;
-
-                return;
-            }
-
-            const btnType = e.target.getAttribute('data-type');
-            if (btnType === 'dec') {
-                value = Math.max(MIN, value - STEPS);
-            } else {
-                value = Math.min(MAX, value + STEPS);
-            }
-
-            $text.textContent = value + options.suffix;
-            $range && ($range.value = value);
-            PREFS.set(key, value);
-
-            isHolding = false;
-            onChange && onChange(e, value);
-        }
-
-        const onMouseDown = e => {
-            isHolding = true;
-
-            const args = arguments;
-            interval = setInterval(() => {
-                const event = new Event('click');
-                event.arguments = args;
-
-                e.target.dispatchEvent(event);
-            }, 200);
-        };
-
-        const onMouseUp = e => {
-            clearInterval(interval);
-            isHolding = false;
-        };
-
-        $decBtn.addEventListener('click', onClick);
-        $decBtn.addEventListener('mousedown', onMouseDown);
-        $decBtn.addEventListener('mouseup', onMouseUp);
-        $decBtn.addEventListener('touchstart', onMouseDown);
-        $decBtn.addEventListener('touchend', onMouseUp);
-
-        $incBtn.addEventListener('click', onClick);
-        $incBtn.addEventListener('mousedown', onMouseDown);
-        $incBtn.addEventListener('mouseup', onMouseUp);
-        $incBtn.addEventListener('touchstart', onMouseDown);
-        $incBtn.addEventListener('touchend', onMouseUp);
-
-        return $wrapper;
+            }, options);
     }
 }
 
@@ -7896,10 +7981,7 @@ function setupQuickSettingsBar() {
                             onChange: (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
                             },
-                            type: 'number-stepper',
                             params: {
-                                suffix: '%',
-                                ticks: 100,
                                 disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
                             },
                         },
@@ -7919,41 +8001,22 @@ function setupQuickSettingsBar() {
                         [Preferences.VIDEO_CLARITY]: {
                             label: __('clarity'),
                             onChange: updateVideoPlayerCss,
-                            type: 'number-stepper',
                             unsupported: isSafari,
-                            params: {
-                                hideSlider: true,
-                            },
                         },
 
                         [Preferences.VIDEO_SATURATION]: {
                             label: __('saturation'),
                             onChange: updateVideoPlayerCss,
-                            type: 'number-stepper',
-                            params: {
-                                suffix: '%',
-                                ticks: 25,
-                            },
                         },
 
                         [Preferences.VIDEO_CONTRAST]: {
                             label: __('contrast'),
                             onChange: updateVideoPlayerCss,
-                            type: 'number-stepper',
-                            params: {
-                                suffix: '%',
-                                ticks: 25,
-                            },
                         },
 
                         [Preferences.VIDEO_BRIGHTNESS]: {
                             label: __('brightness'),
                             onChange: updateVideoPlayerCss,
-                            type: 'number-stepper',
-                            params: {
-                                suffix: '%',
-                                ticks: 25,
-                            },
                         },
                     },
                 },
@@ -7984,11 +8047,6 @@ function setupQuickSettingsBar() {
                             label: __('vibration-intensity'),
                             unsupported: !VibrationManager.supportDeviceVibration(),
                             onChange: VibrationManager.updateGlobalVars,
-                            type: 'number-stepper',
-                            params: {
-                                suffix: '%',
-                                ticks: 50,
-                            },
                         },
                     },
                 },
@@ -8109,12 +8167,17 @@ function setupQuickSettingsBar() {
                     continue;
                 }
 
+                let $control;
+                if (!setting.unsupported) {
+                    $control = PREFS.toElement(pref, setting.onChange, setting.params);
+                }
+
                 const $content = CE('div', {'data-type': settingGroup.group},
                             CE('label', {for: `bx_setting_${pref}`},
                             setting.label,
                             setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
                         ),
-                        !setting.unsupported && (setting.type === 'number-stepper' ? PREFS.toNumberStepper(pref, setting.onChange, setting.params) : PREFS.toElement(pref, setting.onChange)),
+                        !setting.unsupported && $control,
                     );
 
                 $group.appendChild($content);
