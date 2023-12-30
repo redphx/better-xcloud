@@ -3940,19 +3940,42 @@ class MkbRemapper {
         window.removeEventListener('wheel', this.onWheel);
     };
 
-    bindKey = ($key, keyName) => {
-        $key.textContent = keyName;
+    bindKey = ($elm, key) => {
+        const buttonIndex = parseInt($elm.getAttribute('data-button-index'));
+        const keySlot = parseInt($elm.getAttribute('data-key-slot'));
+
+        // Ignore if bind the save key to the same element
+        if ($elm.getAttribute('data-key-code') === key.code) {
+            return;
+        }
+
+        // Unbind duplicated keys
+        for (const $otherElm of this.#allKeyElements) {
+            if ($otherElm.getAttribute('data-key-code') === key.code) {
+                this.unbindKey($otherElm);
+            }
+        }
+
+        this.#currentPreset.mapping[buttonIndex][keySlot] = key.code;
+        $elm.textContent = key.name;
+        $elm.setAttribute('data-key-code', key.code);
     }
 
-    unbindKey = ($key) => {
-        $key.textContent = '';
+    unbindKey = $elm => {
+        const buttonIndex = parseInt($elm.getAttribute('data-button-index'));
+        const keySlot = parseInt($elm.getAttribute('data-key-slot'));
+
+        // Remove key from preset
+        this.#currentPreset.mapping[buttonIndex][keySlot] = null;
+        $elm.textContent = '';
+        $elm.removeAttribute('data-key-code');
     }
 
     onWheel = e => {
         e.preventDefault();
         this.clearEventListeners();
 
-        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e).name);
+        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e));
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
@@ -3960,7 +3983,7 @@ class MkbRemapper {
         e.preventDefault();
         this.clearEventListeners();
 
-        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e).name);
+        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e));
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
@@ -3970,7 +3993,7 @@ class MkbRemapper {
         this.clearEventListeners();
 
         if (e.code !== 'Escape') {
-            this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e).name);
+            this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e));
         }
 
         setTimeout(() => this.bindingDialog.hide(), 200);
@@ -4009,14 +4032,16 @@ class MkbRemapper {
             const keySlot = $elm.getAttribute('data-key-slot');
 
             const buttonKeys = preset.mapping[buttonIndex];
-            const totalKeys = buttonKeys.length
+            const totalKeys = buttonKeys.length;
 
             if (!buttonKeys || !totalKeys) {
+                $elm.removeAttribute('data-key-code');
                 continue;
             }
 
             if (totalKeys > keySlot && buttonKeys[keySlot]) {
                 $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
+                $elm.setAttribute('data-key-code', buttonKeys[keySlot]);
             }
         }
 
@@ -4036,13 +4061,13 @@ class MkbRemapper {
         // Render keys
         const keysPerButton = 2;
         for (const buttonIndex of this.#BUTTON_ORDERS) {
-            const keyName = GamepadKeyName[buttonIndex];
+            const [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex];
 
             let $elm;
             const $fragment = document.createDocumentFragment();
             for (let i = 0; i < keysPerButton; i++) {
                 $elm = CE('button', {
-                        'data-prompt': keyName[1],
+                        'data-prompt': buttonPrompt,
                         'data-button-index': buttonIndex,
                         'data-key-slot': i,
                     }, ' ');
@@ -4055,7 +4080,7 @@ class MkbRemapper {
             }
 
             const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
-                    CE('label', {'title': keyName[0]}, keyName[1]),
+                    CE('label', {'title': buttonName}, buttonPrompt),
                     $fragment,
                 );
 
