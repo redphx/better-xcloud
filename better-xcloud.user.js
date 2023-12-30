@@ -3269,6 +3269,12 @@ class SettingElement {
             isHolding = false;
         };
 
+        // Custom method
+        $wrapper.setValue = value => {
+            $text.textContent = value + options.suffix;
+            $range && ($range.value = value);
+        };
+
         $decBtn.addEventListener('click', onClick);
         $decBtn.addEventListener('mousedown', onMouseDown);
         $decBtn.addEventListener('mouseup', onMouseUp);
@@ -3526,7 +3532,7 @@ class MkbPreset {
         },
     };
 
-    static DEFAULT = {
+    static DEFAULT_PRESET = {
         'mapping': {
             // Use "e.code" value from https://keyjs.dev
             [GamepadKey.UP]: ['ArrowUp'],
@@ -3601,7 +3607,7 @@ class MkbHandler {
         return MkbHandler.#instance;
     }
 
-    #CURRENT_MAPPING = MkbPreset.convert(MkbPreset.DEFAULT);
+    #CURRENT_MAPPING = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
 
     static get DEFAULT_PANNING_SENSITIVITY() { return 0.0010; }
     static get DEFAULT_STICK_SENSITIVITY() { return 0.0006; }
@@ -3909,9 +3915,12 @@ class MkbRemapper {
         return MkbRemapper.#instance;
     };
 
+    #currentPreset;
+    #allKeyElements = [];
+    #allMouseElements = {};
+
     constructor() {
         this.isEditing = false;
-        this.allKeyElements = [];
         this.$currentBindingKey = null;
 
         const CE = createElement;
@@ -3993,9 +4002,11 @@ class MkbRemapper {
     };
 
     applyPreset = preset => {
-        for (const $key of this.allKeyElements) {
-            const buttonIndex = $key.getAttribute('data-button-index');
-            const keySlot = $key.getAttribute('data-key-slot');
+        this.#currentPreset = preset;
+
+        for (const $elm of this.#allKeyElements) {
+            const buttonIndex = $elm.getAttribute('data-button-index');
+            const keySlot = $elm.getAttribute('data-key-slot');
 
             const buttonKeys = preset.mapping[buttonIndex];
             const totalKeys = buttonKeys.length
@@ -4005,8 +4016,13 @@ class MkbRemapper {
             }
 
             if (totalKeys > keySlot && buttonKeys[keySlot]) {
-                $key.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
+                $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
             }
+        }
+
+        for (const key in this.#allMouseElements) {
+            const $elm = this.#allMouseElements[key];
+            $elm.setValue && $elm.setValue(preset.mouse[key]);
         }
     }
 
@@ -4022,20 +4038,20 @@ class MkbRemapper {
         for (const buttonIndex of this.#BUTTON_ORDERS) {
             const keyName = GamepadKeyName[buttonIndex];
 
-            let $key;
+            let $elm;
             const $fragment = document.createDocumentFragment();
             for (let i = 0; i < keysPerButton; i++) {
-                $key = CE('button', {
+                $elm = CE('button', {
                         'data-prompt': keyName[1],
                         'data-button-index': buttonIndex,
                         'data-key-slot': i,
                     }, ' ');
 
-                $key.addEventListener('mouseup', this.onBindingKey);
-                $key.addEventListener('contextmenu', this.onContextMenu);
+                $elm.addEventListener('mouseup', this.onBindingKey);
+                $elm.addEventListener('contextmenu', this.onContextMenu);
 
-                $fragment.appendChild($key);
-                this.allKeyElements.push($key);
+                $fragment.appendChild($elm);
+                this.#allKeyElements.push($elm);
             }
 
             const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
@@ -4049,21 +4065,22 @@ class MkbRemapper {
         const $mouseSettings = document.createDocumentFragment();
         for (const key in MkbPreset.MOUSE_SETTINGS) {
             const setting = MkbPreset.MOUSE_SETTINGS[key];
-            const value = MkbPreset.DEFAULT.mouse[key];
+            const value = setting.default;
 
+            let $elm;
             const onChange = () => {};
             const $row = CE('div', {'class': 'bx-quick-settings-row'},
                     CE('label', {'for': `bx_setting_${key}`}, setting.label),
-                    SettingElement.render(setting.type, key, setting, value, onChange, setting.params),
+                    $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params),
                 );
 
             $mouseSettings.appendChild($row);
+            this.#allMouseElements[key] = $elm;
         }
 
         $wrapper.appendChild($mouseSettings);
 
-        const preset = MkbPreset.DEFAULT;
-        this.applyPreset(preset);
+        this.applyPreset(MkbPreset.DEFAULT_PRESET);
 
         // Render action buttons
         let $editButton;
