@@ -2405,11 +2405,16 @@ class Dialog {
 
         this.$dialog.classList.remove('bx-gone');
         this.$overlay.classList.remove('bx-gone');
+
+        document.body.classList.add('bx-no-scroll');
     }
 
     hide(e) {
         this.$dialog.classList.add('bx-gone');
         this.$overlay.classList.add('bx-gone');
+
+        document.body.classList.remove('bx-no-scroll');
+
         this.onClose && this.onClose(e);
     }
 
@@ -3337,10 +3342,10 @@ const GamepadKeyName = {
     [GamepadKey.START]: ['Start', '⇻'],
     [GamepadKey.HOME]: ['Home', ''],
 
-    [GamepadKey.UP]: ['Up', '≻'],
-    [GamepadKey.DOWN]: ['Down', '≽'],
-    [GamepadKey.LEFT]: ['Left', '≺'],
-    [GamepadKey.RIGHT]: ['Right', '≼'],
+    [GamepadKey.UP]: ['D-Pad Up', '≻'],
+    [GamepadKey.DOWN]: ['D-Pad Down', '≽'],
+    [GamepadKey.LEFT]: ['D-Pad Left', '≺'],
+    [GamepadKey.RIGHT]: ['D-Pad Right', '≼'],
 
     [GamepadKey.L3]: ['L3', '↺'],
     [GamepadKey.LS_UP]: ['Left Stick Up', '↾'],
@@ -3361,24 +3366,61 @@ const GamepadStick = {
     RIGHT: 1,
 };
 
+const MouseButtonCode = {
+    LEFT_CLICK: 'Mouse1',
+    RIGHT_CLICK: 'Mouse2',
+    MIDDLE_CLICK: 'Mouse4',
+};
+
+const WheelCode = {
+    SCROLL_UP: 'ScrollUp',
+    SCROLL_DOWN: 'ScrollDown',
+    SCROLL_LEFT: 'ScrollLeft',
+    SCROLL_RIGHT: 'ScrollRight',
+};
+
 
 class KeyHelper {
     static #NON_PRINTABLE_KEYS = {
         'Backquote': '`',
 
         // Mouse buttons
-        'Mouse1': 'Left Click',
-        'Mouse2': 'Right Click',
-        'Mouse4': 'Middle Click',
+        [MouseButtonCode.LEFT_CLICK]: 'Left Click',
+        [MouseButtonCode.RIGHT_CLICK]: 'Right Click',
+        [MouseButtonCode.MIDDLE_CLICK]: 'Middle Click',
+
+        [WheelCode.SCROLL_UP]: 'Scroll Up',
+        [WheelCode.SCROLL_DOWN]: 'Scroll Down',
+        [WheelCode.SCROLL_LEFT]: 'Scroll Left',
+        [WheelCode.SCROLL_RIGHT]: 'Scroll Right',
     };
 
-    static getKeyNameFromEvent(e) {
+    static getKeyFromEvent(e) {
         console.log(e);
+        let code;
+        let name;
+
         if (e.type.startsWith('key')) {
-            return KeyHelper.codeToKeyName(e.code);
+            code = e.code;
         } else if (e.type.startsWith('mouse')) {
-            return KeyHelper.codeToKeyName('Mouse' + e.buttons);
+            code = 'Mouse' + e.buttons;
+        } else if (e.type === 'wheel') {
+            if (e.deltaY < 0) {
+                code = WheelCode.SCROLL_UP;
+            } else if (e.deltaY > 0) {
+                code = WheelCode.SCROLL_DOWN;
+            } else if (e.deltaX < 0) {
+                code = WheelCode.SCROLL_LEFT;
+            } else {
+                code = WheelCode.SCROLL_RIGHT;
+            }
         }
+
+        if (code) {
+            name = KeyHelper.codeToKeyName(code);
+        }
+
+        return code ? {code, name} : null;
     }
 
     static codeToKeyName(code) {
@@ -3848,6 +3890,12 @@ class MkbRemapper {
         });
     }
 
+    clearEventListeners = () => {
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('mousedown', this.onMouseDown);
+        window.removeEventListener('wheel', this.onWheel);
+    };
+
     bindKey = ($key, keyName) => {
         $key.textContent = keyName;
     }
@@ -3856,28 +3904,32 @@ class MkbRemapper {
         $key.textContent = '';
     }
 
+    onWheel = e => {
+        e.preventDefault();
+        this.clearEventListeners();
+
+        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e).name);
+        setTimeout(() => this.bindingDialog.hide(), 200);
+    };
+
     onMouseDown = e => {
         e.preventDefault();
+        this.clearEventListeners();
 
-        this.$currentBindingKey.textContent = KeyHelper.getKeyNameFromEvent(e);
-        window.removeEventListener('keydown', this.onKeyDown);
-        window.removeEventListener('mousedown', this.onMouseDown);
-
+        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e).name);
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
     onKeyDown = e => {
         e.preventDefault();
         e.stopPropagation();
-
-        window.removeEventListener('keydown', this.onKeyDown);
-        window.removeEventListener('mousedown', this.onMouseDown);
-
-        setTimeout(() => this.bindingDialog.hide(), 200);
+        this.clearEventListeners();
 
         if (e.code !== 'Escape') {
-            this.bindKey(this.$currentBindingKey, KeyHelper.getKeyNameFromEvent(e));
+            this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e).name);
         }
+
+        setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
     onBindingKey = e => {
@@ -3891,6 +3943,7 @@ class MkbRemapper {
 
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('mousedown', this.onMouseDown);
+        window.addEventListener('wheel', this.onWheel);
 
         this.bindingDialog.show({title: e.target.getAttribute('data-prompt')});
     };
@@ -5972,6 +6025,10 @@ function addCss() {
 
 .bx-full-width {
     width: 100% !important;
+}
+
+.bx-no-scroll {
+    overflow: hidden !important;
 }
 
 .bx-gone {
