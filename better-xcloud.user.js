@@ -2369,6 +2369,10 @@ class Dialog {
         this.$overlay = document.querySelector('.bx-dialog-overlay');
         if (!this.$overlay) {
             this.$overlay = CE('div', {'class': 'bx-dialog-overlay bx-gone'});
+
+            // Disable right click
+            this.$overlay.addEventListener('contextmenu', e => e.preventDefault());
+
             document.documentElement.appendChild(this.$overlay);
         }
 
@@ -2386,6 +2390,9 @@ class Dialog {
 
         !title && this.$title.classList.add('bx-gone');
         !content && this.$content.classList.add('bx-gone');
+
+        // Disable right click
+        this.$dialog.addEventListener('contextmenu', e => e.preventDefault());
 
         document.documentElement.appendChild(this.$dialog);
     }
