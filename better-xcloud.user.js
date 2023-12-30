@@ -3905,6 +3905,8 @@ class MkbRemapper {
         const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
         let $currentBindingKey;
 
+        $wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
+
         // Render keys
         const keysPerButton = 2;
         for (const buttonIndex of this.#BUTTON_ORDERS) {
