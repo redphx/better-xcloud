@@ -3068,6 +3068,224 @@ class Toast {
 }
 
 
+class SettingElement {
+    static TYPE_OPTIONS = 'options';
+    static TYPE_MULTIPLE_OPTIONS = 'multiple-options';
+    static TYPE_NUMBER = 'number';
+    static TYPE_NUMBER_STEPPER = 'number-stepper';
+    static TYPE_CHECKBOX = 'checkbox';
+
+    static #renderOptions(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('select');
+        for (let value in setting.options) {
+            const label = setting.options[value];
+
+            const $option = CE('option', {value: value}, label);
+            $control.appendChild($option);
+        }
+
+        $control.value = currentValue;
+        onChange && $control.addEventListener('change', e => {
+            const value = (setting.type && setting.type === 'number') ? parseInt(e.target.value) : e.target.value;
+            onChange(e, value);
+        });
+
+        return $control;
+    }
+
+    static #renderMultipleOptions(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('select', {'multiple': true});
+        for (let value in setting.multiple_options) {
+            const label = setting.multiple_options[value];
+
+            const $option = CE('option', {value: value}, label);
+            $option.selected = currentValue.indexOf(value) > -1;
+
+            $option.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.target.selected = !e.target.selected;
+
+                const $parent = e.target.parentElement;
+                $parent.focus();
+                $parent.dispatchEvent(new Event('change'));
+            });
+
+            $control.appendChild($option);
+        }
+
+        $control.addEventListener('mousedown', e => {
+            const self = this;
+            const orgScrollTop = self.scrollTop;
+            setTimeout(() => (self.scrollTop = orgScrollTop), 0);
+        });
+
+        $control.addEventListener('mousemove', e => e.preventDefault());
+
+        onChange && $control.addEventListener('change', e => {
+            const values = Array.from(e.target.selectedOptions).map(e => e.value);
+            onChange(e, values);
+        });
+
+        return $control;
+    }
+
+    static #renderNumber(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max});
+        $control.value = currentValue;
+        onChange && $control.addEventListener('change', e => {
+            let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
+            e.target.value = value;
+
+            onChange(e, value);
+        });
+
+        return $control;
+    }
+
+    static #renderCheckbox(key, setting, currentValue, onChange) {
+        const CE = createElement;
+
+        const $control = CE('input', {'type': 'checkbox'});
+        $control.checked = currentValue;
+
+        onChange && $control.addEventListener('change', e => {
+            onChange(e, e.target.checked);
+        });
+
+        return $control;
+    }
+
+    static #renderNumberStepper(key, setting, value, onChange, options={}) {
+        options = options || {};
+        options.suffix = options.suffix || '';
+        options.disabled = !!options.disabled;
+        options.hideSlider = !!options.hideSlider;
+
+        let $text, $decBtn, $incBtn, $range;
+
+        const MIN = setting.min;
+        const MAX = setting.max;
+        const STEPS = Math.max(setting.steps || 1, 1);
+
+        const CE = createElement;
+        const $wrapper = CE('div', {'class': 'bx-number-stepper'},
+                            $decBtn = CE('button', {'data-type': 'dec'}, '-'),
+                            $text = CE('span', {}, value + options.suffix),
+                            $incBtn = CE('button', {'data-type': 'inc'}, '+'),
+                           );
+
+        if (!options.disabled && !options.hideSlider) {
+            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS});
+            $range.addEventListener('input', e => {
+                value = parseInt(e.target.value);
+
+                $text.textContent = value + options.suffix;
+                onChange && onChange(e, value);
+            });
+            $wrapper.appendChild($range);
+
+            if (options.ticks) {
+                const markersId = `markers-${key}`;
+                const $markers = CE('datalist', {'id': markersId});
+                $range.setAttribute('list', markersId);
+
+                for (let i = MIN; i <= MAX; i += options.ticks) {
+                    $markers.appendChild(CE('option', {'value': i}));
+                }
+                $wrapper.appendChild($markers);
+            }
+        }
+
+        if (options.disabled) {
+            $incBtn.disabled = true;
+            $incBtn.classList.add('bx-hidden');
+
+            $decBtn.disabled = true;
+            $decBtn.classList.add('bx-hidden');
+            return $wrapper;
+        }
+
+        let interval;
+        let isHolding = false;
+
+        const onClick = e => {
+            if (isHolding) {
+                e.preventDefault();
+                isHolding = false;
+
+                return;
+            }
+
+            const btnType = e.target.getAttribute('data-type');
+            if (btnType === 'dec') {
+                value = Math.max(MIN, value - STEPS);
+            } else {
+                value = Math.min(MAX, value + STEPS);
+            }
+
+            $text.textContent = value + options.suffix;
+            $range && ($range.value = value);
+
+            isHolding = false;
+            onChange && onChange(e, value);
+        }
+
+        const onMouseDown = e => {
+            isHolding = true;
+
+            const args = arguments;
+            interval = setInterval(() => {
+                const event = new Event('click');
+                event.arguments = args;
+
+                e.target.dispatchEvent(event);
+            }, 200);
+        };
+
+        const onMouseUp = e => {
+            clearInterval(interval);
+            isHolding = false;
+        };
+
+        $decBtn.addEventListener('click', onClick);
+        $decBtn.addEventListener('mousedown', onMouseDown);
+        $decBtn.addEventListener('mouseup', onMouseUp);
+        $decBtn.addEventListener('touchstart', onMouseDown);
+        $decBtn.addEventListener('touchend', onMouseUp);
+
+        $incBtn.addEventListener('click', onClick);
+        $incBtn.addEventListener('mousedown', onMouseDown);
+        $incBtn.addEventListener('mouseup', onMouseUp);
+        $incBtn.addEventListener('touchstart', onMouseDown);
+        $incBtn.addEventListener('touchend', onMouseUp);
+
+        return $wrapper;
+    }
+
+    static #METHOD_MAP = {
+        [SettingElement.TYPE_OPTIONS]: SettingElement.#renderOptions,
+        [SettingElement.TYPE_MULTIPLE_OPTIONS]: SettingElement.#renderMultipleOptions,
+        [SettingElement.TYPE_NUMBER]: SettingElement.#renderNumber,
+        [SettingElement.TYPE_NUMBER_STEPPER]: SettingElement.#renderNumberStepper,
+        [SettingElement.TYPE_CHECKBOX]: SettingElement.#renderCheckbox,
+    };
+
+    static render(type, key, setting, currentValue, onChange, options) {
+        const method = SettingElement.#METHOD_MAP[type];
+        const $control = method(...Array.from(arguments).slice(1));
+        $control.id = `bx_setting_${key}`;
+
+        return $control;
+    }
+}
+
+
 const GamepadKey = {};
 GamepadKey[GamepadKey.A = 0] = 'A';
 GamepadKey[GamepadKey.B = 1] = 'B';
@@ -3181,6 +3399,79 @@ class KeyHelper {
 
 
 class MkbPreset {
+    static get KEY_MOUSE_DEADZONE_COUNTERWEIGHT() { return 'mouse_deadzone_counterweight'; }
+    static get KEY_MOUSE_SENSITIVITY_X() { return 'mouse_sensitivity_x'; }
+    static get KEY_MOUSE_SENSITIVITY_Y() { return 'mouse_sensitivity_y'; }
+    static get KEY_MOUSE_STICK_DECAY_STRENGTH() { return 'mouse_stick_decay_strength'; }
+    static get KEY_MOUSE_STICK_DECAY_MIN() { return 'mouse_stick_decay_min'; }
+
+    static MOUSE_SETTINGS = {
+        [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: {
+            label: 'Horizontal sensitivity',
+            type: SettingElement.TYPE_NUMBER_STEPPER,
+            default: 50,
+            min: 1,
+            max: 100,
+
+            params: {
+                suffix: '%',
+                ticks: 25,
+            },
+        },
+
+        [MkbPreset.KEY_MOUSE_SENSITIVITY_X]: {
+            label: 'Vertical sensitivity',
+            type: SettingElement.TYPE_NUMBER_STEPPER,
+            default: 50,
+            min: 1,
+            max: 100,
+
+            params: {
+                suffix: '%',
+                ticks: 25,
+            },
+        },
+
+        [MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT]: {
+            label: 'Deadzone counterweight',
+            type: SettingElement.TYPE_NUMBER_STEPPER,
+            default: 20,
+            min: 1,
+            max: 100,
+
+            params: {
+                suffix: '%',
+                ticks: 25,
+            },
+        },
+
+        [MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH]: {
+            label: 'Stick decay strength',
+            type: SettingElement.TYPE_NUMBER_STEPPER,
+            default: 18,
+            min: 1,
+            max: 100,
+
+            params: {
+                suffix: '%',
+                ticks: 25,
+            },
+        },
+
+        [MkbPreset.KEY_MOUSE_STICK_DECAY_MIN]: {
+            label: 'Stick decay minimum',
+            type: SettingElement.TYPE_NUMBER_STEPPER,
+            default: 6,
+            min: 1,
+            max: 100,
+
+            params: {
+                suffix: '%',
+                ticks: 25,
+            },
+        },
+    };
+
     static DEFAULT = {
         // Use "e.code" value from https://keyjs.dev
         [GamepadKey.UP]: ['ArrowUp'],
@@ -3642,6 +3933,22 @@ class MkbRemapper {
 
             $wrapper.appendChild($keyRow);
         }
+
+        const $mouseSettings = document.createDocumentFragment();
+        for (const key in MkbPreset.MOUSE_SETTINGS) {
+            const setting = MkbPreset.MOUSE_SETTINGS[key];
+            const value = 10;
+
+            const onChange = () => {};
+            const $row = CE('div', {'class': 'bx-quick-settings-row'},
+                    CE('label', {'for': `bx_setting_${key}`}, setting.label),
+                    SettingElement.render(setting.type, key, setting, value, onChange, setting.params),
+                );
+
+            $mouseSettings.appendChild($row);
+        }
+
+        $wrapper.appendChild($mouseSettings);
 
         const preset = MkbPreset.DEFAULT;
         this.applyPreset(preset);
@@ -4490,224 +4797,6 @@ class PreloadedState {
                 }
             }
         });
-    }
-}
-
-
-class SettingElement {
-    static TYPE_OPTIONS = 'options';
-    static TYPE_MULTIPLE_OPTIONS = 'multiple-options';
-    static TYPE_NUMBER = 'number';
-    static TYPE_NUMBER_STEPPER = 'number-stepper';
-    static TYPE_CHECKBOX = 'checkbox';
-
-    static #renderOptions(key, setting, currentValue, onChange) {
-        const CE = createElement;
-
-        const $control = CE('select');
-        for (let value in setting.options) {
-            const label = setting.options[value];
-
-            const $option = CE('option', {value: value}, label);
-            $control.appendChild($option);
-        }
-
-        $control.value = currentValue;
-        onChange && $control.addEventListener('change', e => {
-            const value = (setting.type && setting.type === 'number') ? parseInt(e.target.value) : e.target.value;
-            onChange(e, value);
-        });
-
-        return $control;
-    }
-
-    static #renderMultipleOptions(key, setting, currentValue, onChange) {
-        const CE = createElement;
-
-        const $control = CE('select', {'multiple': true});
-        for (let value in setting.multiple_options) {
-            const label = setting.multiple_options[value];
-
-            const $option = CE('option', {value: value}, label);
-            $option.selected = currentValue.indexOf(value) > -1;
-
-            $option.addEventListener('mousedown', function(e) {
-                e.preventDefault();
-                e.target.selected = !e.target.selected;
-
-                const $parent = e.target.parentElement;
-                $parent.focus();
-                $parent.dispatchEvent(new Event('change'));
-            });
-
-            $control.appendChild($option);
-        }
-
-        $control.addEventListener('mousedown', e => {
-            const self = this;
-            const orgScrollTop = self.scrollTop;
-            setTimeout(() => (self.scrollTop = orgScrollTop), 0);
-        });
-
-        $control.addEventListener('mousemove', e => e.preventDefault());
-
-        onChange && $control.addEventListener('change', e => {
-            const values = Array.from(e.target.selectedOptions).map(e => e.value);
-            onChange(e, values);
-        });
-
-        return $control;
-    }
-
-    static #renderNumber(key, setting, currentValue, onChange) {
-        const CE = createElement;
-
-        const $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max});
-        $control.value = currentValue;
-        onChange && $control.addEventListener('change', e => {
-            let value = Math.max(setting.min, Math.min(setting.max, parseInt(e.target.value)));
-            e.target.value = value;
-
-            onChange(e, value);
-        });
-
-        return $control;
-    }
-
-    static #renderCheckbox(key, setting, currentValue, onChange) {
-        const CE = createElement;
-
-        const $control = CE('input', {'type': 'checkbox'});
-        $control.checked = currentValue;
-
-        onChange && $control.addEventListener('change', e => {
-            onChange(e, e.target.checked);
-        });
-
-        return $control;
-    }
-
-    static #renderNumberStepper(key, setting, value, onChange, options={}) {
-        options = options || {};
-        options.suffix = options.suffix || '';
-        options.disabled = !!options.disabled;
-        options.hideSlider = !!options.hideSlider;
-
-        let $text, $decBtn, $incBtn, $range;
-
-        const MIN = setting.min;
-        const MAX = setting.max;
-        const STEPS = Math.max(setting.steps || 1, 1);
-
-        const CE = createElement;
-        const $wrapper = CE('div', {},
-                            $decBtn = CE('button', {'data-type': 'dec'}, '-'),
-                            $text = CE('span', {}, value + options.suffix),
-                            $incBtn = CE('button', {'data-type': 'inc'}, '+'),
-                           );
-
-        if (!options.disabled && !options.hideSlider) {
-            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS});
-            $range.addEventListener('input', e => {
-                value = parseInt(e.target.value);
-
-                $text.textContent = value + options.suffix;
-                onChange && onChange(e, value);
-            });
-            $wrapper.appendChild($range);
-
-            if (options.ticks) {
-                const markersId = `markers-${key}`;
-                const $markers = CE('datalist', {'id': markersId});
-                $range.setAttribute('list', markersId);
-
-                for (let i = MIN; i <= MAX; i += options.ticks) {
-                    $markers.appendChild(CE('option', {'value': i}));
-                }
-                $wrapper.appendChild($markers);
-            }
-        }
-
-        if (options.disabled) {
-            $incBtn.disabled = true;
-            $incBtn.classList.add('bx-hidden');
-
-            $decBtn.disabled = true;
-            $decBtn.classList.add('bx-hidden');
-            return $wrapper;
-        }
-
-        let interval;
-        let isHolding = false;
-
-        const onClick = e => {
-            if (isHolding) {
-                e.preventDefault();
-                isHolding = false;
-
-                return;
-            }
-
-            const btnType = e.target.getAttribute('data-type');
-            if (btnType === 'dec') {
-                value = Math.max(MIN, value - STEPS);
-            } else {
-                value = Math.min(MAX, value + STEPS);
-            }
-
-            $text.textContent = value + options.suffix;
-            $range && ($range.value = value);
-
-            isHolding = false;
-            onChange && onChange(e, value);
-        }
-
-        const onMouseDown = e => {
-            isHolding = true;
-
-            const args = arguments;
-            interval = setInterval(() => {
-                const event = new Event('click');
-                event.arguments = args;
-
-                e.target.dispatchEvent(event);
-            }, 200);
-        };
-
-        const onMouseUp = e => {
-            clearInterval(interval);
-            isHolding = false;
-        };
-
-        $decBtn.addEventListener('click', onClick);
-        $decBtn.addEventListener('mousedown', onMouseDown);
-        $decBtn.addEventListener('mouseup', onMouseUp);
-        $decBtn.addEventListener('touchstart', onMouseDown);
-        $decBtn.addEventListener('touchend', onMouseUp);
-
-        $incBtn.addEventListener('click', onClick);
-        $incBtn.addEventListener('mousedown', onMouseDown);
-        $incBtn.addEventListener('mouseup', onMouseUp);
-        $incBtn.addEventListener('touchstart', onMouseDown);
-        $incBtn.addEventListener('touchend', onMouseUp);
-
-        return $wrapper;
-    }
-
-    static #METHOD_MAP = {
-        [SettingElement.TYPE_OPTIONS]: SettingElement.#renderOptions,
-        [SettingElement.TYPE_MULTIPLE_OPTIONS]: SettingElement.#renderMultipleOptions,
-        [SettingElement.TYPE_NUMBER]: SettingElement.#renderNumber,
-        [SettingElement.TYPE_NUMBER_STEPPER]: SettingElement.#renderNumberStepper,
-        [SettingElement.TYPE_CHECKBOX]: SettingElement.#renderCheckbox,
-    };
-
-    static render(type, key, setting, currentValue, onChange, options) {
-        const method = SettingElement.#METHOD_MAP[type];
-        const $control = method(...Array.from(arguments).slice(1));
-        $control.id = `bx_setting_${key}`;
-
-        return $control;
     }
 }
 
@@ -6375,11 +6464,20 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     outline: none !important;
 }
 
-.bx-quick-settings-tab-contents > div > div:not(.bx-mkb-settings) {
+.bx-quick-settings-row {
     display: flex;
     border-bottom: 1px solid #40404080;
     margin-bottom: 16px;
     padding-bottom: 16px;
+}
+
+.bx-quick-settings-row label {
+    font-size: 16px;
+    display: block;
+    text-align: left;
+    flex: 1;
+    align-self: center;
+    margin-bottom: 0 !important;
 }
 
 .bx-quick-settings-tab-contents h2 {
@@ -6395,29 +6493,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin: 12px auto 2px;
     width: 180px;
     color: #959595 !important;
-}
-
-.bx-quick-settings-tab-contents label {
-    font-size: 16px;
-    display: block;
-    text-align: left;
-    flex: 1;
-    align-self: center;
-    margin-bottom: 0 !important;
-}
-
-.bx-quick-settings-tab-contents div div:not(.bx-mkb-settings) div button {
-    border: none;
-    width: 24px;
-    height: 24px;
-    margin: 0 4px;
-    line-height: 24px;
-    background-color: #515151;
-    color: #fff;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 14px;
-    font-family: var(--bx-monospaced-font);
 }
 
 .bx-quick-settings-bar-note {
@@ -6492,6 +6567,20 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-size: 14px;
 }
 
+.bx-number-stepper button {
+    border: none;
+    width: 24px;
+    height: 24px;
+    margin: 0 4px;
+    line-height: 24px;
+    background-color: #515151;
+    color: #fff;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: var(--bx-monospaced-font);
+}
+
 .bx-mkb-settings {
 
 }
@@ -6503,7 +6592,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-mkb-key-row label {
-    margin-bottom: 12px;
+    margin-bottom: 0;
     font-family: var(--bx-promptfont-font);
     font-size: 28px;
     text-align: center;
@@ -8172,7 +8261,7 @@ function setupQuickSettingsBar() {
                     $control = PREFS.toElement(pref, setting.onChange, setting.params);
                 }
 
-                const $content = CE('div', {'data-type': settingGroup.group},
+                const $content = CE('div', {'class': 'bx-quick-settings-row', 'data-type': settingGroup.group},
                             CE('label', {for: `bx_setting_${pref}`},
                             setting.label,
                             setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
