@@ -3623,6 +3623,9 @@ class MkbHandler {
     #centerX;
     #centerY;
 
+    #prevWheelCode = null;
+    #wheelStoppedTimeout;
+
     #detectMouseStoppedTimeout;
     #allowStickDecaying = false;
 
@@ -3657,8 +3660,32 @@ class MkbHandler {
 
     #disableContextMenu = e => e.preventDefault();
 
-    #onKeyboardEvent = (e) => {
+    #pressButton = (buttonIndex, pressed) => {
         const virtualGamepad = this.#getVirtualGamepad();
+
+        if (buttonIndex >= 100) {
+            let axisIndex;
+            let value;
+
+            if (buttonIndex >= 100 && buttonIndex < 200) { // Left stick
+                axisIndex = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_RIGHT) ? 0 : 1;
+                value = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_UP) ? -1 : 1;
+            } else { // Right stick
+                axisIndex = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_RIGHT) ? 2 : 3;
+                value = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_UP) ? -1 : 1;
+            }
+
+            virtualGamepad.axes[axisIndex] = pressed ? value : 0;
+            virtualGamepad.timestamp = performance.now();
+        } else {
+            virtualGamepad.buttons[buttonIndex].pressed = pressed;
+            virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
+        }
+
+        virtualGamepad.timestamp = performance.now();
+    }
+
+    #onKeyboardEvent = (e) => {
         const isKeyDown = e.type === 'keydown';
 
         // Toggle MKB feature
@@ -3674,44 +3701,47 @@ class MkbHandler {
         }
 
         e.preventDefault();
-
-        if (buttonIndex >= 100) {
-            let axisIndex;
-            let value;
-
-            if (buttonIndex >= 100 && buttonIndex < 200) { // Left stick
-                axisIndex = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_RIGHT) ? 0 : 1;
-                value = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_UP) ? -1 : 1;
-            } else { // Right stick
-                axisIndex = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_RIGHT) ? 2 : 3;
-                value = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_UP) ? -1 : 1;
-            }
-
-            virtualGamepad.axes[axisIndex] = isKeyDown ? value : 0;
-        } else {
-            virtualGamepad.buttons[buttonIndex].pressed = isKeyDown;
-            virtualGamepad.buttons[buttonIndex].value = isKeyDown ? 1 : 0;
-        }
-
-        virtualGamepad.timestamp = performance.now();
+        this.#pressButton(buttonIndex, isKeyDown);
     }
 
     #onMouseEvent = e => {
         const isMouseDown = e.type === 'mousedown';
+        const key = KeyHelper.getKeyFromEvent(e);
+        if (!key) {
+            return;
+        }
 
-        const code = `Mouse${e.button}`;
-        const buttonIndex = this.#CURRENT_MAPPING.mapping[code];
+        const buttonIndex = this.#CURRENT_MAPPING.mapping[key.code];
+        if (typeof buttonIndex === 'undefined') {
+            return;
+        }
+
+        e.preventDefault();
+        this.#pressButton(buttonIndex, isMouseDown);
+    }
+
+    #onWheelEvent = e => {
+        const key = KeyHelper.getKeyFromEvent(e);
+        if (!key) {
+            return;
+        }
+
+        const buttonIndex = this.#CURRENT_MAPPING.mapping[key.code];
         if (typeof buttonIndex === 'undefined') {
             return;
         }
 
         e.preventDefault();
 
-        const virtualGamepad = this.#getVirtualGamepad();
-        virtualGamepad.buttons[buttonIndex].pressed = isMouseDown;
-        virtualGamepad.buttons[buttonIndex].value = isMouseDown ? 1 : 0;
+        if (this.#prevWheelCode === null || this.#prevWheelCode === key.code) {
+            this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout);
+            this.#pressButton(buttonIndex, true);
+        }
 
-        virtualGamepad.timestamp = performance.now();
+        this.#wheelStoppedTimeout = setTimeout(e => {
+            this.#prevWheelCode = null;
+            this.#pressButton(buttonIndex, false);
+        }, 20);
     }
 
     #decayStick = e => {
@@ -3812,6 +3842,7 @@ class MkbHandler {
         window.addEventListener('mousemove', this.#onMouseMoveEvent);
         window.addEventListener('mousedown', this.#onMouseEvent);
         window.addEventListener('mouseup', this.#onMouseEvent);
+        window.addEventListener('wheel', this.#onWheelEvent);
         window.addEventListener('contextmenu', this.#disableContextMenu);
     }
 
@@ -3824,6 +3855,7 @@ class MkbHandler {
         window.removeEventListener('mousemove', this.onMouseMoveEvent);
         window.removeEventListener('mousedown', this.#onMouseEvent);
         window.removeEventListener('mouseup', this.#onMouseEvent);
+        window.removeEventListener('wheel', this.#onWheelEvent);
         window.removeEventListener('contextmenu', this.#disableContextMenu);
     }
 }
