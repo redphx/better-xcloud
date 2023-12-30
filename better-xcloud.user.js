@@ -4093,7 +4093,9 @@ class MkbRemapper {
             const value = setting.default;
 
             let $elm;
-            const onChange = () => {};
+            const onChange = (e, value) => {
+                this.#currentPreset.mouse[key] = value;
+            };
             const $row = CE('div', {'class': 'bx-quick-settings-row'},
                     CE('label', {'for': `bx_setting_${key}`}, setting.label),
                     $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params),
