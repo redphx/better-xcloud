@@ -3212,12 +3212,17 @@ class SettingElement {
                 $range.setAttribute('list', markersId);
 
                 if (options.exactTicks) {
-                    const start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
+                    let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
+
+                    if (start === MIN) {
+                        start += options.exactTicks;
+                    }
+
                     for (let i = start; i < MAX; i += options.exactTicks) {
                         $markers.appendChild(CE('option', {'value': i}));
                     }
                 } else {
-                    for (let i = MIN; i <= MAX; i += options.ticks) {
+                    for (let i = MIN + options.ticks; i < MAX; i += options.ticks) {
                         $markers.appendChild(CE('option', {'value': i}));
                     }
                 }
@@ -3482,7 +3487,7 @@ class MkbPreset {
 
             params: {
                 suffix: '%',
-                exactTicks: 25,
+                exactTicks: 10,
             },
         },
 
@@ -3495,7 +3500,7 @@ class MkbPreset {
 
             params: {
                 suffix: '%',
-                exactTicks: 25,
+                exactTicks: 10,
             },
         },
 
@@ -3508,7 +3513,7 @@ class MkbPreset {
 
             params: {
                 suffix: '%',
-                exactTicks: 25,
+                exactTicks: 10,
             },
         },
 
@@ -3521,7 +3526,7 @@ class MkbPreset {
 
             params: {
                 suffix: '%',
-                exactTicks: 25,
+                exactTicks: 10,
             },
         },
 
