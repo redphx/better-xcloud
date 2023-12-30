@@ -3107,10 +3107,14 @@ class SettingElement {
         return $control;
     }
 
-    static #renderMultipleOptions(key, setting, currentValue, onChange) {
+    static #renderMultipleOptions(key, setting, currentValue, onChange, params) {
         const CE = createElement;
 
         const $control = CE('select', {'multiple': true});
+        if (params && params.size) {
+            $control.setAttribute('size', params.size);
+        }
+
         for (let value in setting.multiple_options) {
             const label = setting.multiple_options[value];
 
@@ -3129,7 +3133,7 @@ class SettingElement {
             $control.appendChild($option);
         }
 
-        $control.addEventListener('mousedown', e => {
+        $control.addEventListener('mousedown', function(e) {
             const self = this;
             const orgScrollTop = self.scrollTop;
             setTimeout(() => (self.scrollTop = orgScrollTop), 0);
@@ -3396,7 +3400,6 @@ class KeyHelper {
     };
 
     static getKeyFromEvent(e) {
-        console.log(e);
         let code;
         let name;
 
@@ -5185,10 +5188,15 @@ class Preferences {
         },
 
         [Preferences.CONTROLLER_VIBRATION_INTENSITY]: {
+            'type':  SettingElement.TYPE_NUMBER_STEPPER,
             'default': 100,
             'min': 0,
             'max': 100,
             'steps': 10,
+            'params': {
+                suffix: '%',
+                ticks: 10,
+            },
         },
 
         [Preferences.MKB_ENABLED]: {
@@ -5272,7 +5280,7 @@ class Preferences {
             'max': 150,
             'params': {
                 suffix: '%',
-                ticks: 100,
+                ticks: 25,
             },
         },
         [Preferences.VIDEO_CONTRAST]: {
@@ -5324,6 +5332,9 @@ class Preferences {
                 [StreamStats.PACKETS_LOST]: `${StreamStats.PACKETS_LOST.toUpperCase()}: ${__('stat-packets-lost')}`,
                 [StreamStats.FRAMES_LOST]: `${StreamStats.FRAMES_LOST.toUpperCase()}: ${__('stat-frames-lost')}`,
             },
+            'params': {
+                size: 6,
+            },
         },
         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
             'default': false,
@@ -5351,9 +5362,14 @@ class Preferences {
             'default': false,
         },
         [Preferences.STATS_OPACITY]: {
+            'type':  SettingElement.TYPE_NUMBER_STEPPER,
             'default': 80,
             'min': 50,
             'max': 100,
+            'params': {
+                suffix: '%',
+                ticks: 10,
+            },
         },
         [Preferences.STATS_CONDITIONAL_FORMATTING]: {
             'default': false,
@@ -8287,7 +8303,7 @@ function setupQuickSettingsBar() {
                             onChange: StreamStats.refreshStyles,
                         },
                         [Preferences.STATS_OPACITY]: {
-                            label: `${__('opacity')} (50-100%)`,
+                            label: __('opacity'),
                             onChange: StreamStats.refreshStyles,
                         },
                         [Preferences.STATS_TRANSPARENT]: {
