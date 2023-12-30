@@ -6505,7 +6505,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-mkb-key-row label {
     margin-bottom: 12px;
     font-family: var(--bx-promptfont-font);
-    font-size: 32px;
+    font-size: 28px;
     text-align: center;
 }
 
