@@ -3706,7 +3706,11 @@ class LocalDb {
                 if (count > 0) {
                     return new Promise(resolve => {
                         this.#getAll(table)
-                            .then(([table, items]) => resolve(items));
+                            .then(([table, items]) => {
+                                const presets = {};
+                                items.forEach(item => (presets[item.id] = item));
+                                resolve(presets);
+                            });
                     });
                 }
 
@@ -3718,7 +3722,7 @@ class LocalDb {
 
                 return new Promise(resolve => {
                     this.#add(table, preset)
-                        .then(() => resolve([preset]));
+                        .then(() => resolve({[preset.id]: preset}));
                 });
             });
     }
@@ -4043,7 +4047,15 @@ class MkbRemapper {
         return MkbRemapper.#instance;
     };
 
-    #currentPreset;
+    #STATE = {
+        currentPresetId: 0,
+        presets: [],
+        tempPreset: {},
+
+        isEditing: false,
+    };
+
+    #$presetsSelect;
     #allKeyElements = [];
     #allMouseElements = {};
 
@@ -4084,7 +4096,7 @@ class MkbRemapper {
             }
         }
 
-        this.#currentPreset.mapping[buttonIndex][keySlot] = key.code;
+        this.#STATE.tempPreset.mapping[buttonIndex][keySlot] = key.code;
         $elm.textContent = key.name;
         $elm.setAttribute('data-key-code', key.code);
     }
@@ -4094,7 +4106,7 @@ class MkbRemapper {
         const keySlot = parseInt($elm.getAttribute('data-key-slot'));
 
         // Remove key from preset
-        this.#currentPreset.mapping[buttonIndex][keySlot] = null;
+        this.#STATE.tempPreset.mapping[buttonIndex][keySlot] = null;
         $elm.textContent = '';
         $elm.removeAttribute('data-key-code');
     }
@@ -4152,24 +4164,21 @@ class MkbRemapper {
         this.unbindKey(e.target);
     };
 
-    applyPreset = preset => {
-        this.#currentPreset = preset;
+    switchPreset = presetId => {
+        const preset = this.#STATE.presets[presetId].data;
+        this.#STATE.tempPreset = structuredClone(preset);
 
         for (const $elm of this.#allKeyElements) {
             const buttonIndex = $elm.getAttribute('data-button-index');
             const keySlot = $elm.getAttribute('data-key-slot');
 
             const buttonKeys = preset.mapping[buttonIndex];
-            const totalKeys = buttonKeys.length;
-
-            if (!buttonKeys || !totalKeys) {
-                $elm.removeAttribute('data-key-code');
-                continue;
-            }
-
-            if (totalKeys > keySlot && buttonKeys[keySlot]) {
+            if (buttonKeys && buttonKeys[keySlot]) {
                 $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
                 $elm.setAttribute('data-key-code', buttonKeys[keySlot]);
+            } else {
+                $elm.textContent = '';
+                $elm.removeAttribute('data-key-code');
             }
         }
 
@@ -4179,12 +4188,49 @@ class MkbRemapper {
         }
     }
 
+    #refresh() {
+        const CE = createElement;
+
+        if (this.#STATE.currentPresetId === 0) {
+            this.#STATE.currentPresetId = 1;
+        }
+
+        // Clear presets select
+        while (this.#$presetsSelect.firstChildElement) {
+            this.#$presetsSelect.removeChild(this.#$presetsSelect.firstChildElement);
+        }
+
+        LocalDb.INSTANCE.getPresets()
+            .then(presets => {
+                this.#STATE.presets = presets;
+                const $fragment = document.createDocumentFragment();
+
+                for (const id in presets) {
+                    const preset = presets[id];
+                    const $options = CE('option', {value: id}, preset.name);
+                    $options.selected = id === this.#STATE.currentPresetId;
+
+                    $fragment.appendChild($options);
+                };
+
+                this.#$presetsSelect.appendChild($fragment);
+
+                this.switchPreset(this.#STATE.currentPresetId);
+            });
+    }
+
     render() {
         const CE = createElement;
         const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
         let $currentBindingKey;
 
         $wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
+
+        this.#$presetsSelect = CE('select', {});
+        this.#$presetsSelect.addEventListener('change', e => {
+            this.switchPreset(parseInt(e.target.value));
+        });
+        $wrapper.appendChild(this.#$presetsSelect);
 
         const $rows = CE('div', {'class': 'bx-mkb-settings-rows'});
         $wrapper.appendChild($rows);
@@ -4225,7 +4271,7 @@ class MkbRemapper {
 
             let $elm;
             const onChange = (e, value) => {
-                this.#currentPreset.mouse[key] = value;
+                this.#STATE.tempPreset.mouse[key] = value;
             };
             const $row = CE('div', {'class': 'bx-quick-settings-row'},
                     CE('label', {'for': `bx_setting_${key}`}, setting.label),
@@ -4237,8 +4283,6 @@ class MkbRemapper {
         }
 
         $rows.appendChild($mouseSettings);
-
-        this.applyPreset(MkbPreset.DEFAULT_PRESET);
 
         // Render action buttons
         let $editButton;
@@ -4254,6 +4298,8 @@ class MkbRemapper {
         });
 
         $wrapper.appendChild($actionButtons);
+
+        this.#refresh();
         return $wrapper;
     }
 }
