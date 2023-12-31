@@ -3608,6 +3608,123 @@ class MkbPreset {
 }
 
 
+class LocalDb {
+    static #instance;
+    static get INSTANCE() {
+        if (!LocalDb.#instance) {
+            LocalDb.#instance = new LocalDb();
+        }
+
+        return LocalDb.#instance;
+    }
+
+    static get DB_NAME() { return 'BetterXcloud'; }
+    static get DB_VERSION() { return 1; }
+    static get TABLE_PRESETS() { return 'mkb_presets'; }
+
+    #DB;
+
+    #open() {
+        return new Promise((resolve, reject) => {
+            if (this.#DB) {
+                resolve();
+                return;
+            }
+
+            const request = window.indexedDB.open(LocalDb.DB_NAME, LocalDb.DB_VERSION);
+            request.onupgradeneeded = e => {
+                const db = e.target.result;
+
+                switch (e.oldVersion) {
+                    case 0: {
+                        const presets = db.createObjectStore(LocalDb.TABLE_PRESETS, {keyPath: 'id', autoIncrement: true});
+                        presets.createIndex('name_idx', 'name');
+                        break;
+                    }
+                }
+            };
+
+            request.onerror = e => {
+                console.log(e);
+                alert(e.target.error.message);
+                reject && reject();
+            };
+
+            request.onsuccess = e => {
+                this.#DB = e.target.result;
+                resolve();
+            };
+        });
+    }
+
+    #table(name, type) {
+        const transaction = this.#DB.transaction(name, type || 'readonly');
+        const table = transaction.objectStore(name);
+
+        return new Promise(resolve => resolve(table));
+    }
+
+    // Convert IndexDB method to Promise
+    #call(method) {
+        const table = arguments[1];
+        return new Promise(resolve => {
+            const request = method.call(table, ...Array.from(arguments).slice(2));
+            request.onsuccess = e => {
+                resolve([table, e.target.result]);
+            };
+        });
+    }
+
+    #count(table) {
+        return this.#call(table.count, ...arguments);
+    }
+
+    #add(table, data) {
+        return this.#call(table.add, ...arguments);
+    }
+
+    #get(table) {
+        return this.#call(table.get, ...arguments);
+    }
+
+    #getAll(table) {
+        return this.#call(table.getAll, ...arguments);
+    }
+
+    newPreset(name, data) {
+        return this.#open()
+            .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
+            .then(table => this.#add(table, {name, data}))
+            .then(([table, id]) => new Promise(resolve => resolve(id)));
+    }
+
+    getPresets() {
+        return this.#open()
+            .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
+            .then(table => this.#count(table))
+            .then(([table, count]) => {
+                if (count > 0) {
+                    return new Promise(resolve => {
+                        this.#getAll(table)
+                            .then(([table, items]) => resolve(items));
+                    });
+                }
+
+                // Create "Default" preset when the table is empty
+                const preset = {
+                    name: __('default'),
+                    data: MkbPreset.DEFAULT_PRESET,
+                }
+
+                return new Promise(resolve => {
+                    this.#add(table, preset)
+                        .then(() => resolve([preset]));
+                });
+            });
+    }
+}
+
+
 class MkbHandler {
     static #instance;
     static get INSTANCE() {
