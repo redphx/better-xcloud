@@ -6474,12 +6474,15 @@ function addCss() {
 
     --bx-default-button-color: #2d3036;
     --bx-default-button-hover-color: #515863;
+    --bx-default-button-disabled-color: #8e8e8e;
 
     --bx-primary-button-color: #008746;
     --bx-primary-button-hover-color: #04b358;
+    --bx-primary-button-disabled-color: #448262;
 
     --bx-danger-button-color: #c10404;
     --bx-danger-button-hover-color: #e61d1d;
+    --bx-danger-button-disabled-color: #a26c6c;
 
 
     --bx-toast-z-index: 9999;
@@ -6517,6 +6520,10 @@ function addCss() {
     background-color: var(--bx-default-button-hover-color);
 }
 
+.bx-button:disabled {
+    background-color: var(--bx-default-button-disabled-color);
+}
+
 .bx-button.bx-ghost {
     background-color: transparent;
 }
@@ -6533,6 +6540,10 @@ function addCss() {
     background-color: var(--bx-primary-button-hover-color);
 }
 
+.bx-button.bx-primary:disabled {
+    background-color: var(--bx-primary-button-disabled-color);
+}
+
 .bx-button.bx-danger {
     background-color: var(--bx-danger-button-color);
 }
@@ -6541,6 +6552,9 @@ function addCss() {
     background-color: var(--bx-danger-button-hover-color);
 }
 
+.bx-button.bx-danger:disabled {
+    background-color: var(--bx-danger-button-disabled-color);
+}
 
 .bx-button svg {
     display: inline-block;
