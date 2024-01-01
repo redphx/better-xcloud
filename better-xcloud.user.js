@@ -81,6 +81,8 @@ function createElement(elmName, props = {}) {
     return $elm;
 }
 
+const CE = createElement;
+
 
 const Translations = {
     getLocale: () => {
@@ -2458,7 +2460,6 @@ const Icon = {
 
 class Dialog {
     constructor(options) {
-        const CE = createElement;
         const {
             title,
             className,
@@ -2589,8 +2590,6 @@ class RemotePlay {
             return;
         }
 
-        const CE = createElement;
-
         RemotePlay.#$content = CE('div', {}, __('getting-consoles-list'));
         RemotePlay.#dialog = new Dialog({
             title: __('remote-play'),
@@ -2606,8 +2605,6 @@ class RemotePlay {
     }
 
     static #renderConsoles() {
-        const CE = createElement;
-
         const $fragment = document.createDocumentFragment();
 
         if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
@@ -2895,8 +2892,6 @@ class LoadingScreen {
     }
 
     static setupWaitTime(waitTime) {
-        const CE = createElement;
-
         // Hide rocket when queing
         if (PREFS.get(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide-queue') {
             LoadingScreen.#hideRocket();
@@ -3190,8 +3185,6 @@ class SettingElement {
     static TYPE_CHECKBOX = 'checkbox';
 
     static #renderOptions(key, setting, currentValue, onChange) {
-        const CE = createElement;
-
         const $control = CE('select');
         for (let value in setting.options) {
             const label = setting.options[value];
@@ -3210,8 +3203,6 @@ class SettingElement {
     }
 
     static #renderMultipleOptions(key, setting, currentValue, onChange, params) {
-        const CE = createElement;
-
         const $control = CE('select', {'multiple': true});
         if (params && params.size) {
             $control.setAttribute('size', params.size);
@@ -3252,8 +3243,6 @@ class SettingElement {
     }
 
     static #renderNumber(key, setting, currentValue, onChange) {
-        const CE = createElement;
-
         const $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max});
         $control.value = currentValue;
         onChange && $control.addEventListener('change', e => {
@@ -3267,8 +3256,6 @@ class SettingElement {
     }
 
     static #renderCheckbox(key, setting, currentValue, onChange) {
-        const CE = createElement;
-
         const $control = CE('input', {'type': 'checkbox'});
         $control.checked = currentValue;
 
@@ -3291,7 +3278,6 @@ class SettingElement {
         const MAX = setting.max;
         const STEPS = Math.max(setting.steps || 1, 1);
 
-        const CE = createElement;
         const $wrapper = CE('div', {'class': 'bx-number-stepper'},
                             $decBtn = CE('button', {'data-type': 'dec'}, '-'),
                             $text = CE('span', {}, value + options.suffix),
@@ -4170,7 +4156,6 @@ class MkbRemapper {
         this.#STATE.isEditing = false;
         this.$currentBindingKey = null;
 
-        const CE = createElement;
         this.bindingDialog = new Dialog({
             className: 'bx-binding-dialog',
             content: CE('div', {},
@@ -4296,8 +4281,6 @@ class MkbRemapper {
     }
 
     #refresh() {
-        const CE = createElement;
-
         if (this.#STATE.currentPresetId === 0) {
             this.#STATE.currentPresetId = 1;
         }
@@ -4351,7 +4334,6 @@ class MkbRemapper {
     }
 
     render() {
-        const CE = createElement;
         this.#$.wrapper = CE('div', {'class': 'bx-mkb-settings'});
         let $currentBindingKey;
 
@@ -4788,8 +4770,6 @@ class StreamBadges {
     static get #REFRESH_INTERVAL() { return 3000; };
 
     static #renderBadge(name, value, color) {
-        const CE = createElement;
-
         if (name === StreamBadges.BADGE_BREAK) {
             return CE('div', {'style': 'display: block'});
         }
@@ -5152,7 +5132,6 @@ class StreamStats {
             return;
         }
 
-        const CE = createElement;
         const STATS = {
             [StreamStats.PING]: (StreamStats.#$ping = CE('span', {}, '0')),
             [StreamStats.FPS]: (StreamStats.#$fps = CE('span', {}, '0')),
@@ -5859,7 +5838,6 @@ class Preferences {
     }
 
     toElement(key, onChange, overrideParams={}) {
-        const CE = createElement;
         const setting = Preferences.SETTINGS[key];
         let currentValue = PREFS.get(key);
 
@@ -7907,7 +7885,6 @@ function injectSettingsButton($parent) {
         return;
     }
 
-    const CE = createElement;
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
     const PREF_REMOTE_PLAY_ENABLED = PREFS.get(Preferences.REMOTE_PLAY_ENABLED);
@@ -8212,8 +8189,6 @@ function getVideoPlayerFilterStyle() {
 function updateVideoPlayerCss() {
     let $elm = document.getElementById('bx-video-css');
     if (!$elm) {
-        const CE = createElement;
-
         $elm = CE('style', {id: 'bx-video-css'});
         document.documentElement.appendChild($elm);
 
@@ -8562,7 +8537,6 @@ function patchRtcCodecs() {
 
 
 function setupQuickSettingsBar() {
-    const CE = createElement;
     const isSafari = UserAgent.isSafari();
 
     const SETTINGS_UI = [
