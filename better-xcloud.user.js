@@ -107,6 +107,7 @@ const createButton = options => {
 
     options.isPrimary && $btn.classList.add('bx-primary');
     options.isDanger && $btn.classList.add('bx-danger');
+    options.isGhost && $btn.classList.add('bx-ghost');
     options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
     options.label && $btn.appendChild(CE('span', {}, options.label));
     options.onClick && $btn.addEventListener('click', options.onClick);
@@ -4182,6 +4183,9 @@ class MkbRemapper {
         presetSelects: null,
         editButton: null,
         activateButton: null,
+        cancelButton: null,
+        renameButton: null,
+        saveButton: null,
 
         allKeyElements: [],
         allMouseElements: [],
@@ -4292,6 +4296,8 @@ class MkbRemapper {
     };
 
     switchPreset = presetId => {
+        this.#STATE.currentPresetId = presetId;
+
         const preset = this.#STATE.presets[presetId].data;
         this.#STATE.tempPreset = structuredClone(preset);
 
@@ -4348,9 +4354,11 @@ class MkbRemapper {
         this.#STATE.isEditing = typeof force !== 'undefined' ? force : !this.#STATE.isEditing;
         this.#$.wrapper.classList.toggle('bx-editing', this.#STATE.isEditing);
 
+        this.#STATE.editingPresetId = this.#STATE.isEditing ? this.#STATE.currentPresetId : 0;
+
         const childElements = this.#$.wrapper.querySelectorAll('select, button, input');
         for (const $elm of childElements) {
-            if ($elm.parentElement.classList.contains('bx-action-buttons')) {
+            if ($elm.parentElement.parentElement.classList.contains('bx-mkb-action-buttons')) {
                 continue;
             }
 
@@ -4444,12 +4452,30 @@ class MkbRemapper {
         $rows.appendChild($mouseSettings);
 
         // Render action buttons
-        const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
-                this.#$.editButton = createButton({label: __('edit')}),
-                this.#$.activateButton = createButton({label: __('activate'), isPrimary: true}),
+        const $actionButtons = CE('div', {'class': 'bx-mkb-action-buttons'},
+                CE('div', {},
+                   this.#$.editButton = createButton({
+                           label: __('edit'),
+                           onClick: e => this.#toggleEditing(true)}
+                       ),
+                   this.#$.activateButton = createButton({label: __('activate'), isPrimary: true}),
+                ),
+
+                CE('div', {},
+                   this.#$.cancelButton = createButton({
+                           label: __('cancel'),
+                           isGhost: true,
+                           onClick: e => {
+                               // Restore preset
+                               this.switchPreset(this.#STATE.editingPresetId);
+                               this.#toggleEditing(false);
+                           },
+                       }),
+                   this.#$.renameButton = createButton({label: __('rename')}),
+                   this.#$.saveButton = createButton({label: __('save'), isPrimary: true}),
+                ),
             );
 
-        this.#$.editButton.addEventListener('click', e => this.#toggleEditing());
         this.#$.wrapper.appendChild($actionButtons);
 
         this.#toggleEditing(false);
@@ -6439,9 +6465,18 @@ function addCss() {
     border-radius: 4px;
     padding: 0 8px;
     text-transform: uppercase;
+    cursor: pointer;
 }
 
 .bx-button:hover, .bx-button:focus {
+    background-color: var(--bx-default-button-hover-color);
+}
+
+.bx-button.bx-ghost {
+    background-color: transparent;
+}
+
+.bx-button.bx-ghost:hover, .bx-button.bx-ghost:focus {
     background-color: var(--bx-default-button-hover-color);
 }
 
@@ -7219,6 +7254,23 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover {
     background: #333;
     cursor: pointer;
+}
+
+.bx-mkb-action-buttons > div {
+    text-align: right;
+    display: none;
+}
+
+.bx-mkb-action-buttons button {
+    margin-left: 8px;
+}
+
+.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child {
+    display: block;
+}
+
+.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child {
+    display: block;
 }
 
 .bx-stream-menu-button-on {
