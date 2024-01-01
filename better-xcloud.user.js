@@ -4514,8 +4514,6 @@ class MkbRemapper {
     render() {
         this.#$.wrapper = CE('div', {'class': 'bx-mkb-settings'});
 
-        this.#$.wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
-
         this.#$.presetsSelect = CE('select', {});
         this.#$.presetsSelect.addEventListener('change', e => {
             this.#switchPreset(e.target.value);
