@@ -4434,7 +4434,7 @@ class MkbRemapper {
                 newName = newName.trim();
             }
 
-            return newName !== value ? newName : false;
+            return newName ? newName : false;
         };
 
         const $header = CE('div', {'class': 'bx-mkb-preset-tools'},
@@ -4447,7 +4447,7 @@ class MkbRemapper {
                         const preset = this.#STATE.presets[this.#STATE.currentPresetId];
 
                         let newName = promptNewName(preset.name);
-                        if (!newName) {
+                        if (!newName || newName === preset.name) {
                             return;
                         }
 
@@ -4480,13 +4480,14 @@ class MkbRemapper {
                         icon: Icon.COPY,
                         title: __('copy'),
                         onClick: e => {
-                            let newName = promptNewName('');
+                            const preset = this.#STATE.presets[this.#STATE.currentPresetId];
+
+                            let newName = promptNewName(`${preset.name} (2)`);
                             if (!newName) {
                                 return;
                             }
 
                             // Create new preset selected name
-                            const preset = this.#STATE.presets[this.#STATE.currentPresetId];
                             LocalDb.INSTANCE.newPreset(newName, preset.data).then(id => {
                                 this.#STATE.currentPresetId = id;
                                 this.#refresh();
