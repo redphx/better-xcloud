@@ -3826,6 +3826,10 @@ class LocalDb {
         return this.#call(table.put, ...arguments);
     }
 
+    #delete(table, data) {
+        return this.#call(table.delete, ...arguments);
+    }
+
     #get(table) {
         return this.#call(table.get, ...arguments);
     }
@@ -3845,6 +3849,13 @@ class LocalDb {
         return this.#open()
             .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
             .then(table => this.#put(table, preset))
+            .then(([table, id]) => new Promise(resolve => resolve(id)));
+    }
+
+    deletePreset(id) {
+        return this.#open()
+            .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
+            .then(table => this.#delete(table, id))
             .then(([table, id]) => new Promise(resolve => resolve(id)));
     }
 
@@ -4482,7 +4493,21 @@ class MkbRemapper {
                     }),
 
                 // Delete button
-                createButton({icon: Icon.TRASH, isDanger: true, title: __('delete')}),
+                createButton({
+                        icon: Icon.TRASH,
+                        isDanger: true,
+                        title: __('delete'),
+                        onClick: e => {
+                            if (!confirm(__('confirm-delete-preset'))) {
+                                return;
+                            }
+
+                            LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then(id => {
+                                this.#STATE.currentPresetId = 0;
+                                this.#refresh();
+                            });
+                        },
+                    }),
             );
 
         this.#$.wrapper.appendChild($header);
