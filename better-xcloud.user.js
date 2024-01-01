@@ -4214,7 +4214,8 @@ class MkbRemapper {
     #STATE = {
         currentPresetId: 0,
         presets: [],
-        tempPreset: {},
+
+        editingPresetData: {},
 
         isEditing: false,
     };
@@ -4266,7 +4267,7 @@ class MkbRemapper {
             }
         }
 
-        this.#STATE.tempPreset.mapping[buttonIndex][keySlot] = key.code;
+        this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code;
         $elm.textContent = key.name;
         $elm.setAttribute('data-key-code', key.code);
     }
@@ -4276,7 +4277,7 @@ class MkbRemapper {
         const keySlot = parseInt($elm.getAttribute('data-key-slot'));
 
         // Remove key from preset
-        this.#STATE.tempPreset.mapping[buttonIndex][keySlot] = null;
+        this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null;
         $elm.textContent = '';
         $elm.removeAttribute('data-key-code');
     }
@@ -4334,20 +4335,25 @@ class MkbRemapper {
         this.#unbindKey(e.target);
     };
 
+    #getPreset = presetId => {
+        return this.#STATE.presets[presetId];
+    }
+
+    #getCurrentPreset = () => {
+        return this.#getPreset(this.#STATE.currentPresetId);
+    }
+
     #switchPreset = presetId => {
         presetId = parseInt(presetId);
 
         this.#STATE.currentPresetId = presetId;
-        console.log('current', this.#STATE.currentPresetId);
-
-        const preset = this.#STATE.presets[presetId].data;
-        this.#STATE.tempPreset = structuredClone(preset);
+        const presetData = this.#getCurrentPreset().data;
 
         for (const $elm of this.#$.allKeyElements) {
             const buttonIndex = $elm.getAttribute('data-button-index');
             const keySlot = $elm.getAttribute('data-key-slot');
 
-            const buttonKeys = preset.mapping[buttonIndex];
+            const buttonKeys = presetData.mapping[buttonIndex];
             if (buttonKeys && buttonKeys[keySlot]) {
                 $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
                 $elm.setAttribute('data-key-code', buttonKeys[keySlot]);
@@ -4359,7 +4365,7 @@ class MkbRemapper {
 
         for (const key in this.#$.allMouseElements) {
             const $elm = this.#$.allMouseElements[key];
-            $elm.setValue && $elm.setValue(preset.mouse[key]);
+            $elm.setValue && $elm.setValue(presetData.mouse[key]);
         }
     }
 
@@ -4396,7 +4402,12 @@ class MkbRemapper {
         this.#STATE.isEditing = typeof force !== 'undefined' ? force : !this.#STATE.isEditing;
         this.#$.wrapper.classList.toggle('bx-editing', this.#STATE.isEditing);
 
-        this.#STATE.editingPresetId = this.#STATE.isEditing ? this.#STATE.currentPresetId : 0;
+        if (this.#STATE.isEditing) {
+            this.#STATE.editingPresetData = structuredClone(this.#getCurrentPreset().data);
+        } else {
+            this.#STATE.editingPresetData = {};
+        }
+
 
         const childElements = this.#$.wrapper.querySelectorAll('select, button, input');
         for (const $elm of childElements) {
@@ -4444,7 +4455,7 @@ class MkbRemapper {
                     title: __('rename'),
                     icon: Icon.CURSOR_TEXT,
                     onClick: e => {
-                        const preset = this.#STATE.presets[this.#STATE.currentPresetId];
+                        const preset = this.#getCurrentPreset();
 
                         let newName = promptNewName(preset.name);
                         if (!newName || newName === preset.name) {
@@ -4480,7 +4491,7 @@ class MkbRemapper {
                         icon: Icon.COPY,
                         title: __('copy'),
                         onClick: e => {
-                            const preset = this.#STATE.presets[this.#STATE.currentPresetId];
+                            const preset = this.#getCurrentPreset();
 
                             let newName = promptNewName(`${preset.name} (2)`);
                             if (!newName) {
@@ -4554,7 +4565,7 @@ class MkbRemapper {
 
             let $elm;
             const onChange = (e, value) => {
-                this.#STATE.tempPreset.mouse[key] = value;
+                this.#STATE.editingPresetData.mouse[key] = value;
             };
             const $row = CE('div', {'class': 'bx-quick-settings-row'},
                     CE('label', {'for': `bx_setting_${key}`}, setting.label),
@@ -4570,10 +4581,12 @@ class MkbRemapper {
         // Render action buttons
         const $actionButtons = CE('div', {'class': 'bx-mkb-action-buttons'},
                 CE('div', {},
+                   // Edit button
                    this.#$.editButton = createButton({
                            label: __('edit'),
                            onClick: e => this.#toggleEditing(true)}
                        ),
+                   // Activate button
                    this.#$.activateButton = createButton({label: __('activate'), isPrimary: true}),
                 ),
 
@@ -4584,11 +4597,25 @@ class MkbRemapper {
                            isGhost: true,
                            onClick: e => {
                                // Restore preset
-                               this.#switchPreset(this.#STATE.editingPresetId);
+                               this.#switchPreset(this.#STATE.currentPresetId);
                                this.#toggleEditing(false);
                            },
                        }),
-                   this.#$.saveButton = createButton({label: __('save'), isPrimary: true}),
+
+                   // Save button
+                   createButton({
+                           label: __('save'),
+                           isPrimary: true,
+                           onClick: e => {
+                               const updatedPreset = structuredClone(this.#getCurrentPreset());
+                               updatedPreset.data = this.#STATE.editingPresetData;
+
+                               LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
+                                   this.#toggleEditing(false);
+                                   this.#refresh();
+                               });
+                           },
+                       }),
                 ),
             );
 
@@ -7340,6 +7367,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-mkb-settings-rows {
+    flex: 1;
     overflow: scroll;
 }
 
