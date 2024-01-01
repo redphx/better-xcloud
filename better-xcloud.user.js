@@ -4322,6 +4322,8 @@ class MkbRemapper {
     };
 
     switchPreset = presetId => {
+        presetId = parseInt(presetId);
+
         this.#STATE.currentPresetId = presetId;
 
         const preset = this.#STATE.presets[presetId].data;
@@ -4348,10 +4350,6 @@ class MkbRemapper {
     }
 
     #refresh() {
-        if (this.#STATE.currentPresetId === 0) {
-            this.#STATE.currentPresetId = 1;
-        }
-
         // Clear presets select
         while (this.#$.presetsSelect.firstChild) {
             this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
@@ -4362,10 +4360,14 @@ class MkbRemapper {
                 this.#STATE.presets = presets;
                 const $fragment = document.createDocumentFragment();
 
+                if (this.#STATE.currentPresetId === 0) {
+                    this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
+                }
+
                 for (const id in presets) {
                     const preset = presets[id];
                     const $options = CE('option', {value: id}, preset.name);
-                    $options.selected = id === this.#STATE.currentPresetId;
+                    $options.selected = parseInt(id) === this.#STATE.currentPresetId;
 
                     $fragment.appendChild($options);
                 };
@@ -4406,8 +4408,21 @@ class MkbRemapper {
 
         this.#$.presetsSelect = CE('select', {});
         this.#$.presetsSelect.addEventListener('change', e => {
-            this.switchPreset(parseInt(e.target.value));
+            this.switchPreset(e.target.value);
         });
+
+        const promptNewName = (value) => {
+            let newName = '';
+            while (!newName) {
+                newName = prompt(__('prompt-preset-name'), value);
+                if (newName === null) {
+                    return false;
+                }
+                newName = newName.trim();
+            }
+
+            return newName !== value ? newName : false;
+        };
 
         const $header = CE('div', {'class': 'bx-mkb-preset-tools'},
                 this.#$.presetsSelect,
@@ -4417,12 +4432,9 @@ class MkbRemapper {
                     icon: Icon.CURSOR_TEXT,
                     onClick: e => {
                         const preset = this.#STATE.presets[this.#STATE.currentPresetId];
-                        let newName = '';
-                        while (newName !== null && !newName) {
-                            newName = prompt(__('prompt-preset-name'), preset.name).trim();
-                        }
 
-                        if (newName === preset.name) {
+                        let newName = promptNewName(preset.name);
+                        if (!newName) {
                             return;
                         }
 
@@ -4433,10 +4445,41 @@ class MkbRemapper {
                 }),
 
                 // New button
-                createButton({icon: Icon.NEW, title: __('new')}),
+                createButton({
+                      icon: Icon.NEW,
+                      title: __('new'),
+                      onClick: e => {
+                          let newName = promptNewName('');
+                          if (!newName) {
+                              return;
+                          }
+
+                          // Create new preset selected name
+                          LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then(id => {
+                              this.#STATE.currentPresetId = id;
+                              this.#refresh();
+                          });
+                      },
+                    }),
 
                 // Copy button
-                createButton({icon: Icon.COPY, title: __('copy')}),
+                createButton({
+                        icon: Icon.COPY,
+                        title: __('copy'),
+                        onClick: e => {
+                            let newName = promptNewName('');
+                            if (!newName) {
+                                return;
+                            }
+
+                            // Create new preset selected name
+                            const preset = this.#STATE.presets[this.#STATE.currentPresetId];
+                            LocalDb.INSTANCE.newPreset(newName, preset.data).then(id => {
+                                this.#STATE.currentPresetId = id;
+                                this.#refresh();
+                            });
+                        },
+                    }),
 
                 // Delete button
                 createButton({icon: Icon.TRASH, isDanger: true, title: __('delete')}),
@@ -6516,7 +6559,7 @@ function addCss() {
     cursor: pointer;
 }
 
-.bx-button:hover, .bx-button:focus {
+.bx-button:hover, .bx-button.bx-focusable:focus {
     background-color: var(--bx-default-button-hover-color);
 }
 
@@ -6528,7 +6571,7 @@ function addCss() {
     background-color: transparent;
 }
 
-.bx-button.bx-ghost:hover, .bx-button.bx-ghost:focus {
+.bx-button.bx-ghost:hover, .bx-button.bx-ghost.bx-focusable:focus {
     background-color: var(--bx-default-button-hover-color);
 }
 
@@ -6536,7 +6579,7 @@ function addCss() {
     background-color: var(--bx-primary-button-color);
 }
 
-.bx-button.bx-primary:hover, .bx-button.bx-primary:focus {
+.bx-button.bx-primary:hover, .bx-button.bx-primary.bx-focusable:focus {
     background-color: var(--bx-primary-button-hover-color);
 }
 
@@ -6548,7 +6591,7 @@ function addCss() {
     background-color: var(--bx-danger-button-color);
 }
 
-.bx-button.bx-danger:hover, .bx-button.bx-danger:focus {
+.bx-button.bx-danger:hover, .bx-button.bx-danger.bx-focusable:focus {
     background-color: var(--bx-danger-button-hover-color);
 }
 
