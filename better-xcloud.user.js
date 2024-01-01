@@ -3540,9 +3540,9 @@ const GamepadStick = {
 };
 
 const MouseButtonCode = {
-    LEFT_CLICK: 'Mouse1',
+    LEFT_CLICK: 'Mouse0',
     RIGHT_CLICK: 'Mouse2',
-    MIDDLE_CLICK: 'Mouse4',
+    MIDDLE_CLICK: 'Mouse1',
 };
 
 const WheelCode = {
@@ -3575,7 +3575,7 @@ class KeyHelper {
         if (e.type.startsWith('key')) {
             code = e.code;
         } else if (e.type.startsWith('mouse')) {
-            code = 'Mouse' + e.buttons;
+            code = 'Mouse' + e.button;
         } else if (e.type === 'wheel') {
             if (e.deltaY < 0) {
                 code = WheelCode.SCROLL_UP;
@@ -3725,8 +3725,8 @@ class MkbPreset {
 
             [GamepadKey.HOME]: ['Backquote'],
 
-            [GamepadKey.RT]: ['Mouse1'],
-            [GamepadKey.LT]: ['Mouse2'],
+            [GamepadKey.RT]: [MouseButtonCode.LEFT_CLICK],
+            [GamepadKey.LT]: [MouseButtonCode.RIGHT_CLICK],
 
             [GamepadKey.L3]: ['ShiftLeft'],
             [GamepadKey.R3]: ['KeyF'],
@@ -3984,6 +3984,21 @@ class MkbHandler {
 
     #disableContextMenu = e => e.preventDefault();
 
+    #resetGamepad = () => {
+        const gamepad = this.#getVirtualGamepad();
+
+        // Reset axes
+        gamepad.axes = [0, 0, 0, 0];
+
+        // Reset buttons
+        for (const button of gamepad.buttons) {
+            button.pressed = false;
+            button.value = 0;
+        }
+
+        gamepad.timestamp = performance.now();
+    }
+
     #pressButton = (buttonIndex, pressed) => {
         const virtualGamepad = this.#getVirtualGamepad();
 
@@ -4159,6 +4174,7 @@ class MkbHandler {
             mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_MIN] *= 0.01;
 
             this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset.data);
+            this.#resetGamepad();
         });
     }
 
@@ -4185,6 +4201,8 @@ class MkbHandler {
         this.#centerX = null;
         this.#centerY = null;
 
+        this.#resetGamepad();
+
         window.navigator.getGamepads = this.#patchedGetGamepads;
 
         window.addEventListener('mousemove', this.#onMouseMoveEvent);
@@ -4196,6 +4214,8 @@ class MkbHandler {
 
     stop = () => {
         window.navigator.getGamepads = this.#nativeGetGamepads;
+
+        this.#resetGamepad();
 
         this.#centerX = null;
         this.#centerY = null;
