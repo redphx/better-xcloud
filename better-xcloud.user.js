@@ -3922,7 +3922,7 @@ class MkbHandler {
         return MkbHandler.#instance;
     }
 
-    #CURRENT_PRESET_DATA = MkbPreset.DEFAULT_PRESET;
+    #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
 
     static get DEFAULT_PANNING_SENSITIVITY() { return 0.0010; }
     static get DEFAULT_STICK_SENSITIVITY() { return 0.0006; }
@@ -4078,10 +4078,10 @@ class MkbHandler {
         const length = this.#vectorLength(x, y);
 
         const clampedLength = Math.min(1.0, length);
-        const decayStrength = 30;
-        const decay = 1 - clampedLength * clampedLength * decayStrength * 0.01;
-        const minDecay = 12;
-        const clampedDecay = Math.min(1 - minDecay / 100.0, decay);
+        const decayStrength = this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH];
+        const decay = 1 - clampedLength * clampedLength * decayStrength;
+        const minDecay = this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_MIN];
+        const clampedDecay = Math.min(1 - minDecay, decay);
 
         x *= clampedDecay;
         y *= clampedDecay;
@@ -4115,10 +4115,10 @@ class MkbHandler {
         const deltaX = e.clientX - this.#centerX;
         const deltaY = e.clientY - this.#centerY;
 
-        const deadzoneCounterweight = 20 * MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+        const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT];
 
-        let x = deltaX * MkbHandler.DEFAULT_PANNING_SENSITIVITY * 5;
-        let y = deltaY * MkbHandler.DEFAULT_PANNING_SENSITIVITY * 5;
+        let x = deltaX * this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_X];
+        let y = deltaY * this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_Y];
 
         let length = this.#vectorLength(x, y);
         if (length !== 0 && length < deadzoneCounterweight) {
@@ -4150,7 +4150,15 @@ class MkbHandler {
 
     refreshPresetData = () => {
         this.#getCurrentPreset().then(preset => {
-            this.#CURRENT_PRESET_DATA = preset.data;
+            // Pre-calculate mouse's sensitivities
+            const mouse = preset.data.mouse;
+            mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+            mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+            mouse[MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+            mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
+            mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_MIN] *= 0.01;
+
+            this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset.data);
         });
     }
 
