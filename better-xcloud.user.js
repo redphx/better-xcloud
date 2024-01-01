@@ -4157,11 +4157,14 @@ class MkbRemapper {
         isEditing: false,
     };
 
-    #$wrapper;
-    #$presetsSelect;
-    #$editButton;
-    #allKeyElements = [];
-    #allMouseElements = {};
+    #$ = {
+        wrapper: null,
+        presetSelects: null,
+        editButton: null,
+
+        allKeyElements: [],
+        allMouseElements: [],
+    };
 
     constructor() {
         this.#STATE.isEditing = false;
@@ -4194,7 +4197,7 @@ class MkbRemapper {
         }
 
         // Unbind duplicated keys
-        for (const $otherElm of this.#allKeyElements) {
+        for (const $otherElm of this.#$.allKeyElements) {
             if ($otherElm.getAttribute('data-key-code') === key.code) {
                 this.unbindKey($otherElm);
             }
@@ -4272,7 +4275,7 @@ class MkbRemapper {
         const preset = this.#STATE.presets[presetId].data;
         this.#STATE.tempPreset = structuredClone(preset);
 
-        for (const $elm of this.#allKeyElements) {
+        for (const $elm of this.#$.allKeyElements) {
             const buttonIndex = $elm.getAttribute('data-button-index');
             const keySlot = $elm.getAttribute('data-key-slot');
 
@@ -4286,8 +4289,8 @@ class MkbRemapper {
             }
         }
 
-        for (const key in this.#allMouseElements) {
-            const $elm = this.#allMouseElements[key];
+        for (const key in this.#$.allMouseElements) {
+            const $elm = this.#$.allMouseElements[key];
             $elm.setValue && $elm.setValue(preset.mouse[key]);
         }
     }
@@ -4300,8 +4303,8 @@ class MkbRemapper {
         }
 
         // Clear presets select
-        while (this.#$presetsSelect.firstChildElement) {
-            this.#$presetsSelect.removeChild(this.#$presetsSelect.firstChildElement);
+        while (this.#$.presetsSelect.firstChildElement) {
+            this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChildElement);
         }
 
         LocalDb.INSTANCE.getPresets()
@@ -4317,7 +4320,7 @@ class MkbRemapper {
                     $fragment.appendChild($options);
                 };
 
-                this.#$presetsSelect.appendChild($fragment);
+                this.#$.presetsSelect.appendChild($fragment);
 
                 this.switchPreset(this.#STATE.currentPresetId);
             });
@@ -4325,9 +4328,9 @@ class MkbRemapper {
 
     #toggleEditing = force => {
         this.#STATE.isEditing = typeof force !== 'undefined' ? force : !this.#STATE.isEditing;
-        this.#$wrapper.classList.toggle('bx-editing', this.#STATE.isEditing);
+        this.#$.wrapper.classList.toggle('bx-editing', this.#STATE.isEditing);
 
-        const childElements = this.#$wrapper.querySelectorAll('select, button, input');
+        const childElements = this.#$.wrapper.querySelectorAll('select, button, input');
         for (const $elm of childElements) {
             if ($elm.parentElement.classList.contains('bx-action-buttons')) {
                 continue;
@@ -4344,34 +4347,34 @@ class MkbRemapper {
         }
 
 
-        this.#$editButton.textContent = this.#STATE.isEditing ? __('save') : __('edit');
+        this.#$.editButton.textContent = this.#STATE.isEditing ? __('save') : __('edit');
     }
 
     render() {
         const CE = createElement;
-        this.#$wrapper = CE('div', {'class': 'bx-mkb-settings'});
+        this.#$.wrapper = CE('div', {'class': 'bx-mkb-settings'});
         let $currentBindingKey;
 
-        this.#$wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
+        this.#$.wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
 
         const $header = CE('div', {'class': 'bx-mkb-preset-tools'});
 
-        this.#$presetsSelect = CE('select', {});
-        this.#$presetsSelect.addEventListener('change', e => {
+        this.#$.presetsSelect = CE('select', {});
+        this.#$.presetsSelect.addEventListener('change', e => {
             this.switchPreset(parseInt(e.target.value));
         });
 
         const $newButton = CE('button', {}, 'New');
         const $copyButton = CE('button', {}, 'Copy');
 
-        $header.appendChild(this.#$presetsSelect);
+        $header.appendChild(this.#$.presetsSelect);
         $header.appendChild($newButton);
         $header.appendChild($copyButton);
 
-        this.#$wrapper.appendChild($header);
+        this.#$.wrapper.appendChild($header);
 
         const $rows = CE('div', {'class': 'bx-mkb-settings-rows'});
-        this.#$wrapper.appendChild($rows);
+        this.#$.wrapper.appendChild($rows);
 
         // Render keys
         const keysPerButton = 2;
@@ -4391,7 +4394,7 @@ class MkbRemapper {
                 $elm.addEventListener('contextmenu', this.onContextMenu);
 
                 $fragment.appendChild($elm);
-                this.#allKeyElements.push($elm);
+                this.#$.allKeyElements.push($elm);
             }
 
             const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
@@ -4417,22 +4420,22 @@ class MkbRemapper {
                 );
 
             $mouseSettings.appendChild($row);
-            this.#allMouseElements[key] = $elm;
+            this.#$.allMouseElements[key] = $elm;
         }
 
         $rows.appendChild($mouseSettings);
 
         // Render action buttons
         const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
-                this.#$editButton = CE('button', {}, __('edit')),
+                this.#$.editButton = CE('button', {}, __('edit')),
             );
 
-        this.#$editButton.addEventListener('click', e => this.#toggleEditing());
-        this.#$wrapper.appendChild($actionButtons);
+        this.#$.editButton.addEventListener('click', e => this.#toggleEditing());
+        this.#$.wrapper.appendChild($actionButtons);
 
         this.#toggleEditing(false);
         this.#refresh();
-        return this.#$wrapper;
+        return this.#$.wrapper;
     }
 }
 
