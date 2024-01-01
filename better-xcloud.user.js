@@ -4612,7 +4612,7 @@ class MkbRemapper {
             );
 
         this.#$.wrapper.appendChild($header);
-        this.#$.wrapper.appendChild(CE('i', {}, __('right-click-to-unbind')));
+        this.#$.wrapper.appendChild(CE('i', {'class': 'bx-mkb-unbind-text'}, __('right-click-to-unbind')));
 
         const $rows = CE('div', {'class': 'bx-mkb-settings-rows'});
         this.#$.wrapper.appendChild($rows);
@@ -7294,7 +7294,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     right: 0;
     top: 0;
     bottom: 0;
-    padding: 16px;
+    padding: 14px 14px 0;
     width: 420px;
     background: #1a1b1e;
     color: #fff;
@@ -7538,6 +7538,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child {
     display: block;
+}
+
+.bx-mkb-unbind-text {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
 }
 
 .bx-stream-menu-button-on {
