@@ -110,6 +110,7 @@ const createButton = options => {
     options.isGhost && $btn.classList.add('bx-ghost');
     options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
     options.label && $btn.appendChild(CE('span', {}, options.label));
+    options.title && $btn.setAttribute('title', options.title);
     options.onClick && $btn.addEventListener('click', options.onClick);
 
     return $btn;
@@ -156,6 +157,7 @@ const Translations = {
 
     "activate": {
         "en-US": "Activate",
+        "ja-JP": "有効にする",
         "vi-VN": "Kích hoạt",
     },
     "active": {
@@ -599,6 +601,10 @@ const Translations = {
         "uk-UA": "Вібрація контролера",
         "vi-VN": "Rung bộ điều khiển",
         "zh-CN": "控制器振动",
+    },
+    "copy": {
+        "en-US": "Copy",
+        "vi-VN": "Sao chép",
     },
     "custom": {
         "de-DE": "Benutzerdefiniert",
@@ -1165,6 +1171,10 @@ const Translations = {
         "vi-VN": "Tên",
         "zh-CN": "名称",
     },
+    "new": {
+        "en-US": "New",
+        "vi-VN": "Tạo mới",
+    },
     "no-consoles-found": {
         "de-DE": "Keine Konsolen gefunden",
         "en-US": "No consoles found",
@@ -1483,7 +1493,12 @@ const Translations = {
     },
     "rename": {
         "en-US": "Rename",
+        "ja-JP": "名前変更",
         "vi-VN": "Sửa tên",
+    },
+    "right-click-to-unbind": {
+        "en-US": "Right-click on a key to unbind it",
+        "vi-VN": "Nhấn chuột phải lên một phím để gỡ nó",
     },
     "rocket-always-hide": {
         "de-DE": "Immer ausblenden",
@@ -2488,6 +2503,7 @@ const Icon = {
     NEW: '<path d="M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z"/><path d="M19.625 1.5v8.458h8.458m-15.708 9.667h7.25"/><path d="M16 16v7.25"/>',
     COPY: '<path d="M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73"/>',
     TRASH: '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>',
+    CURSOR_TEXT: '<path d="M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8"/><path d="M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3"/><path d="M11.65 16h8.7"/>',
 
     SCREENSHOT_B64: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=',
 };
@@ -3806,6 +3822,10 @@ class LocalDb {
         return this.#call(table.add, ...arguments);
     }
 
+    #put(table, data) {
+        return this.#call(table.put, ...arguments);
+    }
+
     #get(table) {
         return this.#call(table.get, ...arguments);
     }
@@ -3818,6 +3838,13 @@ class LocalDb {
         return this.#open()
             .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
             .then(table => this.#add(table, {name, data}))
+            .then(([table, id]) => new Promise(resolve => resolve(id)));
+    }
+
+    updatePreset(preset) {
+        return this.#open()
+            .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
+            .then(table => this.#put(table, preset))
             .then(([table, id]) => new Promise(resolve => resolve(id)));
     }
 
@@ -4183,7 +4210,6 @@ class MkbRemapper {
         presetSelects: null,
         editButton: null,
         activateButton: null,
-        cancelButton: null,
         renameButton: null,
         saveButton: null,
 
@@ -4327,8 +4353,8 @@ class MkbRemapper {
         }
 
         // Clear presets select
-        while (this.#$.presetsSelect.firstChildElement) {
-            this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChildElement);
+        while (this.#$.presetsSelect.firstChild) {
+            this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
         }
 
         LocalDb.INSTANCE.getPresets()
@@ -4346,7 +4372,7 @@ class MkbRemapper {
 
                 this.#$.presetsSelect.appendChild($fragment);
 
-                this.switchPreset(this.#STATE.currentPresetId);
+                !this.#STATE.isEditing && this.switchPreset(this.#STATE.currentPresetId);
             });
     }
 
@@ -4370,9 +4396,6 @@ class MkbRemapper {
 
             $elm.disabled = disable;
         }
-
-
-        this.#$.editButton.querySelector('span').textContent = this.#STATE.isEditing ? __('save') : __('edit');
     }
 
     render() {
@@ -4381,21 +4404,43 @@ class MkbRemapper {
 
         this.#$.wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
 
-        const $header = CE('div', {'class': 'bx-mkb-preset-tools'});
-
         this.#$.presetsSelect = CE('select', {});
         this.#$.presetsSelect.addEventListener('change', e => {
             this.switchPreset(parseInt(e.target.value));
         });
 
-        const $newButton = createButton({icon: Icon.NEW});
-        const $copyButton = createButton({icon: Icon.COPY});
-        const $deleteButton = createButton({icon: Icon.TRASH, isDanger: true});
+        const $header = CE('div', {'class': 'bx-mkb-preset-tools'},
+                this.#$.presetsSelect,
+                // Rename button
+                createButton({
+                    title: __('rename'),
+                    icon: Icon.CURSOR_TEXT,
+                    onClick: e => {
+                        const preset = this.#STATE.presets[this.#STATE.currentPresetId];
+                        let newName = '';
+                        while (newName !== null && !newName) {
+                            newName = prompt(__('prompt-preset-name'), preset.name).trim();
+                        }
 
-        $header.appendChild(this.#$.presetsSelect);
-        $header.appendChild($newButton);
-        $header.appendChild($copyButton);
-        $header.appendChild($deleteButton);
+                        if (newName === preset.name) {
+                            return;
+                        }
+
+                        // Update preset with new name
+                        preset.name = newName;
+                        LocalDb.INSTANCE.updatePreset(preset).then(id => this.#refresh());
+                    },
+                }),
+
+                // New button
+                createButton({icon: Icon.NEW, title: __('new')}),
+
+                // Copy button
+                createButton({icon: Icon.COPY, title: __('copy')}),
+
+                // Delete button
+                createButton({icon: Icon.TRASH, isDanger: true, title: __('delete')}),
+            );
 
         this.#$.wrapper.appendChild($header);
 
@@ -4462,7 +4507,8 @@ class MkbRemapper {
                 ),
 
                 CE('div', {},
-                   this.#$.cancelButton = createButton({
+                   // Cancel button
+                   createButton({
                            label: __('cancel'),
                            isGhost: true,
                            onClick: e => {
@@ -4471,7 +4517,6 @@ class MkbRemapper {
                                this.#toggleEditing(false);
                            },
                        }),
-                   this.#$.renameButton = createButton({label: __('rename')}),
                    this.#$.saveButton = createButton({label: __('save'), isPrimary: true}),
                 ),
             );
@@ -7206,7 +7251,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-mkb-preset-tools button {
-    margin-left: 10px;
+    margin-left: 6px;
 }
 
 .bx-mkb-settings-rows {
