@@ -19,10 +19,10 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
 
+const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
-    '9PMQDM08SNK9', // MS Flight Simulator
-
     // Not working anymore
+    // '9PMQDM08SNK9', // MS Flight Simulator
     // '9NP1P1WFS0LB', // Halo Infinite
     // '9PJTHRNVH62H', // Grounded
     // '9P2N57MC619K', // Sea of Thieves
@@ -6364,7 +6364,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr;
         },
 
-        mkbIsMouseAndKeyboardTitle: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
+        mkbIsMouseAndKeyboardTitle: ENABLE_NATIVE_MKB_BETA && PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
             const text = 'isMouseAndKeyboardTitle:()=>yn';
             if (!funcStr.includes(text)) {
                 return false;
@@ -8231,7 +8231,9 @@ function interceptHttpRequests() {
 
                     overrides.inputConfiguration = overrides.inputConfiguration || {};
                     overrides.inputConfiguration.enableVibration = true;
-                    overrides.inputConfiguration.enableMouseAndKeyboard = PREFS.get(Preferences.MKB_ENABLED);
+                    if (ENABLE_NATIVE_MKB_BETA) {
+                        overrides.inputConfiguration.enableMouseAndKeyboard = PREFS.get(Preferences.MKB_ENABLED);
+                    }
 
                     // Enable touch controller
                     if (TouchController.isEnabled()) {
@@ -9337,7 +9339,7 @@ function onStreamStarted($video) {
     }
 
     // Enable MKB
-    if (PREFS.get(Preferences.MKB_ENABLED) && !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID)) {
+    if (PREFS.get(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
         console.log('Emulate MKB');
         MkbHandler.INSTANCE.init();
     }
