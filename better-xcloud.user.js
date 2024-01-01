@@ -3871,6 +3871,13 @@ class LocalDb {
             .then(([table, id]) => new Promise(resolve => resolve(id)));
     }
 
+    getPreset(id) {
+        return this.#open()
+            .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
+            .then(table => this.#get(table, id))
+            .then(([table, preset]) => new Promise(resolve => resolve(preset)));
+    }
+
     getPresets() {
         return this.#open()
             .then(() => this.#table(LocalDb.TABLE_PRESETS, 'readwrite'))
@@ -3915,7 +3922,7 @@ class MkbHandler {
         return MkbHandler.#instance;
     }
 
-    #CURRENT_MAPPING = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
+    #CURRENT_PRESET_DATA = MkbPreset.DEFAULT_PRESET;
 
     static get DEFAULT_PANNING_SENSITIVITY() { return 0.0010; }
     static get DEFAULT_STICK_SENSITIVITY() { return 0.0006; }
@@ -4012,7 +4019,7 @@ class MkbHandler {
             return;
         }
 
-        const buttonIndex = this.#CURRENT_MAPPING.mapping[e.code];
+        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code];
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -4028,7 +4035,7 @@ class MkbHandler {
             return;
         }
 
-        const buttonIndex = this.#CURRENT_MAPPING.mapping[key.code];
+        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -4043,7 +4050,7 @@ class MkbHandler {
             return;
         }
 
-        const buttonIndex = this.#CURRENT_MAPPING.mapping[key.code];
+        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -4132,7 +4139,23 @@ class MkbHandler {
         Toast.show(__('mouse-and-keyboard'), __(this.#enabled ? 'enabled' : 'disabled'));
     }
 
+    #getCurrentPreset = () => {
+        return new Promise(resolve => {
+            const presetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID, 0);
+            LocalDb.INSTANCE.getPreset(presetId).then(preset => {
+                resolve(preset ? preset : MkbPreset.DEFAULT_PRESET);
+            });
+        });
+    }
+
+    refreshPresetData = () => {
+        this.#getCurrentPreset().then(preset => {
+            this.#CURRENT_PRESET_DATA = preset.data;
+        });
+    }
+
     init = () => {
+        this.refreshPresetData();
         this.#enabled = true;
         Toast.show(__('press-key-to-toggle-mkb', {key: 'F9'}));
 
@@ -4244,6 +4267,8 @@ class MkbRemapper {
     };
 
     constructor() {
+        this.#STATE.currentPresetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID);
+
         this.bindingDialog = new Dialog({
             className: 'bx-binding-dialog',
             content: CE('div', {},
@@ -4272,7 +4297,7 @@ class MkbRemapper {
         // Unbind duplicated keys
         for (const $otherElm of this.#$.allKeyElements) {
             if ($otherElm.getAttribute('data-key-code') === key.code) {
-                this.unbindKey($otherElm);
+                this.#unbindKey($otherElm);
             }
         }
 
@@ -4400,6 +4425,7 @@ class MkbRemapper {
 
                     defaultPresetId = this.#STATE.currentPresetId;
                     PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, defaultPresetId);
+                    MkbHandler.INSTANCE.refreshPresetData();
                 } else {
                     defaultPresetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID);
                 }
@@ -4625,6 +4651,8 @@ class MkbRemapper {
                            isPrimary: true,
                            onClick: e => {
                                PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
+                               MkbHandler.INSTANCE.refreshPresetData();
+
                                this.#refresh();
                            },
                        }),
@@ -4651,6 +4679,11 @@ class MkbRemapper {
                                updatedPreset.data = this.#STATE.editingPresetData;
 
                                LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
+                                   // If this is the default preset => refresh preset data
+                                   if (id === PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID)) {
+                                       MkbHandler.INSTANCE.refreshPresetData();
+                                   }
+
                                    this.#toggleEditing(false);
                                    this.#refresh();
                                });
