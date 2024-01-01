@@ -106,6 +106,7 @@ const createButton = options => {
     const $btn = CE('button', {'class': 'bx-button'});
 
     options.isPrimary && $btn.classList.add('bx-primary');
+    options.isDanger && $btn.classList.add('bx-danger');
     options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
     options.label && $btn.appendChild(CE('span', {}, options.label));
     options.onClick && $btn.addEventListener('click', options.onClick);
@@ -2483,6 +2484,9 @@ const Icon = {
     CONTROLLER: '<path d="M19.193 12.807h3.193m-13.836 0h4.257"/><path d="M10.678 10.678v4.257"/><path d="M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z"/><path d="M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194"/>',
     DISPLAY: '<path d="M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08"/>',
     MOUSE: '<path d="M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z"/><path d="M16 13.721V6.883"/>',
+    NEW: '<path d="M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z"/><path d="M19.625 1.5v8.458h8.458m-15.708 9.667h7.25"/><path d="M16 16v7.25"/>',
+    COPY: '<path d="M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73"/>',
+    TRASH: '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>',
 
     SCREENSHOT_B64: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=',
 };
@@ -4376,12 +4380,14 @@ class MkbRemapper {
             this.switchPreset(parseInt(e.target.value));
         });
 
-        const $newButton = CE('button', {}, 'New');
-        const $copyButton = CE('button', {}, 'Copy');
+        const $newButton = createButton({icon: Icon.NEW});
+        const $copyButton = createButton({icon: Icon.COPY});
+        const $deleteButton = createButton({icon: Icon.TRASH, isDanger: true});
 
         $header.appendChild(this.#$.presetsSelect);
         $header.appendChild($newButton);
         $header.appendChild($copyButton);
+        $header.appendChild($deleteButton);
 
         this.#$.wrapper.appendChild($header);
 
@@ -6395,10 +6401,15 @@ function addCss() {
     --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
     --bx-promptfont-font: promptfont;
 
-    --bx-default-button-color: #515863;
-    --bx-default-button-hover-color: #2d3036;
+    --bx-default-button-color: #2d3036;
+    --bx-default-button-hover-color: #515863;
+
     --bx-primary-button-color: #008746;
     --bx-primary-button-hover-color: #04b358;
+
+    --bx-danger-button-color: #c10404;
+    --bx-danger-button-hover-color: #e61d1d;
+
 
     --bx-toast-z-index: 9999;
     --bx-dialog-z-index: 9101;
@@ -6441,6 +6452,15 @@ function addCss() {
 .bx-button.bx-primary:hover, .bx-button.bx-primary:focus {
     background-color: var(--bx-primary-button-hover-color);
 }
+
+.bx-button.bx-danger {
+    background-color: var(--bx-danger-button-color);
+}
+
+.bx-button.bx-danger:hover, .bx-button.bx-danger:focus {
+    background-color: var(--bx-danger-button-hover-color);
+}
+
 
 .bx-button svg {
     display: inline-block;
@@ -7098,18 +7118,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     color: #fff;
 }
 
-@media (hover: hover) {
-    .bx-quick-settings-bar button:hover {
-        background-color: #414141;
-        color: white;
-    }
-}
-
-.bx-quick-settings-bar button:active {
-        background-color: #414141;
-        color: white;
-    }
-
 .bx-number-stepper span {
     display: inline-block;
     width: 40px;
@@ -7123,12 +7131,23 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     height: 24px;
     margin: 0 4px;
     line-height: 24px;
-    background-color: #515151;
+    background-color: var(--bx-default-button-color);
     color: #fff;
     border-radius: 4px;
     font-weight: bold;
     font-size: 14px;
     font-family: var(--bx-monospaced-font);
+    color: #fff;
+}
+
+@media (hover: hover) {
+    .bx-number-stepper button:hover {
+        background-color: var(--bx-default-button-hover-color);
+    }
+}
+
+.bx-number-stepper button:active {
+    background-color: var(--bx-default-button-hover-color);
 }
 
 .bx-number-stepper input[type=range]:disabled, .bx-number-stepper button:disabled {
