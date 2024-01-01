@@ -82,6 +82,36 @@ function createElement(elmName, props = {}) {
 }
 
 const CE = createElement;
+const CTN = document.createTextNode.bind(document);
+
+
+const createSvgIcon = (icon, strokeWidth=2) => {
+    const $svg = CE('svg', {
+        'xmlns': 'http://www.w3.org/2000/svg',
+        'fill': 'none',
+        'stroke': '#fff',
+        'fill-rule': 'evenodd',
+        'stroke-linecap': 'round',
+        'stroke-linejoin': 'round',
+        'stroke-width': strokeWidth,
+    });
+    $svg.innerHTML = icon;
+    $svg.setAttribute('viewBox', '0 0 32 32');
+
+    return $svg;
+};
+
+
+const createButton = options => {
+    const $btn = CE('button', {'class': 'bx-button'});
+
+    options.isPrimary && $btn.classList.add('bx-primary');
+    options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
+    options.label && $btn.appendChild(CE('span', {}, options.label));
+    options.onClick && $btn.addEventListener('click', options.onClick);
+
+    return $btn;
+}
 
 
 const Translations = {
@@ -4147,6 +4177,7 @@ class MkbRemapper {
         wrapper: null,
         presetSelects: null,
         editButton: null,
+        activateButton: null,
 
         allKeyElements: [],
         allMouseElements: [],
@@ -4326,11 +4357,10 @@ class MkbRemapper {
             }
 
             $elm.disabled = disable;
-            console.log($elm, disable);
         }
 
 
-        this.#$.editButton.textContent = this.#STATE.isEditing ? __('save') : __('edit');
+        this.#$.editButton.querySelector('span').textContent = this.#STATE.isEditing ? __('save') : __('edit');
     }
 
     render() {
@@ -4409,7 +4439,8 @@ class MkbRemapper {
 
         // Render action buttons
         const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
-                this.#$.editButton = CE('button', {}, __('edit')),
+                this.#$.editButton = createButton({label: __('edit')}),
+                this.#$.activateButton = createButton({label: __('activate'), isPrimary: true}),
             );
 
         this.#$.editButton.addEventListener('click', e => this.#toggleEditing());
@@ -6364,6 +6395,11 @@ function addCss() {
     --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
     --bx-promptfont-font: promptfont;
 
+    --bx-default-button-color: #515863;
+    --bx-default-button-hover-color: #2d3036;
+    --bx-primary-button-color: #008746;
+    --bx-primary-button-hover-color: #04b358;
+
     --bx-toast-z-index: 9999;
     --bx-dialog-z-index: 9101;
     --bx-dialog-overlay-z-index: 9100;
@@ -6377,6 +6413,50 @@ function addCss() {
 @font-face {
     font-family: 'promptfont';
     src: url('https://redphx.github.io/better-xcloud/fonts/promptfont.otf');
+}
+
+.bx-button {
+    background-color: var(--bx-default-button-color);
+    user-select: none;
+    -webkit-user-select: none;
+    color: #fff;
+    font-family: var(--bx-title-font-semibold);
+    font-size: 14px;
+    border: none;
+    font-weight: 400;
+    height: 32px;
+    border-radius: 4px;
+    padding: 0 8px;
+    text-transform: uppercase;
+}
+
+.bx-button:hover, .bx-button:focus {
+    background-color: var(--bx-default-button-hover-color);
+}
+
+.bx-button.bx-primary {
+    background-color: var(--bx-primary-button-color);
+}
+
+.bx-button.bx-primary:hover, .bx-button.bx-primary:focus {
+    background-color: var(--bx-primary-button-hover-color);
+}
+
+.bx-button svg {
+    display: inline-block;
+    width: 16px;
+    height: 32px;
+}
+
+.bx-button svg:not(:only-child) {
+    margin-right: 4px;
+}
+
+.bx-button span {
+    display: inline-block;
+    height: 32px;
+    line-height: 32px;
+    vertical-align: middle;
 }
 
 .bx-settings-button {
@@ -7030,7 +7110,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
         color: white;
     }
 
-.bx-quick-settings-bar span {
+.bx-number-stepper span {
     display: inline-block;
     width: 40px;
     font-family: var(--bx-monospaced-font);
