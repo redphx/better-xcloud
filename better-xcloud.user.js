@@ -4609,6 +4609,7 @@ class MkbRemapper {
             );
 
         this.#$.wrapper.appendChild($header);
+        this.#$.wrapper.appendChild(CE('i', {}, __('right-click-to-unbind')));
 
         const $rows = CE('div', {'class': 'bx-mkb-settings-rows'});
         this.#$.wrapper.appendChild($rows);
