@@ -158,7 +158,12 @@ const Translations = {
     "activate": {
         "en-US": "Activate",
         "ja-JP": "有効にする",
+        "ko-KR": "활성화",
         "vi-VN": "Kích hoạt",
+    },
+    "activated": {
+        "en-US": "Activated",
+        "vi-VN": "Đã kích hoạt",
     },
     "active": {
         "de-DE": "Aktiv",
@@ -604,6 +609,8 @@ const Translations = {
     },
     "copy": {
         "en-US": "Copy",
+        "ja-JP": "コピー",
+        "ko-KR": "복사",
         "vi-VN": "Sao chép",
     },
     "custom": {
@@ -1173,6 +1180,8 @@ const Translations = {
     },
     "new": {
         "en-US": "New",
+        "ja-JP": "新しい",
+        "ko-KR": "새로 만들기",
         "vi-VN": "Tạo mới",
     },
     "no-consoles-found": {
@@ -1425,6 +1434,7 @@ const Translations = {
     "prompt-preset-name": {
         "en-US": "Preset's name:",
         "ja-JP": "プリセット名:",
+        "ko-KR": "프리셋 이름:",
         "tr-TR": "Hazır ayar adı:",
         "vi-VN": "Tên của mẫu sẵn:",
     },
@@ -1494,10 +1504,12 @@ const Translations = {
     "rename": {
         "en-US": "Rename",
         "ja-JP": "名前変更",
+        "ko-KR": "이름 바꾸기",
         "vi-VN": "Sửa tên",
     },
     "right-click-to-unbind": {
         "en-US": "Right-click on a key to unbind it",
+        "ko-KR": "할당 해제하려면 키를 오른쪽 클릭하세요",
         "vi-VN": "Nhấn chuột phải lên một phím để gỡ nó",
     },
     "rocket-always-hide": {
@@ -1647,7 +1659,7 @@ const Translations = {
         "fr-FR": "Recharger la page pour bénéficier des changements",
         "it-IT": "Applica e ricarica la pagina",
         "ja-JP": "ページを更新をして設定変更を適用",
-        "ko-KR": "변경 사항을 적용하려면 페이지를 다시 로드하세요.",
+        "ko-KR": "적용 및 페이지 새로고침",
         "pl-PL": "Odśwież stronę, aby zastosować zmiany",
         "pt-BR": "Recarregue a página para refletir as alterações",
         "ru-RU": "Перезагрузить страницу, чтобы применить изменения",
@@ -4223,10 +4235,7 @@ class MkbRemapper {
     #$ = {
         wrapper: null,
         presetSelects: null,
-        editButton: null,
         activateButton: null,
-        renameButton: null,
-        saveButton: null,
 
         currentBindingKey: null,
 
@@ -4367,6 +4376,11 @@ class MkbRemapper {
             const $elm = this.#$.allMouseElements[key];
             $elm.setValue && $elm.setValue(presetData.mouse[key]);
         }
+
+        // Update state of Activate button
+        const activated = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
+        this.#$.activateButton.disabled = activated;
+        this.#$.activateButton.textContent = activated ? __('activated') : __('activate');
     }
 
     #refresh() {
@@ -4380,19 +4394,37 @@ class MkbRemapper {
                 this.#STATE.presets = presets;
                 const $fragment = document.createDocumentFragment();
 
+                let defaultPresetId;
                 if (this.#STATE.currentPresetId === 0) {
                     this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
+
+                    defaultPresetId = this.#STATE.currentPresetId;
+                    PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, defaultPresetId);
+                } else {
+                    defaultPresetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID);
                 }
 
-                for (const id in presets) {
+                for (let id in presets) {
+                    id = parseInt(id);
+
                     const preset = presets[id];
-                    const $options = CE('option', {value: id}, preset.name);
-                    $options.selected = parseInt(id) === this.#STATE.currentPresetId;
+                    let name = preset.name;
+                    if (id === defaultPresetId) {
+                        name = `🎮 ` + name;
+                    }
+
+                    const $options = CE('option', {value: id}, name);
+                    $options.selected = id === this.#STATE.currentPresetId;
 
                     $fragment.appendChild($options);
                 };
 
                 this.#$.presetsSelect.appendChild($fragment);
+
+                // Update state of Activate button
+                const activated = defaultPresetId === this.#STATE.currentPresetId;
+                this.#$.activateButton.disabled = activated;
+                this.#$.activateButton.textContent = activated ? __('activated') : __('activate');
 
                 !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
             });
@@ -4582,12 +4614,20 @@ class MkbRemapper {
         const $actionButtons = CE('div', {'class': 'bx-mkb-action-buttons'},
                 CE('div', {},
                    // Edit button
-                   this.#$.editButton = createButton({
+                   createButton({
                            label: __('edit'),
-                           onClick: e => this.#toggleEditing(true)}
-                       ),
+                           onClick: e => this.#toggleEditing(true),
+                   }),
+
                    // Activate button
-                   this.#$.activateButton = createButton({label: __('activate'), isPrimary: true}),
+                   this.#$.activateButton = createButton({
+                           label: __('activate'),
+                           isPrimary: true,
+                           onClick: e => {
+                               PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
+                               this.#refresh();
+                           },
+                       }),
                 ),
 
                 CE('div', {},
@@ -5485,6 +5525,7 @@ class Preferences {
     static get MKB_ENABLED() { return 'mkb_enabled'; }
     static get MKB_HIDE_IDLE_CURSOR() { return 'mkb_hide_idle_cursor';}
     static get MKB_ABSOLUTE_MOUSE() { return 'mkb_absolute_mouse'; }
+    static get MKB_DEFAULT_PRESET_ID() { return 'mkb_default_preset_id'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
@@ -5742,6 +5783,10 @@ class Preferences {
 
         [Preferences.MKB_ENABLED]: {
             'default': false,
+        },
+
+        [Preferences.MKB_DEFAULT_PRESET_ID]: {
+            'default': 0,
         },
 
         [Preferences.MKB_ABSOLUTE_MOUSE]: {
@@ -6619,6 +6664,7 @@ function addCss() {
 }
 
 .bx-button:disabled {
+    cursor: default;
     background-color: var(--bx-default-button-disabled-color);
 }
 
