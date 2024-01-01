@@ -3904,6 +3904,8 @@ class LocalDb {
                     this.#add(table, preset)
                         .then(([table, id]) => {
                             preset.id = id;
+                            PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, id);
+
                             resolve({[id]: preset});
                         });
                 });
@@ -4456,6 +4458,7 @@ class MkbRemapper {
                     MkbHandler.INSTANCE.refreshPresetData();
                 } else {
                     defaultPresetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID);
+                    this.#STATE.currentPresetId = defaultPresetId;
                 }
 
                 for (let id in presets) {
@@ -8146,7 +8149,7 @@ function interceptHttpRequests() {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.setup();
 
             // Start hiding cursor
-            if (PREFS.get(Preferences.MKB_HIDE_IDLE_CURSOR)) {
+            if (!PREFS.get(Preferences.MKB_ENABLED) && PREFS.get(Preferences.MKB_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
                 MouseCursorHider.hide();
             }
