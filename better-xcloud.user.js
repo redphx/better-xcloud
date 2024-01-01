@@ -4224,14 +4224,13 @@ class MkbRemapper {
         renameButton: null,
         saveButton: null,
 
+        currentBindingKey: null,
+
         allKeyElements: [],
         allMouseElements: [],
     };
 
     constructor() {
-        this.#STATE.isEditing = false;
-        this.$currentBindingKey = null;
-
         this.bindingDialog = new Dialog({
             className: 'bx-binding-dialog',
             content: CE('div', {},
@@ -4242,13 +4241,13 @@ class MkbRemapper {
         });
     }
 
-    clearEventListeners = () => {
-        window.removeEventListener('keydown', this.onKeyDown);
-        window.removeEventListener('mousedown', this.onMouseDown);
-        window.removeEventListener('wheel', this.onWheel);
+    #clearEventListeners = () => {
+        window.removeEventListener('keydown', this.#onKeyDown);
+        window.removeEventListener('mousedown', this.#onMouseDown);
+        window.removeEventListener('wheel', this.#onWheel);
     };
 
-    bindKey = ($elm, key) => {
+    #bindKey = ($elm, key) => {
         const buttonIndex = parseInt($elm.getAttribute('data-button-index'));
         const keySlot = parseInt($elm.getAttribute('data-key-slot'));
 
@@ -4269,7 +4268,7 @@ class MkbRemapper {
         $elm.setAttribute('data-key-code', key.code);
     }
 
-    unbindKey = $elm => {
+    #unbindKey = $elm => {
         const buttonIndex = parseInt($elm.getAttribute('data-button-index'));
         const keySlot = parseInt($elm.getAttribute('data-key-slot'));
 
@@ -4279,63 +4278,64 @@ class MkbRemapper {
         $elm.removeAttribute('data-key-code');
     }
 
-    onWheel = e => {
+    #onWheel = e => {
         e.preventDefault();
-        this.clearEventListeners();
+        this.#clearEventListeners();
 
-        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e));
+        this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
-    onMouseDown = e => {
+    #onMouseDown = e => {
         e.preventDefault();
-        this.clearEventListeners();
+        this.#clearEventListeners();
 
-        this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e));
+        this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
-    onKeyDown = e => {
+    #onKeyDown = e => {
         e.preventDefault();
         e.stopPropagation();
-        this.clearEventListeners();
+        this.#clearEventListeners();
 
         if (e.code !== 'Escape') {
-            this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e));
+            this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
         }
 
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
-    onBindingKey = e => {
+    #onBindingKey = e => {
         if (!this.#STATE.isEditing || e.button !== 0) {
             return;
         }
 
         console.log(e);
 
-        this.$currentBindingKey = e.target;
+        this.#$.currentBindingKey = e.target;
 
-        window.addEventListener('keydown', this.onKeyDown);
-        window.addEventListener('mousedown', this.onMouseDown);
-        window.addEventListener('wheel', this.onWheel);
+        window.addEventListener('keydown', this.#onKeyDown);
+        window.addEventListener('mousedown', this.#onMouseDown);
+        window.addEventListener('wheel', this.#onWheel);
 
         this.bindingDialog.show({title: e.target.getAttribute('data-prompt')});
     };
 
-    onContextMenu = e => {
+    #onContextMenu = e => {
         e.preventDefault();
         if (!this.#STATE.isEditing) {
             return;
         }
 
-        this.unbindKey(e.target);
+        this.#unbindKey(e.target);
     };
 
-    switchPreset = presetId => {
+    #switchPreset = presetId => {
         presetId = parseInt(presetId);
 
         this.#STATE.currentPresetId = presetId;
+        console.log('current', this.#STATE.currentPresetId);
 
         const preset = this.#STATE.presets[presetId].data;
         this.#STATE.tempPreset = structuredClone(preset);
@@ -4385,7 +4385,7 @@ class MkbRemapper {
 
                 this.#$.presetsSelect.appendChild($fragment);
 
-                !this.#STATE.isEditing && this.switchPreset(this.#STATE.currentPresetId);
+                !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
             });
     }
 
@@ -4413,13 +4413,12 @@ class MkbRemapper {
 
     render() {
         this.#$.wrapper = CE('div', {'class': 'bx-mkb-settings'});
-        let $currentBindingKey;
 
         this.#$.wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
 
         this.#$.presetsSelect = CE('select', {});
         this.#$.presetsSelect.addEventListener('change', e => {
-            this.switchPreset(e.target.value);
+            this.#switchPreset(e.target.value);
         });
 
         const promptNewName = (value) => {
@@ -4529,8 +4528,8 @@ class MkbRemapper {
                         'data-key-slot': i,
                     }, ' ');
 
-                $elm.addEventListener('mouseup', this.onBindingKey);
-                $elm.addEventListener('contextmenu', this.onContextMenu);
+                $elm.addEventListener('mouseup', this.#onBindingKey);
+                $elm.addEventListener('contextmenu', this.#onContextMenu);
 
                 $fragment.appendChild($elm);
                 this.#$.allKeyElements.push($elm);
@@ -4581,7 +4580,7 @@ class MkbRemapper {
                            isGhost: true,
                            onClick: e => {
                                // Restore preset
-                               this.switchPreset(this.#STATE.editingPresetId);
+                               this.#switchPreset(this.#STATE.editingPresetId);
                                this.#toggleEditing(false);
                            },
                        }),
