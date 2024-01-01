@@ -4055,12 +4055,14 @@ class MkbRemapper {
         isEditing: false,
     };
 
+    #$wrapper;
     #$presetsSelect;
+    #$editButton;
     #allKeyElements = [];
     #allMouseElements = {};
 
     constructor() {
-        this.isEditing = false;
+        this.#STATE.isEditing = false;
         this.$currentBindingKey = null;
 
         const CE = createElement;
@@ -4140,7 +4142,7 @@ class MkbRemapper {
     };
 
     onBindingKey = e => {
-        if (!this.isEditing || e.button !== 0) {
+        if (!this.#STATE.isEditing || e.button !== 0) {
             return;
         }
 
@@ -4157,7 +4159,7 @@ class MkbRemapper {
 
     onContextMenu = e => {
         e.preventDefault();
-        if (!this.isEditing) {
+        if (!this.#STATE.isEditing) {
             return;
         }
 
@@ -4219,21 +4221,55 @@ class MkbRemapper {
             });
     }
 
+    #toggleEditing = force => {
+        this.#STATE.isEditing = typeof force !== 'undefined' ? force : !this.#STATE.isEditing;
+        this.#$wrapper.classList.toggle('bx-editing', this.#STATE.isEditing);
+
+        const childElements = this.#$wrapper.querySelectorAll('select, button, input');
+        for (const $elm of childElements) {
+            if ($elm.parentElement.classList.contains('bx-action-buttons')) {
+                continue;
+            }
+
+            let disable = !this.#STATE.isEditing;
+
+            if ($elm.parentElement.classList.contains('bx-mkb-preset-tools')) {
+                disable = !disable;
+            }
+
+            $elm.disabled = disable;
+            console.log($elm, disable);
+        }
+
+
+        this.#$editButton.textContent = this.#STATE.isEditing ? __('save') : __('edit');
+    }
+
     render() {
         const CE = createElement;
-        const $wrapper = CE('div', {'class': 'bx-mkb-settings'});
+        this.#$wrapper = CE('div', {'class': 'bx-mkb-settings'});
         let $currentBindingKey;
 
-        $wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
+        this.#$wrapper.appendChild(CE('p', {}, '(not working - still in development)'));
+
+        const $header = CE('div', {'class': 'bx-mkb-preset-tools'});
 
         this.#$presetsSelect = CE('select', {});
         this.#$presetsSelect.addEventListener('change', e => {
             this.switchPreset(parseInt(e.target.value));
         });
-        $wrapper.appendChild(this.#$presetsSelect);
+
+        const $newButton = CE('button', {}, 'New');
+        const $copyButton = CE('button', {}, 'Copy');
+
+        $header.appendChild(this.#$presetsSelect);
+        $header.appendChild($newButton);
+        $header.appendChild($copyButton);
+
+        this.#$wrapper.appendChild($header);
 
         const $rows = CE('div', {'class': 'bx-mkb-settings-rows'});
-        $wrapper.appendChild($rows);
+        this.#$wrapper.appendChild($rows);
 
         // Render keys
         const keysPerButton = 2;
@@ -4285,22 +4321,16 @@ class MkbRemapper {
         $rows.appendChild($mouseSettings);
 
         // Render action buttons
-        let $editButton;
         const $actionButtons = CE('div', {'class': 'bx-action-buttons'},
-                $editButton = CE('button', {}, __('edit')),
+                this.#$editButton = CE('button', {}, __('edit')),
             );
 
-        $editButton.addEventListener('click', e => {
-            this.isEditing = !this.isEditing;
-            $wrapper.classList.toggle('bx-editing');
+        this.#$editButton.addEventListener('click', e => this.#toggleEditing());
+        this.#$wrapper.appendChild($actionButtons);
 
-            $editButton.textContent = (this.isEditing) ? __('save') : __('edit');
-        });
-
-        $wrapper.appendChild($actionButtons);
-
+        this.#toggleEditing(false);
         this.#refresh();
-        return $wrapper;
+        return this.#$wrapper;
     }
 }
 
@@ -6938,11 +6968,28 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: var(--bx-monospaced-font);
 }
 
+.bx-number-stepper input[type=range]:disabled, .bx-number-stepper button:disabled {
+    display: none;
+}
+
 .bx-mkb-settings {
     display: flex;
     flex-direction: column;
     flex: 1;
     overflow: scroll;
+}
+
+.bx-mkb-preset-tools {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.bx-mkb-preset-tools select {
+    flex: 1;
+}
+
+.bx-mkb-preset-tools button {
+    margin-left: 10px;
 }
 
 .bx-mkb-settings-rows {
