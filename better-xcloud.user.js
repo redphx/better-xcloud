@@ -3883,7 +3883,10 @@ class LocalDb {
 
                 return new Promise(resolve => {
                     this.#add(table, preset)
-                        .then(() => resolve({[preset.id]: preset}));
+                        .then(([table, id]) => {
+                            preset.id = id;
+                            resolve({[id]: preset});
+                        });
                 });
             });
     }
