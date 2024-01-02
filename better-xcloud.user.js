@@ -3914,6 +3914,10 @@ class LocalDb {
 }
 
 
+/*
+This class uses some code from Yuzu emulator to handle mouse's movements
+Source: https://github.com/yuzu-emu/yuzu-mainline/blob/master/src/input_common/drivers/mouse.cpp
+*/
 class MkbHandler {
     static #instance;
     static get INSTANCE() {
@@ -3929,7 +3933,6 @@ class MkbHandler {
     static get DEFAULT_PANNING_SENSITIVITY() { return 0.0010; }
     static get DEFAULT_STICK_SENSITIVITY() { return 0.0006; }
     static get DEFAULT_DEADZONE_COUNTERWEIGHT() { return 0.01; }
-    static get MAXIMUM_ROTATION_SPEED() { return 2.0; }
     static get MAXIMUM_STICK_RANGE() { return 1.1; }
 
     #VIRTUAL_GAMEPAD = {
