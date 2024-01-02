@@ -7599,6 +7599,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background: transparent;
     border: none;
     color: #fff;
+}
+
+.bx-quick-settings-row select:disabled {
     text-align: right;
 }
 
