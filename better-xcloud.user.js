@@ -7055,6 +7055,21 @@ function addCss() {
     font-size: 12px;
 }
 
+.bx-donation-link {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    margin-top: 10px;
+    color: #5dc21e;
+}
+
+.bx-donation-link:hover {
+    color: #6dd72b;
+}
+
 .bx-settings-custom-user-agent {
     display: block;
     width: 100%;
@@ -8647,11 +8662,15 @@ function injectSettingsButton($parent) {
     });
     $wrapper.appendChild($reloadBtn);
 
+    // Donation link
+    const $donationLink = CE('a', {'class': 'bx-donation-link', href: 'https://ko-fi.com/redphx', target: '_blank'}, `❤️ ${__('support-better-xcloud')}`);
+    $wrapper.appendChild($donationLink);
+
     // Show Game Pass app version
     try {
         const appVersion = document.querySelector('meta[name=gamepass-app-version]').content;
         const appDate = new Date(document.querySelector('meta[name=gamepass-app-date]').content).toISOString().substring(0, 10);
-        $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `GamePass app ${appVersion} (${appDate})`));
+        $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `xCloud website version ${appVersion} (${appDate})`));
     } catch (e) {}
 
     $container.appendChild($wrapper);
