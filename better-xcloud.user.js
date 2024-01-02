@@ -3753,6 +3753,14 @@ class MkbPreset {
             }
         }
 
+        // Pre-calculate mouse's sensitivities
+        const mouse = obj.mouse;
+        mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+        mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+        mouse[MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+        mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
+        mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_MIN] *= 0.01;
+
         console.log(obj);
         return obj;
     }
