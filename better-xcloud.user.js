@@ -3826,7 +3826,7 @@ class MkbPreset {
         },
 
         'mouse': {
-            [MkbPreset.KEY_MOUSE_MAP_TO]: 'right-stick',
+            [MkbPreset.KEY_MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
             [MkbPreset.KEY_MOUSE_SENSITIVITY_X]: 50,
             [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: 50,
             [MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
@@ -4548,7 +4548,12 @@ class MkbRemapper {
 
         for (const key in this.#$.allMouseElements) {
             const $elm = this.#$.allMouseElements[key];
-            $elm.setValue && $elm.setValue(presetData.mouse[key]);
+            let value = presetData.mouse[key];
+            if (typeof value === 'undefined') {
+                value = MkbPreset.MOUSE_SETTINGS[key].default;
+            }
+
+            $elm.setValue && $elm.setValue(value);
         }
 
         // Update state of Activate button
@@ -4764,6 +4769,7 @@ class MkbRemapper {
             $rows.appendChild($keyRow);
         }
 
+        // Render mouse settings
         const $mouseSettings = document.createDocumentFragment();
         for (const key in MkbPreset.MOUSE_SETTINGS) {
             const setting = MkbPreset.MOUSE_SETTINGS[key];
