@@ -159,10 +159,14 @@ const Translations = {
         "en-US": "Activate",
         "ja-JP": "有効にする",
         "ko-KR": "활성화",
+        "tr-TR": "Etkinleştir",
         "vi-VN": "Kích hoạt",
     },
     "activated": {
         "en-US": "Activated",
+        "ja-JP": "有効化済み",
+        "ko-KR": "활성화 됨",
+        "tr-TR": "Etkin",
         "vi-VN": "Đã kích hoạt",
     },
     "active": {
@@ -487,6 +491,12 @@ const Translations = {
         "vi-VN": "Xóa",
         "zh-CN": "清空",
     },
+    "click-to-hide-the-cursor": {
+        "en-US": "Click to hide the cursor",
+        "ja-JP": "クリックしてカーソルを隠す",
+        "tr-TR": "Fare imlecini gizlemek için tıklayın",
+        "vi-VN": "Nhấn vào để ẩn con trỏ chuột",
+    },
     "close": {
         "de-DE": "Schließen",
         "en-US": "Close",
@@ -611,6 +621,7 @@ const Translations = {
         "en-US": "Copy",
         "ja-JP": "コピー",
         "ko-KR": "복사",
+        "tr-TR": "Kopyala",
         "vi-VN": "Sao chép",
     },
     "custom": {
@@ -628,6 +639,12 @@ const Translations = {
         "uk-UA": "Користувацькі",
         "vi-VN": "Tùy chỉnh",
         "zh-CN": "自定义",
+    },
+    "deadzone-counterweight": {
+        "en-US": "Deadzone counterweight",
+        "ja-JP": "デッドゾーンのカウンターウエイト",
+        "tr-TR": "Ölü alan denge ağırlığı",
+        "vi-VN": "Đối trọng vùng chết",
     },
     "default": {
         "de-DE": "Standard",
@@ -984,6 +1001,12 @@ const Translations = {
         "vi-VN": "Ẩn biểu tượng của menu Hệ thống",
         "zh-CN": "隐藏系统菜单图标",
     },
+    "horizontal-sensitivity": {
+        "en-US": "Horizontal sensitivity",
+        "ja-JP": "左右方向の感度",
+        "tr-TR": "Yatay hassasiyet",
+        "vi-VN": "Độ nhạy ngang",
+    },
     "import": {
         "de-DE": "Importieren",
         "en-US": "Import",
@@ -1043,6 +1066,13 @@ const Translations = {
         "vi-VN": "Bố cục",
         "zh-CN": "布局",
     },
+    "left-stick": {
+        "en-US": "Left stick",
+        "ja-JP": "左スティック",
+        "ko-KR": "왼쪽 스틱",
+        "tr-TR": "Sol analog çubuk",
+        "vi-VN": "Analog trái",
+    },
     "loading-screen": {
         "de-DE": "Ladebildschirm",
         "en-US": "Loading screen",
@@ -1058,6 +1088,12 @@ const Translations = {
         "uk-UA": "Екран завантаження",
         "vi-VN": "Màn hình chờ",
         "zh-CN": "载入画面",
+    },
+    "map-mouse-to": {
+        "en-US": "Map mouse to",
+        "ja-JP": "マウスの割り当て",
+        "tr-TR": "Fareyi ata",
+        "vi-VN": "Gán chuột với",
     },
     "max-bitrate": {
         "de-DE": "Max. Bitrate",
@@ -1182,6 +1218,7 @@ const Translations = {
         "en-US": "New",
         "ja-JP": "新しい",
         "ko-KR": "새로 만들기",
+        "tr-TR": "Yeni",
         "vi-VN": "Tạo mới",
     },
     "no-consoles-found": {
@@ -1505,12 +1542,22 @@ const Translations = {
         "en-US": "Rename",
         "ja-JP": "名前変更",
         "ko-KR": "이름 바꾸기",
+        "tr-TR": "Ad değiştir",
         "vi-VN": "Sửa tên",
     },
     "right-click-to-unbind": {
         "en-US": "Right-click on a key to unbind it",
+        "ja-JP": "右クリックで割り当て解除",
         "ko-KR": "할당 해제하려면 키를 오른쪽 클릭하세요",
+        "tr-TR": "Tuş atamasını kaldırmak için fareyle sağ tık yapın",
         "vi-VN": "Nhấn chuột phải lên một phím để gỡ nó",
+    },
+    "right-stick": {
+        "en-US": "Right stick",
+        "ja-JP": "右スティック",
+        "ko-KR": "오른쪽 스틱",
+        "tr-TR": "Sağ analog çubuk",
+        "vi-VN": "Analog phải",
     },
     "rocket-always-hide": {
         "de-DE": "Immer ausblenden",
@@ -1952,6 +1999,16 @@ const Translations = {
         "vi-VN": "Các thông số",
         "zh-CN": "统计信息",
     },
+    "stick-decay-minimum": {
+        "en-US": "Stick decay minimum",
+        "ja-JP": "スティックの減衰の最小値",
+        "vi-VN": "Độ suy giảm tối thiểu của cần điều khiển",
+    },
+    "stick-decay-strength": {
+        "en-US": "Stick decay strength",
+        "ja-JP": "スティックの減衰の強さ",
+        "vi-VN": "Sức mạnh độ suy giảm của cần điều khiển",
+    },
     "stream": {
         "de-DE": "Stream",
         "en-US": "Stream",
@@ -1983,6 +2040,12 @@ const Translations = {
         "uk-UA": "Розтягнути",
         "vi-VN": "Kéo giãn",
         "zh-CN": "拉伸",
+    },
+    "support-better-xcloud": {
+        "en-US": "Support Better xCloud",
+        "ja-JP": "Better xCloudをサポート",
+        "tr-TR": "Better xCloud'a destek ver",
+        "vi-VN": "Hỗ trợ Better xCloud",
     },
     "swap-buttons": {
         "de-DE": "Tasten tauschen",
@@ -2296,6 +2359,12 @@ const Translations = {
         "uk-UA": "Профіль User-Agent",
         "vi-VN": "User-Agent",
         "zh-CN": "浏览器UA伪装",
+    },
+    "vertical-sensitivity": {
+        "en-US": "Vertical sensitivity",
+        "ja-JP": "上下方向の感度",
+        "tr-TR": "Dikey hassasiyet",
+        "vi-VN": "Độ ngạy dọc",
     },
     "vibration-intensity": {
         "de-DE": "Vibrationsstärke",
