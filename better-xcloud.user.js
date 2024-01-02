@@ -3331,6 +3331,11 @@ class SettingElement {
             onChange(e, value);
         });
 
+        // Custom method
+        $control.setValue = value => {
+            $control.value = value;
+        };
+
         return $control;
     }
 
@@ -3614,6 +3619,12 @@ const MouseButtonCode = {
     MIDDLE_CLICK: 'Mouse1',
 };
 
+const MouseMapTo = {};
+MouseMapTo[MouseMapTo.OFF = 0] = 'OFF';
+MouseMapTo[MouseMapTo.LS = 1] = 'LS';
+MouseMapTo[MouseMapTo.RS = 2] = 'RS';
+
+
 const WheelCode = {
     SCROLL_UP: 'ScrollUp',
     SCROLL_DOWN: 'ScrollDown',
@@ -3689,6 +3700,8 @@ class KeyHelper {
 
 
 class MkbPreset {
+    static get KEY_MOUSE_MAP_TO() { return 'map_to'; }
+
     static get KEY_MOUSE_SENSITIVITY_X() { return 'sensitivity_x'; }
     static get KEY_MOUSE_SENSITIVITY_Y() { return 'sensitivity_y'; }
 
@@ -3698,6 +3711,17 @@ class MkbPreset {
     static get KEY_MOUSE_STICK_DECAY_MIN() { return 'stick_decay_min'; }
 
     static MOUSE_SETTINGS = {
+        [MkbPreset.KEY_MOUSE_MAP_TO]: {
+            label: __('map-mouse-to'),
+            type: SettingElement.TYPE_OPTIONS,
+            default: MouseMapTo[MouseMapTo.RS],
+            options: {
+                [MouseMapTo[MouseMapTo.RS]]: __('right-stick'),
+                [MouseMapTo[MouseMapTo.LS]]: __('left-stick'),
+                [MouseMapTo[MouseMapTo.OFF]]: __('off'),
+            },
+        },
+
         [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: {
             label: __('horizontal-sensitivity'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
@@ -3802,6 +3826,7 @@ class MkbPreset {
         },
 
         'mouse': {
+            [MkbPreset.KEY_MOUSE_MAP_TO]: 'right-stick',
             [MkbPreset.KEY_MOUSE_SENSITIVITY_X]: 50,
             [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: 50,
             [MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
@@ -3829,6 +3854,13 @@ class MkbPreset {
         mouse[MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
         mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
         mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_MIN] *= 0.01;
+
+        const mouseMapTo = MouseMapTo[mouse[MkbPreset.KEY_MOUSE_MAP_TO]];
+        if (typeof mouseMapTo !== 'undefined') {
+            mouse[MkbPreset.KEY_MOUSE_MAP_TO] = mouseMapTo;
+        } else {
+            mouse[MkbPreset.KEY_MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPreset.KEY_MOUSE_MAP_TO].default;
+        }
 
         console.log(obj);
         return obj;
@@ -4170,8 +4202,15 @@ class MkbHandler {
             return;
         }
 
+        const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_MAP_TO];
+        if (mouseMapTo === MouseMapTo.OFF) {
+            return;
+        }
+
+        const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
+
         const virtualGamepad = this.#getVirtualGamepad();
-        let { x, y } = this.#getStickAxes(GamepadStick.RIGHT);
+        let { x, y } = this.#getStickAxes(analog);
         const length = this.#vectorLength(x, y);
 
         const clampedLength = Math.min(1.0, length);
@@ -4190,7 +4229,7 @@ class MkbHandler {
         }
 
         if (this.#allowStickDecaying) {
-            this.#updateStick(GamepadStick.RIGHT, x, y);
+            this.#updateStick(analog, x, y);
 
             (x !== 0 || y !== 0) && requestAnimationFrame(this.#decayStick);
         }
@@ -4205,6 +4244,13 @@ class MkbHandler {
     }
 
     #onMouseMoveEvent = e => {
+        // TODO: optimize this
+        const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_MAP_TO];
+        if (mouseMapTo === MouseMapTo.OFF) {
+            // Ignore mouse movements
+            return;
+        }
+
         this.#allowStickDecaying = false;
         this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
         this.#detectMouseStoppedTimeout = setTimeout(this.#onMouseStopped.bind(this, e), 100);
@@ -4226,7 +4272,8 @@ class MkbHandler {
             y *= MkbHandler.MAXIMUM_STICK_RANGE / length;
         }
 
-        this.#updateStick(GamepadStick.RIGHT, x, y);
+        const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
+        this.#updateStick(analog, x, y);
     }
 
     toggle = () => {
@@ -4247,14 +4294,6 @@ class MkbHandler {
 
     refreshPresetData = () => {
         this.#getCurrentPreset().then(preset => {
-            // Pre-calculate mouse's sensitivities
-            const mouse = preset.data.mouse;
-            mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-            mouse[MkbPreset.KEY_MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-            mouse[MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
-            mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
-            mouse[MkbPreset.KEY_MOUSE_STICK_DECAY_MIN] *= 0.01;
-
             this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset.data);
             this.#resetGamepad();
         });
@@ -4538,7 +4577,6 @@ class MkbRemapper {
                     MkbHandler.INSTANCE.refreshPresetData();
                 } else {
                     defaultPresetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID);
-                    this.#STATE.currentPresetId = defaultPresetId;
                 }
 
                 for (let id in presets) {
@@ -7555,6 +7593,13 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     flex-direction: column;
     flex: 1;
     overflow: scroll;
+}
+
+.bx-mkb-settings select:disabled {
+    background: transparent;
+    border: none;
+    color: #fff;
+    text-align: right;
 }
 
 .bx-mkb-preset-tools {
