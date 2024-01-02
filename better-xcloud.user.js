@@ -3699,7 +3699,7 @@ class MkbPreset {
 
     static MOUSE_SETTINGS = {
         [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: {
-            label: 'Horizontal sensitivity',
+            label: __('horizontal-sensitivity'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
             min: 1,
@@ -3712,7 +3712,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_SENSITIVITY_X]: {
-            label: 'Vertical sensitivity',
+            label: __('vertical-sensitivity'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
             min: 1,
@@ -3725,7 +3725,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT]: {
-            label: 'Deadzone counterweight',
+            label: __('deadzone-counterweight'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 20,
             min: 1,
@@ -3738,7 +3738,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH]: {
-            label: 'Stick decay strength',
+            label: __('stick-decay-strength'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 18,
             min: 10,
@@ -3751,7 +3751,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_STICK_DECAY_MIN]: {
-            label: 'Stick decay minimum',
+            label: __('stick-decay-minimum'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 6,
             min: 1,
