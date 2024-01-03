@@ -295,16 +295,16 @@ Sorry, no. The server decides all these settings.
 It's a reference to an Userscript called "better360" that I created many years ago. I regret not choosing the name "xCloud Enhancement Suite", or XES for short.  
 
 ## Translators
-  - **Chinese (Simplified)**: [@nyavana](https://github.com/nyavana)
+  - **Chinese (Simplified)**: [@nyavana](https://github.com/nyavana), huangbowei30
   - **French**: rodolphe.chouteau, Stay34yth
   - **German**: [@KingNothing81](https://github.com/KingNothing81), mynameismanu
-  - **Korean**: [@rightones](https://github.com/rightones)
-  - **Italian**: Greenylie, Rakan129, Carza-104, graziequalcuno, DioCannabinoide
+  - **Korean**: [@rightones](https://github.com/rightones), eastinny
+  - **Italian**: Greenylie, Rakan129, Carza-104, graziequalcuno, DioCannabinoide, pedrohenriquebragap
   - **Japanese**: Tak_attack, udonshi
   - **Portuguese (Brazilian)**: [@ricardo404](https://github.com/ricardo404), [@Haisom](https://github.com/Haisom), italorafael22062009, PotatoPTT, guilhermecursi, renatomaster01
   - **Polish**: [@aleksishere](https://github.com/aleksishere)
-  - **Russian**: anpom6, soophik
-  - **Spanish**: [@PabloSebas](https://github.com/PabloSebas), csvnchzn
+  - **Russian**: anpom6, soophik, aforned
+  - **Spanish**: [@PabloSebas](https://github.com/PabloSebas), csvnchzn, hectorevil
   - **Turkish**: [@transbebek](https://github.com/transbebek)
   - **Ukrainian**: glebanych
   - **Vietnamese**: [@redphx](https://github.com/redphx)
