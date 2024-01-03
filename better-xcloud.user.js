@@ -1457,7 +1457,7 @@ const Translations = {
     },
     "press-key-to-toggle-mkb": {
         "de-DE": e => `${e.key}: Maus- und Tastaturunterstützung an-/ausschalten`,
-        "en-US": e => `Press ${e.key} to toggle Mouse and Keyboard feature`,
+        "en-US": e => `Press ${e.key} to toggle the Mouse and Keyboard feature`,
         "es-ES": e => `Pulsa ${e.key} para activar la función de ratón y teclado`,
         "ja-JP": e => `${e.key} キーでマウスとキーボードの機能を切り替える`,
         "ko-KR": e => `${e.key} 키를 눌러 마우스와 키보드 기능을 활성화 하십시오`,
@@ -4266,7 +4266,6 @@ class MkbHandler {
 
         const deltaX = e.movementX;
         const deltaY = e.movementY;
-        console.log(deltaX, deltaY);
 
         const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT];
 
@@ -4341,6 +4340,13 @@ class MkbHandler {
         this.#$message.classList.toggle('bx-gone', !wait);
     }
 
+        this.#enabled && this.#waitForPointerLock(false);
+    }
+
+    #onStreamMenuHidden = () => {
+        this.#enabled && this.#waitForPointerLock(true);
+    }
+
     init = () => {
         this.refreshPresetData();
         this.#enabled = true;
@@ -4361,6 +4367,9 @@ class MkbHandler {
         this.#$message.addEventListener('click', this.#onActivatePointerLock);
         document.documentElement.appendChild(this.#$message);
 
+        window.addEventListener('bx-stream-menu-shown', this.#onStreamMenuShown);
+        window.addEventListener('bx-stream-menu-hidden', this.#onStreamMenuHidden);
+
         this.#waitForPointerLock(true);
     }
 
@@ -4375,6 +4384,9 @@ class MkbHandler {
 
         window.removeEventListener('pointerlockchange', this.#onPointerLockChange);
         window.removeEventListener('pointerlockerror', this.#onPointerLockError);
+
+        window.removeEventListener('bx-stream-menu-shown', this.#onStreamMenuShown);
+        window.removeEventListener('bx-stream-menu-hidden', this.#onStreamMenuHidden);
     }
 
     start = () => {
@@ -7698,7 +7710,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     top: 50%;
     transform: translateX(-50%) translateY(-50%);
     margin: auto;
-    background: #000000cc;
+    background: #000000e5;
     z-index: var(--bx-mkb-pointer-lock-msg-z-index);
     color: #fff;
     text-align: center;
@@ -9051,6 +9063,18 @@ function injectStreamMenuButtons() {
                 return;
             }
 
+            item.removedNodes.forEach($node => {
+                if (!$node.className || !$node.className.startsWith) {
+                    return;
+                }
+
+                if ($node.className.startsWith('StreamMenu')) {
+                    if (!document.querySelector('div[class^=PureInStreamConfirmationModal]')) {
+                        window.dispatchEvent(new Event('bx-stream-menu-hidden'));
+                    }
+                }
+            });
+
             item.addedNodes.forEach(async $node => {
                 if (!$node || !$node.className) {
                     return;
@@ -9064,8 +9088,14 @@ function injectStreamMenuButtons() {
 
                 // Render badges
                 if ($node.className.startsWith('StreamMenu')) {
+                    window.dispatchEvent(new Event('bx-stream-menu-shown'));
+
                     // Hide Quick bar when closing HUD
                     const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
+                    if (!$btnCloseHud) {
+                        return;
+                    }
+
                     $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
                         $quickBar.classList.add('bx-none');
                     });
@@ -9772,8 +9802,6 @@ function setupBxUi() {
     setupQuickSettingsBar();
     setupScreenshotButton();
     StreamStats.render();
-
-    Toast.setup();
 }
 
 
@@ -9858,6 +9886,7 @@ patchVideoApi();
 
 // Setup UI
 addCss();
+Toast.setup();
 ENABLE_PRELOAD_BX_UI && setupBxUi();
 
 disablePwa();
