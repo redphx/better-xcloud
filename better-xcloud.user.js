@@ -4808,10 +4808,10 @@ class MkbRemapper {
             );
 
         this.#$.wrapper.appendChild($header);
-        this.#$.wrapper.appendChild(CE('i', {'class': 'bx-mkb-unbind-text'}, __('right-click-to-unbind')));
 
-        const $rows = CE('div', {'class': 'bx-mkb-settings-rows'});
-        this.#$.wrapper.appendChild($rows);
+        const $rows = CE('div', {'class': 'bx-mkb-settings-rows'},
+                CE('i', {'class': 'bx-mkb-note'}, __('right-click-to-unbind')),
+            );
 
         // Render keys
         const keysPerButton = 2;
@@ -4842,6 +4842,8 @@ class MkbRemapper {
             $rows.appendChild($keyRow);
         }
 
+        $rows.appendChild(CE('i', {'class': 'bx-mkb-note'}, __('mkb-adjust-ingame-settings')),);
+
         // Render mouse settings
         const $mouseSettings = document.createDocumentFragment();
         for (const key in MkbPreset.MOUSE_SETTINGS) {
@@ -4862,6 +4864,7 @@ class MkbRemapper {
         }
 
         $rows.appendChild($mouseSettings);
+        this.#$.wrapper.appendChild($rows);
 
         // Render action buttons
         const $actionButtons = CE('div', {'class': 'bx-mkb-action-buttons'},
@@ -7664,6 +7667,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: none;
 }
 
+.bx-number-stepper button:disabled + span {
+    font-family: var(--bx-title-font);
+}
+
 .bx-mkb-settings {
     display: flex;
     flex-direction: column;
@@ -7808,11 +7815,16 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: block;
 }
 
-.bx-mkb-unbind-text {
+.bx-mkb-note {
     display: block;
-    margin-bottom: 8px;
+    margin: 16px 0 10px;
     font-size: 12px;
 }
+
+.bx-mkb-note:first-of-type {
+    margin-top: 0;
+}
+
 
 .bx-stream-menu-button-on {
     fill: #000 !important;
