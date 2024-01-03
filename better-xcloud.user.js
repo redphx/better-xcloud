@@ -4287,7 +4287,7 @@ class MkbHandler {
 
     toggle = () => {
         this.#enabled = !this.#enabled;
-        this.#enabled ? this.start() : this.stop();
+        this.#enabled ? document.pointerLockElement && this.start() : this.stop();
 
         Toast.show(__('mouse-and-keyboard'), __(this.#enabled ? 'enabled' : 'disabled'));
 
@@ -4340,6 +4340,7 @@ class MkbHandler {
         this.#$message.classList.toggle('bx-gone', !wait);
     }
 
+    #onStreamMenuShown = () => {
         this.#enabled && this.#waitForPointerLock(false);
     }
 
@@ -4353,8 +4354,8 @@ class MkbHandler {
 
         window.addEventListener('keydown', this.#onKeyboardEvent);
 
-        window.addEventListener('pointerlockchange', this.#onPointerLockChange);
-        window.addEventListener('pointerlockerror', this.#onPointerLockError);
+        document.addEventListener('pointerlockchange', this.#onPointerLockChange);
+        document.addEventListener('pointerlockerror', this.#onPointerLockError);
 
         this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
                createSvgIcon(Icon.MOUSE),
@@ -4382,8 +4383,8 @@ class MkbHandler {
 
         window.removeEventListener('keydown', this.#onKeyboardEvent);
 
-        window.removeEventListener('pointerlockchange', this.#onPointerLockChange);
-        window.removeEventListener('pointerlockerror', this.#onPointerLockError);
+        document.removeEventListener('pointerlockchange', this.#onPointerLockChange);
+        document.removeEventListener('pointerlockerror', this.#onPointerLockError);
 
         window.removeEventListener('bx-stream-menu-shown', this.#onStreamMenuShown);
         window.removeEventListener('bx-stream-menu-hidden', this.#onStreamMenuHidden);
