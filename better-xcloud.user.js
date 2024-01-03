@@ -4337,7 +4337,7 @@ class MkbHandler {
     }
 
     #waitForPointerLock = (wait) => {
-        this.#$message.classList.toggle('bx-gone', !wait);
+        this.#$message && this.#$message.classList.toggle('bx-gone', !wait);
     }
 
     #onStreamMenuShown = () => {
