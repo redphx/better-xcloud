@@ -159,6 +159,7 @@ const Translations = {
         "en-US": "Activate",
         "ja-JP": "有効にする",
         "ko-KR": "활성화",
+        "pl-PL": "Aktywuj",
         "tr-TR": "Etkinleştir",
         "vi-VN": "Kích hoạt",
     },
@@ -166,6 +167,7 @@ const Translations = {
         "en-US": "Activated",
         "ja-JP": "有効化済み",
         "ko-KR": "활성화 됨",
+        "pl-PL": "Aktywowane",
         "tr-TR": "Etkin",
         "vi-VN": "Đã kích hoạt",
     },
@@ -491,12 +493,6 @@ const Translations = {
         "vi-VN": "Xóa",
         "zh-CN": "清空",
     },
-    "click-to-hide-the-cursor": {
-        "en-US": "Click to hide the cursor",
-        "ja-JP": "クリックしてカーソルを隠す",
-        "tr-TR": "Fare imlecini gizlemek için tıklayın",
-        "vi-VN": "Nhấn vào để ẩn con trỏ chuột",
-    },
     "close": {
         "de-DE": "Schließen",
         "en-US": "Close",
@@ -621,6 +617,7 @@ const Translations = {
         "en-US": "Copy",
         "ja-JP": "コピー",
         "ko-KR": "복사",
+        "pl-PL": "Kopiuj",
         "tr-TR": "Kopyala",
         "vi-VN": "Sao chép",
     },
@@ -1004,6 +1001,7 @@ const Translations = {
     "horizontal-sensitivity": {
         "en-US": "Horizontal sensitivity",
         "ja-JP": "左右方向の感度",
+        "pl-PL": "Czułość pozioma",
         "tr-TR": "Yatay hassasiyet",
         "vi-VN": "Độ nhạy ngang",
     },
@@ -1070,6 +1068,7 @@ const Translations = {
         "en-US": "Left stick",
         "ja-JP": "左スティック",
         "ko-KR": "왼쪽 스틱",
+        "pl-PL": "Lewy drążek analogowy",
         "tr-TR": "Sol analog çubuk",
         "vi-VN": "Analog trái",
     },
@@ -1092,6 +1091,7 @@ const Translations = {
     "map-mouse-to": {
         "en-US": "Map mouse to",
         "ja-JP": "マウスの割り当て",
+        "pl-PL": "Przypisz myszkę do",
         "tr-TR": "Fareyi ata",
         "vi-VN": "Gán chuột với",
     },
@@ -1172,6 +1172,16 @@ const Translations = {
         "vi-VN": "Micro",
         "zh-CN": "麦克风",
     },
+    "mkb-adjust-ingame-settings": {
+        "en-US": "You may also need to adjust the in-game sensitivity & deadzone settings",
+        "ja-JP": "ゲーム内の設定で感度とデッドゾーンの調整が必要な場合があります",
+        "vi-VN": "Có thể bạn cần phải điều chỉnh các thông số độ nhạy và điểm chết trong game",
+    },
+    "mkb-click-to-activate": {
+        "en-US": "Click to activate",
+        "ja-JP": "クリックして有効化",
+        "vi-VN": "Nhấn vào để kích hoạt",
+    },
     "mouse-and-keyboard": {
         "de-DE": "Maus & Tastatur",
         "en-US": "Mouse & Keyboard",
@@ -1218,6 +1228,7 @@ const Translations = {
         "en-US": "New",
         "ja-JP": "新しい",
         "ko-KR": "새로 만들기",
+        "pl-PL": "Nowy",
         "tr-TR": "Yeni",
         "vi-VN": "Tạo mới",
     },
@@ -1472,6 +1483,7 @@ const Translations = {
         "en-US": "Preset's name:",
         "ja-JP": "プリセット名:",
         "ko-KR": "프리셋 이름:",
+        "pl-PL": "Nazwa szablonu:",
         "tr-TR": "Hazır ayar adı:",
         "vi-VN": "Tên của mẫu sẵn:",
     },
@@ -1542,6 +1554,7 @@ const Translations = {
         "en-US": "Rename",
         "ja-JP": "名前変更",
         "ko-KR": "이름 바꾸기",
+        "pl-PL": "Zmień nazwę",
         "tr-TR": "Ad değiştir",
         "vi-VN": "Sửa tên",
     },
@@ -1556,6 +1569,7 @@ const Translations = {
         "en-US": "Right stick",
         "ja-JP": "右スティック",
         "ko-KR": "오른쪽 스틱",
+        "pl-PL": "Prawy drążek analogowy",
         "tr-TR": "Sağ analog çubuk",
         "vi-VN": "Analog phải",
     },
@@ -2363,6 +2377,7 @@ const Translations = {
     "vertical-sensitivity": {
         "en-US": "Vertical sensitivity",
         "ja-JP": "上下方向の感度",
+        "pl-PL": "Czułość pionowa",
         "tr-TR": "Dikey hassasiyet",
         "vi-VN": "Độ ngạy dọc",
     },
@@ -4047,7 +4062,7 @@ class MkbHandler {
     #VIRTUAL_GAMEPAD = {
             id: 'Xbox 360 Controller (XInput STANDARD GAMEPAD)',
             index: 3,
-            connected: true,
+            connected: false,
             hapticActuators: null,
             mapping: 'standard',
 
@@ -4058,8 +4073,6 @@ class MkbHandler {
     #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
 
     #enabled = false;
-    #centerX;
-    #centerY;
 
     #prevWheelCode = null;
     #wheelStoppedTimeout;
@@ -4067,7 +4080,7 @@ class MkbHandler {
     #detectMouseStoppedTimeout;
     #allowStickDecaying = false;
 
-    // constructor() {}
+    #$message;
 
     #patchedGetGamepads = () => {
         const gamepads = this.#nativeGetGamepads();
@@ -4129,7 +4142,6 @@ class MkbHandler {
             }
 
             virtualGamepad.axes[axisIndex] = pressed ? value : 0;
-            virtualGamepad.timestamp = performance.now();
         } else {
             virtualGamepad.buttons[buttonIndex].pressed = pressed;
             virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
@@ -4237,9 +4249,6 @@ class MkbHandler {
 
     #onMouseStopped = e => {
         this.#allowStickDecaying = true;
-
-        this.#centerX = e.clientX;
-        this.#centerY = e.clientY;
         requestAnimationFrame(this.#decayStick);
     }
 
@@ -4255,8 +4264,9 @@ class MkbHandler {
         this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
         this.#detectMouseStoppedTimeout = setTimeout(this.#onMouseStopped.bind(this, e), 100);
 
-        const deltaX = e.clientX - this.#centerX;
-        const deltaY = e.clientY - this.#centerY;
+        const deltaX = e.movementX;
+        const deltaY = e.movementY;
+        console.log(deltaX, deltaY);
 
         const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse[MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT];
 
@@ -4281,6 +4291,13 @@ class MkbHandler {
         this.#enabled ? this.start() : this.stop();
 
         Toast.show(__('mouse-and-keyboard'), __(this.#enabled ? 'enabled' : 'disabled'));
+
+        if (this.#enabled) {
+            !document.pointerLockElement && this.#waitForPointerLock(true);
+        } else {
+            this.#waitForPointerLock(false);
+            document.pointerLockElement && document.exitPointerLock();
+        }
     }
 
     #getCurrentPreset = () => {
@@ -4299,49 +4316,108 @@ class MkbHandler {
         });
     }
 
+    #onPointerLockChange = e => {
+        if (this.#enabled && !document.pointerLockElement) {
+            this.stop();
+            this.#waitForPointerLock(true);
+        }
+    }
+
+    #onPointerLockError = e => {
+        console.log(e);
+        this.stop();
+    }
+
+    #onActivatePointerLock = () => {
+        if (!document.pointerLockElement) {
+            document.body.requestPointerLock();
+        }
+
+        this.#waitForPointerLock(false);
+        this.start();
+    }
+
+    #waitForPointerLock = (wait) => {
+        this.#$message.classList.toggle('bx-gone', !wait);
+    }
+
     init = () => {
         this.refreshPresetData();
         this.#enabled = true;
-        Toast.show(__('press-key-to-toggle-mkb', {key: 'F9'}));
 
         window.addEventListener('keydown', this.#onKeyboardEvent);
-        window.addEventListener('keyup', this.#onKeyboardEvent);
 
-        this.start();
+        window.addEventListener('pointerlockchange', this.#onPointerLockChange);
+        window.addEventListener('pointerlockerror', this.#onPointerLockError);
+
+        this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
+               createSvgIcon(Icon.MOUSE),
+               CE('div', {},
+                   CE('p', {}, __('mkb-click-to-activate')),
+                   CE('p', {}, __('press-key-to-toggle-mkb')({key: 'F9'})),
+               ),
+            );
+
+        this.#$message.addEventListener('click', this.#onActivatePointerLock);
+        document.documentElement.appendChild(this.#$message);
+
+        this.#waitForPointerLock(true);
     }
 
     destroy = () => {
         this.#enabled = false;
         this.stop();
 
+        this.#waitForPointerLock(false);
+        document.pointerLockElement && document.exitPointerLock();
+
         window.removeEventListener('keydown', this.#onKeyboardEvent);
-        window.removeEventListener('keyup', this.#onKeyboardEvent);
+
+        window.removeEventListener('pointerlockchange', this.#onPointerLockChange);
+        window.removeEventListener('pointerlockerror', this.#onPointerLockError);
     }
 
     start = () => {
-        this.#centerX = null;
-        this.#centerY = null;
+        window.navigator.getGamepads = this.#patchedGetGamepads;
 
         this.#resetGamepad();
 
-        window.navigator.getGamepads = this.#patchedGetGamepads;
+        window.addEventListener('keyup', this.#onKeyboardEvent);
 
         window.addEventListener('mousemove', this.#onMouseMoveEvent);
         window.addEventListener('mousedown', this.#onMouseEvent);
         window.addEventListener('mouseup', this.#onMouseEvent);
         window.addEventListener('wheel', this.#onWheelEvent);
         window.addEventListener('contextmenu', this.#disableContextMenu);
+
+        // Dispatch "gamepadconnected" event
+        const virtualGamepad = this.#getVirtualGamepad();
+        virtualGamepad.connected = true;
+        virtualGamepad.timestamp = performance.now();
+
+        const event = new Event('gamepadconnected');
+        event.gamepad = virtualGamepad;
+        window.dispatchEvent(event);
     }
 
     stop = () => {
+
+        // Dispatch "gamepaddisconnected" event
+        const virtualGamepad = this.#getVirtualGamepad();
+        virtualGamepad.connected = false;
+        virtualGamepad.timestamp = performance.now();
+
+        const event = new Event('gamepaddisconnected');
+        event.gamepad = virtualGamepad;
+        window.dispatchEvent(event);
+
         window.navigator.getGamepads = this.#nativeGetGamepads;
 
         this.#resetGamepad();
 
-        this.#centerX = null;
-        this.#centerY = null;
+        window.removeEventListener('keyup', this.#onKeyboardEvent);
 
-        window.removeEventListener('mousemove', this.onMouseMoveEvent);
+        window.removeEventListener('mousemove', this.#onMouseMoveEvent);
         window.removeEventListener('mousedown', this.#onMouseEvent);
         window.removeEventListener('mouseup', this.#onMouseEvent);
         window.removeEventListener('wheel', this.#onWheelEvent);
@@ -6820,6 +6896,7 @@ function addCss() {
     --bx-dialog-overlay-z-index: 9100;
     --bx-stats-bar-z-index: 9001;
     --bx-stream-settings-z-index: 9000;
+    --bx-mkb-pointer-lock-msg-z-index: 8999;
     --bx-screenshot-z-index: 8888;
     --bx-touch-controller-bar-z-index: 5555;
     --bx-wait-time-box-z-index: 100;
@@ -7609,6 +7686,55 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-quick-settings-row select:disabled {
     text-align: right;
+}
+
+.bx-mkb-pointer-lock-msg {
+    display: flex;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    margin: auto;
+    background: #000000cc;
+    z-index: var(--bx-mkb-pointer-lock-msg-z-index);
+    color: #fff;
+    text-align: center;
+    font-weight: 400;
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-size: 1.3rem;
+    padding: 12px;
+    border-radius: 8px;
+    align-items: center;
+    box-shadow: 0 0 6px #000;
+}
+
+.bx-mkb-pointer-lock-msg svg {
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
+}
+
+.bx-mkb-pointer-lock-msg div {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.bx-mkb-pointer-lock-msg p {
+    margin: 0;
+}
+
+.bx-mkb-pointer-lock-msg p:first-child {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.bx-mkb-pointer-lock-msg p:last-child {
+    font-size: 14px;
+    font-style: italic;
 }
 
 .bx-mkb-preset-tools {
