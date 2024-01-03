@@ -731,22 +731,6 @@ const Translations = {
         "vi-VN": "Vô hiệu hóa",
         "zh-CN": "禁用",
     },
-    "disable-bandwidth-checking": {
-        "de-DE": "Bandbreitenüberprüfung deaktivieren",
-        "en-US": "Disable bandwidth checking",
-        "es-ES": "Desactivar comprobación de ancho de banda",
-        "fr-FR": "Désactiver la vérification de bande passante",
-        "it-IT": "Disabilita il controllo della larghezza di banda",
-        "ja-JP": "帯域幅の警告を非表示",
-        "ko-KR": "대역폭 확인 비활성화",
-        "pl-PL": "Wyłącz sprawdzanie przepustowości",
-        "pt-BR": "Desativar verificação de banda",
-        "ru-RU": "Отключить проверку интернета",
-        "tr-TR": "İnternet hız testini atla",
-        "uk-UA": "Вимкнути перевірку пропускної здатності",
-        "vi-VN": "Tắt kiểm tra băng thông",
-        "zh-CN": "禁用带宽测速",
-    },
     "disable-post-stream-feedback-dialog": {
         "de-DE": "Feedback-Dialog beim Beenden deaktivieren",
         "en-US": "Disable post-stream feedback dialog",
@@ -5806,7 +5790,6 @@ class Preferences {
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
-    static get DISABLE_BANDWIDTH_CHECKING() { return 'disable_bandwidth_checking'; }
     static get SKIP_SPLASH_VIDEO() { return 'skip_splash_video'; }
     static get HIDE_DOTS_ICON() { return 'hide_dots_icon'; }
     static get REDUCE_ANIMATIONS() { return 'reduce_animations'; }
@@ -5976,9 +5959,6 @@ class Preferences {
             })(),
         },
         [Preferences.PREFER_IPV6_SERVER]: {
-            'default': false,
-        },
-        [Preferences.DISABLE_BANDWIDTH_CHECKING]: {
             'default': false,
         },
         [Preferences.SCREENSHOT_BUTTON_POSITION]: {
@@ -8675,7 +8655,6 @@ function injectSettingsButton($parent) {
         [__('stream')]: {
             [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
             [Preferences.STREAM_CODEC_PROFILE]: __('visual-quality'),
-            [Preferences.DISABLE_BANDWIDTH_CHECKING]: __('disable-bandwidth-checking'),
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: __('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
@@ -9814,13 +9793,6 @@ window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
 
 PreloadedState.override();
-
-// Disable bandwidth checking
-if (PREFS.get(Preferences.DISABLE_BANDWIDTH_CHECKING)) {
-    Object.defineProperty(window.navigator, 'connection', {
-        get: () => undefined,
-    });
-}
 
 // Check for Update
 checkForUpdate();
