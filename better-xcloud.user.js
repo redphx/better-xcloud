@@ -156,6 +156,7 @@ const Translations = {
     },
 
     "activate": {
+        "de-DE": "Aktivieren",
         "en-US": "Activate",
         "ja-JP": "有効にする",
         "ko-KR": "활성화",
@@ -164,6 +165,7 @@ const Translations = {
         "vi-VN": "Kích hoạt",
     },
     "activated": {
+        "de-DE": "Aktiviert",
         "en-US": "Activated",
         "ja-JP": "有効化済み",
         "ko-KR": "활성화 됨",
@@ -198,6 +200,13 @@ const Translations = {
         "uk-UA": "Розширені",
         "vi-VN": "Nâng cao",
         "zh-CN": "高级选项",
+    },
+    "apply": {
+        "de-DE": "Anwenden",
+        "en-US": "Apply",
+        "ja-JP": "適用",
+        "tr-TR": "Uygula",
+        "vi-VN": "Áp dụng",
     },
     "audio": {
         "de-DE": "Audio",
@@ -614,6 +623,7 @@ const Translations = {
         "zh-CN": "控制器振动",
     },
     "copy": {
+        "de-DE": "Kopieren",
         "en-US": "Copy",
         "ja-JP": "コピー",
         "ko-KR": "복사",
@@ -638,6 +648,7 @@ const Translations = {
         "zh-CN": "自定义",
     },
     "deadzone-counterweight": {
+        "de-DE": "Deadzone Gegengewicht",
         "en-US": "Deadzone counterweight",
         "ja-JP": "デッドゾーンのカウンターウエイト",
         "tr-TR": "Ölü alan denge ağırlığı",
@@ -983,6 +994,7 @@ const Translations = {
         "zh-CN": "隐藏系统菜单图标",
     },
     "horizontal-sensitivity": {
+        "de-DE": "Horizontale Empfindlichkeit",
         "en-US": "Horizontal sensitivity",
         "ja-JP": "左右方向の感度",
         "pl-PL": "Czułość pozioma",
@@ -1049,6 +1061,7 @@ const Translations = {
         "zh-CN": "布局",
     },
     "left-stick": {
+        "de-DE": "Linker Stick",
         "en-US": "Left stick",
         "ja-JP": "左スティック",
         "ko-KR": "왼쪽 스틱",
@@ -1073,6 +1086,7 @@ const Translations = {
         "zh-CN": "载入画面",
     },
     "map-mouse-to": {
+        "de-DE": "Maus binden an",
         "en-US": "Map mouse to",
         "ja-JP": "マウスの割り当て",
         "pl-PL": "Przypisz myszkę do",
@@ -1157,13 +1171,17 @@ const Translations = {
         "zh-CN": "麦克风",
     },
     "mkb-adjust-ingame-settings": {
+        "de-DE": "Vielleicht müssen auch Empfindlichkeit & Deadzone in den Spieleinstellungen angepasst werden",
         "en-US": "You may also need to adjust the in-game sensitivity & deadzone settings",
         "ja-JP": "ゲーム内の設定で感度とデッドゾーンの調整が必要な場合があります",
+        "tr-TR": "Bu seçenek etkinken bile oyun içi seçeneklerden hassasiyet ve ölü bölge ayarlarını düzeltmeniz gerekebilir",
         "vi-VN": "Có thể bạn cần phải điều chỉnh các thông số độ nhạy và điểm chết trong game",
     },
     "mkb-click-to-activate": {
+        "de-DE": "Klicken zum Aktivieren",
         "en-US": "Click to activate",
         "ja-JP": "クリックして有効化",
+        "tr-TR": "Etkinleştirmek için tıklayın",
         "vi-VN": "Nhấn vào để kích hoạt",
     },
     "mouse-and-keyboard": {
@@ -1209,6 +1227,7 @@ const Translations = {
         "zh-CN": "名称",
     },
     "new": {
+        "de-DE": "Neu",
         "en-US": "New",
         "ja-JP": "新しい",
         "ko-KR": "새로 만들기",
@@ -1464,6 +1483,7 @@ const Translations = {
         "zh-CN": "按相应按键或鼠标键来绑定",
     },
     "prompt-preset-name": {
+        "de-DE": "Voreinstellung Name:",
         "en-US": "Preset's name:",
         "ja-JP": "プリセット名:",
         "ko-KR": "프리셋 이름:",
@@ -1535,6 +1555,7 @@ const Translations = {
         "zh-CN": "远程游玩",
     },
     "rename": {
+        "de-DE": "Umbenennen",
         "en-US": "Rename",
         "ja-JP": "名前変更",
         "ko-KR": "이름 바꾸기",
@@ -1543,6 +1564,7 @@ const Translations = {
         "vi-VN": "Sửa tên",
     },
     "right-click-to-unbind": {
+        "de-DE": "Rechtsklick auf Taste: Zuordnung aufheben",
         "en-US": "Right-click on a key to unbind it",
         "ja-JP": "右クリックで割り当て解除",
         "ko-KR": "할당 해제하려면 키를 오른쪽 클릭하세요",
@@ -1550,6 +1572,7 @@ const Translations = {
         "vi-VN": "Nhấn chuột phải lên một phím để gỡ nó",
     },
     "right-stick": {
+        "de-DE": "Rechter Stick",
         "en-US": "Right stick",
         "ja-JP": "右スティック",
         "ko-KR": "오른쪽 스틱",
@@ -1998,13 +2021,17 @@ const Translations = {
         "zh-CN": "统计信息",
     },
     "stick-decay-minimum": {
+        "de-DE": "Stick Abklingzeit Minimum",
         "en-US": "Stick decay minimum",
         "ja-JP": "スティックの減衰の最小値",
+        "tr-TR": "Çubuğun ortalanma süresi minimumu",
         "vi-VN": "Độ suy giảm tối thiểu của cần điều khiển",
     },
     "stick-decay-strength": {
+        "de-DE": "Stick Abklingzeit Geschwindigkeit",
         "en-US": "Stick decay strength",
         "ja-JP": "スティックの減衰の強さ",
+        "tr-TR": "Çubuğun ortalanma gücü",
         "vi-VN": "Sức mạnh độ suy giảm của cần điều khiển",
     },
     "stream": {
@@ -2040,6 +2067,7 @@ const Translations = {
         "zh-CN": "拉伸",
     },
     "support-better-xcloud": {
+        "de-DE": "\"Better xCloud\" unterstützen",
         "en-US": "Support Better xCloud",
         "ja-JP": "Better xCloudをサポート",
         "tr-TR": "Better xCloud'a destek ver",
@@ -2359,6 +2387,7 @@ const Translations = {
         "zh-CN": "浏览器UA伪装",
     },
     "vertical-sensitivity": {
+        "de-DE": "Vertikale Empfindlichkeit",
         "en-US": "Vertical sensitivity",
         "ja-JP": "上下方向の感度",
         "pl-PL": "Czułość pionowa",
