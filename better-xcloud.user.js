@@ -2584,6 +2584,7 @@ const Icon = {
     COPY: '<path d="M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73"/>',
     TRASH: '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>',
     CURSOR_TEXT: '<path d="M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8"/><path d="M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3"/><path d="M11.65 16h8.7"/>',
+    INFO: '<g transform="matrix(.153399 0 0 .153398 -3.63501 -3.635009)"><g fill="none" stroke="#fff" stroke-width="16"><circle cx="128" cy="128" r="96"/><path d="M120 120c4.389 0 8 3.611 8 8v40c0 4.389 3.611 8 8 8"/></g><circle cx="124" cy="84" r="12" stroke-width="6"/></g>',
 
     SCREENSHOT_B64: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=',
 };
@@ -7569,6 +7570,15 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 8px;
     text-transform: uppercase;
     text-align: left;
+    display: flex;
+}
+
+.bx-quick-settings-tab-contents h2 a {
+    display: flex;
+    width: 16px;
+    height: 16px;
+    margin-left: 8px;
+    align-selft: flex-start;
 }
 
 .bx-quick-settings-tab-contents input[type="range"] {
@@ -9274,6 +9284,7 @@ function setupQuickSettingsBar() {
                 {
                     group: 'mkb',
                     label: __('mouse-and-keyboard'),
+                    help_url: 'https://better-xcloud.github.io/mouse-and-keyboard/',
                     content: MkbRemapper.INSTANCE.render(),
                 },
             ],
@@ -9286,6 +9297,7 @@ function setupQuickSettingsBar() {
                 {
                     group: 'audio',
                     label: __('audio'),
+                    help_url: 'https://better-xcloud.github.io/ingame-features/#audio',
                     items: {
                         [Preferences.AUDIO_VOLUME]: {
                             label: __('volume'),
@@ -9302,6 +9314,7 @@ function setupQuickSettingsBar() {
                 {
                     group: 'video',
                     label: __('video'),
+                    help_url: 'https://better-xcloud.github.io/ingame-features/#video',
                     note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
                     items: {
                         [Preferences.VIDEO_RATIO]: {
@@ -9341,6 +9354,7 @@ function setupQuickSettingsBar() {
                 {
                     group: 'controller',
                     label: __('controller'),
+                    help_url: 'https://better-xcloud.github.io/ingame-features/#controller',
                     items: {
                         [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
                             label: __('controller-vibration'),
@@ -9371,6 +9385,7 @@ function setupQuickSettingsBar() {
                 {
                     group: 'stats',
                     label: __('menu-stream-stats'),
+                    help_url: 'https://better-xcloud.github.io/stream-stats/',
                     items: {
                         [Preferences.STATS_SHOW_WHEN_PLAYING]: {
                             label: __('show-stats-on-startup'),
@@ -9459,7 +9474,10 @@ function setupQuickSettingsBar() {
         const $group = CE('div', {'data-group': settingTab.group, 'class': 'bx-gone'});
 
         for (const settingGroup of settingTab.items) {
-            $group.appendChild(CE('h2', {}, settingGroup.label));
+            $group.appendChild(CE('h2', {},
+                    settingGroup.label,
+                    settingGroup.help_url && CE('a', {href: settingGroup.help_url, target: '_blank'}, createSvgIcon(Icon.INFO, 4)),
+                ));
             if (settingGroup.note) {
                 if (typeof settingGroup.note === 'string') {
                     settingGroup.note = document.createTextNode(settingGroup.note);
