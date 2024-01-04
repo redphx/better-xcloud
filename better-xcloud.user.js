@@ -8681,9 +8681,11 @@ function injectSettingsButton($parent) {
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
+        /*
         [__('controller')]: {
             [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
         },
+        */
         [__('touch-controller')]: {
             [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
@@ -9673,9 +9675,11 @@ function onStreamStarted($video) {
         TouchController.enableBar();
     }
 
+    /*
     if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
         GamepadHandler.startPolling();
     }
+    */
 
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
     const PREF_STATS_QUICK_GLANCE = PREFS.get(Preferences.STATS_QUICK_GLANCE);
@@ -9894,9 +9898,11 @@ ENABLE_PRELOAD_BX_UI && setupBxUi();
 
 disablePwa();
 
+/*
 if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
     GamepadHandler.initialSetup();
 }
+*/
 
 Patcher.initialize();
 
