@@ -30,7 +30,7 @@ Visit [this page](https://better-xcloud.github.io/browsers) to know how to insta
 
 ## Features
 
-<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/ca38b3fa-1e89-4b37-937c-a6796c07cdf1">
+<img width="400" alt="Settings UI" src="https://github.com/redphx/better-xcloud/assets/96280/4bec2d62-31df-499c-9aad-2485626b6925">
 <br>
 <img width="400" alt="Remote Play dialog" src="https://github.com/redphx/better-xcloud/assets/96280/daf7f698-a228-4f9c-8f23-9669e061a64c">
 <br>
@@ -56,11 +56,14 @@ Visit [this page](https://better-xcloud.github.io/browsers) to know how to insta
   > Enable touch controller support for all games.
 - [And more...](https://better-xcloud.github.io/features/)
 
-
 ## Donation
 If you think this project is useful and want to support future developments, please consider making a donate via [my Ko-fi page](https://ko-fi.com/redphx).  
 Or you can give this project a star, that's also helpful.  
 Thank you.  
+
+## Translation  
+Help translating **Better xCloud** to another languagues using [Crowdin](https://crowdin.com/project/better-xcloud).  
+Use [this post](https://github.com/redphx/better-xcloud/discussions/131) for discussion. 
 
 ## Acknowledgements  
 - The mouse controlling feature is heavily inspired by the "Mouse spinning" feature in [Yuzu emulator](https://github.com/yuzu-emu/yuzu-mainline)
