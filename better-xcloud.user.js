@@ -6079,7 +6079,7 @@ class Preferences {
             'default': false,
             'unsupported': (() => {
                     const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
-                    return userAgent.match(/(android|ios|ipad)/) ? __('browser-unsupported-feature') : false;
+                    return userAgent.match(/(android|iphone|ipad)/) ? __('browser-unsupported-feature') : false;
                 })(),
         },
 
