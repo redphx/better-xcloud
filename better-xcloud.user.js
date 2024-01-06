@@ -6570,7 +6570,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             const endIndex = funcStr.indexOf('},', index);
 
             const newSettings = [
-                'EnableStreamGate: false',
+                // 'EnableStreamGate: false',
                 'PwaPrompt: false',
             ];
 
@@ -6651,9 +6651,24 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
             return funcStr;
         },
+
+        // Disable StreamGate
+        disableStreamGate: function(funcStr) {
+            const index = funcStr.indexOf('case"partially-ready":');
+            if (index === -1) {
+                return false;
+            }
+
+            const bracketIndex = funcStr.indexOf('=>{', index - 150) + 3;
+
+            funcStr = funcStr.substring(0, bracketIndex) + 'return 0;' + funcStr.substring(bracketIndex);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
+        ['disableStreamGate'],
+
         [
             'disableAiTrack',
             'disableTelemetry',
