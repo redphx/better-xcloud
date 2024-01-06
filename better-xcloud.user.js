@@ -8188,7 +8188,7 @@ function getPreferredServerRegion() {
 
 
 function updateIceCandidates(candidates, options) {
-    const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<the_rest>.*)/);
+    const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/);
 
     const lst = [];
     for (let item of candidates) {
@@ -8206,35 +8206,33 @@ function updateIceCandidates(candidates, options) {
 
     const newCandidates = [];
     let foundation = 1;
+
+    const newCandidate = candidate => {
+        return {
+            'candidate': candidate,
+            'messageType': 'iceCandidate',
+            'sdpMLineIndex': '0',
+            'sdpMid': '0',
+        };
+    };
+
     lst.forEach(item => {
         item.foundation = foundation;
         item.priority = (foundation == 1) ? 10000 : 1;
 
-        newCandidates.push({
-            'candidate': `a=candidate:${item.foundation} 1 UDP ${item.priority} ${item.ip} ${item.the_rest}`,
-            'messageType': 'iceCandidate',
-            'sdpMLineIndex': '0',
-            'sdpMid': '0',
-        });
-
+        newCandidates.push(newCandidate(`a=candidate:${item.foundation} 1 UDP ${item.priority} ${item.ip} ${item.port} ${item.the_rest}`));
         ++foundation;
     });
 
-    if (options.consoleIp) {
-        newCandidates.push({
-            'candidate': `a=candidate:${newCandidates.length + 1} 1 UDP 1 ${options.consoleIp} 9002 typ host`,
-            'messageType': 'iceCandidate',
-            'sdpMLineIndex': '0',
-            'sdpMid': '0',
-        });
+    if (options.consoleAddrs) {
+        for (const ip in options.consoleAddrs) {
+            const port = options.consoleAddrs[ip];
+
+            newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
+        }
     }
 
-    newCandidates.push({
-        'candidate': 'a=end-of-candidates',
-        'messageType': 'iceCandidate',
-        'sdpMLineIndex': '0',
-        'sdpMid': '0',
-    });
+    newCandidates.push(newCandidate('a=end-of-candidates'));
 
     console.log(newCandidates);
     return newCandidates;
@@ -8323,8 +8321,8 @@ function interceptHttpRequests() {
     const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
 
     const orgFetch = window.fetch;
-    let consoleIp;
-    let consolePort;
+
+    const consoleAddrs = {};
 
     const patchIceCandidates = function(...arg) {
         // ICE server candidates
@@ -8342,7 +8340,7 @@ function interceptHttpRequests() {
 
                     const options = {
                         preferIpv6Server: PREF_PREFER_IPV6_SERVER,
-                        consoleIp: consoleIp,
+                        consoleAddrs: consoleAddrs,
                     };
 
                     const obj = JSON.parse(text);
@@ -8412,8 +8410,15 @@ function interceptHttpRequests() {
                 return promise.then(response => {
                     return response.clone().json().then(obj => {
                         console.log(obj);
-                        consoleIp = obj.serverDetails.ipAddress;
-                        consolePort = obj.serverDetails.port;
+
+                        const serverDetails = obj.serverDetails;
+                        if (serverDetails.ipV4Address) {
+                            consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
+                        }
+
+                        if (serverDetails.ipV6Address) {
+                            consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+                        }
 
                         response.json = () => Promise.resolve(obj);
                         response.text = () => Promise.resolve(JSON.stringify(obj));
