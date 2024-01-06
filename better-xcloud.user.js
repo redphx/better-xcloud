@@ -6077,6 +6077,10 @@ class Preferences {
 
         [Preferences.MKB_ENABLED]: {
             'default': false,
+            'unsupported': (() => {
+                    const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
+                    return userAgent.match(/(android|ios|ipad)/) ? __('browser-unsupported-feature') : false;
+                })(),
         },
 
         [Preferences.MKB_DEFAULT_PRESET_ID]: {
@@ -6361,9 +6365,9 @@ class Preferences {
             return;
         }
 
-        // Return "default" for STREAM_TOUCH_CONTROLLER pref when the browser doesn't support touch
-        if (!HAS_TOUCH_SUPPORT && key === Preferences.STREAM_TOUCH_CONTROLLER) {
-            return 'default';
+        // Return default value if the feature is not supported
+        if (Preferences.SETTINGS[key].unsupported) {
+            return Preferences.SETTINGS[key].default;
         }
 
         let value = this.#prefs[key];
