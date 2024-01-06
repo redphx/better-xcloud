@@ -6703,7 +6703,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     ];
 
     static #patchFunctionBind() {
-        Function.prototype.nativeBind = Function.prototype.bind;
+        const nativeBind = Function.prototype.bind;
         Function.prototype.bind = function() {
             let valid = false;
             if (arguments.length === 2 && arguments[0] === null) {
@@ -6713,12 +6713,12 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             }
 
             if (!valid) {
-                return this.nativeBind.apply(this, arguments);
+                return nativeBind.apply(this, arguments);
             }
 
             if (typeof arguments[1] === 'function') {
                 console.log('[Better xCloud] Restored Function.prototype.bind()');
-                Function.prototype.bind = Function.prototype.nativeBind;
+                Function.prototype.bind = nativeBind;
             }
 
             const orgFunc = this;
@@ -6732,7 +6732,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 orgFunc(a, item);
             }
 
-            return newFunc.nativeBind.apply(newFunc, arguments);
+            return nativeBind.apply(newFunc, arguments);
         };
     }
 
