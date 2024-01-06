@@ -6617,15 +6617,6 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr.replace(text, 'get mouseAndKeyboardEnabled() {return this._titleSupportsMouseAndKeyboard;');
         },
 
-        patchStreamHudSize: function(funcStr) {
-            if (!funcStr.includes('="StreamHUD-module__button')) {
-                return false;
-            }
-
-            funcStr = funcStr.replace('=3;', '=5;');
-            return funcStr;
-        },
-
         disableGamepadDisconnectedScreen: function(funcStr) {
             const index = funcStr.indexOf('"GamepadDisconnected_Title",');
             if (index === -1) {
@@ -6708,7 +6699,6 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         [
             'disableGamepadDisconnectedScreen',
             'mkbMouseAndKeyboardEnabled',
-            'patchStreamHudSize',
         ],
     ];
 
@@ -6959,9 +6949,12 @@ function addCss() {
 }
 
 /* Fix Stream menu buttons not hiding */
-div[class^=HUDButton-module__hiddenContainer] ~ div {
+div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]) {
     opacity: 0;
     pointer-events: none;
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
 }
 
 .bx-button {
