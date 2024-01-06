@@ -8241,9 +8241,30 @@ function updateIceCandidates(candidates, options) {
 }
 
 
+function clearDbLogs(dbName, table) {
+    const request = window.indexedDB.open(dbName);
+    request.onsuccess = e => {
+        const db = e.target.result;
+
+        const objectStore = db.transaction(table, 'readwrite').objectStore(table);
+        const objectStoreRequest = objectStore.clear();
+
+        objectStoreRequest.onsuccess = function(event) {
+            console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
+        };
+    }
+}
+
 function clearApplicationInsightsBuffers() {
     window.sessionStorage.removeItem('AI_buffer');
     window.sessionStorage.removeItem('AI_sentBuffer');
+}
+
+
+function clearAllLogs() {
+    clearApplicationInsightsBuffers();
+    clearDbLogs('StreamClientLogHandler', 'logs');
+    clearDbLogs('XCloudAppLogs', 'logs');
 }
 
 
@@ -8251,7 +8272,7 @@ function interceptHttpRequests() {
     var BLOCKED_URLS = [];
     if (PREFS.get(Preferences.BLOCK_TRACKING)) {
         // Clear Applications Insight buffers
-        clearApplicationInsightsBuffers();
+        clearAllLogs();
 
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://arc.msn.com',
@@ -8283,7 +8304,7 @@ function interceptHttpRequests() {
         for (let blocked of BLOCKED_URLS) {
             if (this._url.startsWith(blocked)) {
                 if (blocked === 'https://dc.services.visualstudio.com') {
-                    setTimeout(clearApplicationInsightsBuffers, 1000);
+                    setTimeout(clearAllLogs, 1000);
                 }
                 return false;
             }
