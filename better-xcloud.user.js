@@ -2493,7 +2493,7 @@ const Translations = {
         "ja-JP": "上下方向の感度",
         "pl-PL": "Czułość pionowa",
         "pt-BR": "Sensibilidade vertical",
-        "ru-RU": "Чувствительность по вертикали",
+        "ru-RU": "Вертикальная чувствительность",
         "tr-TR": "Dikey hassasiyet",
         "uk-UA": "Вертикальна чутливість",
         "vi-VN": "Độ ngạy dọc",
