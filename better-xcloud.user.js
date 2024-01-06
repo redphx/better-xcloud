@@ -6951,7 +6951,7 @@ function addCss() {
 /* Fix Stream menu buttons not hiding */
 div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]) {
     opacity: 0;
-    pointer-events: none;
+    pointer-events: none !important;
     position: absolute;
     top: -9999px;
     left: -9999px;
@@ -9043,6 +9043,33 @@ function watchHeader() {
 
 function cloneStreamHudButton($orgButton, label, svg_icon) {
     const $container = $orgButton.cloneNode(true);
+    let timeout;
+
+    const onTransitionStart = e => {
+        if ( e.propertyName !== 'opacity') {
+            return;
+        }
+
+        timeout && clearTimeout(timeout);
+        $container.style.pointerEvents = 'none';
+    };
+
+    const onTransitionEnd = e => {
+        if ( e.propertyName !== 'opacity') {
+            return;
+        }
+
+        const left = document.getElementById('StreamHud').style.left;
+        if (left === '0px') {
+            timeout && clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                    $container.style.pointerEvents = 'auto';
+                }, 100);
+        }
+    };
+
+    $container.addEventListener('transitionstart', onTransitionStart);
+    $container.addEventListener('transitionend', onTransitionEnd);
 
     const $button = $container.querySelector('button');
     $button.setAttribute('title', label);
