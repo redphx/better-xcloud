@@ -6958,6 +6958,12 @@ function addCss() {
     src: url('https://redphx.github.io/better-xcloud/fonts/promptfont.otf');
 }
 
+/* Fix Stream menu buttons not hiding */
+div[class^=HUDButton-module__hiddenContainer] ~ div {
+    opacity: 0;
+    pointer-events: none;
+}
+
 .bx-button {
     background-color: var(--bx-default-button-color);
     user-select: none;
