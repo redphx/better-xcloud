@@ -9125,7 +9125,7 @@ function injectStreamMenuButtons() {
         $quickBar.classList.add('bx-gone');
 
         $parent.removeEventListener('click', hideQuickBarFunc);
-        $parent.removeEventListener('touchstart', hideQuickBarFunc);
+        // $parent.removeEventListener('touchstart', hideQuickBarFunc);
     }
 
     let $btnStreamSettings;
@@ -9208,12 +9208,19 @@ function injectStreamMenuButtons() {
                     return;
                 }
 
+                const hideGripHandle = () => {
+                    $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
+                    $gripHandle.click();
+                    $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
+                    $gripHandle.click();
+                }
+
                 // Create Stream Settings button
                 if (!$btnStreamSettings) {
                     $btnStreamSettings = cloneStreamHudButton($orgButton, __('menu-stream-settings'), Icon.STREAM_SETTINGS);
                     $btnStreamSettings.addEventListener('click', e => {
+                        hideGripHandle();
                         e.preventDefault();
-                        e.stopPropagation();
 
                         const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
                         $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
@@ -9222,12 +9229,10 @@ function injectStreamMenuButtons() {
                         $quickBar.classList.remove('bx-gone');
 
                         $parent.addEventListener('click', hideQuickBarFunc);
-                        $parent.addEventListener('touchstart', hideQuickBarFunc);
+                        //$parent.addEventListener('touchstart', hideQuickBarFunc);
 
                         const $touchSurface = document.getElementById('MultiTouchSurface');
                         $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
-
-                        $gripHandle.click();
                     });
                 }
 
@@ -9235,16 +9240,14 @@ function injectStreamMenuButtons() {
                 if (!$btnStreamStats) {
                     $btnStreamStats = cloneStreamHudButton($orgButton, __('menu-stream-stats'), Icon.STREAM_STATS);
                     $btnStreamStats.addEventListener('click', e => {
+                        hideGripHandle();
                         e.preventDefault();
-                        e.stopPropagation();
 
                         // Toggle Stream Stats
                         StreamStats.toggle();
 
                         const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
                         $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
-
-                        $gripHandle.click();
                     });
                 }
 
