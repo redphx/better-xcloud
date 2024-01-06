@@ -5938,11 +5938,7 @@ class Preferences {
                     'default': __('default'),
                 };
 
-                if (typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
-                    return options;
-                }
-
-                if (!('getCapabilities' in RTCRtpReceiver)) {
+                if (!('getCapabilities' in RTCRtpReceiver) || typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
                     return options;
                 }
 
@@ -5990,6 +5986,12 @@ class Preferences {
 
                 return options;
             })(),
+            'ready': () => {
+                const options = Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].options;
+                if (Object.keys(options).length <= 1) {
+                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].unsupported = __('browser-unsupported-feature');
+                }
+            },
         },
         [Preferences.PREFER_IPV6_SERVER]: {
             'default': false,
@@ -6015,6 +6017,7 @@ class Preferences {
                 'all': __('tc-all-games'),
                 'off': __('off'),
             },
+            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
@@ -6023,6 +6026,7 @@ class Preferences {
                 'white': __('tc-all-white'),
                 'muted': __('tc-muted-colors'),
             },
+            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             'default': 'default',
@@ -6030,6 +6034,7 @@ class Preferences {
                 'default': __('default'),
                 'muted': __('tc-muted-colors'),
             },
+            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
             'default': false,
@@ -6290,6 +6295,7 @@ class Preferences {
             }
             const setting = Preferences.SETTINGS[settingId];
             setting && setting.migrate && setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
+            setting && setting.ready && setting.ready.call(this);
         }
 
         for (let settingId in Preferences.SETTINGS) {
@@ -8859,19 +8865,11 @@ function injectSettingsButton($parent) {
             }
 
             // Disable unsupported settings
-            if (settingId === Preferences.STREAM_CODEC_PROFILE) {
-                const options = Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].options;
-                if (Object.keys(options).length <= 1) {
-                    $control.disabled = true;
-                    $control.title = __('browser-unsupported-feature');
-                }
-            } else if (!HAS_TOUCH_SUPPORT) {
-                // Disable this setting for non-touchable devices
-                if ([Preferences.STREAM_TOUCH_CONTROLLER, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD, Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM].indexOf(settingId) > -1) {
-                    $control.disabled = true;
-                    $control.title = __('device-unsupported-touch');
-                }
+            if (setting.unsupported) {
+                $control.disabled = true;
+                $control.title = setting.unsupported;
             }
+
             $control.disabled && ($control.style.cursor = 'help');
 
             const $label = CE('label', labelAttrs, settingLabel);
