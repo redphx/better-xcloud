@@ -2735,7 +2735,6 @@ const Icon = {
     COPY: '<path d="M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73"/>',
     TRASH: '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>',
     CURSOR_TEXT: '<path d="M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8"/><path d="M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3"/><path d="M11.65 16h8.7"/>',
-    INFO: '<g transform="matrix(.153399 0 0 .153398 -3.63501 -3.635009)"><g fill="none" stroke="#fff" stroke-width="16"><circle cx="128" cy="128" r="96"/><path d="M120 120c4.389 0 8 3.611 8 8v40c0 4.389 3.611 8 8 8"/></g><circle cx="124" cy="84" r="12" stroke-width="6"/></g>',
     BOOK: '<path d="M3.715 29.513c0-2.022 1.664-3.685 3.685-3.685h20.884V1.258H7.401c-2.022 0-3.685 1.664-3.685 3.685v24.569z"/><path d="M3.715 29.513v1.228h22.112"/>',
 
     REMOTE_PLAY: '<g transform="matrix(.492308 0 0 .581818 -14.7692 -11.6364)"><clipPath id="A"><path d="M30 20h65v55H30z"/></clipPath><g clip-path="url(#A)"><g transform="matrix(.395211 0 0 .334409 11.913 7.01124)"><g transform="matrix(.555556 0 0 .555556 57.8889 -20.2417)" fill="none" stroke="#fff" stroke-width="13.88"><path d="M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0"/></g><g transform="matrix(-.555556 0 0 -.555556 200.111 262.393)"><g transform="matrix(1 0 0 1 0 11.5642)"><path d="M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129" fill="none" stroke="#fff" stroke-width="13.88"/></g><path d="M168 165c-23.783-17.3-56.217-17.3-80 0" fill="none" stroke="#fff" stroke-width="13.88"/></g><g transform="matrix(.75 0 0 .75 32 32)"><path d="M24 72h208v93.881H24z" fill="none" stroke="#fff" stroke-linejoin="miter" stroke-width="9.485"/><circle cx="188" cy="128" r="12" stroke-width="10" transform="matrix(.708333 0 0 .708333 71.8333 12.8333)"/><path d="M24.358 103.5h110" fill="none" stroke="#fff" stroke-linecap="butt" stroke-width="10.282"/></g></g></g></g>',
@@ -7815,20 +7814,23 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-quick-settings-tab-contents h2 {
+    margin-bottom: 8px;
+    display: flex;
+    align-item: center;
+}
+
+.bx-quick-settings-tab-contents span {
+    display: inline-block;
     font-size: 28px;
     font-weight: bold;
-    margin-bottom: 8px;
     text-transform: uppercase;
     text-align: left;
-    display: flex;
+    flex: 1;
+    height: 32px;
+    line-height: 32px;
 }
 
 .bx-quick-settings-tab-contents h2 a {
-    display: flex;
-    width: 16px;
-    height: 16px;
-    margin-left: 8px;
-    align-selft: flex-start;
 }
 
 .bx-quick-settings-tab-contents input[type="range"] {
@@ -9765,8 +9767,8 @@ function setupQuickSettingsBar() {
 
         for (const settingGroup of settingTab.items) {
             $group.appendChild(CE('h2', {},
-                    settingGroup.label,
-                    settingGroup.help_url && CE('a', {href: settingGroup.help_url, target: '_blank'}, createSvgIcon(Icon.INFO, 4)),
+                    CE('span', {}, settingGroup.label),
+                    settingGroup.help_url && createButton({icon: Icon.BOOK, isGhost: true, url: settingGroup.help_url, title: __('help')}),
                 ));
             if (settingGroup.note) {
                 if (typeof settingGroup.note === 'string') {
