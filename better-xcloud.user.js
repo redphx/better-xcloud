@@ -39,6 +39,14 @@ window.NATIVE_MKB_TITLES = [
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
+const BxEvent = {
+    JUMP_BACK_IN_READY: 'bx-jump-back-in-ready',
+    POPSTATE: 'bx-popstate',
+
+    STREAM_STARTING: 'bx-stream-starting',
+    STREAM_STARTED: 'bx-stream-started',
+    STREAM_STOPPED: 'bx-stream-stopped',
+};
 
 // Quickly create a tree of elements without having to use innerHTML
 function createElement(elmName, props = {}) {
@@ -82,6 +90,7 @@ function createElement(elmName, props = {}) {
 }
 
 const CE = createElement;
+window.BX_CE = CE;
 const CTN = document.createTextNode.bind(document);
 
 
@@ -2718,6 +2727,8 @@ const Icon = {
     TRASH: '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>',
     CURSOR_TEXT: '<path d="M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8"/><path d="M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3"/><path d="M11.65 16h8.7"/>',
     INFO: '<g transform="matrix(.153399 0 0 .153398 -3.63501 -3.635009)"><g fill="none" stroke="#fff" stroke-width="16"><circle cx="128" cy="128" r="96"/><path d="M120 120c4.389 0 8 3.611 8 8v40c0 4.389 3.611 8 8 8"/></g><circle cx="124" cy="84" r="12" stroke-width="6"/></g>',
+
+    REMOTE_PLAY: '<g transform="matrix(.492308 0 0 .581818 -14.7692 -11.6364)"><clipPath id="A"><path d="M30 20h65v55H30z"/></clipPath><g clip-path="url(#A)"><g transform="matrix(.395211 0 0 .334409 11.913 7.01124)"><g transform="matrix(.555556 0 0 .555556 57.8889 -20.2417)" fill="none" stroke="#fff" stroke-width="13.88"><path d="M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0"/></g><g transform="matrix(-.555556 0 0 -.555556 200.111 262.393)"><g transform="matrix(1 0 0 1 0 11.5642)"><path d="M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129" fill="none" stroke="#fff" stroke-width="13.88"/></g><path d="M168 165c-23.783-17.3-56.217-17.3-80 0" fill="none" stroke="#fff" stroke-width="13.88"/></g><g transform="matrix(.75 0 0 .75 32 32)"><path d="M24 72h208v93.881H24z" fill="none" stroke="#fff" stroke-linejoin="miter" stroke-width="9.485"/><circle cx="188" cy="128" r="12" stroke-width="10" transform="matrix(.708333 0 0 .708333 71.8333 12.8333)"/><path d="M24.358 103.5h110" fill="none" stroke="#fff" stroke-linecap="butt" stroke-width="10.282"/></g></g></g></g>',
 
     SCREENSHOT_B64: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=',
 };
@@ -6609,6 +6620,56 @@ class Patcher {
             return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
         },
 
+        // Add a "Remote Play" button to the "Jump back in" list
+        remotePlayPatchHomeJumpBackIn: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
+            const index = funcStr.indexOf('MruTitlesGamesRow-module__childContainer');
+            if (index === -1) {
+                return false;
+            }
+
+            const startIndex = funcStr.indexOf('return(', index);
+            const newCode = `
+setTimeout(() => { window.dispatchEvent(new Event('${BxEvent.JUMP_BACK_IN_READY}')); }, 1000);
+`;
+
+            // Add event listener
+            window.addEventListener(BxEvent.JUMP_BACK_IN_READY, e => {
+                const $list = document.querySelector('ol[class^=ItemRow-module__list]');
+                if (!$list) {
+                    return;
+                }
+
+                if ($list.querySelector('.bx-jump-in-li')) {
+                    return;
+                }
+
+                const $li = $list.firstElementChild.cloneNode(true);
+                $li.classList.add('bx-jump-in-li');
+
+                $li.addEventListener('click', e => { document.getElementById('bxRemotePlayBtn').click(); });
+
+                const $button = $li.querySelector('button');
+                $button.removeAttribute('id');
+                $button.removeAttribute('aria-labelledby');
+                $button.setAttribute('aria-label', __('remote-play'));
+
+                // Change card's name
+                $button.querySelector('div[class^=GameCard-module__gameTitle___]').textContent = __('remote-play');
+
+                // Rmove icons
+                $button.querySelector('div[class^=GameCard-module__children]').innerHTML = '';
+
+                const $images = $button.querySelector('div[class^=WrappedResponsiveImage]');
+                $images.innerHTML = '';
+                $images.appendChild(createSvgIcon(Icon.REMOTE_PLAY), 2);
+
+                $list.insertBefore($li, $list.firstElementChild);
+            });
+
+            funcStr = funcStr.substring(0, startIndex) + newCode + funcStr.substring(startIndex);
+            return funcStr;
+        },
+
         // Disable trackEvent() function
         disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
             const text = 'this.trackEvent=';
@@ -6772,12 +6833,14 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     };
 
     static #PATCH_ORDERS = [
-        ['disableStreamGate'],
-
         [
             'disableAiTrack',
             'disableTelemetry',
         ],
+
+        ['disableStreamGate'],
+
+        ['remotePlayPatchHomeJumpBackIn'],
 
         ['tvLayout'],
 
@@ -7035,7 +7098,6 @@ function addCss() {
     --bx-danger-button-hover-color: #e61d1d;
     --bx-danger-button-disabled-color: #a26c6c;
 
-
     --bx-toast-z-index: 9999;
     --bx-dialog-z-index: 9101;
     --bx-dialog-overlay-z-index: 9100;
@@ -7059,6 +7121,24 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
     position: absolute;
     top: -9999px;
     left: -9999px;
+}
+
+.bx-jump-in-li {
+    display: inline-block;
+}
+
+.bx-jump-in-li button {
+    width: 140px;
+}
+
+.bx-jump-in-li div[class^=WrappedResponsiveImage-module__imageWrapper] {
+    background: linear-gradient(#005b2f, #151515);
+}
+
+.bx-jump-in-li div[class^=WrappedResponsiveImage-module__imageWrapper] svg {
+    padding: 40px;
+    height: 100%;
+    opacity: 80%;
 }
 
 .bx-button {
@@ -8818,7 +8898,7 @@ function injectSettingsButton($parent) {
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
-                           $remotePlayBtn = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
+                           $remotePlayBtn = CE('button', {'id': 'bxRemotePlayBtn', 'class': 'bx-primary-button bx-no-margin'}, __('remote-play')),
                         )
                        );
     $updateAvailable = CE('a', {
@@ -9806,9 +9886,10 @@ function setupScreenshotButton() {
 
 
 function patchHistoryMethod(type) {
-    var orig = window.history[type];
+    const orig = window.history[type];
+
     return function(...args) {
-        const event = new Event('xcloud_popstate');
+        const event = new Event(BxEvent.POPSTATE);
         event.arguments = args;
         window.dispatchEvent(event);
 
@@ -10025,9 +10106,10 @@ function setupBxUi() {
 
 
 // Hide Settings UI when navigate to another page
-window.addEventListener('xcloud_popstate', onHistoryChanged);
+window.addEventListener(BxEvent.POPSTATE, onHistoryChanged);
 window.addEventListener('popstate', onHistoryChanged);
-// Make pushState/replaceState methods dispatch "xcloud_popstate" event
+
+// Make pushState/replaceState methods dispatch BxEvent.POPSTATE event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
 
