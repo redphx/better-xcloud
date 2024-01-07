@@ -8428,12 +8428,14 @@ function clearDbLogs(dbName, table) {
     request.onsuccess = e => {
         const db = e.target.result;
 
-        const objectStore = db.transaction(table, 'readwrite').objectStore(table);
-        const objectStoreRequest = objectStore.clear();
+        try {
+            const objectStore = db.transaction(table, 'readwrite').objectStore(table);
+            const objectStoreRequest = objectStore.clear();
 
-        objectStoreRequest.onsuccess = function(event) {
-            console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
-        };
+            objectStoreRequest.onsuccess = function(event) {
+                console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
+            };
+        } catch (e) {}
     }
 }
 
