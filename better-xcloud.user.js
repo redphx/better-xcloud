@@ -7139,17 +7139,18 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
 }
 
 .bx-jump-in-li button {
-    width: 140px;
+    width: 160px;
 }
 
 .bx-jump-in-li div[class^=WrappedResponsiveImage-module__imageWrapper] {
-    background: linear-gradient(#005b2f, #151515);
+    background: linear-gradient(#005b2f, #001c0f);
 }
 
 .bx-jump-in-li div[class^=WrappedResponsiveImage-module__imageWrapper] svg {
     padding: 40px;
     height: 100%;
     opacity: 80%;
+    filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.8));
 }
 
 .bx-button {
