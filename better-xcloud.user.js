@@ -2751,6 +2751,7 @@ class Dialog {
             content,
             hideCloseButton,
             onClose,
+            helpUrl,
         } = options;
 
         // Create dialog overlay
@@ -2767,7 +2768,9 @@ class Dialog {
         let $close;
         this.onClose = onClose;
         this.$dialog = CE('div', {'class': `bx-dialog ${className || ''} bx-gone`},
-                this.$title = CE('b', {}, title),
+                this.$title = CE('h2', {}, CE('b', {}, title),
+                        helpUrl && createButton({icon: Icon.QUESTION, isGhost: true, title: __('help'), url: helpUrl}),
+                    ),
                 this.$content = CE('div', {'class': 'bx-dialog-content'}, content),
                 !hideCloseButton && ($close = CE('button', {}, __('close'))),
             );
@@ -2787,7 +2790,7 @@ class Dialog {
 
     show(newOptions) {
         if (newOptions && newOptions.title) {
-            this.$title.textContent = newOptions.title;
+            this.$title.querySelector('b').textContent = newOptions.title;
             this.$title.classList.remove('bx-gone');
         }
 
@@ -2879,6 +2882,7 @@ class RemotePlay {
         RemotePlay.#dialog = new Dialog({
             title: __('remote-play'),
             content: RemotePlay.#$content,
+            helpUrl: 'https://better-xcloud.github.io/remote-play/',
         });
 
         RemotePlay.#getXhomeToken(() => {
@@ -4786,7 +4790,7 @@ class MkbRemapper {
         // Update state of Activate button
         const activated = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
         this.#$.activateButton.disabled = activated;
-        this.#$.activateButton.textContent = activated ? __('activated') : __('activate');
+        this.#$.activateButton.querySelector('span').textContent = activated ? __('activated') : __('activate');
     }
 
     #refresh() {
@@ -4831,7 +4835,7 @@ class MkbRemapper {
                 // Update state of Activate button
                 const activated = defaultPresetId === this.#STATE.currentPresetId;
                 this.#$.activateButton.disabled = activated;
-                this.#$.activateButton.textContent = activated ? __('activated') : __('activate');
+                this.#$.activateButton.querySelector('span').textContent = activated ? __('activated') : __('activate');
 
                 !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
             });
@@ -7153,6 +7157,10 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
     filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.8));
 }
 
+a.bx-button {
+    display: inline-block;
+}
+
 .bx-button {
     background-color: var(--bx-default-button-color);
     user-select: none;
@@ -7654,17 +7662,22 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     outline: none !important;
 }
 
-.bx-dialog > b {
+.bx-dialog h2 {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.bx-dialog h2 b {
+    flex: 1;
     color: #fff;
     display: block;
     font-family: var(--bx-title-font);
     font-size: 26px;
     font-weight: 400;
     line-height: 32px;
-    margin-bottom: 12px;
 }
 
-.bx-dialog.bx-binding-dialog > b {
+.bx-dialog.bx-binding-dialog h2 b {
     font-family: var(--bx-promptfont-font) !important;
 }
 
@@ -7820,7 +7833,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     align-item: center;
 }
 
-.bx-quick-settings-tab-contents span {
+.bx-quick-settings-tab-contents h2 span {
     display: inline-block;
     font-size: 28px;
     font-weight: bold;
