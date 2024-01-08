@@ -6670,13 +6670,12 @@ setTimeout(() => { window.dispatchEvent(new Event('${BxEvent.JUMP_BACK_IN_READY}
                 $button.removeAttribute('aria-labelledby');
                 $button.setAttribute('aria-label', __('remote-play'));
 
-                // Change card's name
-                $button.querySelector('div[class^=GameCard-module__gameTitle___]').textContent = __('remote-play');
-
-                // Rmove icons
-                $button.querySelector('div[class^=GameCard-module__children]').innerHTML = '';
+                // Remove card's info
+                const $cardInfo = $button.querySelector('div[class^=BaseItem]');
+                $cardInfo.parentElement.removeChild($cardInfo);
 
                 const $images = $button.querySelector('div[class^=WrappedResponsiveImage]');
+                $images.classList.add('bx-remote-play-icon-wrapper');
                 $images.innerHTML = '';
                 $images.appendChild(createSvgIcon(Icon.REMOTE_PLAY), 2);
 
@@ -7145,18 +7144,28 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
 }
 
 .bx-jump-in-li button {
-    width: 160px;
+    width: 60px;
+    box-shadow: none !important;
 }
 
-.bx-jump-in-li div[class^=WrappedResponsiveImage-module__imageWrapper] {
-    background: linear-gradient(#005b2f, #001c0f);
+.bx-jump-in-li button:not(:focus) .bx-remote-play-icon-wrapper {
+    background: transparent;
 }
 
-.bx-jump-in-li div[class^=WrappedResponsiveImage-module__imageWrapper] svg {
-    padding: 40px;
+
+.bx-remote-play-icon-wrapper, .bx-jump-in-li button:hover .bx-remote-play-icon-wrapper {
+    background: #7b7b7b1a;
+}
+
+.bx-remote-play-icon-wrapper svg {
+    padding: 10px;
     height: 100%;
-    opacity: 80%;
-    filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.8));
+    filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.5));
+    opacity: 0.7;
+}
+
+.bx-jump-in-li button:hover .bx-remote-play-icon-wrapper svg, .bx-jump-in-li button:focus .bx-remote-play-icon-wrapper svg {
+    opacity: 1;
 }
 
 a.bx-button {
