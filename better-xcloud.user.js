@@ -7619,7 +7619,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-dialog > button {
     padding: 8px 32px;
-    margin: 20px auto 0;
+    margin: 10px auto 0;
     border: none;
     border-radius: 4px;
     display: block;
@@ -8133,11 +8133,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-remote-play-device-wrapper {
     display: flex;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
-.bx-remote-play-device-wrapper:not(:last-child) {
-  margin-bottom: 14px;
+.bx-remote-play-device-wrapper:last-child {
+  margin-bottom: 2px;
 }
 
 .bx-remote-play-device-info {
