@@ -3205,10 +3205,12 @@ class LoadingScreen {
         let $waitTimeBox = LoadingScreen.#$waitTimeBox;
         if (!$waitTimeBox) {
             $waitTimeBox = CE('div', {'class': 'bx-wait-time-box'},
+                                    CE('label', {}, __('server')),
+                                    CE('span', {}, getPreferredServerRegion()),
                                     CE('label', {}, __('wait-time-estimated')),
-                                    $estimated = CE('span', {'class': 'bx-wait-time-estimated'}),
+                                    $estimated = CE('span', {}),
                                     CE('label', {}, __('wait-time-countdown')),
-                                    $countDown = CE('span', {'class': 'bx-wait-time-countdown'}),
+                                    $countDown = CE('span', {}),
                                    );
 
             document.documentElement.appendChild($waitTimeBox);
@@ -8143,15 +8145,16 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin: 0;
 }
 
-.bx-wait-time-estimated, .bx-wait-time-countdown {
+.bx-wait-time-box span {
     display: block;
     font-family: var(--bx-monospaced-font);
     text-align: right;
     font-size: 16px;
+    margin-bottom: 10px;
 }
 
-.bx-wait-time-estimated {
-    margin-bottom: 10px;
+.bx-wait-time-box span:last-of-type {
+    margin-bottom: 0;
 }
 
 /* REMOTE PLAY */
