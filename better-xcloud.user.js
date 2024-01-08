@@ -6229,7 +6229,7 @@ class Preferences {
             'default': true,
         },
         [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: {
-            'default': false,
+            'default': true,
         },
         [Preferences.UI_LOADING_SCREEN_ROCKET]: {
             'default': 'show',
