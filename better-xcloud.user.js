@@ -6626,57 +6626,6 @@ class Patcher {
             return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
         },
 
-        // Add a "Remote Play" button to the "Jump back in" list
-        remotePlayPatchHomeJumpBackIn: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
-            const index = funcStr.indexOf('MruTitlesGamesRow-module__childContainer');
-            if (index === -1) {
-                return false;
-            }
-
-            const startIndex = funcStr.indexOf('return(', index);
-            const newCode = `
-setTimeout(() => { window.dispatchEvent(new Event('${BxEvent.JUMP_BACK_IN_READY}')); }, 1000);
-`;
-
-            // Add event listener
-            window.addEventListener(BxEvent.JUMP_BACK_IN_READY, e => {
-                const $list = document.querySelector('ol[class^=ItemRow-module__list]');
-                if (!$list) {
-                    return;
-                }
-
-                if ($list.querySelector('.bx-jump-in-li')) {
-                    return;
-                }
-
-                const $li = $list.firstElementChild.cloneNode(true);
-                $li.classList.add('bx-jump-in-li');
-
-                $li.addEventListener('click', e => {
-                    RemotePlay.showDialog();
-                });
-
-                const $button = $li.querySelector('button');
-                $button.removeAttribute('id');
-                $button.removeAttribute('aria-labelledby');
-                $button.setAttribute('aria-label', __('remote-play'));
-
-                // Remove card's info
-                const $cardInfo = $button.querySelector('div[class^=BaseItem]');
-                $cardInfo.parentElement.removeChild($cardInfo);
-
-                const $images = $button.querySelector('div[class^=WrappedResponsiveImage]');
-                $images.classList.add('bx-remote-play-icon-wrapper');
-                $images.innerHTML = '';
-                $images.appendChild(createSvgIcon(Icon.REMOTE_PLAY), 2);
-
-                $list.insertBefore($li, $list.firstElementChild);
-            });
-
-            funcStr = funcStr.substring(0, startIndex) + newCode + funcStr.substring(startIndex);
-            return funcStr;
-        },
-
         // Disable trackEvent() function
         disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
             const text = 'this.trackEvent=';
@@ -6846,8 +6795,6 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         ],
 
         ['disableStreamGate'],
-
-        ['remotePlayPatchHomeJumpBackIn'],
 
         ['tvLayout'],
 
@@ -7130,35 +7077,6 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
     left: -9999px;
 }
 
-.bx-jump-in-li {
-    display: inline-block;
-}
-
-.bx-jump-in-li button {
-    width: 60px;
-    box-shadow: none !important;
-}
-
-.bx-jump-in-li button:not(:focus) .bx-remote-play-icon-wrapper {
-    background: transparent;
-}
-
-
-.bx-remote-play-icon-wrapper, .bx-jump-in-li button:hover .bx-remote-play-icon-wrapper {
-    background: #7b7b7b1a;
-}
-
-.bx-remote-play-icon-wrapper svg {
-    padding: 10px;
-    height: 100%;
-    filter: drop-shadow(0px 1px 1px rgba(0, 0, 0, 0.5));
-    opacity: 0.7;
-}
-
-.bx-jump-in-li button:hover .bx-remote-play-icon-wrapper svg, .bx-jump-in-li button:focus .bx-remote-play-icon-wrapper svg {
-    opacity: 1;
-}
-
 a.bx-button {
     display: inline-block;
 }
@@ -7238,6 +7156,16 @@ a.bx-button {
     color: #fff;
 }
 
+.bx-remote-play-button {
+    height: auto;
+    margin-right: 8px !important;
+}
+
+.bx-remote-play-button svg {
+    width: 32px;
+    height: 46px;
+}
+
 .bx-settings-button {
     background-color: transparent;
     border: none;
@@ -7246,6 +7174,7 @@ a.bx-button {
     line-height: 30px;
     border-radius: 4px;
     padding: 8px;
+    font-size: 14px;
 }
 
 .bx-settings-button:hover, .bx-settings-button:focus {
@@ -8900,6 +8829,23 @@ function injectSettingsButton($parent) {
 
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
+
+    // Remote Play button
+    if (PREFS.get(Preferences.REMOTE_PLAY_ENABLED)) {
+        const $remotePlayBtn = createButton({
+            icon: Icon.REMOTE_PLAY,
+            title: __('remote-play'),
+            isGhost: true,
+            isRound: true,
+            onClick: e => {
+                RemotePlay.showDialog();
+            },
+        });
+        $remotePlayBtn.classList.add('bx-remote-play-button', 'bx-focusable');
+
+        $parent.appendChild($remotePlayBtn);
+    }
+
 
     // Setup Settings button
     const $button = CE('button', {'class': 'bx-settings-button'}, PREF_PREFERRED_REGION);
