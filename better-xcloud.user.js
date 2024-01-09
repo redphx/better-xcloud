@@ -7773,6 +7773,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     flex: 1;
     height: 32px;
     line-height: 32px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .bx-quick-settings-tab-contents h2 a {
