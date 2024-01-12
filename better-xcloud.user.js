@@ -5821,17 +5821,17 @@ class StreamStats {
         }
 
         const STATS = {
-            [StreamStats.PING]: (StreamStats.#$ping = CE('span', {}, '0')),
-            [StreamStats.FPS]: (StreamStats.#$fps = CE('span', {}, '0')),
-            [StreamStats.BITRATE]: (StreamStats.#$br = CE('span', {}, '0 Mbps')),
-            [StreamStats.DECODE_TIME]: (StreamStats.#$dt = CE('span', {}, '0ms')),
-            [StreamStats.PACKETS_LOST]: (StreamStats.#$pl = CE('span', {}, '0 (0.00%)')),
-            [StreamStats.FRAMES_LOST]: (StreamStats.#$fl = CE('span', {}, '0 (0.00%)')),
+            [StreamStats.PING]: [__('stat-ping'), StreamStats.#$ping = CE('span', {}, '0')],
+            [StreamStats.FPS]: [__('stat-fps'), StreamStats.#$fps = CE('span', {}, '0')],
+            [StreamStats.BITRATE]: [__('stat-bitrate'), StreamStats.#$br = CE('span', {}, '0 Mbps')],
+            [StreamStats.DECODE_TIME]: [__('stat-decode-time'), StreamStats.#$dt = CE('span', {}, '0ms')],
+            [StreamStats.PACKETS_LOST]: [__('stat-packets-lost'), StreamStats.#$pl = CE('span', {}, '0')],
+            [StreamStats.FRAMES_LOST]: [__('stat-frames-lost'), StreamStats.#$fl = CE('span', {}, '0')],
         };
 
         const $barFragment = document.createDocumentFragment();
         for (let statKey in STATS) {
-            const $div = CE('div', {'class': `bx-stat-${statKey}`}, CE('label', {}, statKey.toUpperCase()), STATS[statKey]);
+            const $div = CE('div', {'class': `bx-stat-${statKey}`, title: STATS[statKey][0]}, CE('label', {}, statKey.toUpperCase()), STATS[statKey][1]);
             $barFragment.appendChild($div);
         }
 
@@ -7499,6 +7499,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-right: 8px;
     border-right: 1px solid #fff;
     padding-right: 8px;
+    cursor: help;
 }
 
 .bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,
@@ -7552,6 +7553,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-size: inherit;
     font-weight: bold;
     vertical-align: middle;
+    cursor: help;
 }
 
 .bx-stats-bar span {
