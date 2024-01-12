@@ -7766,7 +7766,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-quick-settings-tab-contents h2 span {
     display: inline-block;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
     text-transform: uppercase;
     text-align: left;
@@ -7885,7 +7885,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: flex;
     flex-direction: column;
     flex: 1;
-    overflow: scroll;
+    padding-bottom: 10px;
+    overflow: hidden;
 }
 
 .bx-mkb-settings select:disabled {
@@ -7976,6 +7977,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: var(--bx-promptfont-font);
     font-size: 26px;
     text-align: center;
+    width: 26px;
     height: 32px;
     line-height: 32px;
 }
