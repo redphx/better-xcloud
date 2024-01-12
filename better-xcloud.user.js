@@ -7125,6 +7125,7 @@ a.bx-button {
     padding: 0 8px;
     text-transform: uppercase;
     cursor: pointer;
+    overflow: hidden;
 }
 
 .bx-button:hover, .bx-button.bx-focusable:focus {
@@ -7184,6 +7185,8 @@ a.bx-button {
     line-height: var(--bx-button-height);
     vertical-align: middle;
     color: #fff;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .bx-remote-play-button {
