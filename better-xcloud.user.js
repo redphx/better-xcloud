@@ -5752,13 +5752,13 @@ class StreamStats {
                     const packetsLost = stat.packetsLost;
                     const packetsReceived = stat.packetsReceived;
                     const packetsLostPercentage = (packetsLost * 100 / ((packetsLost + packetsReceived) || 1)).toFixed(2);
-                    StreamStats.#$pl.textContent = `${packetsLost} (${packetsLostPercentage}%)`;
+                    StreamStats.#$pl.textContent = packetsLostPercentage === '0.00' ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
 
                     // Frames Dropped
                     const framesDropped = stat.framesDropped;
                     const framesReceived = stat.framesReceived;
                     const framesDroppedPercentage = (framesDropped * 100 / ((framesDropped + framesReceived) || 1)).toFixed(2);
-                    StreamStats.#$fl.textContent = `${framesDropped} (${framesDroppedPercentage}%)`;
+                    StreamStats.#$fl.textContent = framesDroppedPercentage === '0.00' ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`;
 
                     if (StreamStats.#lastStat) {
                         const lastStat = StreamStats.#lastStat;
