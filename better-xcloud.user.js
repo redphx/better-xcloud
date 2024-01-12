@@ -7265,6 +7265,12 @@ a.bx-button {
     padding: 12px 6px;
 }
 
+@media screen and (max-width: 450px) {
+    .bx-settings-wrapper {
+        width: 100%;
+    }
+}
+
 .bx-settings-wrapper *:focus {
     outline: none !important;
 }
@@ -7626,6 +7632,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-dialog *:focus {
     outline: none !important;
+}
+
+@media screen and (max-width: 450px) {
+    .bx-dialog {
+        min-width: 100%;
+    }
 }
 
 .bx-dialog h2 {
