@@ -8951,6 +8951,14 @@ function injectSettingsButton($parent) {
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
         },
+
+        [__('mouse-and-keyboard')]: {
+            // '_note': '⚠️ ' + __('may-not-work-properly'),
+            // [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-supports-some-games')],
+            [Preferences.MKB_ENABLED]: __('enable-mkb'),
+            [Preferences.MKB_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
+        },
+
         /*
         [__('controller')]: {
             [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
@@ -8960,13 +8968,6 @@ function injectSettingsButton($parent) {
             [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
-        },
-
-        [__('mouse-and-keyboard')]: {
-            // '_note': '⚠️ ' + __('may-not-work-properly'),
-            // [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-supports-some-games')],
-            [Preferences.MKB_ENABLED]: __('enable-mkb'),
-            [Preferences.MKB_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
         },
 
         [__('loading-screen')]: {
