@@ -115,6 +115,8 @@ ButtonStyle[ButtonStyle.PRIMARY = 1] = 'bx-primary';
 ButtonStyle[ButtonStyle.DANGER = 2] = 'bx-danger';
 ButtonStyle[ButtonStyle.GHOST = 4] = 'bx-ghost';
 ButtonStyle[ButtonStyle.FOCUSABLE = 8] = 'bx-focusable';
+ButtonStyle[ButtonStyle.FULL_WIDTH = 16] = 'bx-full-width';
+ButtonStyle[ButtonStyle.FULL_HEIGHT = 32] = 'bx-full-height';
 
 const ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map(i => parseInt(i));
 
@@ -2795,6 +2797,9 @@ class Dialog {
     }
 
     show(newOptions) {
+        // Clear focus
+        document.activeElement && document.activeElement.blur();
+
         if (newOptions && newOptions.title) {
             this.$title.querySelector('b').textContent = newOptions.title;
             this.$title.classList.remove('bx-gone');
@@ -7182,23 +7187,34 @@ a.bx-button {
 }
 
 .bx-settings-button {
-    background-color: transparent;
-    border: none;
-    color: white;
-    font-weight: bold;
     line-height: 30px;
-    border-radius: 4px;
-    padding: 8px;
     font-size: 14px;
-}
-
-.bx-settings-button:hover, .bx-settings-button:focus {
-    background-color: #515863;
+    text-transform: none;
 }
 
 .bx-settings-button[data-update-available]::after {
     content: ' 🌟';
 }
+
+.bx-remote-play-button, .bx-settings-button {
+    position: relative;
+}
+
+.bx-remote-play-button::after, .bx-settings-button::after {
+    border: 2px solid transparent;
+    border-radius: 4px;
+}
+
+.bx-remote-play-button:focus:not(:hover)::after, .bx-settings-button:focus:not(:hover)::after {
+    content: '';
+    border-color: white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
 
 .better_xcloud_settings {
     background-color: #151515;
@@ -7210,6 +7226,10 @@ a.bx-button {
 
 .bx-full-width {
     width: 100% !important;
+}
+
+.bx-full-height {
+    height: 100% !important;
 }
 
 .bx-no-scroll {
@@ -8850,6 +8870,8 @@ function injectSettingsButton($parent) {
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
 
+    const $headerFragment = document.createDocumentFragment();
+
     // Remote Play button
     if (PREFS.get(Preferences.REMOTE_PLAY_ENABLED)) {
         const $remotePlayBtn = createButton({
@@ -8862,25 +8884,32 @@ function injectSettingsButton($parent) {
         });
         $remotePlayBtn.classList.add('bx-remote-play-button');
 
-        $parent.appendChild($remotePlayBtn);
+        $headerFragment.appendChild($remotePlayBtn);
     }
 
 
     // Setup Settings button
-    const $button = CE('button', {'class': 'bx-settings-button'}, PREF_PREFERRED_REGION);
-    $button.addEventListener('click', e => {
-        const $settings = document.querySelector('.better_xcloud_settings');
-        $settings.classList.toggle('bx-gone');
-        $settings.scrollIntoView();
+    const $settingsBtn = createButton({
+        label: PREF_PREFERRED_REGION,
+        style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
+        onClick: e => {
+            const $settings = document.querySelector('.better_xcloud_settings');
+            $settings.classList.toggle('bx-gone');
+            $settings.scrollIntoView();
+            document.activeElement && document.activeElement.blur();
+        },
     });
+    $settingsBtn.classList.add('bx-settings-button');
 
     // Show new update status
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
-        $button.setAttribute('data-update-available', true);
+        $settingsBtn.setAttribute('data-update-available', true);
     }
 
-    // Add Settings button to the web page
-    $parent.appendChild($button);
+    // Add the Settings button to the web page
+    $headerFragment.appendChild($settingsBtn);
+
+    $parent.appendChild($headerFragment);
 
     // Setup Settings UI
     const $container = CE('div', {
