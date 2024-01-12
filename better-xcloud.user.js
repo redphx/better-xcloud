@@ -110,13 +110,23 @@ const createSvgIcon = (icon, strokeWidth=2) => {
     return $svg;
 };
 
+const ButtonStyle = {};
+ButtonStyle[ButtonStyle.PRIMARY = 1] = 'bx-primary';
+ButtonStyle[ButtonStyle.DANGER = 2] = 'bx-danger';
+ButtonStyle[ButtonStyle.GHOST = 4] = 'bx-ghost';
+ButtonStyle[ButtonStyle.FOCUSABLE = 8] = 'bx-focusable';
+
+const ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map(i => parseInt(i));
+
 
 const createButton = options => {
     const $btn = CE(options.url ? 'a' : 'button', {'class': 'bx-button'});
 
-    options.isPrimary && $btn.classList.add('bx-primary');
-    options.isDanger && $btn.classList.add('bx-danger');
-    options.isGhost && $btn.classList.add('bx-ghost');
+    const style = options.style || 0;
+    style && ButtonStyleIndices.forEach(index => {
+            (style & index) && $btn.classList.add(ButtonStyle[index]);
+        });
+
     options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
     options.label && $btn.appendChild(CE('span', {}, options.label));
     options.title && $btn.setAttribute('title', options.title);
@@ -2760,7 +2770,12 @@ class Dialog {
         this.onClose = onClose;
         this.$dialog = CE('div', {'class': `bx-dialog ${className || ''} bx-gone`},
                 this.$title = CE('h2', {}, CE('b', {}, title),
-                        helpUrl && createButton({icon: Icon.QUESTION, isGhost: true, title: __('help'), url: helpUrl}),
+                        helpUrl && createButton({
+                                icon: Icon.QUESTION,
+                                style: ButtonStyle.GHOST,
+                                title: __('help'),
+                                url: helpUrl,
+                            }),
                     ),
                 this.$content = CE('div', {'class': 'bx-dialog-content'}, content),
                 !hideCloseButton && ($close = CE('button', {}, __('close'))),
@@ -4943,7 +4958,7 @@ class MkbRemapper {
                 // Delete button
                 createButton({
                         icon: Icon.TRASH,
-                        isDanger: true,
+                        style: ButtonStyle.DANGER,
                         title: __('delete'),
                         onClick: e => {
                             if (!confirm(__('confirm-delete-preset'))) {
@@ -5029,7 +5044,7 @@ class MkbRemapper {
                    // Activate button
                    this.#$.activateButton = createButton({
                            label: __('activate'),
-                           isPrimary: true,
+                           style: ButtonStyle.PRIMARY,
                            onClick: e => {
                                PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
                                MkbHandler.INSTANCE.refreshPresetData();
@@ -5043,7 +5058,7 @@ class MkbRemapper {
                    // Cancel button
                    createButton({
                            label: __('cancel'),
-                           isGhost: true,
+                           style: ButtonStyle.GHOST,
                            onClick: e => {
                                // Restore preset
                                this.#switchPreset(this.#STATE.currentPresetId);
@@ -5054,7 +5069,7 @@ class MkbRemapper {
                    // Save button
                    createButton({
                            label: __('save'),
-                           isPrimary: true,
+                           style: ButtonStyle.PRIMARY,
                            onClick: e => {
                                const updatedPreset = structuredClone(this.#getCurrentPreset());
                                updatedPreset.data = this.#STATE.editingPresetData;
@@ -8840,13 +8855,12 @@ function injectSettingsButton($parent) {
         const $remotePlayBtn = createButton({
             icon: Icon.REMOTE_PLAY,
             title: __('remote-play'),
-            isGhost: true,
-            isRound: true,
+            style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 RemotePlay.showDialog();
             },
         });
-        $remotePlayBtn.classList.add('bx-remote-play-button', 'bx-focusable');
+        $remotePlayBtn.classList.add('bx-remote-play-button');
 
         $parent.appendChild($remotePlayBtn);
     }
@@ -9736,7 +9750,12 @@ function setupQuickSettingsBar() {
         for (const settingGroup of settingTab.items) {
             $group.appendChild(CE('h2', {},
                     CE('span', {}, settingGroup.label),
-                    settingGroup.help_url && createButton({icon: Icon.QUESTION, isGhost: true, url: settingGroup.help_url, title: __('help')}),
+                    settingGroup.help_url && createButton({
+                            icon: Icon.QUESTION,
+                            style: ButtonStyle.GHOST,
+                            url: settingGroup.help_url,
+                            title: __('help'),
+                        }),
                 ));
             if (settingGroup.note) {
                 if (typeof settingGroup.note === 'string') {
