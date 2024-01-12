@@ -129,6 +129,8 @@ const createButton = options => {
             (style & index) && $btn.classList.add(ButtonStyle[index]);
         });
 
+    options.classes && $btn.classList.add(...options.classes);
+
     options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
     options.label && $btn.appendChild(CE('span', {}, options.label));
     options.title && $btn.setAttribute('title', options.title);
@@ -2953,30 +2955,36 @@ class RemotePlay {
                     ),
                     CE('div', {'class': 'bx-remote-play-power-state'}, RemotePlay.#STATE_LABELS[con.powerState]),
                 ),
-                $connectButton = CE('button', {'class': 'bx-primary-button bx-no-margin'}, __('console-connect')),
+
+                // Connect button
+                createButton({
+                    classes: ['bx-remote-play-connect-button'],
+                    label: __('console-connect'),
+                    style: ButtonStyle.PRIMARY,
+                    onClick: e => {
+                            REMOTE_PLAY_CONFIG = {
+                                serverId: con.serverId,
+                            };
+                            window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
+
+                            const url = window.location.href.substring(0, 31) + '/launch/fortnite/BT5P2X999VH2#remote-play';
+
+                            const $pageContent = document.getElementById('PageContent');
+                            const $anchor = CE('a', { href: url, class: 'bx-hidden bx-offscreen' }, '');
+                            $anchor.addEventListener('click', e => {
+                                setTimeout(() => {
+                                    $pageContent.removeChild($anchor);
+                                }, 1000);
+                            });
+
+                            $pageContent.appendChild($anchor);
+                            $anchor.click();
+
+                            RemotePlay.#dialog.hide();
+                        },
+                }),
             );
 
-            $connectButton.addEventListener('click', e => {
-                REMOTE_PLAY_CONFIG = {
-                    serverId: con.serverId,
-                };
-                window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
-
-                const url = window.location.href.substring(0, 31) + '/launch/fortnite/BT5P2X999VH2#remote-play';
-
-                const $pageContent = document.getElementById('PageContent');
-                const $anchor = CE('a', {href: url, class: 'bx-hidden', style: 'position:absolute;top:-9990px;left:-9999px'}, '');
-                $anchor.addEventListener('click', e => {
-                    setTimeout(() => {
-                        $pageContent.removeChild($anchor);
-                    }, 1000);
-                });
-
-                $pageContent.appendChild($anchor);
-                $anchor.click();
-
-                RemotePlay.#dialog.hide();
-            });
             $fragment.appendChild($child);
         }
 
@@ -7217,7 +7225,6 @@ a.bx-button {
     bottom: 0;
 }
 
-
 .better_xcloud_settings {
     background-color: #151515;
     user-select: none;
@@ -7365,41 +7372,6 @@ a.bx-button {
 
 .bx-settings-wrapper .bx-button.bx-primary {
     margin-top: 8px;
-}
-
-.bx-primary-button {
-    padding: 8px 32px;
-    margin: 10px auto 0;
-    border: none;
-    border-radius: 4px;
-    display: block;
-    background-color: #044e2a;
-    text-align: center;
-    color: white;
-    text-transform: uppercase;
-    font-family: var(--bx-title-font);
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 24px;
-}
-
-@media (hover: hover) {
-    .bx-primary-button:hover {
-        background-color: #00753c;
-    }
-}
-
-.bx-primary-button:focus {
-    background-color: #00753c;
-}
-
-.bx-primary-button:active {
-    background-color: #00753c;
-}
-
-.bx-primary-button[disabled] {
-    background: #393939;
-    color: #a2a2a2;
 }
 
 .bx-settings-app-version {
@@ -7658,7 +7630,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-family: var(--bx-title-font);
     font-size: 26px;
     font-weight: 400;
-    line-height: 32px;
+    line-height: var(--bx-button-height);
 }
 
 .bx-dialog.bx-binding-dialog h2 b {
@@ -8221,6 +8193,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-remote-play-power-state {
     color: #888;
     font-size: 14px;
+}
+
+.bx-remote-play-connect-button {
+    min-height: 100%;
+    margin: 4px 0;
 }
 
 /* ----------- */
@@ -8890,6 +8867,7 @@ function injectSettingsButton($parent) {
     // Remote Play button
     if (PREFS.get(Preferences.REMOTE_PLAY_ENABLED)) {
         const $remotePlayBtn = createButton({
+            classes: ['bx-remote-play-button'],
             icon: Icon.REMOTE_PLAY,
             title: __('remote-play'),
             style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
@@ -8897,14 +8875,13 @@ function injectSettingsButton($parent) {
                 RemotePlay.showDialog();
             },
         });
-        $remotePlayBtn.classList.add('bx-remote-play-button');
-
         $headerFragment.appendChild($remotePlayBtn);
     }
 
 
     // Setup Settings button
     const $settingsBtn = createButton({
+        classes: ['bx-settings-button'],
         label: PREF_PREFERRED_REGION,
         style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
         onClick: e => {
@@ -8914,7 +8891,6 @@ function injectSettingsButton($parent) {
             document.activeElement && document.activeElement.blur();
         },
     });
-    $settingsBtn.classList.add('bx-settings-button');
 
     // Show new update status
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
@@ -9138,6 +9114,7 @@ function injectSettingsButton($parent) {
 
     // Setup Reload button
     const $reloadBtn = createButton({
+        classes: ['bx-settings-reload-button'],
         label: __('settings-reload'),
         style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
         onClick: e => {
@@ -9146,7 +9123,6 @@ function injectSettingsButton($parent) {
             $reloadBtn.textContent = __('settings-reloading');
         },
     });
-    $reloadBtn.classList.add('bx-settings-reload-button');
     $reloadBtn.setAttribute('tabindex', 0);
     $wrapper.appendChild($reloadBtn);
 
