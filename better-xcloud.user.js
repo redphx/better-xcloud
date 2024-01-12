@@ -7060,6 +7060,8 @@ function addCss() {
     --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
     --bx-promptfont-font: promptfont;
 
+    --bx-button-height: 36px;
+
     --bx-default-button-color: #2d3036;
     --bx-default-button-hover-color: #515863;
     --bx-default-button-disabled-color: #8e8e8e;
@@ -7110,7 +7112,7 @@ a.bx-button {
     font-size: 14px;
     border: none;
     font-weight: 400;
-    height: 32px;
+    height: var(--bx-button-height);
     border-radius: 4px;
     padding: 0 8px;
     text-transform: uppercase;
@@ -7161,7 +7163,7 @@ a.bx-button {
 .bx-button svg {
     display: inline-block;
     width: 16px;
-    height: 32px;
+    height: var(--bx-button-height);
 }
 
 .bx-button svg:not(:only-child) {
@@ -7170,8 +7172,8 @@ a.bx-button {
 
 .bx-button span {
     display: inline-block;
-    height: 30px;
-    line-height: 32px;
+    height: calc(var(--bx-button-height) - 2px);
+    line-height: var(--bx-button-height);
     vertical-align: middle;
     color: #fff;
 }
@@ -7359,6 +7361,10 @@ a.bx-button {
 
 .bx-settings-row input {
     align-self: center;
+}
+
+.bx-settings-wrapper .bx-button.bx-primary {
+    margin-top: 8px;
 }
 
 .bx-primary-button {
@@ -7818,14 +7824,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     text-transform: uppercase;
     text-align: left;
     flex: 1;
-    height: 32px;
-    line-height: 32px;
+    height: var(--bx-button-height);
+    line-height: calc(var(--bx-button-height) + 4px);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-}
-
-.bx-quick-settings-tab-contents h2 a {
 }
 
 .bx-quick-settings-tab-contents input[type="range"] {
@@ -9134,11 +9137,17 @@ function injectSettingsButton($parent) {
     }
 
     // Setup Reload button
-    const $reloadBtn = CE('button', {'class': 'bx-primary-button bx-full-width', 'tabindex': 0}, __('settings-reload'));
-    $reloadBtn.addEventListener('click', e => {
-        window.location.reload();
-        $reloadBtn.textContent = __('settings-reloading');
+    const $reloadBtn = createButton({
+        label: __('settings-reload'),
+        style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+        onClick: e => {
+            window.location.reload();
+            $reloadBtn.disabled = true;
+            $reloadBtn.textContent = __('settings-reloading');
+        },
     });
+    $reloadBtn.classList.add('bx-settings-reload-button');
+    $reloadBtn.setAttribute('tabindex', 0);
     $wrapper.appendChild($reloadBtn);
 
     // Donation link
