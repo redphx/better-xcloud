@@ -195,6 +195,7 @@ const Translations = {
         "tr-TR": "Etkinleştir",
         "uk-UA": "Активувати",
         "vi-VN": "Kích hoạt",
+        "zh-CN": "启用",
     },
     "activated": {
         "de-DE": "Aktiviert",
@@ -208,6 +209,7 @@ const Translations = {
         "tr-TR": "Etkin",
         "uk-UA": "Активований",
         "vi-VN": "Đã kích hoạt",
+        "zh-CN": "已启用",
     },
     "active": {
         "de-DE": "Aktiv",
@@ -249,6 +251,7 @@ const Translations = {
         "tr-TR": "Uygula",
         "uk-UA": "Застосувати",
         "vi-VN": "Áp dụng",
+        "zh-CN": "应用",
     },
     "audio": {
         "de-DE": "Audio",
@@ -439,7 +442,7 @@ const Translations = {
         "ru-RU": "Яркость",
         "tr-TR": "Aydınlık",
         "uk-UA": "Яскравість",
-        "vi-VN": "Độ sáng",
+        "vi-VN": "Độ sáng",
         "zh-CN": "亮度",
     },
     "browser-unsupported-feature": {
@@ -545,7 +548,7 @@ const Translations = {
         "ru-RU": "Очистить",
         "tr-TR": "Temizle",
         "uk-UA": "Очистити",
-        "vi-VN": "Xóa",
+        "vi-VN": "Xóa",
         "zh-CN": "清空",
     },
     "close": {
@@ -682,6 +685,7 @@ const Translations = {
         "tr-TR": "Kopyala",
         "uk-UA": "Копіювати",
         "vi-VN": "Sao chép",
+        "zh-CN": "复制",
     },
     "custom": {
         "de-DE": "Benutzerdefiniert",
@@ -950,7 +954,7 @@ const Translations = {
         "ru-RU": "Включить функцию «Удаленная игра»",
         "tr-TR": "\"Uzaktan Oynama\" özelliğini aktive et",
         "uk-UA": "Увімкнути функцію \"Remote Play\"",
-        "vi-VN": "Bật tính năng \"Chơi từ xa\"",
+        "vi-VN": "Bật tính năng \"Chơi Từ Xa\"",
         "zh-CN": "启用\"远程播放\"功能",
     },
     "enable-volume-control": {
@@ -1030,10 +1034,13 @@ const Translations = {
     "help": {
         "de-DE": "Hilfe",
         "en-US": "Help",
+        "es-ES": "Ayuda",
         "ja-JP": "ヘルプ",
         "pt-BR": "Ajuda",
         "ru-RU": "Справка",
+        "uk-UA": "Довідка",
         "vi-VN": "Trợ giúp",
+        "zh-CN": "帮助",
     },
     "hide-idle-cursor": {
         "de-DE": "Mauszeiger bei Inaktivität ausblenden",
@@ -1078,6 +1085,7 @@ const Translations = {
         "tr-TR": "Yatay hassasiyet",
         "uk-UA": "Горизонтальна чутливість",
         "vi-VN": "Độ nhạy ngang",
+        "zh-CN": "水平灵敏度",
     },
     "import": {
         "de-DE": "Importieren",
@@ -1152,6 +1160,7 @@ const Translations = {
         "tr-TR": "Sol analog çubuk",
         "uk-UA": "Лівий стік",
         "vi-VN": "Analog trái",
+        "zh-CN": "左摇杆",
     },
     "loading-screen": {
         "de-DE": "Ladebildschirm",
@@ -1222,7 +1231,7 @@ const Translations = {
         "ko-KR": "통계",
         "pl-PL": "Statystyki strumienia",
         "pt-BR": "Estatísticas da transmissão",
-        "ru-RU": "Статистика потоковой передачи",
+        "ru-RU": "Статистика стрима",
         "tr-TR": "Yayın durumu",
         "uk-UA": "Статистика трансляції",
         "vi-VN": "Thông số stream",
@@ -1264,6 +1273,7 @@ const Translations = {
         "tr-TR": "Etkinleştirmek için tıklayın",
         "uk-UA": "Натисніть, щоб активувати",
         "vi-VN": "Nhấn vào để kích hoạt",
+        "zh-CN": "单击以启用",
     },
     "mouse-and-keyboard": {
         "de-DE": "Maus & Tastatur",
@@ -1321,6 +1331,7 @@ const Translations = {
         "tr-TR": "Yeni",
         "uk-UA": "Новий",
         "vi-VN": "Tạo mới",
+        "zh-CN": "新建",
     },
     "no-consoles-found": {
         "de-DE": "Keine Konsolen gefunden",
@@ -1652,7 +1663,7 @@ const Translations = {
         "ru-RU": "Удаленная игра",
         "tr-TR": "Uzaktan Bağlanma",
         "uk-UA": "Віддалена гра",
-        "vi-VN": "Chơi từ xa",
+        "vi-VN": "Chơi Từ Xa",
         "zh-CN": "远程游玩",
     },
     "rename": {
@@ -1667,6 +1678,7 @@ const Translations = {
         "tr-TR": "Ad değiştir",
         "uk-UA": "Перейменувати",
         "vi-VN": "Sửa tên",
+        "zh-CN": "重命名",
     },
     "right-click-to-unbind": {
         "de-DE": "Rechtsklick auf Taste: Zuordnung aufheben",
@@ -1692,6 +1704,7 @@ const Translations = {
         "tr-TR": "Sağ analog çubuk",
         "uk-UA": "Правий стік",
         "vi-VN": "Analog phải",
+        "zh-CN": "右摇杆",
     },
     "rocket-always-hide": {
         "de-DE": "Immer ausblenden",
@@ -2142,6 +2155,7 @@ const Translations = {
         "pt-BR": "Mínimo decaimento do analógico",
         "ru-RU": "Минимальная перезарядка стика",
         "tr-TR": "Çubuğun ortalanma süresi minimumu",
+        "uk-UA": "Мінімальне згасання стіка",
         "vi-VN": "Độ suy giảm tối thiểu của cần điều khiển",
     },
     "stick-decay-strength": {
@@ -2151,6 +2165,7 @@ const Translations = {
         "pt-BR": "Força de decaimento do analógico",
         "ru-RU": "Скорость перезарядки стика",
         "tr-TR": "Çubuğun ortalanma gücü",
+        "uk-UA": "Сила згасання стіка",
         "vi-VN": "Sức mạnh độ suy giảm của cần điều khiển",
     },
     "stream": {
@@ -2194,7 +2209,8 @@ const Translations = {
         "ru-RU": "Поддержать Better xCloud",
         "tr-TR": "Better xCloud'a destek ver",
         "uk-UA": "Підтримати Better xCloud",
-        "vi-VN": "Hỗ trợ Better xCloud",
+        "vi-VN": "Ủng hộ Better xCloud",
+        "zh-CN": "赞助本插件",
     },
     "swap-buttons": {
         "de-DE": "Tasten tauschen",
@@ -2520,6 +2536,7 @@ const Translations = {
         "tr-TR": "Dikey hassasiyet",
         "uk-UA": "Вертикальна чутливість",
         "vi-VN": "Độ ngạy dọc",
+        "zh-CN": "垂直灵敏度",
     },
     "vibration-intensity": {
         "de-DE": "Vibrationsstärke",
