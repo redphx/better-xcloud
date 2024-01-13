@@ -6877,7 +6877,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         const nativeBind = Function.prototype.bind;
         Function.prototype.bind = function() {
             let valid = false;
-            if (arguments.length === 2 && arguments[0] === null) {
+            if (this.name.length <= 2 && arguments.length === 2 && arguments[0] === null) {
                 if (arguments[1] === 0 || (typeof arguments[1] === 'function')) {
                     valid = true;
                 }
