@@ -2968,7 +2968,7 @@ class RemotePlay {
                 CE('div', {'class': 'bx-remote-play-device-info'},
                     CE('div', {},
                         CE('span', {'class': 'bx-remote-play-device-name'}, con.deviceName),
-                        CE('span', {'class': 'bx-remote-play-console-type'}, con.consoleType)
+                        CE('span', {'class': 'bx-remote-play-console-type'}, con.consoleType.replace('Xbox', ''))
                     ),
                     CE('div', {'class': 'bx-remote-play-power-state'}, RemotePlay.#STATE_LABELS[con.powerState]),
                 ),
@@ -7217,7 +7217,7 @@ a.bx-button {
 }
 
 .bx-remote-play-button svg {
-    width: 32px;
+    width: 28px;
     height: 46px;
 }
 
@@ -8208,7 +8208,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 
 .bx-remote-play-console-type {
     font-size: 12px;
-    background: #888;
+    background: #004c87;
     color: #fff;
     display: inline-block;
     border-radius: 14px;
