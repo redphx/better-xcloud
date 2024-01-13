@@ -7240,7 +7240,7 @@ a.bx-button {
     border-radius: 4px;
 }
 
-.bx-remote-play-button:focus:not(:hover)::after, .bx-settings-button:focus:not(:hover)::after {
+.bx-remote-play-button:focus::after, .bx-settings-button:focus::after {
     content: '';
     border-color: white;
     position: absolute;
