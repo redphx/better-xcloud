@@ -4321,7 +4321,7 @@ class MkbHandler {
                 value = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_UP) ? -1 : 1;
             }
 
-            virtualGamepad.axes[axisIndex] = pressed ? value : 0;
+            virtualGamepad.axes[axisIndex] += pressed ? value : - value;
         } else {
             virtualGamepad.buttons[buttonIndex].pressed = pressed;
             virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
@@ -4342,6 +4342,11 @@ class MkbHandler {
 
         const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code];
         if (typeof buttonIndex === 'undefined') {
+            return;
+        }
+
+        // Ignore repeating keys
+        if (e.repeat) {
             return;
         }
 
