@@ -55,16 +55,13 @@ function createElement(elmName, props = {}) {
 
     if (hasNs) {
         $elm = document.createElementNS(props.xmlns, elmName);
+        delete props.xmlns;
     } else {
         $elm = document.createElement(elmName);
     }
 
-    for (let key in props) {
-        if (key === 'xmlns') {
-            continue;
-        }
-
-        if (!props.hasOwnProperty(key) || $elm.hasOwnProperty(key)) {
+    for (const key in props) {
+        if ($elm.hasOwnProperty(key)) {
             continue;
         }
 
