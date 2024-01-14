@@ -3402,9 +3402,9 @@ class TouchController {
         const PREF_STYLE_STANDARD = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
         const PREF_STYLE_CUSTOM = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
 
-        RTCPeerConnection.prototype.orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+        const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
-            const dataChannel = this.orgCreateDataChannel.apply(this, arguments);
+            const dataChannel = nativeCreateDataChannel.apply(this, arguments);
             if (!TouchController.#enable || dataChannel.label !== 'message') {
                 return dataChannel;
             }
@@ -3485,9 +3485,9 @@ class Toast {
     }
 
     static setup() {
-        Toast.#$wrapper = createElement('div', {'class': 'bx-toast bx-offscreen'},
-                                        Toast.#$msg = createElement('span', {'class': 'bx-toast-msg'}),
-                                        Toast.#$status = createElement('span', {'class': 'bx-toast-status'}));
+        Toast.#$wrapper = CE('div', {'class': 'bx-toast bx-offscreen'},
+                                        Toast.#$msg = CE('span', {'class': 'bx-toast-msg'}),
+                                        Toast.#$status = CE('span', {'class': 'bx-toast-status'}));
 
         Toast.#$wrapper.addEventListener('transitionend', e => {
             const classList = Toast.#$wrapper.classList;
@@ -8472,7 +8472,7 @@ function clearAllLogs() {
 
 
 function interceptHttpRequests() {
-    var BLOCKED_URLS = [];
+    let BLOCKED_URLS = [];
     if (PREFS.get(Preferences.BLOCK_TRACKING)) {
         // Clear Applications Insight buffers
         clearAllLogs();
@@ -8494,17 +8494,17 @@ function interceptHttpRequests() {
     }
 
     const xhrPrototype = XMLHttpRequest.prototype;
-    xhrPrototype.orgOpen = xhrPrototype.open;
-    xhrPrototype.orgSend = xhrPrototype.send;
+    const nativeXhrOpen = xhrPrototype.open;
+    const nativeXhrSend = xhrPrototype.send;
 
     xhrPrototype.open = function(method, url) {
         // Save URL to use it later in send()
         this._url = url;
-        return this.orgOpen.apply(this, arguments);
+        return nativeXhrOpen.apply(this, arguments);
     };
 
     xhrPrototype.send = function(...arg) {
-        for (let blocked of BLOCKED_URLS) {
+        for (const blocked of BLOCKED_URLS) {
             if (this._url.startsWith(blocked)) {
                 if (blocked === 'https://dc.services.visualstudio.com') {
                     setTimeout(clearAllLogs, 1000);
@@ -8513,7 +8513,7 @@ function interceptHttpRequests() {
             }
         }
 
-        return this.orgSend.apply(this, arguments);
+        return nativeXhrSend.apply(this, arguments);
     };
 
     const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
@@ -8582,7 +8582,7 @@ function interceptHttpRequests() {
             for (const pair of clone.headers.entries()) {
                 headers[pair[0]] = pair[1];
             }
-            headers['authorization'] = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+            headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
 
             const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
             if (PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION) === '720p') {
@@ -8667,7 +8667,7 @@ function interceptHttpRequests() {
             for (const pair of clone.headers.entries()) {
                 headers[pair[0]] = pair[1];
             }
-            headers['authorization'] = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
+            headers.authorization = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
 
             const index = request.url.indexOf('.xboxlive.com');
             request = new Request('https://wus.core.gssv-play-prod' + request.url.substring(index), {
@@ -9535,7 +9535,7 @@ function patchVideoApi() {
         onStreamStarted(this);
     }
 
-    HTMLMediaElement.prototype.orgPlay = HTMLMediaElement.prototype.play;
+    const nativePlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
         LoadingScreen.reset();
 
@@ -9550,13 +9550,13 @@ function patchVideoApi() {
                 };
             }
 
-            return this.orgPlay.apply(this);
+            return nativePlay.apply(this);
         }
 
         this.addEventListener('playing', showFunc);
         injectStreamMenuButtons();
 
-        return this.orgPlay.apply(this);
+        return nativePlay.apply(this);
     };
 }
 
@@ -9574,7 +9574,7 @@ function patchRtcCodecs() {
     const profilePrefix = codecProfile === 'high' ? '4d' : (codecProfile === 'low' ? '420' : '42e');
     const profileLevelId = `profile-level-id=${profilePrefix}`;
 
-    RTCRtpTransceiver.prototype.orgSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
+    const nativeSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
     RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
         // Use the same codecs as desktop
         const newCodecs = codecs.slice();
@@ -9590,11 +9590,11 @@ function patchRtcCodecs() {
         });
 
         try {
-            this.orgSetCodecPreferences.apply(this, [newCodecs]);
+            nativeSetCodecPreferences.apply(this, [newCodecs]);
         } catch (e) {
             // Didn't work -> use default codecs
             console.log(e);
-            this.orgSetCodecPreferences.apply(this, [codecs]);
+            nativeSetCodecPreferences.apply(this, [codecs]);
         }
     }
 }
@@ -10166,9 +10166,9 @@ checkForUpdate();
 // Monkey patches
 if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
     if (UserAgent.isSafari(true)) {
-        window.AudioContext.prototype.orgCreateGain = window.AudioContext.prototype.createGain;
+        const nativeCreateGain = window.AudioContext.prototype.createGain;
         window.AudioContext.prototype.createGain = function() {
-            const gainNode = this.orgCreateGain.apply(this);
+            const gainNode = nativeCreateGain.apply(this);
             gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
             STREAM_AUDIO_GAIN_NODE = gainNode;
             return gainNode;
@@ -10182,11 +10182,11 @@ if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
         return ctx;
     }
 
-    HTMLAudioElement.prototype.orgPlay = HTMLAudioElement.prototype.play;
+    const nativePlay = HTMLAudioElement.prototype.play;
     HTMLAudioElement.prototype.play = function() {
         this.muted = true;
 
-        const promise = this.orgPlay.apply(this);
+        const promise = nativePlay.apply(this);
         if (STREAM_AUDIO_GAIN_NODE) {
             return promise;
         }
