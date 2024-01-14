@@ -7523,7 +7523,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-right: 8px;
     border-right: 1px solid #fff;
     padding-right: 8px;
-    cursor: help;
 }
 
 .bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,
