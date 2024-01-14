@@ -2689,7 +2689,6 @@ if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
     window.stop();
 
     // Show the reloading overlay
-    const $elm = createElement('div', {'class': 'bx-reload-overlay'}, __('safari-failed-message'));
     const css = `
 .bx-reload-overlay {
     position: fixed;
@@ -2705,8 +2704,11 @@ if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
     font-size: 1.3rem;
 }
 `;
-    document.documentElement.appendChild(createElement('style', {}, css));
-    document.documentElement.appendChild($elm);
+    const $fragment = document.createDocumentFragment();
+    $fragment.appendChild(CE('style', {}, css));
+    $fragment.appendChild(CE('div', {'class': 'bx-reload-overlay'}, __('safari-failed-message')));
+
+    document.documentElement.appendChild($fragment);
 
     // Reload the page
     window.location.reload(true);
