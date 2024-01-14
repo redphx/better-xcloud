@@ -10014,12 +10014,13 @@ function onStreamStarted($video) {
 
     const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
     const PREF_STATS_QUICK_GLANCE = PREFS.get(Preferences.STATS_QUICK_GLANCE);
+    const PREF_STATS_SHOW_WHEN_PLAYING = PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING);
 
     // Setup Stat's Quick Glance mode
     if (PREF_STATS_QUICK_GLANCE) {
         StreamStats.quickGlanceSetup();
         // Show stats bar
-        StreamStats.start(true);
+        !PREF_STATS_SHOW_WHEN_PLAYING && StreamStats.start(true);
     }
 
     $STREAM_VIDEO = $video;
@@ -10100,7 +10101,7 @@ function onStreamStarted($video) {
             StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
         }
 
-        if (PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING)) {
+        if (PREF_STATS_SHOW_WHEN_PLAYING) {
             StreamStats.start();
         }
     });
