@@ -2752,6 +2752,7 @@ const Icon = {
     CONTROLLER: '<path d="M19.193 12.807h3.193m-13.836 0h4.257"/><path d="M10.678 10.678v4.257"/><path d="M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z"/><path d="M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194"/>',
     DISPLAY: '<path d="M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08"/>',
     MOUSE: '<path d="M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z"/><path d="M16 13.721V6.883"/>',
+    MOUSE_SETTINGS: '<g transform="matrix(1.10403 0 0 1.10403 -4.17656 -.560429)" fill="none" stroke="#fff"><g stroke-width="1.755"><path d="M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714"/><path d="M15.5 12.501v-6"/></g><circle cx="48" cy="48" r="15" stroke-width="7.02" transform="matrix(.142357 0 0 .142357 17.667421 16.541885)"/><path d="M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z" stroke-width=".999"/></g>',
     NEW: '<path d="M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z"/><path d="M19.625 1.5v8.458h8.458m-15.708 9.667h7.25"/><path d="M16 16v7.25"/>',
     COPY: '<path d="M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73"/>',
     TRASH: '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>',
@@ -4542,11 +4543,19 @@ class MkbHandler {
         document.addEventListener('pointerlockerror', this.#onPointerLockError);
 
         this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
-               createSvgIcon(Icon.MOUSE),
-               CE('div', {},
-                   CE('p', {}, __('mkb-click-to-activate')),
-                   CE('p', {}, __('press-key-to-toggle-mkb')({key: 'F9'})),
-               ),
+                createButton({
+                    icon: Icon.MOUSE_SETTINGS,
+                    onClick: e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        showStreamSettings('mkb');
+                    },
+                }),
+                CE('div', {},
+                    CE('p', {}, __('mkb-click-to-activate')),
+                    CE('p', {}, __('press-key-to-toggle-mkb')({key: 'F9'})),
+                ),
             );
 
         this.#$message.addEventListener('click', this.#onActivatePointerLock);
@@ -7149,6 +7158,10 @@ a.bx-button {
     overflow: hidden;
 }
 
+.bx-button:focus {
+    outline: none !important;
+}
+
 .bx-button:hover, .bx-button.bx-focusable:focus {
     background-color: var(--bx-default-button-hover-color);
 }
@@ -7969,10 +7982,17 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     box-shadow: 0 0 6px #000;
 }
 
+.bx-mkb-pointer-lock-msg:hover {
+    background: #151515;
+}
+
+.bx-mkb-pointer-lock-msg button {
+    margin-right: 12px;
+    height: 60px;
+}
+
 .bx-mkb-pointer-lock-msg svg {
     width: 32px;
-    height: 32px;
-    margin-right: 12px;
 }
 
 .bx-mkb-pointer-lock-msg div {
@@ -9516,6 +9536,21 @@ function injectStreamMenuButtons() {
     observer.observe($screen, {subtree: true, childList: true});
 }
 
+
+function showStreamSettings(tabId) {
+    const $wrapper = document.querySelector('.bx-quick-settings-bar');
+    if (!$wrapper) {
+        return;
+    }
+
+    // Select tab
+    if (tabId) {
+        const $tab = $wrapper.querySelector(`.bx-quick-settings-tabs svg[data-group=${tabId}]`);
+        $tab && $tab.dispatchEvent(new Event('click'));
+    }
+
+    $wrapper.classList.remove('bx-gone');
+}
 
 function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
