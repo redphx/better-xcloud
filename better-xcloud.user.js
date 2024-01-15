@@ -9470,7 +9470,7 @@ function injectStreamMenuButtons() {
                     }
 
                     $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
-                        $quickBar.classList.add('bx-none');
+                        $quickBar.classList.add('bx-gone');
                     });
 
                     // Get "Quit game" button
@@ -9578,6 +9578,19 @@ function showStreamSettings(tabId) {
     }
 
     $wrapper.classList.remove('bx-gone');
+
+    const $screen = document.querySelector('#PageContent section[class*=PureScreens]');
+    if ($screen && !$screen.parentElement.bxClick) {
+        $screen.parentElement.bxClick = true;
+
+        const onClick = e => {
+            $wrapper.classList.add('bx-gone');
+            $screen.parentElement.bxClick = false;
+            $screen.parentElement.removeEventListener('click', onClick);
+        };
+
+        $screen.parentElement.addEventListener('click', onClick);
+    }
 }
 
 function patchVideoApi() {
