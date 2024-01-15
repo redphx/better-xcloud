@@ -3485,8 +3485,7 @@ class Toast {
         }
 
         const classList = Toast.#$wrapper.classList;
-        classList.remove('bx-offscreen');
-        classList.remove('bx-hide');
+        classList.remove('bx-offscreen', 'bx-hide');
         classList.add('bx-show');
     }
 
@@ -3506,8 +3505,7 @@ class Toast {
         Toast.#$wrapper.addEventListener('transitionend', e => {
             const classList = Toast.#$wrapper.classList;
             if (classList.contains('bx-hide')) {
-                classList.remove('bx-show');
-                classList.remove('bx-hide');
+                classList.remove('bx-offscreen', 'bx-hide');
                 classList.add('bx-offscreen');
             }
         });
