@@ -2159,6 +2159,7 @@ const Translations = {
     "stick-decay-minimum": {
         "de-DE": "Stick Abklingzeit Minimum",
         "en-US": "Stick decay minimum",
+        "es-ES": "Disminuir mínimamente el analógico",
         "ja-JP": "スティックの減衰の最小値",
         "pt-BR": "Mínimo decaimento do analógico",
         "ru-RU": "Минимальная перезарядка стика",
@@ -2170,6 +2171,7 @@ const Translations = {
     "stick-decay-strength": {
         "de-DE": "Stick Abklingzeit Geschwindigkeit",
         "en-US": "Stick decay strength",
+        "es-ES": "Intensidad de decaimiento del analógico",
         "ja-JP": "スティックの減衰の強さ",
         "pt-BR": "Força de decaimento do analógico",
         "ru-RU": "Скорость перезарядки стика",
