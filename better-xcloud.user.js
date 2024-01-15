@@ -6534,7 +6534,7 @@ class Preferences {
             }
 
             if (settingId in savedPrefs) {
-                this.#prefs[settingId] = savedPrefs[settingId];
+                this.#prefs[settingId] = this.#validateValue(settingId, savedPrefs[settingId]);
             } else {
                 this.#prefs[settingId] = setting.default;
             }
@@ -6588,10 +6588,11 @@ class Preferences {
             return Preferences.SETTINGS[key].default;
         }
 
-        let value = this.#prefs[key];
-        value = this.#validateValue(key, value);
+        if (!(key in this.#prefs)) {
+            this.#prefs[key] = this.#validateValue(key, null);
+        }
 
-        return value;
+        return this.#prefs[key];
     }
 
     set(key, value) {
@@ -6921,7 +6922,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
         [
             'disableGamepadDisconnectedScreen',
-            getPref(Preferences.MKB_ENABLED) && 'mkbMouseAndKeyboardEnabled',
+            ENABLE_NATIVE_MKB_BETA && getPref(Preferences.MKB_ENABLED) && 'mkbMouseAndKeyboardEnabled',
         ],
     ];
 
