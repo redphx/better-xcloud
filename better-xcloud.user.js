@@ -6651,7 +6651,7 @@ const PREFS = new Preferences();
 class Patcher {
     static #PATCHES = {
         // Disable ApplicationInsights.track() function
-        disableAiTrack: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+        disableAiTrack: function(funcStr) {
             const text = '.track=function(';
             const index = funcStr.indexOf(text);
             if (index === -1) {
@@ -6666,7 +6666,7 @@ class Patcher {
         },
 
         // Set disableTelemetry() to true
-        disableTelemetry: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+        disableTelemetry: function(funcStr) {
             const text = '.disableTelemetry=function(){return!1}';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6676,7 +6676,7 @@ class Patcher {
         },
 
         // Set TV layout
-        tvLayout: PREFS.get(Preferences.UI_LAYOUT) === 'tv' && function(funcStr) {
+        tvLayout: function(funcStr) {
             const text = '?"tv":"default"';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6686,7 +6686,7 @@ class Patcher {
         },
 
         // Replace "/direct-connect" with "/play"
-        remotePlayDirectConnectUrl: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
+        remotePlayDirectConnectUrl: function(funcStr) {
             const index = funcStr.indexOf('/direct-connect');
             if (index === -1) {
                 return false;
@@ -6695,7 +6695,7 @@ class Patcher {
             return funcStr.replace(funcStr.substring(index - 9, index + 15), 'https://www.xbox.com/play');
         },
 
-        remotePlayKeepAlive: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
+        remotePlayKeepAlive: function(funcStr) {
             if (!funcStr.includes('onServerDisconnectMessage(e){')) {
                 return false;
             }
@@ -6714,7 +6714,7 @@ class Patcher {
         },
 
         // Enable Remote Play feature
-        remotePlayConnectMode: PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && function(funcStr) {
+        remotePlayConnectMode: function(funcStr) {
             const text = 'connectMode:"cloud-connect"';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6724,7 +6724,7 @@ class Patcher {
         },
 
         // Disable trackEvent() function
-        disableTrackEvent: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+        disableTrackEvent: function(funcStr) {
             const text = 'this.trackEvent=';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6734,7 +6734,7 @@ class Patcher {
         },
 
         // Block WebRTC stats collector
-        blockWebRtcStatsCollector: PREFS.get(Preferences.BLOCK_TRACKING) && function(funcStr) {
+        blockWebRtcStatsCollector: function(funcStr) {
             const text = 'this.intervalMs=0,';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6743,7 +6743,7 @@ class Patcher {
             return funcStr.replace(text, 'false,' + text);
         },
 
-        enableXcloudLogger: ENABLE_XCLOUD_LOGGER && function(funcStr) {
+        enableXcloudLogger: function(funcStr) {
             const text = '}log(e,t,n){';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6753,7 +6753,7 @@ class Patcher {
             return funcStr;
         },
 
-        enableConsoleLogging: ENABLE_XCLOUD_LOGGER && function(funcStr) {
+        enableConsoleLogging: function(funcStr) {
             const text = 'static isConsoleLoggingAllowed(){';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6818,7 +6818,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr;
         },
 
-        mkbIsMouseAndKeyboardTitle: ENABLE_NATIVE_MKB_BETA && PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
+        mkbIsMouseAndKeyboardTitle: function(funcStr) {
             const text = 'isMouseAndKeyboardTitle:()=>yn';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6827,7 +6827,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return e && e.details ? window.NATIVE_MKB_TITLES.includes(e.details.productId) : true; })`);
         },
 
-        mkbMouseAndKeyboardEnabled: PREFS.get(Preferences.MKB_ENABLED) && function(funcStr) {
+        mkbMouseAndKeyboardEnabled: function(funcStr) {
             const text = 'get mouseAndKeyboardEnabled(){';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6846,7 +6846,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr;
         },
 
-        patchUpdateInputConfigurationAsync: HAS_TOUCH_SUPPORT && function(funcStr) {
+        patchUpdateInputConfigurationAsync: function(funcStr) {
             const text = 'async updateInputConfigurationAsync(e){';
             if (!funcStr.includes(text)) {
                 return false;
@@ -6886,37 +6886,40 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     };
 
     static #PATCH_ORDERS = [
-        [
+        PREFS.get(Preferences.BLOCK_TRACKING) && [
             'disableAiTrack',
             'disableTelemetry',
         ],
 
         ['disableStreamGate'],
 
-        ['tvLayout'],
+        PREFS.get(Preferences.UI_LAYOUT) === 'tv' && ['tvLayout'],
 
-        ['enableXcloudLogger'],
+        ENABLE_XCLOUD_LOGGER && ['enableXcloudLogger'],
 
         [
             'overrideSettings',
-            'remotePlayDirectConnectUrl',
-            'disableTrackEvent',
-            'patchUpdateInputConfigurationAsync',
-            'mkbIsMouseAndKeyboardTitle',
-            'enableConsoleLogging',
-            'remotePlayKeepAlive',
-            'blockWebRtcStatsCollector',
+            PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayDirectConnectUrl',
+            PREFS.get(Preferences.BLOCK_TRACKING) && 'disableTrackEvent',
+            HAS_TOUCH_SUPPORT && 'patchUpdateInputConfigurationAsync',
+            ENABLE_NATIVE_MKB_BETA && PREFS.get(Preferences.MKB_ENABLED) && 'mkbIsMouseAndKeyboardTitle',
+            ENABLE_XCLOUD_LOGGER && 'enableConsoleLogging',
+            PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayKeepAlive',
+            PREFS.get(Preferences.BLOCK_TRACKING) && 'blockWebRtcStatsCollector',
         ],
     ];
 
     // Only when playing
     static #PLAYING_PATCH_ORDERS = [
-        ['remotePlayConnectMode'],
+        PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
+
         ['playVibration'],
-        ['enableConsoleLogging'],
+
+        ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
+
         [
             'disableGamepadDisconnectedScreen',
-            'mkbMouseAndKeyboardEnabled',
+            PREFS.get(Preferences.MKB_ENABLED) && 'mkbMouseAndKeyboardEnabled',
         ],
     ];
 
