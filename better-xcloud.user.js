@@ -4262,6 +4262,26 @@ class MkbHandler {
 
     #$message;
 
+    #STICK_MAP;
+    #LEFT_STICK_X = [];
+    #LEFT_STICK_Y = [];
+    #RIGHT_STICK_X = [];
+    #RIGHT_STICK_Y = [];
+
+    constructor() {
+        this.#STICK_MAP = {
+            [GamepadKey.LS_LEFT]: [this.#LEFT_STICK_X, 0, -1],
+            [GamepadKey.LS_RIGHT]: [this.#LEFT_STICK_X, 0, 1],
+            [GamepadKey.LS_UP]: [this.#LEFT_STICK_Y, 1, -1],
+            [GamepadKey.LS_DOWN]: [this.#LEFT_STICK_Y, 1, 1],
+
+            [GamepadKey.RS_LEFT]: [this.#RIGHT_STICK_X, 2, -1],
+            [GamepadKey.RS_RIGHT]: [this.#RIGHT_STICK_X, 2, 1],
+            [GamepadKey.RS_UP]: [this.#RIGHT_STICK_Y, 3, -1],
+            [GamepadKey.RS_DOWN]: [this.#RIGHT_STICK_Y, 3, 1],
+        };
+    }
+
     #patchedGetGamepads = () => {
         const gamepads = this.#nativeGetGamepads();
         gamepads[this.#VIRTUAL_GAMEPAD.index] = this.#VIRTUAL_GAMEPAD;
@@ -4310,18 +4330,26 @@ class MkbHandler {
         const virtualGamepad = this.#getVirtualGamepad();
 
         if (buttonIndex >= 100) {
-            let axisIndex;
-            let value;
+            let [valueArr, axisIndex, fullValue] = this.#STICK_MAP[buttonIndex];
 
-            if (buttonIndex >= 100 && buttonIndex < 200) { // Left stick
-                axisIndex = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_RIGHT) ? 0 : 1;
-                value = (buttonIndex === GamepadKey.LS_LEFT || buttonIndex === GamepadKey.LS_UP) ? -1 : 1;
-            } else { // Right stick
-                axisIndex = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_RIGHT) ? 2 : 3;
-                value = (buttonIndex === GamepadKey.RS_LEFT || buttonIndex === GamepadKey.RS_UP) ? -1 : 1;
+            // Remove old index of the array
+            for (let i = valueArr.length - 1; i >= 0; i--) {
+                if (valueArr[i] === buttonIndex) {
+                    valueArr.splice(i, 1);
+                }
             }
 
-            virtualGamepad.axes[axisIndex] += pressed ? value : - value;
+            pressed && valueArr.push(buttonIndex);
+
+            let value;
+            if (valueArr.length) {
+                // Get value of the last key of the axis
+                value = this.#STICK_MAP[valueArr[valueArr.length - 1]][2];
+            } else {
+                value = 0;
+            }
+
+            virtualGamepad.axes[axisIndex] = value;
         } else {
             virtualGamepad.buttons[buttonIndex].pressed = pressed;
             virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
