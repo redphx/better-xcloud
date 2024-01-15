@@ -3933,11 +3933,11 @@ class MkbPreset {
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
             min: 1,
-            max: 100,
+            max: 200,
 
             params: {
                 suffix: '%',
-                exactTicks: 10,
+                exactTicks: 20,
             },
         },
 
@@ -3946,11 +3946,11 @@ class MkbPreset {
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
             min: 1,
-            max: 100,
+            max: 200,
 
             params: {
                 suffix: '%',
-                exactTicks: 10,
+                exactTicks: 20,
             },
         },
 
