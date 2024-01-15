@@ -2945,7 +2945,7 @@ class RemotePlay {
             const $settingNote = CE('p', {});
 
             const resolutions = [1080, 720];
-            const currentResolution = PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION);
+            const currentResolution = getPref(Preferences.REMOTE_PLAY_RESOLUTION);
             const $resolutionSelect = CE('select', {});
             for (const resolution of resolutions) {
                 const value = `${resolution}p`;
@@ -2961,7 +2961,7 @@ class RemotePlay {
                 const value = $resolutionSelect.value;
 
                 $settingNote.textContent = value === '1080p' ? '✅ ' + __('can-stream-xbox-360-games') : '❌ ' + __('cant-stream-xbox-360-games');
-                PREFS.set(Preferences.REMOTE_PLAY_RESOLUTION, value);
+                setPref(Preferences.REMOTE_PLAY_RESOLUTION, value);
             });
             $resolutionSelect.dispatchEvent(new Event('change'));
 
@@ -3022,7 +3022,7 @@ class RemotePlay {
     }
 
     static detect() {
-        if (!PREFS.get(Preferences.REMOTE_PLAY_ENABLED)) {
+        if (!getPref(Preferences.REMOTE_PLAY_ENABLED)) {
             return;
         }
 
@@ -3180,7 +3180,7 @@ class LoadingScreen {
             });
         }
 
-        if (PREFS.get(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide') {
+        if (getPref(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide') {
             LoadingScreen.#hideRocket();
         }
     }
@@ -3231,7 +3231,7 @@ class LoadingScreen {
 
     static setupWaitTime(waitTime) {
         // Hide rocket when queing
-        if (PREFS.get(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide-queue') {
+        if (getPref(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide-queue') {
             LoadingScreen.#hideRocket();
         }
 
@@ -3413,8 +3413,8 @@ class TouchController {
         TouchController.#$bar = $bar;
         TouchController.#$style = $style;
 
-        const PREF_STYLE_STANDARD = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
-        const PREF_STYLE_CUSTOM = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+        const PREF_STYLE_STANDARD = getPref(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
+        const PREF_STYLE_CUSTOM = getPref(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
 
         const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
@@ -4219,7 +4219,7 @@ class LocalDb {
                     this.#add(table, preset)
                         .then(([table, id]) => {
                             preset.id = id;
-                            PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, id);
+                            setPref(Preferences.MKB_DEFAULT_PRESET_ID, id);
 
                             resolve({[id]: preset});
                         });
@@ -4525,7 +4525,7 @@ class MkbHandler {
 
     #getCurrentPreset = () => {
         return new Promise(resolve => {
-            const presetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID, 0);
+            const presetId = getPref(Preferences.MKB_DEFAULT_PRESET_ID, 0);
             LocalDb.INSTANCE.getPreset(presetId).then(preset => {
                 resolve(preset ? preset : MkbPreset.DEFAULT_PRESET);
             });
@@ -4737,7 +4737,7 @@ class MkbRemapper {
     };
 
     constructor() {
-        this.#STATE.currentPresetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID);
+        this.#STATE.currentPresetId = getPref(Preferences.MKB_DEFAULT_PRESET_ID);
 
         this.bindingDialog = new Dialog({
             className: 'bx-binding-dialog',
@@ -4878,7 +4878,7 @@ class MkbRemapper {
         }
 
         // Update state of Activate button
-        const activated = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
+        const activated = getPref(Preferences.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
         this.#$.activateButton.disabled = activated;
         this.#$.activateButton.querySelector('span').textContent = activated ? __('activated') : __('activate');
     }
@@ -4899,10 +4899,10 @@ class MkbRemapper {
                     this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
 
                     defaultPresetId = this.#STATE.currentPresetId;
-                    PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, defaultPresetId);
+                    setPref(Preferences.MKB_DEFAULT_PRESET_ID, defaultPresetId);
                     MkbHandler.INSTANCE.refreshPresetData();
                 } else {
-                    defaultPresetId = PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID);
+                    defaultPresetId = getPref(Preferences.MKB_DEFAULT_PRESET_ID);
                 }
 
                 for (let id in presets) {
@@ -5128,7 +5128,7 @@ class MkbRemapper {
                            label: __('activate'),
                            style: ButtonStyle.PRIMARY,
                            onClick: e => {
-                               PREFS.set(Preferences.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
+                               setPref(Preferences.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
                                MkbHandler.INSTANCE.refreshPresetData();
 
                                this.#refresh();
@@ -5158,7 +5158,7 @@ class MkbRemapper {
 
                                LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
                                    // If this is the default preset => refresh preset data
-                                   if (id === PREFS.get(Preferences.MKB_DEFAULT_PRESET_ID)) {
+                                   if (id === getPref(Preferences.MKB_DEFAULT_PRESET_ID)) {
                                        MkbHandler.INSTANCE.refreshPresetData();
                                    }
 
@@ -5355,8 +5355,8 @@ class VibrationManager {
     }
 
     static updateGlobalVars() {
-        window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? PREFS.get(Preferences.CONTROLLER_ENABLE_VIBRATION) : false;
-        window.BX_VIBRATION_INTENSITY = PREFS.get(Preferences.CONTROLLER_VIBRATION_INTENSITY) / 100;
+        window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(Preferences.CONTROLLER_ENABLE_VIBRATION) : false;
+        window.BX_VIBRATION_INTENSITY = getPref(Preferences.CONTROLLER_VIBRATION_INTENSITY) / 100;
 
         if (!VibrationManager.supportDeviceVibration()) {
             window.BX_ENABLE_DEVICE_VIBRATION = false;
@@ -5366,7 +5366,7 @@ class VibrationManager {
         // Stop vibration
         window.navigator.vibrate(0);
 
-        const value = PREFS.get(Preferences.CONTROLLER_DEVICE_VIBRATION);
+        const value = getPref(Preferences.CONTROLLER_DEVICE_VIBRATION);
         let enabled;
 
         if (value === 'on') {
@@ -5809,7 +5809,7 @@ class StreamStats {
             return;
         }
 
-        const PREF_STATS_CONDITIONAL_FORMATTING = PREFS.get(Preferences.STATS_CONDITIONAL_FORMATTING);
+        const PREF_STATS_CONDITIONAL_FORMATTING = getPref(Preferences.STATS_CONDITIONAL_FORMATTING);
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
                 let grade = '';
@@ -5864,11 +5864,11 @@ class StreamStats {
     }
 
     static refreshStyles() {
-        const PREF_ITEMS = PREFS.get(Preferences.STATS_ITEMS);
-        const PREF_POSITION = PREFS.get(Preferences.STATS_POSITION);
-        const PREF_TRANSPARENT = PREFS.get(Preferences.STATS_TRANSPARENT);
-        const PREF_OPACITY = PREFS.get(Preferences.STATS_OPACITY);
-        const PREF_TEXT_SIZE = PREFS.get(Preferences.STATS_TEXT_SIZE);
+        const PREF_ITEMS = getPref(Preferences.STATS_ITEMS);
+        const PREF_POSITION = getPref(Preferences.STATS_POSITION);
+        const PREF_TRANSPARENT = getPref(Preferences.STATS_TRANSPARENT);
+        const PREF_OPACITY = getPref(Preferences.STATS_OPACITY);
+        const PREF_TEXT_SIZE = getPref(Preferences.STATS_TEXT_SIZE);
 
         const $container = StreamStats.#$container;
         $container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
@@ -5879,7 +5879,7 @@ class StreamStats {
     }
 
     static hideSettingsUi() {
-        if (StreamStats.isGlancing() && !PREFS.get(Preferences.STATS_QUICK_GLANCE)) {
+        if (StreamStats.isGlancing() && !getPref(Preferences.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
     }
@@ -5931,7 +5931,7 @@ class UserAgent {
     static get(profile) {
         const defaultUserAgent = UserAgent.getDefault();
         if (profile === UserAgent.PROFILE_CUSTOM) {
-            return PREFS.get(Preferences.USER_AGENT_CUSTOM, '');
+            return getPref(Preferences.USER_AGENT_CUSTOM, '');
         }
 
         return UserAgent.#USER_AGENTS[profile] || defaultUserAgent;
@@ -5949,7 +5949,7 @@ class UserAgent {
     }
 
     static spoof() {
-        const profile = PREFS.get(Preferences.USER_AGENT_PROFILE);
+        const profile = getPref(Preferences.USER_AGENT_PROFILE);
         if (profile === UserAgent.PROFILE_DEFAULT) {
             return;
         }
@@ -5989,7 +5989,7 @@ class PreloadedState {
                 APP_CONTEXT = structuredClone(state.appContext);
 
                 // Get a list of touch-supported games
-                if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
+                if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
                     let titles = {};
                     try {
                         titles = state.xcloud.titles.data.titles;
@@ -6607,7 +6607,7 @@ class Preferences {
 
     toElement(key, onChange, overrideParams={}) {
         const setting = Preferences.SETTINGS[key];
-        let currentValue = PREFS.get(key);
+        let currentValue = this.get(key);
 
         let $control;
         let type;
@@ -6629,7 +6629,7 @@ class Preferences {
         }
 
         $control = SettingElement.render(type, key, setting, currentValue, (e, value) => {
-                PREFS.set(key, value);
+                this.set(key, value);
                 onChange && onChange(e, value);
             }, params);
 
@@ -6637,8 +6637,8 @@ class Preferences {
     }
 
     toNumberStepper(key, onChange, options={}) {
-        return SettingElement.render(SettingElement.TYPE_NUMBER_STEPPER, key, Preferences.SETTINGS[key], PREFS.get(key), (e, value) => {
-                PREFS.set(key, value);
+        return SettingElement.render(SettingElement.TYPE_NUMBER_STEPPER, key, Preferences.SETTINGS[key], this.get(key), (e, value) => {
+                this.set(key, value);
                 onChange && onChange(e, value);
             }, options);
     }
@@ -6646,6 +6646,8 @@ class Preferences {
 
 
 const PREFS = new Preferences();
+const getPref = PREFS.get.bind(PREFS);
+const setPref = PREFS.set.bind(PREFS);
 
 
 class Patcher {
@@ -6803,11 +6805,11 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             ];
 
             // Enable native Mouse and Keyboard support
-            if (PREFS.get(Preferences.MKB_ENABLED)) {
+            if (getPref(Preferences.MKB_ENABLED)) {
                 newSettings.push('EnableMouseAndKeyboard: true');
                 newSettings.push('ShowMouseKeyboardSetting: true');
 
-                if (PREFS.get(Preferences.MKB_ABSOLUTE_MOUSE)) {
+                if (getPref(Preferences.MKB_ABSOLUTE_MOUSE)) {
                     newSettings.push('EnableAbsoluteMouse: true');
                 }
             }
@@ -6886,32 +6888,32 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     };
 
     static #PATCH_ORDERS = [
-        PREFS.get(Preferences.BLOCK_TRACKING) && [
+        getPref(Preferences.BLOCK_TRACKING) && [
             'disableAiTrack',
             'disableTelemetry',
         ],
 
         ['disableStreamGate'],
 
-        PREFS.get(Preferences.UI_LAYOUT) === 'tv' && ['tvLayout'],
+        getPref(Preferences.UI_LAYOUT) === 'tv' && ['tvLayout'],
 
         ENABLE_XCLOUD_LOGGER && ['enableXcloudLogger'],
 
         [
             'overrideSettings',
-            PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayDirectConnectUrl',
-            PREFS.get(Preferences.BLOCK_TRACKING) && 'disableTrackEvent',
+            getPref(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayDirectConnectUrl',
+            getPref(Preferences.BLOCK_TRACKING) && 'disableTrackEvent',
             HAS_TOUCH_SUPPORT && 'patchUpdateInputConfigurationAsync',
-            ENABLE_NATIVE_MKB_BETA && PREFS.get(Preferences.MKB_ENABLED) && 'mkbIsMouseAndKeyboardTitle',
+            ENABLE_NATIVE_MKB_BETA && getPref(Preferences.MKB_ENABLED) && 'mkbIsMouseAndKeyboardTitle',
             ENABLE_XCLOUD_LOGGER && 'enableConsoleLogging',
-            PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayKeepAlive',
-            PREFS.get(Preferences.BLOCK_TRACKING) && 'blockWebRtcStatsCollector',
+            getPref(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayKeepAlive',
+            getPref(Preferences.BLOCK_TRACKING) && 'blockWebRtcStatsCollector',
         ],
     ];
 
     // Only when playing
     static #PLAYING_PATCH_ORDERS = [
-        PREFS.get(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
+        getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
 
         ['playVibration'],
 
@@ -6919,7 +6921,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
         [
             'disableGamepadDisconnectedScreen',
-            PREFS.get(Preferences.MKB_ENABLED) && 'mkbMouseAndKeyboardEnabled',
+            getPref(Preferences.MKB_ENABLED) && 'mkbMouseAndKeyboardEnabled',
         ],
     ];
 
@@ -7054,8 +7056,8 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 function checkForUpdate() {
     const CHECK_INTERVAL_SECONDS = 4 * 3600; // check every 4 hours
 
-    const currentVersion = PREFS.get(Preferences.CURRENT_VERSION);
-    const lastCheck = PREFS.get(Preferences.LAST_UPDATE_CHECK);
+    const currentVersion = getPref(Preferences.CURRENT_VERSION);
+    const lastCheck = getPref(Preferences.LAST_UPDATE_CHECK);
     const now = Math.round((+new Date) / 1000);
 
     if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) {
@@ -7063,13 +7065,13 @@ function checkForUpdate() {
     }
 
     // Start checking
-    PREFS.set(Preferences.LAST_UPDATE_CHECK, now);
+    setPref(Preferences.LAST_UPDATE_CHECK, now);
     fetch('https://api.github.com/repos/redphx/better-xcloud/releases/latest')
         .then(response => response.json())
         .then(json => {
             // Store the latest version
-            PREFS.set(Preferences.LATEST_VERSION, json.tag_name.substring(1));
-            PREFS.set(Preferences.CURRENT_VERSION, SCRIPT_VERSION);
+            setPref(Preferences.LATEST_VERSION, json.tag_name.substring(1));
+            setPref(Preferences.CURRENT_VERSION, SCRIPT_VERSION);
         });
 }
 
@@ -8308,7 +8310,7 @@ div[class*=NotFocusedDialog] {
 `;
 
     // Hide "Play with friends" section
-    if (PREFS.get(Preferences.BLOCK_SOCIAL_FEATURES)) {
+    if (getPref(Preferences.BLOCK_SOCIAL_FEATURES)) {
         css += `
 div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
 button[class*=SocialEmptyCard] {
@@ -8318,7 +8320,7 @@ button[class*=SocialEmptyCard] {
     }
 
     // Reduce animations
-    if (PREFS.get(Preferences.REDUCE_ANIMATIONS)) {
+    if (getPref(Preferences.REDUCE_ANIMATIONS)) {
         css += `
 div[class*=GameCard-module__gameTitleInnerWrapper],
 div[class*=GameCard-module__card],
@@ -8329,7 +8331,7 @@ div[class*=ScrollArrows-module] {
     }
 
     // Hide the top-left dots icon while playing
-    if (PREFS.get(Preferences.HIDE_DOTS_ICON)) {
+    if (getPref(Preferences.HIDE_DOTS_ICON)) {
         css += `
 div[class*=Grip-module__container] {
     visibility: hidden;
@@ -8356,7 +8358,7 @@ div[class*=StreamHUD-module__buttonsContainer] {
     }
 
     // Hide touch controller
-    if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'off') {
+    if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off') {
         css += `
 #MultiTouchSurface, #BabylonCanvasContainer-main {
     display: none !important;
@@ -8370,7 +8372,7 @@ div[class*=StreamMenu-module__menu] {
     min-width: 100vw !important;
 }
 `;
-    if (PREFS.get(Preferences.STREAM_SIMPLIFY_MENU)) {
+    if (getPref(Preferences.STREAM_SIMPLIFY_MENU)) {
         css += `
 div[class*=Menu-module__scrollable] {
     --bxStreamMenuItemSize: 80px;
@@ -8435,7 +8437,7 @@ body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
 
 
 function getPreferredServerRegion() {
-    let preferredRegion = PREFS.get(Preferences.SERVER_REGION);
+    let preferredRegion = getPref(Preferences.SERVER_REGION);
     if (preferredRegion in SERVER_REGIONS) {
         return preferredRegion;
     }
@@ -8534,7 +8536,7 @@ function clearAllLogs() {
 
 function interceptHttpRequests() {
     let BLOCKED_URLS = [];
-    if (PREFS.get(Preferences.BLOCK_TRACKING)) {
+    if (getPref(Preferences.BLOCK_TRACKING)) {
         // Clear Applications Insight buffers
         clearAllLogs();
 
@@ -8546,7 +8548,7 @@ function interceptHttpRequests() {
         ]);
     }
 
-    if (PREFS.get(Preferences.BLOCK_SOCIAL_FEATURES)) {
+    if (getPref(Preferences.BLOCK_SOCIAL_FEATURES)) {
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://peoplehub.xboxlive.com/users/me',
             'https://accounts.xboxlive.com/family/memberXuid',
@@ -8577,14 +8579,14 @@ function interceptHttpRequests() {
         return nativeXhrSend.apply(this, arguments);
     };
 
-    const PREF_PREFER_IPV6_SERVER = PREFS.get(Preferences.PREFER_IPV6_SERVER);
-    const PREF_STREAM_TARGET_RESOLUTION = PREFS.get(Preferences.STREAM_TARGET_RESOLUTION);
-    const PREF_STREAM_PREFERRED_LOCALE = PREFS.get(Preferences.STREAM_PREFERRED_LOCALE);
-    const PREF_UI_LOADING_SCREEN_GAME_ART = PREFS.get(Preferences.UI_LOADING_SCREEN_GAME_ART);
-    const PREF_UI_LOADING_SCREEN_WAIT_TIME = PREFS.get(Preferences.UI_LOADING_SCREEN_WAIT_TIME);
+    const PREF_PREFER_IPV6_SERVER = getPref(Preferences.PREFER_IPV6_SERVER);
+    const PREF_STREAM_TARGET_RESOLUTION = getPref(Preferences.STREAM_TARGET_RESOLUTION);
+    const PREF_STREAM_PREFERRED_LOCALE = getPref(Preferences.STREAM_PREFERRED_LOCALE);
+    const PREF_UI_LOADING_SCREEN_GAME_ART = getPref(Preferences.UI_LOADING_SCREEN_GAME_ART);
+    const PREF_UI_LOADING_SCREEN_WAIT_TIME = getPref(Preferences.UI_LOADING_SCREEN_WAIT_TIME);
 
-    const PREF_STREAM_TOUCH_CONTROLLER = PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER);
-    const PREF_AUDIO_MIC_ON_PLAYING = PREFS.get(Preferences.AUDIO_MIC_ON_PLAYING);
+    const PREF_STREAM_TOUCH_CONTROLLER = getPref(Preferences.STREAM_TOUCH_CONTROLLER);
+    const PREF_AUDIO_MIC_ON_PLAYING = getPref(Preferences.AUDIO_MIC_ON_PLAYING);
 
     const orgFetch = window.fetch;
 
@@ -8646,7 +8648,7 @@ function interceptHttpRequests() {
             headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
 
             const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
-            if (PREFS.get(Preferences.REMOTE_PLAY_RESOLUTION) === '720p') {
+            if (getPref(Preferences.REMOTE_PLAY_RESOLUTION) === '720p') {
                 deviceInfo.dev.os.name = 'android';
             }
 
@@ -8790,7 +8792,7 @@ function interceptHttpRequests() {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.setup();
 
             // Start hiding cursor
-            if (!PREFS.get(Preferences.MKB_ENABLED) && PREFS.get(Preferences.MKB_HIDE_IDLE_CURSOR)) {
+            if (!getPref(Preferences.MKB_ENABLED) && getPref(Preferences.MKB_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
                 MouseCursorHider.hide();
             }
@@ -8873,7 +8875,7 @@ function interceptHttpRequests() {
                     overrides.inputConfiguration = overrides.inputConfiguration || {};
                     overrides.inputConfiguration.enableVibration = true;
                     if (ENABLE_NATIVE_MKB_BETA) {
-                        overrides.inputConfiguration.enableMouseAndKeyboard = PREFS.get(Preferences.MKB_ENABLED);
+                        overrides.inputConfiguration.enableMouseAndKeyboard = getPref(Preferences.MKB_ENABLED);
                     }
 
                     // Enable touch controller
@@ -8947,12 +8949,12 @@ function injectSettingsButton($parent) {
     }
 
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
-    const PREF_LATEST_VERSION = PREFS.get(Preferences.LATEST_VERSION);
+    const PREF_LATEST_VERSION = getPref(Preferences.LATEST_VERSION);
 
     const $headerFragment = document.createDocumentFragment();
 
     // Remote Play button
-    if (PREFS.get(Preferences.REMOTE_PLAY_ENABLED)) {
+    if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
         const $remotePlayBtn = createButton({
             classes: ['bx-remote-play-button'],
             icon: Icon.REMOTE_PLAY,
@@ -9117,7 +9119,7 @@ function injectSettingsButton($parent) {
                     'class': 'bx-settings-custom-user-agent',
                 });
                 $inpCustomUserAgent.addEventListener('change', e => {
-                    PREFS.set(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
+                    setPref(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
                 });
 
                 $control = PREFS.toElement(Preferences.USER_AGENT_PROFILE, e => {
@@ -9134,7 +9136,7 @@ function injectSettingsButton($parent) {
 
                 $control = CE('select', {id: `bx_setting_${settingId}`});
                 $control.addEventListener('change', e => {
-                    PREFS.set(settingId, e.target.value);
+                    setPref(settingId, e.target.value);
                 });
 
                 selectedValue = PREF_PREFERRED_REGION;
@@ -9235,7 +9237,7 @@ function injectSettingsButton($parent) {
 function getVideoPlayerFilterStyle() {
     const filters = [];
 
-    const clarity = PREFS.get(Preferences.VIDEO_CLARITY);
+    const clarity = getPref(Preferences.VIDEO_CLARITY);
     if (clarity != 0) {
         const level = (7 - (clarity - 1) * 0.5).toFixed(1); // 5, 5.5, 6, 6.5, 7
         const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
@@ -9244,17 +9246,17 @@ function getVideoPlayerFilterStyle() {
         filters.push(`url(#bx-filter-clarity)`);
     }
 
-    const saturation = PREFS.get(Preferences.VIDEO_SATURATION);
+    const saturation = getPref(Preferences.VIDEO_SATURATION);
     if (saturation != 100) {
         filters.push(`saturate(${saturation}%)`);
     }
 
-    const contrast = PREFS.get(Preferences.VIDEO_CONTRAST);
+    const contrast = getPref(Preferences.VIDEO_CONTRAST);
     if (contrast != 100) {
         filters.push(`contrast(${contrast}%)`);
     }
 
-    const brightness = PREFS.get(Preferences.VIDEO_BRIGHTNESS);
+    const brightness = getPref(Preferences.VIDEO_BRIGHTNESS);
     if (brightness != 100) {
         filters.push(`brightness(${brightness}%)`);
     }
@@ -9288,7 +9290,7 @@ function updateVideoPlayerCss() {
         videoCss += `filter: ${filters} !important;`;
     }
 
-    const PREF_RATIO = PREFS.get(Preferences.VIDEO_RATIO);
+    const PREF_RATIO = getPref(Preferences.VIDEO_RATIO);
     if (PREF_RATIO && PREF_RATIO !== '16:9') {
         if (PREF_RATIO.includes(':')) {
             videoCss += `aspect-ratio: ${PREF_RATIO.replace(':', '/')}; object-fit: unset !important;`;
@@ -9443,7 +9445,7 @@ function injectStreamMenuButtons() {
     let $btnStreamStats;
     let $gripHandle;
 
-    const PREF_DISABLE_FEEDBACK_DIALOG = PREFS.get(Preferences.STREAM_DISABLE_FEEDBACK_DIALOG);
+    const PREF_DISABLE_FEEDBACK_DIALOG = getPref(Preferences.STREAM_DISABLE_FEEDBACK_DIALOG);
     const observer = new MutationObserver(mutationList => {
         mutationList.forEach(item => {
             if (item.type !== 'childList') {
@@ -9608,8 +9610,8 @@ function showStreamSettings(tabId) {
 }
 
 function patchVideoApi() {
-    const PREF_SKIP_SPLASH_VIDEO = PREFS.get(Preferences.SKIP_SPLASH_VIDEO);
-    const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
+    const PREF_SKIP_SPLASH_VIDEO = getPref(Preferences.SKIP_SPLASH_VIDEO);
+    const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
 
     // Show video player when it's ready
     var showFunc;
@@ -9651,7 +9653,7 @@ function patchVideoApi() {
 
 
 function patchRtcCodecs() {
-    const codecProfile = PREFS.get(Preferences.STREAM_CODEC_PROFILE);
+    const codecProfile = getPref(Preferences.STREAM_CODEC_PROFILE);
     if (codecProfile === 'default') {
         return;
     }
@@ -9693,7 +9695,7 @@ function setupQuickSettingsBar() {
     const isSafari = UserAgent.isSafari();
 
     const SETTINGS_UI = [
-        PREFS.get(Preferences.MKB_ENABLED) && {
+        getPref(Preferences.MKB_ENABLED) && {
             icon: Icon.MOUSE,
             group: 'mkb',
             items: [
@@ -9721,7 +9723,7 @@ function setupQuickSettingsBar() {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
                             },
                             params: {
-                                disabled: !PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
+                                disabled: !getPref(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
                             },
                         },
                     },
@@ -10086,7 +10088,7 @@ function onStreamStarted($video) {
     }
 
     // Enable MKB
-    if (PREFS.get(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
+    if (getPref(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
         console.log('Emulate MKB');
         MkbHandler.INSTANCE.init();
     }
@@ -10096,14 +10098,14 @@ function onStreamStarted($video) {
     }
 
     /*
-    if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+    if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
         GamepadHandler.startPolling();
     }
     */
 
-    const PREF_SCREENSHOT_BUTTON_POSITION = PREFS.get(Preferences.SCREENSHOT_BUTTON_POSITION);
-    const PREF_STATS_QUICK_GLANCE = PREFS.get(Preferences.STATS_QUICK_GLANCE);
-    const PREF_STATS_SHOW_WHEN_PLAYING = PREFS.get(Preferences.STATS_SHOW_WHEN_PLAYING);
+    const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
+    const PREF_STATS_QUICK_GLANCE = getPref(Preferences.STATS_QUICK_GLANCE);
+    const PREF_STATS_SHOW_WHEN_PLAYING = getPref(Preferences.STATS_SHOW_WHEN_PLAYING);
 
     // Setup Stat's Quick Glance mode
     if (PREF_STATS_QUICK_GLANCE) {
@@ -10254,12 +10256,12 @@ PreloadedState.override();
 checkForUpdate();
 
 // Monkey patches
-if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
+if (getPref(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
     if (UserAgent.isSafari(true)) {
         const nativeCreateGain = window.AudioContext.prototype.createGain;
         window.AudioContext.prototype.createGain = function() {
             const gainNode = nativeCreateGain.apply(this);
-            gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+            gainNode.gain.value = (getPref(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
             STREAM_AUDIO_GAIN_NODE = gainNode;
             return gainNode;
         }
@@ -10289,14 +10291,14 @@ if (PREFS.get(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
 
         audioStream.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-        gainNode.gain.value = (PREFS.get(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
+        gainNode.gain.value = (getPref(Preferences.AUDIO_VOLUME) / 100).toFixed(2);
         STREAM_AUDIO_GAIN_NODE = gainNode;
 
         return promise;
     }
 }
 
-if (PREFS.get(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
+if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
     TouchController.setup();
 }
 
@@ -10321,7 +10323,7 @@ ENABLE_PRELOAD_BX_UI && setupBxUi();
 disablePwa();
 
 /*
-if (PREFS.get(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
     GamepadHandler.initialSetup();
 }
 */
