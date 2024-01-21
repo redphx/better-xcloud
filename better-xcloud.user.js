@@ -7842,11 +7842,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: hidden;
 }
 
-.bx-quick-settings-tab-contents div:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
+.bx-quick-settings-bar:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
     display: none;
 }
 
-.bx-quick-settings-tab-contents div[data-clarity-boost="true"] .bx-clarity-boost-warning {
+.bx-quick-settings-bar[data-clarity-boost="true"] .bx-clarity-boost-warning {
     display: block;
     margin: 0px 8px;
     padding: 12px;
@@ -7856,7 +7856,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-radius: 4px;
 }
 
-.bx-quick-settings-tab-contents div[data-clarity-boost="true"] > div[data-type="video"] {
+.bx-quick-settings-bar[data-clarity-boost="true"] div[data-type="video"] {
     display: none;
 }
 
