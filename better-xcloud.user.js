@@ -6808,7 +6808,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             ];
 
             // Enable native Mouse and Keyboard support
-            if (getPref(Preferences.MKB_ENABLED)) {
+            if (ENABLE_NATIVE_MKB_BETA) {
                 newSettings.push('EnableMouseAndKeyboard: true');
                 newSettings.push('ShowMouseKeyboardSetting: true');
 
@@ -6900,17 +6900,25 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
         getPref(Preferences.UI_LAYOUT) === 'tv' && ['tvLayout'],
 
-        ENABLE_XCLOUD_LOGGER && ['enableXcloudLogger'],
+        ENABLE_XCLOUD_LOGGER && [
+            'enableXcloudLogger',
+            'enableConsoleLogging',
+        ],
+
+        getPref(Preferences.BLOCK_TRACKING) && [
+            'disableTrackEvent',
+            'blockWebRtcStatsCollector',
+        ],
+
+        getPref(Preferences.REMOTE_PLAY_ENABLED) && [
+            'remotePlayDirectConnectUrl',
+            'remotePlayKeepAlive',
+        ],
 
         [
             'overrideSettings',
-            getPref(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayDirectConnectUrl',
-            getPref(Preferences.BLOCK_TRACKING) && 'disableTrackEvent',
+            ENABLE_NATIVE_MKB_BETA && 'mkbIsMouseAndKeyboardTitle',
             HAS_TOUCH_SUPPORT && 'patchUpdateInputConfigurationAsync',
-            ENABLE_NATIVE_MKB_BETA && getPref(Preferences.MKB_ENABLED) && 'mkbIsMouseAndKeyboardTitle',
-            ENABLE_XCLOUD_LOGGER && 'enableConsoleLogging',
-            getPref(Preferences.REMOTE_PLAY_ENABLED) && 'remotePlayKeepAlive',
-            getPref(Preferences.BLOCK_TRACKING) && 'blockWebRtcStatsCollector',
         ],
     ];
 
@@ -6924,7 +6932,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
         [
             'disableGamepadDisconnectedScreen',
-            ENABLE_NATIVE_MKB_BETA && getPref(Preferences.MKB_ENABLED) && 'mkbMouseAndKeyboardEnabled',
+            ENABLE_NATIVE_MKB_BETA && 'mkbMouseAndKeyboardEnabled',
         ],
     ];
 
@@ -7027,6 +7035,10 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     static #cleanupPatches() {
         for (let groupIndex = Patcher.#PATCH_ORDERS.length - 1; groupIndex >= 0; groupIndex--) {
             const group = Patcher.#PATCH_ORDERS[groupIndex];
+            if (group === false) {
+                Patcher.#PATCH_ORDERS.splice(groupIndex, 1);
+                continue;
+            }
 
             for (let patchIndex = group.length - 1; patchIndex >= 0; patchIndex--) {
                 const patchName = group[patchIndex];
@@ -8878,7 +8890,7 @@ function interceptHttpRequests() {
                     overrides.inputConfiguration = overrides.inputConfiguration || {};
                     overrides.inputConfiguration.enableVibration = true;
                     if (ENABLE_NATIVE_MKB_BETA) {
-                        overrides.inputConfiguration.enableMouseAndKeyboard = getPref(Preferences.MKB_ENABLED);
+                        overrides.inputConfiguration.enableMouseAndKeyboard = true;
                     }
 
                     // Enable touch controller
