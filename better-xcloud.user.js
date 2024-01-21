@@ -19,8 +19,8 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
 
-const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
+    'BT5P2X999VH2',
     // Not working anymore
     // '9PMQDM08SNK9', // MS Flight Simulator
     // '9NP1P1WFS0LB', // Halo Infinite
@@ -35,6 +35,16 @@ window.NATIVE_MKB_TITLES = [
     // '9NG07QJNK38J', // Among Us
     // '9N2Z748SPMTM', // AoE 2
     // '9P731Z4BBCT3', // Atomic Heart
+];
+
+window.REMOTE_PLAY_NATIVE_MKB_TITLES = [
+    // DOOM 64
+    'DOOM64',
+    'BT5P2X999VH2',
+
+    // Cyperpunk 2077
+    '222473492',
+    'BX3M8L83BBRW',
 ];
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
@@ -6720,12 +6730,32 @@ class Patcher {
 
         // Enable Remote Play feature
         remotePlayConnectMode: function(funcStr) {
-            const text = 'connectMode:"cloud-connect"';
+            const text = 'connectMode:"cloud-connect",';
             if (!funcStr.includes(text)) {
                 return false;
             }
 
-            return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
+            const newCode = `
+connectMode: window.BX_REMOTE_PLAY_CONFIG ? "xhome-connect" : "cloud-connect",
+remotePlayServerId: (window.BX_REMOTE_PLAY_CONFIG && window.BX_REMOTE_PLAY_CONFIG.serverId) || '',
+`;
+
+            return funcStr.replace(text, newCode);
+        },
+
+        // Remote Play MKB support
+        remotePlayMkb: function(funcStr) {
+            const text = 'handleRemotePlayTitleInputConfig(e){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            const newCode = `
+const supportMkb = window.REMOTE_PLAY_NATIVE_MKB_TITLES.includes(e.titleId);
+this.gameStream.session.updateInputConfigurationAsync({ enableMouseAndKeyboard: supportMkb });
+`;
+
+            return funcStr.replace(text, text + newCode);
         },
 
         // Disable trackEvent() function
@@ -6808,13 +6838,11 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             ];
 
             // Enable native Mouse and Keyboard support
-            if (ENABLE_NATIVE_MKB_BETA) {
-                newSettings.push('EnableMouseAndKeyboard: true');
-                newSettings.push('ShowMouseKeyboardSetting: true');
+            newSettings.push('EnableMouseAndKeyboard: true');
+            newSettings.push('ShowMouseKeyboardSetting: true');
 
-                if (getPref(Preferences.MKB_ABSOLUTE_MOUSE)) {
-                    newSettings.push('EnableAbsoluteMouse: true');
-                }
+            if (getPref(Preferences.MKB_ABSOLUTE_MOUSE)) {
+                newSettings.push('EnableAbsoluteMouse: true');
             }
 
             const newCode = newSettings.join(',');
@@ -6824,12 +6852,12 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         },
 
         mkbIsMouseAndKeyboardTitle: function(funcStr) {
-            const text = 'isMouseAndKeyboardTitle:()=>yn';
+            const text = 'isMouseAndKeyboardTitle:()=>';
             if (!funcStr.includes(text)) {
                 return false;
             }
 
-            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return e && e.details ? window.NATIVE_MKB_TITLES.includes(e.details.productId) : true; })`);
+            return funcStr.replace(text, text + `(function(e) { return e && e.details ? (window.BX_REMOTE_PLAY_CONFIG ? window.REMOTE_PLAY_NATIVE_MKB_TITLES : window.NATIVE_MKB_TITLES).includes(e.details.productId) : true; }),uwuwu:()=>`);
         },
 
         mkbMouseAndKeyboardEnabled: function(funcStr) {
@@ -6917,7 +6945,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
         [
             'overrideSettings',
-            ENABLE_NATIVE_MKB_BETA && 'mkbIsMouseAndKeyboardTitle',
+            'mkbIsMouseAndKeyboardTitle',
             HAS_TOUCH_SUPPORT && 'patchUpdateInputConfigurationAsync',
         ],
     ];
@@ -6930,9 +6958,11 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
 
+        getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayMkb'],
+
         [
             'disableGamepadDisconnectedScreen',
-            ENABLE_NATIVE_MKB_BETA && 'mkbMouseAndKeyboardEnabled',
+            'mkbMouseAndKeyboardEnabled',
         ],
     ];
 
@@ -8889,9 +8919,7 @@ function interceptHttpRequests() {
 
                     overrides.inputConfiguration = overrides.inputConfiguration || {};
                     overrides.inputConfiguration.enableVibration = true;
-                    if (ENABLE_NATIVE_MKB_BETA) {
-                        overrides.inputConfiguration.enableMouseAndKeyboard = true;
-                    }
+                    overrides.inputConfiguration.enableMouseAndKeyboard = true;
 
                     // Enable touch controller
                     if (TouchController.isEnabled()) {
@@ -10105,7 +10133,7 @@ function onStreamStarted($video) {
     }
 
     // Enable MKB
-    if (getPref(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
+    if (getPref(Preferences.MKB_ENABLED) && (!window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
         console.log('Emulate MKB');
         MkbHandler.INSTANCE.init();
     }
