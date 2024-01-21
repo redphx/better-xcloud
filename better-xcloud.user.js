@@ -9396,8 +9396,10 @@ function cloneStreamHudButton($orgButton, label, svg_icon) {
         }
     };
 
-    $container.addEventListener('transitionstart', onTransitionStart);
-    $container.addEventListener('transitionend', onTransitionEnd);
+    if (HAS_TOUCH_SUPPORT) {
+        $container.addEventListener('transitionstart', onTransitionStart);
+        $container.addEventListener('transitionend', onTransitionEnd);
+    }
 
     const $button = $container.querySelector('button');
     $button.setAttribute('title', label);
