@@ -2744,6 +2744,7 @@ window.addEventListener('load', e => {
 });
 
 
+const NATIVE_FETCH = window.fetch;
 const SERVER_REGIONS = {};
 var IS_PLAYING = false;
 var STREAM_WEBRTC;
@@ -3105,6 +3106,7 @@ class TitlesInfo {
         const details = titleInfo.details;
         TitlesInfo.update(details.productId, {
             titleId: titleInfo.titleId,
+            xboxTitleId: details.xboxTitleId,
             // Has more than one input type -> must have touch support
             hasTouchSupport: (details.supportedInputTypes.length > 1),
         });
@@ -6891,13 +6893,13 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr;
         },
 
-        exposeLayoutManager: function(funcStr) {
+        exposeTouchLayoutManager: function(funcStr) {
             const text = 'this._perScopeLayoutsStream=new';
             if (!funcStr.includes(text)) {
                 return false;
             }
 
-            funcStr = funcStr.replace(text, 'window.BX_EXPOSED["layout_manager"] = this,' + text);
+            funcStr = funcStr.replace(text, 'window.BX_EXPOSED["touch_layout_manager"] = this,' + text);
             return funcStr;
         },
     };
@@ -6939,7 +6941,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
 
         ['playVibration'],
-        ['exposeLayoutManager'],
+        getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
 
@@ -8616,8 +8618,6 @@ function interceptHttpRequests() {
     const PREF_STREAM_TOUCH_CONTROLLER = getPref(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_AUDIO_MIC_ON_PLAYING = getPref(Preferences.AUDIO_MIC_ON_PLAYING);
 
-    const orgFetch = window.fetch;
-
     const consoleAddrs = {};
 
     const patchIceCandidates = function(...arg) {
@@ -8626,7 +8626,7 @@ function interceptHttpRequests() {
         const url = (typeof request === 'string') ? request : request.url;
 
         if (url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
 
             return promise.then(response => {
                 return response.clone().text().then(text => {
@@ -8701,7 +8701,7 @@ function interceptHttpRequests() {
 
             // Get console IP
             if (url.includes('/configuration')) {
-                const promise = orgFetch(...arg);
+                const promise = NATIVE_FETCH(...arg);
 
                 return promise.then(response => {
                     return response.clone().json().then(obj => {
@@ -8724,7 +8724,7 @@ function interceptHttpRequests() {
                 });
             }
 
-            return patchIceCandidates(...arg) || orgFetch(...arg);
+            return patchIceCandidates(...arg) || NATIVE_FETCH(...arg);
         }
 
         if (IS_REMOTE_PLAYING && url.includes('/login/user')) {
@@ -8748,7 +8748,7 @@ function interceptHttpRequests() {
                 console.log(e);
             }
 
-            return orgFetch(...arg);
+            return NATIVE_FETCH(...arg);
         }
 
         if (IS_REMOTE_PLAYING && url.includes('/titles')) {
@@ -8768,7 +8768,7 @@ function interceptHttpRequests() {
             });
 
             arg[0] = request;
-            return orgFetch(...arg);
+            return NATIVE_FETCH(...arg);
         }
 
         // ICE server candidates
@@ -8779,7 +8779,7 @@ function interceptHttpRequests() {
 
         // Server list
         if (!url.includes('xhome.') && url.endsWith('/v2/login/user')) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
 
             return promise.then(response => {
                 return response.clone().json().then(obj => {
@@ -8854,12 +8854,12 @@ function interceptHttpRequests() {
             });
 
             arg[0] = newRequest;
-            return orgFetch(...arg);
+            return NATIVE_FETCH(...arg);
         }
 
         // Get wait time
         if (PREF_UI_LOADING_SCREEN_WAIT_TIME && url.includes('xboxlive.com') && url.includes('/waittime/')) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     if (json.estimatedAllocationTimeInSeconds > 0) {
@@ -8875,7 +8875,7 @@ function interceptHttpRequests() {
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
 
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
 
             // Touch controller for all games
             if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
@@ -8930,7 +8930,7 @@ function interceptHttpRequests() {
 
         // catalog.gamepass
         if (url.startsWith('https://catalog.gamepass.com') && url.includes('/products')) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     for (let productId in json.Products) {
@@ -8943,7 +8943,7 @@ function interceptHttpRequests() {
         }
 
         if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     for (let game of json.results) {
@@ -8966,7 +8966,7 @@ function interceptHttpRequests() {
             });
         }
 
-        return orgFetch(...arg);
+        return NATIVE_FETCH(...arg);
     }
 }
 
@@ -10115,6 +10115,7 @@ function onStreamStarted($video) {
         GAME_PRODUCT_ID = matches.groups.product_id;
     } else {
         GAME_TITLE_ID = 'remote-play';
+        GAME_PRODUCT_ID = null;
     }
 
     // Enable MKB
@@ -10237,6 +10238,34 @@ function onStreamStarted($video) {
         } else {
             $btn.style.left = '0';
         }
+    }
+
+    // Override touch layout
+    if (GAME_PRODUCT_ID) {
+        const titleInfo = TitlesInfo.get(GAME_PRODUCT_ID);
+        console.log('titleInfo', titleInfo);
+
+        const url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${titleInfo.xboxTitleId}.json`;
+
+        setTimeout(() => {
+            window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
+                .then(resp => resp.json())
+                .then(json => {
+                    console.log(json);
+                    window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+                        type: 'showLayout',
+                        scope: '' + titleInfo.xboxTitleId,
+                        subscope: 'override',
+                        layout: {
+                            id: 'System.Standard',
+                            displayName: 'System',
+                            layoutFile: {
+                                content: json.layout,
+                            },
+                        }
+                    });
+                });
+        }, 1000);
     }
 }
 
