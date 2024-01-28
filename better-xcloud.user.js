@@ -3323,9 +3323,16 @@ class LoadingScreen {
 
 
 class TouchController {
-    static get #EVENT_SHOW_CONTROLLER() {
+    static get #EVENT_SHOW_DEFAULT_CONTROLLER() {
         return new MessageEvent('message', {
                     data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
+                    origin: 'better-xcloud',
+                });
+    }
+
+    static get #EVENT_SHOW_CONTROLLER() {
+        return new MessageEvent('message', {
+                    data: '{"content":"","target":"/streaming/touchcontrols/hide","type":"Message"}',
                     origin: 'better-xcloud',
                 });
     }
@@ -3354,6 +3361,11 @@ class TouchController {
 
     static isEnabled() {
         return TouchController.#enable;
+    }
+
+    static #showDefault() {
+        TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
+        TouchController.#showing = true;
     }
 
     static #show() {
@@ -3391,6 +3403,32 @@ class TouchController {
         TouchController.#dataChannel && setTimeout(() => {
             TouchController.#dataChannel.dispatchEvent(msg);
         }, 10);
+    }
+
+    static loadCustomLayout(xboxTitleId) {
+        if (!window.BX_EXPOSED.touch_layout_manager) {
+            return;
+        }
+
+        const url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${xboxTitleId}.json`;
+        setTimeout(() => {
+            window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
+                .then(resp => resp.json())
+                .then(json => {
+                    window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+                        type: 'showLayout',
+                        scope: '' + xboxTitleId,
+                        subscope: 'base',
+                        layout: {
+                            id: 'System.Standard',
+                            displayName: 'System',
+                            layoutFile: {
+                                content: json.layout,
+                            },
+                        }
+                    });
+                });
+        }, 1000);
     }
 
     static setup() {
@@ -3457,9 +3495,23 @@ class TouchController {
                     return;
                 }
 
+                // Load custom touch layout
+                let showCustom = false;
+                try {
+                    if (msg.data.includes('/titleinfo')) {
+                        const json = JSON.parse(JSON.parse(msg.data).content);
+                        if (json.focused) {
+                            const xboxTitleId = parseInt(json.titleid, 16);
+                            TouchController.loadCustomLayout(xboxTitleId);
+                            showCustom = true;
+                        }
+                    }
+                } catch (e) { console.log(e) }
+
+
                 // Dispatch a message to display generic touch controller
-                if (msg.data.includes('touchcontrols/showtitledefault')) {
-                    TouchController.#show();
+                if (!showCustom && msg.data.includes('touchcontrols/showtitledefault')) {
+                    TouchController.#showDefault();
                 }
             });
 
@@ -10238,33 +10290,6 @@ function onStreamStarted($video) {
         } else {
             $btn.style.left = '0';
         }
-    }
-
-    // Override touch layout
-    if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && GAME_PRODUCT_ID) {
-        const titleInfo = TitlesInfo.get(GAME_PRODUCT_ID);
-        console.log('titleInfo', titleInfo);
-
-        const url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${titleInfo.xboxTitleId}.json`;
-
-        setTimeout(() => {
-            window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
-                .then(resp => resp.json())
-                .then(json => {
-                    window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
-                        type: 'showLayout',
-                        scope: '' + titleInfo.xboxTitleId,
-                        subscope: 'base',
-                        layout: {
-                            id: 'System.Standard',
-                            displayName: 'System',
-                            layoutFile: {
-                                content: json.layout,
-                            },
-                        }
-                    });
-                });
-        }, 1000);
     }
 }
 
