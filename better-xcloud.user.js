@@ -2753,6 +2753,7 @@ var STREAM_AUDIO_GAIN_NODE;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
+var GAME_XBOX_TITLE_ID;
 var GAME_PRODUCT_ID;
 var APP_CONTEXT;
 
@@ -3330,13 +3331,6 @@ class TouchController {
                 });
     }
 
-    static get #EVENT_SHOW_CONTROLLER() {
-        return new MessageEvent('message', {
-                    data: '{"content":"","target":"/streaming/touchcontrols/hide","type":"Message"}',
-                    origin: 'better-xcloud',
-                });
-    }
-
     static get #EVENT_HIDE_CONTROLLER() {
         return new MessageEvent('message', {
                     data: '{"content":"","target":"/streaming/touchcontrols/hide","type":"Message"}',
@@ -3350,6 +3344,8 @@ class TouchController {
     static #enable = false;
     static #showing = false;
     static #dataChannel;
+
+    static #customLayouts = {};
 
     static enable() {
         TouchController.#enable = true;
@@ -3369,7 +3365,11 @@ class TouchController {
     }
 
     static #show() {
-        TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_CONTROLLER);
+        if (GAME_XBOX_TITLE_ID) {
+            TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID);
+        } else {
+            TouchController.#showDefault();
+        }
         TouchController.#showing = true;
     }
 
@@ -3405,30 +3405,46 @@ class TouchController {
         }, 10);
     }
 
+    static #getCustomLayout(xboxTitleId, callback) {
+        xboxTitleId = '' + xboxTitleId;
+        if (xboxTitleId in TouchController.#customLayouts) {
+            callback(TouchController.#customLayouts[xboxTitleId]);
+            return;
+        }
+
+        const url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${xboxTitleId}.json`;
+        window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
+            .then(resp => resp.json())
+            .then(json => {
+                TouchController.#customLayouts[xboxTitleId] = json;
+                callback(json);
+            })
+            .reject(() => {
+                TouchController.#customLayouts[xboxTitleId] = null;
+                callback(null);
+            });
+    }
+
     static loadCustomLayout(xboxTitleId) {
         if (!window.BX_EXPOSED.touch_layout_manager) {
             return;
         }
 
-        const url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${xboxTitleId}.json`;
-        setTimeout(() => {
-            window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
-                .then(resp => resp.json())
-                .then(json => {
-                    window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
-                        type: 'showLayout',
-                        scope: '' + xboxTitleId,
-                        subscope: 'base',
-                        layout: {
-                            id: 'System.Standard',
-                            displayName: 'System',
-                            layoutFile: {
-                                content: json.layout,
-                            },
-                        }
-                    });
+        xboxTitleId = '' + xboxTitleId;
+        TouchController.#getCustomLayout(xboxTitleId, json => {
+                json && window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+                    type: 'showLayout',
+                    scope: '' + xboxTitleId,
+                    subscope: 'base',
+                    layout: {
+                        id: 'System.Standard',
+                        displayName: 'System',
+                        layoutFile: {
+                            content: json.layout,
+                        },
+                    }
                 });
-        }, 1000);
+            });
     }
 
     static setup() {
@@ -3502,8 +3518,11 @@ class TouchController {
                         const json = JSON.parse(JSON.parse(msg.data).content);
                         if (json.focused) {
                             const xboxTitleId = parseInt(json.titleid, 16);
+                            GAME_XBOX_TITLE_ID = xboxTitleId;
                             TouchController.loadCustomLayout(xboxTitleId);
                             showCustom = true;
+                        } else {
+                            GAME_XBOX_TITLE_ID = null;
                         }
                     }
                 } catch (e) { console.log(e) }
