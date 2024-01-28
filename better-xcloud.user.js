@@ -3432,18 +3432,20 @@ class TouchController {
 
         xboxTitleId = '' + xboxTitleId;
         TouchController.#getCustomLayout(xboxTitleId, json => {
-                json && window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
-                    type: 'showLayout',
-                    scope: '' + xboxTitleId,
-                    subscope: 'base',
-                    layout: {
-                        id: 'System.Standard',
-                        displayName: 'System',
-                        layoutFile: {
-                            content: json.layout,
-                        },
-                    }
-                });
+                json && setTimeout(() => {
+                    window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+                        type: 'showLayout',
+                        scope: '' + xboxTitleId,
+                        subscope: 'base',
+                        layout: {
+                            id: 'System.Standard',
+                            displayName: 'System',
+                            layoutFile: {
+                                content: json.layout,
+                            },
+                        }
+                    });
+                }, 1000);
             });
     }
 
