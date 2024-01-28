@@ -10241,7 +10241,7 @@ function onStreamStarted($video) {
     }
 
     // Override touch layout
-    if (GAME_PRODUCT_ID) {
+    if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && GAME_PRODUCT_ID) {
         const titleInfo = TitlesInfo.get(GAME_PRODUCT_ID);
         console.log('titleInfo', titleInfo);
 
@@ -10251,7 +10251,6 @@ function onStreamStarted($video) {
             window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
                 .then(resp => resp.json())
                 .then(json => {
-                    console.log(json);
                     window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
                         type: 'showLayout',
                         scope: '' + titleInfo.xboxTitleId,
