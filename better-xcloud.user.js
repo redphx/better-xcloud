@@ -6782,7 +6782,7 @@ class Patcher {
 
             funcStr = funcStr.replace('onServerDisconnectMessage(e){', `onServerDisconnectMessage(e) {
                 const msg = JSON.parse(e);
-                if (msg.reason === 'WarningForBeingIdle') {
+                if (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {
                     try {
                         this.sendKeepAlive();
                         return;
