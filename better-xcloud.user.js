@@ -2755,6 +2755,8 @@ var GAME_TITLE_ID;
 var GAME_PRODUCT_ID;
 var APP_CONTEXT;
 
+window.BX_EXPOSED = {};
+
 let IS_REMOTE_PLAYING;
 let REMOTE_PLAY_CONFIG;
 
@@ -6888,6 +6890,16 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             funcStr = funcStr.substring(0, bracketIndex) + 'return 0;' + funcStr.substring(bracketIndex);
             return funcStr;
         },
+
+        exposeLayoutManager: function(funcStr) {
+            const text = 'this._perScopeLayoutsStream=new';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replace(text, 'window.BX_EXPOSED["layout_manager"] = this,' + text);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -6927,6 +6939,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
 
         ['playVibration'],
+        ['exposeLayoutManager'],
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
 
