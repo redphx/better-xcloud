@@ -26,11 +26,7 @@
                 }
             ],
             "outer": [
-                {
-                    "type": "button",
-                    "action": "leftThumb",
-                    "toggle": true
-                },
+                null,
                 [
                     {
                         "type": "joystick",
@@ -141,6 +137,11 @@
                             }
                         }
                     }
+                },
+                {
+                    "type": "button",
+                    "action": "leftThumb",
+                    "toggle": true
                 },
                 {
                     "type": "touchpad",
