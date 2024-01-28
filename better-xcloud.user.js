@@ -10254,7 +10254,7 @@ function onStreamStarted($video) {
                     window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
                         type: 'showLayout',
                         scope: '' + titleInfo.xboxTitleId,
-                        subscope: 'override',
+                        subscope: 'base',
                         layout: {
                             id: 'System.Standard',
                             displayName: 'System',
