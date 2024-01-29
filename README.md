@@ -16,7 +16,8 @@ If you like this project please give it a 🌟. Thank you 🙏.
 [![Total stars](https://img.shields.io/github/stars/redphx/better-xcloud?color=%23cca400)](https://github.com/redphx/better-xcloud/stargazers)  
 
 ## Full documentations
-For the full details please visit: https://better-xcloud.github.io  
+- For the full details please visit: https://better-xcloud.github.io  
+- [Demo video](https://youtu.be/hyp69Jrb2sQ)
 
 ⚠️ Please DO NOT report **Better xCloud**'s bugs on [/r/xcloud subreddit](https://reddit.com/r/xcloud/). Report bugs in [Issues](https://github.com/redphx/better-xcloud/issues) or [Telegram channel](https://t.me/betterxcloud) instead.
 
