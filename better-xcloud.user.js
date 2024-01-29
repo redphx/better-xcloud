@@ -18,6 +18,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
+const USE_DEV_TOUCH_LAYOUT = false;
 
 const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
@@ -706,6 +707,7 @@ const Translations = {
         "en-US": "Deadzone counterweight",
         "es-ES": "Contrapeso de la zona muerta",
         "ja-JP": "デッドゾーンのカウンターウエイト",
+        "pl-PL": "Przeciwwaga martwej strefy",
         "pt-BR": "Contador da Zona Morta",
         "ru-RU": "Противодействие мертвой зоне игры",
         "tr-TR": "Ölü alan denge ağırlığı",
@@ -1279,6 +1281,17 @@ const Translations = {
         "uk-UA": "Натисніть, щоб активувати",
         "vi-VN": "Nhấn vào để kích hoạt",
         "zh-CN": "单击以启用",
+    },
+    "mkb-disclaimer": {
+        "de-DE": "Das Nutzen dieser Funktion beim Online-Spielen könnte als Betrug angesehen werden",
+        "en-US": "Using this feature when playing online could be viewed as cheating",
+        "es-ES": "Usar esta función al jugar en línea podría ser visto como trampas",
+        "ja-JP": "オンラインプレイでこの機能を使用すると不正行為と判定される可能性があります",
+        "pl-PL": "Używanie tej funkcji podczas grania online może być postrzegane jako oszukiwanie",
+        "pt-BR": "Usar esta função em jogos online pode ser considerado como uma forma de trapaça",
+        "ru-RU": "Использование этой функции при игре онлайн может рассматриваться как читерство",
+        "uk-UA": "Використання цієї функції під час гри онлайн може розглядатися як шахрайство",
+        "vi-VN": "Sử dụng chức năng này khi chơi trực tuyến có thể bị xem là gian lận",
     },
     "mouse-and-keyboard": {
         "de-DE": "Maus & Tastatur",
@@ -2161,6 +2174,7 @@ const Translations = {
         "en-US": "Stick decay minimum",
         "es-ES": "Disminuir mínimamente el analógico",
         "ja-JP": "スティックの減衰の最小値",
+        "pl-PL": "Minimalne opóźnienie drążka",
         "pt-BR": "Mínimo decaimento do analógico",
         "ru-RU": "Минимальная перезарядка стика",
         "tr-TR": "Çubuğun ortalanma süresi minimumu",
@@ -2173,6 +2187,7 @@ const Translations = {
         "en-US": "Stick decay strength",
         "es-ES": "Intensidad de decaimiento del analógico",
         "ja-JP": "スティックの減衰の強さ",
+        "pl-PL": "Siła opóźnienia drążka",
         "pt-BR": "Força de decaimento do analógico",
         "ru-RU": "Скорость перезарядки стика",
         "tr-TR": "Çubuğun ortalanma gücü",
@@ -2217,6 +2232,7 @@ const Translations = {
         "en-US": "Support Better xCloud",
         "es-ES": "Apoyar a Better xCloud",
         "ja-JP": "Better xCloudをサポート",
+        "pl-PL": "Wesprzyj Better xCloud",
         "pt-BR": "Suporte ao Melhor xCloud",
         "ru-RU": "Поддержать Better xCloud",
         "tr-TR": "Better xCloud'a destek ver",
@@ -2744,6 +2760,7 @@ window.addEventListener('load', e => {
 });
 
 
+const NATIVE_FETCH = window.fetch;
 const SERVER_REGIONS = {};
 var IS_PLAYING = false;
 var STREAM_WEBRTC;
@@ -2752,8 +2769,11 @@ var STREAM_AUDIO_GAIN_NODE;
 var $STREAM_VIDEO;
 var $SCREENSHOT_CANVAS;
 var GAME_TITLE_ID;
+var GAME_XBOX_TITLE_ID;
 var GAME_PRODUCT_ID;
 var APP_CONTEXT;
+
+window.BX_EXPOSED = {};
 
 let IS_REMOTE_PLAYING;
 let REMOTE_PLAY_CONFIG;
@@ -3103,6 +3123,7 @@ class TitlesInfo {
         const details = titleInfo.details;
         TitlesInfo.update(details.productId, {
             titleId: titleInfo.titleId,
+            xboxTitleId: details.xboxTitleId,
             // Has more than one input type -> must have touch support
             hasTouchSupport: (details.supportedInputTypes.length > 1),
         });
@@ -3319,7 +3340,7 @@ class LoadingScreen {
 
 
 class TouchController {
-    static get #EVENT_SHOW_CONTROLLER() {
+    static get #EVENT_SHOW_DEFAULT_CONTROLLER() {
         return new MessageEvent('message', {
                     data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
                     origin: 'better-xcloud',
@@ -3340,6 +3361,8 @@ class TouchController {
     static #showing = false;
     static #dataChannel;
 
+    static #customLayouts = {};
+
     static enable() {
         TouchController.#enable = true;
     }
@@ -3352,8 +3375,17 @@ class TouchController {
         return TouchController.#enable;
     }
 
+    static #showDefault() {
+        TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
+        TouchController.#showing = true;
+    }
+
     static #show() {
-        TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_CONTROLLER);
+        if (GAME_XBOX_TITLE_ID && GAME_XBOX_TITLE_ID in TouchController.#customLayouts) {
+            TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID);
+        } else {
+            TouchController.#showDefault();
+        }
         TouchController.#showing = true;
     }
 
@@ -3387,6 +3419,55 @@ class TouchController {
         TouchController.#dataChannel && setTimeout(() => {
             TouchController.#dataChannel.dispatchEvent(msg);
         }, 10);
+    }
+
+    static #getCustomLayout(xboxTitleId, callback) {
+        xboxTitleId = '' + xboxTitleId;
+        if (xboxTitleId in TouchController.#customLayouts) {
+            callback(TouchController.#customLayouts[xboxTitleId]);
+            return;
+        }
+
+        let url;
+        if (USE_DEV_TOUCH_LAYOUT) {
+            url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/dev/${xboxTitleId}.json`;
+        } else {
+            url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${xboxTitleId}.json`;
+        }
+        window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
+            .then(resp => resp.json())
+            .then(json => {
+                TouchController.#customLayouts[xboxTitleId] = json;
+                callback(json);
+            })
+            .reject(() => {
+                TouchController.#customLayouts[xboxTitleId] = null;
+                callback(null);
+            });
+    }
+
+    static loadCustomLayout(xboxTitleId) {
+        if (!window.BX_EXPOSED.touch_layout_manager) {
+            return;
+        }
+
+        xboxTitleId = '' + xboxTitleId;
+        TouchController.#getCustomLayout(xboxTitleId, json => {
+                json && setTimeout(() => {
+                    window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+                        type: 'showLayout',
+                        scope: '' + xboxTitleId,
+                        subscope: 'base',
+                        layout: {
+                            id: 'System.Standard',
+                            displayName: 'System',
+                            layoutFile: {
+                                content: json.layout,
+                            },
+                        }
+                    });
+                }, 1000);
+            });
     }
 
     static setup() {
@@ -3453,9 +3534,26 @@ class TouchController {
                     return;
                 }
 
+                // Load custom touch layout
+                let showCustom = false;
+                try {
+                    if (msg.data.includes('/titleinfo')) {
+                        const json = JSON.parse(JSON.parse(msg.data).content);
+                        if (json.focused) {
+                            const xboxTitleId = parseInt(json.titleid, 16);
+                            GAME_XBOX_TITLE_ID = xboxTitleId;
+                            TouchController.loadCustomLayout(xboxTitleId);
+                            showCustom = true;
+                        } else {
+                            GAME_XBOX_TITLE_ID = null;
+                        }
+                    }
+                } catch (e) { console.log(e) }
+
+
                 // Dispatch a message to display generic touch controller
-                if (msg.data.includes('touchcontrols/showtitledefault')) {
-                    TouchController.#show();
+                if (!showCustom && msg.data.includes('touchcontrols/showtitledefault')) {
+                    TouchController.#showDefault();
                 }
             });
 
@@ -6209,7 +6307,8 @@ class Preferences {
             'ready': () => {
                 const options = Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].options;
                 if (Object.keys(options).length <= 1) {
-                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].unsupported = __('browser-unsupported-feature');
+                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].unsupported = true;
+                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].note = '⚠️ ' + __('browser-unsupported-feature');
                 }
             },
         },
@@ -6237,7 +6336,7 @@ class Preferences {
                 'all': __('tc-all-games'),
                 'off': __('off'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
+            'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
@@ -6246,7 +6345,7 @@ class Preferences {
                 'white': __('tc-all-white'),
                 'muted': __('tc-muted-colors'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
+            'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             'default': 'default',
@@ -6254,7 +6353,7 @@ class Preferences {
                 'default': __('default'),
                 'muted': __('tc-muted-colors'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
+            'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
             'default': false,
@@ -6301,6 +6400,11 @@ class Preferences {
                     const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
                     return userAgent.match(/(android|iphone|ipad)/) ? __('browser-unsupported-feature') : false;
                 })(),
+            'ready': () => {
+                const pref = Preferences.SETTINGS[Preferences.MKB_ENABLED];
+                const note = __(pref.unsupported ? 'browser-unsupported-feature' : 'mkb-disclaimer');
+                Preferences.SETTINGS[Preferences.MKB_ENABLED].note = '⚠️ ' + note;
+            },
         },
 
         [Preferences.MKB_DEFAULT_PRESET_ID]: {
@@ -6707,7 +6811,7 @@ class Patcher {
 
             funcStr = funcStr.replace('onServerDisconnectMessage(e){', `onServerDisconnectMessage(e) {
                 const msg = JSON.parse(e);
-                if (msg.reason === 'WarningForBeingIdle') {
+                if (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {
                     try {
                         this.sendKeepAlive();
                         return;
@@ -6888,6 +6992,16 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             funcStr = funcStr.substring(0, bracketIndex) + 'return 0;' + funcStr.substring(bracketIndex);
             return funcStr;
         },
+
+        exposeTouchLayoutManager: function(funcStr) {
+            const text = 'this._perScopeLayoutsStream=new';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replace(text, 'window.BX_EXPOSED["touch_layout_manager"] = this,' + text);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -6927,6 +7041,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
 
         ['playVibration'],
+        getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
 
@@ -8603,8 +8718,6 @@ function interceptHttpRequests() {
     const PREF_STREAM_TOUCH_CONTROLLER = getPref(Preferences.STREAM_TOUCH_CONTROLLER);
     const PREF_AUDIO_MIC_ON_PLAYING = getPref(Preferences.AUDIO_MIC_ON_PLAYING);
 
-    const orgFetch = window.fetch;
-
     const consoleAddrs = {};
 
     const patchIceCandidates = function(...arg) {
@@ -8613,7 +8726,7 @@ function interceptHttpRequests() {
         const url = (typeof request === 'string') ? request : request.url;
 
         if (url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
 
             return promise.then(response => {
                 return response.clone().text().then(text => {
@@ -8688,7 +8801,7 @@ function interceptHttpRequests() {
 
             // Get console IP
             if (url.includes('/configuration')) {
-                const promise = orgFetch(...arg);
+                const promise = NATIVE_FETCH(...arg);
 
                 return promise.then(response => {
                     return response.clone().json().then(obj => {
@@ -8711,7 +8824,7 @@ function interceptHttpRequests() {
                 });
             }
 
-            return patchIceCandidates(...arg) || orgFetch(...arg);
+            return patchIceCandidates(...arg) || NATIVE_FETCH(...arg);
         }
 
         if (IS_REMOTE_PLAYING && url.includes('/login/user')) {
@@ -8735,7 +8848,7 @@ function interceptHttpRequests() {
                 console.log(e);
             }
 
-            return orgFetch(...arg);
+            return NATIVE_FETCH(...arg);
         }
 
         if (IS_REMOTE_PLAYING && url.includes('/titles')) {
@@ -8755,7 +8868,7 @@ function interceptHttpRequests() {
             });
 
             arg[0] = request;
-            return orgFetch(...arg);
+            return NATIVE_FETCH(...arg);
         }
 
         // ICE server candidates
@@ -8766,7 +8879,7 @@ function interceptHttpRequests() {
 
         // Server list
         if (!url.includes('xhome.') && url.endsWith('/v2/login/user')) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
 
             return promise.then(response => {
                 return response.clone().json().then(obj => {
@@ -8841,12 +8954,12 @@ function interceptHttpRequests() {
             });
 
             arg[0] = newRequest;
-            return orgFetch(...arg);
+            return NATIVE_FETCH(...arg);
         }
 
         // Get wait time
         if (PREF_UI_LOADING_SCREEN_WAIT_TIME && url.includes('xboxlive.com') && url.includes('/waittime/')) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     if (json.estimatedAllocationTimeInSeconds > 0) {
@@ -8862,7 +8975,7 @@ function interceptHttpRequests() {
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
             PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
 
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
 
             // Touch controller for all games
             if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
@@ -8917,7 +9030,7 @@ function interceptHttpRequests() {
 
         // catalog.gamepass
         if (url.startsWith('https://catalog.gamepass.com') && url.includes('/products')) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     for (let productId in json.Products) {
@@ -8930,7 +9043,7 @@ function interceptHttpRequests() {
         }
 
         if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
-            const promise = orgFetch(...arg);
+            const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
                     for (let game of json.results) {
@@ -8953,7 +9066,7 @@ function interceptHttpRequests() {
             });
         }
 
-        return orgFetch(...arg);
+        return NATIVE_FETCH(...arg);
     }
 }
 
@@ -9069,6 +9182,7 @@ function injectSettingsButton($parent) {
         },
         */
         [__('touch-controller')]: {
+            _note: !HAS_TOUCH_SUPPORT ? '⚠️ ' + __('device-unsupported-touch') : null,
             [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
@@ -9114,14 +9228,8 @@ function injectSettingsButton($parent) {
 
             const setting = Preferences.SETTINGS[settingId];
 
-            let settingLabel;
-            let settingNote;
-
-            if (Array.isArray(SETTINGS_UI[groupLabel][settingId])) {
-                [settingLabel, settingNote] = SETTINGS_UI[groupLabel][settingId];
-            } else {
-                settingLabel = SETTINGS_UI[groupLabel][settingId];
-            }
+            const settingLabel = SETTINGS_UI[groupLabel][settingId];
+            const settingNote = setting.note;
 
             let $control, $inpCustomUserAgent;
             let labelAttrs = {};
@@ -9192,10 +9300,7 @@ function injectSettingsButton($parent) {
             // Disable unsupported settings
             if (setting.unsupported) {
                 $control.disabled = true;
-                $control.title = setting.unsupported;
             }
-
-            $control.disabled && ($control.style.cursor = 'help');
 
             const $label = CE('label', labelAttrs, settingLabel);
             if (settingNote) {
@@ -10102,6 +10207,7 @@ function onStreamStarted($video) {
         GAME_PRODUCT_ID = matches.groups.product_id;
     } else {
         GAME_TITLE_ID = 'remote-play';
+        GAME_PRODUCT_ID = null;
     }
 
     // Enable MKB
