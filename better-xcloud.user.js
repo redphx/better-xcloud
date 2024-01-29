@@ -6307,7 +6307,8 @@ class Preferences {
             'ready': () => {
                 const options = Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].options;
                 if (Object.keys(options).length <= 1) {
-                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].unsupported = __('browser-unsupported-feature');
+                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].unsupported = true;
+                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].note = '⚠️ ' + __('browser-unsupported-feature');
                 }
             },
         },
@@ -6335,7 +6336,7 @@ class Preferences {
                 'all': __('tc-all-games'),
                 'off': __('off'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
+            'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
@@ -6344,7 +6345,7 @@ class Preferences {
                 'white': __('tc-all-white'),
                 'muted': __('tc-muted-colors'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
+            'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             'default': 'default',
@@ -6352,7 +6353,7 @@ class Preferences {
                 'default': __('default'),
                 'muted': __('tc-muted-colors'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT ? __('device-unsupported-touch') : false,
+            'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_SIMPLIFY_MENU]: {
             'default': false,
@@ -6399,6 +6400,11 @@ class Preferences {
                     const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
                     return userAgent.match(/(android|iphone|ipad)/) ? __('browser-unsupported-feature') : false;
                 })(),
+            'ready': () => {
+                const pref = Preferences.SETTINGS[Preferences.MKB_ENABLED];
+                const note = __(pref.unsupported ? 'browser-unsupported-feature' : 'mkb-disclaimer');
+                Preferences.SETTINGS[Preferences.MKB_ENABLED].note = '⚠️ ' + note;
+            },
         },
 
         [Preferences.MKB_DEFAULT_PRESET_ID]: {
@@ -9176,6 +9182,7 @@ function injectSettingsButton($parent) {
         },
         */
         [__('touch-controller')]: {
+            _note: !HAS_TOUCH_SUPPORT ? '⚠️ ' + __('device-unsupported-touch') : null,
             [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
@@ -9221,14 +9228,8 @@ function injectSettingsButton($parent) {
 
             const setting = Preferences.SETTINGS[settingId];
 
-            let settingLabel;
-            let settingNote;
-
-            if (Array.isArray(SETTINGS_UI[groupLabel][settingId])) {
-                [settingLabel, settingNote] = SETTINGS_UI[groupLabel][settingId];
-            } else {
-                settingLabel = SETTINGS_UI[groupLabel][settingId];
-            }
+            const settingLabel = SETTINGS_UI[groupLabel][settingId];
+            const settingNote = setting.note;
 
             let $control, $inpCustomUserAgent;
             let labelAttrs = {};
@@ -9299,10 +9300,7 @@ function injectSettingsButton($parent) {
             // Disable unsupported settings
             if (setting.unsupported) {
                 $control.disabled = true;
-                $control.title = setting.unsupported;
             }
-
-            $control.disabled && ($control.style.cursor = 'help');
 
             const $label = CE('label', labelAttrs, settingLabel);
             if (settingNote) {
