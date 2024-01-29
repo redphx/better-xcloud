@@ -56,7 +56,10 @@
           "type": "directionalPad",
           "scale": 1.2
         },
-        null,
+        {
+          "type": "button",
+          "action": "rightThumb"
+        },
         {
           "type": "button",
           "action": "leftBumper",
@@ -194,10 +197,6 @@
               }
             }
           }
-        },
-        {
-          "type": "button",
-          "action": "rightThumb"
         }
       ]
     },
