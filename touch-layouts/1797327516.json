@@ -109,8 +109,23 @@
           ]
         },
         {
-          "type": "button",
-          "action": "leftTrigger"
+          "type": "touchpad",
+          "axis": [
+            {
+              "input": "axisX",
+              "output": "leftJoystickX",
+              "sensitivity": 20
+            },
+            {
+              "input": "axisY",
+              "output": "leftJoystickY",
+              "sensitivity": 10
+            }
+          ],
+          "renderAsButton": true,
+          "action": [
+            "leftTrigger"
+          ]
         }
       ]
     },
