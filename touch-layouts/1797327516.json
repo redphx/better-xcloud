@@ -227,7 +227,7 @@
                 "axis": {
                     "input": "axisXY",
                     "output": "rightJoystick",
-                    "sensitivity": 3
+                    "sensitivity": 2
                 }
             }
         ]
