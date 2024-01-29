@@ -245,14 +245,6 @@
         {
           "type": "button",
           "action": "view"
-        },
-        {
-          "type": "button",
-          "action": "rightBumper"
-        },
-        {
-          "type": "button",
-          "action": "leftBumper"
         }
       ]
     },
