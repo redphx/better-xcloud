@@ -13,12 +13,22 @@
               "radial": true
             }
           },
+          "action": "leftThumb",
+          "actionThreshold": 2,
           "styles": {
             "default": {
               "knob": {
                 "faceImage": {
                   "type": "icon",
                   "value": "walk"
+                }
+              }
+            },
+            "activated": {
+              "knob": {
+                "faceImage": {
+                  "type": "icon",
+                  "value": "run"
                 }
               }
             }
@@ -61,14 +71,42 @@
           "action": "rightThumb"
         },
         {
-          "type": "button",
-          "action": "leftBumper",
-          "toggle": true
+          "type": "touchpad",
+          "axis": [
+            {
+              "input": "axisX",
+              "output": "rightJoystickX",
+              "sensitivity": 20
+            },
+            {
+              "input": "axisY",
+              "output": "rightJoystickY",
+              "sensitivity": 10
+            }
+          ],
+          "renderAsButton": true,
+          "action": [
+            "leftBumper"
+          ]
         },
         {
-          "type": "button",
-          "action": "rightBumper",
-          "toggle": true
+          "type": "touchpad",
+          "axis": [
+            {
+              "input": "axisX",
+              "output": "rightJoystickX",
+              "sensitivity": 20
+            },
+            {
+              "input": "axisY",
+              "output": "rightJoystickY",
+              "sensitivity": 10
+            }
+          ],
+          "renderAsButton": true,
+          "action": [
+            "rightBumper"
+          ]
         },
         {
           "type": "button",
@@ -142,22 +180,20 @@
           }
         },
         {
-          "type": "button",
-          "action": "leftThumb",
-          "toggle": true
+          "type": "blank"
         },
         {
           "type": "touchpad",
           "axis": [
             {
               "input": "axisX",
-              "output": "relativeMouseX",
-              "sensitivity": 5
+              "output": "rightJoystickX",
+              "sensitivity": 20
             },
             {
               "input": "axisY",
-              "output": "relativeMouseY",
-              "sensitivity": 2.5
+              "output": "rightJoystickY",
+              "sensitivity": 10
             }
           ],
           "renderAsButton": true,
@@ -226,7 +262,7 @@
         "axis": {
           "input": "axisXY",
           "output": "rightJoystick",
-          "sensitivity": 2
+          "sensitivity": 1
         }
       }
     ]
