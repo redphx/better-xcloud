@@ -75,12 +75,12 @@
           "axis": [
             {
               "input": "axisX",
-              "output": "rightJoystickX",
+              "output": "leftJoystickX",
               "sensitivity": 20
             },
             {
               "input": "axisY",
-              "output": "rightJoystickY",
+              "output": "leftJoystickY",
               "sensitivity": 10
             }
           ],
@@ -94,12 +94,12 @@
           "axis": [
             {
               "input": "axisX",
-              "output": "rightJoystickX",
+              "output": "leftJoystickX",
               "sensitivity": 20
             },
             {
               "input": "axisY",
-              "output": "rightJoystickY",
+              "output": "leftJoystickY",
               "sensitivity": 10
             }
           ],
