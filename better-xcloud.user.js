@@ -3381,7 +3381,7 @@ class TouchController {
     }
 
     static #show() {
-        if (GAME_XBOX_TITLE_ID) {
+        if (GAME_XBOX_TITLE_ID && GAME_XBOX_TITLE_ID in TouchController.#customLayouts) {
             TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID);
         } else {
             TouchController.#showDefault();
