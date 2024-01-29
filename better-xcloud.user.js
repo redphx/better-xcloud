@@ -18,6 +18,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
+const USE_DEV_TOUCH_LAYOUT = false;
 
 const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
@@ -3412,7 +3413,12 @@ class TouchController {
             return;
         }
 
-        const url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${xboxTitleId}.json`;
+        let url;
+        if (USE_DEV_TOUCH_LAYOUT) {
+            url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/dev/${xboxTitleId}.json`;
+        } else {
+            url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${xboxTitleId}.json`;
+        }
         window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
             .then(resp => resp.json())
             .then(json => {
