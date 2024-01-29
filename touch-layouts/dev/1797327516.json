@@ -77,14 +77,18 @@
       "inner": [
         {
           "type": "touchpad",
-          "axis": {
-            "input": "axisXY",
-            "output": "rightJoystick",
-            "deadzone": {
-              "threshold": 0.01,
-              "radial": true
+          "axis": [
+            {
+              "input": "axisX",
+              "output": "rightJoystickX",
+              "sensitivity": 5
+            },
+            {
+              "input": "axisY",
+              "output": "rightJoystickY",
+              "sensitivity": 2.5
             }
-          },
+          ],
           "styles": {
             "default": {
               "faceImage": {
@@ -225,7 +229,7 @@
         "axis": {
           "input": "axisXY",
           "output": "rightJoystick",
-          "sensitivity": 3
+          "sensitivity": 2
         }
       }
     ]
