@@ -54,7 +54,7 @@
                 "knob": {
                   "faceImage": {
                     "type": "icon",
-                    "value": "fire"
+                    "value": "rightTrigger"
                   }
                 }
               }
