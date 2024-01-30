@@ -18,12 +18,22 @@
                   "radial": true
                 }
               },
+              "action": "leftThumb",
+              "actionThreshold": 2,
               "styles": {
                 "default": {
                   "knob": {
                     "faceImage": {
                       "type": "icon",
                       "value": "walk"
+                    }
+                  }
+                },
+                "activated": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "run"
                     }
                   }
                 }
@@ -49,7 +59,7 @@
                     "knob": {
                       "faceImage": {
                         "type": "icon",
-                        "value": "fire"
+                        "value": "rightTrigger"
                       }
                     }
                   }
@@ -61,44 +71,88 @@
               "type": "directionalPad",
               "scale": 1.2
             },
-            null,
             {
               "type": "button",
-              "action": "leftBumper",
-              "toggle": true
+              "action": "rightThumb"
             },
             {
-              "type": "button",
-              "action": "rightBumper",
-              "toggle": true
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "leftJoystickX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "leftJoystickY",
+                  "sensitivity": 10
+                }
+              ],
+              "renderAsButton": true,
+              "action": [
+                "leftBumper"
+              ]
             },
             {
-              "type": "button",
-              "action": "leftTrigger"
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "leftJoystickX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "leftJoystickY",
+                  "sensitivity": 10
+                }
+              ],
+              "renderAsButton": true,
+              "action": [
+                "rightBumper"
+              ]
+            },
+            {
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "leftJoystickX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "leftJoystickY",
+                  "sensitivity": 10
+                }
+              ],
+              "renderAsButton": true,
+              "action": [
+                "leftTrigger"
+              ]
             }
           ]
         },
         "right": {
           "inner": [
             {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "rightJoystickX",
-                  "sensitivity": 5
-                },
-                {
-                  "input": "axisY",
-                  "output": "rightJoystickY",
-                  "sensitivity": 2.5
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick",
+                "deadzone": {
+                  "threshold": 0.01,
+                  "radial": true
                 }
-              ],
+              },
               "styles": {
                 "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "look"
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "look"
+                    }
                   }
                 }
               }
@@ -146,22 +200,20 @@
               }
             },
             {
-              "type": "button",
-              "action": "leftThumb",
-              "toggle": true
+              "type": "blank"
             },
             {
               "type": "touchpad",
               "axis": [
                 {
                   "input": "axisX",
-                  "output": "relativeMouseX",
-                  "sensitivity": 5
+                  "output": "rightJoystickX",
+                  "sensitivity": 20
                 },
                 {
                   "input": "axisY",
-                  "output": "relativeMouseY",
-                  "sensitivity": 2.5
+                  "output": "rightJoystickY",
+                  "sensitivity": 10
                 }
               ],
               "renderAsButton": true,
@@ -201,10 +253,6 @@
                   }
                 }
               }
-            },
-            {
-              "type": "button",
-              "action": "rightThumb"
             }
           ]
         },
@@ -217,14 +265,6 @@
             {
               "type": "button",
               "action": "view"
-            },
-            {
-              "type": "button",
-              "action": "rightBumper"
-            },
-            {
-              "type": "button",
-              "action": "leftBumper"
             }
           ]
         },
@@ -234,7 +274,7 @@
             "axis": {
               "input": "axisXY",
               "output": "rightJoystick",
-              "sensitivity": 2
+              "sensitivity": 1
             }
           }
         ]
