@@ -5,14 +5,10 @@
       "inner": [
         {
           "type": "joystick",
-          "expand": false,
+          "relative": false,
           "axis": {
             "input": "axisXY",
-            "output": "leftJoystick",
-            "deadzone": {
-              "threshold": 0.01,
-              "radial": true
-            }
+            "output": "leftJoystick"
           }
         }
       ],
@@ -34,18 +30,17 @@
     "right": {
       "inner": [
         {
-          "type": "blank"
-        },
-        {
           "type": "button",
-          "action": "gamepadB"
+          "action": "gamepadB",
+          "styles": {
+            "idle": {
+              "opacity": 0.5
+            }
+          }
         },
         {
           "type": "button",
           "action": "gamepadA"
-        },
-        {
-          "type": "blank"
         }
       ],
       "outer": [
@@ -53,8 +48,7 @@
           "type": "blank"
         },
         {
-          "type": "button",
-          "action": "rightTrigger"
+          "type": "blank"
         },
         null,
         {
@@ -63,13 +57,10 @@
         [
           {
             "type": "joystick",
+            "expand": false,
             "axis": {
               "input": "axisXY",
-              "output": "rightJoystick",
-              "deadzone": {
-                "threshold": 0.01,
-                "radial": true
-              }
+              "output": "rightJoystick"
             },
             "styles": {
               "idle": {
@@ -87,6 +78,10 @@
         {
           "type": "button",
           "action": "menu"
+        },
+        {
+          "type": "button",
+          "action": "rightBumper"
         }
       ]
     }
