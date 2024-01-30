@@ -1,0 +1,94 @@
+{
+  "name": "Brotato",
+  "layout": {
+    "left": {
+      "inner": [
+        {
+          "type": "joystick",
+          "expand": false,
+          "axis": {
+            "input": "axisXY",
+            "output": "leftJoystick",
+            "deadzone": {
+              "threshold": 0.01,
+              "radial": true
+            }
+          }
+        }
+      ],
+      "outer": [
+        null,
+        null,
+        [
+          {
+            "type": "directionalPad",
+            "styles": {
+              "idle": {
+                "opacity": 0.5
+              }
+            }
+          }
+        ]
+      ]
+    },
+    "right": {
+      "inner": [
+        {
+          "type": "blank"
+        },
+        {
+          "type": "button",
+          "action": "gamepadB"
+        },
+        {
+          "type": "button",
+          "action": "gamepadA"
+        },
+        {
+          "type": "blank"
+        }
+      ],
+      "outer": [
+        {
+          "type": "blank"
+        },
+        {
+          "type": "button",
+          "action": "rightTrigger"
+        },
+        null,
+        {
+          "type": "blank"
+        },
+        [
+          {
+            "type": "joystick",
+            "axis": {
+              "input": "axisXY",
+              "output": "rightJoystick",
+              "deadzone": {
+                "threshold": 0.01,
+                "radial": true
+              }
+            },
+            "styles": {
+              "idle": {
+                "knob": {
+                  "opacity": 0.5
+                }
+              }
+            }
+          }
+        ]
+      ]
+    },
+    "upper": {
+      "right": [
+        {
+          "type": "button",
+          "action": "menu"
+        }
+      ]
+    }
+  }
+}
