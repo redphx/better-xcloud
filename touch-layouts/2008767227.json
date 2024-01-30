@@ -31,15 +31,6 @@
       "inner": [
         {
           "type": "button",
-          "action": "gamepadB",
-          "styles": {
-            "idle": {
-              "opacity": 0.5
-            }
-          }
-        },
-        {
-          "type": "button",
           "action": "gamepadA"
         }
       ],
@@ -48,7 +39,8 @@
           "type": "blank"
         },
         {
-          "type": "blank"
+          "type": "button",
+          "action": "gamepadB"
         },
         null,
         {
@@ -57,7 +49,6 @@
         [
           {
             "type": "joystick",
-            "expand": false,
             "axis": {
               "input": "axisXY",
               "output": "rightJoystick"
