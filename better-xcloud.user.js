@@ -3370,7 +3370,6 @@ class TouchController {
 
     static enable() {
         TouchController.#enable = true;
-        TouchController.#show();
     }
 
     static disable() {
@@ -3480,7 +3479,7 @@ class TouchController {
 
         const layoutData = TouchController.#customLayouts[xboxTitleId];
         if (!xboxTitleId || !layoutId || !layoutData) {
-            TouchController.#showDefault();
+            TouchController.#enable && TouchController.#showDefault();
             return;
         }
 
@@ -3567,22 +3566,16 @@ class TouchController {
 
                 // Dispatch a message to display generic touch controller
                 if (msg.data.includes('touchcontrols/showtitledefault')) {
-                    TouchController.getCustomLayouts(TouchController.#enable ? GAME_XBOX_TITLE_ID : null);
+                    TouchController.#enable && TouchController.getCustomLayouts(GAME_XBOX_TITLE_ID);
                     return;
                 }
-                console.log(msg.data);
 
                 // Load custom touch layout
                 try {
-                    if (TouchController.#enable && msg.data.includes('/titleinfo')) {
+                    if (msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
-                        if (json.focused) {
-                            const xboxTitleId = parseInt(json.titleid, 16);
-                            GAME_XBOX_TITLE_ID = xboxTitleId;
-                        } else {
-                            GAME_XBOX_TITLE_ID = null;
-                        }
-                        return;
+                        const xboxTitleId = parseInt(json.titleid, 16);
+                        GAME_XBOX_TITLE_ID = xboxTitleId;
                     }
                 } catch (e) { console.log(e) }
             });
@@ -8852,14 +8845,17 @@ function interceptHttpRequests() {
                         return response;
                     });
                 });
-            } else if (url.includes('inputconfigs')) {
+            } else if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && url.includes('inputconfigs')) {
                 const promise = NATIVE_FETCH(...arg);
 
                 return promise.then(response => {
                     return response.clone().json().then(obj => {
-                        console.log(obj);
                         if (obj[0].supportedTabs.length > 0) {
                             TouchController.disable();
+
+                            const event = new Event(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
+                            event.data = null;
+                            window.dispatchEvent(event);
                         } else {
                             TouchController.enable();
 
@@ -9989,7 +9985,7 @@ function setupQuickSettingsBar() {
                     items: [
                         {
                             label: __('layout'),
-                            content: CE('select', {}),
+                            content: CE('select', {disabled: true}, CE('option', {}, __('default'))),
                             onMounted: $elm => {
                                 $elm.addEventListener('change', e => {
                                     TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, $elm.value, 1000);
@@ -10012,7 +10008,7 @@ function setupQuickSettingsBar() {
 
                                     $elm.disabled = !data;
                                     if (!data) {
-                                        $elm.appendChild(CE('option', {}, __('default')));
+                                        $elm.appendChild(CE('option', {value: ''}, __('default')));
                                         $elm.value = '';
                                         $elm.dispatchEvent(new Event('change'));
                                         return;
