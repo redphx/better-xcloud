@@ -19,7 +19,15 @@
           ],
           "outer": [
             null,
-            null,
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            },
             [
               {
                 "type": "directionalPad",
@@ -31,9 +39,10 @@
               }
             ],
             null,
+            null,
             {
               "type": "button",
-              "action": "gamepadA",
+              "action": "leftBumper",
               "styles": {
                 "idle": {
                   "opacity": 0.5
@@ -43,15 +52,6 @@
             {
               "type": "button",
               "action": "gamepadB",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "rightBumper",
               "styles": {
                 "idle": {
                   "opacity": 0.5
@@ -87,15 +87,6 @@
           "outer": [
             {
               "type": "button",
-              "action": "rightBumper",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            {
-              "type": "button",
               "action": "gamepadB",
               "styles": {
                 "idle": {
@@ -105,13 +96,14 @@
             },
             {
               "type": "button",
-              "action": "gamepadA",
+              "action": "rightBumper",
               "styles": {
                 "idle": {
                   "opacity": 0.5
                 }
               }
             },
+            null,
             null,
             [
               {
@@ -122,7 +114,16 @@
                   }
                 }
               }
-            ]
+            ],
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            }
           ]
         },
         "upper": {
