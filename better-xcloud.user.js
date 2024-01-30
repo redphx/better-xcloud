@@ -3381,11 +3381,7 @@ class TouchController {
     }
 
     static #show() {
-        if (GAME_XBOX_TITLE_ID && GAME_XBOX_TITLE_ID in TouchController.#customLayouts) {
-            TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID);
-        } else {
-            TouchController.#showDefault();
-        }
+        TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, 0);
         TouchController.#showing = true;
     }
 
@@ -3428,35 +3424,38 @@ class TouchController {
             return;
         }
 
-        let url;
+        let url = 'https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/';
         if (USE_DEV_TOUCH_LAYOUT) {
-            url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/dev/${xboxTitleId}.json`;
+            url += `dev/${xboxTitleId}.json`;
         } else {
-            url = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/${xboxTitleId}.json`;
+            url += `${xboxTitleId}.json`;
         }
         window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
-            .then(resp => resp.json())
+            .then(resp => resp.json(), () => {
+                    TouchController.#customLayouts[xboxTitleId] = null;
+                    callback(null);
+                })
             .then(json => {
-                TouchController.#customLayouts[xboxTitleId] = json;
-                callback(json);
-            })
-            .reject(() => {
-                TouchController.#customLayouts[xboxTitleId] = null;
-                callback(null);
-            });
+                    TouchController.#customLayouts[xboxTitleId] = json;
+                    callback(json);
+                });
     }
 
-    static loadCustomLayout(xboxTitleId) {
+    static loadCustomLayout(xboxTitleId, delay) {
         if (!window.BX_EXPOSED.touch_layout_manager) {
             return;
         }
 
         xboxTitleId = '' + xboxTitleId;
         TouchController.#getCustomLayout(xboxTitleId, json => {
-                json && setTimeout(() => {
+                if (!json) {
+                    return;
+                }
+
+                setTimeout(() => {
                     window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
                         type: 'showLayout',
-                        scope: '' + xboxTitleId,
+                        scope: xboxTitleId,
                         subscope: 'base',
                         layout: {
                             id: 'System.Standard',
@@ -3466,7 +3465,7 @@ class TouchController {
                             },
                         }
                     });
-                }, 1000);
+                }, delay);
             });
     }
 
@@ -3535,25 +3534,25 @@ class TouchController {
                 }
 
                 // Load custom touch layout
-                let showCustom = false;
                 try {
                     if (msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
                         if (json.focused) {
                             const xboxTitleId = parseInt(json.titleid, 16);
                             GAME_XBOX_TITLE_ID = xboxTitleId;
-                            TouchController.loadCustomLayout(xboxTitleId);
-                            showCustom = true;
+                            TouchController.loadCustomLayout(xboxTitleId, 1000);
                         } else {
                             GAME_XBOX_TITLE_ID = null;
                         }
+
+                        return;
                     }
                 } catch (e) { console.log(e) }
 
 
                 // Dispatch a message to display generic touch controller
-                if (!showCustom && msg.data.includes('touchcontrols/showtitledefault')) {
-                    TouchController.#showDefault();
+                if (msg.data.includes('touchcontrols/showtitledefault')) {
+                    TouchController.#show();
                 }
             });
 
