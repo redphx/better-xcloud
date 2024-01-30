@@ -3370,6 +3370,7 @@ class TouchController {
 
     static enable() {
         TouchController.#enable = true;
+        TouchController.#show();
     }
 
     static disable() {
@@ -3532,7 +3533,7 @@ class TouchController {
         const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
             const dataChannel = nativeCreateDataChannel.apply(this, arguments);
-            if (!TouchController.#enable || dataChannel.label !== 'message') {
+            if (dataChannel.label !== 'message') {
                 return dataChannel;
             }
 
@@ -3564,27 +3565,26 @@ class TouchController {
                     return;
                 }
 
+                // Dispatch a message to display generic touch controller
+                if (msg.data.includes('touchcontrols/showtitledefault')) {
+                    TouchController.getCustomLayouts(TouchController.#enable ? GAME_XBOX_TITLE_ID : null);
+                    return;
+                }
+                console.log(msg.data);
+
                 // Load custom touch layout
                 try {
-                    if (msg.data.includes('/titleinfo')) {
+                    if (TouchController.#enable && msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
                         if (json.focused) {
                             const xboxTitleId = parseInt(json.titleid, 16);
                             GAME_XBOX_TITLE_ID = xboxTitleId;
-                            TouchController.getCustomLayouts(xboxTitleId);
                         } else {
                             GAME_XBOX_TITLE_ID = null;
                         }
-
                         return;
                     }
                 } catch (e) { console.log(e) }
-
-
-                // Dispatch a message to display generic touch controller
-                if (msg.data.includes('touchcontrols/showtitledefault')) {
-                    TouchController.#show();
-                }
             });
 
             return dataChannel;
@@ -8795,7 +8795,7 @@ function interceptHttpRequests() {
         }
 
         if (IS_REMOTE_PLAYING && (url.includes('/sessions/home') || url.includes('inputconfigs'))) {
-            TouchController.enable();
+            TouchController.disable();
 
             const clone = request.clone();
 
@@ -8844,6 +8844,28 @@ function interceptHttpRequests() {
 
                         if (serverDetails.ipV6Address) {
                             consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+                        }
+
+                        response.json = () => Promise.resolve(obj);
+                        response.text = () => Promise.resolve(JSON.stringify(obj));
+
+                        return response;
+                    });
+                });
+            } else if (url.includes('inputconfigs')) {
+                const promise = NATIVE_FETCH(...arg);
+
+                return promise.then(response => {
+                    return response.clone().json().then(obj => {
+                        console.log(obj);
+                        if (obj[0].supportedTabs.length > 0) {
+                            TouchController.disable();
+                        } else {
+                            TouchController.enable();
+
+                            const xboxTitleId = JSON.parse(opts.body).titleIds[0];
+                            GAME_XBOX_TITLE_ID = xboxTitleId;
+                            TouchController.getCustomLayouts(xboxTitleId);
                         }
 
                         response.json = () => Promise.resolve(obj);
@@ -9975,6 +9997,14 @@ function setupQuickSettingsBar() {
 
                                 window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, e => {
                                     const data = e.data;
+
+                                    if (GAME_XBOX_TITLE_ID && $elm.xboxTitleId === GAME_XBOX_TITLE_ID) {
+                                        $elm.dispatchEvent(new Event('change'));
+                                        return;
+                                    }
+
+                                    $elm.xboxTitleId = GAME_XBOX_TITLE_ID;
+
                                     // Clear options
                                     while ($elm.firstChild) {
                                         $elm.removeChild($elm.firstChild);
@@ -9982,6 +10012,7 @@ function setupQuickSettingsBar() {
 
                                     $elm.disabled = !data;
                                     if (!data) {
+                                        $elm.appendChild(CE('option', {}, __('default')));
                                         $elm.value = '';
                                         $elm.dispatchEvent(new Event('change'));
                                         return;
