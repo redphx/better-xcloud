@@ -1,10 +1,142 @@
 {
   "schema_version": 2,
   "name": "Brotato",
-  "default_layout": "one-hand-left",
+  "default_layout": "one-handed-left",
   "layouts": {
-    "default": {
-      "name": "Default",
+    "one-handed-left": {
+      "name": "One-handed (Left)",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "relative": false,
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              }
+            }
+          ],
+          "outer": [
+            null,
+            null,
+            [
+              {
+                "type": "directionalPad",
+                "styles": {
+                  "idle": {
+                    "opacity": 0.5
+                  }
+                }
+              }
+            ],
+            null,
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadB",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "rightBumper",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            }
+          ]
+        }
+      }
+    },
+    "one-handed-right": {
+      "name": "One-handed (Right)",
+      "content": {
+        "right": {
+          "inner": [
+            {
+              "type": "joystick",
+              "relative": false,
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadB",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "idle": {
+                  "opacity": 0.5
+                }
+              }
+            },
+            null,
+            [
+              {
+                "type": "directionalPad",
+                "styles": {
+                  "idle": {
+                    "opacity": 0.5
+                  }
+                }
+              }
+            ]
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            }
+          ]
+        }
+      }
+    },
+    "simplified": {
+      "name": "Simplified",
       "content": {
         "left": {
           "inner": [
@@ -63,8 +195,8 @@
         }
       }
     },
-    "default-aim": {
-      "name": "Default with Aim",
+    "simplified-full": {
+      "name": "Simplified (2 joysticks)",
       "content": {
         "left": {
           "inner": [
@@ -138,138 +270,6 @@
             {
               "type": "button",
               "action": "rightBumper"
-            }
-          ]
-        }
-      }
-    },
-    "one-hand-left": {
-      "name": "One hand (Left)",
-      "content": {
-        "left": {
-          "inner": [
-            {
-              "type": "joystick",
-              "relative": false,
-              "axis": {
-                "input": "axisXY",
-                "output": "leftJoystick"
-              }
-            }
-          ],
-          "outer": [
-            null,
-            null,
-            [
-              {
-                "type": "directionalPad",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.5
-                  }
-                }
-              }
-            ],
-            null,
-            {
-              "type": "button",
-              "action": "gamepadA",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "gamepadB",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "rightBumper",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            }
-          ]
-        },
-        "upper": {
-          "right": [
-            {
-              "type": "button",
-              "action": "menu"
-            }
-          ]
-        }
-      }
-    },
-    "one-hand-right": {
-      "name": "One hand (Right)",
-      "content": {
-        "right": {
-          "inner": [
-            {
-              "type": "joystick",
-              "relative": false,
-              "axis": {
-                "input": "axisXY",
-                "output": "leftJoystick"
-              }
-            }
-          ],
-          "outer": [
-            {
-              "type": "button",
-              "action": "rightBumper",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "gamepadB",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "gamepadA",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            null,
-            [
-              {
-                "type": "directionalPad",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.5
-                  }
-                }
-              }
-            ]
-          ]
-        },
-        "upper": {
-          "right": [
-            {
-              "type": "button",
-              "action": "menu"
             }
           ]
         }
