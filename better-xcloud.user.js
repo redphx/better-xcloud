@@ -3452,7 +3452,15 @@ class TouchController {
                     return;
                 }
 
-                setTimeout(() => {
+                let layout;
+                if (json.layout) {
+                    layout = json.layout;
+                } else {
+                    const keys = Object.keys(json.layouts);
+                    layout = json.layouts[keys[0]];
+                }
+
+                layout && setTimeout(() => {
                     window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
                         type: 'showLayout',
                         scope: xboxTitleId,
@@ -3461,7 +3469,7 @@ class TouchController {
                             id: 'System.Standard',
                             displayName: 'System',
                             layoutFile: {
-                                content: json.layout,
+                                content: layout,
                             },
                         }
                     });
