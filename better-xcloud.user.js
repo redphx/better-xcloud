@@ -3452,13 +3452,15 @@ class TouchController {
                     return;
                 }
 
+                const schema_version = json.schema_version || 1;
                 let layout;
-                if (json.layout) {
-                    layout = json.layout;
-                } else {
-                    const keys = Object.keys(json.layouts);
-                    layout = json.layouts[keys[0]];
-                }
+                try {
+                    if (schema_version === 1) {
+                        layout = json.layout;
+                    } else {
+                        layout = json.layouts[json.default_layout].content;
+                    }
+                } catch (e) {}
 
                 layout && setTimeout(() => {
                     window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
