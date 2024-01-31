@@ -49,6 +49,9 @@ const BxEvent = {
     STREAM_STARTED: 'bx-stream-started',
     STREAM_STOPPED: 'bx-stream-stopped',
 
+    STREAM_WEBRTC_CONNECTED: 'bx-stream-webrtc-connected',
+    STREAM_WEBRTC_DISCONNECTED: 'bx-stream-webrtc-disconnected',
+
     CUSTOM_TOUCH_LAYOUTS_LOADED: 'bx-custom-touch-layouts-loaded',
 
     DATA_CHANNEL_CREATED: 'bx-data-channel-created',
@@ -5536,7 +5539,6 @@ class VibrationManager {
 
         VibrationManager.updateGlobalVars();
 
-        const orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
             const dataChannel = e.dataChannel;
             if (!dataChannel || dataChannel.label !== 'input') {
@@ -6030,6 +6032,8 @@ class StreamStats {
             return;
         }
 
+        StreamStats.#initEventListeners();
+
         const STATS = {
             [StreamStats.PING]: [__('stat-ping'), StreamStats.#$ping = CE('span', {}, '0')],
             [StreamStats.FPS]: [__('stat-fps'), StreamStats.#$fps = CE('span', {}, '0')],
@@ -6049,6 +6053,82 @@ class StreamStats {
         document.documentElement.appendChild(StreamStats.#$container);
 
         StreamStats.refreshStyles();
+    }
+
+    static #getServerStats() {
+        STREAM_WEBRTC && STREAM_WEBRTC.getStats().then(stats => {
+            const allVideoCodecs = {};
+            let videoCodecId;
+
+            const allAudioCodecs = {};
+            let audioCodecId;
+
+            const allCandidates = {};
+            let candidateId;
+
+            stats.forEach(stat => {
+                console.log(stat);
+                if (stat.type == 'codec') {
+                    const mimeType = stat.mimeType.split('/');
+                    if (mimeType[0] === 'video') {
+                        // Store all video stats
+                        allVideoCodecs[stat.id] = stat;
+                    } else if (mimeType[0] === 'audio') {
+                        // Store all audio stats
+                        allAudioCodecs[stat.id] = stat;
+                    }
+                } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
+                    // Get the codecId of the video/audio track currently being used
+                    if (stat.kind === 'video') {
+                        videoCodecId = stat.codecId;
+                    } else if (stat.kind === 'audio') {
+                        audioCodecId = stat.codecId;
+                    }
+                } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
+                    candidateId = stat.remoteCandidateId;
+                } else if (stat.type === 'remote-candidate') {
+                    allCandidates[stat.id] = stat.address;
+                }
+            });
+
+            // Get video codec from codecId
+            if (videoCodecId) {
+                const videoStat = allVideoCodecs[videoCodecId];
+                const video = {
+                    codec: videoStat.mimeType.substring(6),
+                };
+
+                if (video.codec === 'H264') {
+                    const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+                    video.profile = match ? match[1] : null;
+                }
+
+                StreamBadges.video = video;
+            }
+
+            // Get audio codec from codecId
+            if (audioCodecId) {
+                const audioStat = allAudioCodecs[audioCodecId];
+                StreamBadges.audio = {
+                    codec: audioStat.mimeType.substring(6),
+                    bitrate: audioStat.clockRate,
+                }
+            }
+
+            // Get server type
+            if (candidateId) {
+                console.log('candidate', candidateId, allCandidates);
+                StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
+            }
+
+            if (getPref(Preferences.STATS_SHOW_WHEN_PLAYING)) {
+                StreamStats.start();
+            }
+        });
+    }
+
+    static #initEventListeners() {
+        window.addEventListener(BxEvent.STREAM_WEBRTC_CONNECTED, StreamStats.#getServerStats);
     }
 }
 
@@ -8801,8 +8881,13 @@ function interceptHttpRequests() {
         let url = (typeof request === 'string') ? request : request.url;
 
         if (url.endsWith('/play')) {
+            BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
             // Setup UI
             setupBxUi();
+        }
+
+        if (url.endsWith('/configuration')) {
+            BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
         }
 
         if (IS_REMOTE_PLAYING && (url.includes('/sessions/home') || url.includes('inputconfigs'))) {
@@ -9813,6 +9898,7 @@ function patchVideoApi() {
             return;
         }
 
+        BxEvent.dispatch(window, BxEvent.STREAM_WEBRTC_CONNECTED);
         onStreamStarted(this);
     }
 
@@ -10402,75 +10488,6 @@ function onStreamStarted($video) {
             StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
         });
     } catch(e) {}
-
-    STREAM_WEBRTC.getStats().then(stats => {
-        const allVideoCodecs = {};
-        let videoCodecId;
-
-        const allAudioCodecs = {};
-        let audioCodecId;
-
-        const allCandidates = {};
-        let candidateId;
-
-        stats.forEach(stat => {
-            if (stat.type == 'codec') {
-                const mimeType = stat.mimeType.split('/');
-                if (mimeType[0] === 'video') {
-                    // Store all video stats
-                    allVideoCodecs[stat.id] = stat;
-                } else if (mimeType[0] === 'audio') {
-                    // Store all audio stats
-                    allAudioCodecs[stat.id] = stat;
-                }
-            } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
-                // Get the codecId of the video/audio track currently being used
-                if (stat.kind === 'video') {
-                    videoCodecId = stat.codecId;
-                } else if (stat.kind === 'audio') {
-                    audioCodecId = stat.codecId;
-                }
-            } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
-                candidateId = stat.remoteCandidateId;
-            } else if (stat.type === 'remote-candidate') {
-                allCandidates[stat.id] = stat.address;
-            }
-        });
-
-        // Get video codec from codecId
-        if (videoCodecId) {
-            const videoStat = allVideoCodecs[videoCodecId];
-            const video = {
-                codec: videoStat.mimeType.substring(6),
-            };
-
-            if (video.codec === 'H264') {
-                const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-                video.profile = match ? match[1] : null;
-            }
-
-            StreamBadges.video = video;
-        }
-
-        // Get audio codec from codecId
-        if (audioCodecId) {
-            const audioStat = allAudioCodecs[audioCodecId];
-            StreamBadges.audio = {
-                codec: audioStat.mimeType.substring(6),
-                bitrate: audioStat.clockRate,
-            }
-        }
-
-        // Get server type
-        if (candidateId) {
-            console.log(candidateId, allCandidates);
-            StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
-        }
-
-        if (PREF_STATS_SHOW_WHEN_PLAYING) {
-            StreamStats.start();
-        }
-    });
 
     // Setup screenshot button
     if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
