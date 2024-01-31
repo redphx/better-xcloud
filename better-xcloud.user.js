@@ -3349,6 +3349,7 @@ class LoadingScreen {
     opacity: 1 !important;
 }
 `;
+        LoadingScreen.reset();
     }
 
     static reset() {
@@ -6069,7 +6070,6 @@ class StreamStats {
             let candidateId;
 
             stats.forEach(stat => {
-                console.log(stat);
                 if (stat.type == 'codec') {
                     const mimeType = stat.mimeType.split('/');
                     if (mimeType[0] === 'video') {
@@ -8884,8 +8884,6 @@ function interceptHttpRequests() {
 
         if (url.endsWith('/play')) {
             BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
-            // Setup UI
-            setupBxUi();
         }
 
         if (url.endsWith('/configuration')) {
@@ -9069,9 +9067,6 @@ function interceptHttpRequests() {
 
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
-            // Setup loading screen
-            PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.setup();
-
             // Start hiding cursor
             if (!getPref(Preferences.MKB_ENABLED) && getPref(Preferences.MKB_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
@@ -9126,8 +9121,6 @@ function interceptHttpRequests() {
         }
 
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
-
             const promise = NATIVE_FETCH(...arg);
 
             // Touch controller for all games
@@ -9906,8 +9899,6 @@ function patchVideoApi() {
 
     const nativePlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
-        LoadingScreen.reset();
-
         if (this.className && this.className.startsWith('XboxSplashVideo')) {
             if (PREF_SKIP_SPLASH_VIDEO) {
                 this.volume = 0;
@@ -10539,6 +10530,20 @@ window.addEventListener('popstate', onHistoryChanged);
 // Make pushState/replaceState methods dispatch BxEvent.POPSTATE event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
+
+window.addEventListener(BxEvent.STREAM_LOADING, e => {
+    // Setup UI
+    setupBxUi();
+
+    // Setup loading screen
+    getPref(Preferences.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.setup();
+});
+
+window.addEventListener(BxEvent.STREAM_STARTING, e => {
+    // Hide loading screen
+    getPref(Preferences.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.hide();
+});
+
 
 PreloadedState.override();
 
