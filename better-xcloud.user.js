@@ -47,6 +47,7 @@ const BxEvent = {
     STREAM_LOADING: 'bx-stream-loading',
     STREAM_STARTING: 'bx-stream-starting',
     STREAM_STARTED: 'bx-stream-started',
+    STREAM_PLAYING: 'bx-stream-playing',
     STREAM_STOPPED: 'bx-stream-stopped',
 
     STREAM_WEBRTC_CONNECTED: 'bx-stream-webrtc-connected',
@@ -4817,6 +4818,16 @@ class MkbHandler {
         window.removeEventListener('wheel', this.#onWheelEvent);
         window.removeEventListener('contextmenu', this.#disableContextMenu);
     }
+
+    static setupEvents() {
+        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+            // Enable MKB
+            if (getPref(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
+                console.log('Emulate MKB');
+                MkbHandler.INSTANCE.init();
+            }
+        });
+    }
 }
 
 
@@ -5849,6 +5860,22 @@ class StreamBadges {
 
         return $wrapper;
     }
+
+    static setupEvents() {
+        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+            const $video = e.$video;
+
+            StreamBadges.resolution = {width: $video.videoWidth, height: $video.videoHeight};
+            StreamBadges.startTimestamp = +new Date;
+
+            // Get battery level
+            try {
+                navigator.getBattery && navigator.getBattery().then(bm => {
+                    StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
+                });
+            } catch(e) {}
+        });
+    }
 }
 
 
@@ -6035,8 +6062,6 @@ class StreamStats {
             return;
         }
 
-        StreamStats.#initEventListeners();
-
         const STATS = {
             [StreamStats.PING]: [__('stat-ping'), StreamStats.#$ping = CE('span', {}, '0')],
             [StreamStats.FPS]: [__('stat-fps'), StreamStats.#$fps = CE('span', {}, '0')],
@@ -6058,7 +6083,7 @@ class StreamStats {
         StreamStats.refreshStyles();
     }
 
-    static #getServerStats() {
+    static getServerStats() {
         STREAM_WEBRTC && STREAM_WEBRTC.getStats().then(stats => {
             const allVideoCodecs = {};
             let videoCodecId;
@@ -6129,8 +6154,19 @@ class StreamStats {
         });
     }
 
-    static #initEventListeners() {
-        window.addEventListener(BxEvent.STREAM_WEBRTC_CONNECTED, StreamStats.#getServerStats);
+    static setupEvents() {
+        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+            const PREF_STATS_QUICK_GLANCE = getPref(Preferences.STATS_QUICK_GLANCE);
+            const PREF_STATS_SHOW_WHEN_PLAYING = getPref(Preferences.STATS_SHOW_WHEN_PLAYING);
+
+            StreamStats.getServerStats();
+            // Setup Stat's Quick Glance mode
+            if (PREF_STATS_QUICK_GLANCE) {
+                StreamStats.quickGlanceSetup();
+                // Show stats bar
+                !PREF_STATS_SHOW_WHEN_PLAYING && StreamStats.start(true);
+            }
+        });
     }
 }
 
@@ -9893,8 +9929,9 @@ function patchVideoApi() {
             return;
         }
 
-        BxEvent.dispatch(window, BxEvent.STREAM_WEBRTC_CONNECTED);
-        onStreamStarted(this);
+        BxEvent.dispatch(window, BxEvent.STREAM_PLAYING, {
+                $video: this,
+            });
     }
 
     const nativePlay = HTMLMediaElement.prototype.play;
@@ -10428,70 +10465,6 @@ function onHistoryChanged(e) {
 }
 
 
-function onStreamStarted($video) {
-    IS_PLAYING = true;
-
-    // Get title ID for screenshot's name
-    if (window.location.pathname.includes('/launch/')) {
-        const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
-        GAME_TITLE_ID = matches.groups.title_id;
-        GAME_PRODUCT_ID = matches.groups.product_id;
-    } else {
-        GAME_TITLE_ID = 'remote-play';
-        GAME_PRODUCT_ID = null;
-    }
-
-    // Enable MKB
-    if (getPref(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
-        console.log('Emulate MKB');
-        MkbHandler.INSTANCE.init();
-    }
-
-    /*
-    if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
-        GamepadHandler.startPolling();
-    }
-    */
-
-    const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
-    const PREF_STATS_QUICK_GLANCE = getPref(Preferences.STATS_QUICK_GLANCE);
-    const PREF_STATS_SHOW_WHEN_PLAYING = getPref(Preferences.STATS_SHOW_WHEN_PLAYING);
-
-    // Setup Stat's Quick Glance mode
-    if (PREF_STATS_QUICK_GLANCE) {
-        StreamStats.quickGlanceSetup();
-        // Show stats bar
-        !PREF_STATS_SHOW_WHEN_PLAYING && StreamStats.start(true);
-    }
-
-    $STREAM_VIDEO = $video;
-    $SCREENSHOT_CANVAS.width = $video.videoWidth;
-    $SCREENSHOT_CANVAS.height = $video.videoHeight;
-
-    StreamBadges.resolution = {width: $video.videoWidth, height: $video.videoHeight};
-    StreamBadges.startTimestamp = +new Date;
-
-    // Get battery level
-    try {
-        navigator.getBattery && navigator.getBattery().then(bm => {
-            StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
-        });
-    } catch(e) {}
-
-    // Setup screenshot button
-    if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-        const $btn = document.querySelector('.bx-screenshot-button');
-        $btn.style.display = 'block';
-
-        if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
-            $btn.style.right = '0';
-        } else {
-            $btn.style.left = '0';
-        }
-    }
-}
-
-
 function disablePwa() {
     const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
     if (!userAgent) {
@@ -10532,6 +10505,16 @@ window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
 
 window.addEventListener(BxEvent.STREAM_LOADING, e => {
+    // Get title ID for screenshot's name
+    if (window.location.pathname.includes('/launch/')) {
+        const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
+        GAME_TITLE_ID = matches.groups.title_id;
+        GAME_PRODUCT_ID = matches.groups.product_id;
+    } else {
+        GAME_TITLE_ID = 'remote-play';
+        GAME_PRODUCT_ID = null;
+    }
+
     // Setup UI
     setupBxUi();
 
@@ -10542,6 +10525,34 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
 window.addEventListener(BxEvent.STREAM_STARTING, e => {
     // Hide loading screen
     getPref(Preferences.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.hide();
+});
+
+window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+    const $video = e.$video;
+    $STREAM_VIDEO = $video;
+
+    IS_PLAYING = true;
+
+    /*
+    if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+        GamepadHandler.startPolling();
+    }
+    */
+
+    const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
+    $SCREENSHOT_CANVAS.width = $video.videoWidth;
+    $SCREENSHOT_CANVAS.height = $video.videoHeight;
+    // Setup screenshot button
+    if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
+        const $btn = document.querySelector('.bx-screenshot-button');
+        $btn.style.display = 'block';
+
+        if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
+            $btn.style.right = '0';
+        } else {
+            $btn.style.left = '0';
+        }
+    }
 });
 
 
@@ -10636,3 +10647,7 @@ if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
 Patcher.initialize();
 
 RemotePlay.detect();
+
+StreamBadges.setupEvents();
+StreamStats.setupEvents();
+MkbHandler.setupEvents();
