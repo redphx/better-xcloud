@@ -49,6 +49,8 @@ const BxEvent = {
     STREAM_STOPPED: 'bx-stream-stopped',
 
     CUSTOM_TOUCH_LAYOUTS_LOADED: 'bx-custom-touch-layouts-loaded',
+
+    DATA_CHANNEL_CREATED: 'bx-data-channel-created',
 };
 
 // Quickly create a tree of elements without having to use innerHTML
@@ -3503,11 +3505,14 @@ class TouchController {
     }
 
     static setup() {
+        const $fragment = document.createDocumentFragment();
         const $style = document.createElement('style');
-        document.documentElement.appendChild($style);
+        $fragment.appendChild($style);
 
         const $bar = createElement('div', {'id': 'bx-touch-controller-bar'});
-        document.documentElement.appendChild($bar);
+        $fragment.appendChild($bar);
+
+        document.documentElement.appendChild($fragment);
 
         // Setup double-tap event
         let clickTimeout;
@@ -3531,11 +3536,10 @@ class TouchController {
         const PREF_STYLE_STANDARD = getPref(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
         const PREF_STYLE_CUSTOM = getPref(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
 
-        const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
-        RTCPeerConnection.prototype.createDataChannel = function() {
-            const dataChannel = nativeCreateDataChannel.apply(this, arguments);
-            if (dataChannel.label !== 'message') {
-                return dataChannel;
+        window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
+            const dataChannel = e.dataChannel;
+            if (!dataChannel || dataChannel.label !== 'message') {
+                return;
             }
 
             // Apply touch controller's style
@@ -3552,6 +3556,8 @@ class TouchController {
 
             if (filter) {
                 $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+            } else {
+                $style.textContent = '';
             }
 
             TouchController.#dataChannel = dataChannel;
@@ -3576,14 +3582,13 @@ class TouchController {
                 try {
                     if (msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
-                        const xboxTitleId = parseInt(json.titleid, 16);
-                        GAME_XBOX_TITLE_ID = xboxTitleId;
+                        GAME_XBOX_TITLE_ID = parseInt(json.titleid, 16);
                     }
-                } catch (e) { console.log(e) }
+                } catch (e) {
+                    console.log(e);
+                }
             });
-
-            return dataChannel;
-        };
+        });
     }
 }
 
@@ -5519,10 +5524,10 @@ class VibrationManager {
         VibrationManager.updateGlobalVars();
 
         const orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
-        RTCPeerConnection.prototype.createDataChannel = function() {
-            const dataChannel = orgCreateDataChannel.apply(this, arguments);
-            if (dataChannel.label !== 'input') {
-                return dataChannel;
+        window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
+            const dataChannel = e.dataChannel;
+            if (!dataChannel || dataChannel.label !== 'input') {
+                return;
             }
 
             const VIBRATION_DATA_MAP = {
@@ -5581,9 +5586,7 @@ class VibrationManager {
 
                 VibrationManager.#playDeviceVibration(data);
             });
-
-            return dataChannel;
-        };
+        });
     }
 }
 
@@ -10562,11 +10565,21 @@ if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
 
 VibrationManager.initialSetup();
 
+const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+RTCPeerConnection.prototype.createDataChannel = function() {
+    const dataChannel = nativeCreateDataChannel.apply(this, arguments);
+
+    const event = new Event(BxEvent.DATA_CHANNEL_CREATED);
+    event.dataChannel = dataChannel;
+    window.dispatchEvent(event);
+
+    return dataChannel;
+}
+
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
-    const peer = new OrgRTCPeerConnection();
-    STREAM_WEBRTC = peer;
-    return peer;
+    STREAM_WEBRTC = new OrgRTCPeerConnection();
+    return STREAM_WEBRTC;
 }
 
 patchRtcCodecs();
