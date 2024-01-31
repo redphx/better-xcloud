@@ -3406,12 +3406,14 @@ class TouchController {
     }
 
     static #show() {
-        TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, TouchController.#currentLayoutId, 0);
+        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.remove('bx-gone');
+        // TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, TouchController.#currentLayoutId, 0);
         TouchController.#showing = true;
     }
 
     static #hide() {
-        TouchController.#dispatchMessage(TouchController.#EVENT_HIDE_CONTROLLER);
+        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.add('bx-gone');
+        // TouchController.#dispatchMessage(TouchController.#EVENT_HIDE_CONTROLLER);
         TouchController.#showing = false;
     }
 
@@ -3601,6 +3603,10 @@ class TouchController {
                     if (msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
                         TouchController.#toggleBar(json.focused);
+
+                        if (!json.focused) {
+                            TouchController.#show();
+                        }
 
                         GAME_XBOX_TITLE_ID = parseInt(json.titleid, 16);
                     }
@@ -10542,6 +10548,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
     $SCREENSHOT_CANVAS.width = $video.videoWidth;
     $SCREENSHOT_CANVAS.height = $video.videoHeight;
+
     // Setup screenshot button
     if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
         const $btn = document.querySelector('.bx-screenshot-button');
