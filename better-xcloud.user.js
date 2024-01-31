@@ -3336,20 +3336,23 @@ class LoadingScreen {
         LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
         LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
 
-        const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
-        $rocketBg && $rocketBg.addEventListener('transitionend', e => {
-            LoadingScreen.#$bgStyle.textContent += `
+        if (LoadingScreen.#$bgStyle) {
+            const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
+            $rocketBg && $rocketBg.addEventListener('transitionend', e => {
+                LoadingScreen.#$bgStyle.textContent += `
 #game-stream {
     background: #000 !important;
 }
 `;
-        });
+            });
 
-        LoadingScreen.#$bgStyle.textContent += `
+            LoadingScreen.#$bgStyle.textContent += `
 #game-stream rect[width="800"] {
     opacity: 1 !important;
 }
 `;
+        }
+
         LoadingScreen.reset();
     }
 
