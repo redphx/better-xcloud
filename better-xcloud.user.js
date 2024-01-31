@@ -3388,10 +3388,12 @@ class TouchController {
 
     static enable() {
         TouchController.#enable = true;
+        TouchController.#toggleBar(true);
     }
 
     static disable() {
         TouchController.#enable = false;
+        TouchController.#toggleBar(false);
     }
 
     static isEnabled() {
@@ -3421,8 +3423,8 @@ class TouchController {
         TouchController.#showing ? TouchController.#hide() : TouchController.#show();
     }
 
-    static enableBar() {
-        TouchController.#$bar && TouchController.#$bar.setAttribute('data-showing', true);
+    static #toggleBar(value) {
+        TouchController.#$bar && TouchController.#$bar.setAttribute('data-showing', value);
     }
 
     static reset() {
@@ -10452,10 +10454,6 @@ function onStreamStarted($video) {
     if (getPref(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
         console.log('Emulate MKB');
         MkbHandler.INSTANCE.init();
-    }
-
-    if (TouchController.isEnabled()) {
-        TouchController.enableBar();
     }
 
     /*
