@@ -9092,7 +9092,7 @@ function interceptHttpRequests() {
             });
         }
 
-        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
+        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.includes('/titles') || url.includes('/mru'))) {
             const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
