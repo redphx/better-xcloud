@@ -6,6 +6,20 @@
     "type-a": {
       "name": "Type A",
       "content": {
+        "layers": {
+          "EnableGyro": {
+            "sensors": [
+              {
+                "type": "gyroscope",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick",
+                  "sensitivity": 1
+                }
+              }
+            ]
+          }
+        },
         "left": {
           "inner": [
             {
@@ -53,7 +67,13 @@
                     "radial": true
                   }
                 },
-                "action": "rightTrigger",
+                "action": [
+                  "rightTrigger",
+                  {
+                    "type": "layer",
+                    "target": "EnableGyro"
+                  }
+                ],
                 "styles": {
                   "default": {
                     "knob": {
@@ -91,7 +111,11 @@
               ],
               "renderAsButton": true,
               "action": [
-                "leftBumper"
+                "leftBumper",
+                {
+                  "type": "layer",
+                  "target": "EnableGyro"
+                }
               ]
             },
             {
@@ -110,7 +134,11 @@
               ],
               "renderAsButton": true,
               "action": [
-                "rightBumper"
+                "rightBumper",
+                {
+                  "type": "layer",
+                  "target": "EnableGyro"
+                }
               ]
             },
             {
@@ -129,7 +157,11 @@
               ],
               "renderAsButton": true,
               "action": [
-                "leftTrigger"
+                "leftTrigger",
+                {
+                  "type": "layer",
+                  "target": "EnableGyro"
+                }
               ]
             }
           ]
@@ -162,7 +194,13 @@
             [
               {
                 "type": "button",
-                "action": "leftTrigger",
+                "action": [
+                  "leftTrigger",
+                  {
+                    "type": "layer",
+                    "target": "EnableGyro"
+                  }
+                ],
                 "styles": {
                   "default": {
                     "faceImage": {
@@ -219,7 +257,11 @@
               "renderAsButton": true,
               "action": [
                 "rightTrigger",
-                "leftTrigger"
+                "leftTrigger",
+                {
+                  "type": "layer",
+                  "target": "EnableGyro"
+                }
               ],
               "styles": {
                 "default": {
@@ -267,17 +309,7 @@
               "action": "view"
             }
           ]
-        },
-        "sensors": [
-          {
-            "type": "gyroscope",
-            "axis": {
-              "input": "axisXY",
-              "output": "rightJoystick",
-              "sensitivity": 1
-            }
-          }
-        ]
+        }
       }
     }
   }
