@@ -47,6 +47,8 @@ const BxEvent = {
     STREAM_STARTING: 'bx-stream-starting',
     STREAM_STARTED: 'bx-stream-started',
     STREAM_STOPPED: 'bx-stream-stopped',
+
+    CUSTOM_TOUCH_LAYOUTS_LOADED: 'bx-custom-touch-layouts-loaded',
 };
 
 // Quickly create a tree of elements without having to use innerHTML
@@ -2796,6 +2798,8 @@ const Icon = {
 
     REMOTE_PLAY: '<g transform="matrix(.492308 0 0 .581818 -14.7692 -11.6364)"><clipPath id="A"><path d="M30 20h65v55H30z"/></clipPath><g clip-path="url(#A)"><g transform="matrix(.395211 0 0 .334409 11.913 7.01124)"><g transform="matrix(.555556 0 0 .555556 57.8889 -20.2417)" fill="none" stroke="#fff" stroke-width="13.88"><path d="M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0"/></g><g transform="matrix(-.555556 0 0 -.555556 200.111 262.393)"><g transform="matrix(1 0 0 1 0 11.5642)"><path d="M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129" fill="none" stroke="#fff" stroke-width="13.88"/></g><path d="M168 165c-23.783-17.3-56.217-17.3-80 0" fill="none" stroke="#fff" stroke-width="13.88"/></g><g transform="matrix(.75 0 0 .75 32 32)"><path d="M24 72h208v93.881H24z" fill="none" stroke="#fff" stroke-linejoin="miter" stroke-width="9.485"/><circle cx="188" cy="128" r="12" stroke-width="10" transform="matrix(.708333 0 0 .708333 71.8333 12.8333)"/><path d="M24.358 103.5h110" fill="none" stroke="#fff" stroke-linecap="butt" stroke-width="10.282"/></g></g></g></g>',
 
+    HAND_TAP: '<path d="M6.537 8.906c0-4.216 3.469-7.685 7.685-7.685s7.685 3.469 7.685 7.685M7.719 30.778l-4.333-7.389C3.133 22.944 3 22.44 3 21.928a2.97 2.97 0 0 1 2.956-2.956 2.96 2.96 0 0 1 2.55 1.461l2.761 4.433V8.906a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v8.276a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v2.365a2.97 2.97 0 0 1 2.956-2.956A2.97 2.97 0 0 1 29 19.547v5.32c0 3.547-1.182 5.911-1.182 5.911"/>',
+
     SCREENSHOT_B64: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=',
 };
 
@@ -3362,6 +3366,7 @@ class TouchController {
     static #dataChannel;
 
     static #customLayouts = {};
+    static #currentLayoutId;
 
     static enable() {
         TouchController.#enable = true;
@@ -3381,7 +3386,7 @@ class TouchController {
     }
 
     static #show() {
-        TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, 0);
+        TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, TouchController.#currentLayoutId, 0);
         TouchController.#showing = true;
     }
 
@@ -3417,10 +3422,16 @@ class TouchController {
         }, 10);
     }
 
-    static #getCustomLayout(xboxTitleId, callback) {
+    static getCustomLayouts(xboxTitleId) {
+        const dispatchLayouts = data => {
+            const event = new Event(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
+            event.data = data;
+            window.dispatchEvent(event);
+        };
+
         xboxTitleId = '' + xboxTitleId;
         if (xboxTitleId in TouchController.#customLayouts) {
-            callback(TouchController.#customLayouts[xboxTitleId]);
+            dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
             return;
         }
 
@@ -3430,43 +3441,65 @@ class TouchController {
         } else {
             url += `${xboxTitleId}.json`;
         }
-        window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
+        NATIVE_FETCH(url)
             .then(resp => resp.json(), () => {
                     TouchController.#customLayouts[xboxTitleId] = null;
-                    callback(null);
+                    // Wait for BX_EXPOSED.touch_layout_manager
+                    setTimeout(() => dispatchLayouts(null), 1000);
                 })
             .then(json => {
+                    // Normalize data
+                    const schema_version = json.schema_version || 1;
+                    let layout;
+                    try {
+                        if (schema_version === 1) {
+                            json.layouts = {
+                                default: {
+                                    name: 'Default',
+                                    content: json.layout,
+                                },
+                            };
+                            json.default_layout = 'default';
+                            delete json.layout;
+                        }
+                    } catch (e) {}
+
                     TouchController.#customLayouts[xboxTitleId] = json;
-                    callback(json);
+
+                    // Wait for BX_EXPOSED.touch_layout_manager
+                    setTimeout(() => dispatchLayouts(json), 1000);
                 });
     }
 
-    static loadCustomLayout(xboxTitleId, delay) {
+    static loadCustomLayout(xboxTitleId, layoutId, delay) {
         if (!window.BX_EXPOSED.touch_layout_manager) {
             return;
         }
 
+        TouchController.#currentLayoutId = layoutId;
         xboxTitleId = '' + xboxTitleId;
-        TouchController.#getCustomLayout(xboxTitleId, json => {
-                if (!json) {
-                    return;
-                }
 
-                setTimeout(() => {
-                    window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
-                        type: 'showLayout',
-                        scope: xboxTitleId,
-                        subscope: 'base',
-                        layout: {
-                            id: 'System.Standard',
-                            displayName: 'System',
-                            layoutFile: {
-                                content: json.layout,
-                            },
-                        }
-                    });
-                }, delay);
+        const layoutData = TouchController.#customLayouts[xboxTitleId];
+        if (!xboxTitleId || !layoutId || !layoutData) {
+            TouchController.#enable && TouchController.#showDefault();
+            return;
+        }
+
+        const layout = (layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout]);
+        layout && setTimeout(() => {
+            window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+                type: 'showLayout',
+                scope: xboxTitleId,
+                subscope: 'base',
+                layout: {
+                    id: 'System.Standard',
+                    displayName: 'System',
+                    layoutFile: {
+                        content: layout.content,
+                    },
+                }
             });
+        }, delay);
     }
 
     static setup() {
@@ -3501,7 +3534,7 @@ class TouchController {
         const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
         RTCPeerConnection.prototype.createDataChannel = function() {
             const dataChannel = nativeCreateDataChannel.apply(this, arguments);
-            if (!TouchController.#enable || dataChannel.label !== 'message') {
+            if (dataChannel.label !== 'message') {
                 return dataChannel;
             }
 
@@ -3533,27 +3566,20 @@ class TouchController {
                     return;
                 }
 
+                // Dispatch a message to display generic touch controller
+                if (msg.data.includes('touchcontrols/showtitledefault')) {
+                    TouchController.#enable && TouchController.getCustomLayouts(GAME_XBOX_TITLE_ID);
+                    return;
+                }
+
                 // Load custom touch layout
                 try {
                     if (msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
-                        if (json.focused) {
-                            const xboxTitleId = parseInt(json.titleid, 16);
-                            GAME_XBOX_TITLE_ID = xboxTitleId;
-                            TouchController.loadCustomLayout(xboxTitleId, 1000);
-                        } else {
-                            GAME_XBOX_TITLE_ID = null;
-                        }
-
-                        return;
+                        const xboxTitleId = parseInt(json.titleid, 16);
+                        GAME_XBOX_TITLE_ID = xboxTitleId;
                     }
                 } catch (e) { console.log(e) }
-
-
-                // Dispatch a message to display generic touch controller
-                if (msg.data.includes('touchcontrols/showtitledefault')) {
-                    TouchController.#show();
-                }
             });
 
             return dataChannel;
@@ -8764,7 +8790,7 @@ function interceptHttpRequests() {
         }
 
         if (IS_REMOTE_PLAYING && (url.includes('/sessions/home') || url.includes('inputconfigs'))) {
-            TouchController.enable();
+            TouchController.disable();
 
             const clone = request.clone();
 
@@ -8813,6 +8839,31 @@ function interceptHttpRequests() {
 
                         if (serverDetails.ipV6Address) {
                             consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+                        }
+
+                        response.json = () => Promise.resolve(obj);
+                        response.text = () => Promise.resolve(JSON.stringify(obj));
+
+                        return response;
+                    });
+                });
+            } else if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && url.includes('inputconfigs')) {
+                const promise = NATIVE_FETCH(...arg);
+
+                return promise.then(response => {
+                    return response.clone().json().then(obj => {
+                        if (obj[0].supportedTabs.length > 0) {
+                            TouchController.disable();
+
+                            const event = new Event(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
+                            event.data = null;
+                            window.dispatchEvent(event);
+                        } else {
+                            TouchController.enable();
+
+                            const xboxTitleId = JSON.parse(opts.body).titleIds[0];
+                            GAME_XBOX_TITLE_ID = xboxTitleId;
+                            TouchController.getCustomLayouts(xboxTitleId);
                         }
 
                         response.json = () => Promise.resolve(obj);
@@ -9041,7 +9092,7 @@ function interceptHttpRequests() {
             });
         }
 
-        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.endsWith('/titles') || url.endsWith('/mru'))) {
+        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.includes('/titles') || url.includes('/mru'))) {
             const promise = NATIVE_FETCH(...arg);
             return promise.then(response => {
                 return response.clone().json().then(json => {
@@ -9837,8 +9888,9 @@ function setupQuickSettingsBar() {
                     group: 'audio',
                     label: __('audio'),
                     help_url: 'https://better-xcloud.github.io/ingame-features/#audio',
-                    items: {
-                        [Preferences.AUDIO_VOLUME]: {
+                    items: [
+                        {
+                            pref: Preferences.AUDIO_VOLUME,
                             label: __('volume'),
                             onChange: (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
@@ -9847,7 +9899,7 @@ function setupQuickSettingsBar() {
                                 disabled: !getPref(Preferences.AUDIO_ENABLE_VOLUME_CONTROL),
                             },
                         },
-                    },
+                    ],
                 },
 
                 {
@@ -9855,33 +9907,38 @@ function setupQuickSettingsBar() {
                     label: __('video'),
                     help_url: 'https://better-xcloud.github.io/ingame-features/#video',
                     note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
-                    items: {
-                        [Preferences.VIDEO_RATIO]: {
+                    items: [
+                        {
+                            pref: Preferences.VIDEO_RATIO,
                             label: __('ratio'),
                             onChange: updateVideoPlayerCss,
                         },
 
-                        [Preferences.VIDEO_CLARITY]: {
+                        {
+                            pref: Preferences.VIDEO_CLARITY,
                             label: __('clarity'),
                             onChange: updateVideoPlayerCss,
                             unsupported: isSafari,
                         },
 
-                        [Preferences.VIDEO_SATURATION]: {
+                        {
+                            pref: Preferences.VIDEO_SATURATION,
                             label: __('saturation'),
                             onChange: updateVideoPlayerCss,
                         },
 
-                        [Preferences.VIDEO_CONTRAST]: {
+                        {
+                            pref: Preferences.VIDEO_CONTRAST,
                             label: __('contrast'),
                             onChange: updateVideoPlayerCss,
                         },
 
-                        [Preferences.VIDEO_BRIGHTNESS]: {
+                        {
+                            pref: Preferences.VIDEO_BRIGHTNESS,
                             label: __('brightness'),
                             onChange: updateVideoPlayerCss,
                         },
-                    },
+                    ],
                 },
             ],
         },
@@ -9894,26 +9951,88 @@ function setupQuickSettingsBar() {
                     group: 'controller',
                     label: __('controller'),
                     help_url: 'https://better-xcloud.github.io/ingame-features/#controller',
-                    items: {
-                        [Preferences.CONTROLLER_ENABLE_VIBRATION]: {
+                    items: [
+                        {
+                            pref: Preferences.CONTROLLER_ENABLE_VIBRATION,
                             label: __('controller-vibration'),
                             unsupported: !VibrationManager.supportControllerVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
 
-                        [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
+                        {
+                            pref: Preferences.CONTROLLER_DEVICE_VIBRATION,
                             label: __('device-vibration'),
                             unsupported: !VibrationManager.supportDeviceVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
 
-                        [Preferences.CONTROLLER_VIBRATION_INTENSITY]: (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
+                        (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
+                            pref: Preferences.CONTROLLER_VIBRATION_INTENSITY,
                             label: __('vibration-intensity'),
                             unsupported: !VibrationManager.supportDeviceVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
-                    },
+                    ],
                 },
+            ],
+        },
+
+        HAS_TOUCH_SUPPORT && {
+            icon: Icon.HAND_TAP,
+            group: 'touch-controller',
+            items: [
+                {
+                    group: 'touch-controller',
+                    label: __('touch-controller'),
+                    items: [
+                        {
+                            label: __('layout'),
+                            content: CE('select', {disabled: true}, CE('option', {}, __('default'))),
+                            onMounted: $elm => {
+                                $elm.addEventListener('change', e => {
+                                    TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, $elm.value, 1000);
+                                });
+
+                                window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, e => {
+                                    const data = e.data;
+
+                                    if (GAME_XBOX_TITLE_ID && $elm.xboxTitleId === GAME_XBOX_TITLE_ID) {
+                                        $elm.dispatchEvent(new Event('change'));
+                                        return;
+                                    }
+
+                                    $elm.xboxTitleId = GAME_XBOX_TITLE_ID;
+
+                                    // Clear options
+                                    while ($elm.firstChild) {
+                                        $elm.removeChild($elm.firstChild);
+                                    }
+
+                                    $elm.disabled = !data;
+                                    if (!data) {
+                                        $elm.appendChild(CE('option', {value: ''}, __('default')));
+                                        $elm.value = '';
+                                        $elm.dispatchEvent(new Event('change'));
+                                        return;
+                                    }
+
+                                    // Add options
+                                    const $fragment = document.createDocumentFragment();
+                                    for (const key in data.layouts) {
+                                        const layout = data.layouts[key];
+
+                                        const $option = CE('option', {value: key}, layout.name);
+                                        $fragment.appendChild($option);
+                                    }
+
+                                    $elm.appendChild($fragment);
+                                    $elm.value = data.default_layout;
+                                    $elm.dispatchEvent(new Event('change'));
+                                });
+                            },
+                        },
+                    ],
+                }
             ],
         },
 
@@ -9925,41 +10044,49 @@ function setupQuickSettingsBar() {
                     group: 'stats',
                     label: __('menu-stream-stats'),
                     help_url: 'https://better-xcloud.github.io/stream-stats/',
-                    items: {
-                        [Preferences.STATS_SHOW_WHEN_PLAYING]: {
+                    items: [
+                        {
+                            pref: Preferences.STATS_SHOW_WHEN_PLAYING,
                             label: __('show-stats-on-startup'),
                         },
-                        [Preferences.STATS_QUICK_GLANCE]: {
+                        {
+                            pref: Preferences.STATS_QUICK_GLANCE,
                             label: __('enable-quick-glance-mode'),
                             onChange: e => {
                                 e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
                             },
                         },
-                        [Preferences.STATS_ITEMS]: {
+                        {
+                            pref: Preferences.STATS_ITEMS,
                             label: __('stats'),
                             onChange: StreamStats.refreshStyles,
                         },
-                        [Preferences.STATS_POSITION]: {
+                        {
+                            pref: Preferences.STATS_POSITION,
                             label: __('position'),
                             onChange: StreamStats.refreshStyles,
                         },
-                        [Preferences.STATS_TEXT_SIZE]: {
+                        {
+                            pref: Preferences.STATS_TEXT_SIZE,
                             label: __('text-size'),
                             onChange: StreamStats.refreshStyles,
                         },
-                        [Preferences.STATS_OPACITY]: {
+                        {
+                            pref: Preferences.STATS_OPACITY,
                             label: __('opacity'),
                             onChange: StreamStats.refreshStyles,
                         },
-                        [Preferences.STATS_TRANSPARENT]: {
+                        {
+                            pref: Preferences.STATS_TRANSPARENT,
                             label: __('transparent-background'),
                             onChange: StreamStats.refreshStyles,
                         },
-                        [Preferences.STATS_CONDITIONAL_FORMATTING]: {
+                        {
+                            pref: Preferences.STATS_CONDITIONAL_FORMATTING,
                             label: __('conditional-formatting'),
                             onChange: StreamStats.refreshStyles,
                         },
-                    },
+                    ],
                 },
             ],
         },
@@ -10034,14 +10161,21 @@ function setupQuickSettingsBar() {
                 continue;
             }
 
-            for (const pref in settingGroup.items) {
-                const setting = settingGroup.items[pref];
+            if (!settingGroup.items) {
+                settingGroup.items = [];
+            }
+
+            for (const setting of settingGroup.items) {
                 if (!setting) {
                     continue;
                 }
 
+                const pref = setting.pref;
+
                 let $control;
-                if (!setting.unsupported) {
+                if (setting.content) {
+                    $control = setting.content;
+                } else if (!setting.unsupported) {
                     $control = PREFS.toElement(pref, setting.onChange, setting.params);
                 }
 
@@ -10054,6 +10188,8 @@ function setupQuickSettingsBar() {
                     );
 
                 $group.appendChild($content);
+
+                setting.onMounted && setting.onMounted($control);
             }
         }
 
