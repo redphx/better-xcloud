@@ -3441,10 +3441,11 @@ class TouchController {
         } else {
             url += `${xboxTitleId}.json`;
         }
-        window.BX_EXPOSED.touch_layout_manager && NATIVE_FETCH(url)
+        NATIVE_FETCH(url)
             .then(resp => resp.json(), () => {
                     TouchController.#customLayouts[xboxTitleId] = null;
-                    dispatchLayouts(null);
+                    // Wait for BX_EXPOSED.touch_layout_manager
+                    setTimeout(() => dispatchLayouts(null), 1000);
                 })
             .then(json => {
                     // Normalize data
@@ -3465,7 +3466,8 @@ class TouchController {
 
                     TouchController.#customLayouts[xboxTitleId] = json;
 
-                    dispatchLayouts(json);
+                    // Wait for BX_EXPOSED.touch_layout_manager
+                    setTimeout(() => dispatchLayouts(json), 1000);
                 });
     }
 
