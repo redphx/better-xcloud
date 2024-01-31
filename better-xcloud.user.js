@@ -3388,12 +3388,10 @@ class TouchController {
 
     static enable() {
         TouchController.#enable = true;
-        TouchController.#toggleBar(true);
     }
 
     static disable() {
         TouchController.#enable = false;
-        TouchController.#toggleBar(false);
     }
 
     static isEnabled() {
@@ -3600,6 +3598,8 @@ class TouchController {
                 try {
                     if (msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
+                        TouchController.#toggleBar(json.focused);
+
                         GAME_XBOX_TITLE_ID = parseInt(json.titleid, 16);
                     }
                 } catch (e) {
