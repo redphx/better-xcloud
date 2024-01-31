@@ -44,6 +44,7 @@ const BxEvent = {
     JUMP_BACK_IN_READY: 'bx-jump-back-in-ready',
     POPSTATE: 'bx-popstate',
 
+    STREAM_LOADING: 'bx-stream-loading',
     STREAM_STARTING: 'bx-stream-starting',
     STREAM_STARTED: 'bx-stream-started',
     STREAM_STOPPED: 'bx-stream-stopped',
@@ -51,6 +52,18 @@ const BxEvent = {
     CUSTOM_TOUCH_LAYOUTS_LOADED: 'bx-custom-touch-layouts-loaded',
 
     DATA_CHANNEL_CREATED: 'bx-data-channel-created',
+
+    dispatch: (target, eventName, data) => {
+        const event = new Event(eventName);
+
+        if (data) {
+            for (const key in data) {
+                event[key] = data[key];
+            }
+        }
+
+        target.dispatchEvent(event);
+    },
 };
 
 // Quickly create a tree of elements without having to use innerHTML
@@ -3426,9 +3439,9 @@ class TouchController {
 
     static getCustomLayouts(xboxTitleId) {
         const dispatchLayouts = data => {
-            const event = new Event(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
-            event.data = data;
-            window.dispatchEvent(event);
+            BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+                    data: data,
+                });
         };
 
         xboxTitleId = '' + xboxTitleId;
@@ -4770,9 +4783,9 @@ class MkbHandler {
         virtualGamepad.connected = true;
         virtualGamepad.timestamp = performance.now();
 
-        const event = new Event('gamepadconnected');
-        event.gamepad = virtualGamepad;
-        window.dispatchEvent(event);
+        BxEvent.dispatch(window, 'gamepadconnected', {
+                gamepad: virtualGamepad,
+            });
     }
 
     stop = () => {
@@ -4782,9 +4795,9 @@ class MkbHandler {
         virtualGamepad.connected = false;
         virtualGamepad.timestamp = performance.now();
 
-        const event = new Event('gamepaddisconnected');
-        event.gamepad = virtualGamepad;
-        window.dispatchEvent(event);
+        BxEvent.dispatch(window, 'gamepaddisconnected', {
+                gamepad: virtualGamepad,
+            });
 
         window.navigator.getGamepads = this.#nativeGetGamepads;
 
@@ -8858,9 +8871,9 @@ function interceptHttpRequests() {
                         if (obj[0].supportedTabs.length > 0) {
                             TouchController.disable();
 
-                            const event = new Event(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
-                            event.data = null;
-                            window.dispatchEvent(event);
+                            BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+                                    data: null,
+                                });
                         } else {
                             TouchController.enable();
 
@@ -9441,8 +9454,9 @@ function getVideoPlayerFilterStyle() {
 function updateVideoPlayerCss() {
     let $elm = document.getElementById('bx-video-css');
     if (!$elm) {
+        const $fragment = document.createDocumentFragment();
         $elm = CE('style', {id: 'bx-video-css'});
-        document.documentElement.appendChild($elm);
+        $fragment.appendChild($elm);
 
         // Setup SVG filters
         const $svg = CE('svg', {
@@ -9454,7 +9468,8 @@ function updateVideoPlayerCss() {
                 CE('feConvolveMatrix', {'id': 'bx-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
              )
         );
-        document.documentElement.appendChild($svg);
+        $fragment.appendChild($svg);
+        document.documentElement.appendChild($fragment);
     }
 
     let filters = getVideoPlayerFilterStyle();
@@ -10285,10 +10300,9 @@ function patchHistoryMethod(type) {
     const orig = window.history[type];
 
     return function(...args) {
-        const event = new Event(BxEvent.POPSTATE);
-        event.arguments = args;
-        window.dispatchEvent(event);
-
+        BxEvent.dispatch(window, BxEvent.POPSTATE, {
+                arguments: args,
+            });
         return orig.apply(this, arguments);
     };
 };
@@ -10569,9 +10583,9 @@ const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
 RTCPeerConnection.prototype.createDataChannel = function() {
     const dataChannel = nativeCreateDataChannel.apply(this, arguments);
 
-    const event = new Event(BxEvent.DATA_CHANNEL_CREATED);
-    event.dataChannel = dataChannel;
-    window.dispatchEvent(event);
+    BxEvent.dispatch(window, BxEvent.DATA_CHANNEL_CREATED, {
+            dataChannel: dataChannel,
+        });
 
     return dataChannel;
 }
