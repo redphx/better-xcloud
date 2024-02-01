@@ -3489,11 +3489,7 @@ class TouchController {
             url += `${xboxTitleId}.json`;
         }
         NATIVE_FETCH(url)
-            .then(resp => resp.json(), () => {
-                    TouchController.#customLayouts[xboxTitleId] = null;
-                    // Wait for BX_EXPOSED.touch_layout_manager
-                    setTimeout(() => dispatchLayouts(null), 1000);
-                })
+            .then(resp => resp.json())
             .then(json => {
                     // Normalize data
                     const schema_version = json.schema_version || 1;
@@ -3515,6 +3511,11 @@ class TouchController {
 
                     // Wait for BX_EXPOSED.touch_layout_manager
                     setTimeout(() => dispatchLayouts(json), 1000);
+                })
+            .catch(() => {
+                    TouchController.#customLayouts[xboxTitleId] = null;
+                    // Wait for BX_EXPOSED.touch_layout_manager
+                    setTimeout(() => dispatchLayouts(null), 1000);
                 });
     }
 
