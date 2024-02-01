@@ -31,6 +31,10 @@
             [
               {
                 "type": "directionalPad",
+                "scale": 1.2,
+                "interaction": {
+                  "activationType": "exclusive"
+                },
                 "styles": {
                   "idle": {
                     "opacity": 0.5
@@ -108,6 +112,10 @@
             [
               {
                 "type": "directionalPad",
+                "scale": 1.2,
+                "interaction": {
+                  "activationType": "exclusive"
+                },
                 "styles": {
                   "idle": {
                     "opacity": 0.5
@@ -156,6 +164,10 @@
             [
               {
                 "type": "directionalPad",
+                "scale": 1.2,
+                "interaction": {
+                  "activationType": "exclusive"
+                },
                 "styles": {
                   "idle": {
                     "opacity": 0.5
@@ -216,6 +228,10 @@
             [
               {
                 "type": "directionalPad",
+                "scale": 1.2,
+                "interaction": {
+                  "activationType": "exclusive"
+                },
                 "styles": {
                   "idle": {
                     "opacity": 0.5
