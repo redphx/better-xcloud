@@ -3087,7 +3087,29 @@ class RemotePlay {
             return;
         }
 
-        const GSSV_TOKEN = JSON.parse(localStorage.getItem('xboxcom_xbl_user_info')).tokens['http://gssv.xboxlive.com/'].token;
+        let GSSV_TOKEN;
+        try {
+            GSSV_TOKEN = JSON.parse(localStorage.getItem('xboxcom_xbl_user_info')).tokens['http://gssv.xboxlive.com/'].token;
+        } catch (e) {
+            for (let i = 0; i < localStorage.length; i++){
+                const key = localStorage.key(i);
+                if (!key.startsWith('Auth.User.')) {
+                    continue;
+                }
+
+                const json = JSON.parse(localStorage.getItem(key));
+                for (const token of json.tokens) {
+                    if (!token.relyingParty.includes('gssv.xboxlive.com')) {
+                        continue;
+                    }
+
+                    GSSV_TOKEN = token.tokenData.token;
+                    break;
+                }
+
+                break;
+            }
+        }
 
         fetch('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
             method: 'POST',
