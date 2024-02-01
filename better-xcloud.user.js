@@ -44,11 +44,30 @@ const BxEvent = {
     JUMP_BACK_IN_READY: 'bx-jump-back-in-ready',
     POPSTATE: 'bx-popstate',
 
+    STREAM_LOADING: 'bx-stream-loading',
     STREAM_STARTING: 'bx-stream-starting',
     STREAM_STARTED: 'bx-stream-started',
+    STREAM_PLAYING: 'bx-stream-playing',
     STREAM_STOPPED: 'bx-stream-stopped',
 
+    STREAM_WEBRTC_CONNECTED: 'bx-stream-webrtc-connected',
+    STREAM_WEBRTC_DISCONNECTED: 'bx-stream-webrtc-disconnected',
+
     CUSTOM_TOUCH_LAYOUTS_LOADED: 'bx-custom-touch-layouts-loaded',
+
+    DATA_CHANNEL_CREATED: 'bx-data-channel-created',
+
+    dispatch: (target, eventName, data) => {
+        const event = new Event(eventName);
+
+        if (data) {
+            for (const key in data) {
+                event[key] = data[key];
+            }
+        }
+
+        target.dispatchEvent(event);
+    },
 };
 
 // Quickly create a tree of elements without having to use innerHTML
@@ -3068,7 +3087,29 @@ class RemotePlay {
             return;
         }
 
-        const GSSV_TOKEN = JSON.parse(localStorage.getItem('xboxcom_xbl_user_info')).tokens['http://gssv.xboxlive.com/'].token;
+        let GSSV_TOKEN;
+        try {
+            GSSV_TOKEN = JSON.parse(localStorage.getItem('xboxcom_xbl_user_info')).tokens['http://gssv.xboxlive.com/'].token;
+        } catch (e) {
+            for (let i = 0; i < localStorage.length; i++){
+                const key = localStorage.key(i);
+                if (!key.startsWith('Auth.User.')) {
+                    continue;
+                }
+
+                const json = JSON.parse(localStorage.getItem(key));
+                for (const token of json.tokens) {
+                    if (!token.relyingParty.includes('gssv.xboxlive.com')) {
+                        continue;
+                    }
+
+                    GSSV_TOKEN = token.tokenData.token;
+                    break;
+                }
+
+                break;
+            }
+        }
 
         fetch('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
             method: 'POST',
@@ -3317,20 +3358,24 @@ class LoadingScreen {
         LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
         LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
 
-        const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
-        $rocketBg && $rocketBg.addEventListener('transitionend', e => {
-            LoadingScreen.#$bgStyle.textContent += `
+        if (LoadingScreen.#$bgStyle) {
+            const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
+            $rocketBg && $rocketBg.addEventListener('transitionend', e => {
+                LoadingScreen.#$bgStyle.textContent += `
 #game-stream {
     background: #000 !important;
 }
 `;
-        });
+            });
 
-        LoadingScreen.#$bgStyle.textContent += `
+            LoadingScreen.#$bgStyle.textContent += `
 #game-stream rect[width="800"] {
     opacity: 1 !important;
 }
 `;
+        }
+
+        LoadingScreen.reset();
     }
 
     static reset() {
@@ -3386,12 +3431,14 @@ class TouchController {
     }
 
     static #show() {
-        TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, TouchController.#currentLayoutId, 0);
+        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.remove('bx-gone');
+        // TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, TouchController.#currentLayoutId, 0);
         TouchController.#showing = true;
     }
 
     static #hide() {
-        TouchController.#dispatchMessage(TouchController.#EVENT_HIDE_CONTROLLER);
+        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.add('bx-gone');
+        // TouchController.#dispatchMessage(TouchController.#EVENT_HIDE_CONTROLLER);
         TouchController.#showing = false;
     }
 
@@ -3403,8 +3450,8 @@ class TouchController {
         TouchController.#showing ? TouchController.#hide() : TouchController.#show();
     }
 
-    static enableBar() {
-        TouchController.#$bar && TouchController.#$bar.setAttribute('data-showing', true);
+    static #toggleBar(value) {
+        TouchController.#$bar && TouchController.#$bar.setAttribute('data-showing', value);
     }
 
     static reset() {
@@ -3424,9 +3471,9 @@ class TouchController {
 
     static getCustomLayouts(xboxTitleId) {
         const dispatchLayouts = data => {
-            const event = new Event(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
-            event.data = data;
-            window.dispatchEvent(event);
+            BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+                    data: data,
+                });
         };
 
         xboxTitleId = '' + xboxTitleId;
@@ -3503,11 +3550,14 @@ class TouchController {
     }
 
     static setup() {
+        const $fragment = document.createDocumentFragment();
         const $style = document.createElement('style');
-        document.documentElement.appendChild($style);
+        $fragment.appendChild($style);
 
         const $bar = createElement('div', {'id': 'bx-touch-controller-bar'});
-        document.documentElement.appendChild($bar);
+        $fragment.appendChild($bar);
+
+        document.documentElement.appendChild($fragment);
 
         // Setup double-tap event
         let clickTimeout;
@@ -3531,11 +3581,10 @@ class TouchController {
         const PREF_STYLE_STANDARD = getPref(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
         const PREF_STYLE_CUSTOM = getPref(Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
 
-        const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
-        RTCPeerConnection.prototype.createDataChannel = function() {
-            const dataChannel = nativeCreateDataChannel.apply(this, arguments);
-            if (dataChannel.label !== 'message') {
-                return dataChannel;
+        window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
+            const dataChannel = e.dataChannel;
+            if (!dataChannel || dataChannel.label !== 'message') {
+                return;
             }
 
             // Apply touch controller's style
@@ -3552,6 +3601,8 @@ class TouchController {
 
             if (filter) {
                 $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+            } else {
+                $style.textContent = '';
             }
 
             TouchController.#dataChannel = dataChannel;
@@ -3576,14 +3627,19 @@ class TouchController {
                 try {
                     if (msg.data.includes('/titleinfo')) {
                         const json = JSON.parse(JSON.parse(msg.data).content);
-                        const xboxTitleId = parseInt(json.titleid, 16);
-                        GAME_XBOX_TITLE_ID = xboxTitleId;
-                    }
-                } catch (e) { console.log(e) }
-            });
+                        TouchController.#toggleBar(json.focused);
 
-            return dataChannel;
-        };
+                        if (!json.focused) {
+                            TouchController.#show();
+                        }
+
+                        GAME_XBOX_TITLE_ID = parseInt(json.titleid, 16);
+                    }
+                } catch (e) {
+                    console.log(e);
+                }
+            });
+        });
     }
 }
 
@@ -4765,9 +4821,9 @@ class MkbHandler {
         virtualGamepad.connected = true;
         virtualGamepad.timestamp = performance.now();
 
-        const event = new Event('gamepadconnected');
-        event.gamepad = virtualGamepad;
-        window.dispatchEvent(event);
+        BxEvent.dispatch(window, 'gamepadconnected', {
+                gamepad: virtualGamepad,
+            });
     }
 
     stop = () => {
@@ -4777,9 +4833,9 @@ class MkbHandler {
         virtualGamepad.connected = false;
         virtualGamepad.timestamp = performance.now();
 
-        const event = new Event('gamepaddisconnected');
-        event.gamepad = virtualGamepad;
-        window.dispatchEvent(event);
+        BxEvent.dispatch(window, 'gamepaddisconnected', {
+                gamepad: virtualGamepad,
+            });
 
         window.navigator.getGamepads = this.#nativeGetGamepads;
 
@@ -4792,6 +4848,16 @@ class MkbHandler {
         window.removeEventListener('mouseup', this.#onMouseEvent);
         window.removeEventListener('wheel', this.#onWheelEvent);
         window.removeEventListener('contextmenu', this.#disableContextMenu);
+    }
+
+    static setupEvents() {
+        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+            // Enable MKB
+            if (getPref(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
+                console.log('Emulate MKB');
+                MkbHandler.INSTANCE.init();
+            }
+        });
     }
 }
 
@@ -5518,11 +5584,10 @@ class VibrationManager {
 
         VibrationManager.updateGlobalVars();
 
-        const orgCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
-        RTCPeerConnection.prototype.createDataChannel = function() {
-            const dataChannel = orgCreateDataChannel.apply(this, arguments);
-            if (dataChannel.label !== 'input') {
-                return dataChannel;
+        window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
+            const dataChannel = e.dataChannel;
+            if (!dataChannel || dataChannel.label !== 'input') {
+                return;
             }
 
             const VIBRATION_DATA_MAP = {
@@ -5581,9 +5646,7 @@ class VibrationManager {
 
                 VibrationManager.#playDeviceVibration(data);
             });
-
-            return dataChannel;
-        };
+        });
     }
 }
 
@@ -5828,6 +5891,22 @@ class StreamBadges {
 
         return $wrapper;
     }
+
+    static setupEvents() {
+        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+            const $video = e.$video;
+
+            StreamBadges.resolution = {width: $video.videoWidth, height: $video.videoHeight};
+            StreamBadges.startTimestamp = +new Date;
+
+            // Get battery level
+            try {
+                navigator.getBattery && navigator.getBattery().then(bm => {
+                    StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
+                });
+            } catch(e) {}
+        });
+    }
 }
 
 
@@ -6033,6 +6112,92 @@ class StreamStats {
         document.documentElement.appendChild(StreamStats.#$container);
 
         StreamStats.refreshStyles();
+    }
+
+    static getServerStats() {
+        STREAM_WEBRTC && STREAM_WEBRTC.getStats().then(stats => {
+            const allVideoCodecs = {};
+            let videoCodecId;
+
+            const allAudioCodecs = {};
+            let audioCodecId;
+
+            const allCandidates = {};
+            let candidateId;
+
+            stats.forEach(stat => {
+                if (stat.type == 'codec') {
+                    const mimeType = stat.mimeType.split('/');
+                    if (mimeType[0] === 'video') {
+                        // Store all video stats
+                        allVideoCodecs[stat.id] = stat;
+                    } else if (mimeType[0] === 'audio') {
+                        // Store all audio stats
+                        allAudioCodecs[stat.id] = stat;
+                    }
+                } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
+                    // Get the codecId of the video/audio track currently being used
+                    if (stat.kind === 'video') {
+                        videoCodecId = stat.codecId;
+                    } else if (stat.kind === 'audio') {
+                        audioCodecId = stat.codecId;
+                    }
+                } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
+                    candidateId = stat.remoteCandidateId;
+                } else if (stat.type === 'remote-candidate') {
+                    allCandidates[stat.id] = stat.address;
+                }
+            });
+
+            // Get video codec from codecId
+            if (videoCodecId) {
+                const videoStat = allVideoCodecs[videoCodecId];
+                const video = {
+                    codec: videoStat.mimeType.substring(6),
+                };
+
+                if (video.codec === 'H264') {
+                    const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+                    video.profile = match ? match[1] : null;
+                }
+
+                StreamBadges.video = video;
+            }
+
+            // Get audio codec from codecId
+            if (audioCodecId) {
+                const audioStat = allAudioCodecs[audioCodecId];
+                StreamBadges.audio = {
+                    codec: audioStat.mimeType.substring(6),
+                    bitrate: audioStat.clockRate,
+                }
+            }
+
+            // Get server type
+            if (candidateId) {
+                console.log('candidate', candidateId, allCandidates);
+                StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
+            }
+
+            if (getPref(Preferences.STATS_SHOW_WHEN_PLAYING)) {
+                StreamStats.start();
+            }
+        });
+    }
+
+    static setupEvents() {
+        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+            const PREF_STATS_QUICK_GLANCE = getPref(Preferences.STATS_QUICK_GLANCE);
+            const PREF_STATS_SHOW_WHEN_PLAYING = getPref(Preferences.STATS_SHOW_WHEN_PLAYING);
+
+            StreamStats.getServerStats();
+            // Setup Stat's Quick Glance mode
+            if (PREF_STATS_QUICK_GLANCE) {
+                StreamStats.quickGlanceSetup();
+                // Show stats bar
+                !PREF_STATS_SHOW_WHEN_PLAYING && StreamStats.start(true);
+            }
+        });
     }
 }
 
@@ -8785,8 +8950,11 @@ function interceptHttpRequests() {
         let url = (typeof request === 'string') ? request : request.url;
 
         if (url.endsWith('/play')) {
-            // Setup UI
-            setupBxUi();
+            BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+        }
+
+        if (url.endsWith('/configuration')) {
+            BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
         }
 
         if (IS_REMOTE_PLAYING && (url.includes('/sessions/home') || url.includes('inputconfigs'))) {
@@ -8855,9 +9023,9 @@ function interceptHttpRequests() {
                         if (obj[0].supportedTabs.length > 0) {
                             TouchController.disable();
 
-                            const event = new Event(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
-                            event.data = null;
-                            window.dispatchEvent(event);
+                            BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+                                    data: null,
+                                });
                         } else {
                             TouchController.enable();
 
@@ -8966,9 +9134,6 @@ function interceptHttpRequests() {
 
         // Get region
         if (url.endsWith('/sessions/cloud/play')) {
-            // Setup loading screen
-            PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.setup();
-
             // Start hiding cursor
             if (!getPref(Preferences.MKB_ENABLED) && getPref(Preferences.MKB_HIDE_IDLE_CURSOR)) {
                 MouseCursorHider.start();
@@ -9023,8 +9188,6 @@ function interceptHttpRequests() {
         }
 
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            PREF_UI_LOADING_SCREEN_GAME_ART && LoadingScreen.hide();
-
             const promise = NATIVE_FETCH(...arg);
 
             // Touch controller for all games
@@ -9438,8 +9601,9 @@ function getVideoPlayerFilterStyle() {
 function updateVideoPlayerCss() {
     let $elm = document.getElementById('bx-video-css');
     if (!$elm) {
+        const $fragment = document.createDocumentFragment();
         $elm = CE('style', {id: 'bx-video-css'});
-        document.documentElement.appendChild($elm);
+        $fragment.appendChild($elm);
 
         // Setup SVG filters
         const $svg = CE('svg', {
@@ -9451,7 +9615,8 @@ function updateVideoPlayerCss() {
                 CE('feConvolveMatrix', {'id': 'bx-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
              )
         );
-        document.documentElement.appendChild($svg);
+        $fragment.appendChild($svg);
+        document.documentElement.appendChild($fragment);
     }
 
     let filters = getVideoPlayerFilterStyle();
@@ -9795,13 +9960,13 @@ function patchVideoApi() {
             return;
         }
 
-        onStreamStarted(this);
+        BxEvent.dispatch(window, BxEvent.STREAM_PLAYING, {
+                $video: this,
+            });
     }
 
     const nativePlay = HTMLMediaElement.prototype.play;
     HTMLMediaElement.prototype.play = function() {
-        LoadingScreen.reset();
-
         if (this.className && this.className.startsWith('XboxSplashVideo')) {
             if (PREF_SKIP_SPLASH_VIDEO) {
                 this.volume = 0;
@@ -10282,10 +10447,9 @@ function patchHistoryMethod(type) {
     const orig = window.history[type];
 
     return function(...args) {
-        const event = new Event(BxEvent.POPSTATE);
-        event.arguments = args;
-        window.dispatchEvent(event);
-
+        BxEvent.dispatch(window, BxEvent.POPSTATE, {
+                arguments: args,
+            });
         return orig.apply(this, arguments);
     };
 };
@@ -10332,143 +10496,6 @@ function onHistoryChanged(e) {
 }
 
 
-function onStreamStarted($video) {
-    IS_PLAYING = true;
-
-    // Get title ID for screenshot's name
-    if (window.location.pathname.includes('/launch/')) {
-        const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
-        GAME_TITLE_ID = matches.groups.title_id;
-        GAME_PRODUCT_ID = matches.groups.product_id;
-    } else {
-        GAME_TITLE_ID = 'remote-play';
-        GAME_PRODUCT_ID = null;
-    }
-
-    // Enable MKB
-    if (getPref(Preferences.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
-        console.log('Emulate MKB');
-        MkbHandler.INSTANCE.init();
-    }
-
-    if (TouchController.isEnabled()) {
-        TouchController.enableBar();
-    }
-
-    /*
-    if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
-        GamepadHandler.startPolling();
-    }
-    */
-
-    const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
-    const PREF_STATS_QUICK_GLANCE = getPref(Preferences.STATS_QUICK_GLANCE);
-    const PREF_STATS_SHOW_WHEN_PLAYING = getPref(Preferences.STATS_SHOW_WHEN_PLAYING);
-
-    // Setup Stat's Quick Glance mode
-    if (PREF_STATS_QUICK_GLANCE) {
-        StreamStats.quickGlanceSetup();
-        // Show stats bar
-        !PREF_STATS_SHOW_WHEN_PLAYING && StreamStats.start(true);
-    }
-
-    $STREAM_VIDEO = $video;
-    $SCREENSHOT_CANVAS.width = $video.videoWidth;
-    $SCREENSHOT_CANVAS.height = $video.videoHeight;
-
-    StreamBadges.resolution = {width: $video.videoWidth, height: $video.videoHeight};
-    StreamBadges.startTimestamp = +new Date;
-
-    // Get battery level
-    try {
-        navigator.getBattery && navigator.getBattery().then(bm => {
-            StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
-        });
-    } catch(e) {}
-
-    STREAM_WEBRTC.getStats().then(stats => {
-        const allVideoCodecs = {};
-        let videoCodecId;
-
-        const allAudioCodecs = {};
-        let audioCodecId;
-
-        const allCandidates = {};
-        let candidateId;
-
-        stats.forEach(stat => {
-            if (stat.type == 'codec') {
-                const mimeType = stat.mimeType.split('/');
-                if (mimeType[0] === 'video') {
-                    // Store all video stats
-                    allVideoCodecs[stat.id] = stat;
-                } else if (mimeType[0] === 'audio') {
-                    // Store all audio stats
-                    allAudioCodecs[stat.id] = stat;
-                }
-            } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
-                // Get the codecId of the video/audio track currently being used
-                if (stat.kind === 'video') {
-                    videoCodecId = stat.codecId;
-                } else if (stat.kind === 'audio') {
-                    audioCodecId = stat.codecId;
-                }
-            } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
-                candidateId = stat.remoteCandidateId;
-            } else if (stat.type === 'remote-candidate') {
-                allCandidates[stat.id] = stat.address;
-            }
-        });
-
-        // Get video codec from codecId
-        if (videoCodecId) {
-            const videoStat = allVideoCodecs[videoCodecId];
-            const video = {
-                codec: videoStat.mimeType.substring(6),
-            };
-
-            if (video.codec === 'H264') {
-                const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-                video.profile = match ? match[1] : null;
-            }
-
-            StreamBadges.video = video;
-        }
-
-        // Get audio codec from codecId
-        if (audioCodecId) {
-            const audioStat = allAudioCodecs[audioCodecId];
-            StreamBadges.audio = {
-                codec: audioStat.mimeType.substring(6),
-                bitrate: audioStat.clockRate,
-            }
-        }
-
-        // Get server type
-        if (candidateId) {
-            console.log(candidateId, allCandidates);
-            StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
-        }
-
-        if (PREF_STATS_SHOW_WHEN_PLAYING) {
-            StreamStats.start();
-        }
-    });
-
-    // Setup screenshot button
-    if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-        const $btn = document.querySelector('.bx-screenshot-button');
-        $btn.style.display = 'block';
-
-        if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
-            $btn.style.right = '0';
-        } else {
-            $btn.style.left = '0';
-        }
-    }
-}
-
-
 function disablePwa() {
     const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
     if (!userAgent) {
@@ -10507,6 +10534,59 @@ window.addEventListener('popstate', onHistoryChanged);
 // Make pushState/replaceState methods dispatch BxEvent.POPSTATE event
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
+
+window.addEventListener(BxEvent.STREAM_LOADING, e => {
+    // Get title ID for screenshot's name
+    if (window.location.pathname.includes('/launch/')) {
+        const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
+        GAME_TITLE_ID = matches.groups.title_id;
+        GAME_PRODUCT_ID = matches.groups.product_id;
+    } else {
+        GAME_TITLE_ID = 'remote-play';
+        GAME_PRODUCT_ID = null;
+    }
+
+    // Setup UI
+    setupBxUi();
+
+    // Setup loading screen
+    getPref(Preferences.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.setup();
+});
+
+window.addEventListener(BxEvent.STREAM_STARTING, e => {
+    // Hide loading screen
+    getPref(Preferences.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.hide();
+});
+
+window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+    const $video = e.$video;
+    $STREAM_VIDEO = $video;
+
+    IS_PLAYING = true;
+
+    /*
+    if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
+        GamepadHandler.startPolling();
+    }
+    */
+
+    const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
+    $SCREENSHOT_CANVAS.width = $video.videoWidth;
+    $SCREENSHOT_CANVAS.height = $video.videoHeight;
+
+    // Setup screenshot button
+    if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
+        const $btn = document.querySelector('.bx-screenshot-button');
+        $btn.style.display = 'block';
+
+        if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
+            $btn.style.right = '0';
+        } else {
+            $btn.style.left = '0';
+        }
+    }
+});
+
 
 PreloadedState.override();
 
@@ -10562,11 +10642,21 @@ if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all') {
 
 VibrationManager.initialSetup();
 
+const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
+RTCPeerConnection.prototype.createDataChannel = function() {
+    const dataChannel = nativeCreateDataChannel.apply(this, arguments);
+
+    BxEvent.dispatch(window, BxEvent.DATA_CHANNEL_CREATED, {
+            dataChannel: dataChannel,
+        });
+
+    return dataChannel;
+}
+
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
-    const peer = new OrgRTCPeerConnection();
-    STREAM_WEBRTC = peer;
-    return peer;
+    STREAM_WEBRTC = new OrgRTCPeerConnection();
+    return STREAM_WEBRTC;
 }
 
 patchRtcCodecs();
@@ -10589,3 +10679,7 @@ if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
 Patcher.initialize();
 
 RemotePlay.detect();
+
+StreamBadges.setupEvents();
+StreamStats.setupEvents();
+MkbHandler.setupEvents();
