@@ -50,6 +50,9 @@ const BxEvent = {
     STREAM_PLAYING: 'bx-stream-playing',
     STREAM_STOPPED: 'bx-stream-stopped',
 
+    STREAM_MENU_SHOWN: 'bx-stream-menu-shown',
+    STREAM_MENU_HIDDEN: 'bx-stream-menu-hidden',
+
     STREAM_WEBRTC_CONNECTED: 'bx-stream-webrtc-connected',
     STREAM_WEBRTC_DISCONNECTED: 'bx-stream-webrtc-disconnected',
 
@@ -4782,8 +4785,8 @@ class MkbHandler {
         this.#$message.addEventListener('click', this.#onActivatePointerLock);
         document.documentElement.appendChild(this.#$message);
 
-        window.addEventListener('bx-stream-menu-shown', this.#onStreamMenuShown);
-        window.addEventListener('bx-stream-menu-hidden', this.#onStreamMenuHidden);
+        window.addEventListener(BxEvent.STREAM_MENU_SHOWN, this.#onStreamMenuShown);
+        window.addEventListener(BxEvent.STREAM_MENU_HIDDEN, this.#onStreamMenuHidden);
 
         this.#waitForPointerLock(true);
     }
@@ -4800,8 +4803,8 @@ class MkbHandler {
         document.removeEventListener('pointerlockchange', this.#onPointerLockChange);
         document.removeEventListener('pointerlockerror', this.#onPointerLockError);
 
-        window.removeEventListener('bx-stream-menu-shown', this.#onStreamMenuShown);
-        window.removeEventListener('bx-stream-menu-hidden', this.#onStreamMenuHidden);
+        window.removeEventListener(BxEvent.STREAM_MENU_SHOWN, this.#onStreamMenuShown);
+        window.removeEventListener(BxEvent.STREAM_MENU_HIDDEN, this.#onStreamMenuHidden);
     }
 
     start = () => {
@@ -9797,7 +9800,7 @@ function injectStreamMenuButtons() {
 
                 if ($node.className.startsWith('StreamMenu')) {
                     if (!document.querySelector('div[class^=PureInStreamConfirmationModal]')) {
-                        window.dispatchEvent(new Event('bx-stream-menu-hidden'));
+                        Bx.dispatch(window, BxEvent.STREAM_MENU_HIDDEN);
                     }
                 }
             });
@@ -9815,7 +9818,7 @@ function injectStreamMenuButtons() {
 
                 // Render badges
                 if ($node.className.startsWith('StreamMenu')) {
-                    window.dispatchEvent(new Event('bx-stream-menu-shown'));
+                    BxEvent.dispatch(window, BxEvent.STREAM_MENU_SHOWN);
 
                     // Hide Quick bar when closing HUD
                     const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
