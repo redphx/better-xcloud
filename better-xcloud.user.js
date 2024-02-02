@@ -9798,7 +9798,7 @@ function injectStreamMenuButtons() {
 
                 if ($node.className.startsWith('StreamMenu')) {
                     if (!document.querySelector('div[class^=PureInStreamConfirmationModal]')) {
-                        Bx.dispatch(window, BxEvent.STREAM_MENU_HIDDEN);
+                        BxEvent.dispatch(window, BxEvent.STREAM_MENU_HIDDEN);
                     }
                 }
             });
