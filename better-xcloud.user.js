@@ -3434,14 +3434,12 @@ class TouchController {
     }
 
     static #show() {
-        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.remove('bx-gone');
-        // TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, TouchController.#currentLayoutId, 0);
+        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.remove('bx-offscreen');
         TouchController.#showing = true;
     }
 
     static #hide() {
-        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.add('bx-gone');
-        // TouchController.#dispatchMessage(TouchController.#EVENT_HIDE_CONTROLLER);
+        document.querySelector('#BabylonCanvasContainer-main').parentElement.classList.add('bx-offscreen');
         TouchController.#showing = false;
     }
 
