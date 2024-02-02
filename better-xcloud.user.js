@@ -49,6 +49,7 @@ const BxEvent = {
     STREAM_STARTED: 'bx-stream-started',
     STREAM_PLAYING: 'bx-stream-playing',
     STREAM_STOPPED: 'bx-stream-stopped',
+    STREAM_ERROR_PAGE: 'bx-stream-error-page',
 
     STREAM_MENU_SHOWN: 'bx-stream-menu-shown',
     STREAM_MENU_HIDDEN: 'bx-stream-menu-hidden',
@@ -61,6 +62,11 @@ const BxEvent = {
     DATA_CHANNEL_CREATED: 'bx-data-channel-created',
 
     dispatch: (target, eventName, data) => {
+        if (!eventName) {
+            alert('BxEvent.dispatch(): eventName is null');
+            return;
+        }
+
         const event = new Event(eventName);
 
         if (data) {
@@ -9792,7 +9798,7 @@ function injectStreamMenuButtons() {
             }
 
             item.removedNodes.forEach($node => {
-                if (!$node.className || !$node.className.startsWith) {
+                if (!$node || !$node.className || !$node.className.startsWith) {
                     return;
                 }
 
@@ -9805,6 +9811,12 @@ function injectStreamMenuButtons() {
 
             item.addedNodes.forEach(async $node => {
                 if (!$node || !$node.className) {
+                    return;
+                }
+
+                // Error Page: .PureErrorPage.ErrorScreen
+                if ($node.className.includes('PureErrorPage')) {
+                    BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
                     return;
                 }
 
@@ -10458,14 +10470,10 @@ function patchHistoryMethod(type) {
 
 
 function onHistoryChanged(e) {
-    if (e.arguments && e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
+    if (e && e.arguments && e.arguments[0] && e.arguments[0].origin === 'better-xcloud') {
         return;
     }
 
-    // Stop MKB listeners
-    MkbHandler.INSTANCE.destroy();
-
-    IS_PLAYING = false;
     setTimeout(RemotePlay.detect, 10);
 
     const $settings = document.querySelector('.better_xcloud_settings');
@@ -10473,28 +10481,10 @@ function onHistoryChanged(e) {
         $settings.classList.add('bx-gone');
     }
 
-    const $quickBar = document.querySelector('.bx-quick-settings-bar');
-    if ($quickBar) {
-        $quickBar.classList.add('bx-gone');
-    }
-
-    STREAM_AUDIO_GAIN_NODE = null;
-    $STREAM_VIDEO = null;
-    StreamStats.onStoppedPlaying();
-
-    const $screenshotBtn = document.querySelector('.bx-screenshot-button');
-    if ($screenshotBtn) {
-        $screenshotBtn.style = '';
-    }
-
-    MouseCursorHider.stop();
-    TouchController.reset();
-
     LoadingScreen.reset();
-
-    GamepadHandler.stopPolling();
-
     setTimeout(checkHeader, 2000);
+
+    BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
 
 
@@ -10587,6 +10577,40 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
             $btn.style.left = '0';
         }
     }
+});
+
+window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
+    BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+});
+
+window.addEventListener(BxEvent.STREAM_STOPPED, e => {
+    if (!IS_PLAYING) {
+        return;
+    }
+
+    IS_PLAYING = false;
+
+    // Stop MKB listeners
+    MkbHandler.INSTANCE.destroy();
+
+    const $quickBar = document.querySelector('.bx-quick-settings-bar');
+    if ($quickBar) {
+        $quickBar.classList.add('bx-gone');
+    }
+
+    STREAM_AUDIO_GAIN_NODE = null;
+    $STREAM_VIDEO = null;
+    StreamStats.onStoppedPlaying();
+
+    const $screenshotBtn = document.querySelector('.bx-screenshot-button');
+    if ($screenshotBtn) {
+        $screenshotBtn.style = '';
+    }
+
+    MouseCursorHider.stop();
+    TouchController.reset();
+
+    GamepadHandler.stopPolling();
 });
 
 
