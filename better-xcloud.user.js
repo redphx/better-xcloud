@@ -6,6 +6,7 @@
 // @author       redphx
 // @license      MIT
 // @match        https://www.xbox.com/*/play*
+// @match        https://www.xbox.com/*/auth/msa?*loggedIn*
 // @run-at       document-start
 // @grant        none
 // @updateURL    https://raw.githubusercontent.com/redphx/better-xcloud/main/better-xcloud.meta.js
@@ -37,6 +38,17 @@ window.NATIVE_MKB_TITLES = [
     // '9N2Z748SPMTM', // AoE 2
     // '9P731Z4BBCT3', // Atomic Heart
 ];
+
+if (window.location.pathname.includes('/auth/msa')) {
+    window.addEventListener('load', e => {
+            window.location.search.includes('loggedIn') && setTimeout(() => {
+                const location = window.location;
+                location.pathname.includes('/play') && location.reload(true);
+            }, 2000);
+        });
+    // Stop processing the script
+    throw new Error('[Better xCloud] Refreshing the page after logging in');
+}
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
