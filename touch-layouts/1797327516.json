@@ -89,6 +89,9 @@
             ],
             {
               "type": "directionalPad",
+              "interaction": {
+                "activationType": "exclusive"
+              },
               "scale": 1.2
             },
             {
@@ -116,7 +119,15 @@
                   "type": "layer",
                   "target": "EnableGyro"
                 }
-              ]
+              ],
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "leftBumper"
+                  }
+                }
+              }
             },
             {
               "type": "touchpad",
@@ -139,7 +150,15 @@
                   "type": "layer",
                   "target": "EnableGyro"
                 }
-              ]
+              ],
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "rightBumper"
+                  }
+                }
+              }
             },
             {
               "type": "touchpad",
@@ -162,7 +181,15 @@
                   "type": "layer",
                   "target": "EnableGyro"
                 }
-              ]
+              ],
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "leftTrigger"
+                  }
+                }
+              }
             }
           ]
         },
