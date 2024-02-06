@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "name": "Cocoon",
+  "default_layout": "custom",
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
+              "relative": false
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadA"
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "gamepadB"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
