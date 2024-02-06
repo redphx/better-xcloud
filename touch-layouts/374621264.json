@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "name": "Resident Evil 2 Remake",
+  "name": "RESIDENT EVIL 2",
   "default_layout": "type-a",
   "layouts": {
     "type-a": {
@@ -41,12 +41,12 @@
                 {
                   "input": "axisX",
                   "output": "leftJoystickX",
-                  "sensitivity": 20
+                  "sensitivity": 5
                 },
                 {
                   "input": "axisY",
                   "output": "leftJoystickY",
-                  "sensitivity": 10
+                  "sensitivity": 5
                 }
               ],
               "renderAsButton": true,
@@ -73,12 +73,12 @@
                   {
                     "input": "axisX",
                     "output": "leftJoystickX",
-                    "sensitivity": 20
+                    "sensitivity": 5
                   },
                   {
                     "input": "axisY",
                     "output": "leftJoystickY",
-                    "sensitivity": 10
+                    "sensitivity": 5
                   }
                 ],
                 "renderAsButton": true,
@@ -168,12 +168,12 @@
                 {
                   "input": "axisX",
                   "output": "rightJoystickX",
-                  "sensitivity": 20
+                  "sensitivity": 5
                 },
                 {
                   "input": "axisY",
                   "output": "rightJoystickY",
-                  "sensitivity": 10
+                  "sensitivity": 5
                 }
               ],
               "renderAsButton": true,
