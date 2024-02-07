@@ -3650,13 +3650,14 @@ class TouchController {
                 setTimeout(TouchController.#show, 1000);
             });
 
+            let focused = false;
             dataChannel.addEventListener('message', msg => {
                 if (msg.origin === 'better-xcloud' || typeof msg.data !== 'string') {
                     return;
                 }
 
                 // Dispatch a message to display generic touch controller
-                if (msg.data.includes('touchcontrols/showtitledefault')) {
+                if (focused && msg.data.includes('touchcontrols/showtitledefault')) {
                     TouchController.#enable && TouchController.getCustomLayouts(GAME_XBOX_TITLE_ID);
                     return;
                 }
@@ -3667,6 +3668,7 @@ class TouchController {
                         const json = JSON.parse(JSON.parse(msg.data).content);
                         TouchController.#toggleBar(json.focused);
 
+                        focused = json.focused;
                         if (!json.focused) {
                             TouchController.#show();
                         }
@@ -9077,7 +9079,6 @@ function interceptHttpRequests() {
 
                             const xboxTitleId = JSON.parse(opts.body).titleIds[0];
                             GAME_XBOX_TITLE_ID = xboxTitleId;
-                            TouchController.getCustomLayouts(xboxTitleId);
                         }
 
                         response.json = () => Promise.resolve(obj);
