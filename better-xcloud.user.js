@@ -6540,13 +6540,19 @@ class Preferences {
             'default': false,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER]: {
-            'default': 'default',
+            'default': 'all',
             'options': {
                 'default': __('default'),
                 'all': __('tc-all-games'),
                 'off': __('off'),
             },
             'unsupported': !HAS_TOUCH_SUPPORT,
+            'ready': () => {
+                const setting = Preferences.SETTINGS[Preferences.STREAM_TOUCH_CONTROLLER];
+                if (setting.unsupported) {
+                    setting.default = 'off';
+                }
+            },
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
