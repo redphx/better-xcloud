@@ -6541,10 +6541,16 @@ class Preferences {
                 return options;
             })(),
             'ready': () => {
-                const options = Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].options;
-                if (Object.keys(options).length <= 1) {
-                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].unsupported = true;
-                    Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE].note = '⚠️ ' + __('browser-unsupported-feature');
+                const setting = Preferences.SETTINGS[Preferences.STREAM_CODEC_PROFILE]
+                const options = setting.options;
+                const keys = Object.keys(options);
+
+                if (keys.length <= 1) { // Unsupported
+                    setting.unsupported = true;
+                    setting.note = '⚠️ ' + __('browser-unsupported-feature');
+                } else {
+                    // Set default value to the best codec profile
+                    setting.default = keys[keys.length - 1];
                 }
             },
         },
@@ -6838,6 +6844,7 @@ class Preferences {
         },
 
         // Deprecated
+        /*
         [Preferences.DEPRECATED_USE_DESKTOP_CODEC]: {
             'default': false,
             'migrate': function(savedPrefs, value) {
@@ -6846,6 +6853,7 @@ class Preferences {
                 savedPrefs[Preferences.STREAM_CODEC_PROFILE] = quality;
             },
         },
+        */
     }
 
     #storage = localStorage;
@@ -6860,12 +6868,14 @@ class Preferences {
         savedPrefs = JSON.parse(savedPrefs);
 
         for (let settingId in Preferences.SETTINGS) {
-            if (!(settingId in savedPrefs)) {
-                continue;
-            }
             const setting = Preferences.SETTINGS[settingId];
-            setting && setting.migrate && setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
-            setting && setting.ready && setting.ready.call(this);
+            setting.ready && setting.ready.call(this);
+
+            /*
+            if (setting.migrate && !(settingId in savedPrefs)) {
+                setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
+            }
+            */
         }
 
         for (let settingId in Preferences.SETTINGS) {
