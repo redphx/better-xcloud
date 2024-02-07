@@ -3553,6 +3553,8 @@ class TouchController {
             return;
         }
 
+        const layoutChanged = TouchController.#currentLayoutId !== layoutId;
+
         TouchController.#currentLayoutId = layoutId;
         xboxTitleId = '' + xboxTitleId;
 
@@ -3566,7 +3568,7 @@ class TouchController {
         const layout = (layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout]);
         if (layout) {
             // Show a toast with layout's name
-            Toast.show(__('touch-control-layout'), layout.name);
+            layoutChanged && Toast.show(__('touch-control-layout'), layout.name);
 
             setTimeout(() => {
                 window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
