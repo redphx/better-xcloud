@@ -1332,6 +1332,7 @@ const Translations = {
         "pl-PL": "Używanie tej funkcji podczas grania online może być postrzegane jako oszukiwanie",
         "pt-BR": "Usar esta função em jogos online pode ser considerado como uma forma de trapaça",
         "ru-RU": "Использование этой функции при игре онлайн может рассматриваться как читерство",
+        "tr-TR": "Bu özellik çevrimiçi oyunlarda sizi hile yapıyormuşsunuz gibi gösterebilir",
         "uk-UA": "Використання цієї функції під час гри онлайн може розглядатися як шахрайство",
         "vi-VN": "Sử dụng chức năng này khi chơi trực tuyến có thể bị xem là gian lận",
     },
@@ -2472,6 +2473,15 @@ const Translations = {
         "vi-VN": "Phía trên bên phải",
         "zh-CN": "右上角",
     },
+    "touch-control-layout": {
+        "de-DE": "Touch-Steuerungslayout",
+        "en-US": "Touch control layout",
+        "ja-JP": "タッチコントロールレイアウト",
+        "pt-BR": "Layout do controle por toque",
+        "ru-RU": "Расположение сенсорных кнопок",
+        "uk-UA": "Розташування сенсорного керування",
+        "vi-VN": "Bố cục điều khiển cảm ứng",
+    },
     "touch-controller": {
         "de-DE": "Touch-Controller",
         "en-US": "Touch controller",
@@ -3546,6 +3556,7 @@ class TouchController {
         TouchController.#currentLayoutId = layoutId;
         xboxTitleId = '' + xboxTitleId;
 
+        // Get layout data
         const layoutData = TouchController.#customLayouts[xboxTitleId];
         if (!xboxTitleId || !layoutId || !layoutData) {
             TouchController.#enable && TouchController.#showDefault();
@@ -3553,20 +3564,25 @@ class TouchController {
         }
 
         const layout = (layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout]);
-        layout && setTimeout(() => {
-            window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
-                type: 'showLayout',
-                scope: xboxTitleId,
-                subscope: 'base',
-                layout: {
-                    id: 'System.Standard',
-                    displayName: 'System',
-                    layoutFile: {
-                        content: layout.content,
-                    },
-                }
-            });
-        }, delay);
+        if (layout) {
+            // Show a toast with layout's name
+            Toast.show(__('touch-control-layout'), layout.name);
+
+            setTimeout(() => {
+                window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+                    type: 'showLayout',
+                    scope: xboxTitleId,
+                    subscope: 'base',
+                    layout: {
+                        id: 'System.Standard',
+                        displayName: 'System',
+                        layoutFile: {
+                            content: layout.content,
+                        },
+                    }
+                });
+            }, delay);
+        }
     }
 
     static setup() {
@@ -8279,16 +8295,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     font-size: 14px;
     display: inline-block;
     padding: 12px 16px;
+    white-space: pre;
 }
 
 .bx-toast-status {
     font-weight: bold;
-    font-size: 16px;
+    font-size: 14px;
     text-transform: uppercase;
     display: inline-block;
     background: #515863;
     padding: 12px 16px;
     color: #fff;
+    white-space: pre;
 }
 
 .bx-number-stepper span {
