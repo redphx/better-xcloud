@@ -9079,6 +9079,7 @@ function interceptHttpRequests() {
 
                             const xboxTitleId = JSON.parse(opts.body).titleIds[0];
                             GAME_XBOX_TITLE_ID = xboxTitleId;
+                            TouchController.getCustomLayouts(xboxTitleId);
                         }
 
                         response.json = () => Promise.resolve(obj);
