@@ -9068,7 +9068,18 @@ function interceptHttpRequests() {
 
                 return promise.then(response => {
                     return response.clone().json().then(obj => {
-                        if (obj[0].supportedTabs.length > 0) {
+                        const xboxTitleId = JSON.parse(opts.body).titleIds[0];
+                        GAME_XBOX_TITLE_ID = xboxTitleId;
+
+                        const inputConfigs = obj[0];
+
+                        let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
+                        if (!hasTouchSupport) {
+                            const supportedInputTypes = inputConfigs.supportedInputTypes;
+                            hasTouchSupport = supportedInputTypes.includes('NativeTouch');
+                        }
+
+                        if (hasTouchSupport) {
                             TouchController.disable();
 
                             BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
@@ -9076,9 +9087,6 @@ function interceptHttpRequests() {
                                 });
                         } else {
                             TouchController.enable();
-
-                            const xboxTitleId = JSON.parse(opts.body).titleIds[0];
-                            GAME_XBOX_TITLE_ID = xboxTitleId;
                             TouchController.getCustomLayouts(xboxTitleId);
                         }
 
