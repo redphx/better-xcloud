@@ -3657,8 +3657,14 @@ class TouchController {
                 }
 
                 // Dispatch a message to display generic touch controller
-                if (focused && msg.data.includes('touchcontrols/showtitledefault')) {
-                    TouchController.#enable && TouchController.getCustomLayouts(GAME_XBOX_TITLE_ID);
+                if (msg.data.includes('touchcontrols/showtitledefault')) {
+                    if (TouchController.#enable) {
+                        if (focused) {
+                            TouchController.getCustomLayouts(GAME_XBOX_TITLE_ID);
+                        } else {
+                            TouchController.#showDefault();
+                        }
+                    }
                     return;
                 }
 
