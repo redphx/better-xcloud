@@ -1,7 +1,7 @@
 {
-  "name": "Palworld",
+  "name": "Cocoon",
   "default_layout": "custom",
   "layouts": [
-    "palworld"
+    "cocoon"
   ]
 }

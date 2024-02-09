@@ -1,7 +1,7 @@
 {
-  "name": "Palworld",
+  "name": "A Short Hike",
   "default_layout": "custom",
   "layouts": [
-    "palworld"
+    "a-short-hike"
   ]
 }

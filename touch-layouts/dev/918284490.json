@@ -1,0 +1,7 @@
+{
+  "name": "RESIDENT EVIL 2 (JP Z Version)",
+  "default_layout": "type-a",
+  "layouts": [
+    "resident-evil-2"
+  ]
+}
