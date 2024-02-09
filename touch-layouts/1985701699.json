@@ -97,6 +97,9 @@
                       "faceImage": {
                         "type": "icon",
                         "value": "switchCamera"
+                      },
+                      "stroke": {
+                        "opacity": 0
                       }
                     }
                   }
