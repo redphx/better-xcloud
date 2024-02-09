@@ -3586,6 +3586,24 @@ class TouchController {
     }
 
     static setup() {
+        // Function for testing touch control
+        window.BX_EXPOSED.test_touch_control = content => {
+            const { touch_layout_manager } = window.BX_EXPOSED;
+
+            touch_layout_manager && touch_layout_manager.changeLayoutForScope({
+                type: 'showLayout',
+                scope: '' + GAME_XBOX_TITLE_ID,
+                subscope: 'base',
+                layout: {
+                    id: 'System.Standard',
+                    displayName: 'Custom',
+                    layoutFile: {
+                        content: content,
+                    },
+                },
+            });
+        };
+
         const $fragment = document.createDocumentFragment();
         const $style = document.createElement('style');
         $fragment.appendChild($style);
