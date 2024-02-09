@@ -34,6 +34,7 @@
               },
               "action": "leftThumb",
               "actionThreshold": 2,
+              "expand": false,
               "styles": {
                 "default": {
                   "knob": {
@@ -80,6 +81,9 @@
                       "faceImage": {
                         "type": "icon",
                         "value": "rightTrigger"
+                      },
+                      "stroke": {
+                        "opacity": 0
                       }
                     }
                   }
@@ -99,20 +103,11 @@
               "action": "rightThumb"
             },
             {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "leftJoystickX",
-                  "sensitivity": 20
-                },
-                {
-                  "input": "axisY",
-                  "output": "leftJoystickY",
-                  "sensitivity": 10
-                }
-              ],
-              "renderAsButton": true,
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
               "action": [
                 "leftBumper",
                 {
@@ -122,28 +117,24 @@
               ],
               "styles": {
                 "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "leftBumper"
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "leftBumper"
+                    },
+                    "stroke": {
+                      "opacity": 0
+                    }
                   }
                 }
               }
             },
             {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "leftJoystickX",
-                  "sensitivity": 20
-                },
-                {
-                  "input": "axisY",
-                  "output": "leftJoystickY",
-                  "sensitivity": 10
-                }
-              ],
-              "renderAsButton": true,
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
               "action": [
                 "rightBumper",
                 {
@@ -153,28 +144,24 @@
               ],
               "styles": {
                 "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "rightBumper"
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "rightBumper"
+                    },
+                    "stroke": {
+                      "opacity": 0
+                    }
                   }
                 }
               }
             },
             {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "leftJoystickX",
-                  "sensitivity": 20
-                },
-                {
-                  "input": "axisY",
-                  "output": "leftJoystickY",
-                  "sensitivity": 10
-                }
-              ],
-              "renderAsButton": true,
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
               "action": [
                 "leftTrigger",
                 {
@@ -184,9 +171,14 @@
               ],
               "styles": {
                 "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "leftTrigger"
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "leftTrigger"
+                    },
+                    "stroke": {
+                      "opacity": 0
+                    }
                   }
                 }
               }
