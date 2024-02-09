@@ -64,6 +64,9 @@
                       "faceImage": {
                         "type": "icon",
                         "value": "rightTrigger"
+                      },
+                      "stroke": {
+                        "opacity": 0
                       }
                     }
                   }
