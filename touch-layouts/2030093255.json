@@ -101,6 +101,9 @@
                       "stroke": {
                         "opacity": 0.1
                       }
+                    },
+                    "outline": {
+                      "opacity": 0
                     }
                   }
                 }
