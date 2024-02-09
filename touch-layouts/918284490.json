@@ -28,6 +28,14 @@
                     "input": "axisXY",
                     "output": "rightJoystick",
                     "sensitivity": 2
+                  },
+                  "styles": {
+                    "default": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "aim"
+                      }
+                    }
                   }
                 }
               ]
