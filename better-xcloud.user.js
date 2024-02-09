@@ -1335,6 +1335,7 @@ const Translations = {
         "tr-TR": "Bu özellik çevrimiçi oyunlarda sizi hile yapıyormuşsunuz gibi gösterebilir",
         "uk-UA": "Використання цієї функції під час гри онлайн може розглядатися як шахрайство",
         "vi-VN": "Sử dụng chức năng này khi chơi trực tuyến có thể bị xem là gian lận",
+        "zh-CN": "游玩在线游戏时，使用此功能可能被视为作弊。",
     },
     "mouse-and-keyboard": {
         "de-DE": "Maus & Tastatur",
@@ -2479,8 +2480,10 @@ const Translations = {
         "ja-JP": "タッチコントロールレイアウト",
         "pt-BR": "Layout do controle por toque",
         "ru-RU": "Расположение сенсорных кнопок",
+        "tr-TR": "Dokunmatik kontrol şeması",
         "uk-UA": "Розташування сенсорного керування",
         "vi-VN": "Bố cục điều khiển cảm ứng",
+        "zh-CN": "触摸控制布局",
     },
     "touch-controller": {
         "de-DE": "Touch-Controller",
