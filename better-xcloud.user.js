@@ -19,7 +19,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
-const USE_DEV_TOUCH_LAYOUT = false;
+const USE_DEV_TOUCH_LAYOUT = true;
 
 const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
@@ -3498,53 +3498,51 @@ class TouchController {
         }, 10);
     }
 
-    static getCustomLayouts(xboxTitleId) {
-        const dispatchLayouts = data => {
-            BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-                    data: data,
-                });
-        };
+    static #dispatchLayouts(data) {
+        BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+            data: data,
+        });
+    };
 
+    static getCustomLayouts(xboxTitleId, retries) {
         xboxTitleId = '' + xboxTitleId;
         if (xboxTitleId in TouchController.#customLayouts) {
-            dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
+            TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
             return;
         }
 
-        let url = 'https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/';
-        if (USE_DEV_TOUCH_LAYOUT) {
-            url += `dev/${xboxTitleId}.json`;
-        } else {
-            url += `${xboxTitleId}.json`;
+        retries = retries || 1;
+        if (retries > 2) {
+            TouchController.#customLayouts[xboxTitleId] = null;
+            // Wait for BX_EXPOSED.touch_layout_manager
+            setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+            return;
         }
+
+        const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${USE_DEV_TOUCH_LAYOUT ? '/dev' : ''}`;
+        const url = `${baseUrl}/${xboxTitleId}.json`;
+
+        // Get layout info
         NATIVE_FETCH(url)
             .then(resp => resp.json())
             .then(json => {
-                    // Normalize data
-                    const schema_version = json.schema_version || 1;
-                    let layout;
-                    try {
-                        if (schema_version === 1) {
-                            json.layouts = {
-                                default: {
-                                    name: 'Default',
-                                    content: json.layout,
-                                },
-                            };
-                            json.default_layout = 'default';
-                            delete json.layout;
-                        }
-                    } catch (e) {}
+                    const layouts = {};
 
+                    json.layouts.forEach(async file => {
+                        const layoutUrl = `${baseUrl}/layouts/${file}.json`;
+                        const json = await (await NATIVE_FETCH(layoutUrl)).json();
+                        Object.assign(layouts, json.layouts);
+                    });
+
+                    json.layouts = layouts;
                     TouchController.#customLayouts[xboxTitleId] = json;
 
                     // Wait for BX_EXPOSED.touch_layout_manager
-                    setTimeout(() => dispatchLayouts(json), 1000);
+                    setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
                 })
             .catch(() => {
-                    TouchController.#customLayouts[xboxTitleId] = null;
-                    // Wait for BX_EXPOSED.touch_layout_manager
-                    setTimeout(() => dispatchLayouts(null), 1000);
+                    // Retry
+                    TouchController.getCustomLayouts(xboxTitleId, retries + 1);
                 });
     }
 
