@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "name": "BIOHAZARD RE:2 Z Version",
+  "name": "RESIDENT EVIL 2 (JP Z Version)",
   "default_layout": "type-a",
   "layouts": {
     "type-a": {
@@ -18,6 +18,20 @@
                 }
               }
             ]
+          },
+          "AimTouchpad": {
+            "right": {
+              "inner": [
+                {
+                  "type": "touchpad",
+                  "axis": {
+                    "input": "axisXY",
+                    "output": "rightJoystick",
+                    "sensitivity": 2
+                  }
+                }
+              ]
+            }
           }
         },
         "left": {
@@ -31,25 +45,17 @@
                   "threshold": 0.01,
                   "radial": true
                 }
-              }
+              },
+              "expand": false
             }
           ],
           "outer": [
             {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "leftJoystickX",
-                  "sensitivity": 5
-                },
-                {
-                  "input": "axisY",
-                  "output": "leftJoystickY",
-                  "sensitivity": 5
-                }
-              ],
-              "renderAsButton": true,
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
               "action": [
                 "leftBumper",
                 {
@@ -59,41 +65,46 @@
               ],
               "styles": {
                 "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "leftBumper"
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "leftBumper"
+                    },
+                    "stroke": {
+                      "opacity": 0.1
+                    }
                   }
                 }
               }
             },
             [
               {
-                "type": "touchpad",
-                "axis": [
-                  {
-                    "input": "axisX",
-                    "output": "leftJoystickX",
-                    "sensitivity": 5
-                  },
-                  {
-                    "input": "axisY",
-                    "output": "leftJoystickY",
-                    "sensitivity": 5
-                  }
-                ],
-                "renderAsButton": true,
+                "type": "joystick",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "leftJoystick"
+                },
                 "action": [
                   "leftTrigger",
                   {
                     "type": "layer",
                     "target": "EnableGyro"
+                  },
+                  {
+                    "type": "layer",
+                    "target": "AimTouchpad"
                   }
                 ],
                 "styles": {
                   "default": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "leftTrigger"
+                    "knob": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "leftTrigger"
+                      },
+                      "stroke": {
+                        "opacity": 0.1
+                      }
                     }
                   }
                 }
@@ -133,12 +144,12 @@
             [
               {
                 "type": "button",
-                "action": "leftThumb",
+                "action": "gamepadY",
                 "styles": {
                   "default": {
                     "faceImage": {
                       "type": "icon",
-                      "value": "run"
+                      "value": "inventory"
                     }
                   }
                 }
@@ -154,11 +165,24 @@
             },
             [
               {
+                "type": "button",
+                "action": "leftThumb",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "run"
+                    }
+                  }
+                }
+              },
+              null,
+              {
                 "type": "directionalPad",
                 "interaction": {
                   "activationType": "exclusive"
                 },
-                "scale": 1
+                "scale": 1.2
               },
               null
             ],
@@ -168,12 +192,12 @@
                 {
                   "input": "axisX",
                   "output": "rightJoystickX",
-                  "sensitivity": 5
+                  "sensitivity": 1
                 },
                 {
                   "input": "axisY",
                   "output": "rightJoystickY",
-                  "sensitivity": 5
+                  "sensitivity": 1
                 }
               ],
               "renderAsButton": true,
@@ -208,18 +232,6 @@
                   "faceImage": {
                     "type": "icon",
                     "value": "map"
-                  }
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "gamepadY",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "inventory"
                   }
                 }
               }
