@@ -21,6 +21,8 @@ const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
 const USE_DEV_TOUCH_LAYOUT = false;
 
+const REMOTE_PLAY_SERVER = 'eus'; // Possible values: wus2 (WestUS2), eus (EastUS), uks (UkSouth)
+
 const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
     // Not working anymore
@@ -3167,7 +3169,7 @@ class RemotePlay {
             return;
         }
 
-        fetch('https://wus2.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50', {
+        fetch(`https://${REMOTE_PLAY_SERVER}.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${RemotePlay.XHOME_TOKEN}`,
@@ -9068,7 +9070,7 @@ function interceptHttpRequests() {
             }
 
             const index = request.url.indexOf('.xboxlive.com');
-            let newUrl = 'https://wus2.gssv-play-prodxhome' + request.url.substring(index);
+            let newUrl = `https://${REMOTE_PLAY_SERVER}.gssv-play-prodxhome` + request.url.substring(index);
 
             request = new Request(newUrl, opts);
 
