@@ -19,7 +19,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
-const USE_DEV_TOUCH_LAYOUT = true;
+const USE_DEV_TOUCH_LAYOUT = false;
 
 const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
