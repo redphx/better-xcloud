@@ -1,0 +1,7 @@
+{
+  "name": "Go Mecha Ball",
+  "default_layout": "custom",
+  "layouts": [
+    "go-mecha-ball"
+  ]
+}
