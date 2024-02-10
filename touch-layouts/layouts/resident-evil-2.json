@@ -25,7 +25,7 @@
                   "axis": {
                     "input": "axisXY",
                     "output": "rightJoystick",
-                    "sensitivity": 2
+                    "sensitivity": 3
                   },
                   "styles": {
                     "default": {
@@ -37,7 +37,17 @@
                   }
                 }
               ]
-            }
+            },
+            "sensors": [
+              {
+                "type": "gyroscope",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick",
+                  "sensitivity": 1
+                }
+              }
+            ]
           }
         },
         "left": {
@@ -92,10 +102,6 @@
                 },
                 "action": [
                   "leftTrigger",
-                  {
-                    "type": "layer",
-                    "target": "EnableGyro"
-                  },
                   {
                     "type": "layer",
                     "target": "AimTouchpad"
@@ -198,12 +204,12 @@
                 {
                   "input": "axisX",
                   "output": "rightJoystickX",
-                  "sensitivity": 1
+                  "sensitivity": 3
                 },
                 {
                   "input": "axisY",
                   "output": "rightJoystickY",
-                  "sensitivity": 1
+                  "sensitivity": 3
                 }
               ],
               "renderAsButton": true,
