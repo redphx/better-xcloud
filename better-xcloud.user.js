@@ -3472,6 +3472,7 @@ class TouchController {
     static #dataChannel;
 
     static #customLayouts = {};
+    static #baseCustomLayouts = {};
     static #currentLayoutId;
 
     static enable() {
@@ -3559,10 +3560,22 @@ class TouchController {
 
             const layouts = {};
 
-            json.layouts.forEach(async file => {
-                const layoutUrl = `${baseUrl}/layouts/${file}.json`;
-                const json = await (await NATIVE_FETCH(layoutUrl)).json();
-                Object.assign(layouts, json.layouts);
+            json.layouts.forEach(async layoutName => {
+                let baseLayouts = {};
+                if (layoutName in TouchController.#baseCustomLayouts) {
+                    baseLayouts = TouchController.#baseCustomLayouts[layoutName];
+                } else {
+                    try {
+                        const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
+                        const resp = await NATIVE_FETCH(layoutUrl);
+                        const json = await resp.json();
+
+                        baseLayouts = json.layouts;
+                        TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
+                    } catch (e) {}
+                }
+
+                Object.assign(layouts, baseLayouts);
             });
 
             json.layouts = layouts;
