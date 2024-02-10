@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "layouts": {
-    "custom": {
-      "name": "Custom",
+    "layout-1": {
+      "name": "Layout 1",
       "content": {
         "layers": {
           "dPadDisplay": {
