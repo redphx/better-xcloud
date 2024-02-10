@@ -1,0 +1,7 @@
+{
+  "name": "Rise of the Tomb Raider",
+  "default_layout": "custom",
+  "layouts": [
+    "tomb-raider-raise"
+  ]
+}
