@@ -1,7 +1,0 @@
-{
-  "name": "Cocoon",
-  "default_layout": "custom",
-  "layouts": [
-    "cocoon"
-  ]
-}
