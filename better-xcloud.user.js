@@ -21,7 +21,7 @@ const ENABLE_XCLOUD_LOGGER = false;
 const ENABLE_PRELOAD_BX_UI = false;
 const USE_DEV_TOUCH_LAYOUT = false;
 
-const REMOTE_PLAY_SERVER = 'eus'; // Possible values: wus2 (WestUS2), eus (EastUS), uks (UkSouth)
+let REMOTE_PLAY_SERVER;
 
 const ENABLE_NATIVE_MKB_BETA = false;
 window.NATIVE_MKB_TITLES = [
@@ -3163,22 +3163,47 @@ class RemotePlay {
             });
     }
 
-    static #getConsolesList(callback) {
+    static async #getConsolesList(callback) {
         if (RemotePlay.#CONSOLES) {
             callback();
             return;
         }
 
-        fetch(`https://${REMOTE_PLAY_SERVER}.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${RemotePlay.XHOME_TOKEN}`,
-            },
-        }).then(resp => resp.json())
-            .then(json => {
+        let servers;
+        if (!REMOTE_PLAY_SERVER) {
+            servers = ['wus2', 'eus', 'uks']; // Possible values: wus2 (WestUS2), eus (EastUS), uks (UkSouth)
+        } else {
+            servers = REMOTE_PLAY_SERVER;
+        }
+
+        const options = {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${RemotePlay.XHOME_TOKEN}`,
+                },
+            };
+
+        // Test servers one by one
+        for (const server of servers) {
+            try {
+                const url = `https://${server}.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50`;
+                const resp = await fetch(url, options);
+
+                const json = await resp.json();
                 RemotePlay.#CONSOLES = json.results;
+
+                // Store working server
+                REMOTE_PLAY_SERVER = server;
+
                 callback();
-            });
+                break;
+            } catch (e) {}
+        }
+
+        // None of the servers worked
+        if (!REMOTE_PLAY_SERVER) {
+            RemotePlay.#CONSOLES = [];
+        }
     }
 
     static showDialog() {
