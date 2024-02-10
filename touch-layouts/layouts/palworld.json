@@ -5,7 +5,34 @@
       "name": "Custom",
       "content": {
         "layers": {
-          "EnableGyro": {
+          "AimTouchpad": {
+            "right": {
+              "inner": [
+                {
+                  "type": "touchpad",
+                  "axis": [
+                    {
+                      "input": "axisX",
+                      "output": "rightJoystickX",
+                      "sensitivity": 3
+                    },
+                    {
+                      "input": "axisY",
+                      "output": "rightJoystickY",
+                      "sensitivity": 3
+                    }
+                  ],
+                  "styles": {
+                    "default": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "aim"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
             "sensors": [
               {
                 "type": "gyroscope",
@@ -70,7 +97,7 @@
                   "rightTrigger",
                   {
                     "type": "layer",
-                    "target": "EnableGyro"
+                    "target": "AimTouchpad"
                   }
                 ],
                 "styles": {
@@ -110,7 +137,7 @@
                 "leftBumper",
                 {
                   "type": "layer",
-                  "target": "EnableGyro"
+                  "target": "AimTouchpad"
                 }
               ],
               "styles": {
@@ -137,7 +164,7 @@
                 "rightBumper",
                 {
                   "type": "layer",
-                  "target": "EnableGyro"
+                  "target": "AimTouchpad"
                 }
               ],
               "styles": {
@@ -164,7 +191,7 @@
                 "leftTrigger",
                 {
                   "type": "layer",
-                  "target": "EnableGyro"
+                  "target": "AimTouchpad"
                 }
               ],
               "styles": {
@@ -215,7 +242,7 @@
                   "leftTrigger",
                   {
                     "type": "layer",
-                    "target": "EnableGyro"
+                    "target": "AimTouchpad"
                   }
                 ],
                 "styles": {
@@ -263,12 +290,12 @@
                 {
                   "input": "axisX",
                   "output": "rightJoystickX",
-                  "sensitivity": 20
+                  "sensitivity": 3
                 },
                 {
                   "input": "axisY",
                   "output": "rightJoystickY",
-                  "sensitivity": 10
+                  "sensitivity": 3
                 }
               ],
               "renderAsButton": true,
@@ -277,7 +304,7 @@
                 "leftTrigger",
                 {
                   "type": "layer",
-                  "target": "EnableGyro"
+                  "target": "AimTouchpad"
                 }
               ],
               "styles": {
