@@ -3534,7 +3534,7 @@ class TouchController {
         });
     };
 
-    static getCustomLayouts(xboxTitleId, retries) {
+    static async getCustomLayouts(xboxTitleId, retries) {
         xboxTitleId = '' + xboxTitleId;
         if (xboxTitleId in TouchController.#customLayouts) {
             TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
@@ -3553,27 +3553,27 @@ class TouchController {
         const url = `${baseUrl}/${xboxTitleId}.json`;
 
         // Get layout info
-        NATIVE_FETCH(url)
-            .then(resp => resp.json())
-            .then(json => {
-                    const layouts = {};
+        try {
+            const resp = await NATIVE_FETCH(url);
+            const json = await resp.json();
 
-                    json.layouts.forEach(async file => {
-                        const layoutUrl = `${baseUrl}/layouts/${file}.json`;
-                        const json = await (await NATIVE_FETCH(layoutUrl)).json();
-                        Object.assign(layouts, json.layouts);
-                    });
+            const layouts = {};
 
-                    json.layouts = layouts;
-                    TouchController.#customLayouts[xboxTitleId] = json;
+            json.layouts.forEach(async file => {
+                const layoutUrl = `${baseUrl}/layouts/${file}.json`;
+                const json = await (await NATIVE_FETCH(layoutUrl)).json();
+                Object.assign(layouts, json.layouts);
+            });
 
-                    // Wait for BX_EXPOSED.touch_layout_manager
-                    setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
-                })
-            .catch(() => {
-                    // Retry
-                    TouchController.getCustomLayouts(xboxTitleId, retries + 1);
-                });
+            json.layouts = layouts;
+            TouchController.#customLayouts[xboxTitleId] = json;
+
+            // Wait for BX_EXPOSED.touch_layout_manager
+            setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+        } catch (e) {
+            // Retry
+            TouchController.getCustomLayouts(xboxTitleId, retries + 1);
+        }
     }
 
     static loadCustomLayout(xboxTitleId, layoutId, delay) {
