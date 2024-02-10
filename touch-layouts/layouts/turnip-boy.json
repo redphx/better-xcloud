@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "leftBumper"
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "joystick",
+              "expand": false,
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick"
+              }
+            }
+          ],
+          "outer": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            [
+              {
+                "type": "button",
+                "action": "gamepadB",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "roll"
+                    }
+                  }
+                }
+              },
+              null
+            ],
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "interact"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

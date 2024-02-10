@@ -1,0 +1,7 @@
+{
+  "name": "Turnip Boy Robs a Bank",
+  "default_layout": "custom",
+  "layouts": [
+    "turnip-boy"
+  ]
+}
