@@ -4,6 +4,25 @@
     "one-handed-left": {
       "name": "One-handed (Left)",
       "content": {
+        "layers": {
+          "DpadMovement": {
+            "left": {
+              "inner": [
+                {
+                  "type": "directionalPad",
+                  "scale": 1.5,
+                  "styles": {
+                    "default": {
+                      "gradient": {
+                        "color": "#ffffff80"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
         "left": {
           "inner": [
             {
@@ -55,6 +74,28 @@
             {
               "type": "button",
               "action": "menu"
+            },
+            {
+              "type": "button",
+              "toggle": true,
+              "action": {
+                "type": "layer",
+                "target": "DpadMovement"
+              },
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "dPad"
+                  }
+                },
+                "toggled": {
+                  "background": {
+                    "type": "color",
+                    "value": "#ffffff10"
+                  }
+                }
+              }
             }
           ]
         }
@@ -63,6 +104,25 @@
     "one-handed-right": {
       "name": "One-handed (Right)",
       "content": {
+        "layers": {
+          "DpadMovement": {
+            "right": {
+              "inner": [
+                {
+                  "type": "directionalPad",
+                  "scale": 1.5,
+                  "styles": {
+                    "default": {
+                      "gradient": {
+                        "color": "#ffffff80"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
         "right": {
           "inner": [
             {
@@ -113,6 +173,28 @@
             {
               "type": "button",
               "action": "menu"
+            },
+            {
+              "type": "button",
+              "toggle": true,
+              "action": {
+                "type": "layer",
+                "target": "DpadMovement"
+              },
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "dPad"
+                  }
+                },
+                "toggled": {
+                  "background": {
+                    "type": "color",
+                    "value": "#ffffff10"
+                  }
+                }
+              }
             }
           ]
         }
