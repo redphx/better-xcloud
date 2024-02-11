@@ -103,7 +103,11 @@
               "type": "joystick",
               "axis": {
                 "input": "axisXY",
-                "output": "leftJoystick"
+                "output": "leftJoystick",
+                "deadzone": {
+                  "threshold": 0.2,
+                  "radial": true
+                }
               },
               "action": [
                 "leftTrigger",
