@@ -5,20 +5,30 @@
       "name": "One-handed (Left)",
       "content": {
         "layers": {
-          "DpadMovement": {
+          "ToggleDpad": {
             "left": {
-              "inner": [
-                {
-                  "type": "directionalPad",
-                  "scale": 1.5,
-                  "styles": {
-                    "default": {
-                      "gradient": {
-                        "color": "#ffffff80"
+              "outer": [
+                null,
+                null,
+                [
+                  {
+                    "type": "directionalPad",
+                    "scale": 1.5,
+                    "interaction": {
+                      "activationType": "exclusive"
+                    },
+                    "styles": {
+                      "default": {
+                        "gradient": {
+                          "color": "#ffffff80"
+                        }
+                      },
+                      "idle": {
+                        "opacity": 0.6
                       }
                     }
                   }
-                }
+                ]
               ]
             }
           }
@@ -80,7 +90,7 @@
               "toggle": true,
               "action": {
                 "type": "layer",
-                "target": "DpadMovement"
+                "target": "ToggleDpad"
               },
               "styles": {
                 "default": {
@@ -105,20 +115,32 @@
       "name": "One-handed (Right)",
       "content": {
         "layers": {
-          "DpadMovement": {
+          "ToggleDpad": {
             "right": {
-              "inner": [
-                {
-                  "type": "directionalPad",
-                  "scale": 1.5,
-                  "styles": {
-                    "default": {
-                      "gradient": {
-                        "color": "#ffffff80"
+              "outer": [
+                null,
+                null,
+                null,
+                null,
+                [
+                  {
+                    "type": "directionalPad",
+                    "scale": 1.5,
+                    "interaction": {
+                      "activationType": "exclusive"
+                    },
+                    "styles": {
+                      "default": {
+                        "gradient": {
+                          "color": "#ffffff80"
+                        }
+                      },
+                      "idle": {
+                        "opacity": 0.6
                       }
                     }
                   }
-                }
+                ]
               ]
             }
           }
@@ -179,7 +201,7 @@
               "toggle": true,
               "action": {
                 "type": "layer",
-                "target": "DpadMovement"
+                "target": "ToggleDpad"
               },
               "styles": {
                 "default": {
