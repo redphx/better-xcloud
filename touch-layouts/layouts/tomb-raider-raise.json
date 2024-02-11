@@ -187,31 +187,13 @@
                 }
               },
               {
-                "type": "touchpad",
-                "axis": [
-                  {
-                    "input": "axisX",
-                    "output": "rightJoystickX",
-                    "sensitivity": 3
-                  },
-                  {
-                    "input": "axisY",
-                    "output": "rightJoystickY",
-                    "sensitivity": 3
-                  }
-                ],
-                "renderAsButton": true,
-                "action": "rightBumper",
+                "type": "button",
+                "action": "gamepadY",
                 "styles": {
                   "default": {
-                    "knob": {
-                      "faceImage": {
-                        "type": "icon",
-                        "value": "rightBumper"
-                      },
-                      "stroke": {
-                        "opacity": 0.1
-                      }
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "punch"
                     }
                   }
                 }
@@ -260,13 +242,31 @@
               }
             },
             {
-              "type": "button",
-              "action": "gamepadY",
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "rightJoystickX",
+                  "sensitivity": 3
+                },
+                {
+                  "input": "axisY",
+                  "output": "rightJoystickY",
+                  "sensitivity": 3
+                }
+              ],
+              "renderAsButton": true,
+              "action": "rightBumper",
               "styles": {
                 "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "punch"
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "rightBumper"
+                    },
+                    "stroke": {
+                      "opacity": 0.1
+                    }
                   }
                 }
               }
