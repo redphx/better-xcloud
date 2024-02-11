@@ -16,41 +16,38 @@
             }
           ],
           "outer": [
-            [
-              {
-                "type": "button",
-                "action": "gamepadA",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.7
-                  }
+            null,
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "idle": {
+                  "opacity": 0.7
                 }
               }
-            ],
+            },
             null,
             null,
-            [
-              {
-                "type": "button",
-                "action": "leftBumper",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.7
-                  }
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "gamepadB",
+              "styles": {
+                "idle": {
+                  "opacity": 0.7
                 }
               }
-            ],
-            [
-              {
-                "type": "button",
-                "action": "gamepadB",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.7
-                  }
+            },
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "styles": {
+                "idle": {
+                  "opacity": 0.7
                 }
               }
-            ]
+            }
           ]
         },
         "upper": {
@@ -78,41 +75,37 @@
             }
           ],
           "outer": [
-            [
-              {
-                "type": "button",
-                "action": "gamepadB",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.7
-                  }
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "styles": {
+                "idle": {
+                  "opacity": 0.7
                 }
               }
-            ],
-            [
-              {
-                "type": "button",
-                "action": "leftBumper",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.7
-                  }
+            },
+            {
+              "type": "button",
+              "action": "gamepadB",
+              "styles": {
+                "idle": {
+                  "opacity": 0.7
                 }
               }
-            ],
+            },
             null,
             null,
-            [
-              {
-                "type": "button",
-                "action": "gamepadA",
-                "styles": {
-                  "idle": {
-                    "opacity": 0.7
-                  }
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "idle": {
+                  "opacity": 0.7
                 }
               }
-            ]
+            }
           ]
         },
         "upper": {
@@ -126,46 +119,49 @@
       }
     },
     "simplified": {
-      "left": {
-        "inner": [
-          {
-            "type": "joystick",
-            "relative": false,
-            "axis": {
-              "input": "axisXY",
-              "output": "leftJoystick"
+      "name": "Simplified",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "relative": false,
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              }
             }
-          }
-        ]
-      },
-      "right": {
-        "inner": [
-          {
-            "type": "button",
-            "action": "gamepadA"
-          }
-        ],
-        "outer": [
-          {
-            "type": "blank"
-          },
-          {
-            "type": "button",
-            "action": "gamepadB"
-          }
-        ]
-      },
-      "upper": {
-        "right": [
-          {
-            "type": "button",
-            "action": "menu"
-          },
-          {
-            "type": "button",
-            "action": "rightBumper"
-          }
-        ]
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadA"
+            }
+          ],
+          "outer": [
+            {
+              "type": "blank"
+            },
+            {
+              "type": "button",
+              "action": "gamepadB"
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "rightBumper"
+            }
+          ]
+        }
       }
     },
     "simplified-full": {
