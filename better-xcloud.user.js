@@ -8994,7 +8994,7 @@ function interceptHttpRequests() {
     if (getPref(Preferences.BLOCK_SOCIAL_FEATURES)) {
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://peoplehub.xboxlive.com/users/me',
-            'https://accounts.xboxlive.com/family/memberXuid',
+            // 'https://accounts.xboxlive.com/family/memberXuid',
             'https://notificationinbox.xboxlive.com',
         ]);
     }
