@@ -16,50 +16,41 @@
             }
           ],
           "outer": [
-            null,
-            {
-              "type": "button",
-              "action": "gamepadA",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
             [
               {
-                "type": "directionalPad",
-                "scale": 1.2,
-                "interaction": {
-                  "activationType": "exclusive"
-                },
+                "type": "button",
+                "action": "gamepadA",
                 "styles": {
                   "idle": {
-                    "opacity": 0.5
+                    "opacity": 0.7
                   }
                 }
               }
             ],
             null,
             null,
-            {
-              "type": "button",
-              "action": "leftBumper",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
+            [
+              {
+                "type": "button",
+                "action": "leftBumper",
+                "styles": {
+                  "idle": {
+                    "opacity": 0.7
+                  }
                 }
               }
-            },
-            {
-              "type": "button",
-              "action": "gamepadB",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
+            ],
+            [
+              {
+                "type": "button",
+                "action": "gamepadB",
+                "styles": {
+                  "idle": {
+                    "opacity": 0.7
+                  }
                 }
               }
-            }
+            ]
           ]
         },
         "upper": {
@@ -87,49 +78,41 @@
             }
           ],
           "outer": [
-            {
-              "type": "button",
-              "action": "gamepadB",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "rightBumper",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
-                }
-              }
-            },
-            null,
-            null,
             [
               {
-                "type": "directionalPad",
-                "scale": 1.2,
-                "interaction": {
-                  "activationType": "exclusive"
-                },
+                "type": "button",
+                "action": "gamepadB",
                 "styles": {
                   "idle": {
-                    "opacity": 0.5
+                    "opacity": 0.7
                   }
                 }
               }
             ],
-            {
-              "type": "button",
-              "action": "gamepadA",
-              "styles": {
-                "idle": {
-                  "opacity": 0.5
+            [
+              {
+                "type": "button",
+                "action": "leftBumper",
+                "styles": {
+                  "idle": {
+                    "opacity": 0.7
+                  }
                 }
               }
-            }
+            ],
+            null,
+            null,
+            [
+              {
+                "type": "button",
+                "action": "gamepadA",
+                "styles": {
+                  "idle": {
+                    "opacity": 0.7
+                  }
+                }
+              }
+            ]
           ]
         },
         "upper": {
@@ -143,67 +126,46 @@
       }
     },
     "simplified": {
-      "name": "Simplified",
-      "content": {
-        "left": {
-          "inner": [
-            {
-              "type": "joystick",
-              "relative": false,
-              "axis": {
-                "input": "axisXY",
-                "output": "leftJoystick"
-              }
+      "left": {
+        "inner": [
+          {
+            "type": "joystick",
+            "relative": false,
+            "axis": {
+              "input": "axisXY",
+              "output": "leftJoystick"
             }
-          ],
-          "outer": [
-            null,
-            null,
-            [
-              {
-                "type": "directionalPad",
-                "scale": 1.2,
-                "interaction": {
-                  "activationType": "exclusive"
-                },
-                "styles": {
-                  "idle": {
-                    "opacity": 0.5
-                  }
-                }
-              }
-            ]
-          ]
-        },
-        "right": {
-          "inner": [
-            {
-              "type": "button",
-              "action": "gamepadA"
-            }
-          ],
-          "outer": [
-            {
-              "type": "blank"
-            },
-            {
-              "type": "button",
-              "action": "gamepadB"
-            }
-          ]
-        },
-        "upper": {
-          "right": [
-            {
-              "type": "button",
-              "action": "menu"
-            },
-            {
-              "type": "button",
-              "action": "rightBumper"
-            }
-          ]
-        }
+          }
+        ]
+      },
+      "right": {
+        "inner": [
+          {
+            "type": "button",
+            "action": "gamepadA"
+          }
+        ],
+        "outer": [
+          {
+            "type": "blank"
+          },
+          {
+            "type": "button",
+            "action": "gamepadB"
+          }
+        ]
+      },
+      "upper": {
+        "right": [
+          {
+            "type": "button",
+            "action": "menu"
+          },
+          {
+            "type": "button",
+            "action": "rightBumper"
+          }
+        ]
       }
     },
     "simplified-full": {
@@ -219,24 +181,6 @@
                 "output": "leftJoystick"
               }
             }
-          ],
-          "outer": [
-            null,
-            null,
-            [
-              {
-                "type": "directionalPad",
-                "scale": 1.2,
-                "interaction": {
-                  "activationType": "exclusive"
-                },
-                "styles": {
-                  "idle": {
-                    "opacity": 0.5
-                  }
-                }
-              }
-            ]
           ]
         },
         "right": {
@@ -268,7 +212,7 @@
                 "styles": {
                   "idle": {
                     "knob": {
-                      "opacity": 0.5
+                      "opacity": 0.7
                     }
                   }
                 }
