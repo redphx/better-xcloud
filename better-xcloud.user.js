@@ -1061,6 +1061,14 @@ const Translations = {
         "vi-VN": "Nhanh",
         "zh-CN": "快速",
     },
+    "fortnite-allow-stw-mode": {
+        "en-US": "Allow playing STW mode on mobile",
+        "vi-VN": "Cho phép chơi chế độ STW trên điện thoại",
+    },
+    "fortnite-force-console-version": {
+        "en-US": "Fortnite: force console version",
+        "vi-VN": "Fortnite: bắt buộc phiên bản console",
+    },
     "getting-consoles-list": {
         "de-DE": "Rufe Liste der Konsolen ab...",
         "en-US": "Getting the list of consoles...",
@@ -2479,6 +2487,7 @@ const Translations = {
     "touch-control-layout": {
         "de-DE": "Touch-Steuerungslayout",
         "en-US": "Touch control layout",
+        "es-ES": "Diseño de control táctil",
         "ja-JP": "タッチコントロールレイアウト",
         "pt-BR": "Layout do controle por toque",
         "ru-RU": "Расположение сенсорных кнопок",
@@ -6468,6 +6477,8 @@ class Preferences {
     static get REMOTE_PLAY_ENABLED() { return 'xhome_enabled'; }
     static get REMOTE_PLAY_RESOLUTION() { return 'xhome_resolution'; }
 
+    static get GAME_FORTNITE_FORCE_CONSOLE() { return 'game_fortnite_force_console'; }
+
     // Deprecated
     static get DEPRECATED_USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
 
@@ -6902,6 +6913,11 @@ class Preferences {
             },
         },
 
+        [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: {
+            'default': false,
+            'note': __('fortnite-allow-stw-mode'),
+        },
+
         // Deprecated
         /*
         [Preferences.DEPRECATED_USE_DESKTOP_CODEC]: {
@@ -7313,6 +7329,18 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             funcStr = funcStr.replace(text, 'window.BX_EXPOSED["touch_layout_manager"] = this,' + text);
             return funcStr;
         },
+
+        forceFortniteConsole: function(funcStr) {
+            const text = 'sendTouchInputEnabledMessage(e){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            const newCode = `window.location.pathname.includes('/launch/fortnite/') && (e = false);`;
+
+            funcStr = funcStr.replace(text, text + newCode);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -7345,6 +7373,8 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             ENABLE_NATIVE_MKB_BETA && 'mkbIsMouseAndKeyboardTitle',
             HAS_TOUCH_SUPPORT && 'patchUpdateInputConfigurationAsync',
         ],
+
+        getPref(Preferences.GAME_FORTNITE_FORCE_CONSOLE) && ['forceFortniteConsole'],
     ];
 
     // Only when playing
@@ -9511,6 +9541,7 @@ function injectSettingsButton($parent) {
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: __('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
+            [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: '🎮 ' + __('fortnite-force-console-version'),
         },
 
         [__('mouse-and-keyboard')]: {
