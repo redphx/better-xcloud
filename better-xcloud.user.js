@@ -6736,7 +6736,10 @@ class Preferences {
             'ready': () => {
                 const pref = Preferences.SETTINGS[Preferences.MKB_ENABLED];
                 const note = __(pref.unsupported ? 'browser-unsupported-feature' : 'mkb-disclaimer');
-                Preferences.SETTINGS[Preferences.MKB_ENABLED].note = '⚠️ ' + note;
+                Preferences.SETTINGS[Preferences.MKB_ENABLED].note = CE('a', {
+                        href: 'https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657',
+                        target: '_blank',
+                    }, '⚠️ ' + note);
             },
         },
 
