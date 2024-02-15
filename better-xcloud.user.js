@@ -9051,9 +9051,10 @@ function interceptHttpRequests() {
 
     if (getPref(Preferences.BLOCK_SOCIAL_FEATURES)) {
         BLOCKED_URLS = BLOCKED_URLS.concat([
-            'https://peoplehub.xboxlive.com/users/me',
-            // 'https://accounts.xboxlive.com/family/memberXuid',
+            'https://peoplehub.xboxlive.com/users/me/people/social',
+            'https://peoplehub.xboxlive.com/users/me/people/recommendations',
             'https://notificationinbox.xboxlive.com',
+            // 'https://accounts.xboxlive.com/family/memberXuid',
         ]);
     }
 
@@ -9129,6 +9130,17 @@ function interceptHttpRequests() {
     window.fetch = async (...arg) => {
         let request = arg[0];
         let url = (typeof request === 'string') ? request : request.url;
+
+        for (let blocked of BLOCKED_URLS) {
+            if (!url.startsWith(blocked)) {
+                continue;
+            }
+
+            return new Response('{"acc":1,"webResult":{}}', {
+                status: 200,
+                statusText: '200 OK',
+            });
+        }
 
         if (url.endsWith('/play')) {
             BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
@@ -9454,17 +9466,6 @@ function interceptHttpRequests() {
 
                     return response;
                 });
-            });
-        }
-
-        for (let blocked of BLOCKED_URLS) {
-            if (!url.startsWith(blocked)) {
-                continue;
-            }
-
-            return new Response('{"acc":1,"webResult":{}}', {
-                status: 200,
-                statusText: '200 OK',
             });
         }
 
