@@ -6735,9 +6735,19 @@ class Preferences {
                 })(),
             'ready': () => {
                 const pref = Preferences.SETTINGS[Preferences.MKB_ENABLED];
-                const note = __(pref.unsupported ? 'browser-unsupported-feature' : 'mkb-disclaimer');
+
+                let note;
+                let url;
+                if (pref.unsupported) {
+                    note = __('browser-unsupported-feature');
+                    url = 'https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657';
+                } else {
+                    note = __('mkb-disclaimer');
+                    url = 'https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer';
+                }
+
                 Preferences.SETTINGS[Preferences.MKB_ENABLED].note = CE('a', {
-                        href: 'https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657',
+                        href: url,
                         target: '_blank',
                     }, '⚠️ ' + note);
             },
