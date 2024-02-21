@@ -239,6 +239,286 @@
           ]
         }
       }
+    },
+    "layout-1-throttle-pedal": {
+      "name": "Layout 1 (Throttle Pedal)",
+      "content": {
+        "layers": {
+          "dPadDisplay": {
+            "right": {
+              "inner": [
+                {
+                  "type": "directionalPad",
+                  "scale": 1.75,
+                  "interaction": {
+                    "activationType": "exclusive"
+                  }
+                }
+              ],
+              "outer": [
+                {
+                  "type": "blank"
+                },
+                {
+                  "type": "blank"
+                },
+                {
+                  "type": "blank"
+                },
+                {
+                  "type": "blank"
+                },
+                {
+                  "type": "blank"
+                },
+                {
+                  "type": "blank"
+                },
+                {
+                  "type": "blank"
+                }
+              ]
+            }
+          }
+        },
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick",
+                "deadzone": {
+                  "threshold": 0.1,
+                  "radial": true
+                }
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "steering"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "leftBumper"
+            },
+            null,
+            [
+              {
+                "type": "button",
+                "action": "rightThumb"
+              },
+              {
+                "type": "joystick",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick",
+                  "deadzone": {
+                    "threshold": 0.1,
+                    "radial": true
+                  }
+                },
+                "relative": false,
+                "expand": false,
+                "styles": {
+                  "default": {
+                    "knob": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "switchCamera"
+                      },
+                      "stroke": {
+                        "opacity": 0.1
+                      }
+                    },
+                    "outline": {
+                      "opacity": 0
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "rightBumper"
+              }
+            ],
+            [
+              {
+                "type": "button",
+                "action": {
+                  "type": "layer",
+                  "target": "dPadDisplay"
+                },
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "dPad"
+                    }
+                  }
+                }
+              },
+              null
+            ],
+            [
+              {
+                "type": "button",
+                "action": "leftThumb"
+              },
+              null
+            ]
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "throttle",
+              "axisUp": "rightTrigger",
+              "axisDown": "leftTrigger",
+              "relative": true,
+              "sticky": true,
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "gasPedal"
+                    }
+                  },
+                  "axisUp": {
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#107C10"
+                    },
+                    "cap": {
+                      "type": "color",
+                      "value": "#107C10"
+                    }
+                  },
+                  "axisDown": {
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#ff0000"
+                    },
+                    "cap": {
+                      "type": "color",
+                      "value": "#ff0000"
+                    }
+                  }
+                },
+                "idleUp": {
+                  "knob": {
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#107C10"
+                    }
+                  },
+                  "indicator": {
+                    "type": "solid",
+                    "color": "#107C10"
+                  }
+                },
+                "activatedUp": {
+                  "indicator": {
+                    "type": "solid",
+                    "color": "#107C10"
+                  }
+                },
+                "activatedDown": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "brakePedal"
+                    }
+                  },
+                  "indicator": {
+                    "type": "solid",
+                    "color": "#ff0000"
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            [
+              {
+                "type": "button",
+                "action": "gamepadB",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "add"
+                    }
+                  }
+                }
+              },
+              null
+            ],
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "handbrake2"
+                  }
+                }
+              }
+            },
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "subtract"
+                  }
+                }
+              }
+            },
+            [
+              {
+                "type": "button",
+                "action": "gamepadY",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "repeatRefresh"
+                    }
+                  }
+                }
+              },
+              null
+            ]
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "view"
+            }
+          ]
+        }
+      }
     }
   }
 }
