@@ -240,8 +240,8 @@
         }
       }
     },
-    "layout-2": {
-      "name": "Layout 2 (Throttle Pedal)",
+    "layout-1-throttle-pedal": {
+      "name": "Layout 1 (Throttle Pedal)",
       "content": {
         "layers": {
           "dPadDisplay": {
