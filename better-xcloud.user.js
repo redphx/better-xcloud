@@ -7283,12 +7283,12 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         },
 
         mkbIsMouseAndKeyboardTitle: function(funcStr) {
-            const text = 'isMouseAndKeyboardTitle:()=>yn';
+            const text = 'isMouseAndKeyboardTitle:()=>';
             if (!funcStr.includes(text)) {
                 return false;
             }
 
-            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return e && e.details ? window.NATIVE_MKB_TITLES.includes(e.details.productId) : true; })`);
+            return funcStr.replace(text, `isMouseAndKeyboardTitle:()=>(function(e) { return e && e.details ? window.NATIVE_MKB_TITLES.includes(e.details.productId) : true; }),uwuwu:()=>`);
         },
 
         mkbMouseAndKeyboardEnabled: function(funcStr) {
@@ -7329,6 +7329,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 return false;
             }
 
+            console.log('[Better xCloud] Remaining patches:', Patcher.#PATCH_ORDERS);
             Patcher.#PATCH_ORDERS = Patcher.#PATCH_ORDERS.concat(Patcher.#PLAYING_PATCH_ORDERS);
             Patcher.#cleanupPatches();
 
@@ -7382,13 +7383,13 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         getPref(Preferences.UI_LAYOUT) === 'tv' && ['tvLayout'],
 
         ENABLE_XCLOUD_LOGGER && [
-            'enableXcloudLogger',
             'enableConsoleLogging',
+            'enableXcloudLogger',
         ],
 
         getPref(Preferences.BLOCK_TRACKING) && [
-            'disableTrackEvent',
             'blockWebRtcStatsCollector',
+            'disableTrackEvent',
         ],
 
         getPref(Preferences.REMOTE_PLAY_ENABLED) && [
