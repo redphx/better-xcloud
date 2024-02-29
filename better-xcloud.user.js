@@ -6635,7 +6635,7 @@ class Preferences {
                     setting.note = '⚠️ ' + __('browser-unsupported-feature');
                 } else {
                     // Set default value to the best codec profile
-                    setting.default = keys[keys.length - 1];
+                    // setting.default = keys[keys.length - 1];
                 }
             },
         },
