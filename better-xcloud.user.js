@@ -10819,6 +10819,7 @@ if (getPref(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
     window.AudioContext = function() {
         const ctx = new OrgAudioContext();
         STREAM_AUDIO_CONTEXT = ctx;
+        STREAM_AUDIO_GAIN_NODE = null;
         return ctx;
     }
 
@@ -10866,6 +10867,13 @@ RTCPeerConnection.prototype.createDataChannel = function() {
 const OrgRTCPeerConnection = window.RTCPeerConnection;
 window.RTCPeerConnection = function() {
     STREAM_WEBRTC = new OrgRTCPeerConnection();
+
+    STREAM_WEBRTC.addEventListener('connectionstatechange', e => {
+            if (STREAM_WEBRTC.connectionState === 'connecting') {
+                STREAM_AUDIO_GAIN_NODE = null;
+            }
+            console.log('connectionState', STREAM_WEBRTC.connectionState);
+        });
     return STREAM_WEBRTC;
 }
 
