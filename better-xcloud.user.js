@@ -6877,7 +6877,7 @@ class Preferences {
 
 
         [Preferences.STATS_ITEMS]: {
-            'default': [StreamStats.PING, StreamStats.FPS, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
+            'default': [StreamStats.PING, StreamStats.FPS, StreamStats.BITRATE, StreamStats.DECODE_TIME, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
                 [StreamStats.PING]: `${StreamStats.PING.toUpperCase()}: ${__('stat-ping')}`,
                 [StreamStats.FPS]: `${StreamStats.FPS.toUpperCase()}: ${__('stat-fps')}`,
@@ -6894,10 +6894,10 @@ class Preferences {
             'default': false,
         },
         [Preferences.STATS_QUICK_GLANCE]: {
-            'default': false,
+            'default': true,
         },
         [Preferences.STATS_POSITION]: {
-            'default': 'top-left',
+            'default': 'top-right',
             'options': {
                 'top-left': __('top-left'),
                 'top-center': __('top-center'),
@@ -10414,7 +10414,7 @@ function setupQuickSettingsBar() {
                         },
                         {
                             pref: Preferences.STATS_QUICK_GLANCE,
-                            label: __('enable-quick-glance-mode'),
+                            label: '👀 ' + __('enable-quick-glance-mode'),
                             onChange: e => {
                                 e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
                             },
