@@ -1,0 +1,7 @@
+{
+	"name": "Halo infinite",
+	"default_layout": "rightstick",
+	"layouts": [
+		"halo-infinite"
+	]
+}
