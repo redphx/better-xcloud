@@ -940,6 +940,24 @@ const Translations = {
         "vi-VN": "Bật tính năng phím tắt cho bộ điều khiển",
         "zh-CN": "启用手柄快捷方式",
     },
+    "enable-local-co-op-support": {
+        "en-US": "Enable local co-op support",
+        "pl-PL": "Włącz lokalny co-op",
+        "pt-BR": "Habilitar o suporte a co-op local",
+        "ru-RU": "Включить поддержку локальной кооперативной игры",
+        "tr-TR": "Yerel çok oyuncu desteğini aktive et",
+        "uk-UA": "Увімкнути локальну co-op підтримку",
+        "vi-VN": "Kích hoạt tính năng chơi chung cục bộ",
+    },
+    "enable-local-co-op-support-note": {
+        "en-US": "Only works if the game doesn't require a different profile",
+        "pl-PL": "Działa tylko wtedy, gdy gra nie wymaga innego profilu",
+        "pt-BR": "Só funciona se o jogo não exigir um perfil diferente",
+        "ru-RU": "Работает только в том случае, если игра не требует другого профиля",
+        "tr-TR": "Bu seçenek ancak oyun ayrı profillere giriş yapılmasını istemiyorsa etki eder",
+        "uk-UA": "Працює, лише якщо для гри не потрібен інший профіль",
+        "vi-VN": "Chỉ hoạt động nếu game không yêu cầu thêm tài khoản khác",
+    },
     "enable-mic-on-startup": {
         "de-DE": "Mikrofon bei Spielstart aktivieren",
         "en-US": "Enable microphone on game launch",
@@ -1068,6 +1086,7 @@ const Translations = {
         "ja-JP": "モバイル版で「世界を救え」をプレイできるようになります",
         "pl-PL": "Zezwól na granie w tryb STW na urządzeniu mobilnym",
         "pt-BR": "Permitir a reprodução do modo STW no celular",
+        "ru-RU": "Позволяет играть в режиме STW на мобильных устройствах",
         "tr-TR": "Mobil cihazda Fortnite: Dünyayı Kurtar modunu etkinleştir",
         "uk-UA": "Дозволити відтворення режиму STW на мобільному пристрої",
         "vi-VN": "Cho phép chơi chế độ STW trên điện thoại",
@@ -1079,6 +1098,7 @@ const Translations = {
         "ja-JP": "Fortnite: 強制的にコンソール版を起動する",
         "pl-PL": "Fortnite: wymuś wersję konsolową",
         "pt-BR": "Fortnite: forçar versão para console",
+        "ru-RU": "Fortnite: форсированная консольная версия",
         "tr-TR": "Fortnite'ın konsol sürümünü aç",
         "uk-UA": "Fortnite: примусова консольна версія",
         "vi-VN": "Fortnite: bắt buộc phiên bản console",
@@ -6447,6 +6467,7 @@ class Preferences {
 
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
+    static get CONTROLLER_SUPPORT_LOCAL_CO_OP() { return 'controller_local_co_op'; }
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
     static get CONTROLLER_ENABLE_VIBRATION() { return 'controller_enable_vibration'; }
     static get CONTROLLER_DEVICE_VIBRATION() { return 'controller_device_vibration'; }
@@ -6696,6 +6717,11 @@ class Preferences {
         },
         [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: {
             'default': false,
+        },
+
+        [Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP]: {
+            'default': false,
+            'note': __('enable-local-co-op-support-note'),
         },
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
@@ -7359,6 +7385,35 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return funcStr;
         },
 
+        supportLocalCoOp: function(funcStr) {
+            const text = 'this.gamepadMappingsToSend=[],';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            const newCode = `
+true;
+
+let onGamepadChangedStr = this.onGamepadChanged.toString();
+onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
+eval(\`this.onGamepadChanged = function \${onGamepadChangedStr}\`);
+
+let onGamepadInputStr = this.onGamepadInput.toString();
+const match = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);
+
+if (match) {
+    const gamepadIndexVar = match[0];
+    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar},\`);
+    eval(\`this.onGamepadInput = function \${onGamepadInputStr}\`);
+    console.log('[Better xCloud] Successfully patched local co-op support');
+}
+
+true,
+`;
+            funcStr = funcStr.replace(text, text + newCode );
+            return funcStr;
+        },
+
         forceFortniteConsole: function(funcStr) {
             const text = 'sendTouchInputEnabledMessage(e){';
             if (!funcStr.includes(text)) {
@@ -7386,6 +7441,8 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             'enableConsoleLogging',
             'enableXcloudLogger',
         ],
+
+        getPref(Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP) && ['supportLocalCoOp'],
 
         getPref(Preferences.BLOCK_TRACKING) && [
             'blockWebRtcStatsCollector',
@@ -9568,10 +9625,11 @@ function injectSettingsButton($parent) {
         [__('stream')]: {
             [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
             [Preferences.STREAM_CODEC_PROFILE]: __('visual-quality'),
+            [Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP]: '🛋️ ' + __('enable-local-co-op-support'),
+            [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: '🎮 ' + __('fortnite-force-console-version'),
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: __('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
-            [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: '🎮 ' + __('fortnite-force-console-version'),
         },
 
         [__('mouse-and-keyboard')]: {
