@@ -942,6 +942,7 @@ const Translations = {
     },
     "enable-local-co-op-support": {
         "en-US": "Enable local co-op support",
+        "ja-JP": "ローカルマルチプレイのサポートを有効化",
         "pl-PL": "Włącz lokalny co-op",
         "pt-BR": "Habilitar o suporte a co-op local",
         "ru-RU": "Включить поддержку локальной кооперативной игры",
@@ -951,6 +952,7 @@ const Translations = {
     },
     "enable-local-co-op-support-note": {
         "en-US": "Only works if the game doesn't require a different profile",
+        "ja-JP": "別アカウントでのサインインを必要としないゲームのみ動作します",
         "pl-PL": "Działa tylko wtedy, gdy gra nie wymaga innego profilu",
         "pt-BR": "Só funciona se o jogo não exigir um perfil diferente",
         "ru-RU": "Работает только в том случае, если игра не требует другого профиля",
