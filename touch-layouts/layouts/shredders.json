@@ -1,0 +1,361 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom Layout",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "expand": true,
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick",
+                "deadzone": {
+                  "threshold": 0.05,
+                  "radial": true
+                }
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "move"
+                    },
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#faff2e"
+                    }
+                  },
+                  "outline": {
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#faff2e"
+                    },
+                    "indicator": {
+                      "type": "color",
+                      "value": "#faff2e"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper",
+              "toggle": true,
+              "styles": {
+                "activated": {
+                  "background": {
+                    "type": "color",
+                    "value": "#faff2e80"
+                  }
+                },
+                "toggled": {
+                  "background": {
+                    "type": "color",
+                    "value": "#faff2e80"
+                  }
+                }
+              }
+            },
+            null,
+            [
+              {
+                "type": "button",
+                "action": "leftTrigger",
+                "styles": {
+                  "activated": {
+                    "background": {
+                      "type": "color",
+                      "value": "#faff2e80"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "directionalPad",
+                "interaction": {
+                  "activationType": "exclusive"
+                },
+                "styles": {
+                  "default": {
+                    "fill": "#faff2e10",
+                    "gradient": {
+                      "color": "#faff2eff"
+                    },
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#faff2eff"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "rightTrigger",
+                "styles": {
+                  "activated": {
+                    "background": {
+                      "type": "color",
+                      "value": "#faff2e80"
+                    }
+                  }
+                }
+              }
+            ],
+            null,
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "toggle": true,
+              "styles": {
+                "activated": {
+                  "background": {
+                    "type": "color",
+                    "value": "#faff2e80"
+                  }
+                },
+                "toggled": {
+                  "background": {
+                    "type": "color",
+                    "value": "#faff2e80"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "joystick",
+              "expand": true,
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick",
+                "deadzone": {
+                  "threshold": 0.05,
+                  "radial": true
+                }
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "surf"
+                    },
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#faff2e"
+                    }
+                  },
+                  "outline": {
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#faff2e"
+                    },
+                    "indicator": {
+                      "type": "color",
+                      "value": "#faff2e"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick",
+                "deadzone": {
+                  "threshold": 0.5,
+                  "radial": true
+                }
+              },
+              "action": "rightBumper",
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "rightBumper"
+                    },
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#faff2e",
+                      "opacity": 0.1
+                    }
+                  },
+                  "outline": {
+                    "indicator": {
+                      "type": "color",
+                      "value": "#faff2e",
+                      "opacity": 0.1
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadB",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "reset"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadA"
+            },
+            null,
+            [
+              {
+                "type": "button",
+                "action": "rightTrigger",
+                "styles": {
+                  "activated": {
+                    "background": {
+                      "type": "color",
+                      "value": "#faff2e80"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "rightThumb",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "switchCamera"
+                    },
+                    "background": {
+                      "type": "color",
+                      "value": "#faff2e80"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "leftTrigger",
+                "styles": {
+                  "activated": {
+                    "background": {
+                      "type": "color",
+                      "value": "#faff2e80"
+                    }
+                  }
+                }
+              }
+            ],
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "undo"
+                  }
+                }
+              }
+            },
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick",
+                "deadzone": {
+                  "threshold": 0.5,
+                  "radial": true
+                }
+              },
+              "action": "leftBumper",
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "leftBumper"
+                    },
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#faff2e",
+                      "opacity": 0.1
+                    }
+                  },
+                  "outline": {
+                    "indicator": {
+                      "type": "color",
+                      "value": "#faff2e",
+                      "opacity": 0.1
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu",
+              "styles": {
+                "activated": {
+                  "background": {
+                    "type": "color",
+                    "value": "#faff2e80"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "view",
+              "styles": {
+                "activated": {
+                  "background": {
+                    "type": "color",
+                    "value": "#faff2e80"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "lower": {
+          "center": {
+            "type": "button",
+            "action": "gamepadY",
+            "styles": {
+              "default": {
+                "faceImage": {
+                  "type": "icon",
+                  "value": "lookBehind2"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
