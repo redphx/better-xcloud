@@ -6721,7 +6721,10 @@ class Preferences {
 
         [Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP]: {
             'default': false,
-            'note': __('enable-local-co-op-support-note'),
+            'note':CE('a', {
+                           href: 'https://github.com/redphx/better-xcloud/discussions/275',
+                           target: '_blank',
+                       }, __('enable-local-co-op-support-note')),
         },
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
