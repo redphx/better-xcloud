@@ -6893,7 +6893,7 @@ class Preferences {
             'default': false,
         },
         [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: {
-            'default': true,
+            'default': false,
         },
         [Preferences.AUDIO_VOLUME]: {
             'type': SettingElement.TYPE_NUMBER_STEPPER,
