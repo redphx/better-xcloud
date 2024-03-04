@@ -941,7 +941,9 @@ const Translations = {
         "zh-CN": "启用手柄快捷方式",
     },
     "enable-local-co-op-support": {
+        "de-DE": "Lokale Coop-Unterstützung aktivieren",
         "en-US": "Enable local co-op support",
+        "es-ES": "Habilitar soporte co-op local",
         "ja-JP": "ローカルマルチプレイのサポートを有効化",
         "pl-PL": "Włącz lokalny co-op",
         "pt-BR": "Habilitar o suporte a co-op local",
@@ -951,7 +953,9 @@ const Translations = {
         "vi-VN": "Kích hoạt tính năng chơi chung cục bộ",
     },
     "enable-local-co-op-support-note": {
+        "de-DE": "Funktioniert nur, wenn das Spiel kein anderes Profil benötigt",
         "en-US": "Only works if the game doesn't require a different profile",
+        "es-ES": "Solo funciona si el juego no requiere un perfil diferente",
         "ja-JP": "別アカウントでのサインインを必要としないゲームのみ動作します",
         "pl-PL": "Działa tylko wtedy, gdy gra nie wymaga innego profilu",
         "pt-BR": "Só funciona se o jogo não exigir um perfil diferente",
@@ -1268,6 +1272,10 @@ const Translations = {
         "uk-UA": "Екран завантаження",
         "vi-VN": "Màn hình chờ",
         "zh-CN": "载入画面",
+    },
+    "local-co-op": {
+        "en-US": "Local co-op",
+        "vi-VN": "Chơi chung cục bộ",
     },
     "map-mouse-to": {
         "de-DE": "Maus binden an",
@@ -1942,6 +1950,24 @@ const Translations = {
         "uk-UA": "Позиція кнопки скриншоту",
         "vi-VN": "Vị trí của nút Chụp màn hình",
         "zh-CN": "截图按钮位置",
+    },
+    "separate-touch-controller": {
+        "de-DE": "Trenne Touch-Controller & Controller #1",
+        "en-US": "Separate Touch controller & Controller #1",
+        "es-ES": "Separar controlador táctil y controlador #1",
+        "pt-BR": "Separar o Controle por Toque e o Controle #1",
+        "ru-RU": "Раздельный сенсорный контроллер и контроллер #1",
+        "uk-UA": "Окремо Сенсорний контролер та Контролер #1",
+        "vi-VN": "Tách biệt Bộ điều khiển cảm ứng và Tay cầm #1",
+    },
+    "separate-touch-controller-note": {
+        "de-DE": "Touch-Controller ist Spieler 1, Controller #1 ist Spieler 2",
+        "en-US": "Touch controller is Player 1, Controller #1 is Player 2",
+        "es-ES": "El controlador táctil es Jugador 1, Controlador #1 es Jugador 2",
+        "pt-BR": "O Controle por Toque é o Jogador 1, o Controle #1 é o Jogador 2",
+        "ru-RU": "Сенсорный контроллер — игрок 1, контроллер #1 — игрок 2",
+        "uk-UA": "Сенсорний контролер це Гравець 1, Контролер #1 це Гравець 2",
+        "vi-VN": "Bộ điều khiển cảm ứng là Người chơi 1, Tay cầm #1 là Người chơi 2",
     },
     "server": {
         "de-DE": "Server",
@@ -6469,7 +6495,9 @@ class Preferences {
 
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
-    static get CONTROLLER_SUPPORT_LOCAL_CO_OP() { return 'controller_local_co_op'; }
+    static get LOCAL_CO_OP_ENABLED() { return 'local_co_op_enabled'; }
+    static get LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER() { return 'local_co_op_separate_touch_controller'; }
+
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
     static get CONTROLLER_ENABLE_VIBRATION() { return 'controller_enable_vibration'; }
     static get CONTROLLER_DEVICE_VIBRATION() { return 'controller_device_vibration'; }
@@ -6721,12 +6749,17 @@ class Preferences {
             'default': false,
         },
 
-        [Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP]: {
+        [Preferences.LOCAL_CO_OP_ENABLED]: {
             'default': false,
-            'note':CE('a', {
+            'note': CE('a', {
                            href: 'https://github.com/redphx/better-xcloud/discussions/275',
                            target: '_blank',
                        }, t('enable-local-co-op-support-note')),
+        },
+
+        [Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER]: {
+            'default': false,
+            'note': t('separate-touch-controller-note'),
         },
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
@@ -7396,11 +7429,17 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 return false;
             }
 
+            let increaseGamepadIndex = '0';
+            if (getPref(Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER)) {
+                increaseGamepadIndex = `(arguments[0] === "physical" ? 1 : 0)`
+            }
+
             const newCode = `
 true;
 
 let onGamepadChangedStr = this.onGamepadChanged.toString();
 onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
+onGamepadChangedStr = onGamepadChangedStr.replace('{', '{arguments[1] += ${increaseGamepadIndex};');
 eval(\`this.onGamepadChanged = function \${onGamepadChangedStr}\`);
 
 let onGamepadInputStr = this.onGamepadInput.toString();
@@ -7408,13 +7447,16 @@ const match = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);
 
 if (match) {
     const gamepadIndexVar = match[0];
-    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar},\`);
+    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar} + ${increaseGamepadIndex},\`);
     eval(\`this.onGamepadInput = function \${onGamepadInputStr}\`);
     console.log('[Better xCloud] Successfully patched local co-op support');
+} else {
+    console.log('[Better xCloud] Unable to patch local co-op support');
 }
 
 true,
 `;
+
             funcStr = funcStr.replace(text, text + newCode );
             return funcStr;
         },
@@ -7447,7 +7489,7 @@ true,
             'enableXcloudLogger',
         ],
 
-        getPref(Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP) && ['supportLocalCoOp'],
+        getPref(Preferences.LOCAL_CO_OP_ENABLED) && ['supportLocalCoOp'],
 
         getPref(Preferences.BLOCK_TRACKING) && [
             'blockWebRtcStatsCollector',
@@ -9622,19 +9664,25 @@ function injectSettingsButton($parent) {
             [Preferences.BETTER_XCLOUD_LOCALE]: t('language'),
             [Preferences.REMOTE_PLAY_ENABLED]: t('enable-remote-play-feature'),
         },
+
         [t('server')]: {
             [Preferences.SERVER_REGION]: t('region'),
             [Preferences.STREAM_PREFERRED_LOCALE]: t('preferred-game-language'),
             [Preferences.PREFER_IPV6_SERVER]: t('prefer-ipv6-server'),
         },
+
         [t('stream')]: {
             [Preferences.STREAM_TARGET_RESOLUTION]: t('target-resolution'),
             [Preferences.STREAM_CODEC_PROFILE]: t('visual-quality'),
-            [Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP]: '🛋️ ' + t('enable-local-co-op-support'),
             [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: '🎮 ' + t('fortnite-force-console-version'),
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: t('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: t('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: t('disable-post-stream-feedback-dialog'),
+        },
+
+        [t('local-co-op')]: {
+            [Preferences.LOCAL_CO_OP_ENABLED]: t('enable-local-co-op-support'),
+            [Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER]: t('separate-touch-controller'),
         },
 
         [t('mouse-and-keyboard')]: {
@@ -9649,6 +9697,7 @@ function injectSettingsButton($parent) {
             [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: t('enable-controller-shortcuts'),
         },
         */
+
         [t('touch-controller')]: {
             _note: !HAS_TOUCH_SUPPORT ? '⚠️ ' + t('device-unsupported-touch') : null,
             [Preferences.STREAM_TOUCH_CONTROLLER]: t('tc-availability'),
