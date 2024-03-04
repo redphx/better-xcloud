@@ -2814,7 +2814,7 @@ const Translations = {
 }
 
 const LOCALE = Translations.getLocale();
-const __ = Translations.get;
+const t = Translations.get;
 
 
 const ENABLE_SAFARI_WORKAROUND = true;
@@ -2840,7 +2840,7 @@ if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
 `;
     const $fragment = document.createDocumentFragment();
     $fragment.appendChild(CE('style', {}, css));
-    $fragment.appendChild(CE('div', {'class': 'bx-reload-overlay'}, __('safari-failed-message')));
+    $fragment.appendChild(CE('div', {'class': 'bx-reload-overlay'}, t('safari-failed-message')));
 
     document.documentElement.appendChild($fragment);
 
@@ -2934,12 +2934,12 @@ class Dialog {
                         helpUrl && createButton({
                                 icon: Icon.QUESTION,
                                 style: ButtonStyle.GHOST,
-                                title: __('help'),
+                                title: t('help'),
                                 url: helpUrl,
                             }),
                     ),
                 this.$content = CE('div', {'class': 'bx-dialog-content'}, content),
-                !hideCloseButton && ($close = CE('button', {}, __('close'))),
+                !hideCloseButton && ($close = CE('button', {}, t('close'))),
             );
 
         $close && $close.addEventListener('click', e => {
@@ -2992,10 +2992,10 @@ class RemotePlay {
     static #CONSOLES;
 
     static #STATE_LABELS = {
-        'On': __('powered-on'),
-        'Off': __('powered-off'),
-        'ConnectedStandby': __('standby'),
-        'Unknown': __('unknown'),
+        'On': t('powered-on'),
+        'Off': t('powered-off'),
+        'ConnectedStandby': t('standby'),
+        'Unknown': t('unknown'),
     };
 
     static get BASE_DEVICE_INFO() {
@@ -3048,9 +3048,9 @@ class RemotePlay {
             return;
         }
 
-        RemotePlay.#$content = CE('div', {}, __('getting-consoles-list'));
+        RemotePlay.#$content = CE('div', {}, t('getting-consoles-list'));
         RemotePlay.#dialog = new Dialog({
-            title: __('remote-play'),
+            title: t('remote-play'),
             content: RemotePlay.#$content,
             helpUrl: 'https://better-xcloud.github.io/remote-play/',
         });
@@ -3067,7 +3067,7 @@ class RemotePlay {
         const $fragment = document.createDocumentFragment();
 
         if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
-            $fragment.appendChild(CE('span', {}, __('no-consoles-found')));
+            $fragment.appendChild(CE('span', {}, t('no-consoles-found')));
         } else {
             const $settingNote = CE('p', {});
 
@@ -3087,14 +3087,14 @@ class RemotePlay {
             $resolutionSelect.addEventListener('change', e => {
                 const value = $resolutionSelect.value;
 
-                $settingNote.textContent = value === '1080p' ? '✅ ' + __('can-stream-xbox-360-games') : '❌ ' + __('cant-stream-xbox-360-games');
+                $settingNote.textContent = value === '1080p' ? '✅ ' + t('can-stream-xbox-360-games') : '❌ ' + t('cant-stream-xbox-360-games');
                 setPref(Preferences.REMOTE_PLAY_RESOLUTION, value);
             });
             $resolutionSelect.dispatchEvent(new Event('change'));
 
             const $qualitySettings = CE('div', {'class': 'bx-remote-play-settings'},
                 CE('div', {},
-                    CE('label', {}, __('target-resolution'), $settingNote),
+                    CE('label', {}, t('target-resolution'), $settingNote),
                     $resolutionSelect,
                 )
             );
@@ -3116,7 +3116,7 @@ class RemotePlay {
                 // Connect button
                 createButton({
                     classes: ['bx-remote-play-connect-button'],
-                    label: __('console-connect'),
+                    label: t('console-connect'),
                     style: ButtonStyle.PRIMARY,
                     onClick: e => {
                             REMOTE_PLAY_CONFIG = {
@@ -3429,11 +3429,11 @@ class LoadingScreen {
         let $waitTimeBox = LoadingScreen.#$waitTimeBox;
         if (!$waitTimeBox) {
             $waitTimeBox = CE('div', {'class': 'bx-wait-time-box'},
-                                    CE('label', {}, __('server')),
+                                    CE('label', {}, t('server')),
                                     CE('span', {}, getPreferredServerRegion()),
-                                    CE('label', {}, __('wait-time-estimated')),
+                                    CE('label', {}, t('wait-time-estimated')),
                                     $estimated = CE('span', {}),
-                                    CE('label', {}, __('wait-time-countdown')),
+                                    CE('label', {}, t('wait-time-countdown')),
                                     $countDown = CE('span', {}),
                                    );
 
@@ -3655,7 +3655,7 @@ class TouchController {
         const layout = (layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout]);
         if (layout) {
             // Show a toast with layout's name
-            layoutChanged && Toast.show(__('touch-control-layout'), layout.name);
+            layoutChanged && Toast.show(t('touch-control-layout'), layout.name);
 
             setTimeout(() => {
                 window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
@@ -4250,18 +4250,18 @@ class MkbPreset {
 
     static MOUSE_SETTINGS = {
         [MkbPreset.KEY_MOUSE_MAP_TO]: {
-            label: __('map-mouse-to'),
+            label: t('map-mouse-to'),
             type: SettingElement.TYPE_OPTIONS,
             default: MouseMapTo[MouseMapTo.RS],
             options: {
-                [MouseMapTo[MouseMapTo.RS]]: __('right-stick'),
-                [MouseMapTo[MouseMapTo.LS]]: __('left-stick'),
-                [MouseMapTo[MouseMapTo.OFF]]: __('off'),
+                [MouseMapTo[MouseMapTo.RS]]: t('right-stick'),
+                [MouseMapTo[MouseMapTo.LS]]: t('left-stick'),
+                [MouseMapTo[MouseMapTo.OFF]]: t('off'),
             },
         },
 
         [MkbPreset.KEY_MOUSE_SENSITIVITY_Y]: {
-            label: __('horizontal-sensitivity'),
+            label: t('horizontal-sensitivity'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
             min: 1,
@@ -4274,7 +4274,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_SENSITIVITY_X]: {
-            label: __('vertical-sensitivity'),
+            label: t('vertical-sensitivity'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 50,
             min: 1,
@@ -4287,7 +4287,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_DEADZONE_COUNTERWEIGHT]: {
-            label: __('deadzone-counterweight'),
+            label: t('deadzone-counterweight'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 20,
             min: 1,
@@ -4300,7 +4300,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH]: {
-            label: __('stick-decay-strength'),
+            label: t('stick-decay-strength'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 18,
             min: 10,
@@ -4313,7 +4313,7 @@ class MkbPreset {
         },
 
         [MkbPreset.KEY_MOUSE_STICK_DECAY_MIN]: {
-            label: __('stick-decay-minimum'),
+            label: t('stick-decay-minimum'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
             default: 6,
             min: 1,
@@ -4543,7 +4543,7 @@ class LocalDb {
 
                 // Create "Default" preset when the table is empty
                 const preset = {
-                    name: __('default'),
+                    name: t('default'),
                     data: MkbPreset.DEFAULT_PRESET,
                 }
 
@@ -4845,7 +4845,7 @@ class MkbHandler {
         this.#enabled = !this.#enabled;
         this.#enabled ? document.pointerLockElement && this.start() : this.stop();
 
-        Toast.show(__('mouse-and-keyboard'), __(this.#enabled ? 'enabled' : 'disabled'));
+        Toast.show(t('mouse-and-keyboard'), t(this.#enabled ? 'enabled' : 'disabled'));
 
         if (this.#enabled) {
             !document.pointerLockElement && this.#waitForPointerLock(true);
@@ -4924,8 +4924,8 @@ class MkbHandler {
                     },
                 }),
                 CE('div', {},
-                    CE('p', {}, __('mkb-click-to-activate')),
-                    CE('p', {}, __('press-key-to-toggle-mkb')({key: 'F9'})),
+                    CE('p', {}, t('mkb-click-to-activate')),
+                    CE('p', {}, t('press-key-to-toggle-mkb')({key: 'F9'})),
                 ),
             );
 
@@ -5084,8 +5084,8 @@ class MkbRemapper {
         this.bindingDialog = new Dialog({
             className: 'bx-binding-dialog',
             content: CE('div', {},
-                        CE('p', {}, __('press-to-bind')),
-                        CE('i', {}, __('press-esc-to-cancel')),
+                        CE('p', {}, t('press-to-bind')),
+                        CE('i', {}, t('press-esc-to-cancel')),
                        ),
             hideCloseButton: true,
         });
@@ -5222,7 +5222,7 @@ class MkbRemapper {
         // Update state of Activate button
         const activated = getPref(Preferences.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
         this.#$.activateButton.disabled = activated;
-        this.#$.activateButton.querySelector('span').textContent = activated ? __('activated') : __('activate');
+        this.#$.activateButton.querySelector('span').textContent = activated ? t('activated') : t('activate');
     }
 
     #refresh() {
@@ -5267,7 +5267,7 @@ class MkbRemapper {
                 // Update state of Activate button
                 const activated = defaultPresetId === this.#STATE.currentPresetId;
                 this.#$.activateButton.disabled = activated;
-                this.#$.activateButton.querySelector('span').textContent = activated ? __('activated') : __('activate');
+                this.#$.activateButton.querySelector('span').textContent = activated ? t('activated') : t('activate');
 
                 !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
             });
@@ -5311,7 +5311,7 @@ class MkbRemapper {
         const promptNewName = (value) => {
             let newName = '';
             while (!newName) {
-                newName = prompt(__('prompt-preset-name'), value);
+                newName = prompt(t('prompt-preset-name'), value);
                 if (newName === null) {
                     return false;
                 }
@@ -5325,7 +5325,7 @@ class MkbRemapper {
                 this.#$.presetsSelect,
                 // Rename button
                 createButton({
-                    title: __('rename'),
+                    title: t('rename'),
                     icon: Icon.CURSOR_TEXT,
                     onClick: e => {
                         const preset = this.#getCurrentPreset();
@@ -5344,7 +5344,7 @@ class MkbRemapper {
                 // New button
                 createButton({
                       icon: Icon.NEW,
-                      title: __('new'),
+                      title: t('new'),
                       onClick: e => {
                           let newName = promptNewName('');
                           if (!newName) {
@@ -5362,7 +5362,7 @@ class MkbRemapper {
                 // Copy button
                 createButton({
                         icon: Icon.COPY,
-                        title: __('copy'),
+                        title: t('copy'),
                         onClick: e => {
                             const preset = this.#getCurrentPreset();
 
@@ -5383,9 +5383,9 @@ class MkbRemapper {
                 createButton({
                         icon: Icon.TRASH,
                         style: ButtonStyle.DANGER,
-                        title: __('delete'),
+                        title: t('delete'),
                         onClick: e => {
-                            if (!confirm(__('confirm-delete-preset'))) {
+                            if (!confirm(t('confirm-delete-preset'))) {
                                 return;
                             }
 
@@ -5400,7 +5400,7 @@ class MkbRemapper {
         this.#$.wrapper.appendChild($header);
 
         const $rows = CE('div', {'class': 'bx-mkb-settings-rows'},
-                CE('i', {'class': 'bx-mkb-note'}, __('right-click-to-unbind')),
+                CE('i', {'class': 'bx-mkb-note'}, t('right-click-to-unbind')),
             );
 
         // Render keys
@@ -5432,7 +5432,7 @@ class MkbRemapper {
             $rows.appendChild($keyRow);
         }
 
-        $rows.appendChild(CE('i', {'class': 'bx-mkb-note'}, __('mkb-adjust-ingame-settings')),);
+        $rows.appendChild(CE('i', {'class': 'bx-mkb-note'}, t('mkb-adjust-ingame-settings')),);
 
         // Render mouse settings
         const $mouseSettings = document.createDocumentFragment();
@@ -5461,13 +5461,13 @@ class MkbRemapper {
                 CE('div', {},
                    // Edit button
                    createButton({
-                           label: __('edit'),
+                           label: t('edit'),
                            onClick: e => this.#toggleEditing(true),
                    }),
 
                    // Activate button
                    this.#$.activateButton = createButton({
-                           label: __('activate'),
+                           label: t('activate'),
                            style: ButtonStyle.PRIMARY,
                            onClick: e => {
                                setPref(Preferences.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
@@ -5481,7 +5481,7 @@ class MkbRemapper {
                 CE('div', {},
                    // Cancel button
                    createButton({
-                           label: __('cancel'),
+                           label: t('cancel'),
                            style: ButtonStyle.GHOST,
                            onClick: e => {
                                // Restore preset
@@ -5492,7 +5492,7 @@ class MkbRemapper {
 
                    // Save button
                    createButton({
-                           label: __('save'),
+                           label: t('save'),
                            style: ButtonStyle.PRIMARY,
                            onClick: e => {
                                const updatedPreset = structuredClone(this.#getCurrentPreset());
@@ -5878,7 +5878,7 @@ class StreamBadges {
         }
 
         $badge = CE('div', {'class': 'bx-badge'},
-                    CE('span', {'class': 'bx-badge-name'}, __(`badge-${name}`)),
+                    CE('span', {'class': 'bx-badge-name'}, t(`badge-${name}`)),
                     CE('span', {'class': 'bx-badge-value', 'style': `background-color: ${color}`}, value));
 
         if (name === StreamBadges.BADGE_BATTERY) {
@@ -5993,11 +5993,11 @@ class StreamBadges {
 
                 let quality = profile;
                 if (profile.startsWith('4d')) {
-                    quality = __('visual-quality-high');
+                    quality = t('visual-quality-high');
                 } else if (profile.startsWith('42e')) {
-                    quality = __('visual-quality-normal');
+                    quality = t('visual-quality-normal');
                 } else if (profile.startsWith('420')) {
-                    quality = __('visual-quality-low');
+                    quality = t('visual-quality-low');
                 }
 
                 video += ` (${quality})`;
@@ -6245,12 +6245,12 @@ class StreamStats {
         }
 
         const STATS = {
-            [StreamStats.PING]: [__('stat-ping'), StreamStats.#$ping = CE('span', {}, '0')],
-            [StreamStats.FPS]: [__('stat-fps'), StreamStats.#$fps = CE('span', {}, '0')],
-            [StreamStats.BITRATE]: [__('stat-bitrate'), StreamStats.#$br = CE('span', {}, '0 Mbps')],
-            [StreamStats.DECODE_TIME]: [__('stat-decode-time'), StreamStats.#$dt = CE('span', {}, '0ms')],
-            [StreamStats.PACKETS_LOST]: [__('stat-packets-lost'), StreamStats.#$pl = CE('span', {}, '0')],
-            [StreamStats.FRAMES_LOST]: [__('stat-frames-lost'), StreamStats.#$fl = CE('span', {}, '0')],
+            [StreamStats.PING]: [t('stat-ping'), StreamStats.#$ping = CE('span', {}, '0')],
+            [StreamStats.FPS]: [t('stat-fps'), StreamStats.#$fps = CE('span', {}, '0')],
+            [StreamStats.BITRATE]: [t('stat-bitrate'), StreamStats.#$br = CE('span', {}, '0 Mbps')],
+            [StreamStats.DECODE_TIME]: [t('stat-decode-time'), StreamStats.#$dt = CE('span', {}, '0ms')],
+            [StreamStats.PACKETS_LOST]: [t('stat-packets-lost'), StreamStats.#$pl = CE('span', {}, '0')],
+            [StreamStats.FRAMES_LOST]: [t('stat-frames-lost'), StreamStats.#$fl = CE('span', {}, '0')],
         };
 
         const $barFragment = document.createDocumentFragment();
@@ -6555,7 +6555,7 @@ class Preferences {
         [Preferences.STREAM_PREFERRED_LOCALE]: {
             'default': 'default',
             'options': {
-                'default': __('default'),
+                'default': t('default'),
                 'ar-SA': '\u0627\u0644\u0639\u0631\u0628\u064a\u0629',
                 'cs-CZ': '\u010de\u0161tina',
                 'da-DK': 'dansk',
@@ -6588,7 +6588,7 @@ class Preferences {
         [Preferences.STREAM_TARGET_RESOLUTION]: {
             'default': '1080p',
             'options': {
-                'auto': __('default'),
+                'auto': t('default'),
                 '1080p': '1080p',
                 '720p': '720p',
             },
@@ -6597,7 +6597,7 @@ class Preferences {
             'default': 'default',
             'options': (() => {
                 const options = {
-                    'default': __('default'),
+                    'default': t('default'),
                 };
 
                 if (!('getCapabilities' in RTCRtpReceiver) || typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
@@ -6626,23 +6626,23 @@ class Preferences {
 
                 if (hasLowCodec) {
                     if (!hasNormalCodec && !hasHighCodec) {
-                        options.default = `${__('visual-quality-low')} (${__('default')})`;
+                        options.default = `${t('visual-quality-low')} (${t('default')})`;
                     } else {
-                        options.low = __('visual-quality-low');
+                        options.low = t('visual-quality-low');
                     }
                 }
                 if (hasNormalCodec) {
                     if (!hasLowCodec && !hasHighCodec) {
-                        options.default = `${__('visual-quality-normal')} (${__('default')})`;
+                        options.default = `${t('visual-quality-normal')} (${t('default')})`;
                     } else {
-                        options.normal = __('visual-quality-normal');
+                        options.normal = t('visual-quality-normal');
                     }
                 }
                 if (hasHighCodec) {
                     if (!hasLowCodec && !hasNormalCodec) {
-                        options.default = `${__('visual-quality-high')} (${__('default')})`;
+                        options.default = `${t('visual-quality-high')} (${t('default')})`;
                     } else {
-                        options.high = __('visual-quality-high');
+                        options.high = t('visual-quality-high');
                     }
                 }
 
@@ -6655,7 +6655,7 @@ class Preferences {
 
                 if (keys.length <= 1) { // Unsupported
                     setting.unsupported = true;
-                    setting.note = '⚠️ ' + __('browser-unsupported-feature');
+                    setting.note = '⚠️ ' + t('browser-unsupported-feature');
                 } else {
                     // Set default value to the best codec profile
                     // setting.default = keys[keys.length - 1];
@@ -6668,9 +6668,9 @@ class Preferences {
         [Preferences.SCREENSHOT_BUTTON_POSITION]: {
             'default': 'bottom-left',
             'options': {
-                'bottom-left': __('bottom-left'),
-                'bottom-right': __('bottom-right'),
-                'none': __('disable'),
+                'bottom-left': t('bottom-left'),
+                'bottom-right': t('bottom-right'),
+                'none': t('disable'),
             },
         },
         [Preferences.SKIP_SPLASH_VIDEO]: {
@@ -6682,9 +6682,9 @@ class Preferences {
         [Preferences.STREAM_TOUCH_CONTROLLER]: {
             'default': 'all',
             'options': {
-                'default': __('default'),
-                'all': __('tc-all-games'),
-                'off': __('off'),
+                'default': t('default'),
+                'all': t('tc-all-games'),
+                'off': t('off'),
             },
             'unsupported': !HAS_TOUCH_SUPPORT,
             'ready': () => {
@@ -6697,17 +6697,17 @@ class Preferences {
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
             'options': {
-                'default': __('default'),
-                'white': __('tc-all-white'),
-                'muted': __('tc-muted-colors'),
+                'default': t('default'),
+                'white': t('tc-all-white'),
+                'muted': t('tc-muted-colors'),
             },
             'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             'default': 'default',
             'options': {
-                'default': __('default'),
-                'muted': __('tc-muted-colors'),
+                'default': t('default'),
+                'muted': t('tc-muted-colors'),
             },
             'unsupported': !HAS_TOUCH_SUPPORT,
         },
@@ -6726,7 +6726,7 @@ class Preferences {
             'note':CE('a', {
                            href: 'https://github.com/redphx/better-xcloud/discussions/275',
                            target: '_blank',
-                       }, __('enable-local-co-op-support-note')),
+                       }, t('enable-local-co-op-support-note')),
         },
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
@@ -6740,9 +6740,9 @@ class Preferences {
         [Preferences.CONTROLLER_DEVICE_VIBRATION]: {
             'default': 'off',
             'options': {
-                'on': __('on'),
-                'auto': __('device-vibration-not-using-gamepad'),
-                'off': __('off'),
+                'on': t('on'),
+                'auto': t('device-vibration-not-using-gamepad'),
+                'off': t('off'),
             },
         },
 
@@ -6762,7 +6762,7 @@ class Preferences {
             'default': false,
             'unsupported': (() => {
                     const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || '').toLowerCase();
-                    return userAgent.match(/(android|iphone|ipad)/) ? __('browser-unsupported-feature') : false;
+                    return userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
                 })(),
             'ready': () => {
                 const pref = Preferences.SETTINGS[Preferences.MKB_ENABLED];
@@ -6770,10 +6770,10 @@ class Preferences {
                 let note;
                 let url;
                 if (pref.unsupported) {
-                    note = __('browser-unsupported-feature');
+                    note = t('browser-unsupported-feature');
                     url = 'https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657';
                 } else {
-                    note = __('mkb-disclaimer');
+                    note = t('mkb-disclaimer');
                     url = 'https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer';
                 }
 
@@ -6805,16 +6805,16 @@ class Preferences {
         [Preferences.UI_LOADING_SCREEN_ROCKET]: {
             'default': 'show',
             'options': {
-                'show': __('rocket-always-show'),
-                'hide-queue': __('rocket-hide-queue'),
-                'hide': __('rocket-always-hide'),
+                'show': t('rocket-always-show'),
+                'hide-queue': t('rocket-hide-queue'),
+                'hide': t('rocket-always-hide'),
             },
         },
         [Preferences.UI_LAYOUT]: {
             'default': 'default',
             'options': {
-                'default': __('default'),
-                'tv': __('smart-tv'),
+                'default': t('default'),
+                'tv': t('smart-tv'),
             },
         },
 
@@ -6827,11 +6827,11 @@ class Preferences {
         [Preferences.USER_AGENT_PROFILE]: {
             'default': 'default',
             'options': {
-                [UserAgent.PROFILE_DEFAULT]: __('default'),
+                [UserAgent.PROFILE_DEFAULT]: t('default'),
                 [UserAgent.PROFILE_EDGE_WINDOWS]: 'Edge + Windows',
                 [UserAgent.PROFILE_SAFARI_MACOS]: 'Safari + macOS',
                 [UserAgent.PROFILE_SMARTTV_TIZEN]: 'Samsung Smart TV',
-                [UserAgent.PROFILE_CUSTOM]: __('custom'),
+                [UserAgent.PROFILE_CUSTOM]: t('custom'),
             },
         },
         [Preferences.USER_AGENT_CUSTOM]: {
@@ -6854,7 +6854,7 @@ class Preferences {
                 '16:10': '16:10',
                 '4:3': '4:3',
 
-                'fill': __('stretch'),
+                'fill': t('stretch'),
                 //'cover': 'Cover',
             },
         },
@@ -6910,12 +6910,12 @@ class Preferences {
         [Preferences.STATS_ITEMS]: {
             'default': [StreamStats.PING, StreamStats.FPS, StreamStats.BITRATE, StreamStats.DECODE_TIME, StreamStats.PACKETS_LOST, StreamStats.FRAMES_LOST],
             'multiple_options': {
-                [StreamStats.PING]: `${StreamStats.PING.toUpperCase()}: ${__('stat-ping')}`,
-                [StreamStats.FPS]: `${StreamStats.FPS.toUpperCase()}: ${__('stat-fps')}`,
-                [StreamStats.BITRATE]: `${StreamStats.BITRATE.toUpperCase()}: ${__('stat-bitrate')}`,
-                [StreamStats.DECODE_TIME]: `${StreamStats.DECODE_TIME.toUpperCase()}: ${__('stat-decode-time')}`,
-                [StreamStats.PACKETS_LOST]: `${StreamStats.PACKETS_LOST.toUpperCase()}: ${__('stat-packets-lost')}`,
-                [StreamStats.FRAMES_LOST]: `${StreamStats.FRAMES_LOST.toUpperCase()}: ${__('stat-frames-lost')}`,
+                [StreamStats.PING]: `${StreamStats.PING.toUpperCase()}: ${t('stat-ping')}`,
+                [StreamStats.FPS]: `${StreamStats.FPS.toUpperCase()}: ${t('stat-fps')}`,
+                [StreamStats.BITRATE]: `${StreamStats.BITRATE.toUpperCase()}: ${t('stat-bitrate')}`,
+                [StreamStats.DECODE_TIME]: `${StreamStats.DECODE_TIME.toUpperCase()}: ${t('stat-decode-time')}`,
+                [StreamStats.PACKETS_LOST]: `${StreamStats.PACKETS_LOST.toUpperCase()}: ${t('stat-packets-lost')}`,
+                [StreamStats.FRAMES_LOST]: `${StreamStats.FRAMES_LOST.toUpperCase()}: ${t('stat-frames-lost')}`,
             },
             'params': {
                 size: 6,
@@ -6930,17 +6930,17 @@ class Preferences {
         [Preferences.STATS_POSITION]: {
             'default': 'top-right',
             'options': {
-                'top-left': __('top-left'),
-                'top-center': __('top-center'),
-                'top-right': __('top-right'),
+                'top-left': t('top-left'),
+                'top-center': t('top-center'),
+                'top-right': t('top-right'),
             },
         },
         [Preferences.STATS_TEXT_SIZE]: {
             'default': '0.9rem',
             'options': {
-                '0.9rem': __('small'),
-                '1.0rem': __('normal'),
-                '1.1rem': __('large'),
+                '0.9rem': t('small'),
+                '1.0rem': t('normal'),
+                '1.1rem': t('large'),
             },
         },
         [Preferences.STATS_TRANSPARENT]: {
@@ -6974,7 +6974,7 @@ class Preferences {
 
         [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: {
             'default': false,
-            'note': __('fortnite-allow-stw-mode'),
+            'note': t('fortnite-allow-stw-mode'),
         },
 
         // Deprecated
@@ -9552,7 +9552,7 @@ function injectSettingsButton($parent) {
         const $remotePlayBtn = createButton({
             classes: ['bx-remote-play-button'],
             icon: Icon.REMOTE_PLAY,
-            title: __('remote-play'),
+            title: t('remote-play'),
             style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 RemotePlay.showDialog();
@@ -9599,7 +9599,7 @@ function injectSettingsButton($parent) {
                                 'href': SCRIPT_HOME,
                                 'target': '_blank',
                            }, 'Better xCloud ' + SCRIPT_VERSION),
-                           createButton({icon: Icon.QUESTION, label: __('help'), url: 'https://better-xcloud.github.io/features/'}),
+                           createButton({icon: Icon.QUESTION, label: t('help'), url: 'https://better-xcloud.github.io/features/'}),
                         )
                        );
     $updateAvailable = CE('a', {
@@ -9619,62 +9619,62 @@ function injectSettingsButton($parent) {
     // Render settings
     const SETTINGS_UI = {
         'Better xCloud': {
-            [Preferences.BETTER_XCLOUD_LOCALE]: __('language'),
-            [Preferences.REMOTE_PLAY_ENABLED]: __('enable-remote-play-feature'),
+            [Preferences.BETTER_XCLOUD_LOCALE]: t('language'),
+            [Preferences.REMOTE_PLAY_ENABLED]: t('enable-remote-play-feature'),
         },
-        [__('server')]: {
-            [Preferences.SERVER_REGION]: __('region'),
-            [Preferences.STREAM_PREFERRED_LOCALE]: __('preferred-game-language'),
-            [Preferences.PREFER_IPV6_SERVER]: __('prefer-ipv6-server'),
+        [t('server')]: {
+            [Preferences.SERVER_REGION]: t('region'),
+            [Preferences.STREAM_PREFERRED_LOCALE]: t('preferred-game-language'),
+            [Preferences.PREFER_IPV6_SERVER]: t('prefer-ipv6-server'),
         },
-        [__('stream')]: {
-            [Preferences.STREAM_TARGET_RESOLUTION]: __('target-resolution'),
-            [Preferences.STREAM_CODEC_PROFILE]: __('visual-quality'),
-            [Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP]: '🛋️ ' + __('enable-local-co-op-support'),
-            [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: '🎮 ' + __('fortnite-force-console-version'),
-            [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: __('enable-volume-control'),
-            [Preferences.AUDIO_MIC_ON_PLAYING]: __('enable-mic-on-startup'),
-            [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: __('disable-post-stream-feedback-dialog'),
+        [t('stream')]: {
+            [Preferences.STREAM_TARGET_RESOLUTION]: t('target-resolution'),
+            [Preferences.STREAM_CODEC_PROFILE]: t('visual-quality'),
+            [Preferences.CONTROLLER_SUPPORT_LOCAL_CO_OP]: '🛋️ ' + t('enable-local-co-op-support'),
+            [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: '🎮 ' + t('fortnite-force-console-version'),
+            [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: t('enable-volume-control'),
+            [Preferences.AUDIO_MIC_ON_PLAYING]: t('enable-mic-on-startup'),
+            [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: t('disable-post-stream-feedback-dialog'),
         },
 
-        [__('mouse-and-keyboard')]: {
-            // '_note': '⚠️ ' + __('may-not-work-properly'),
-            // [Preferences.MKB_ENABLED]: [__('enable-mkb'), __('only-supports-some-games')],
-            [Preferences.MKB_ENABLED]: __('enable-mkb'),
-            [Preferences.MKB_HIDE_IDLE_CURSOR]: __('hide-idle-cursor'),
+        [t('mouse-and-keyboard')]: {
+            // '_note': '⚠️ ' + t('may-not-work-properly'),
+            // [Preferences.MKB_ENABLED]: [t('enable-mkb'), t('only-supports-some-games')],
+            [Preferences.MKB_ENABLED]: t('enable-mkb'),
+            [Preferences.MKB_HIDE_IDLE_CURSOR]: t('hide-idle-cursor'),
         },
 
         /*
-        [__('controller')]: {
-            [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: __('enable-controller-shortcuts'),
+        [t('controller')]: {
+            [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: t('enable-controller-shortcuts'),
         },
         */
-        [__('touch-controller')]: {
-            _note: !HAS_TOUCH_SUPPORT ? '⚠️ ' + __('device-unsupported-touch') : null,
-            [Preferences.STREAM_TOUCH_CONTROLLER]: __('tc-availability'),
-            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: __('tc-standard-layout-style'),
-            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: __('tc-custom-layout-style'),
+        [t('touch-controller')]: {
+            _note: !HAS_TOUCH_SUPPORT ? '⚠️ ' + t('device-unsupported-touch') : null,
+            [Preferences.STREAM_TOUCH_CONTROLLER]: t('tc-availability'),
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: t('tc-standard-layout-style'),
+            [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: t('tc-custom-layout-style'),
         },
 
-        [__('loading-screen')]: {
-            [Preferences.UI_LOADING_SCREEN_GAME_ART]: __('show-game-art'),
-            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: __('show-wait-time'),
-            [Preferences.UI_LOADING_SCREEN_ROCKET]: __('rocket-animation'),
+        [t('loading-screen')]: {
+            [Preferences.UI_LOADING_SCREEN_GAME_ART]: t('show-game-art'),
+            [Preferences.UI_LOADING_SCREEN_WAIT_TIME]: t('show-wait-time'),
+            [Preferences.UI_LOADING_SCREEN_ROCKET]: t('rocket-animation'),
         },
-        [__('ui')]: {
-            [Preferences.UI_LAYOUT]: __('layout'),
-            [Preferences.STREAM_SIMPLIFY_MENU]: __('simplify-stream-menu'),
-            [Preferences.SKIP_SPLASH_VIDEO]: __('skip-splash-video'),
-            [Preferences.HIDE_DOTS_ICON]: __('hide-system-menu-icon'),
-            [Preferences.REDUCE_ANIMATIONS]: __('reduce-animations'),
-            [Preferences.SCREENSHOT_BUTTON_POSITION]: __('screenshot-button-position'),
+        [t('ui')]: {
+            [Preferences.UI_LAYOUT]: t('layout'),
+            [Preferences.STREAM_SIMPLIFY_MENU]: t('simplify-stream-menu'),
+            [Preferences.SKIP_SPLASH_VIDEO]: t('skip-splash-video'),
+            [Preferences.HIDE_DOTS_ICON]: t('hide-system-menu-icon'),
+            [Preferences.REDUCE_ANIMATIONS]: t('reduce-animations'),
+            [Preferences.SCREENSHOT_BUTTON_POSITION]: t('screenshot-button-position'),
         },
-        [__('other')]: {
-            [Preferences.BLOCK_SOCIAL_FEATURES]: __('disable-social-features'),
-            [Preferences.BLOCK_TRACKING]: __('disable-xcloud-analytics'),
+        [t('other')]: {
+            [Preferences.BLOCK_SOCIAL_FEATURES]: t('disable-social-features'),
+            [Preferences.BLOCK_TRACKING]: t('disable-xcloud-analytics'),
         },
-        [__('advanced')]: {
-            [Preferences.USER_AGENT_PROFILE]: __('user-agent-profile'),
+        [t('advanced')]: {
+            [Preferences.USER_AGENT_PROFILE]: t('user-agent-profile'),
         },
     };
 
@@ -9738,7 +9738,7 @@ function injectSettingsButton($parent) {
 
                     let label = regionName;
                     if (region.isDefault) {
-                        label += ` (${__('default')})`;
+                        label += ` (${t('default')})`;
                         value = 'default';
                     }
 
@@ -9793,19 +9793,19 @@ function injectSettingsButton($parent) {
     // Setup Reload button
     const $reloadBtn = createButton({
         classes: ['bx-settings-reload-button'],
-        label: __('settings-reload'),
+        label: t('settings-reload'),
         style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
         onClick: e => {
             window.location.reload();
             $reloadBtn.disabled = true;
-            $reloadBtn.textContent = __('settings-reloading');
+            $reloadBtn.textContent = t('settings-reloading');
         },
     });
     $reloadBtn.setAttribute('tabindex', 0);
     $wrapper.appendChild($reloadBtn);
 
     // Donation link
-    const $donationLink = CE('a', {'class': 'bx-donation-link', href: 'https://ko-fi.com/redphx', target: '_blank'}, `❤️ ${__('support-better-xcloud')}`);
+    const $donationLink = CE('a', {'class': 'bx-donation-link', href: 'https://ko-fi.com/redphx', target: '_blank'}, `❤️ ${t('support-better-xcloud')}`);
     $wrapper.appendChild($donationLink);
 
     // Show Game Pass app version
@@ -10091,7 +10091,7 @@ function injectStreamMenuButtons() {
                     const $btnQuit = $node.querySelector('div[class^=StreamMenu] > div > button:last-child');
                     // Hold "Quit game" button to refresh the stream
                     new MouseHoldEvent($btnQuit, () => {
-                        confirm(__('confirm-reload-stream')) && window.location.reload();
+                        confirm(t('confirm-reload-stream')) && window.location.reload();
                     }, 1000);
 
                     // Render stream badges
@@ -10128,7 +10128,7 @@ function injectStreamMenuButtons() {
 
                 // Create Stream Settings button
                 if (!$btnStreamSettings) {
-                    $btnStreamSettings = cloneStreamHudButton($orgButton, __('menu-stream-settings'), Icon.STREAM_SETTINGS);
+                    $btnStreamSettings = cloneStreamHudButton($orgButton, t('menu-stream-settings'), Icon.STREAM_SETTINGS);
                     $btnStreamSettings.addEventListener('click', e => {
                         hideGripHandle();
                         e.preventDefault();
@@ -10149,7 +10149,7 @@ function injectStreamMenuButtons() {
 
                 // Create Stream Stats button
                 if (!$btnStreamStats) {
-                    $btnStreamStats = cloneStreamHudButton($orgButton, __('menu-stream-stats'), Icon.STREAM_STATS);
+                    $btnStreamStats = cloneStreamHudButton($orgButton, t('menu-stream-stats'), Icon.STREAM_STATS);
                     $btnStreamStats.addEventListener('click', e => {
                         hideGripHandle();
                         e.preventDefault();
@@ -10299,7 +10299,7 @@ function setupQuickSettingsBar() {
             items: [
                 {
                     group: 'mkb',
-                    label: __('mouse-and-keyboard'),
+                    label: t('mouse-and-keyboard'),
                     help_url: 'https://better-xcloud.github.io/mouse-and-keyboard/',
                     content: MkbRemapper.INSTANCE.render(),
                 },
@@ -10312,12 +10312,12 @@ function setupQuickSettingsBar() {
             items: [
                 {
                     group: 'audio',
-                    label: __('audio'),
+                    label: t('audio'),
                     help_url: 'https://better-xcloud.github.io/ingame-features/#audio',
                     items: [
                         {
                             pref: Preferences.AUDIO_VOLUME,
-                            label: __('volume'),
+                            label: t('volume'),
                             onChange: (e, value) => {
                                 STREAM_AUDIO_GAIN_NODE && (STREAM_AUDIO_GAIN_NODE.gain.value = (value / 100).toFixed(2));
                             },
@@ -10330,38 +10330,38 @@ function setupQuickSettingsBar() {
 
                 {
                     group: 'video',
-                    label: __('video'),
+                    label: t('video'),
                     help_url: 'https://better-xcloud.github.io/ingame-features/#video',
-                    note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${__('clarity-boost-warning')}`),
+                    note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${t('clarity-boost-warning')}`),
                     items: [
                         {
                             pref: Preferences.VIDEO_RATIO,
-                            label: __('ratio'),
+                            label: t('ratio'),
                             onChange: updateVideoPlayerCss,
                         },
 
                         {
                             pref: Preferences.VIDEO_CLARITY,
-                            label: __('clarity'),
+                            label: t('clarity'),
                             onChange: updateVideoPlayerCss,
                             unsupported: isSafari,
                         },
 
                         {
                             pref: Preferences.VIDEO_SATURATION,
-                            label: __('saturation'),
+                            label: t('saturation'),
                             onChange: updateVideoPlayerCss,
                         },
 
                         {
                             pref: Preferences.VIDEO_CONTRAST,
-                            label: __('contrast'),
+                            label: t('contrast'),
                             onChange: updateVideoPlayerCss,
                         },
 
                         {
                             pref: Preferences.VIDEO_BRIGHTNESS,
-                            label: __('brightness'),
+                            label: t('brightness'),
                             onChange: updateVideoPlayerCss,
                         },
                     ],
@@ -10375,26 +10375,26 @@ function setupQuickSettingsBar() {
             items: [
                 {
                     group: 'controller',
-                    label: __('controller'),
+                    label: t('controller'),
                     help_url: 'https://better-xcloud.github.io/ingame-features/#controller',
                     items: [
                         {
                             pref: Preferences.CONTROLLER_ENABLE_VIBRATION,
-                            label: __('controller-vibration'),
+                            label: t('controller-vibration'),
                             unsupported: !VibrationManager.supportControllerVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
 
                         {
                             pref: Preferences.CONTROLLER_DEVICE_VIBRATION,
-                            label: __('device-vibration'),
+                            label: t('device-vibration'),
                             unsupported: !VibrationManager.supportDeviceVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
 
                         (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
                             pref: Preferences.CONTROLLER_VIBRATION_INTENSITY,
-                            label: __('vibration-intensity'),
+                            label: t('vibration-intensity'),
                             unsupported: !VibrationManager.supportDeviceVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
@@ -10409,11 +10409,11 @@ function setupQuickSettingsBar() {
             items: [
                 {
                     group: 'touch-controller',
-                    label: __('touch-controller'),
+                    label: t('touch-controller'),
                     items: [
                         {
-                            label: __('layout'),
-                            content: CE('select', {disabled: true}, CE('option', {}, __('default'))),
+                            label: t('layout'),
+                            content: CE('select', {disabled: true}, CE('option', {}, t('default'))),
                             onMounted: $elm => {
                                 $elm.addEventListener('change', e => {
                                     TouchController.loadCustomLayout(GAME_XBOX_TITLE_ID, $elm.value, 1000);
@@ -10436,7 +10436,7 @@ function setupQuickSettingsBar() {
 
                                     $elm.disabled = !data;
                                     if (!data) {
-                                        $elm.appendChild(CE('option', {value: ''}, __('default')));
+                                        $elm.appendChild(CE('option', {value: ''}, t('default')));
                                         $elm.value = '';
                                         $elm.dispatchEvent(new Event('change'));
                                         return;
@@ -10468,48 +10468,48 @@ function setupQuickSettingsBar() {
             items: [
                 {
                     group: 'stats',
-                    label: __('menu-stream-stats'),
+                    label: t('menu-stream-stats'),
                     help_url: 'https://better-xcloud.github.io/stream-stats/',
                     items: [
                         {
                             pref: Preferences.STATS_SHOW_WHEN_PLAYING,
-                            label: __('show-stats-on-startup'),
+                            label: t('show-stats-on-startup'),
                         },
                         {
                             pref: Preferences.STATS_QUICK_GLANCE,
-                            label: '👀 ' + __('enable-quick-glance-mode'),
+                            label: '👀 ' + t('enable-quick-glance-mode'),
                             onChange: e => {
                                 e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
                             },
                         },
                         {
                             pref: Preferences.STATS_ITEMS,
-                            label: __('stats'),
+                            label: t('stats'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: Preferences.STATS_POSITION,
-                            label: __('position'),
+                            label: t('position'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: Preferences.STATS_TEXT_SIZE,
-                            label: __('text-size'),
+                            label: t('text-size'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: Preferences.STATS_OPACITY,
-                            label: __('opacity'),
+                            label: t('opacity'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: Preferences.STATS_TRANSPARENT,
-                            label: __('transparent-background'),
+                            label: t('transparent-background'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: Preferences.STATS_CONDITIONAL_FORMATTING,
-                            label: __('conditional-formatting'),
+                            label: t('conditional-formatting'),
                             onChange: StreamStats.refreshStyles,
                         },
                     ],
@@ -10572,7 +10572,7 @@ function setupQuickSettingsBar() {
                             icon: Icon.QUESTION,
                             style: ButtonStyle.GHOST,
                             url: settingGroup.help_url,
-                            title: __('help'),
+                            title: t('help'),
                         }),
                 ));
             if (settingGroup.note) {
@@ -10608,7 +10608,7 @@ function setupQuickSettingsBar() {
                 const $content = CE('div', {'class': 'bx-quick-settings-row', 'data-type': settingGroup.group},
                             CE('label', {for: `bx_setting_${pref}`},
                             setting.label,
-                            setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, __('browser-unsupported-feature')),
+                            setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, t('browser-unsupported-feature')),
                         ),
                         !setting.unsupported && $control,
                     );
