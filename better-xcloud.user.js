@@ -6496,7 +6496,7 @@ class Preferences {
     static get STREAM_DISABLE_FEEDBACK_DIALOG() { return 'stream_disable_feedback_dialog'; }
 
     static get LOCAL_CO_OP_ENABLED() { return 'local_co_op_enabled'; }
-    static get LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER() { return 'local_co_op_separate_touch_controller'; }
+    // static get LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER() { return 'local_co_op_separate_touch_controller'; }
 
     static get CONTROLLER_ENABLE_SHORTCUTS() { return 'controller_enable_shortcuts'; }
     static get CONTROLLER_ENABLE_VIBRATION() { return 'controller_enable_vibration'; }
@@ -6757,10 +6757,12 @@ class Preferences {
                        }, t('enable-local-co-op-support-note')),
         },
 
+        /*
         [Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER]: {
             'default': false,
             'note': t('separate-touch-controller-note'),
         },
+        */
 
         [Preferences.CONTROLLER_ENABLE_SHORTCUTS]: {
             'default': false,
@@ -7429,35 +7431,34 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 return false;
             }
 
-            let increaseGamepadIndex = '0';
-            if (getPref(Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER)) {
-                increaseGamepadIndex = `(arguments[0] === "physical" ? 1 : 0)`
+            const patchFunc = () => {
+                let match;
+                let onGamepadChangedStr = this.onGamepadChanged.toString();
+
+                // match = onGamepadChangedStr.match(/onGamepadChanged\((?<type>\w+),(?<index>\w+),(?<wasAdded>\w+)\)/);
+
+                onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
+                eval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);
+
+                let onGamepadInputStr = this.onGamepadInput.toString();
+
+                match = onGamepadInputStr.match(/(\w+\.GamepadIndex)/);
+                if (match) {
+                    const gamepadIndexVar = match[0];
+                    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);
+                    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);
+                    console.log('[Better xCloud] ✅ Successfully patched local co-op support');
+                } else {
+                    console.log('[Better xCloud] ❌ Unable to patch local co-op support');
+                }
             }
 
-            const newCode = `
-true;
+            let patchFuncStr = patchFunc.toString();
+            patchFuncStr = patchFuncStr.substring(7, patchFuncStr.length - 1);
 
-let onGamepadChangedStr = this.onGamepadChanged.toString();
-onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
-onGamepadChangedStr = onGamepadChangedStr.replace('{', '{arguments[1] += ${increaseGamepadIndex};');
-eval(\`this.onGamepadChanged = function \${onGamepadChangedStr}\`);
+            const newCode = `true; ${patchFuncStr}; true,`;
 
-let onGamepadInputStr = this.onGamepadInput.toString();
-const match = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);
-
-if (match) {
-    const gamepadIndexVar = match[0];
-    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar} + ${increaseGamepadIndex},\`);
-    eval(\`this.onGamepadInput = function \${onGamepadInputStr}\`);
-    console.log('[Better xCloud] Successfully patched local co-op support');
-} else {
-    console.log('[Better xCloud] Unable to patch local co-op support');
-}
-
-true,
-`;
-
-            funcStr = funcStr.replace(text, text + newCode );
+            funcStr = funcStr.replace(text, text + newCode);
             return funcStr;
         },
 
@@ -9682,7 +9683,7 @@ function injectSettingsButton($parent) {
 
         [t('local-co-op')]: {
             [Preferences.LOCAL_CO_OP_ENABLED]: t('enable-local-co-op-support'),
-            [Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER]: t('separate-touch-controller'),
+            // [Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER]: t('separate-touch-controller'),
         },
 
         [t('mouse-and-keyboard')]: {
