@@ -6546,7 +6546,7 @@ class Preferences {
     static get GAME_FORTNITE_FORCE_CONSOLE() { return 'game_fortnite_force_console'; }
 
     // Deprecated
-    static get DEPRECATED_USE_DESKTOP_CODEC() { return 'use_desktop_codec'; }
+    static get DEPRECATED_CONTROLLER_SUPPORT_LOCAL_CO_OP() { return 'controller_local_co_op'; }
 
     static SETTINGS = {
         [Preferences.LAST_UPDATE_CHECK]: {
@@ -7013,16 +7013,13 @@ class Preferences {
         },
 
         // Deprecated
-        /*
-        [Preferences.DEPRECATED_USE_DESKTOP_CODEC]: {
+        [Preferences.DEPRECATED_CONTROLLER_SUPPORT_LOCAL_CO_OP]: {
             'default': false,
             'migrate': function(savedPrefs, value) {
-                const quality = value ? 'high' : 'default';
-                this.set(Preferences.STREAM_CODEC_PROFILE, quality);
-                savedPrefs[Preferences.STREAM_CODEC_PROFILE] = quality;
+                this.set(Preferences.LOCAL_CO_OP_ENABLED, value);
+                savedPrefs[Preferences.LOCAL_CO_OP_ENABLED] = value;
             },
         },
-        */
     }
 
     #storage = localStorage;
@@ -7040,11 +7037,9 @@ class Preferences {
             const setting = Preferences.SETTINGS[settingId];
             setting.ready && setting.ready.call(this);
 
-            /*
-            if (setting.migrate && !(settingId in savedPrefs)) {
+            if (setting.migrate && settingId in savedPrefs) {
                 setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
             }
-            */
         }
 
         for (let settingId in Preferences.SETTINGS) {
