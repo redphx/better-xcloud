@@ -7482,12 +7482,23 @@ class Patcher {
 
         // Block WebRTC stats collector
         blockWebRtcStatsCollector: function(funcStr) {
-            const text = 'this.intervalMs=0,';
+            const text = 'this.shouldCollectStats=!0';
             if (!funcStr.includes(text)) {
                 return false;
             }
 
-            return funcStr.replace(text, 'false,' + text);
+            return funcStr.replace(text, 'this.shouldCollectStats=!1');
+        },
+
+        blockGamepadStatsCollector: function(funcStr) {
+            const text = 'this.inputPollingIntervalStats.addValue';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replace('this.inputPollingIntervalStats.addValue', '');
+            funcStr = funcStr.replace('this.inputPollingDurationStats.addValue', '');
+            return funcStr;
         },
 
         enableXcloudLogger: function(funcStr) {
@@ -7736,6 +7747,8 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
+
+        getPref(Preferences.BLOCK_TRACKING) && ['blockGamepadStatsCollector'],
 
         [
             'disableGamepadDisconnectedScreen',
