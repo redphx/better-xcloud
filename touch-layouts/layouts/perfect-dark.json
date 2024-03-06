@@ -42,9 +42,26 @@
           "outer": [
             null,
             null,
-            null,
-            null,
-            null,
+            {
+              "type": "button",
+              "action": "leftThumb",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "crouch"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            {
+              "type": "button",
+              "action": "leftBumper"
+            },
             null,
             [
               {
@@ -106,7 +123,7 @@
                 "default": {
                   "faceImage": {
                     "type": "icon",
-                    "value": "crouch"
+                    "value": "weaponSelect"
                   }
                 }
               }
@@ -188,6 +205,10 @@
             {
               "type": "button",
               "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "view"
             }
           ]
         }
