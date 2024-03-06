@@ -1,0 +1,7 @@
+{
+  "name": "Perfect Dark",
+  "default_layout": "type-a",
+  "layouts": [
+    "perfect-dark"
+  ]
+}
