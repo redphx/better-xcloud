@@ -996,7 +996,7 @@ const Translations = {
         "启用手柄快捷方式",
     ],
     "enable-local-co-op-support": [
-        "Lokale Coop-Unterstützung aktivieren",
+        "Lokale Koop-Unterstützung aktivieren",
         "Enable local co-op support",
         "Habilitar soporte co-op local",
         ,
@@ -1009,7 +1009,7 @@ const Translations = {
         "Yerel çok oyuncu desteğini aktive et",
         "Увімкнути локальну co-op підтримку",
         "Kích hoạt tính năng chơi chung cục bộ",
-        ,
+        "启用本地多人联机",
     ],
     "enable-local-co-op-support-note": [
         "Funktioniert nur, wenn das Spiel kein anderes Profil benötigt",
@@ -1025,7 +1025,7 @@ const Translations = {
         "Bu seçenek ancak oyun ayrı profillere giriş yapılmasını istemiyorsa etki eder",
         "Працює, лише якщо для гри не потрібен інший профіль",
         "Chỉ hoạt động nếu game không yêu cầu thêm tài khoản khác",
-        ,
+        "仅在当前游戏不要求切换账户时才能使用",
     ],
     "enable-mic-on-startup": [
         "Mikrofon bei Spielstart aktivieren",
@@ -1169,7 +1169,7 @@ const Translations = {
         "Mobil cihazda Fortnite: Dünyayı Kurtar modunu etkinleştir",
         "Дозволити відтворення режиму STW на мобільному пристрої",
         "Cho phép chơi chế độ STW trên điện thoại",
-        ,
+        "允许游玩Save the World模式",
     ],
     "fortnite-force-console-version": [
         "Fortnite: Erzwinge Konsolenversion",
@@ -1185,7 +1185,7 @@ const Translations = {
         "Fortnite'ın konsol sürümünü aç",
         "Fortnite: примусова консольна версія",
         "Fortnite: bắt buộc phiên bản console",
-        ,
+        "Fortnite: 强制使用主机版客户端",
     ],
     "getting-consoles-list": [
         "Rufe Liste der Konsolen ab...",
@@ -1380,7 +1380,7 @@ const Translations = {
         "载入画面",
     ],
     "local-co-op": [
-        ,
+        "Lokales Koop",
         "Local co-op",
         "Co-op local",
         ,
@@ -1389,11 +1389,11 @@ const Translations = {
         ,
         ,
         "Co-op local",
-        ,
+        "Локальная кооперативная игра",
         ,
         "Локальний co-op",
         "Chơi chung cục bộ",
-        ,
+        "本地多人联机",
     ],
     "map-mouse-to": [
         "Maus binden an",
@@ -2129,7 +2129,7 @@ const Translations = {
         ,
         "Окремо Сенсорний контролер та Контролер #1",
         "Tách biệt Bộ điều khiển cảm ứng và Tay cầm #1",
-        ,
+        "虚拟摇杆和手柄分别控制不同角色",
     ],
     "separate-touch-controller-note": [
         "Touch-Controller ist Spieler 1, Controller #1 ist Spieler 2",
@@ -2145,7 +2145,7 @@ const Translations = {
         ,
         "Сенсорний контролер це Гравець 1, Контролер #1 це Гравець 2",
         "Bộ điều khiển cảm ứng là Người chơi 1, Tay cầm #1 là Người chơi 2",
-        ,
+        "虚拟摇杆为玩家1，手柄#1为玩家2",
     ],
     "server": [
         "Server",
@@ -2626,6 +2626,22 @@ const Translations = {
         "Все біле",
         "Trắng hoàn toàn",
         "白色",
+    ],
+    "tc-auto-off": [
+        ,
+        "Off when controller found",
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Вимкнено, коли контролер знайдено",
+        "Tắt khi sử dụng tay cầm",
+        "手柄连接时隐藏虚拟摇杆",
     ],
     "tc-availability": [
         "Verfügbarkeit",
@@ -6712,6 +6728,7 @@ class Preferences {
     static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
     static get STREAM_TOUCH_CONTROLLER() { return 'stream_touch_controller'; }
+    static get STREAM_TOUCH_CONTROLLER_AUTO_OFF() { return 'stream_touch_controller_auto_off'; }
     static get STREAM_TOUCH_CONTROLLER_STYLE_STANDARD() { return 'stream_touch_controller_style_standard'; }
     static get STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM() { return 'stream_touch_controller_style_custom'; }
 
@@ -6929,20 +6946,24 @@ class Preferences {
         [Preferences.HIDE_DOTS_ICON]: {
             'default': false,
         },
+
         [Preferences.STREAM_TOUCH_CONTROLLER]: {
             'default': 'all',
             'options': {
                 'default': t('default'),
                 'all': t('tc-all-games'),
-                'off': t('off'),
             },
             'unsupported': !HAS_TOUCH_SUPPORT,
             'ready': () => {
                 const setting = Preferences.SETTINGS[Preferences.STREAM_TOUCH_CONTROLLER];
                 if (setting.unsupported) {
-                    setting.default = 'off';
+                    setting.default = 'default';
                 }
             },
+        },
+        [Preferences.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
+            'default': false,
+            'unsupported': !HAS_TOUCH_SUPPORT,
         },
         [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             'default': 'default',
@@ -6961,6 +6982,7 @@ class Preferences {
             },
             'unsupported': !HAS_TOUCH_SUPPORT,
         },
+
         [Preferences.STREAM_SIMPLIFY_MENU]: {
             'default': false,
         },
@@ -7708,7 +7730,23 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 return false;
             }
 
-            funcStr = funcStr.replace(text, 'return;' + text);
+            const newCode = `
+const gamepads = window.navigator.getGamepads();
+let gamepadFound = false;
+
+for (let gamepad of gamepads) {
+    if (gamepad && gamepad.connected) {
+        gamepadFound = true;
+        break;
+    }
+}
+
+if (gamepadFound) {
+    return;
+}
+`;
+
+            funcStr = funcStr.replace(text, newCode + text);
             return funcStr;
         },
     };
@@ -7754,8 +7792,8 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
         getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
 
         ['playVibration'],
-        getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
-        getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off' && ['disableTakRenderer'],
+        HAS_TOUCH_SUPPORT && getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
+        HAS_TOUCH_SUPPORT && getPref(Preferences.STREAM_TOUCH_CONTROLLER_AUTO_OFF) && ['disableTakRenderer'],
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
 
@@ -9205,15 +9243,6 @@ div[class*=StreamHUD-module__buttonsContainer] {
 `;
     }
 
-    // Hide touch controller
-    if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off') {
-        css += `
-#MultiTouchSurface, #BabylonCanvasContainer-main {
-    display: none !important;
-}
-`;
-    }
-
     // Simplify Stream's menu
     css += `
 div[class*=StreamMenu-module__menu] {
@@ -9943,6 +9972,7 @@ function injectSettingsButton($parent) {
         [t('touch-controller')]: {
             _note: !HAS_TOUCH_SUPPORT ? '⚠️ ' + t('device-unsupported-touch') : null,
             [Preferences.STREAM_TOUCH_CONTROLLER]: t('tc-availability'),
+            [Preferences.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: t('tc-auto-off'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: t('tc-standard-layout-style'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: t('tc-custom-layout-style'),
         },
