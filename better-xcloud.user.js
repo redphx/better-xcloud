@@ -7701,6 +7701,16 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             funcStr = funcStr.replace(text, text + newCode);
             return funcStr;
         },
+
+        disableTakRenderer: function(funcStr) {
+            const text = 'const{TakRenderer:';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replace(text, 'return;' + text);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -7745,6 +7755,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
         ['playVibration'],
         getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
+        getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off' && ['disableTakRenderer'],
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
 
