@@ -3077,7 +3077,7 @@ const Translations = {
     ],
 }
 
-const LOCALE = Translations.getLocale();
+let LOCALE = Translations.getLocale();
 const t = Translations.get;
 
 
@@ -8041,6 +8041,7 @@ function addCss() {
     --bx-danger-button-disabled-color: #a26c6c;
 
     --bx-toast-z-index: 9999;
+    --bx-reload-button-z-index: 9200;
     --bx-dialog-z-index: 9101;
     --bx-dialog-overlay-z-index: 9100;
     --bx-stats-bar-z-index: 9001;
@@ -8188,6 +8189,22 @@ a.bx-button {
     left: 0;
     right: 0;
     bottom: 0;
+}
+
+.bx-settings-reload-button-wrapper {
+    z-index: var(--bx-reload-button-z-index);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    background: #000000cf;
+    padding: 10px;
+}
+
+.bx-settings-reload-button-wrapper button {
+    max-width: 450px;
+    margin: 0 !important;
 }
 
 .better_xcloud_settings {
@@ -10016,6 +10033,19 @@ function injectSettingsButton($parent) {
 
         $wrapper.appendChild($group);
 
+        let onChange = e => {
+            $reloadBtnWrapper.classList.remove('bx-gone');
+
+            if (e.target.id === 'bx_setting_' + Preferences.BETTER_XCLOUD_LOCALE) {
+                // Update locale
+                LOCALE = Translations.getLocale();
+
+                const $btn = $reloadBtnWrapper.firstElementChild;
+                $btn.textContent = t('settings-reloading');
+                $btn.click();
+            }
+        };
+
         for (let settingId in SETTINGS_UI[groupLabel]) {
             if (settingId.startsWith('_')) {
                 continue;
@@ -10038,6 +10068,7 @@ function injectSettingsButton($parent) {
                 });
                 $inpCustomUserAgent.addEventListener('change', e => {
                     setPref(Preferences.USER_AGENT_CUSTOM, e.target.value.trim());
+                    onChange(e);
                 });
 
                 $control = PREFS.toElement(Preferences.USER_AGENT_PROFILE, e => {
@@ -10048,6 +10079,8 @@ function injectSettingsButton($parent) {
                     $inpCustomUserAgent.value = userAgent;
                     $inpCustomUserAgent.readOnly = !isCustom;
                     $inpCustomUserAgent.disabled = !isCustom;
+
+                    onChange(e);
                 });
             } else if (settingId === Preferences.SERVER_REGION) {
                 let selectedValue;
@@ -10055,6 +10088,7 @@ function injectSettingsButton($parent) {
                 $control = CE('select', {id: `bx_setting_${settingId}`});
                 $control.addEventListener('change', e => {
                     setPref(settingId, e.target.value);
+                    onChange(e);
                 });
 
                 selectedValue = PREF_PREFERRED_REGION;
@@ -10080,15 +10114,14 @@ function injectSettingsButton($parent) {
                     $control.appendChild($option);
                 }
             } else {
-                let onChange = null;
                 if (settingId === Preferences.BETTER_XCLOUD_LOCALE) {
-                    onChange = e => {
+                    $control = PREFS.toElement(settingId, e => {
                         localStorage.setItem('better_xcloud_locale', e.target.value);
-                        window.location.reload();
-                    }
+                        onChange(e);
+                    });
+                } else {
+                    $control = PREFS.toElement(settingId, onChange);
                 }
-
-                $control = PREFS.toElement(settingId, onChange);
                 labelAttrs = {'for': $control.id, 'tabindex': 0};
             }
 
@@ -10119,7 +10152,6 @@ function injectSettingsButton($parent) {
 
     // Setup Reload button
     const $reloadBtn = createButton({
-        classes: ['bx-settings-reload-button'],
         label: t('settings-reload'),
         style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
         onClick: e => {
@@ -10129,7 +10161,9 @@ function injectSettingsButton($parent) {
         },
     });
     $reloadBtn.setAttribute('tabindex', 0);
-    $wrapper.appendChild($reloadBtn);
+
+    const $reloadBtnWrapper = CE('div', {'class': 'bx-settings-reload-button-wrapper bx-gone'}, $reloadBtn);
+    $wrapper.appendChild($reloadBtnWrapper);
 
     // Donation link
     const $donationLink = CE('a', {'class': 'bx-donation-link', href: 'https://ko-fi.com/redphx', target: '_blank'}, `❤️ ${t('support-better-xcloud')}`);
