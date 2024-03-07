@@ -8335,6 +8335,12 @@ a.bx-button {
     align-self: center;
 }
 
+.bx-settings-row select:disabled {
+    background: transparent;
+    border: none;
+    color: #fff;
+}
+
 .bx-settings-wrapper .bx-button.bx-primary {
     margin-top: 8px;
 }
