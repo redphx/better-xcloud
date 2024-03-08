@@ -8354,7 +8354,9 @@ a.bx-button {
 }
 
 .bx-settings-row select:disabled {
+    -webkit-appearance: none;
     background: transparent;
+    text-align-last: right;
     border: none;
     color: #fff;
 }
@@ -8908,13 +8910,18 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-mkb-settings select:disabled {
+    -webkit-appearance: none;
     background: transparent;
+    text-align-last: right;
+    text-align: right;
     border: none;
     color: #fff;
 }
 
 .bx-quick-settings-row select:disabled {
-    text-align: right;
+    -webkit-appearance: none;
+    background: transparent;
+    text-align-last: right;
 }
 
 .bx-mkb-pointer-lock-msg {
