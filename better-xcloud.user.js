@@ -8350,6 +8350,7 @@ a.bx-button {
 
 .bx-settings-row input {
     align-self: center;
+    accent-color: var(--bx-primary-button-color);
 }
 
 .bx-settings-row select:disabled {
@@ -8772,6 +8773,10 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-bottom: 0 !important;
 }
 
+.bx-quick-settings-row input {
+    accent-color: var(--bx-primary-button-color);
+}
+
 .bx-quick-settings-tab-contents h2 {
     margin-bottom: 8px;
     display: flex;
@@ -9141,11 +9146,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     padding: 0;
     color: #888;
     font-size: 12px;
-}
-
-.bx-remote-play-settings input {
-    display: block;
-    margin: 0 auto;
 }
 
 .bx-remote-play-settings span {
