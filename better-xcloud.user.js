@@ -9882,6 +9882,7 @@ function injectSettingsButton($parent) {
     const PREF_LATEST_VERSION = getPref(Preferences.LATEST_VERSION);
 
     const $headerFragment = document.createDocumentFragment();
+    let $reloadBtnWrapper;
 
     // Remote Play button
     if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
@@ -10034,6 +10035,10 @@ function injectSettingsButton($parent) {
         $wrapper.appendChild($group);
 
         let onChange = e => {
+            if (!$reloadBtnWrapper) {
+                return;
+            }
+
             $reloadBtnWrapper.classList.remove('bx-gone');
 
             if (e.target.id === 'bx_setting_' + Preferences.BETTER_XCLOUD_LOCALE) {
@@ -10153,7 +10158,7 @@ function injectSettingsButton($parent) {
     // Setup Reload button
     const $reloadBtn = createButton({
         label: t('settings-reload'),
-        style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+        style: ButtonStyle.DANGER | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
         onClick: e => {
             window.location.reload();
             $reloadBtn.disabled = true;
@@ -10162,7 +10167,7 @@ function injectSettingsButton($parent) {
     });
     $reloadBtn.setAttribute('tabindex', 0);
 
-    const $reloadBtnWrapper = CE('div', {'class': 'bx-settings-reload-button-wrapper bx-gone'}, $reloadBtn);
+    $reloadBtnWrapper = CE('div', {'class': 'bx-settings-reload-button-wrapper bx-gone'}, $reloadBtn);
     $wrapper.appendChild($reloadBtnWrapper);
 
     // Donation link
