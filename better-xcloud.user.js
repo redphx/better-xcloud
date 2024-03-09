@@ -9170,7 +9170,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     backdrop-filter: blur(4px);
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    border: #32CD32 2px solid;
+    border: #32CD32 3px solid;
     border-radius: 0.5rem;
 
 }
