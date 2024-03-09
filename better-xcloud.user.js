@@ -675,6 +675,22 @@ const Translations = {
         "Bạn có muốn kết nối lại stream không?",
         "您想要刷新吗？",
     ],
+    "connected": [
+        ,
+        "Connected",
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Đã kết nối",
+        ,
+    ],
     "console-connect": [
         "Verbinden",
         "Connect",
@@ -962,6 +978,22 @@ const Translations = {
         "Вимкнено",
         "Đã tắt",
         "禁用",
+    ],
+    "disconnected": [
+        ,
+        "Disconnected",
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Đã ngắt kết nối",
+        ,
     ],
     "edit": [
         "Bearbeiten",
@@ -2636,8 +2668,8 @@ const Translations = {
         "コントローラー接続時に無効化",
         ,
         "Wyłącz, gdy kontroler zostanie znaleziony",
-        ,
-        ,
+        "Desligar toque quando o controle estiver conectado",
+        "Выключить, когда контроллер найден",
         "Başka bir kumanda bağlandığında kapat",
         "Вимкнено, коли контролер знайдено",
         "Tắt khi sử dụng tay cầm",
@@ -4063,13 +4095,38 @@ class Toast {
     static #$wrapper;
     static #$msg;
     static #$status;
+    static #stack = [];
+    static #isShowing = false;
 
     static #timeout;
     static #DURATION = 3000;
 
-    static show(msg, status) {
+    static show(msg, status, options) {
+        options = options || {};
+
+        if (options.instant) {
+            // Clear stack
+            Toast.#stack = [arguments];
+            Toast.#showNext();
+        } else {
+            Toast.#stack.push(arguments);
+            !Toast.#isShowing && Toast.#showNext();
+        }
+    }
+
+    static #showNext() {
+        if (!Toast.#stack.length) {
+            Toast.#isShowing = false;
+            return;
+        }
+
+        Toast.#isShowing = true;
+
         Toast.#timeout && clearTimeout(Toast.#timeout);
         Toast.#timeout = setTimeout(Toast.#hide, Toast.#DURATION);
+
+        // Get values from item
+        const [msg, status, options] = Toast.#stack.shift();
 
         Toast.#$msg.textContent = msg;
 
@@ -4103,6 +4160,8 @@ class Toast {
             if (classList.contains('bx-hide')) {
                 classList.remove('bx-offscreen', 'bx-hide');
                 classList.add('bx-offscreen');
+
+                Toast.#showNext();
             }
         });
 
@@ -11337,3 +11396,24 @@ RemotePlay.detect();
 StreamBadges.setupEvents();
 StreamStats.setupEvents();
 MkbHandler.setupEvents();
+
+// Show a toast when connecting/disconecting controller
+function showGamepadToast(gamepad) {
+    let text = '🎮';
+
+    if (getPref(Preferences.LOCAL_CO_OP_ENABLED)) {
+        text += ` #${gamepad.index + 1}`;
+    }
+
+    // Remove "(STANDARD GAMEPAD Vendor: xxx Product: xxx)" from ID
+    const gamepadId = gamepad.id.replace(/ \(.* Vendor: \w+ Product: \w+\)$/, '');
+    text += ` - ${gamepadId}`;
+    const status = gamepad.connected ? t('connected') : t('disconnected');
+
+    Toast.show(text, status, {instant: false});
+}
+
+window.addEventListener('gamepadconnected', e => showGamepadToast(e.gamepad));
+window.addEventListener('gamepaddisconnected', e => showGamepadToast(e.gamepad));
+
+window.Toast = Toast;
