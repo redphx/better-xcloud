@@ -3613,68 +3613,68 @@ class TitlesInfo {
 
 
 class LoadingScreen {
-    static #$bgStyle;
-    static #$waitTimeBox;
+  static #$bgStyle;
+  static #$waitTimeBox;
 
-    static #waitTimeInterval;
-    static #orgWebTitle;
+  static #waitTimeInterval;
+  static #orgWebTitle;
 
-    static #secondsToString(seconds) {
-        const m = Math.floor(seconds / 60);
-        const s = Math.floor(seconds % 60);
+  static #secondsToString(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
 
-        const mDisplay = m > 0 ? `${m}m`: '';
-        const sDisplay = `${s}s`.padStart(s >=0 ? 3 : 4, '0');
-        return mDisplay + sDisplay;
+    const mDisplay = m > 0 ? `${m}m` : "";
+    const sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
+    return mDisplay + sDisplay;
+  }
+
+  static setup() {
+    // Get titleId from location
+    const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+    if (!match) {
+      return;
     }
 
-    static setup() {
-        // Get titleId from location
-        const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-        if (!match) {
-            return;
-        }
-
-        if (!LoadingScreen.#$bgStyle) {
-            const $bgStyle = createElement('style');
-            document.documentElement.appendChild($bgStyle);
-            LoadingScreen.#$bgStyle = $bgStyle;
-        }
-
-        const titleId = match[1];
-        const titleInfo = TitlesInfo.get(titleId);
-        if (titleInfo && titleInfo.imageHero) {
-            LoadingScreen.#setBackground(titleInfo.imageHero);
-        } else {
-            TitlesInfo.requestCatalogInfo(titleId, info => {
-                info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
-            });
-        }
-
-        if (getPref(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide') {
-            LoadingScreen.#hideRocket();
-        }
+    if (!LoadingScreen.#$bgStyle) {
+      const $bgStyle = createElement("style");
+      document.documentElement.appendChild($bgStyle);
+      LoadingScreen.#$bgStyle = $bgStyle;
     }
 
-    static #hideRocket() {
-        let $bgStyle = LoadingScreen.#$bgStyle;
+    const titleId = match[1];
+    const titleInfo = TitlesInfo.get(titleId);
+    if (titleInfo && titleInfo.imageHero) {
+      LoadingScreen.#setBackground(titleInfo.imageHero);
+    } else {
+      TitlesInfo.requestCatalogInfo(titleId, (info) => {
+        info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
+      });
+    }
 
-        const css = `
+    if (getPref(Preferences.UI_LOADING_SCREEN_ROCKET) === "hide") {
+      LoadingScreen.#hideRocket();
+    }
+  }
+
+  static #hideRocket() {
+    let $bgStyle = LoadingScreen.#$bgStyle;
+
+    const css = `
 #game-stream div[class*=RocketAnimation-module__container] > svg {
     display: none;
 }
 `;
-        $bgStyle.textContent += css;
-    }
+    $bgStyle.textContent += css;
+  }
 
-    static #setBackground(imageUrl) {
-        // Setup style tag
-        let $bgStyle = LoadingScreen.#$bgStyle;
+  static #setBackground(imageUrl) {
+    // Setup style tag
+    let $bgStyle = LoadingScreen.#$bgStyle;
 
-        // Limit max width to reduce image size
-        imageUrl = imageUrl + '?w=1920';
+    // Limit max width to reduce image size
+    imageUrl = imageUrl + "?w=1920";
 
-        const css = `
+    const css = `
 #game-stream {
     background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
     background-color: transparent !important;
@@ -3687,107 +3687,112 @@ class LoadingScreen {
     transition: opacity 0.3s ease-in-out !important;
 }
 `;
-        $bgStyle.textContent += css;
+    $bgStyle.textContent += css;
 
-        const bg = new Image();
-        bg.onload = e => {
-            $bgStyle.textContent += `
+    const bg = new Image();
+    bg.onload = (e) => {
+      $bgStyle.textContent += `
 #game-stream rect[width="800"] {
     opacity: 0 !important;
 }
 `;
-        };
-        bg.src = imageUrl;
+    };
+    bg.src = imageUrl;
+  }
+
+  static setupWaitTime(waitTime) {
+    // Hide rocket when queing
+    if (getPref(Preferences.UI_LOADING_SCREEN_ROCKET) === "hide-queue") {
+      LoadingScreen.#hideRocket();
     }
 
-    static setupWaitTime(waitTime) {
-        // Hide rocket when queing
-        if (getPref(Preferences.UI_LOADING_SCREEN_ROCKET) === 'hide-queue') {
-            LoadingScreen.#hideRocket();
-        }
+    let secondsLeft = waitTime;
+    let $countDown;
 
-        let secondsLeft = waitTime;
-        let $countDown;
-        let $estimated;
+    LoadingScreen.#orgWebTitle = document.title;
 
-        LoadingScreen.#orgWebTitle = document.title;
+    const endDate = new Date();
+    const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
+    endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
 
-        const endDate = new Date();
-        const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
-        endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
+    let endDateStr = endDate.toISOString().slice(0, 19);
+    endDateStr =
+      endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19);
+    endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
 
-        let endDateStr = endDate.toISOString().slice(0, 19);
-        endDateStr = endDateStr.substring(0, 10) + ' ' + endDateStr.substring(11, 19);
-        endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
+    if (!$waitTimeBox) {
+      $waitTimeBox = CE(
+        "div",
+        { class: "bx-wait-time-box" },
+        ($countDown = CE("span", { class: "queue-time" })),
+        CE("span", { class: "region" }, getPreferredServerRegion())
+      );
 
-        let estimatedWaitTime = LoadingScreen.#secondsToString(waitTime);
-
-        let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-        if (!$waitTimeBox) {
-            $waitTimeBox = CE('div', {'class': 'bx-wait-time-box'},
-                                    CE('label', {}, t('server')),
-                                    CE('span', {}, getPreferredServerRegion()),
-                                    CE('label', {}, t('wait-time-estimated')),
-                                    $estimated = CE('span', {}),
-                                    CE('label', {}, t('wait-time-countdown')),
-                                    $countDown = CE('span', {}),
-                                   );
-
-            document.documentElement.appendChild($waitTimeBox);
-            LoadingScreen.#$waitTimeBox = $waitTimeBox;
-        } else {
-            $waitTimeBox.classList.remove('bx-gone');
-            $estimated = $waitTimeBox.querySelector('.bx-wait-time-estimated');
-            $countDown = $waitTimeBox.querySelector('.bx-wait-time-countdown');
-        }
-
-        $estimated.textContent = endDateStr;
-        $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-        document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-
-        LoadingScreen.#waitTimeInterval = setInterval(() => {
-            secondsLeft--;
-            $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-            document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-
-            if (secondsLeft <= 0) {
-                LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-                LoadingScreen.#waitTimeInterval = null;
-            }
-        }, 1000);
+      document.documentElement.appendChild($waitTimeBox);
+      LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    } else {
+      $waitTimeBox.classList.remove("bx-gone");
+      $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
     }
 
-    static hide() {
-        LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
+    $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+    document.title = `[${$countDown.textContent}] ${
+      LoadingScreen.#orgWebTitle
+    }`;
 
-        if (LoadingScreen.#$bgStyle) {
-            const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
-            $rocketBg && $rocketBg.addEventListener('transitionend', e => {
-                LoadingScreen.#$bgStyle.textContent += `
+    LoadingScreen.#waitTimeInterval = setInterval(() => {
+      secondsLeft--;
+      $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+      document.title = `[${$countDown.textContent}] ${
+        LoadingScreen.#orgWebTitle
+      }`;
+
+      if (secondsLeft <= 0) {
+        LoadingScreen.#waitTimeInterval &&
+          clearInterval(LoadingScreen.#waitTimeInterval);
+        LoadingScreen.#waitTimeInterval = null;
+      }
+    }, 1000);
+  }
+
+  static hide() {
+    LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
+    LoadingScreen.#$waitTimeBox &&
+      LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
+
+    if (LoadingScreen.#$bgStyle) {
+      const $rocketBg = document.querySelector(
+        '#game-stream rect[width="800"]'
+      );
+      $rocketBg &&
+        $rocketBg.addEventListener("transitionend", (e) => {
+          LoadingScreen.#$bgStyle.textContent += `
 #game-stream {
     background: #000 !important;
 }
 `;
-            });
+        });
 
-            LoadingScreen.#$bgStyle.textContent += `
+      LoadingScreen.#$bgStyle.textContent += `
 #game-stream rect[width="800"] {
     opacity: 1 !important;
 }
 `;
-        }
-
-        LoadingScreen.reset();
     }
 
-    static reset() {
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
-        LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
+    LoadingScreen.reset();
+  }
 
-        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-        LoadingScreen.#waitTimeInterval = null;
-    }
+  static reset() {
+    LoadingScreen.#$waitTimeBox &&
+      LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
+    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
+
+    LoadingScreen.#waitTimeInterval &&
+      clearInterval(LoadingScreen.#waitTimeInterval);
+    LoadingScreen.#waitTimeInterval = null;
+  }
 }
 
 
@@ -9150,36 +9155,35 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: block !important;
 }
 
-.bx-wait-time-box {
-    position: fixed;
-    top: 0;
-    right: 0;
-    background-color: #000000cc;
-    color: #fff;
-    z-index: var(--bx-wait-time-box-z-index);
-    padding: 12px;
-    border-radius: 0 0 0 8px;
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-.bx-wait-time-box label {
-    display: block;
-    text-transform: uppercase;
-    text-align: right;
-    font-size: 12px;
-    font-weight: bold;
-    margin: 0;
-}
 
 .bx-wait-time-box span {
-    display: block;
-    font-family: var(--bx-monospaced-font);
-    text-align: right;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    top: 0;
+    padding: 0.5rem;
+    margin: 1rem;
     font-size: 16px;
-    margin-bottom: 10px;
+    font-family: 'Poppins';
+    backdrop-filter: blur(4px);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border: #32CD32 3px solid;
+    border-radius: 0.5rem;
+
 }
 
-.bx-wait-time-box span:last-of-type {
-    margin-bottom: 0;
+.bx-wait-time-box .region {
+    position: absolute;
+    right: 0;
+}
+
+.bx-wait-time-box .queue-time {
+    left: 50%;
+    transform: translate(-50%);
+    position: absolute;
 }
 
 /* REMOTE PLAY */
