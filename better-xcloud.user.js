@@ -6853,7 +6853,7 @@ class Preferences {
             },
         },
         [Preferences.STREAM_TARGET_RESOLUTION]: {
-            'default': '1080p',
+            'default': 'auto',
             'options': {
                 'auto': t('default'),
                 '1080p': '1080p',
