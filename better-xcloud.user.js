@@ -8266,7 +8266,7 @@ a.bx-button {
     margin: 0 !important;
 }
 
-.better_xcloud_settings {
+.bx-settings-container {
     background-color: #151515;
     user-select: none;
     -webkit-user-select: none;
@@ -9971,7 +9971,7 @@ function injectSettingsButton($parent) {
         label: PREF_PREFERRED_REGION,
         style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
         onClick: e => {
-            const $settings = document.querySelector('.better_xcloud_settings');
+            const $settings = document.querySelector('.bx-settings-container');
             $settings.classList.toggle('bx-gone');
             $settings.scrollIntoView();
             document.activeElement && document.activeElement.blur();
@@ -9985,12 +9985,16 @@ function injectSettingsButton($parent) {
 
     // Add the Settings button to the web page
     $headerFragment.appendChild($settingsBtn);
-
     $parent.appendChild($headerFragment);
+
+    // Avoid rendering the Settings multiple times
+    if (document.querySelector('.bx-settings-container')) {
+        return;
+    }
 
     // Setup Settings UI
     const $container = CE('div', {
-        'class': 'better_xcloud_settings bx-gone',
+        'class': 'bx-settings-container bx-gone',
     });
 
     let $updateAvailable;
@@ -11155,7 +11159,7 @@ function onHistoryChanged(e) {
 
     setTimeout(RemotePlay.detect, 10);
 
-    const $settings = document.querySelector('.better_xcloud_settings');
+    const $settings = document.querySelector('.bx-settings-container');
     if ($settings) {
         $settings.classList.add('bx-gone');
     }
