@@ -1,0 +1,7 @@
+{
+  "name": "DOOM (1993)",
+  "default_layout": "custom",
+  "layouts": [
+    "doom-1993"
+  ]
+}
