@@ -8987,6 +8987,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     -webkit-appearance: none;
     background: transparent;
     text-align-last: right;
+    border: none;
 }
 
 .bx-mkb-pointer-lock-msg {
@@ -10842,14 +10843,8 @@ function setupQuickSettingsBar() {
                         },
                     ],
                 },
-            ],
-        },
 
-        HAS_TOUCH_SUPPORT && {
-            icon: Icon.HAND_TAP,
-            group: 'touch-controller',
-            items: [
-                {
+                HAS_TOUCH_SUPPORT && {
                     group: 'touch-controller',
                     label: t('touch-controller'),
                     items: [
