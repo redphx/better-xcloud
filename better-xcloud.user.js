@@ -8570,9 +8570,15 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     border-right: none;
 }
 
-.bx-stats-bar[data-display=glancing]::before {
-    content: '👀 ';
+.bx-stats-bar::before {
+    display: none;
+    content: '👀';
     vertical-align: middle;
+    margin-right: 8px;
+}
+
+.bx-stats-bar[data-display=glancing]::before {
+    display: inline-block;
 }
 
 .bx-stats-bar[data-position=top-left] {
