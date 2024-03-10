@@ -11003,6 +11003,10 @@ function setupQuickSettingsBar() {
         const $group = CE('div', {'data-group': settingTab.group, 'class': 'bx-gone'});
 
         for (const settingGroup of settingTab.items) {
+            if (!settingGroup) {
+                continue;
+            }
+
             $group.appendChild(CE('h2', {},
                     CE('span', {}, settingGroup.label),
                     settingGroup.help_url && createButton({
