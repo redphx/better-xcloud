@@ -11280,7 +11280,7 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
     IS_PLAYING = false;
 
     // Stop MKB listeners
-    MkbHandler.INSTANCE.destroy();
+    getPref(Preferences.MKB_ENABLED) && MkbHandler.INSTANCE.destroy();
 
     const $quickBar = document.querySelector('.bx-quick-settings-bar');
     if ($quickBar) {
