@@ -4906,7 +4906,7 @@ class MkbHandler {
     static get MAXIMUM_STICK_RANGE() { return 1.1; }
 
     #VIRTUAL_GAMEPAD = {
-            id: 'Xbox 360 Controller (XInput STANDARD GAMEPAD)',
+            id: 'Xbox 360 Controller',
             index: 3,
             connected: false,
             hapticActuators: null,
