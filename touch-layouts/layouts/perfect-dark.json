@@ -28,12 +28,6 @@
                       "color": "#ffffff"
                     },
                     "opacity": 0.5
-                  },
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "run"
-                    }
                   }
                 }
               }
