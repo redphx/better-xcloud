@@ -11424,5 +11424,3 @@ function showGamepadToast(gamepad) {
 
 window.addEventListener('gamepadconnected', e => showGamepadToast(e.gamepad));
 window.addEventListener('gamepaddisconnected', e => showGamepadToast(e.gamepad));
-
-window.Toast = Toast;
