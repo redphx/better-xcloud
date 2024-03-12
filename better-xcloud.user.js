@@ -191,6 +191,7 @@ const Translations = {
     getLocale: () => {
         const supportedLocales = [
             'de-DE',
+            'en-ID',
             'en-US',
             'es-ES',
             'fr-FR',
@@ -229,6 +230,7 @@ const Translations = {
 
     "activate": [
         "Aktivieren",
+        "Aktifkan",
         "Activate",
         "Activo",
         ,
@@ -245,6 +247,7 @@ const Translations = {
     ],
     "activated": [
         "Aktiviert",
+        "Diaktifkan",
         "Activated",
         "Activado",
         ,
@@ -261,6 +264,7 @@ const Translations = {
     ],
     "active": [
         "Aktiv",
+        "Aktif",
         "Active",
         "Activo",
         ,
@@ -277,6 +281,7 @@ const Translations = {
     ],
     "advanced": [
         "Erweitert",
+        "Lanjutan",
         "Advanced",
         "Avanzado",
         "Options avancées",
@@ -293,6 +298,7 @@ const Translations = {
     ],
     "apply": [
         "Anwenden",
+        "Terapkan",
         "Apply",
         "Aplicar",
         ,
@@ -313,6 +319,7 @@ const Translations = {
         "Audio",
         "Audio",
         "Audio",
+        "Audio",
         "音声",
         "오디오",
         "Dźwięk",
@@ -325,6 +332,7 @@ const Translations = {
     ],
     "auto": [
         "Automatisch",
+        "Otomatis",
         "Auto",
         "Auto",
         "Auto",
@@ -345,6 +353,7 @@ const Translations = {
         "Audio",
         "Audio",
         "Audio",
+        "Audio",
         "音声",
         "오디오",
         "Dźwięk",
@@ -357,6 +366,7 @@ const Translations = {
     ],
     "badge-battery": [
         "Batterie",
+        "Baterai",
         "Battery",
         "Batería",
         "Batterie",
@@ -373,6 +383,7 @@ const Translations = {
     ],
     "badge-in": [
         "Empfangen",
+        "Masuk",
         "In",
         "Entrada",
         "Dans",
@@ -389,6 +400,7 @@ const Translations = {
     ],
     "badge-out": [
         "Gesendet",
+        "Keluar",
         "Out",
         "Salida",
         "Sorti",
@@ -405,6 +417,7 @@ const Translations = {
     ],
     "badge-playtime": [
         "Spielzeit",
+        "Waktu bermain",
         "Playtime",
         "Tiempo jugado",
         "Temps de jeu",
@@ -420,6 +433,7 @@ const Translations = {
         "游玩时间",
     ],
     "badge-server": [
+        "Server",
         "Server",
         "Server",
         "Servidor",
@@ -439,6 +453,7 @@ const Translations = {
         "Video",
         "Video",
         "Video",
+        "Video",
         "Vidéo",
         "Video",
         "映像",
@@ -453,6 +468,7 @@ const Translations = {
     ],
     "bottom-left": [
         "Unten links",
+        "Kiri bawah",
         "Bottom-left",
         "Inferior izquierdo",
         "En bas à gauche",
@@ -469,6 +485,7 @@ const Translations = {
     ],
     "bottom-right": [
         "Unten rechts",
+        "Kanan bawah",
         "Bottom-right",
         "Inferior derecha",
         "Bas-droit",
@@ -485,6 +502,7 @@ const Translations = {
     ],
     "brightness": [
         "Helligkeit",
+        "Kecerahan",
         "Brightness",
         "Brillo",
         "Luminosité",
@@ -501,6 +519,7 @@ const Translations = {
     ],
     "browser-unsupported-feature": [
         "Dein Browser unterstützt diese Funktion nicht",
+        "Browser anda tidak mendukung fitur ini",
         "Your browser doesn't support this feature",
         "Su navegador no soporta esta característica",
         "Votre navigateur ne supporte pas cette fonctionnalité",
@@ -517,6 +536,7 @@ const Translations = {
     ],
     "can-stream-xbox-360-games": [
         "Kann Xbox 360 Spiele streamen",
+        "Dapat melakukan stream game Xbox 360",
         "Can stream Xbox 360 games",
         "Puede transmitir juegos de Xbox 360",
         ,
@@ -533,6 +553,7 @@ const Translations = {
     ],
     "cancel": [
         "Abbrechen",
+        "Batal",
         "Cancel",
         "Cancelar",
         ,
@@ -549,6 +570,7 @@ const Translations = {
     ],
     "cant-stream-xbox-360-games": [
         "Kann Xbox 360 Spiele nicht streamen",
+        "Tidak dapat melakukan stream game Xbox 360",
         "Can't stream Xbox 360 games",
         "No puede transmitir juegos de Xbox 360",
         ,
@@ -565,6 +587,7 @@ const Translations = {
     ],
     "clarity": [
         "Klarheit",
+        "Kejernihan",
         "Clarity",
         "Claridad",
         "Clarté",
@@ -581,6 +604,7 @@ const Translations = {
     ],
     "clarity-boost-warning": [
         "Diese Einstellungen funktionieren nicht, wenn \"Clarity Boost\" aktiviert ist",
+        "Pengaturan ini tidak bekerja ketika mode \"Kejernihan\" aktif",
         "These settings don't work when the Clarity Boost mode is ON",
         "Estos ajustes no funcionan cuando el modo Clarity Boost está activado",
         "Ces paramètres ne fonctionnent pas lorsque le mode Clarity Boost est activé",
@@ -597,6 +621,7 @@ const Translations = {
     ],
     "clear": [
         "Zurücksetzen",
+        "Bersihkan",
         "Clear",
         "Borrar",
         ,
@@ -613,6 +638,7 @@ const Translations = {
     ],
     "close": [
         "Schließen",
+        "Tutup",
         "Close",
         "Cerrar",
         "Fermer",
@@ -629,6 +655,7 @@ const Translations = {
     ],
     "conditional-formatting": [
         "Zustandsabhängige Textfarbe",
+        "Format teks kondisional",
         "Conditional formatting text color",
         "Color condicional de formato de texto",
         "Couleur du texte de mise en forme conditionnelle",
@@ -645,6 +672,7 @@ const Translations = {
     ],
     "confirm-delete-preset": [
         "Möchtest Du diese Voreinstellung löschen?",
+        "Apakah anda yakin ingin menghapus preset ini?",
         "Do you want to delete this preset?",
         "¿Desea eliminar este preajuste?",
         ,
@@ -661,6 +689,7 @@ const Translations = {
     ],
     "confirm-reload-stream": [
         "Möchtest Du den Stream aktualisieren?",
+        "Apakah anda ingin memuat ulang stream?",
         "Do you want to refresh the stream?",
         "¿Quieres actualizar el stream?\n",
         "Voulez-vous actualiser le stream ?",
@@ -676,7 +705,8 @@ const Translations = {
         "您想要刷新吗？",
     ],
     "connected": [
-        ,
+        "Verbunden",
+        "Tersambung",
         "Connected",
         "Conectado",
         ,
@@ -684,7 +714,7 @@ const Translations = {
         "接続済み",
         ,
         "Połączony",
-        ,
+        "Conectado",
         "Подключен",
         "Bağlı",
         "Під’єднано",
@@ -693,6 +723,7 @@ const Translations = {
     ],
     "console-connect": [
         "Verbinden",
+        "Sambungkan",
         "Connect",
         "Conectar",
         ,
@@ -709,6 +740,7 @@ const Translations = {
     ],
     "contrast": [
         "Kontrast",
+        "Kontras",
         "Contrast",
         "Contraste",
         "Contraste",
@@ -725,6 +757,7 @@ const Translations = {
     ],
     "controller": [
         "Controller",
+        "Kontroler",
         "Controller",
         "Joystick",
         ,
@@ -741,6 +774,7 @@ const Translations = {
     ],
     "controller-shortcuts": [
         "Controller-Shortcuts",
+        "Pintasan kontroler",
         "Controller shortcuts",
         "Habilitar atajos del Joystick",
         ,
@@ -757,6 +791,7 @@ const Translations = {
     ],
     "controller-vibration": [
         "Vibration des Controllers",
+        "Getaran kontroler",
         "Controller vibration",
         "Vibración del mando",
         ,
@@ -773,6 +808,7 @@ const Translations = {
     ],
     "copy": [
         "Kopieren",
+        "Salin",
         "Copy",
         "Copiar",
         ,
@@ -789,6 +825,7 @@ const Translations = {
     ],
     "custom": [
         "Benutzerdefiniert",
+        "Kustom",
         "Custom",
         "Personalizado",
         "Personnalisée",
@@ -805,6 +842,7 @@ const Translations = {
     ],
     "deadzone-counterweight": [
         "Deadzone Gegengewicht",
+        "Pengimbang deadzone",
         "Deadzone counterweight",
         "Contrapeso de la zona muerta",
         ,
@@ -821,6 +859,7 @@ const Translations = {
     ],
     "default": [
         "Standard",
+        "Bawaan",
         "Default",
         "Por defecto",
         "Par défaut",
@@ -837,6 +876,7 @@ const Translations = {
     ],
     "delete": [
         "Löschen",
+        "Hapus",
         "Delete",
         "Borrar",
         ,
@@ -853,6 +893,7 @@ const Translations = {
     ],
     "device-unsupported-touch": [
         "Dein Gerät hat keine Touch-Unterstützung",
+        "Perangkat anda tidak mendukung layar sentuh",
         "Your device doesn't have touch support",
         "Tu dispositivo no tiene soporte táctil",
         "Votre appareil n'a pas de support tactile",
@@ -869,6 +910,7 @@ const Translations = {
     ],
     "device-vibration": [
         "Vibration des Geräts",
+        "Getaran perangkat",
         "Device vibration",
         "Vibración del dispositivo",
         ,
@@ -885,6 +927,7 @@ const Translations = {
     ],
     "device-vibration-not-using-gamepad": [
         "An, wenn kein Gamepad verbunden",
+        "Aktif ketika tidak menggunakan gamepad",
         "On when not using gamepad",
         "Activado cuando no se utiliza el mando",
         ,
@@ -901,6 +944,7 @@ const Translations = {
     ],
     "disable": [
         "Deaktiviert",
+        "Mati",
         "Disable",
         "Deshabilitar",
         "Désactiver",
@@ -917,6 +961,7 @@ const Translations = {
     ],
     "disable-post-stream-feedback-dialog": [
         "Feedback-Dialog beim Beenden deaktivieren",
+        "Matikan umpan balik dialog stream",
         "Disable post-stream feedback dialog",
         "Desactivar diálogo de retroalimentación post-stream",
         "Désactiver la boîte de dialogue de commentaires post-stream",
@@ -933,6 +978,7 @@ const Translations = {
     ],
     "disable-social-features": [
         "Soziale Funktionen deaktivieren",
+        "Matikan fitur social",
         "Disable social features",
         "Desactivar características sociales",
         "Désactiver les fonctionnalités sociales",
@@ -949,6 +995,7 @@ const Translations = {
     ],
     "disable-xcloud-analytics": [
         "xCloud-Datenanalyse deaktivieren",
+        "Matikan analisis xCloud",
         "Disable xCloud analytics",
         "Desactivar análisis de xCloud",
         "Désactiver les analyses xCloud",
@@ -965,6 +1012,7 @@ const Translations = {
     ],
     "disabled": [
         "Deaktiviert",
+        "Dinonaktifkan",
         "Disabled",
         "Desactivado",
         ,
@@ -980,7 +1028,8 @@ const Translations = {
         "禁用",
     ],
     "disconnected": [
-        ,
+        "Getrennt",
+        "Terputus",
         "Disconnected",
         "Desconectado",
         ,
@@ -988,7 +1037,7 @@ const Translations = {
         "切断",
         ,
         "Rozłączony",
-        ,
+        "Desconectado",
         "Отключен",
         "Bağlı değil",
         "Роз’єднано",
@@ -997,6 +1046,7 @@ const Translations = {
     ],
     "edit": [
         "Bearbeiten",
+        "Edit",
         "Edit",
         "Editar",
         ,
@@ -1013,6 +1063,7 @@ const Translations = {
     ],
     "enable-controller-shortcuts": [
         "Controller-Shortcuts aktivieren",
+        "Nyalakan pintas kontroler",
         "Enable controller shortcuts",
         "Habilitar accesos directos del Joystick",
         ,
@@ -1029,6 +1080,7 @@ const Translations = {
     ],
     "enable-local-co-op-support": [
         "Lokale Koop-Unterstützung aktivieren",
+        "Nyalakan dukungan mode lokal co-op",
         "Enable local co-op support",
         "Habilitar soporte co-op local",
         ,
@@ -1045,6 +1097,7 @@ const Translations = {
     ],
     "enable-local-co-op-support-note": [
         "Funktioniert nur, wenn das Spiel kein anderes Profil benötigt",
+        "Hanya berfungsi saat permainan tidak membutuhkan profil berbeda",
         "Only works if the game doesn't require a different profile",
         "Solo funciona si el juego no requiere un perfil diferente",
         ,
@@ -1061,6 +1114,7 @@ const Translations = {
     ],
     "enable-mic-on-startup": [
         "Mikrofon bei Spielstart aktivieren",
+        "Nyalakan mikrofon saat permainan diluncurkan",
         "Enable microphone on game launch",
         "Activar micrófono al iniciar el juego",
         "Activer le microphone lors du lancement du jeu",
@@ -1076,15 +1130,16 @@ const Translations = {
         "游戏启动时打开麦克风",
     ],
     "enable-mkb": [
-        "Maus- und Tastaturunterstützung aktivieren",
+        "Controller mit Maus & Tastatur emulieren",
+        "Tirukan kontroler menggunakan Mouse & Keyboard",
         "Emulate controller with Mouse & Keyboard",
         "Emular mandos con teclado y ratón",
         ,
         "Abilitare il supporto di mouse e tastiera",
         "マウス＆キーボード操作をコントローラー化",
         "마우스 & 키보드 활성화",
-        "Włącz obsługę myszy i klawiatury",
-        "Habilitar suporte ao Mouse & Teclado",
+        "Emuluj kontroler za pomocą myszy i klawiatury",
+        "Emular controlador com mouse e teclado",
         "Эмулировать контроллер с помощью мыши и клавиатуры",
         "Klavye ve fare desteğini aktive et",
         "Емуляція контролера за допомогою миші та клавіатури",
@@ -1093,6 +1148,7 @@ const Translations = {
     ],
     "enable-quick-glance-mode": [
         "\"Kurzer Blick\"-Modus aktivieren",
+        "Aktifkan mode \"Quick Glance\"",
         "Enable \"Quick Glance\" mode",
         "Activar modo \"Vista rápida\"",
         "Activer le mode \"Aperçu rapide\"",
@@ -1109,6 +1165,7 @@ const Translations = {
     ],
     "enable-remote-play-feature": [
         "\"Remote Play\" Funktion aktivieren",
+        "Nyalakan fitur \"Remote Play\"",
         "Enable the \"Remote Play\" feature",
         "Activar la función \"Reproducción remota\"",
         ,
@@ -1125,6 +1182,7 @@ const Translations = {
     ],
     "enable-volume-control": [
         "Lautstärkeregelung aktivieren",
+        "Nyalakan fitur kontrol volume",
         "Enable volume control feature",
         "Habilitar la función de control de volumen",
         "Activer la fonction de contrôle du volume",
@@ -1141,6 +1199,7 @@ const Translations = {
     ],
     "enabled": [
         "Aktiviert",
+        "Diaktifkan",
         "Enabled",
         "Activado",
         ,
@@ -1157,6 +1216,7 @@ const Translations = {
     ],
     "export": [
         "Exportieren",
+        "Ekspor",
         "Export",
         "Exportar",
         ,
@@ -1173,6 +1233,7 @@ const Translations = {
     ],
     "fast": [
         "Schnell",
+        "Cepat",
         "Fast",
         "Rápido",
         ,
@@ -1189,6 +1250,7 @@ const Translations = {
     ],
     "fortnite-allow-stw-mode": [
         "Erlaubt das Spielen im \"STW\"-Modus auf Mobilgeräten",
+        "Aktikan mode STW",
         "Allows playing STW mode on mobile",
         "Permitir jugar al modo STW en el móvil",
         ,
@@ -1205,6 +1267,7 @@ const Translations = {
     ],
     "fortnite-force-console-version": [
         "Fortnite: Erzwinge Konsolenversion",
+        "Fortnite: Paksa versi konsol",
         "Fortnite: force console version",
         "Fortnite: forzar versión de consola",
         ,
@@ -1221,6 +1284,7 @@ const Translations = {
     ],
     "getting-consoles-list": [
         "Rufe Liste der Konsolen ab...",
+        "Mendapatkan daftar konsol...",
         "Getting the list of consoles...",
         "Obteniendo la lista de consolas...",
         ,
@@ -1237,6 +1301,7 @@ const Translations = {
     ],
     "help": [
         "Hilfe",
+        "Bantuan",
         "Help",
         "Ayuda",
         ,
@@ -1253,6 +1318,7 @@ const Translations = {
     ],
     "hide-idle-cursor": [
         "Mauszeiger bei Inaktivität ausblenden",
+        "Sembunyikan kursor mouse saat tidak digunakan",
         "Hide mouse cursor on idle",
         "Ocultar el cursor del ratón al estar inactivo",
         "Masquer le curseur de la souris",
@@ -1269,6 +1335,7 @@ const Translations = {
     ],
     "hide-system-menu-icon": [
         "Symbol des System-Menüs ausblenden",
+        "Sembunyikan ikon menu sistem",
         "Hide System menu's icon",
         "Ocultar el icono del menú del sistema",
         "Masquer l'icône du menu système",
@@ -1285,6 +1352,7 @@ const Translations = {
     ],
     "horizontal-sensitivity": [
         "Horizontale Empfindlichkeit",
+        "Sensitifitas horizontal",
         "Horizontal sensitivity",
         "Sensibilidad horizontal",
         ,
@@ -1301,6 +1369,7 @@ const Translations = {
     ],
     "import": [
         "Importieren",
+        "Impor",
         "Import",
         "Importar",
         ,
@@ -1317,6 +1386,7 @@ const Translations = {
     ],
     "keyboard-shortcuts": [
         "Tastatur-Shortcuts",
+        "Pintasan keyboard",
         "Keyboard shortcuts",
         "Atajos del teclado",
         ,
@@ -1333,6 +1403,7 @@ const Translations = {
     ],
     "language": [
         "Sprache",
+        "Bahasa",
         "Language",
         "Idioma",
         "Langue",
@@ -1349,6 +1420,7 @@ const Translations = {
     ],
     "large": [
         "Groß",
+        "Besar",
         "Large",
         "Grande",
         "Grande",
@@ -1365,6 +1437,7 @@ const Translations = {
     ],
     "layout": [
         "Layout",
+        "Tata letak",
         "Layout",
         "Diseño",
         ,
@@ -1381,6 +1454,7 @@ const Translations = {
     ],
     "left-stick": [
         "Linker Stick",
+        "Stik kiri",
         "Left stick",
         "Joystick izquierdo",
         ,
@@ -1397,6 +1471,7 @@ const Translations = {
     ],
     "loading-screen": [
         "Ladebildschirm",
+        "Pemuatan layar",
         "Loading screen",
         "Pantalla de carga",
         "Écran de chargement",
@@ -1413,6 +1488,7 @@ const Translations = {
     ],
     "local-co-op": [
         "Lokales Koop",
+        "Lokal co-op",
         "Local co-op",
         "Co-op local",
         ,
@@ -1429,6 +1505,7 @@ const Translations = {
     ],
     "map-mouse-to": [
         "Maus binden an",
+        "Petakan mouse ke",
         "Map mouse to",
         "Mapear ratón a",
         ,
@@ -1445,6 +1522,7 @@ const Translations = {
     ],
     "may-not-work-properly": [
         "Funktioniert evtl. nicht fehlerfrei!",
+        "Mungkin tidak berfungsi dengan baik!",
         "May not work properly!",
         "¡Puede que no funcione correctamente!",
         ,
@@ -1461,6 +1539,7 @@ const Translations = {
     ],
     "menu-stream-settings": [
         "Stream Einstellungen",
+        "Pengaturan stream",
         "Stream settings",
         "Ajustes del stream",
         "Réglages Stream",
@@ -1477,6 +1556,7 @@ const Translations = {
     ],
     "menu-stream-stats": [
         "Stream Statistiken",
+        "Statistik stream",
         "Stream stats",
         "Estadísticas del stream",
         "Statistiques du stream",
@@ -1492,6 +1572,7 @@ const Translations = {
         "串流统计数据",
     ],
     "microphone": [
+        "Mikrofon",
         "Mikrofon",
         "Microphone",
         "Micrófono",
@@ -1509,6 +1590,7 @@ const Translations = {
     ],
     "mkb-adjust-ingame-settings": [
         "Vielleicht müssen auch Empfindlichkeit & Deadzone in den Spieleinstellungen angepasst werden",
+        "Anda mungkin butuh untuk menyesuaikan pengaturan sensitivitas & deadzone dalam permainan",
         "You may also need to adjust the in-game sensitivity & deadzone settings",
         "También puede que necesites ajustar la sensibilidad del juego y la configuración de la zona muerta",
         ,
@@ -1525,6 +1607,7 @@ const Translations = {
     ],
     "mkb-click-to-activate": [
         "Klicken zum Aktivieren",
+        "Klik untuk mengaktifkan",
         "Click to activate",
         "Haz clic para activar",
         ,
@@ -1541,6 +1624,7 @@ const Translations = {
     ],
     "mkb-disclaimer": [
         "Das Nutzen dieser Funktion beim Online-Spielen könnte als Betrug angesehen werden",
+        "Mengaktifkan fitur ini saat bermain online akan dianggap curang",
         "Using this feature when playing online could be viewed as cheating",
         "Usar esta función al jugar en línea podría ser visto como trampas",
         ,
@@ -1558,6 +1642,7 @@ const Translations = {
     "mouse-and-keyboard": [
         "Maus & Tastatur",
         "Mouse & Keyboard",
+        "Mouse & Keyboard",
         "Ratón y teclado",
         ,
         "Mouse e tastiera",
@@ -1573,6 +1658,7 @@ const Translations = {
     ],
     "muted": [
         "Stumm",
+        "Bisukan",
         "Muted",
         "Silenciado",
         ,
@@ -1589,6 +1675,7 @@ const Translations = {
     ],
     "name": [
         "Name",
+        "Nama",
         "Name",
         "Nombre",
         ,
@@ -1605,6 +1692,7 @@ const Translations = {
     ],
     "new": [
         "Neu",
+        "Baru",
         "New",
         "Nuevo",
         ,
@@ -1621,6 +1709,7 @@ const Translations = {
     ],
     "no-consoles-found": [
         "Keine Konsolen gefunden",
+        "Tidak ditemukan konsol",
         "No consoles found",
         "No se encontraron consolas",
         ,
@@ -1640,6 +1729,7 @@ const Translations = {
         "Normal",
         "Normal",
         "Normal",
+        "Normal",
         "Normale",
         "標準",
         "보통",
@@ -1653,6 +1743,7 @@ const Translations = {
     ],
     "off": [
         "Aus",
+        "Mati",
         "Off",
         "Apagado",
         "Désactivé",
@@ -1669,6 +1760,7 @@ const Translations = {
     ],
     "on": [
         "An",
+        "Hidup",
         "On",
         "Activado",
         ,
@@ -1685,6 +1777,7 @@ const Translations = {
     ],
     "only-supports-some-games": [
         "Unterstützt nur einige Spiele",
+        "Hanya mendukung beberapa permainan",
         "Only supports some games",
         "Sólo soporta algunos juegos",
         ,
@@ -1701,6 +1794,7 @@ const Translations = {
     ],
     "opacity": [
         "Deckkraft",
+        "Opasitas",
         "Opacity",
         "Opacidad",
         "Opacité",
@@ -1717,6 +1811,7 @@ const Translations = {
     ],
     "other": [
         "Sonstiges",
+        "Lainnya",
         "Other",
         "Otro",
         "Autres",
@@ -1733,6 +1828,7 @@ const Translations = {
     ],
     "playing": [
         "Spielt",
+        "Sedang memainkan",
         "Playing",
         "Jugando",
         ,
@@ -1749,6 +1845,7 @@ const Translations = {
     ],
     "position": [
         "Position",
+        "Posisi",
         "Position",
         "Posición",
         "Position",
@@ -1765,6 +1862,7 @@ const Translations = {
     ],
     "powered-off": [
         "Ausgeschaltet",
+        "Dimatikan",
         "Powered off",
         "Desactivado",
         ,
@@ -1781,6 +1879,7 @@ const Translations = {
     ],
     "powered-on": [
         "Eingeschaltet",
+        "Menyala",
         "Powered on",
         "Activado",
         ,
@@ -1797,6 +1896,7 @@ const Translations = {
     ],
     "prefer-ipv6-server": [
         "IPv6-Server bevorzugen",
+        "Utamakan Server IPv6",
         "Prefer IPv6 server",
         "Servidor IPv6 preferido",
         "Préférer le serveur IPv6",
@@ -1813,6 +1913,7 @@ const Translations = {
     ],
     "preferred-game-language": [
         "Bevorzugte Spielsprache",
+        "Bahasa Permainan yang diutamakan",
         "Preferred game's language",
         "Idioma preferencial del juego",
         "Langue préférée du jeu",
@@ -1830,6 +1931,7 @@ const Translations = {
     "preset": [
         "Voreinstellung",
         "Preset",
+        "Preset",
         "Preajuste",
         ,
         ,
@@ -1845,6 +1947,7 @@ const Translations = {
     ],
     "press-esc-to-cancel": [
         "Zum Abbrechen \"Esc\" drücken",
+        "Tekan Esc untuk batal",
         "Press Esc to cancel",
         "Presione Esc para cancelar",
         ,
@@ -1861,6 +1964,7 @@ const Translations = {
     ],
     "press-key-to-toggle-mkb": [
         e => `${e.key}: Maus- und Tastaturunterstützung an-/ausschalten`,
+        e => `Tekan ${e.key} untuk mengaktifkan fitur Mouse dan Keyboard`,
         e => `Press ${e.key} to toggle the Mouse and Keyboard feature`,
         e => `Pulsa ${e.key} para activar la función de ratón y teclado`,
         ,
@@ -1877,6 +1981,7 @@ const Translations = {
     ],
     "press-to-bind": [
         "Zum Festlegen Taste drücken oder mit der Maus klicken...",
+        "Tekan tombol atau gunakan mouse untuk mengaitkan...",
         "Press a key or do a mouse click to bind...",
         "Presione una tecla o haga un clic del ratón para enlazar...",
         ,
@@ -1893,6 +1998,7 @@ const Translations = {
     ],
     "prompt-preset-name": [
         "Voreinstellung Name:",
+        "Nama preset:",
         "Preset's name:",
         "Nombre del preajuste:",
         ,
@@ -1909,6 +2015,7 @@ const Translations = {
     ],
     "ratio": [
         "Seitenverhältnis",
+        "Rasio",
         "Ratio",
         "Relación de aspecto",
         "Ratio",
@@ -1925,6 +2032,7 @@ const Translations = {
     ],
     "reduce-animations": [
         "Animationen reduzieren",
+        "Kurangi animasi antarmuka",
         "Reduce UI animations",
         "Reduce las animaciones de la interfaz",
         "Réduire les animations dans l’interface",
@@ -1941,6 +2049,7 @@ const Translations = {
     ],
     "region": [
         "Region",
+        "Wilayah",
         "Region",
         "Región",
         "Région",
@@ -1958,6 +2067,7 @@ const Translations = {
     "remote-play": [
         "Remote Play",
         "Remote Play",
+        "Remote Play",
         "Reproducción remota",
         ,
         "Riproduzione Remota",
@@ -1973,6 +2083,7 @@ const Translations = {
     ],
     "rename": [
         "Umbenennen",
+        "Ubah nama",
         "Rename",
         "Renombrar",
         ,
@@ -1989,6 +2100,7 @@ const Translations = {
     ],
     "right-click-to-unbind": [
         "Rechtsklick auf Taste: Zuordnung aufheben",
+        "Klik kanan pada tombol untuk menghapus",
         "Right-click on a key to unbind it",
         "Clic derecho en una tecla para desvincularla",
         ,
@@ -2005,6 +2117,7 @@ const Translations = {
     ],
     "right-stick": [
         "Rechter Stick",
+        "Stik kanan",
         "Right stick",
         "Joystick derecho",
         ,
@@ -2021,6 +2134,7 @@ const Translations = {
     ],
     "rocket-always-hide": [
         "Immer ausblenden",
+        "Selalu sembunyikan",
         "Always hide",
         "Ocultar siempre",
         "Toujours masquer",
@@ -2037,6 +2151,7 @@ const Translations = {
     ],
     "rocket-always-show": [
         "Immer anzeigen",
+        "Selalu tampilkan",
         "Always show",
         "Mostrar siempre",
         "Toujours afficher",
@@ -2053,6 +2168,7 @@ const Translations = {
     ],
     "rocket-animation": [
         "Raketen Animation",
+        "Animasi roket",
         "Rocket animation",
         "Animación del cohete",
         "Animation de la fusée",
@@ -2069,6 +2185,7 @@ const Translations = {
     ],
     "rocket-hide-queue": [
         "Bei Warteschlange ausblenden",
+        "Sembunyikan ketika mengantri",
         "Hide when queuing",
         "Ocultar al hacer cola",
         "Masquer lors de la file d'attente",
@@ -2085,6 +2202,7 @@ const Translations = {
     ],
     "safari-failed-message": [
         "Ausführen von \"Better xCloud\" fehlgeschlagen. Versuche es erneut, bitte warten...",
+        "Gagal menjalankan Better xCloud. Mencoba ulang, Mohon tunggu...",
         "Failed to run Better xCloud. Retrying, please wait...",
         "No se pudo ejecutar Better xCloud. Reintentando, por favor espera...",
         "Impossible d'exécuter Better xCloud. Nouvelle tentative, veuillez patienter...",
@@ -2101,6 +2219,7 @@ const Translations = {
     ],
     "saturation": [
         "Sättigung",
+        "Saturasi",
         "Saturation",
         "Saturación",
         "Saturation",
@@ -2117,6 +2236,7 @@ const Translations = {
     ],
     "save": [
         "Speichern",
+        "Simpan",
         "Save",
         "Guardar",
         ,
@@ -2133,6 +2253,7 @@ const Translations = {
     ],
     "screenshot-button-position": [
         "Position des Screenshot-Buttons",
+        "Posisi tombol Screenshot",
         "Screenshot button's position",
         "Posición del botón de captura de pantalla",
         "Position du bouton de capture d'écran",
@@ -2149,6 +2270,7 @@ const Translations = {
     ],
     "separate-touch-controller": [
         "Trenne Touch-Controller & Controller #1",
+        "Pisahkan Kontrol sentuh & Kontroler #1",
         "Separate Touch controller & Controller #1",
         "Separar controlador táctil y controlador #1",
         ,
@@ -2165,6 +2287,7 @@ const Translations = {
     ],
     "separate-touch-controller-note": [
         "Touch-Controller ist Spieler 1, Controller #1 ist Spieler 2",
+        "Kontrol sentuh adalah Player 1, Kontroler #1 adalah Player 2",
         "Touch controller is Player 1, Controller #1 is Player 2",
         "El controlador táctil es Jugador 1, Controlador #1 es Jugador 2",
         ,
@@ -2182,6 +2305,7 @@ const Translations = {
     "server": [
         "Server",
         "Server",
+        "Server",
         "Servidor",
         "Serveur",
         "Server",
@@ -2197,6 +2321,7 @@ const Translations = {
     ],
     "settings-reload": [
         "Seite neu laden und Änderungen anwenden",
+        "Muat ulang untuk menerapkan",
         "Reload page to reflect changes",
         "Actualice la página para aplicar los cambios",
         "Recharger la page pour bénéficier des changements",
@@ -2213,6 +2338,7 @@ const Translations = {
     ],
     "settings-reloading": [
         "Wird neu geladen...",
+        "Memuat ulang...",
         "Reloading...",
         "Recargando...",
         "Actualisation...",
@@ -2229,6 +2355,7 @@ const Translations = {
     ],
     "shortcut-keys": [
         "Shortcut-Tasten",
+        "Tombol pintasan",
         "Shortcut keys",
         "Teclas de atajo",
         ,
@@ -2245,6 +2372,7 @@ const Translations = {
     ],
     "show-game-art": [
         "Poster des Spiels anzeigen",
+        "Tampilkan sampul permainan",
         "Show game art",
         "Mostrar imagen del juego",
         "Afficher la couverture du jeu",
@@ -2261,6 +2389,7 @@ const Translations = {
     ],
     "show-stats-on-startup": [
         "Statistiken beim Start des Spiels anzeigen",
+        "Tampilkan statistik ketika permainan dimulai",
         "Show stats when starting the game",
         "Mostrar estadísticas al iniciar el juego",
         "Afficher les statistiques au démarrage de la partie",
@@ -2277,6 +2406,7 @@ const Translations = {
     ],
     "show-wait-time": [
         "Geschätzte Wartezeit anzeigen",
+        "Tampilkan waktu antrian",
         "Show the estimated wait time",
         "Mostrar el tiempo de espera estimado",
         "Afficher le temps d'attente estimé",
@@ -2293,6 +2423,7 @@ const Translations = {
     ],
     "simplify-stream-menu": [
         "Stream-Menü vereinfachen",
+        "Sederhanakan menu Stream",
         "Simplify Stream's menu",
         "Simplificar el menú del stream",
         "Simplifier le menu Stream",
@@ -2309,6 +2440,7 @@ const Translations = {
     ],
     "skip-splash-video": [
         "Xbox-Logo bei Spielstart überspringen",
+        "Lewati video splash Xbox",
         "Skip Xbox splash video",
         "Saltar vídeo de presentación de Xbox",
         "Ignorer la vidéo de démarrage Xbox",
@@ -2325,6 +2457,7 @@ const Translations = {
     ],
     "slow": [
         "Langsam",
+        "Lambat",
         "Slow",
         "Lento",
         ,
@@ -2341,6 +2474,7 @@ const Translations = {
     ],
     "small": [
         "Klein",
+        "Kecil",
         "Small",
         "Pequeño",
         "Petite",
@@ -2359,6 +2493,7 @@ const Translations = {
         "Smart TV",
         "Smart TV",
         "Smart TV",
+        "Smart TV",
         ,
         "Smart TV",
         "スマートTV",
@@ -2373,6 +2508,7 @@ const Translations = {
     ],
     "sound": [
         "Ton",
+        "Suara",
         "Sound",
         "Sonido",
         ,
@@ -2389,6 +2525,7 @@ const Translations = {
     ],
     "standby": [
         "Standby",
+        "Siaga",
         "Standby",
         "Modo de espera",
         ,
@@ -2406,6 +2543,7 @@ const Translations = {
     "stat-bitrate": [
         "Bitrate",
         "Bitrate",
+        "Bitrate",
         "Tasa de bits",
         "Bitrate",
         "Bitrate",
@@ -2421,6 +2559,7 @@ const Translations = {
     ],
     "stat-decode-time": [
         "Dekodierzeit",
+        "Waktu dekode",
         "Decode time",
         "Tiempo de decodificación",
         "Décodage",
@@ -2445,6 +2584,7 @@ const Translations = {
         "FPS",
         "FPS",
         "FPS",
+        "FPS",
         "Кадр/сек",
         "FPS",
         "Кадрів на секунду",
@@ -2453,6 +2593,7 @@ const Translations = {
     ],
     "stat-frames-lost": [
         "Verlorene Frames",
+        "Bingkai terbuang",
         "Frames lost",
         "Pérdida de fotogramas",
         "Images perdues",
@@ -2469,6 +2610,7 @@ const Translations = {
     ],
     "stat-packets-lost": [
         "Paketverluste",
+        "Paket hilang",
         "Packets lost",
         "Pérdida de paquetes",
         "Perte paquets",
@@ -2486,6 +2628,7 @@ const Translations = {
     "stat-ping": [
         "Ping",
         "Ping",
+        "Ping",
         "Latencia",
         "Ping",
         "Ping",
@@ -2501,6 +2644,7 @@ const Translations = {
     ],
     "stats": [
         "Statistiken",
+        "Statistik",
         "Stats",
         "Estadísticas",
         "Stats",
@@ -2517,6 +2661,7 @@ const Translations = {
     ],
     "stick-decay-minimum": [
         "Stick Abklingzeit Minimum",
+        "Minimum pelepasan stik",
         "Stick decay minimum",
         "Disminuir mínimamente el analógico",
         ,
@@ -2533,6 +2678,7 @@ const Translations = {
     ],
     "stick-decay-strength": [
         "Stick Abklingzeit Geschwindigkeit",
+        "Kekuatan pelepasan stik",
         "Stick decay strength",
         "Intensidad de decaimiento del analógico",
         ,
@@ -2553,6 +2699,7 @@ const Translations = {
         "Stream",
         "Stream",
         "Stream",
+        "Stream",
         "ストリーミング",
         "스트리밍",
         "Stream",
@@ -2565,6 +2712,7 @@ const Translations = {
     ],
     "stretch": [
         "Strecken",
+        "Rentangkan",
         "Stretch",
         "Estirado",
         "Étirer",
@@ -2581,6 +2729,7 @@ const Translations = {
     ],
     "support-better-xcloud": [
         "\"Better xCloud\" unterstützen",
+        "Dukung Better xCloud",
         "Support Better xCloud",
         "Apoyar a Better xCloud",
         ,
@@ -2597,6 +2746,7 @@ const Translations = {
     ],
     "swap-buttons": [
         "Tasten tauschen",
+        "Tukar tombol",
         "Swap buttons",
         "Intercambiar botones",
         ,
@@ -2613,6 +2763,7 @@ const Translations = {
     ],
     "target-resolution": [
         "Festgelegte Auflösung",
+        "Resolusi",
         "Target resolution",
         "Calidad de imagen",
         "Résolution cible",
@@ -2629,6 +2780,7 @@ const Translations = {
     ],
     "tc-all-games": [
         "Alle Spiele",
+        "Semua permainan",
         "All games",
         "Todos los juegos",
         "Tous les jeux",
@@ -2645,6 +2797,7 @@ const Translations = {
     ],
     "tc-all-white": [
         "Komplett weiß",
+        "Putih",
         "All white",
         "Todo blanco",
         "Tout blanc",
@@ -2661,6 +2814,7 @@ const Translations = {
     ],
     "tc-auto-off": [
         "Aus, wenn Controller gefunden",
+        "Mati saat kontroler terhubung",
         "Off when controller found",
         "Desactivar cuando se encuentra el controlador",
         ,
@@ -2677,6 +2831,7 @@ const Translations = {
     ],
     "tc-availability": [
         "Verfügbarkeit",
+        "Ketersediaan",
         "Availability",
         "Disponibilidad",
         "Disponibilité",
@@ -2693,6 +2848,7 @@ const Translations = {
     ],
     "tc-custom-layout-style": [
         "Angepasstes Layout Button Stil",
+        "Gaya tata letak tombol kustom",
         "Custom layout's button style",
         "Estilo de botones de diseño personalizado",
         "Style personnalisé des boutons",
@@ -2709,6 +2865,7 @@ const Translations = {
     ],
     "tc-muted-colors": [
         "Matte Farben",
+        "Warna redup",
         "Muted colors",
         "Colores apagados",
         "Couleurs adoucies",
@@ -2725,6 +2882,7 @@ const Translations = {
     ],
     "tc-standard-layout-style": [
         "Standard Layout Button Stil",
+        "Gaya tata letak tombol standar",
         "Standard layout's button style",
         "Estilo de botones de diseño estándar",
         "Style standard des boutons",
@@ -2741,6 +2899,7 @@ const Translations = {
     ],
     "text-size": [
         "Textgröße",
+        "Ukuran teks",
         "Text size",
         "Tamano del texto",
         "Taille du texte",
@@ -2757,6 +2916,7 @@ const Translations = {
     ],
     "top-center": [
         "Oben zentriert",
+        "Tengah atas",
         "Top-center",
         "Superior centrado",
         "En haut au centre",
@@ -2773,6 +2933,7 @@ const Translations = {
     ],
     "top-left": [
         "Oben links",
+        "Kiri atas",
         "Top-left",
         "Superior izquierdo",
         "Haut-gauche",
@@ -2789,6 +2950,7 @@ const Translations = {
     ],
     "top-right": [
         "Oben rechts",
+        "Kanan atas",
         "Top-right",
         "Superior derecho",
         "En haut à droite",
@@ -2805,6 +2967,7 @@ const Translations = {
     ],
     "touch-control-layout": [
         "Touch-Steuerungslayout",
+        "Tata letak kontrol sentuhan",
         "Touch control layout",
         "Diseño de control táctil",
         ,
@@ -2821,6 +2984,7 @@ const Translations = {
     ],
     "touch-controller": [
         "Touch-Controller",
+        "Kontrol sentuhan",
         "Touch controller",
         "Controles táctiles",
         "Commandes tactiles",
@@ -2837,6 +3001,7 @@ const Translations = {
     ],
     "transparent-background": [
         "Transparenter Hintergrund",
+        "Latar belakang transparan",
         "Transparent background",
         "Fondo transparente",
         "Fond transparent",
@@ -2853,6 +3018,7 @@ const Translations = {
     ],
     "ui": [
         "Benutzeroberfläche",
+        "Antarmuka pengguna",
         "UI",
         "Interfaz de usuario",
         "Interface utilisateur",
@@ -2869,6 +3035,7 @@ const Translations = {
     ],
     "unknown": [
         "Unbekannt",
+        "Tidak diketahui",
         "Unknown",
         "Desconocido",
         ,
@@ -2885,6 +3052,7 @@ const Translations = {
     ],
     "unlimited": [
         "Unbegrenzt",
+        "Tak terbatas",
         "Unlimited",
         "Ilimitado",
         ,
@@ -2901,6 +3069,7 @@ const Translations = {
     ],
     "unmuted": [
         "Ton an",
+        "Bunyikan",
         "Unmuted",
         "Activar sonido",
         ,
@@ -2917,6 +3086,7 @@ const Translations = {
     ],
     "use-mouse-absolute-position": [
         "Absolute Position der Maus verwenden",
+        "Gunakan posisi mouse mutlak",
         "Use mouse's absolute position",
         "Usar la posición absoluta del ratón",
         ,
@@ -2933,6 +3103,7 @@ const Translations = {
     ],
     "user-agent-profile": [
         "User-Agent Profil",
+        "Profil User-Agent",
         "User-Agent profile",
         "Perfil del agente de usuario",
         "Profil de l'agent utilisateur",
@@ -2949,6 +3120,7 @@ const Translations = {
     ],
     "vertical-sensitivity": [
         "Vertikale Empfindlichkeit",
+        "Sensitivitas vertikal",
         "Vertical sensitivity",
         "Sensibilidad Vertical",
         ,
@@ -2965,6 +3137,7 @@ const Translations = {
     ],
     "vibration-intensity": [
         "Vibrationsstärke",
+        "Intensitas getaran",
         "Vibration intensity",
         "Intensidad de la vibración",
         ,
@@ -2983,6 +3156,7 @@ const Translations = {
         "Video",
         "Video",
         "Video",
+        "Video",
         "Vidéo",
         "Video",
         "映像",
@@ -2997,6 +3171,7 @@ const Translations = {
     ],
     "visual-quality": [
         "Bildqualität",
+        "Kualitas visual",
         "Visual quality",
         "Calidad visual",
         "Qualité visuelle",
@@ -3013,6 +3188,7 @@ const Translations = {
     ],
     "visual-quality-high": [
         "Hoch",
+        "Tinggi",
         "High",
         "Alto",
         "Élevée",
@@ -3029,6 +3205,7 @@ const Translations = {
     ],
     "visual-quality-low": [
         "Niedrig",
+        "Rendah",
         "Low",
         "Bajo",
         "Basse",
@@ -3048,6 +3225,7 @@ const Translations = {
         "Normal",
         "Normal",
         "Normal",
+        "Normal",
         "Normale",
         "中",
         "보통",
@@ -3061,6 +3239,7 @@ const Translations = {
     ],
     "volume": [
         "Lautstärke",
+        "Volume",
         "Volume",
         "Volumen",
         "Volume",
@@ -3077,6 +3256,7 @@ const Translations = {
     ],
     "wait-time-countdown": [
         "Countdown",
+        "Hitung mundur",
         "Countdown",
         "Cuenta Regresiva",
         "Compte à rebours",
@@ -3093,6 +3273,7 @@ const Translations = {
     ],
     "wait-time-estimated": [
         "Geschätzte Endzeit",
+        "Perkiraan waktu",
         "Estimated finish time",
         "Tiempo estimado de finalización",
         "Temps estimé avant la fin",
@@ -6859,6 +7040,7 @@ class Preferences {
         [Preferences.BETTER_XCLOUD_LOCALE]: {
             'default': localStorage.getItem('better_xcloud_locale') || 'en-US',
             'options': {
+                'en-ID': 'Bahasa Indonesia',
                 'de-DE': 'Deutsch',
                 'en-US': 'English (United States)',
                 'es-ES': 'español (España)',
