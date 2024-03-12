@@ -7765,12 +7765,12 @@ class Patcher {
         },
 
         enableXcloudLogger: function(funcStr) {
-            const text = '}log(e,t,n){';
+            const text = 'this.telemetryProvider=e}log(e,t,r){';
             if (!funcStr.includes(text)) {
                 return false;
             }
 
-            funcStr = funcStr.replaceAll(text, text + 'console.log(arguments);');
+            funcStr = funcStr.replaceAll(text, text + 'console.log(Array.from(arguments));');
             return funcStr;
         },
 
