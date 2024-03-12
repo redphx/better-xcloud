@@ -1,0 +1,7 @@
+{
+	"name": "Roboquest",
+	"default_layout": "custom",
+	"layouts": [
+		"roboquest"
+	]
+}
