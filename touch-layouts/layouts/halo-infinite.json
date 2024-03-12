@@ -7,13 +7,16 @@
         "layers": {
           "AimTouchpad": {
             "right": {
-              "inner": [{
+              "inner": [
+                {
                   "type": "touchpad",
-                  "axis": [{
+                  "axis": [
+                    {
                       "input": "axisX",
                       "output": "rightJoystickX",
                       "sensitivity": 3
-                    }, {
+                    },
+                    {
                       "input": "axisY",
                       "output": "rightJoystickY",
                       "sensitivity": 3
@@ -30,19 +33,28 @@
                 }
               ]
             },
-            "sensors": [{
+            "sensors": [
+              {
                 "type": "gyroscope",
-                "axis": {
-                  "input": "axisXY",
-                  "output": "rightJoystick",
-                  "sensitivity": 2
-                }
+                "axis": [
+                  {
+                    "input": "axisX",
+                    "output": "rightJoystickX",
+                    "sensitivity": 1
+                  },
+                  {
+                    "input": "axisY",
+                    "output": "rightJoystickY",
+                    "sensitivity": 0.5
+                  }
+                ]
               }
             ]
           }
         },
         "left": {
-          "inner": [{
+          "inner": [
+            {
               "type": "joystick",
               "axis": {
                 "input": "axisXY",
@@ -68,7 +80,8 @@
           "outer": [
             null,
             null,
-            [{
+            [
+              {
                 "type": "directionalPad",
                 "interaction": {
                   "activationType": "exclusive"
@@ -77,7 +90,8 @@
               }
             ],
             null,
-            null, {
+            null,
+            {
               "type": "joystick",
               "axis": {
                 "input": "axisXY",
@@ -88,7 +102,8 @@
                 }
               },
               "action": [
-                "leftTrigger", {
+                "leftTrigger",
+                {
                   "type": "layer",
                   "target": "AimTouchpad"
                 }
@@ -110,7 +125,8 @@
           ]
         },
         "right": {
-          "inner": [{
+          "inner": [
+            {
               "type": "joystick",
               "axis": {
                 "input": "axisXY",
@@ -132,13 +148,16 @@
               }
             }
           ],
-          "outer": [{
+          "outer": [
+            {
               "type": "button",
               "action": "rightBumper"
-            }, {
+            },
+            {
               "type": "button",
               "action": [
-                "leftTrigger", {
+                "leftTrigger",
+                {
                   "type": "layer",
                   "target": "AimTouchpad"
                 }
@@ -153,13 +172,16 @@
               },
               "toggle": true
             },
-            [{
+            [
+              {
                 "type": "button",
                 "action": "gamepadB"
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "rightThumb"
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "gamepadA",
                 "styles": {
@@ -172,13 +194,16 @@
                 }
               }
             ],
-            [{
+            [
+              {
                 "type": "touchpad",
-                "axis": [{
+                "axis": [
+                  {
                     "input": "axisX",
                     "output": "rightJoystickX",
                     "sensitivity": 3
-                  }, {
+                  },
+                  {
                     "input": "axisY",
                     "output": "rightJoystickY",
                     "sensitivity": 3
@@ -194,7 +219,8 @@
                     }
                   }
                 }
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "leftThumb",
                 "styles": {
@@ -205,11 +231,13 @@
                     }
                   }
                 }
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "leftBumper"
               }
-            ], {
+            ],
+            {
               "type": "button",
               "action": "gamepadX",
               "styles": {
@@ -220,7 +248,8 @@
                   }
                 }
               }
-            }, {
+            },
+            {
               "type": "button",
               "action": "gamepadY",
               "styles": {
@@ -235,10 +264,12 @@
           ]
         },
         "upper": {
-          "right": [{
+          "right": [
+            {
               "type": "button",
               "action": "menu"
-            }, {
+            },
+            {
               "type": "button",
               "action": "view"
             }
@@ -251,19 +282,28 @@
       "content": {
         "layers": {
           "AimTouchpad": {
-            "sensors": [{
+            "sensors": [
+              {
                 "type": "gyroscope",
-                "axis": {
-                  "input": "axisXY",
-                  "output": "relativeMouse",
-                  "sensitivity": 10
-                }
+                "axis": [
+                  {
+                    "input": "axisX",
+                    "output": "relativeMouseX",
+                    "sensitivity": 10
+                  },
+                  {
+                    "input": "axisY",
+                    "output": "relativeMouse",
+                    "sensitivity": 5
+                  }
+                ]
               }
             ]
           }
         },
         "left": {
-          "inner": [{
+          "inner": [
+            {
               "type": "joystick",
               "axis": {
                 "input": "axisXY",
@@ -289,7 +329,8 @@
           "outer": [
             null,
             null,
-            [{
+            [
+              {
                 "type": "directionalPad",
                 "interaction": {
                   "activationType": "exclusive"
@@ -298,7 +339,8 @@
               }
             ],
             null,
-            null, {
+            null,
+            {
               "type": "joystick",
               "axis": {
                 "input": "axisXY",
@@ -309,7 +351,8 @@
                 }
               },
               "action": [
-                "leftTrigger", {
+                "leftTrigger",
+                {
                   "type": "layer",
                   "target": "AimTouchpad"
                 }
@@ -331,13 +374,16 @@
           ]
         },
         "right": {
-          "inner": [{
+          "inner": [
+            {
               "type": "touchpad",
-              "axis": [{
+              "axis": [
+                {
                   "input": "axisX",
                   "output": "relativeMouseX",
                   "sensitivity": 10
-                }, {
+                },
+                {
                   "input": "axisY",
                   "output": "relativeMouseY",
                   "sensitivity": 10
@@ -353,13 +399,16 @@
               }
             }
           ],
-          "outer": [{
+          "outer": [
+            {
               "type": "button",
               "action": "rightBumper"
-            }, {
+            },
+            {
               "type": "button",
               "action": [
-                "leftTrigger", {
+                "leftTrigger",
+                {
                   "type": "layer",
                   "target": "AimTouchpad"
                 }
@@ -374,13 +423,16 @@
               },
               "toggle": true
             },
-            [{
+            [
+              {
                 "type": "button",
                 "action": "gamepadB"
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "rightThumb"
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "gamepadA",
                 "styles": {
@@ -393,13 +445,16 @@
                 }
               }
             ],
-            [{
+            [
+              {
                 "type": "touchpad",
-                "axis": [{
+                "axis": [
+                  {
                     "input": "axisX",
                     "output": "relativeMouseX",
                     "sensitivity": 10
-                  }, {
+                  },
+                  {
                     "input": "axisY",
                     "output": "relativeMouseY",
                     "sensitivity": 10
@@ -407,7 +462,8 @@
                 ],
                 "renderAsButton": true,
                 "action": [
-                  "rightTrigger", {
+                  "rightTrigger",
+                  {
                     "type": "layer",
                     "target": "AimTouchpad"
                   }
@@ -420,7 +476,8 @@
                     }
                   }
                 }
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "leftThumb",
                 "styles": {
@@ -431,11 +488,13 @@
                     }
                   }
                 }
-              }, {
+              },
+              {
                 "type": "button",
                 "action": "leftBumper"
               }
-            ], {
+            ],
+            {
               "type": "button",
               "action": "gamepadX",
               "styles": {
@@ -446,7 +505,8 @@
                   }
                 }
               }
-            }, {
+            },
+            {
               "type": "button",
               "action": "gamepadY",
               "styles": {
@@ -461,10 +521,12 @@
           ]
         },
         "upper": {
-          "right": [{
+          "right": [
+            {
               "type": "button",
               "action": "menu"
-            }, {
+            },
+            {
               "type": "button",
               "action": "view"
             }
