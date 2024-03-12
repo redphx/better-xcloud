@@ -7685,6 +7685,16 @@ class Patcher {
             return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
         },
 
+        // Disable IndexDB logging
+        disableIndexDbLogging(funcStr) {
+            const text = 'async addLog(e,t=1e4){';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, text + 'return;');
+        },
+
         // Set TV layout
         tvLayout: function(funcStr) {
             const text = '?"tv":"default"';
@@ -8011,6 +8021,7 @@ if (gamepadFound) {
 
         getPref(Preferences.BLOCK_TRACKING) && [
             'blockWebRtcStatsCollector',
+            'disableIndexDbLogging',
             'disableTrackEvent',
         ],
 
