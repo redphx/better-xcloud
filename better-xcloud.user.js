@@ -11597,7 +11597,7 @@ function showGamepadToast(gamepad) {
     }
 
     // Remove "(STANDARD GAMEPAD Vendor: xxx Product: xxx)" from ID
-    const gamepadId = gamepad.id.replace(/ \(.* Vendor: \w+ Product: \w+\)$/, '');
+    const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, '');
     text += ` - ${gamepadId}`;
     const status = gamepad.connected ? t('connected') : t('disconnected');
 
