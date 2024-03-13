@@ -6173,6 +6173,11 @@ class VibrationManager {
     static #playDeviceVibration(data) {
         // console.log(+new Date, data);
 
+        if ('AndroidInterface' in window) {
+            AndroidInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
+            return;
+        }
+
         const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY;
         if (intensity === 0 || intensity === 100) {
             // Stop vibration
@@ -10544,6 +10549,7 @@ div[data-testid="media-container"] {
 #game-stream video {
     margin: 0 auto;
     align-self: center;
+    background: #000;
     ${videoCss}
 }
 `;
