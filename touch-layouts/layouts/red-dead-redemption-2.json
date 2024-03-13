@@ -1,109 +1,109 @@
 {
-  "schema_version":1,
-  "layouts":{
-    "custom":{
-      "name":"Custom",
-      "content":{
-        "layers":{
-          "AimTouchpad":{
-            "right":{
-              "inner":[
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "content": {
+        "layers": {
+          "AimTouchpad": {
+            "right": {
+              "inner": [
                 {
-                  "type":"touchpad",
-                  "axis":[
+                  "type": "touchpad",
+                  "axis": [
                     {
-                      "input":"axisX",
-                      "output":"rightJoystickX"
+                      "input": "axisX",
+                      "output": "rightJoystickX"
                     },
                     {
-                      "input":"axisY",
-                      "output":"rightJoystickY"
+                      "input": "axisY",
+                      "output": "rightJoystickY"
                     }
                   ],
-                  "styles":{
-                    "default":{
-                      "faceImage":{
-                        "type":"icon",
-                        "value":"aim"
+                  "styles": {
+                    "default": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "aim"
                       }
                     }
                   }
                 }
               ]
             },
-            "sensors":[
+            "sensors": [
               {
-                "type":"gyroscope",
-                "axis":{
-                  "input":"axisXY",
-                  "output":"rightJoystick",
-                  "sensitivity":1.5
+                "type": "gyroscope",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick",
+                  "sensitivity": 1.5
                 }
               }
             ]
           }
         },
-        "left":{
-          "inner":[
+        "left": {
+          "inner": [
             {
-              "type":"joystick",
-              "axis":{
-                "input":"axisXY",
-                "output":"leftJoystick",
-                "deadzone":{
-                  "threshold":0.01,
-                  "radial":true
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick",
+                "deadzone": {
+                  "threshold": 0.01,
+                  "radial": true
                 }
               }
             }
           ],
-          "outer":[
+          "outer": [
             null,
             {
-              "type":"button",
-              "action":"leftThumb"
+              "type": "button",
+              "action": "leftThumb"
             },
             [
               {
-                "type":"directionalPad",
-                "interaction":{
-                  "activationType":"exclusive"
+                "type": "directionalPad",
+                "interaction": {
+                  "activationType": "exclusive"
                 },
-                "scale":1.2
+                "scale": 1.2
               },
               null
             ],
             {
-              "type":"button",
-              "action":"leftBumper"
+              "type": "button",
+              "action": "leftBumper"
             },
             null,
             {
-              "type":"joystick",
-              "axis":{
-                "input":"axisXY",
-                "output":"leftJoystick",
-                "deadzone":{
-                  "threshold":0.2,
-                  "radial":true
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick",
+                "deadzone": {
+                  "threshold": 0.2,
+                  "radial": true
                 }
               },
-              "action":[
+              "action": [
                 "leftTrigger",
                 {
-                  "type":"layer",
-                  "target":"AimTouchpad"
+                  "type": "layer",
+                  "target": "AimTouchpad"
                 }
               ],
-              "styles":{
-                "default":{
-                  "knob":{
-                    "faceImage":{
-                      "type":"icon",
-                      "value":"leftTrigger"
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "leftTrigger"
                     },
-                    "stroke":{
-                      "opacity":0.1
+                    "stroke": {
+                      "opacity": 0.1
                     }
                   }
                 }
@@ -112,141 +112,141 @@
             null
           ]
         },
-        "right":{
-          "inner":[
+        "right": {
+          "inner": [
             {
-              "type":"joystick",
-              "axis":{
-                "input":"axisXY",
-                "output":"rightJoystick",
-                "deadzone":{
-                  "threshold":0.01,
-                  "radial":true
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick",
+                "deadzone": {
+                  "threshold": 0.01,
+                  "radial": true
                 }
               },
-              "styles":{
-                "default":{
-                  "knob":{
-                    "faceImage":{
-                      "type":"icon",
-                      "value":"look"
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "look"
                     }
                   }
                 }
               }
             }
           ],
-          "outer":[
+          "outer": [
             [
               {
-                "type":"button",
-                "action":"rightThumb"
+                "type": "button",
+                "action": "rightThumb"
               },
               null
             ],
             {
-              "type":"button",
-              "action":"gamepadB",
-              "styles":{
-                "default":{
-                  "faceImage":{
-                    "type":"icon",
-                    "value":"heavyPunch"
+              "type": "button",
+              "action": "gamepadB",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "heavyPunch"
                   }
                 }
               }
             },
             {
-              "type":"button",
-              "action":"gamepadA",
-              "styles":{
-                "default":{
-                  "faceImage":{
-                    "type":"icon",
-                    "value":"sprint"
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "sprint"
                   }
                 }
               }
             },
             {
-              "type":"button",
-              "action":"gamepadX",
-              "styles":{
-                "default":{
-                  "faceImage":{
-                    "type":"icon",
-                    "value":"jump"
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "jump"
                   }
                 }
               }
             },
             {
-              "type":"button",
-              "action":"gamepadY",
-              "styles":{
-                "default":{
-                  "faceImage":{
-                    "type":"icon",
-                    "value":"interact"
+              "type": "button",
+              "action": "gamepadY",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "interact"
                   }
                 }
               }
             },
             {
-              "type":"touchpad",
-              "axis":[
+              "type": "touchpad",
+              "axis": [
                 {
-                  "input":"axisX",
-                  "output":"rightJoystickX",
-                  "sensitivity":3
+                  "input": "axisX",
+                  "output": "rightJoystickX",
+                  "sensitivity": 3
                 },
                 {
-                  "input":"axisY",
-                  "output":"rightJoystickY",
-                  "sensitivity":3
+                  "input": "axisY",
+                  "output": "rightJoystickY",
+                  "sensitivity": 3
                 }
               ],
-              "renderAsButton":true,
-              "action":"rightTrigger",
-              "styles":{
-                "default":{
-                  "knob":{
-                    "faceImage":{
-                      "type":"icon",
-                      "value":"rightTrigger"
+              "renderAsButton": true,
+              "action": "rightTrigger",
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "rightTrigger"
                     },
-                    "stroke":{
-                      "opacity":0.1
+                    "stroke": {
+                      "opacity": 0.1
                     }
                   }
                 }
               }
             },
             {
-              "type":"touchpad",
-              "axis":[
+              "type": "touchpad",
+              "axis": [
                 {
-                  "input":"axisX",
-                  "output":"rightJoystickX",
-                  "sensitivity":3
+                  "input": "axisX",
+                  "output": "rightJoystickX",
+                  "sensitivity": 3
                 },
                 {
-                  "input":"axisY",
-                  "output":"rightJoystickY",
-                  "sensitivity":3
+                  "input": "axisY",
+                  "output": "rightJoystickY",
+                  "sensitivity": 3
                 }
               ],
-              "renderAsButton":true,
-              "action":"rightBumper",
-              "styles":{
-                "default":{
-                  "knob":{
-                    "faceImage":{
-                      "type":"icon",
-                      "value":"rightBumper"
+              "renderAsButton": true,
+              "action": "rightBumper",
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "rightBumper"
                     },
-                    "stroke":{
-                      "opacity":0.1
+                    "stroke": {
+                      "opacity": 0.1
                     }
                   }
                 }
@@ -254,15 +254,15 @@
             }
           ]
         },
-        "upper":{
-          "right":[
+        "upper": {
+          "right": [
             {
-              "type":"button",
-              "action":"menu"
+              "type": "button",
+              "action": "menu"
             },
             {
-              "type":"button",
-              "action":"view"
+              "type": "button",
+              "action": "view"
             }
           ]
         }
