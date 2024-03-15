@@ -10179,7 +10179,7 @@ function injectSettingsButton($parent) {
         onClick: e => {
             const $settings = document.querySelector('.bx-settings-container');
             $settings.classList.toggle('bx-gone');
-            $settings.scrollIntoView();
+            window.scrollTo(0, 0);
             document.activeElement && document.activeElement.blur();
         },
     });
