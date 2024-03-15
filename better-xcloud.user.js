@@ -6173,8 +6173,8 @@ class VibrationManager {
     static #playDeviceVibration(data) {
         // console.log(+new Date, data);
 
-        if ('AndroidInterface' in window) {
-            AndroidInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
+        if ('AppInterface' in window) {
+            AppInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
             return;
         }
 
