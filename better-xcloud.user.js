@@ -89,6 +89,7 @@ const BxEvent = {
             }
         }
 
+        window.AppInterface && window.AppInterface.onEvent(eventName);
         target.dispatchEvent(event);
     },
 };
