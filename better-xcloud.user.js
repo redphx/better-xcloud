@@ -1142,10 +1142,10 @@ const Translations = {
         "Emuluj kontroler za pomocą myszy i klawiatury",
         "Emular controlador com mouse e teclado",
         "Эмулировать контроллер с помощью мыши и клавиатуры",
-        "Klavye ve fare desteğini aktive et",
+        "Klavye ve fareyle oyun kumandasını taklit et",
         "Емуляція контролера за допомогою миші та клавіатури",
         "Giả lập tay cầm bằng Chuột và Bàn phím",
-        "启用鼠标和键盘支持",
+        "使用键鼠模拟手柄输入",
     ],
     "enable-quick-glance-mode": [
         "\"Kurzer Blick\"-Modus aktivieren",
@@ -1384,6 +1384,23 @@ const Translations = {
         "Імпорт",
         "Nhập",
         "导入",
+    ],
+    "install-android": [
+        "\"Better xCloud\" App für Android installieren",
+        ,
+        "Install Better xCloud app for Android",
+        ,
+        ,
+        ,
+        "Android用のBetter xCloudをインストール",
+        ,
+        ,
+        "Instalar o aplicativo Better xCloud para Android",
+        "Установите приложение Better xCloud для Android",
+        ,
+        "Встановити додаток Better xCloud для Android",
+        "Cài đặt ứng dụng Better xCloud cho Android",
+        "安装Better xCloud安卓客户端",
     ],
     "keyboard-shortcuts": [
         "Tastatur-Shortcuts",
@@ -8410,6 +8427,10 @@ a.bx-button {
     white-space: nowrap;
 }
 
+a.bx-button.bx-full-width {
+    text-align: center;
+}
+
 .bx-remote-play-button {
     height: auto;
     margin-right: 8px !important;
@@ -10227,6 +10248,20 @@ function injectSettingsButton($parent) {
     if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
         $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
         $updateAvailable.classList.remove('bx-gone');
+    }
+
+    // Show link to Android app
+    if (!window.AppInterface) {
+        const userAgent = UserAgent.getDefault().toLowerCase();
+        if (userAgent.includes('android')) {
+            const $btn = createButton({
+                label: '🔥 ' + t('install-android'),
+                style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+                url: 'https://better-xcloud.github.io/android',
+            });
+
+            $wrapper.appendChild($btn);
+        }
     }
 
     // Render settings
