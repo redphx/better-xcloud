@@ -1,0 +1,172 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "LAYOUT_ID": {
+      "name": "Layout Name",
+      "content": {
+  "left": {
+    "inner": [
+      {
+    "type": "joystick",
+    "action": "leftTrigger",
+    "actionThreshold":0.75,
+    "axis": {
+        "input": "axisXY",
+        "output": "leftJoystick",
+        "deadzone": {
+            "threshold": 0.05,
+            "radial": true
+        }
+    },
+    "styles": {
+        "default": {
+            "knob": {
+                "faceImage": {
+                    "type": "icon",
+                    "value": "walk"
+                },
+              "background" : {
+                    "type": "color",
+                    "value": "#c60a0a"
+            }
+        },
+        "activated": {
+            "knob": {
+                "faceImage": {
+                    "type": "icon",
+                    "value": "sprint"
+                },
+                "background" : {
+                    "type": "color",
+                    "value": "#c60a0a"
+                }
+            }
+        }
+    }
+}}
+    ],
+    "outer": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "type": "button",
+        "action": "leftBumper"
+      }
+    ]
+  },
+  "right": {
+    "inner": [
+      {
+        "type": "touchpad",
+        "axis": {
+          "input": "axisXY",
+          "output": "rightJoystick",
+          "sensitivity": 2.5
+        },
+        "styles": {
+          "default": {
+            "faceImage": {
+              "type": "icon",
+              "value": "aim"
+            }
+          }
+        }
+      }
+    ],
+    "outer": [
+      {
+        "type": "button",
+        "action": "rightBumper"
+      },
+      null,
+      {
+        "type": "button",
+        "action": "leftTrigger",
+        "toggle": true,
+        "styles": {
+          "default": {
+            "faceImage": {
+              "type": "icon",
+              "value": "sprint"
+            }
+          }
+        }
+      },
+      null,
+      {
+        "type": "button",
+        "action": "gamepadA",
+        "styles": {
+          "default": {
+            "faceImage": {
+              "type": "icon",
+              "value": "interact"
+            }
+          }
+        }
+      },
+      [
+        {
+          "type": "touchpad",
+          "axis": {
+            "input": "axisXY",
+            "output": "rightJoystick",
+            "sensitivity": 2.5
+          },
+          "action": "rightTrigger",
+          "renderAsButton": true,
+          "styles": {
+            "default": {
+              "faceImage": {
+                "type": "icon",
+                "value": "fire"
+              }
+            }
+          }
+        }
+      ]
+    ]
+  },
+  "upper": {
+    "right": [
+      {
+        "type": "button",
+        "action": "menu"
+      },
+      {
+        "type": "button",
+        "action": "view",
+        "styles": {
+          "default": {
+            "faceImage": {
+              "type": "icon",
+              "value": "map"
+            }
+          }
+        }
+      },
+      {
+        "type": "button",
+        "action": "gamepadB"
+      }
+    ]
+  },
+  "sensors": [
+    {
+      "type": "gyroscope",
+      "axis": {
+        "input": "axisXY",
+        "output": "rightJoystick",
+        "sensitivity": 1
+      }
+    }
+  ]
+}
+    }
+  }
+}
