@@ -1,0 +1,7 @@
+6{
+  "name": "DOOM 64",
+  "default_layout": "Custom",
+  "layouts": [
+    "doom-64"
+  ]
+}
