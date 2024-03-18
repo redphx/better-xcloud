@@ -1,0 +1,7 @@
+{
+  "name": "Perfect Dark Zero",
+  "default_layout": "custom",
+  "layouts": [
+    "perfect-dark-zero"
+  ]
+}
