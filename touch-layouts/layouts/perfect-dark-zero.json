@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "layouts": {
-    "LAYOUT_ID": {
+    "custom": {
       "name": "Custom",
       "content": {
         "left": {
