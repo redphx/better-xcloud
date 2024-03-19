@@ -18,24 +18,35 @@
                 }
               }
             }
-          ],
-          "outer": [
-            null,
-            null,
-            [
-              {
-                "type": "directionalPad",
-                "scale": 1.2
-              }
-            ]
           ]
         },
         "right": {
           "inner": [
             {
               "type": "button",
+              "action": "leftBumper",
+              "pullAction": "gamepadA",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "character"
+                  }
+                },
+                "pulled": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "gamepadA"
+                  }
+                }
+              }
+            },
+            null,
+            {
+              "type": "button",
               "action": "gamepadA"
-            }
+            },
+            null
           ],
           "outer": [
             null,
@@ -51,10 +62,7 @@
                 }
               }
             },
-            {
-              "type": "button",
-              "action": "leftBumper"
-            },
+            null,
             null,
             null,
             {
@@ -69,22 +77,25 @@
                 }
               }
             },
-            null,
-            [
-              {
-                "type": "button",
-                "action": "gamepadY",
-                "styles": {
-                  "default": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "accept"
-                    }
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "pullAction": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "interact"
+                  }
+                },
+                "pulled": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "gamepadX"
                   }
                 }
-              },
-              null
-            ]
+              }
+            }
           ]
         },
         "upper": {
@@ -92,6 +103,18 @@
             {
               "type": "button",
               "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "gamepadY",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "accept"
+                  }
+                }
+              }
             }
           ]
         }
