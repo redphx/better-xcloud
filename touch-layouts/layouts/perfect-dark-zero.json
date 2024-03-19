@@ -4,204 +4,204 @@
     "LAYOUT_ID": {
       "name": "Custom",
       "content": {
-    "left": {
-      "inner": [
-        {
-          "type": "joystick",
-          "axis": {
-            "input": "axisXY",
-            "output": "leftJoystick"
-          },
-          "styles": {
-            "default": {
-              "knob": {
-                "faceImage": {
-                  "type": "icon",
-                  "value": "walk"
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "walk"
+                    }
+                  }
                 }
               }
             }
-          }
-        }
-      ],
-      "outer": [
-        null,
-        null,
-        null,
-        {
-            "type": "directionalPad",
-            "scale": 1.0
-        },
-        null,
-        null,
-        null,
-        {
-            "type": "button",
-            "action": "rightTrigger",
-            "styles": {
-              "default": {
-                "faceImage": {
-                  "type": "icon",
-                  "value": "fire"
+          ],
+          "outer": [
+            null,
+            null,
+            null,
+            {
+              "type": "directionalPad",
+              "scale": 1
+            },
+            null,
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "rightTrigger",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "fire"
+                  }
                 }
               }
             }
-          }
-      ]
-    },
-    "right": {
-      "inner": [
-        {
-          "type": "joystick",
-          "axis": {
-            "input": "axisXY",
-            "output": "rightJoystick"
-          },
-          "styles": {
-            "default": {
-              "knob": {
-                "faceImage": {
-                  "type": "icon",
-                  "value": "look"
-              }
-            }
-          }
-        }
-       }
-      ],
-      "outer": [
-        [
-          {
-            "type": "button",
-            "action": "leftTrigger",
-            "toggle": true,
-            "styles": {
-              "default": {
-                "faceImage": {
-                  "type": "icon",
-                  "value": "aim"
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick"
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "look"
+                    }
+                  }
                 }
               }
             }
-          },
-          null,
-          {
-          "type": "button",
-          "action": "leftThumb",
-          "styles": {
-            "default": {
-              "faceImage": {
-                "type": "icon",
-                "value": "crouch"
+          ],
+          "outer": [
+            [
+              {
+                "type": "button",
+                "action": "leftTrigger",
+                "toggle": true,
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "aim"
+                    }
+                  }
+                }
+              },
+              null,
+              {
+                "type": "button",
+                "action": "leftThumb",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "crouch"
+                    }
+                  }
+                }
               }
-            }
-          }
-        }
-        ],
-        {
-          "type": "button",
-          "action": "rightBumper"
-        },
-        {
-          "type": "button",
-          "action": "gamepadX",
-          "styles": {
-            "default": {
-              "faceImage": {
-                "type": "icon",
-                "value": "reload"
-              }
-            }
-          }
-        },
-        [
-          {
-            "type": "touchpad",
-            "axis": {
-              "input": "axisXY",
-              "output": "rightJoystick",
-              "deadzone": {
-                "threshold": 0.5,
-                "radial": true
+            ],
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "reload"
+                  }
+                }
               }
             },
-            "renderAsButton": true,
-            "action": [
-              "rightTrigger"
+            [
+              {
+                "type": "touchpad",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick",
+                  "deadzone": {
+                    "threshold": 0.5,
+                    "radial": true
+                  }
+                },
+                "renderAsButton": true,
+                "action": [
+                  "rightTrigger"
+                ],
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "fire"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "gamepadB",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "punch"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "gamepadA",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "interact"
+                    }
+                  }
+                }
+              }
             ],
-            "styles": {
-              "default": {
-                "faceImage": {
-                  "type": "icon",
-                  "value": "fire"
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "roll"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadY",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "weaponSelect"
+                  }
                 }
               }
             }
-          },
-          {
-            "type": "button",
-            "action": "gamepadB",
-            "styles": {
-              "default": {
-                "faceImage": {
-                  "type": "icon",
-                  "value": "punch"
-                }
-              }
-            }
-          },
-          {
-            "type": "button",
-            "action": "gamepadA",
-            "styles": {
-              "default": {
-                "faceImage": {
-                  "type": "icon",
-                  "value": "interact"
-                }
-              }
-            }
-          }
-        ],
-        {
-          "type": "button",
-          "action": "leftBumper",
-          "styles": {
-            "default": {
-              "faceImage": {
-                "type": "icon",
-                "value": "roll"
-              }
-            }
-          }
+          ]
         },
-        {
-          "type": "button",
-          "action": "gamepadY",
-          "styles": {
-            "default": {
-              "faceImage": {
-                "type": "icon",
-                "value": "weaponSelect"
-              }
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "view"
             }
-          }
+          ]
         }
-      ]
-    },    
-    "upper": {
-      "right": [
-        {
-          "type": "button",
-          "action": "menu"
-        },
-        {
-          "type": "button",
-          "action": "view"
-        }
-      ]
-    }
-  }
+      }
     }
   }
 }
