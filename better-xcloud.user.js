@@ -3960,7 +3960,7 @@ class LoadingScreen {
         LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
         LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
 
-        if (LoadingScreen.#$bgStyle) {
+        if (getPref(Preferences.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
             const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
             $rocketBg && $rocketBg.addEventListener('transitionend', e => {
                 LoadingScreen.#$bgStyle.textContent += `
@@ -11479,7 +11479,7 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
 
 window.addEventListener(BxEvent.STREAM_STARTING, e => {
     // Hide loading screen
-    getPref(Preferences.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.hide();
+    LoadingScreen.hide();
 });
 
 window.addEventListener(BxEvent.STREAM_PLAYING, e => {
