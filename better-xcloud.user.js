@@ -7216,6 +7216,7 @@ class Preferences {
             'options': {
                 'default': t('default'),
                 'all': t('tc-all-games'),
+                'off': t('off'),
             },
             'unsupported': !HAS_TOUCH_SUPPORT,
             'ready': () => {
@@ -8005,7 +8006,11 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
                 return false;
             }
 
-            const newCode = `
+            let newCode = '';
+            if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off') {
+                newCode = 'return;';
+            } else {
+                newCode = `
 const gamepads = window.navigator.getGamepads();
 let gamepadFound = false;
 
@@ -8020,6 +8025,7 @@ if (gamepadFound) {
     return;
 }
 `;
+            }
 
             funcStr = funcStr.replace(text, newCode + text);
             return funcStr;
@@ -8069,7 +8075,7 @@ if (gamepadFound) {
 
         ['playVibration'],
         HAS_TOUCH_SUPPORT && getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
-        HAS_TOUCH_SUPPORT && getPref(Preferences.STREAM_TOUCH_CONTROLLER_AUTO_OFF) && ['disableTakRenderer'],
+        HAS_TOUCH_SUPPORT && (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(Preferences.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ['disableTakRenderer'],
 
         ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
 
