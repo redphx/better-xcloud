@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "layouts": {
-    "Custom": {
+    "custom": {
       "name": "custom",
       "content": {
         "left": {
           "inner": [
             {
               "type": "joystick",
-              "action": "leftTrigger",
-              "actionThreshold": 0.75,
+              "action": "leftBumper",
+              "actionThreshold": 2.00,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick",
@@ -44,7 +44,15 @@
             null,
             null,
             null,
-            null
+            null,
+            {
+              "type": "button",
+              "action": "leftTrigger"
+            },
+            {
+              "type": "button",
+              "action": "leftBumper"
+            }
           ]
         },
         "right": {
@@ -73,7 +81,10 @@
           ],
           "outer": [
             null,
-            null,
+            {
+              "type": "button",
+              "action": "rightTrigger"
+            },
             null,
             {
               "type": "button",
