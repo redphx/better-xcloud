@@ -1,6 +1,6 @@
 {
   "name": "The Quarry",
-  "default_layout": "Custom",
+  "default_layout": "custom",
   "layouts": [
     "the-quarry"
   ]
