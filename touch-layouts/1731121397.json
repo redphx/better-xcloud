@@ -1,0 +1,7 @@
+{
+  "name": "The Quarry",
+  "default_layout": "custom",
+  "layouts": [
+    "the-quarry"
+  ]
+}
