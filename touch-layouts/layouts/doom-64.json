@@ -8,8 +8,6 @@
           "inner": [
             {
               "type": "joystick",
-              "action": "leftTrigger",
-              "actionThreshold": 0.75,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick",
