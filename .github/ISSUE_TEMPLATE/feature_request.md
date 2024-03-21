@@ -7,10 +7,12 @@ assignees: ''
 
 ---
 
+<!-- ⚠️ Only use English. Any other languages will be deleted. -->
+
 **I'm using:**  
-- Device:
-- OS:
-- Browser:
+- Device: 
+- OS: 
+- Browser: 
   
 **I want to suggest this feature:**  
 ...

@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+<!-- ⚠️ Only use English. Any other languages will be deleted. -->
+
 **Platform**
  - Device: Phone, Laptop, Desktop, TV...
  - OS: Windows, Android, iOS...
