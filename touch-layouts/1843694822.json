@@ -1,0 +1,7 @@
+{
+  "name": "The Quarry (Xbox Series)",
+  "default_layout": "custom",
+  "layouts": [
+    "the-quarry"
+  ]
+}
