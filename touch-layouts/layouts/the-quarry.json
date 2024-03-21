@@ -89,6 +89,7 @@
               "action": "rightTrigger"
             },
             null,
+            null,
             {
               "type": "button",
               "action": "gamepadB"
@@ -105,14 +106,8 @@
                 }
               }
             },
-            {
-              "type": "button",
-              "action": "gamepadX"
-            },
-            {
-              "type": "button",
-              "action": "gamepadY"
-            }
+            null,
+            null
           ]
         },
         "upper": {
@@ -132,6 +127,10 @@
                   }
                 }
               }
+            },
+            {
+              "type": "button",
+              "action": "gamepadX"
             }
           ]
         }
