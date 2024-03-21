@@ -1,15 +1,13 @@
-{
+l{
   "schema_version": 1,
   "layouts": {
     "custom": {
-      "name": "Custom",
+      "name": "custom",
       "content": {
         "left": {
           "inner": [
             {
               "type": "joystick",
-              "action": "leftTrigger",
-              "actionThreshold": 0.75,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick",
@@ -28,18 +26,6 @@
                     "background": {
                       "type": "color",
                       "value": "#c60a0a"
-                    }
-                  },
-                  "activated": {
-                    "knob": {
-                      "faceImage": {
-                        "type": "icon",
-                        "value": "sprint"
-                      },
-                      "background": {
-                        "type": "color",
-                        "value": "#c60a0a"
-                      }
                     }
                   }
                 }
