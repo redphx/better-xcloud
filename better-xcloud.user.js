@@ -6917,13 +6917,22 @@ class UserAgent {
     }
 
     static spoof() {
+        let newUserAgent;
+
         const profile = getPref(Preferences.USER_AGENT_PROFILE);
         if (profile === UserAgent.PROFILE_DEFAULT) {
-            return;
+            // Fix Kiwi 124
+            if (window.navigator.userAgent.includes('Chrome/124.0.0.0')) {
+                newUserAgent = window.navigator.userAgent.replace('Chrome/124.0.0.0', 'Chrome/122.0.0.0')
+            } else {
+                return;
+            }
+            
         }
 
-        const defaultUserAgent = window.navigator.userAgent;
-        const userAgent = UserAgent.get(profile) || defaultUserAgent;
+        if (!newUserAgent) {
+            newUserAgent = UserAgent.get(profile) || defaultUserAgent;
+        }
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
         Object.defineProperty(window.navigator, 'userAgentData', {});
@@ -6931,10 +6940,10 @@ class UserAgent {
         // Override navigator.userAgent
         window.navigator.orgUserAgent = window.navigator.userAgent;
         Object.defineProperty(window.navigator, 'userAgent', {
-            value: userAgent,
+            value: newUserAgent,
         });
 
-        return userAgent;
+        return newUserAgent;
     }
 }
 
