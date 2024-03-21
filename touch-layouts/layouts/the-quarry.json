@@ -12,11 +12,7 @@
               "actionThreshold": 2,
               "axis": {
                 "input": "axisXY",
-                "output": "leftJoystick",
-                "deadzone": {
-                  "threshold": 0.05,
-                  "radial": true
-                }
+                "output": "leftJoystick"
               },
               "styles": {
                 "default": {
@@ -39,16 +35,16 @@
             }
           ],
           "outer": [
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
             {
               "type": "button",
-              "action": "leftTrigger"
+              "action": "rightBumper"
             },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             {
               "type": "button",
               "action": "leftBumper"
@@ -61,39 +57,19 @@
               "type": "joystick",
               "axis": {
                 "input": "axisXY",
-                "output": "rightJoystick",
-                "deadzone": {
-                  "threshold": 0.05,
-                  "radial": true
-                }
-              },
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "look"
-                    }
-                  }
-                }
+                "output": "rightJoystick"
               }
             }
           ],
           "outer": [
-            {
-              "type": "button",
-              "action": "rightBumper"
-            },
-            {
-              "type": "button",
-              "action": "rightTrigger"
-            },
-            null,
             null,
             {
               "type": "button",
               "action": "gamepadB"
             },
+            null,
+            null,
+            null,
             {
               "type": "button",
               "action": "gamepadA",
@@ -106,8 +82,10 @@
                 }
               }
             },
-            null,
-            null
+            {
+              "type": "button",
+              "action": "rightTrigger"
+            }
           ]
         },
         "upper": {
@@ -118,15 +96,7 @@
             },
             {
               "type": "button",
-              "action": "rightBumper",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "inventory"
-                  }
-                }
-              }
+              "action": "gamepadY"
             },
             {
               "type": "button",
