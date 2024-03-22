@@ -17,9 +17,16 @@
 const SCRIPT_VERSION = '3.2.5';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
-const ENABLE_XCLOUD_LOGGER = false;
-const ENABLE_PRELOAD_BX_UI = false;
-const USE_DEV_TOUCH_LAYOUT = false;
+// Setup flags
+const DEFAULT_FLAGS = {
+    PreloadUi: false,
+    EnableXcloudLogging: false,
+
+    UseDevTouchLayout: false,
+}
+
+const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+delete window.BX_FLAGS;
 
 let REMOTE_PLAY_SERVER;
 
@@ -4091,7 +4098,7 @@ class TouchController {
             return;
         }
 
-        const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${USE_DEV_TOUCH_LAYOUT ? '/dev' : ''}`;
+        const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? '/dev' : ''}`;
         const url = `${baseUrl}/${xboxTitleId}.json`;
 
         // Get layout info
@@ -8053,7 +8060,7 @@ if (gamepadFound) {
 
         getPref(Preferences.UI_LAYOUT) === 'tv' && ['tvLayout'],
 
-        ENABLE_XCLOUD_LOGGER && [
+        BX_FLAGS.EnableXcloudLogging && [
             'enableConsoleLogging',
             'enableXcloudLogger',
         ],
@@ -8088,7 +8095,7 @@ if (gamepadFound) {
         HAS_TOUCH_SUPPORT && getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
         HAS_TOUCH_SUPPORT && (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(Preferences.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ['disableTakRenderer'],
 
-        ENABLE_XCLOUD_LOGGER && ['enableConsoleLogging'],
+        BX_FLAGS.EnableXcloudLogging && ['enableConsoleLogging'],
 
         getPref(Preferences.BLOCK_TRACKING) && ['blockGamepadStatsCollector'],
 
@@ -11641,7 +11648,7 @@ patchVideoApi();
 // Setup UI
 addCss();
 Toast.setup();
-ENABLE_PRELOAD_BX_UI && setupBxUi();
+BX_FLAGS.PreloadUi && setupBxUi();
 
 disablePwa();
 
