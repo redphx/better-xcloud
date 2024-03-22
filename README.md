@@ -1,8 +1,11 @@
 # Better xCloud
 Improve Xbox Cloud Gaming (xCloud) experience on [xbox.com/play](https://www.xbox.com/play). It also allows you to use Remote Play on the xCloud website.  
 
-> [!NOTE]
+> [!TIP]
 > The Android app is in development at [redphx/better-xcloud-android](https://github.com/redphx/better-xcloud-android)
+
+> [!IMPORTANT]
+> I don't accept pull requests at the moment (except PR for custom touch controls)
 
 **Supported platforms:**  
 - Windows
