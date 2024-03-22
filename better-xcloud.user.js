@@ -8646,6 +8646,10 @@ a.bx-button.bx-full-width {
     color: #828282;
 }
 
+.bx-settings-group-label b {
+    margin-bottom: 8px;
+}
+
 @media not (hover: hover) {
     .bx-settings-row:focus-within {
        background-color: #242424;
@@ -10317,8 +10321,6 @@ function injectSettingsButton($parent) {
         },
 
         [t('mouse-and-keyboard')]: {
-            // '_note': '⚠️ ' + t('may-not-work-properly'),
-            // [Preferences.MKB_ENABLED]: [t('enable-mkb'), t('only-supports-some-games')],
             [Preferences.MKB_ENABLED]: t('enable-mkb'),
             [Preferences.MKB_HIDE_IDLE_CURSOR]: t('hide-idle-cursor'),
         },
@@ -10331,6 +10333,7 @@ function injectSettingsButton($parent) {
 
         [t('touch-controller')]: {
             _note: !HAS_TOUCH_SUPPORT ? '⚠️ ' + t('device-unsupported-touch') : null,
+            _unsupported: !HAS_TOUCH_SUPPORT,
             [Preferences.STREAM_TOUCH_CONTROLLER]: t('tc-availability'),
             [Preferences.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: t('tc-auto-off'),
             [Preferences.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: t('tc-standard-layout-style'),
@@ -10370,6 +10373,11 @@ function injectSettingsButton($parent) {
 
         $wrapper.appendChild($group);
 
+        // Don't render settings if this is an unsupported feature
+        if (SETTINGS_UI[groupLabel]._unsupported) {
+            continue;
+        }
+
         let onChange = e => {
             if (!$reloadBtnWrapper) {
                 return;
@@ -10388,6 +10396,7 @@ function injectSettingsButton($parent) {
         };
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
+            // Don't render custom settings
             if (settingId.startsWith('_')) {
                 continue;
             }
