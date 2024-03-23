@@ -14,6 +14,8 @@
 // ==/UserScript==
 'use strict';
 
+/* ADDITIONAL CODE */
+
 const SCRIPT_VERSION = '3.2.5';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
