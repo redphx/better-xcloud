@@ -78,7 +78,10 @@
             }
           ],
           "outer": [
-            null,
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
             null,
             [
               {
@@ -86,13 +89,27 @@
                 "interaction": {
                   "activationType": "exclusive"
                 },
-                "scale": 1.2
+                "scale": 0.8
               }
             ],
+            {
+              "type": "button",
+              "action": "leftTrigger",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "brightness"
+                  }
+                }
+              }
+            },
             null,
             null,
-            null,
-            null
+            {
+              "type": "button",
+              "action": "leftBumper"
+            }
           ]
         },
         "right": {
@@ -120,30 +137,8 @@
             }
           ],
           "outer": [
-            {
-              "type": "button",
-              "action": "rightBumper",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "weaponSelect"
-                  }
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "leftTrigger",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "brightness"
-                  }
-                }
-              }
-            },
+            null,
+            null,
             [
               {
                 "type": "button",
@@ -234,18 +229,6 @@
                   "faceImage": {
                     "type": "icon",
                     "value": "crouch"
-                  }
-                }
-              }
-            },
-            {
-              "type": "button",
-              "action": "leftBumper",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "weaponSelect"
                   }
                 }
               }
