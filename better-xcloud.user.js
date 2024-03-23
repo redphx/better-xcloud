@@ -28,6 +28,8 @@ const DEFAULT_FLAGS = {
 const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 delete window.BX_FLAGS;
 
+const AppInterface = window.AppInterface;
+
 let REMOTE_PLAY_SERVER;
 
 const ENABLE_NATIVE_MKB_BETA = false;
@@ -96,7 +98,7 @@ const BxEvent = {
             }
         }
 
-        window.AppInterface && window.AppInterface.onEvent(eventName);
+        AppInterface && AppInterface.onEvent(eventName);
         target.dispatchEvent(event);
     },
 };
@@ -6198,7 +6200,7 @@ class VibrationManager {
     static #playDeviceVibration(data) {
         // console.log(+new Date, data);
 
-        if ('AppInterface' in window) {
+        if (AppInterface) {
             AppInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
             return;
         }
@@ -6934,7 +6936,7 @@ class UserAgent {
             } else {
                 return;
             }
-            
+
         }
 
         if (!newUserAgent) {
@@ -8749,12 +8751,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     position: fixed;
     bottom: 0;
     box-sizing: border-box;
-    width: 16vh;
-    height: 16vh;
-    max-width: 128px;
-    max-height: 128px;
-    padding: 2vh;
-    padding: 24px 24px 12px 12px;
+    width: 60px;
+    height: 60px;
+    padding: 16px;
     background-size: cover;
     background-repeat: no-repeat;
     background-origin: content-box;
@@ -8771,7 +8770,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-screenshot-button[data-capturing=true] {
-    padding: 1vh;
+    padding: 8px;
 }
 
 .bx-screenshot-canvas {
@@ -10280,7 +10279,7 @@ function injectSettingsButton($parent) {
     }
 
     // Show link to Android app
-    if (!window.AppInterface) {
+    if (!AppInterface) {
         const userAgent = UserAgent.getDefault().toLowerCase();
         if (userAgent.includes('android')) {
             const $btn = createButton({
@@ -11343,6 +11342,15 @@ function takeScreenshot(callback) {
     const $canvasContext = $SCREENSHOT_CANVAS.getContext('2d');
 
     $canvasContext.drawImage($STREAM_VIDEO, 0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+
+    // Get data URL and pass to parent app
+    if (AppInterface) {
+        const data = $SCREENSHOT_CANVAS.toDataURL('image/png').split(';base64,')[1];
+        AppInterface.saveScreenshot(GAME_TITLE_ID, data);
+        callback && callback();
+        return;
+    }
+
     $SCREENSHOT_CANVAS.toBlob(blob => {
         // Download screenshot
         const now = +new Date;
