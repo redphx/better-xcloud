@@ -1188,7 +1188,7 @@ const Translations = {
         "\"Uzaktan Oynama\" özelliğini aktive et",
         "Увімкнути функцію \"Remote Play\"",
         "Bật tính năng \"Chơi Từ Xa\"",
-        "启用\"远程播放\"功能",
+        "启用\"Remote Play\"主机串流",
     ],
     "enable-volume-control": [
         "Lautstärkeregelung aktivieren",
@@ -1403,7 +1403,7 @@ const Translations = {
         ,
         "Android用のBetter xCloudをインストール",
         ,
-        "Zainstaluj aplikację xCloud na Androida",
+        "Zainstaluj aplikację Better xCloud na Androida",
         "Instalar o aplicativo Better xCloud para Android",
         "Установите приложение Better xCloud для Android",
         "Better xCloud'un Android uygulamasını indir",
@@ -2106,7 +2106,7 @@ const Translations = {
         "Uzaktan Bağlanma",
         "Віддалена гра",
         "Chơi Từ Xa",
-        "远程游玩",
+        "远程串流",
     ],
     "rename": [
         "Umbenennen",
@@ -2277,6 +2277,23 @@ const Translations = {
         "Зберегти",
         "Lưu",
         "保存",
+    ],
+    "screenshot-apply-filters": [
+        ,
+        ,
+        "Applies video filters to screenshots",
+        ,
+        ,
+        ,
+        "スクリーンショットにビデオフィルターを適用",
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Застосовує відеофільтри до знімків екрана",
+        "Áp dụng hiệu ứng video vào ảnh chụp màn hình",
+        ,
     ],
     "screenshot-button-position": [
         "Position des Screenshot-Buttons",
@@ -7029,6 +7046,8 @@ class Preferences {
     static get MKB_DEFAULT_PRESET_ID() { return 'mkb_default_preset_id'; }
 
     static get SCREENSHOT_BUTTON_POSITION() { return 'screenshot_button_position'; }
+    static get SCREENSHOT_APPLY_FILTERS() { return 'screenshot_apply_filters'; }
+
     static get BLOCK_TRACKING() { return 'block_tracking'; }
     static get BLOCK_SOCIAL_FEATURES() { return 'block_social_features'; }
     static get SKIP_SPLASH_VIDEO() { return 'skip_splash_video'; }
@@ -7216,6 +7235,7 @@ class Preferences {
         [Preferences.PREFER_IPV6_SERVER]: {
             'default': false,
         },
+
         [Preferences.SCREENSHOT_BUTTON_POSITION]: {
             'default': 'bottom-left',
             'options': {
@@ -7224,6 +7244,10 @@ class Preferences {
                 'none': t('disable'),
             },
         },
+        [Preferences.SCREENSHOT_APPLY_FILTERS]: {
+            'default': false,
+        },
+
         [Preferences.SKIP_SPLASH_VIDEO]: {
             'default': false,
         },
@@ -10312,6 +10336,9 @@ function injectSettingsButton($parent) {
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: t('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: t('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: t('disable-post-stream-feedback-dialog'),
+
+            [Preferences.SCREENSHOT_BUTTON_POSITION]: t('screenshot-button-position'),
+            [Preferences.SCREENSHOT_APPLY_FILTERS]: t('screenshot-apply-filters'),
         },
 
         [t('local-co-op')]: {
@@ -10350,7 +10377,6 @@ function injectSettingsButton($parent) {
             [Preferences.SKIP_SPLASH_VIDEO]: t('skip-splash-video'),
             [Preferences.HIDE_DOTS_ICON]: t('hide-system-menu-icon'),
             [Preferences.REDUCE_ANIMATIONS]: t('reduce-animations'),
-            [Preferences.SCREENSHOT_BUTTON_POSITION]: t('screenshot-button-position'),
         },
         [t('other')]: {
             [Preferences.BLOCK_SOCIAL_FEATURES]: t('disable-social-features'),
@@ -10588,6 +10614,11 @@ function updateVideoPlayerCss() {
     let videoCss = '';
     if (filters) {
         videoCss += `filter: ${filters} !important;`;
+    }
+
+    // Apply video filters to screenshots
+    if (getPref(Preferences.SCREENSHOT_APPLY_FILTERS)) {
+        $SCREENSHOT_CANVAS.getContext('2d').filter = filters;
     }
 
     const PREF_RATIO = getPref(Preferences.VIDEO_RATIO);
@@ -11469,18 +11500,15 @@ function disablePwa() {
 }
 
 function setupBxUi() {
-    updateVideoPlayerCss();
-
     // Prevent initializing multiple times
-    if (document.querySelector('.bx-quick-settings-bar')) {
-        return;
+    if (!document.querySelector('.bx-quick-settings-bar')) {
+        window.addEventListener('resize', updateVideoPlayerCss);
+        setupQuickSettingsBar();
+        setupScreenshotButton();
+        StreamStats.render();
     }
 
-    window.addEventListener('resize', updateVideoPlayerCss);
-
-    setupQuickSettingsBar();
-    setupScreenshotButton();
-    StreamStats.render();
+    updateVideoPlayerCss();
 }
 
 
@@ -11530,6 +11558,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     const PREF_SCREENSHOT_BUTTON_POSITION = getPref(Preferences.SCREENSHOT_BUTTON_POSITION);
     $SCREENSHOT_CANVAS.width = $video.videoWidth;
     $SCREENSHOT_CANVAS.height = $video.videoHeight;
+    updateVideoPlayerCss();
 
     // Setup screenshot button
     if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
