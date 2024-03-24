@@ -11380,6 +11380,10 @@ function takeScreenshot(callback) {
     if (AppInterface) {
         const data = $SCREENSHOT_CANVAS.toDataURL('image/png').split(';base64,')[1];
         AppInterface.saveScreenshot(GAME_TITLE_ID, data);
+
+        // Free screenshot from memory
+        $canvasContext.clearRect(0, 0, $SCREENSHOT_CANVAS.width, $SCREENSHOT_CANVAS.height);
+
         callback && callback();
         return;
     }
