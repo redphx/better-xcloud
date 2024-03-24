@@ -4,75 +4,17 @@
     "custom": {
       "name": "custom",
       "content": {
-        "layers": {
-          "AimTouchpad": {
-            "right": {
-              "inner": [
-                {
-                  "type": "touchpad",
-                  "axis": [
-                    {
-                      "input": "axisX",
-                      "output": "rightJoystickX",
-                      "sensitivity": 3
-                    },
-                    {
-                      "input": "axisY",
-                      "output": "rightJoystickY",
-                      "sensitivity": 3
-                    }
-                  ],
-                  "styles": {
-                    "default": {
-                      "faceImage": {
-                        "type": "icon",
-                        "value": "aim"
-                      }
-                    }
-                  }
-                }
-              ]
-            },
-            "sensors": [
-              {
-                "type": "gyroscope",
-                "axis": [
-                  {
-                    "input": "axisX",
-                    "output": "rightJoystickX",
-                    "sensitivity": 1
-                  },
-                  {
-                    "input": "axisY",
-                    "output": "rightJoystickY",
-                    "sensitivity": 0.5
-                  }
-                ]
-              }
-            ]
-          }
-        },
         "left": {
           "inner": [
             {
               "type": "joystick",
+              "expand": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick",
                 "deadzone": {
-                  "threshold": 0.01,
+                  "threshold": 0.05,
                   "radial": true
-                }
-              },
-              "expand": false,
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "walk"
-                    }
-                  }
                 }
               }
             }
@@ -120,18 +62,8 @@
                 "input": "axisXY",
                 "output": "rightJoystick",
                 "deadzone": {
-                  "threshold": 0.01,
+                  "threshold": 0.05,
                   "radial": true
-                }
-              },
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "look"
-                    }
-                  }
                 }
               }
             }
