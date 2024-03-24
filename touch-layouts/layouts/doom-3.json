@@ -142,21 +142,18 @@
             [
               {
                 "type": "button",
-                "action": "gamepadX",
+                "action": "rightThumb",
                 "styles": {
                   "default": {
                     "faceImage": {
                       "type": "icon",
-                      "value": "reload"
+                      "value": "crouch"
                     }
                   }
                 }
               },
               null,
-              {
-                "type": "button",
-                "action": "gamepadB"
-              },
+              null,
               {
                 "type": "button",
                 "action": "gamepadA",
@@ -186,12 +183,12 @@
                   }
                 ],
                 "renderAsButton": true,
-                "action": "rightTrigger",
+                "action": "gamepadY",
                 "styles": {
                   "default": {
                     "faceImage": {
                       "type": "icon",
-                      "value": "fire"
+                      "value": "interact"
                     }
                   }
                 }
@@ -210,12 +207,12 @@
               },
               {
                 "type": "button",
-                "action": "gamepadY",
+                "action": "rightTrigger",
                 "styles": {
                   "default": {
                     "faceImage": {
                       "type": "icon",
-                      "value": "interact"
+                      "value": "fire"
                     }
                   }
                 }
@@ -223,12 +220,12 @@
             ],
             {
               "type": "button",
-              "action": "rightThumb",
+              "action": "gamepadX",
               "styles": {
                 "default": {
                   "faceImage": {
                     "type": "icon",
-                    "value": "crouch"
+                    "value": "reload"
                   }
                 }
               }
@@ -252,6 +249,10 @@
                   }
                 }
               }
+            },
+            {
+              "type": "button",
+              "action": "gamepadB"
             }
           ]
         }
