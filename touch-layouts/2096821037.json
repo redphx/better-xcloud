@@ -1,0 +1,7 @@
+{
+  "name": "DOOM 3",
+  "default_layout": "custom",
+  "layouts": [
+    "doom-3"
+  ]
+}
