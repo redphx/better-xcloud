@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "LAYOUT_ID": {
+      "name": "custom",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
+              "action": "leftThumb",
+              "relative": false,
+              "actionThreshold": 1,
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "walk"
+                    }
+                  }
+                },
+                "activated": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "sprint"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            null,
+            null,
+            [
+              {
+                "type": "directionalPad",
+                "interaction": {
+                  "activationType": "exclusive"
+                },
+                "scale": 1.1
+              },
+              null
+            ]
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "relativeMouseX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "relativeMouseY",
+                  "sensitivity": 20
+                }
+              ],
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "look"
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "relativeMouseX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "relativeMouseY",
+                  "sensitivity": 20
+                }
+              ],
+              "renderAsButton": true,
+              "action": "gamepadY",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "weaponSelect"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "toggle": true,
+              "action": [
+                "leftTrigger",
+                {
+                  "type": "layer",
+                  "target": "ADS"
+                }
+              ],
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "aim"
+                  }
+                }
+              }
+            },
+            {
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "relativeMouseX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "relativeMouseY",
+                  "sensitivity": 20
+                }
+              ],
+              "renderAsButton": true,
+              "action": "gamepadB",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "crouch"
+                  }
+                }
+              }
+            },
+            {
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "relativeMouseX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "relativeMouseY",
+                  "sensitivity": 20
+                }
+              ],
+              "renderAsButton": true,
+              "action": "rightThumb",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "punch"
+                  }
+                }
+              }
+            },
+            [
+              {
+                "type": "touchpad",
+                "axis": [
+                  {
+                    "input": "axisX",
+                    "output": "relativeMouseX",
+                    "sensitivity": 20
+                  },
+                  {
+                    "input": "axisY",
+                    "output": "relativeMouseY",
+                    "sensitivity": 20
+                  }
+                ],
+                "action": "gamepadA",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "jump"
+                    }
+                  }
+                },
+                "renderAsButton": true
+              },
+              {
+                "type": "touchpad",
+                "axis": [
+                  {
+                    "input": "axisX",
+                    "output": "relativeMouseX",
+                    "sensitivity": 20
+                  },
+                  {
+                    "input": "axisY",
+                    "output": "relativeMouseY",
+                    "sensitivity": 20
+                  }
+                ],
+                "renderAsButton": true,
+                "action": "gamepadX",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "reload"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "touchpad",
+                "axis": [
+                  {
+                    "input": "axisX",
+                    "output": "relativeMouseX",
+                    "sensitivity": 20
+                  },
+                  {
+                    "input": "axisY",
+                    "output": "relativeMouseY",
+                    "sensitivity": 20
+                  }
+                ],
+                "renderAsButton": true,
+                "action": [
+                  "rightTrigger",
+                  "leftTrigger"
+                ],
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "fire"
+                    }
+                  }
+                }
+              }
+            ],
+            {
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "relativeMouseX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "relativeMouseY",
+                  "sensitivity": 20
+                }
+              ],
+              "renderAsButton": true,
+              "action": "leftBumper",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "ability"
+                  }
+                }
+              }
+            },
+            {
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "relativeMouseX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "relativeMouseY",
+                  "sensitivity": 20
+                }
+              ],
+              "renderAsButton": true,
+              "action": "rightBumper",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "grenade"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "view"
+            }
+          ]
+        },
+        "layers": {
+          "ADS": {
+            "left": {
+              "outer": [
+                null,
+                null,
+                [
+                  {
+                    "type": "directionalPad",
+                    "interaction": {
+                      "activationType": "exclusive"
+                    },
+                    "scale": 1.1
+                  },
+                  null
+                ],
+                null,
+                null,
+                [
+                  {
+                    "type": "button",
+                    "action": "rightTrigger",
+                    "styles": {
+                      "default": {
+                        "faceImage": {
+                          "type": "icon",
+                          "value": "fire"
+                        }
+                      }
+                    }
+                  },
+                  null
+                ]
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
