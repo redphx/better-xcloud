@@ -47,7 +47,20 @@
                 "scale": 1.1
               },
               null
-            ]
+            ],
+            null,
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "ability"
+                  }
+                }
+              }
+            }
           ]
         },
         "right": {
@@ -238,8 +251,7 @@
                 ],
                 "renderAsButton": true,
                 "action": [
-                  "rightTrigger",
-                  "leftTrigger"
+                  "rightTrigger"
                 ],
                 "styles": {
                   "default": {
@@ -264,17 +276,7 @@
                   "output": "relativeMouseY",
                   "sensitivity": 20
                 }
-              ],
-              "renderAsButton": true,
-              "action": "leftBumper",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "ability"
-                  }
-                }
-              }
+              ]
             },
             {
               "type": "touchpad",
@@ -332,7 +334,18 @@
                   null
                 ],
                 null,
-                null,
+                {
+                  "type": "button",
+                  "action": "leftBumper",
+                  "styles": {
+                    "default": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "ability"
+                      }
+                    }
+                  }
+                },
                 [
                   {
                     "type": "button",
