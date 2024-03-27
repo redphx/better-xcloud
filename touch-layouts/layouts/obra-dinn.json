@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "expand": false,
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "background": {
+                      "type": "color",
+                      "value": "#00000030"
+                    },
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#ffffff",
+                      "opacity": 1
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper",
+              "styles": {
+                "idle": {
+                  "background": {
+                    "type": "color",
+                    "value": "#00000030"
+                  }
+                }
+              }
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "styles": {
+                "idle": {
+                  "background": {
+                    "type": "color",
+                    "value": "#00000030"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "idle": {
+                  "background": {
+                    "type": "color",
+                    "value": "#00000030"
+                  }
+                },
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "interact"
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "gamepadY",
+              "styles": {
+                "idle": {
+                  "background": {
+                    "type": "color",
+                    "value": "#00000030"
+                  }
+                },
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "book"
+                  }
+                }
+              }
+            },
+            [
+              {
+                "type": "button",
+                "action": "gamepadB",
+                "styles": {
+                  "idle": {
+                    "background": {
+                      "type": "color",
+                      "value": "#00000030"
+                    }
+                  }
+                }
+              },
+              null
+            ],
+            null,
+            [
+              {
+                "type": "joystick",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick"
+                },
+                "styles": {
+                  "default": {
+                    "knob": {
+                      "background": {
+                        "type": "color",
+                        "value": "#00000030"
+                      },
+                      "stroke": {
+                        "type": "solid",
+                        "color": "#ffffff",
+                        "opacity": 1
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            null,
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "idle": {
+                  "background": {
+                    "type": "color",
+                    "value": "#00000030"
+                  }
+                },
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "rewind"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

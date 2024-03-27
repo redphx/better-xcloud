@@ -1,0 +1,7 @@
+{
+  "name": "Return of the Obra Dinn",
+  "default_layout": "custom",
+  "layouts": [
+    "obra-dinn"
+  ]
+}
