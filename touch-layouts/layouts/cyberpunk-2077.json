@@ -14,7 +14,7 @@
               },
               "action": "leftThumb",
               "relative": false,
-              "actionThreshold": 1,
+              "actionThreshold": 2,
               "styles": {
                 "default": {
                   "knob": {
