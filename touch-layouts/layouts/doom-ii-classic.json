@@ -2,7 +2,7 @@
   "schema_version": 1,
   "layouts": {
     "custom": {
-      "name": "Custom",
+      "name": "custom",
       "content": {
         "left": {
           "inner": [

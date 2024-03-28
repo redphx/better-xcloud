@@ -53,8 +53,37 @@
               "action": "rightBumper"
             },
             {
-              "type": "button",
-              "action": "leftBumper"
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick",
+                "deadzone": {
+                  "threshold": 0,
+                  "radial": true
+                }
+              },
+              "action": "leftBumper",
+              "styles": {
+                "default": {
+                  "outline": {
+                    "indicator": {
+                      "type": "color",
+                      "value": "#ffffff"
+                    },
+                    "stroke": {
+                      "type": "solid",
+                      "color": "#ffffff"
+                    },
+                    "opacity": 0.5
+                  },
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "leftBumper"
+                    }
+                  }
+                }
+              }
             },
             null,
             [
