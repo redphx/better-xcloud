@@ -50,7 +50,20 @@
             ],
             null,
             {
-              "type": "button",
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "rightJoystickX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "rightJoystickY",
+                  "sensitivity": 20
+                }
+              ],
+              "renderAsButton": true,
               "action": "leftBumper",
               "styles": {
                 "default": {
@@ -66,24 +79,22 @@
         "right": {
           "inner": [
             {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "relativeMouseX",
-                  "sensitivity": 20
-                },
-                {
-                  "input": "axisY",
-                  "output": "relativeMouseY",
-                  "sensitivity": 20
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick",
+                "deadzone": {
+                  "threshold": 0.01,
+                  "radial": true
                 }
-              ],
+              },
               "styles": {
                 "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "look"
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "look"
+                    }
                   }
                 }
               }
@@ -139,12 +150,12 @@
               "axis": [
                 {
                   "input": "axisX",
-                  "output": "relativeMouseX",
+                  "output": "rightJoystickX",
                   "sensitivity": 20
                 },
                 {
                   "input": "axisY",
-                  "output": "relativeMouseY",
+                  "output": "rightJoystickY",
                   "sensitivity": 20
                 }
               ],
@@ -164,12 +175,12 @@
               "axis": [
                 {
                   "input": "axisX",
-                  "output": "relativeMouseX",
+                  "output": "rightJoystickX",
                   "sensitivity": 20
                 },
                 {
                   "input": "axisY",
-                  "output": "relativeMouseY",
+                  "output": "rightJoystickY",
                   "sensitivity": 20
                 }
               ],
@@ -190,12 +201,12 @@
                 "axis": [
                   {
                     "input": "axisX",
-                    "output": "relativeMouseX",
+                    "output": "rightJoystickX",
                     "sensitivity": 20
                   },
                   {
                     "input": "axisY",
-                    "output": "relativeMouseY",
+                    "output": "rightJoystickY",
                     "sensitivity": 20
                   }
                 ],
@@ -215,12 +226,12 @@
                 "axis": [
                   {
                     "input": "axisX",
-                    "output": "relativeMouseX",
+                    "output": "rightJoystickX",
                     "sensitivity": 20
                   },
                   {
                     "input": "axisY",
-                    "output": "relativeMouseY",
+                    "output": "rightJoystickY",
                     "sensitivity": 20
                   }
                 ],
@@ -240,12 +251,12 @@
                 "axis": [
                   {
                     "input": "axisX",
-                    "output": "relativeMouseX",
+                    "output": "rightJoystickX",
                     "sensitivity": 20
                   },
                   {
                     "input": "axisY",
-                    "output": "relativeMouseY",
+                    "output": "rightJoystickY",
                     "sensitivity": 20
                   }
                 ],
@@ -263,32 +274,18 @@
                 }
               }
             ],
+            null,
             {
               "type": "touchpad",
               "axis": [
                 {
                   "input": "axisX",
-                  "output": "relativeMouseX",
+                  "output": "rightJoystickX",
                   "sensitivity": 20
                 },
                 {
                   "input": "axisY",
-                  "output": "relativeMouseY",
-                  "sensitivity": 20
-                }
-              ]
-            },
-            {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "relativeMouseX",
-                  "sensitivity": 20
-                },
-                {
-                  "input": "axisY",
-                  "output": "relativeMouseY",
+                  "output": "rightJoystickY",
                   "sensitivity": 20
                 }
               ],
@@ -335,7 +332,20 @@
                 ],
                 null,
                 {
-                  "type": "button",
+                  "type": "touchpad",
+                  "axis": [
+                    {
+                      "input": "axisX",
+                      "output": "rightJoystickX",
+                      "sensitivity": 20
+                    },
+                    {
+                      "input": "axisY",
+                      "output": "rightJoystickY",
+                      "sensitivity": 20
+                    }
+                  ],
+                  "renderAsButton": true,
                   "action": "leftBumper",
                   "styles": {
                     "default": {
