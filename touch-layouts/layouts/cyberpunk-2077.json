@@ -50,7 +50,20 @@
             ],
             null,
             {
-              "type": "button",
+              "type": "touchpad",
+              "axis": [
+                {
+                  "input": "axisX",
+                  "output": "relativeMouseX",
+                  "sensitivity": 20
+                },
+                {
+                  "input": "axisY",
+                  "output": "relativeMouseY",
+                  "sensitivity": 20
+                }
+              ],
+              "renderAsButton": true,
               "action": "leftBumper",
               "styles": {
                 "default": {
@@ -263,21 +276,7 @@
                 }
               }
             ],
-            {
-              "type": "touchpad",
-              "axis": [
-                {
-                  "input": "axisX",
-                  "output": "relativeMouseX",
-                  "sensitivity": 20
-                },
-                {
-                  "input": "axisY",
-                  "output": "relativeMouseY",
-                  "sensitivity": 20
-                }
-              ]
-            },
+            null,
             {
               "type": "touchpad",
               "axis": [
@@ -335,7 +334,20 @@
                 ],
                 null,
                 {
-                  "type": "button",
+                  "type": "touchpad",
+                  "axis": [
+                    {
+                      "input": "axisX",
+                      "output": "relativeMouseX",
+                      "sensitivity": 20
+                    },
+                    {
+                      "input": "axisY",
+                      "output": "relativeMouseY",
+                      "sensitivity": 20
+                    }
+                  ],
+                  "renderAsButton": true,
                   "action": "leftBumper",
                   "styles": {
                     "default": {
