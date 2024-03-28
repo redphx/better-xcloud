@@ -134,6 +134,10 @@
             {
               "type": "button",
               "action": "gamepadB"
+            },
+            {
+              "type": "button",
+              "action": "gamepadX"
             }
           ]
         },
