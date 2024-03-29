@@ -8102,8 +8102,8 @@ if (gamepadFound) {
         ],
 
         getPref(Preferences.REMOTE_PLAY_ENABLED) && [
-            'remotePlayDirectConnectUrl',
             'remotePlayKeepAlive',
+            'remotePlayDirectConnectUrl',
         ],
 
         [
