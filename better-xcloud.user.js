@@ -8778,8 +8778,8 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     bottom: 0;
     box-sizing: border-box;
     width: 60px;
-    height: 60px;
-    padding: 16px;
+    height: 90px;
+    padding: 16px 16px 46px 16px;
     background-size: cover;
     background-repeat: no-repeat;
     background-origin: content-box;
@@ -8796,7 +8796,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 .bx-screenshot-button[data-capturing=true] {
-    padding: 8px;
+    padding: 8px 8px 38px 8px;
 }
 
 .bx-screenshot-canvas {
