@@ -1,0 +1,7 @@
+{
+  "name": "INSIDE",
+  "default_layout": "custom",
+  "layouts": [
+    "inside"
+  ]
+}
