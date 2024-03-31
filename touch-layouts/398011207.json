@@ -1,0 +1,7 @@
+{
+  "name": "LIMBO",
+  "default_layout": "custom",
+  "layouts": [
+    "limbo"
+  ]
+}
