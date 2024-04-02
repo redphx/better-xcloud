@@ -4712,6 +4712,11 @@ class SettingElement {
         const $control = method(...Array.from(arguments).slice(1));
         $control.id = `bx_setting_${key}`;
 
+        // Add "name" property to "select" elements
+        if (type === SettingElement.TYPE_OPTIONS || type === SettingElement.TYPE_MULTIPLE_OPTIONS) {
+            $control.name = $control.id;
+        }
+
         return $control;
     }
 }
@@ -10605,6 +10610,8 @@ function injectSettingsButton($parent) {
                 let selectedValue;
 
                 $control = CE('select', {id: `bx_setting_${settingId}`});
+                $control.name = $control.id;
+
                 $control.addEventListener('change', e => {
                     setPref(settingId, e.target.value);
                     onChange(e);
