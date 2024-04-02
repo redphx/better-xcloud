@@ -189,6 +189,7 @@ const createButton = options => {
     options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
     options.label && $btn.appendChild(CE('span', {}, options.label));
     options.title && $btn.setAttribute('title', options.title);
+    options.disabled && ($btn.disabled = true);
     options.onClick && $btn.addEventListener('click', options.onClick);
 
     if (options.url) {
@@ -3563,7 +3564,6 @@ class RemotePlay {
         };
     }
 
-    static #dialog;
     static #$content;
     static #$consoles;
 
@@ -3573,22 +3573,19 @@ class RemotePlay {
         }
 
         RemotePlay.#$content = CE('div', {}, t('getting-consoles-list'));
-        RemotePlay.#dialog = new Dialog({
-            title: t('remote-play'),
-            content: RemotePlay.#$content,
-            helpUrl: 'https://better-xcloud.github.io/remote-play/',
-        });
-
         RemotePlay.#getXhomeToken(() => {
             RemotePlay.#getConsolesList(() => {
                 console.log(RemotePlay.#CONSOLES);
                 RemotePlay.#renderConsoles();
+
+                const $btn = document.querySelector('.bx-remote-play-button');
+                $btn && ($btn.disabled = false);
             });
         });
     }
 
     static #renderConsoles() {
-        const $fragment = document.createDocumentFragment();
+        const $fragment = CE('div', {'class': 'bx-remote-play-container'});
 
         if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
             $fragment.appendChild(CE('span', {}, t('no-consoles-found')));
@@ -3641,7 +3638,7 @@ class RemotePlay {
                 createButton({
                     classes: ['bx-remote-play-connect-button'],
                     label: t('console-connect'),
-                    style: ButtonStyle.PRIMARY,
+                    style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE,
                     onClick: e => {
                             REMOTE_PLAY_CONFIG = {
                                 serverId: con.serverId,
@@ -3661,7 +3658,7 @@ class RemotePlay {
                             $pageContent.appendChild($anchor);
                             $anchor.click();
 
-                            RemotePlay.#dialog.hide();
+                            RemotePlay.detachPopup();
                         },
                 }),
             );
@@ -3669,22 +3666,7 @@ class RemotePlay {
             $fragment.appendChild($child);
         }
 
-        RemotePlay.#$content.parentElement.replaceChild($fragment, RemotePlay.#$content);
-    }
-
-    static detect() {
-        if (!getPref(Preferences.REMOTE_PLAY_ENABLED)) {
-            return;
-        }
-
-        IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
-        if (IS_REMOTE_PLAYING) {
-            window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
-            // Remove /launch/... from URL
-            window.history.replaceState({origin: 'better-xcloud'}, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play');
-        } else {
-            window.BX_REMOTE_PLAY_CONFIG = null;
-        }
+        RemotePlay.#$content = CE('div', {}, $fragment);
     }
 
     static #getXhomeToken(callback) {
@@ -3783,9 +3765,55 @@ class RemotePlay {
         RemotePlay.#initialize();
     }
 
-    static showDialog() {
+    static detachPopup() {
+        // Detach popup from body
+        const $popup = document.querySelector('.bx-remote-play-popup');
+        $popup && $popup.remove();
+    }
+
+    static togglePopup(force = null) {
+        if (!getPref(Preferences.REMOTE_PLAY_ENABLED)) {
+            return;
+        }
+
         RemotePlay.#initialize();
-        RemotePlay.#dialog.show();
+
+        if (document.querySelector('.bx-remote-play-popup')) {
+            if (force === false) {
+                RemotePlay.#$content.classList.add('bx-gone');
+            } else {
+                RemotePlay.#$content.classList.toggle('bx-gone');
+            }
+            return;
+        }
+
+        const $header = document.querySelector('#gamepass-root header');
+
+        const group = $header.firstElementChild.getAttribute('data-group');
+        RemotePlay.#$content.setAttribute('data-group', group);
+        RemotePlay.#$content.classList.add('bx-remote-play-popup');
+        RemotePlay.#$content.classList.remove('bx-gone');
+
+        $header.insertAdjacentElement('afterend', RemotePlay.#$content);
+    }
+
+    static detect() {
+        if (!getPref(Preferences.REMOTE_PLAY_ENABLED)) {
+            return;
+        }
+
+        IS_REMOTE_PLAYING = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
+        if (IS_REMOTE_PLAYING) {
+            window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
+            // Remove /launch/... from URL
+            window.history.replaceState({origin: 'better-xcloud'}, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play');
+        } else {
+            window.BX_REMOTE_PLAY_CONFIG = null;
+        }
+    }
+
+    static isReady() {
+        return RemotePlay.#CONSOLES !== null;
     }
 }
 
@@ -8109,10 +8137,8 @@ if (gamepadFound) {
             'disableTrackEvent',
         ],
 
-        getPref(Preferences.REMOTE_PLAY_ENABLED) && [
-            'remotePlayKeepAlive',
-            'remotePlayDirectConnectUrl',
-        ],
+        getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayKeepAlive'],
+        getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayDirectConnectUrl'],
 
         [
             'overrideSettings',
@@ -8380,6 +8406,7 @@ function addCss() {
     --bx-reload-button-z-index: 9200;
     --bx-dialog-z-index: 9101;
     --bx-dialog-overlay-z-index: 9100;
+    --bx-remote-play-popup-z-index: 9090;
     --bx-stats-bar-z-index: 9001;
     --bx-stream-settings-z-index: 9000;
     --bx-mkb-pointer-lock-msg-z-index: 8999;
@@ -8502,6 +8529,10 @@ a.bx-button.bx-full-width {
     height: 46px;
 }
 
+.bx-remote-play-button[disabled] {
+    opacity: 0.5;
+}
+
 .bx-settings-button {
     line-height: 30px;
     font-size: 14px;
@@ -8512,16 +8543,16 @@ a.bx-button.bx-full-width {
     content: ' 🌟';
 }
 
-.bx-remote-play-button, .bx-settings-button {
+.bx-button.bx-focusable, .bx-settings-button {
     position: relative;
 }
 
-.bx-remote-play-button::after, .bx-settings-button::after {
+.bx-button.bx-focusable::after {
     border: 2px solid transparent;
     border-radius: 4px;
 }
 
-.bx-remote-play-button:focus::after, .bx-settings-button:focus::after {
+.bx-button.bx-focusable:focus::after {
     content: '';
     border-color: white;
     position: absolute;
@@ -9482,6 +9513,45 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     margin-top: 14px;
 }
 
+.bx-remote-play-popup {
+    width: 100%;
+    max-width: 1920px;
+    margin: auto;
+    position: relative;
+    height: 0.1px;
+    overflow: visible;
+    z-index: var(--bx-remote-play-popup-z-index);
+}
+
+.bx-remote-play-container {
+    position: absolute;
+    right: 10px;
+    top: 0;
+    background: #1a1b1e;
+    border-radius: 10px;
+    width: 420px;
+    max-width: calc(100vw - 20px);
+    margin: 0 0 0 auto;
+    padding: 20px;
+    box-shadow: #00000080 0px 0px 12px 0px;
+}
+
+@media (min-width:480px) and (min-height:calc(480px + 1px)) {
+  .bx-remote-play-container {
+      right: calc(env(safe-area-inset-right, 0px) + 32px)
+  }
+}
+@media (min-width:768px) and (min-height:calc(480px + 1px)) {
+  .bx-remote-play-container {
+      right: calc(env(safe-area-inset-right, 0px) + 48px)
+  }
+}
+@media (min-width:1920px) and (min-height:calc(480px + 1px)) {
+  .bx-remote-play-container {
+      right: calc(env(safe-area-inset-right, 0px) + 80px)
+  }
+}
+
 .bx-remote-play-settings {
     margin-bottom: 12px;
     padding-bottom: 12px;
@@ -10245,9 +10315,10 @@ function injectSettingsButton($parent) {
             classes: ['bx-remote-play-button'],
             icon: Icon.REMOTE_PLAY,
             title: t('remote-play'),
+            disabled: !RemotePlay.isReady(),
             style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
             onClick: e => {
-                RemotePlay.showDialog();
+                RemotePlay.togglePopup();
             },
         });
         $headerFragment.appendChild($remotePlayBtn);
@@ -11491,6 +11562,9 @@ function onHistoryChanged(e) {
         $settings.classList.add('bx-gone');
     }
 
+    // Hide Remote Play popup
+    RemotePlay.detachPopup();
+
     LoadingScreen.reset();
     setTimeout(checkHeader, 2000);
 
@@ -11712,11 +11786,6 @@ BX_FLAGS.PreloadUi && setupBxUi();
 
 disablePwa();
 
-// Preload Remote Play
-if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
-    BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
-}
-
 /*
 if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
     GamepadHandler.initialSetup();
@@ -11725,7 +11794,11 @@ if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
 
 Patcher.initialize();
 
-RemotePlay.detect();
+// Preload Remote Play
+if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
+    BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+    RemotePlay.detect();
+}
 
 StreamBadges.setupEvents();
 StreamStats.setupEvents();
