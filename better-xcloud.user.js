@@ -609,7 +609,7 @@ const Translations = {
         "明瞭度（クラリティ）",
         "선명도",
         "Ostrość",
-        "Clareza",
+        "Nitidez",
         "Чёткость",
         "Netlik",
         "Чіткість",
@@ -689,7 +689,7 @@ const Translations = {
         "Apakah anda yakin ingin menghapus preset ini?",
         "Do you want to delete this preset?",
         "¿Desea eliminar este preajuste?",
-        ,
+        "Voulez-vous supprimer ce préréglage?",
         ,
         "このプリセットを削除しますか？",
         "이 프리셋을 삭제하시겠습니까?",
@@ -774,7 +774,7 @@ const Translations = {
         "Kontroler",
         "Controller",
         "Joystick",
-        ,
+        "Contrôle",
         "Controller",
         "コントローラー",
         "컨트롤러",
@@ -1080,7 +1080,7 @@ const Translations = {
         "Nyalakan pintas kontroler",
         "Enable controller shortcuts",
         "Habilitar accesos directos del Joystick",
-        ,
+        "Activer les raccourcis du contrôle",
         "Consenti scorciatoie da controller",
         "コントローラーショートカットを有効化",
         "컨트롤러 숏컷 활성화",
@@ -1347,6 +1347,23 @@ const Translations = {
         "Ẩn con trỏ chuột khi không di chuyển",
         "空闲时隐藏鼠标",
     ],
+    "hide-scrollbar": [
+        ,
+        ,
+        "Hide web page's scrollbar",
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Ẩn thanh cuộn của trang web",
+        ,
+    ],
     "hide-system-menu-icon": [
         "Symbol des System-Menüs ausblenden",
         "Sembunyikan ikon menu sistem",
@@ -1400,7 +1417,7 @@ const Translations = {
     ],
     "install-android": [
         "\"Better xCloud\" App für Android installieren",
-        ,
+        "Pasang aplikasi Better xCloud untuk Android",
         "Install Better xCloud app for Android",
         ,
         ,
@@ -1442,7 +1459,7 @@ const Translations = {
         "言語",
         "언어",
         "Język",
-        "Linguagem",
+        "Idioma",
         "Язык",
         "Dil",
         "Мова",
@@ -1459,7 +1476,7 @@ const Translations = {
         "大",
         "크게",
         "Duży",
-        "Largo",
+        "Grande",
         "Большой",
         "Büyük",
         "Великий",
@@ -1607,7 +1624,7 @@ const Translations = {
         "Mikrofon",
         "Microphone",
         "Micrófono",
-        ,
+        "Microphone",
         "Microfono",
         "マイク",
         "마이크",
@@ -2283,8 +2300,8 @@ const Translations = {
         "保存",
     ],
     "screenshot-apply-filters": [
-        ,
-        ,
+        "Videofilter auf Screenshots anwenden",
+        "Terapkan filter video pada screenshot",
         "Applies video filters to screenshots",
         ,
         ,
@@ -2292,9 +2309,9 @@ const Translations = {
         "スクリーンショットにビデオフィルターを適用",
         ,
         ,
-        ,
+        "Aplicar filtros às capturas de tela",
         "Применяет фильтры видео к скриншотам",
-        ,
+        "Görsel filtreleri ekran görüntülerine de uygular",
         "Застосовує відеофільтри до знімків екрана",
         "Áp dụng hiệu ứng video vào ảnh chụp màn hình",
         ,
@@ -2377,7 +2394,7 @@ const Translations = {
         "ページを更新をして設定変更を適用",
         "적용 및 페이지 새로고침",
         "Odśwież stronę, aby zastosować zmiany",
-        "Recarregue a página para refletir as alterações",
+        "Recarregue a página para aplicar as alterações",
         "Перезагрузить страницу, чтобы применить изменения",
         "Kaydetmek için sayfayı yenile",
         "Перезавантажте сторінку, щоб застосувати зміни",
@@ -2462,7 +2479,7 @@ const Translations = {
         "推定待機時間を表示",
         "예상 대기 시간 표시",
         "Pokaż szacowany czas oczekiwania",
-        "Mostrar o tempo estimado de espera",
+        "Mostrar o tempo de espera estimado",
         "Показать предполагаемое время до запуска",
         "Tahminî bekleme süresini göster",
         "Показувати орієнтовний час очікування",
@@ -2785,7 +2802,7 @@ const Translations = {
         "Better xCloudをサポート",
         ,
         "Wesprzyj Better xCloud",
-        "Suporte ao Melhor xCloud",
+        "Suporte ao Better xCloud",
         "Поддержать Better xCloud",
         "Better xCloud'a destek ver",
         "Підтримати Better xCloud",
@@ -2819,7 +2836,7 @@ const Translations = {
         "ターゲット解像度",
         "목표 해상도",
         "Rozdzielczość docelowa",
-        "Resolução alvo",
+        "Resolução padrão",
         "Целевое разрешение",
         "Tercih edilen çözünürlük",
         "Цільова роздільна здатність",
@@ -3200,6 +3217,23 @@ const Translations = {
         "Cường độ rung",
         "振动强度",
     ],
+    "vibration-status": [
+        "Vibration",
+        ,
+        "Vibration",
+        ,
+        ,
+        ,
+        "振動",
+        ,
+        ,
+        ,
+        "Вибрация",
+        "Titreşim",
+        "Вібрація",
+        "Rung",
+        "手柄震动",
+    ],
     "video": [
         "Video",
         "Video",
@@ -3329,7 +3363,7 @@ const Translations = {
         "推定完了時間",
         "예상 완료 시간",
         "Szacowany czas zakończenia",
-        "Tempo estimado de conclusão",
+        "Tempo estimado para a conclusão",
         "Примерное время запуска",
         "Tahminî bitiş süresi",
         "Орієнтовний час завершення",
@@ -7111,6 +7145,7 @@ class Preferences {
     static get UI_LOADING_SCREEN_ROCKET() { return 'ui_loading_screen_rocket'; }
 
     static get UI_LAYOUT() { return 'ui_layout'; }
+    static get UI_SCROLLBAR_HIDE() { return 'ui_scrollbar_hide'; }
 
     static get VIDEO_CLARITY() { return 'video_clarity'; }
     static get VIDEO_RATIO() { return 'video_ratio' }
@@ -7456,6 +7491,9 @@ class Preferences {
                 'default': t('default'),
                 'tv': t('smart-tv'),
             },
+        },
+
+        [Preferences.UI_SCROLLBAR_HIDE]: {
         },
 
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
@@ -9766,6 +9804,13 @@ body:not([data-media-type=tv]) button[class*=MenuItem-module__container]:nth-chi
 body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
     margin-left: 8px !important;
     margin-right: 8px !important;
+}
+`;
+    }
+
+        css += `
+body::-webkit-scrollbar {
+    display: none;
 }
 `;
     }
