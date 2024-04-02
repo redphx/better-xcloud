@@ -3640,25 +3640,7 @@ class RemotePlay {
                     label: t('console-connect'),
                     style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE,
                     onClick: e => {
-                            REMOTE_PLAY_CONFIG = {
-                                serverId: con.serverId,
-                            };
-                            window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
-
-                            const url = window.location.href.substring(0, 31) + '/launch/fortnite/BT5P2X999VH2#remote-play';
-
-                            const $pageContent = document.getElementById('PageContent');
-                            const $anchor = CE('a', { href: url, class: 'bx-hidden bx-offscreen' }, '');
-                            $anchor.addEventListener('click', e => {
-                                setTimeout(() => {
-                                    $pageContent.removeChild($anchor);
-                                }, 1000);
-                            });
-
-                            $pageContent.appendChild($anchor);
-                            $anchor.click();
-
-                            RemotePlay.detachPopup();
+                            RemotePlay.play(con.serverId);
                         },
                 }),
             );
@@ -3761,6 +3743,32 @@ class RemotePlay {
         }
     }
 
+    static play(serverId, resolution) {
+        if (resolution) {
+            setPref(Preferences.REMOTE_PLAY_RESOLUTION, resolution);
+        }
+
+        REMOTE_PLAY_CONFIG = {
+            serverId: serverId,
+        };
+        window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
+
+        const url = window.location.href.substring(0, 31) + '/launch/fortnite/BT5P2X999VH2#remote-play';
+
+        const $pageContent = document.getElementById('PageContent');
+        const $anchor = CE('a', { href: url, class: 'bx-hidden bx-offscreen' }, '');
+        $anchor.addEventListener('click', e => {
+            setTimeout(() => {
+                $pageContent.removeChild($anchor);
+            }, 1000);
+        });
+
+        $pageContent.appendChild($anchor);
+        $anchor.click();
+
+        RemotePlay.detachPopup();
+    }
+
     static preload() {
         RemotePlay.#initialize();
     }
@@ -3772,14 +3780,15 @@ class RemotePlay {
     }
 
     static togglePopup(force = null) {
-        if (!getPref(Preferences.REMOTE_PLAY_ENABLED)) {
+        if (!getPref(Preferences.REMOTE_PLAY_ENABLED) || !RemotePlay.isReady()) {
             return;
         }
 
         RemotePlay.#initialize();
 
         if (AppInterface && AppInterface.showRemotePlayDialog) {
-            AppInterface.showRemotePlayDialog();
+            AppInterface.showRemotePlayDialog(JSON.stringify(RemotePlay.#CONSOLES));
+            document.activeElement.blur();
             return;
         }
 
@@ -3818,7 +3827,7 @@ class RemotePlay {
     }
 
     static isReady() {
-        return RemotePlay.#CONSOLES !== null;
+        return RemotePlay.#CONSOLES !== null && RemotePlay.#CONSOLES.length > 0;
     }
 }
 
