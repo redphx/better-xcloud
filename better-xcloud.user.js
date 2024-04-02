@@ -3766,8 +3766,11 @@ class RemotePlay {
                 REMOTE_PLAY_SERVER = server;
 
                 callback();
-                break;
             } catch (e) {}
+
+            if (RemotePlay.#CONSOLES) {
+                break;
+            }
         }
 
         // None of the servers worked
@@ -10248,9 +10251,6 @@ function injectSettingsButton($parent) {
             },
         });
         $headerFragment.appendChild($remotePlayBtn);
-
-        // Preload Remote Play
-        BX_FLAGS.PreloadRemotePlay && RemotePlay.preload()
     }
 
 
@@ -11711,6 +11711,11 @@ Toast.setup();
 BX_FLAGS.PreloadUi && setupBxUi();
 
 disablePwa();
+
+// Preload Remote Play
+if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
+    BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+}
 
 /*
 if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
