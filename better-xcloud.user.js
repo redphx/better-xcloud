@@ -3778,6 +3778,11 @@ class RemotePlay {
 
         RemotePlay.#initialize();
 
+        if (AppInterface && AppInterface.showRemotePlayDialog) {
+            AppInterface.showRemotePlayDialog();
+            return;
+        }
+
         if (document.querySelector('.bx-remote-play-popup')) {
             if (force === false) {
                 RemotePlay.#$content.classList.add('bx-gone');
