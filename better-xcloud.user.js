@@ -21,6 +21,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 // Setup flags
 const DEFAULT_FLAGS = {
+    PreloadRemotePlay: true,
     PreloadUi: false,
     EnableXcloudLogging: false,
 
@@ -3773,6 +3774,10 @@ class RemotePlay {
         if (!REMOTE_PLAY_SERVER) {
             RemotePlay.#CONSOLES = [];
         }
+    }
+
+    static preload() {
+        RemotePlay.#initialize();
     }
 
     static showDialog() {
@@ -10243,6 +10248,9 @@ function injectSettingsButton($parent) {
             },
         });
         $headerFragment.appendChild($remotePlayBtn);
+
+        // Preload Remote Play
+        BX_FLAGS.PreloadRemotePlay && RemotePlay.preload()
     }
 
 
