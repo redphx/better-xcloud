@@ -7494,6 +7494,7 @@ class Preferences {
         },
 
         [Preferences.UI_SCROLLBAR_HIDE]: {
+            'default': false,
         },
 
         [Preferences.BLOCK_SOCIAL_FEATURES]: {
@@ -9808,6 +9809,8 @@ body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
 `;
     }
 
+    // Hide scrollbar
+    if (getPref(Preferences.UI_SCROLLBAR_HIDE)) {
         css += `
 body::-webkit-scrollbar {
     display: none;
@@ -10513,6 +10516,7 @@ function injectSettingsButton($parent) {
         },
         [t('ui')]: {
             [Preferences.UI_LAYOUT]: t('layout'),
+            [Preferences.UI_SCROLLBAR_HIDE]: t('hide-scrollbar'),
             [Preferences.STREAM_SIMPLIFY_MENU]: t('simplify-stream-menu'),
             [Preferences.SKIP_SPLASH_VIDEO]: t('skip-splash-video'),
             [Preferences.HIDE_DOTS_ICON]: t('hide-system-menu-icon'),
