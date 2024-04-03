@@ -10137,7 +10137,7 @@ function interceptHttpRequests() {
             return patchIceCandidates(...arg) || NATIVE_FETCH(...arg);
         }
 
-        if (IS_REMOTE_PLAYING && url.includes('/login/user')) {
+        if (IS_REMOTE_PLAYING && url.includes('xhome') && url.includes('/login/user')) {
             try {
                 const clone = request.clone();
 
