@@ -11876,6 +11876,7 @@ MkbHandler.setupEvents();
 
 // Show a toast when connecting/disconecting controller
 function showGamepadToast(gamepad) {
+    console.log(gamepad);
     let text = '🎮';
 
     if (getPref(Preferences.LOCAL_CO_OP_ENABLED)) {
@@ -11885,7 +11886,14 @@ function showGamepadToast(gamepad) {
     // Remove "(STANDARD GAMEPAD Vendor: xxx Product: xxx)" from ID
     const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, '');
     text += ` - ${gamepadId}`;
-    const status = gamepad.connected ? t('connected') : t('disconnected');
+
+    let status;
+    if (gamepad.connected) {
+        const supportVibration = !!gamepad.vibrationActuator;
+        status = (supportVibration ? '✅' : '❌') + ' ' + t('vibration-status');
+    } else {
+        status = t('disconnected');
+    }
 
     Toast.show(text, status, {instant: false});
 }
