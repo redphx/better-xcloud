@@ -10521,9 +10521,9 @@ function injectSettingsButton($parent) {
         },
         [t('ui')]: {
             [Preferences.UI_LAYOUT]: t('layout'),
-            [Preferences.UI_SCROLLBAR_HIDE]: t('hide-scrollbar'),
             [Preferences.STREAM_SIMPLIFY_MENU]: t('simplify-stream-menu'),
             [Preferences.SKIP_SPLASH_VIDEO]: t('skip-splash-video'),
+            [!AppInterface && Preferences.UI_SCROLLBAR_HIDE]: t('hide-scrollbar'),
             [Preferences.HIDE_DOTS_ICON]: t('hide-system-menu-icon'),
             [Preferences.REDUCE_ANIMATIONS]: t('reduce-animations'),
         },
@@ -10571,7 +10571,7 @@ function injectSettingsButton($parent) {
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
             // Don't render custom settings
-            if (settingId.startsWith('_')) {
+            if (settingId === 'undefined' || settingId.startsWith('_')) {
                 continue;
             }
 
