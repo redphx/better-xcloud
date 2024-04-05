@@ -10575,11 +10575,14 @@ function injectSettingsButton($parent) {
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
             // Don't render custom settings
-            if (!settingId || settingId === 'undefined' || settingId.startsWith('_')) {
+            if (!settingId || settingId === 'false' || settingId === 'undefined' || settingId.startsWith('_')) {
                 continue;
             }
 
             const setting = Preferences.SETTINGS[settingId];
+            if (!setting) {
+                continue;
+            }
 
             const settingLabel = SETTINGS_UI[groupLabel][settingId];
             const settingNote = setting.note;
