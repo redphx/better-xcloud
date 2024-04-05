@@ -3548,7 +3548,7 @@ class Dialog {
 class RemotePlay {
     static XCLOUD_TOKEN;
     static XHOME_TOKEN;
-    static #CONSOLES;
+    static #CONSOLES = null;
 
     static #STATE_LABELS = {
         'On': t('powered-on'),
