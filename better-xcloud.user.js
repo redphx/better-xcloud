@@ -10575,7 +10575,7 @@ function injectSettingsButton($parent) {
 
         for (let settingId in SETTINGS_UI[groupLabel]) {
             // Don't render custom settings
-            if (settingId === 'undefined' || settingId.startsWith('_')) {
+            if (!settingId || settingId === 'undefined' || settingId.startsWith('_')) {
                 continue;
             }
 
