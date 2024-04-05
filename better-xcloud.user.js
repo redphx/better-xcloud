@@ -9817,6 +9817,10 @@ body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
     // Hide scrollbar
     if (getPref(Preferences.UI_SCROLLBAR_HIDE)) {
         css += `
+html {
+    scrollbar-width: none;
+}
+
 body::-webkit-scrollbar {
     display: none;
 }
