@@ -10041,7 +10041,7 @@ function interceptHttpRequests() {
             BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
         }
 
-        if (IS_REMOTE_PLAYING && (url.includes('/sessions/home') || url.includes('inputconfigs'))) {
+        if (url.includes('/sessions/home') || (IS_REMOTE_PLAYING && url.includes('inputconfigs'))) {
             TouchController.disable();
 
             const clone = request.clone();
