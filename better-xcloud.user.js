@@ -9985,36 +9985,33 @@ function interceptHttpRequests() {
 
     const consoleAddrs = {};
 
-    const patchIceCandidates = function(...arg) {
+    const patchIceCandidates = async (...arg) => {
         // ICE server candidates
         const request = arg[0];
         const url = (typeof request === 'string') ? request : request.url;
 
         if (url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
-            const promise = NATIVE_FETCH(...arg);
+            const response = await NATIVE_FETCH(...arg);
+            const text = await response.clone().text();
 
-            return promise.then(response => {
-                return response.clone().text().then(text => {
-                    if (!text.length) {
-                        return response;
-                    }
+            if (!text.length) {
+                return response;
+            }
 
-                    const options = {
-                        preferIpv6Server: PREF_PREFER_IPV6_SERVER,
-                        consoleAddrs: consoleAddrs,
-                    };
+            const options = {
+                preferIpv6Server: PREF_PREFER_IPV6_SERVER,
+                consoleAddrs: consoleAddrs,
+            };
 
-                    const obj = JSON.parse(text);
-                    let exchangeResponse = JSON.parse(obj.exchangeResponse);
-                    exchangeResponse = updateIceCandidates(exchangeResponse, options)
-                    obj.exchangeResponse = JSON.stringify(exchangeResponse);
+            const obj = JSON.parse(text);
+            let exchangeResponse = JSON.parse(obj.exchangeResponse);
+            exchangeResponse = updateIceCandidates(exchangeResponse, options)
+            obj.exchangeResponse = JSON.stringify(exchangeResponse);
 
-                    response.json = () => Promise.resolve(obj);
-                    response.text = () => Promise.resolve(JSON.stringify(obj));
+            response.json = () => Promise.resolve(obj);
+            response.text = () => Promise.resolve(JSON.stringify(obj));
 
-                    return response;
-                });
-            });
+            return response;
         }
 
         return null;
@@ -10080,63 +10077,57 @@ function interceptHttpRequests() {
 
             // Get console IP
             if (url.includes('/configuration')) {
-                const promise = NATIVE_FETCH(...arg);
+                const response = await NATIVE_FETCH(...arg);
 
-                return promise.then(response => {
-                    return response.clone().json().then(obj => {
-                        console.log(obj);
+                const obj = await response.clone().json()
+                console.log(obj);
 
-                        const serverDetails = obj.serverDetails;
-                        if (serverDetails.ipV4Address) {
-                            consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
-                        }
+                const serverDetails = obj.serverDetails;
+                if (serverDetails.ipV4Address) {
+                    consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
+                }
 
-                        if (serverDetails.ipV6Address) {
-                            consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
-                        }
+                if (serverDetails.ipV6Address) {
+                    consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+                }
 
-                        response.json = () => Promise.resolve(obj);
-                        response.text = () => Promise.resolve(JSON.stringify(obj));
+                response.json = () => Promise.resolve(obj);
+                response.text = () => Promise.resolve(JSON.stringify(obj));
 
-                        return response;
-                    });
-                });
+                return response;
             } else if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && url.includes('inputconfigs')) {
-                const promise = NATIVE_FETCH(...arg);
+                const response = await NATIVE_FETCH(...arg);
+                const obj = await response.clone().json();
 
-                return promise.then(response => {
-                    return response.clone().json().then(obj => {
-                        const xboxTitleId = JSON.parse(opts.body).titleIds[0];
-                        GAME_XBOX_TITLE_ID = xboxTitleId;
+                const xboxTitleId = JSON.parse(opts.body).titleIds[0];
+                GAME_XBOX_TITLE_ID = xboxTitleId;
 
-                        const inputConfigs = obj[0];
+                const inputConfigs = obj[0];
 
-                        let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
-                        if (!hasTouchSupport) {
-                            const supportedInputTypes = inputConfigs.supportedInputTypes;
-                            hasTouchSupport = supportedInputTypes.includes('NativeTouch');
-                        }
+                let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
+                if (!hasTouchSupport) {
+                    const supportedInputTypes = inputConfigs.supportedInputTypes;
+                    hasTouchSupport = supportedInputTypes.includes('NativeTouch');
+                }
 
-                        if (hasTouchSupport) {
-                            TouchController.disable();
+                if (hasTouchSupport) {
+                    TouchController.disable();
 
-                            BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-                                    data: null,
-                                });
-                        } else {
-                            TouchController.enable();
-                            TouchController.getCustomLayouts(xboxTitleId);
-                        }
-
-                        response.json = () => Promise.resolve(obj);
-                        response.text = () => Promise.resolve(JSON.stringify(obj));
-
-                        return response;
+                    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+                        data: null,
                     });
-                });
+                } else {
+                    TouchController.enable();
+                    TouchController.getCustomLayouts(xboxTitleId);
+                }
+
+                response.json = () => Promise.resolve(obj);
+                response.text = () => Promise.resolve(JSON.stringify(obj));
+
+                return response;
             }
 
-            return patchIceCandidates(...arg) || NATIVE_FETCH(...arg);
+            return await patchIceCandidates(...arg) || NATIVE_FETCH(...arg);
         }
 
         if (IS_REMOTE_PLAYING && url.includes('xhome') && url.includes('/login/user')) {
@@ -10184,49 +10175,46 @@ function interceptHttpRequests() {
         }
 
         // ICE server candidates
-        const patchedIpv6 = patchIceCandidates(...arg);
+        const patchedIpv6 = await patchIceCandidates(...arg);
         if (patchedIpv6) {
             return patchedIpv6;
         }
 
         // Server list
         if (!url.includes('xhome.') && url.endsWith('/v2/login/user')) {
-            const promise = NATIVE_FETCH(...arg);
+            const response = await NATIVE_FETCH(...arg);
+            const obj = await response.clone().json();
 
-            return promise.then(response => {
-                return response.clone().json().then(obj => {
-                    // Preload Remote Play
-                    BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+            // Preload Remote Play
+            BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
 
-                    // Store xCloud token
-                    RemotePlay.XCLOUD_TOKEN = obj.gsToken;
+            // Store xCloud token
+            RemotePlay.XCLOUD_TOKEN = obj.gsToken;
 
-                    // Get server list
-                    if (!Object.keys(SERVER_REGIONS).length) {
-                        for (let region of obj.offeringSettings.regions) {
-                            SERVER_REGIONS[region.name] = Object.assign({}, region);
-                        }
+            // Get server list
+            if (!Object.keys(SERVER_REGIONS).length) {
+                for (let region of obj.offeringSettings.regions) {
+                    SERVER_REGIONS[region.name] = Object.assign({}, region);
+                }
 
-                        // Start rendering UI
-                        if (document.querySelector('div[class^=UnsupportedMarketPage]')) {
-                            setTimeout(watchHeader, 2000);
-                        } else {
-                            watchHeader();
-                        }
-                    }
+                // Start rendering UI
+                if (document.querySelector('div[class^=UnsupportedMarketPage]')) {
+                    setTimeout(watchHeader, 2000);
+                } else {
+                    watchHeader();
+                }
+            }
 
-                    const preferredRegion = getPreferredServerRegion();
-                    if (preferredRegion in SERVER_REGIONS) {
-                        const tmp = Object.assign({}, SERVER_REGIONS[preferredRegion]);
-                        tmp.isDefault = true;
+            const preferredRegion = getPreferredServerRegion();
+            if (preferredRegion in SERVER_REGIONS) {
+                const tmp = Object.assign({}, SERVER_REGIONS[preferredRegion]);
+                tmp.isDefault = true;
 
-                        obj.offeringSettings.regions = [tmp];
-                    }
+                obj.offeringSettings.regions = [tmp];
+            }
 
-                    response.json = () => Promise.resolve(obj);
-                    return response;
-                });
-            });
+            response.json = () => Promise.resolve(obj);
+            return response;
         }
 
         // Get region
@@ -10271,22 +10259,18 @@ function interceptHttpRequests() {
 
         // Get wait time
         if (PREF_UI_LOADING_SCREEN_WAIT_TIME && url.includes('xboxlive.com') && url.includes('/waittime/')) {
-            const promise = NATIVE_FETCH(...arg);
-            return promise.then(response => {
-                return response.clone().json().then(json => {
-                    if (json.estimatedAllocationTimeInSeconds > 0) {
-                        // Setup wait time overlay
-                        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
-                    }
+            const response = await NATIVE_FETCH(...arg);
 
-                    return response;
-                });
-            });
+            const json = await response.clone.json();
+            if (json.estimatedAllocationTimeInSeconds > 0) {
+                // Setup wait time overlay
+                LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
+            }
+
+            return response;
         }
 
         if (url.endsWith('/configuration') && url.includes('/sessions/cloud/') && request.method === 'GET') {
-            const promise = NATIVE_FETCH(...arg);
-
             // Touch controller for all games
             if (PREF_STREAM_TOUCH_CONTROLLER === 'all') {
                 TouchController.disable();
@@ -10301,68 +10285,61 @@ function interceptHttpRequests() {
             }
 
             // Intercept configurations
-            return promise.then(response => {
-                return response.clone().text().then(text => {
-                    if (!text.length) {
-                        return response;
-                    }
+            const response = await NATIVE_FETCH(...arg);
+            const text = await response.clone().text();
+            if (!text.length) {
+                return response;
+            }
 
-                    const obj = JSON.parse(text);
-                    let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
+            const obj = JSON.parse(text);
+            let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};
 
-                    overrides.inputConfiguration = overrides.inputConfiguration || {};
-                    overrides.inputConfiguration.enableVibration = true;
-                    if (ENABLE_NATIVE_MKB_BETA) {
-                        overrides.inputConfiguration.enableMouseAndKeyboard = true;
-                    }
+            overrides.inputConfiguration = overrides.inputConfiguration || {};
+            overrides.inputConfiguration.enableVibration = true;
+            if (ENABLE_NATIVE_MKB_BETA) {
+                overrides.inputConfiguration.enableMouseAndKeyboard = true;
+            }
 
-                    // Enable touch controller
-                    if (TouchController.isEnabled()) {
-                        overrides.inputConfiguration.enableTouchInput = true;
-                        overrides.inputConfiguration.maxTouchPoints = 10;
-                    }
+            // Enable touch controller
+            if (TouchController.isEnabled()) {
+                overrides.inputConfiguration.enableTouchInput = true;
+                overrides.inputConfiguration.maxTouchPoints = 10;
+            }
 
-                    // Enable mic
-                    if (PREF_AUDIO_MIC_ON_PLAYING) {
-                        overrides.audioConfiguration = overrides.audioConfiguration || {};
-                        overrides.audioConfiguration.enableMicrophone = true;
-                    }
+            // Enable mic
+            if (PREF_AUDIO_MIC_ON_PLAYING) {
+                overrides.audioConfiguration = overrides.audioConfiguration || {};
+                overrides.audioConfiguration.enableMicrophone = true;
+            }
 
-                    obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
+            obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
 
-                    response.json = () => Promise.resolve(obj);
-                    response.text = () => Promise.resolve(JSON.stringify(obj));
+            response.json = () => Promise.resolve(obj);
+            response.text = () => Promise.resolve(JSON.stringify(obj));
 
-                    return response;
-                });
-            });
+            return response;
         }
 
         // catalog.gamepass
         if (url.startsWith('https://catalog.gamepass.com') && url.includes('/products')) {
-            const promise = NATIVE_FETCH(...arg);
-            return promise.then(response => {
-                return response.clone().json().then(json => {
-                    for (let productId in json.Products) {
-                        TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
-                    }
+            const response = await NATIVE_FETCH(...arg);
+            const json = await response.clone().json()
 
-                    return response;
-                });
-            });
+            for (let productId in json.Products) {
+                TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
+            }
+
+            return response;
         }
 
         if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.includes('/titles') || url.includes('/mru'))) {
-            const promise = NATIVE_FETCH(...arg);
-            return promise.then(response => {
-                return response.clone().json().then(json => {
-                    for (let game of json.results) {
-                        TitlesInfo.saveFromTitleInfo(game);
-                    }
+            const response = await NATIVE_FETCH(...arg);
+            const json = await response.clone().json()
+            for (let game of json.results) {
+                TitlesInfo.saveFromTitleInfo(game);
+            }
 
-                    return response;
-                });
-            });
+            return response;
         }
 
         return NATIVE_FETCH(...arg);
