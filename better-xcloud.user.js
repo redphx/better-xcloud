@@ -10367,58 +10367,16 @@ function interceptHttpRequests() {
 }
 
 
-function injectSettingsButton($parent) {
-    if (!$parent) {
+function setupSettingsUi() {
+    // Avoid rendering the Settings multiple times
+    if (document.querySelector('.bx-settings-container')) {
         return;
     }
 
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = getPref(Preferences.LATEST_VERSION);
 
-    const $headerFragment = document.createDocumentFragment();
     let $reloadBtnWrapper;
-
-    // Remote Play button
-    if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
-        const $remotePlayBtn = createButton({
-            classes: ['bx-remote-play-button'],
-            icon: Icon.REMOTE_PLAY,
-            title: t('remote-play'),
-            style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
-            onClick: e => {
-                RemotePlay.togglePopup();
-            },
-        });
-        $headerFragment.appendChild($remotePlayBtn);
-    }
-
-
-    // Setup Settings button
-    const $settingsBtn = createButton({
-        classes: ['bx-settings-button'],
-        label: PREF_PREFERRED_REGION,
-        style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
-        onClick: e => {
-            const $settings = document.querySelector('.bx-settings-container');
-            $settings.classList.toggle('bx-gone');
-            window.scrollTo(0, 0);
-            document.activeElement && document.activeElement.blur();
-        },
-    });
-
-    // Show new update status
-    if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
-        $settingsBtn.setAttribute('data-update-available', true);
-    }
-
-    // Add the Settings button to the web page
-    $headerFragment.appendChild($settingsBtn);
-    $parent.appendChild($headerFragment);
-
-    // Avoid rendering the Settings multiple times
-    if (document.querySelector('.bx-settings-container')) {
-        return;
-    }
 
     // Setup Settings UI
     const $container = CE('div', {
@@ -10711,6 +10669,57 @@ function injectSettingsButton($parent) {
     // Add Settings UI to the web page
     const $pageContent = document.getElementById('PageContent');
     $pageContent.parentNode.insertBefore($container, $pageContent);
+}
+
+
+function injectSettingsButton($parent) {
+    if (!$parent) {
+        return;
+    }
+
+    const PREF_PREFERRED_REGION = getPreferredServerRegion();
+    const PREF_LATEST_VERSION = getPref(Preferences.LATEST_VERSION);
+
+    const $headerFragment = document.createDocumentFragment();
+
+    // Remote Play button
+    if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
+        const $remotePlayBtn = createButton({
+            classes: ['bx-remote-play-button'],
+            icon: Icon.REMOTE_PLAY,
+            title: t('remote-play'),
+            style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+            onClick: e => {
+                RemotePlay.togglePopup();
+            },
+        });
+        $headerFragment.appendChild($remotePlayBtn);
+    }
+
+
+    // Setup Settings button
+    const $settingsBtn = createButton({
+        classes: ['bx-settings-button'],
+        label: PREF_PREFERRED_REGION,
+        style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
+        onClick: e => {
+            setupSettingsUi();
+
+            const $settings = document.querySelector('.bx-settings-container');
+            $settings.classList.toggle('bx-gone');
+            window.scrollTo(0, 0);
+            document.activeElement && document.activeElement.blur();
+        },
+    });
+
+    // Show new update status
+    if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
+        $settingsBtn.setAttribute('data-update-available', true);
+    }
+
+    // Add the Settings button to the web page
+    $headerFragment.appendChild($settingsBtn);
+    $parent.appendChild($headerFragment);
 }
 
 function getVideoPlayerFilterStyle() {
