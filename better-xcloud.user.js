@@ -10195,6 +10195,9 @@ function interceptHttpRequests() {
 
             return promise.then(response => {
                 return response.clone().json().then(obj => {
+                    // Preload Remote Play
+                    BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+
                     // Store xCloud token
                     RemotePlay.XCLOUD_TOKEN = obj.gsToken;
 
@@ -10829,9 +10832,6 @@ function checkHeader() {
     if (!$button) {
         const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
         injectSettingsButton($rightHeader);
-
-        // Preload Remote Play
-        BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
     }
 }
 
