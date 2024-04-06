@@ -21,6 +21,7 @@ const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 // Setup flags
 const DEFAULT_FLAGS = {
+    CheckForUpdate: true,
     PreloadRemotePlay: true,
     PreloadUi: false,
     EnableXcloudLogging: false,
@@ -8356,7 +8357,7 @@ if (gamepadFound) {
 
 
 function checkForUpdate() {
-    const CHECK_INTERVAL_SECONDS = 4 * 3600; // check every 4 hours
+    const CHECK_INTERVAL_SECONDS = 2 * 3600; // check every 2 hours
 
     const currentVersion = getPref(Preferences.CURRENT_VERSION);
     const lastCheck = getPref(Preferences.LAST_UPDATE_CHECK);
@@ -11766,7 +11767,7 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
 PreloadedState.override();
 
 // Check for Update
-checkForUpdate();
+BX_FLAGS.CheckForUpdate && checkForUpdate();
 
 // Monkey patches
 if (getPref(Preferences.AUDIO_ENABLE_VOLUME_CONTROL)) {
