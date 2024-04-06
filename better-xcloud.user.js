@@ -3611,9 +3611,6 @@ class RemotePlay {
             RemotePlay.#getConsolesList(() => {
                 console.log(RemotePlay.#CONSOLES);
                 RemotePlay.#renderConsoles();
-
-                const $btn = document.querySelector('.bx-remote-play-button');
-                $btn && ($btn.disabled = false);
             });
         });
     }
@@ -3815,6 +3812,7 @@ class RemotePlay {
 
     static togglePopup(force = null) {
         if (!getPref(Preferences.REMOTE_PLAY_ENABLED) || !RemotePlay.isReady()) {
+            Toast.show(t('getting-consoles-list'));
             return;
         }
 
@@ -10386,7 +10384,6 @@ function injectSettingsButton($parent) {
             classes: ['bx-remote-play-button'],
             icon: Icon.REMOTE_PLAY,
             title: t('remote-play'),
-            disabled: !RemotePlay.isReady(),
             style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 RemotePlay.togglePopup();
@@ -10823,6 +10820,9 @@ function checkHeader() {
     if (!$button) {
         const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
         injectSettingsButton($rightHeader);
+
+        // Preload Remote Play
+        BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
     }
 }
 
@@ -11873,7 +11873,6 @@ Patcher.initialize();
 
 // Preload Remote Play
 if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
-    BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
     RemotePlay.detect();
 }
 
