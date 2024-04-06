@@ -11128,6 +11128,10 @@ function patchVideoApi() {
             return nativePlay.apply(this);
         }
 
+        if (!!this.src) {
+            return nativePlay.apply(this);
+        }
+
         this.addEventListener('playing', showFunc);
         injectStreamMenuButtons();
 
