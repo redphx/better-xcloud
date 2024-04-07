@@ -7098,7 +7098,7 @@ class UserAgent {
         }
 
         if (!newUserAgent) {
-            newUserAgent = UserAgent.get(profile) || defaultUserAgent;
+            newUserAgent = UserAgent.get(profile);
         }
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
