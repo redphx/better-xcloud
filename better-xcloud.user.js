@@ -7166,6 +7166,8 @@ class Preferences {
     static get USER_AGENT_CUSTOM() { return 'user_agent_custom'; }
     static get STREAM_SIMPLIFY_MENU() { return 'stream_simplify_menu'; }
 
+    static get STREAM_COMBINE_SOURCES() { return 'stream_combine_sources'; }
+
     static get STREAM_TOUCH_CONTROLLER() { return 'stream_touch_controller'; }
     static get STREAM_TOUCH_CONTROLLER_AUTO_OFF() { return 'stream_touch_controller_auto_off'; }
     static get STREAM_TOUCH_CONTROLLER_STYLE_STANDARD() { return 'stream_touch_controller_style_standard'; }
@@ -7395,6 +7397,12 @@ class Preferences {
         },
         [Preferences.HIDE_DOTS_ICON]: {
             'default': false,
+        },
+
+        [Preferences.STREAM_COMBINE_SOURCES]: {
+            'default': false,
+            'experimental': true,
+            'note': t('combine-audio-video-streams-summary'),
         },
 
         [Preferences.STREAM_TOUCH_CONTROLLER]: {
@@ -8221,6 +8229,16 @@ if (gamepadFound) {
             funcStr = funcStr.replace(text, newCode + text);
             return funcStr;
         },
+
+        streamCombineSources: function(funcStr) {
+            const text = 'this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            funcStr = funcStr.replace(text, 'this.useCombinedAudioVideoStream=true');
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -8274,6 +8292,8 @@ if (gamepadFound) {
             'disableGamepadDisconnectedScreen',
             ENABLE_NATIVE_MKB_BETA && 'mkbMouseAndKeyboardEnabled',
         ],
+
+        getPref(Preferences.STREAM_COMBINE_SOURCES) && ['streamCombineSources'],
     ];
 
     static #patchFunctionBind() {
@@ -10480,6 +10500,7 @@ function setupSettingsUi() {
             [Preferences.SCREENSHOT_APPLY_FILTERS]: t('screenshot-apply-filters'),
 
             [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: t('enable-volume-control'),
+            [Preferences.STREAM_COMBINE_SOURCES]: t('combine-audio-video-streams'),
         },
 
         [t('local-co-op')]: {
@@ -10582,7 +10603,7 @@ function setupSettingsUi() {
                 if (!settingNote) {
                     settingNote = t('experimental')
                 } else {
-                    settingNote = `[🧪 ${t('experimental')}] ${settingNote}`
+                    settingNote = `${t('experimental')}: ${settingNote}`
                 }
             }
 
