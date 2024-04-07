@@ -668,6 +668,40 @@ const Translations = {
         "Đóng",
         "关闭",
     ],
+    "combine-audio-video-streams": [
+        ,
+        ,
+        "Combine audio & video streams",
+        ,
+        ,
+        ,
+        "音声を映像ストリーミングと統合",
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Hòa hợp nguồn của âm thanh và hình ảnh",
+        ,
+    ],
+    "combine-audio-video-streams-summary": [
+        ,
+        ,
+        "May fix the laggy audio problem",
+        ,
+        ,
+        ,
+        "音声の遅延を改善できるかもしれません",
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Có thể sửa được lỗi trễ tiếng",
+        ,
+    ],
     "conditional-formatting": [
         "Zustandsabhängige Textfarbe",
         "Format teks kondisional",
@@ -1229,6 +1263,23 @@ const Translations = {
         "Đã bật",
         "启用",
     ],
+    "experimental": [
+        ,
+        ,
+        "Experimental",
+        ,
+        ,
+        ,
+        "実験的機能",
+        ,
+        ,
+        ,
+        ,
+        ,
+        ,
+        "Thử nghiệm",
+        ,
+    ],
     "export": [
         "Exportieren",
         "Ekspor",
@@ -1349,21 +1400,21 @@ const Translations = {
         "空闲时隐藏鼠标",
     ],
     "hide-scrollbar": [
-        ,
+        "Scrollbalken der Webseite ausblenden",
         ,
         "Hide web page's scrollbar",
         ,
         ,
         ,
+        "Webページのスクロールバーを隠す",
         ,
         ,
         ,
+        "Скрыть полосу прокрутки страницы",
         ,
-        ,
-        ,
-        ,
+        "Приховати смугу прокрутки вебсторінок",
         "Ẩn thanh cuộn của trang web",
-        ,
+        "隐藏浏览器滚动条",
     ],
     "hide-system-menu-icon": [
         "Symbol des System-Menüs ausblenden",
@@ -2315,7 +2366,7 @@ const Translations = {
         "Görsel filtreleri ekran görüntülerine de uygular",
         "Застосовує відеофільтри до знімків екрана",
         "Áp dụng hiệu ứng video vào ảnh chụp màn hình",
-        ,
+        "为截图添加滤镜",
     ],
     "screenshot-button-position": [
         "Position des Screenshot-Buttons",
@@ -7578,6 +7629,7 @@ class Preferences {
         },
         [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: {
             'default': false,
+            'experimental': true,
         },
         [Preferences.AUDIO_VOLUME]: {
             'type': SettingElement.TYPE_NUMBER_STEPPER,
@@ -10421,12 +10473,13 @@ function setupSettingsUi() {
             [Preferences.STREAM_TARGET_RESOLUTION]: t('target-resolution'),
             [Preferences.STREAM_CODEC_PROFILE]: t('visual-quality'),
             [Preferences.GAME_FORTNITE_FORCE_CONSOLE]: '🎮 ' + t('fortnite-force-console-version'),
-            [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: t('enable-volume-control'),
             [Preferences.AUDIO_MIC_ON_PLAYING]: t('enable-mic-on-startup'),
             [Preferences.STREAM_DISABLE_FEEDBACK_DIALOG]: t('disable-post-stream-feedback-dialog'),
 
             [Preferences.SCREENSHOT_BUTTON_POSITION]: t('screenshot-button-position'),
             [Preferences.SCREENSHOT_APPLY_FILTERS]: t('screenshot-apply-filters'),
+
+            [Preferences.AUDIO_ENABLE_VOLUME_CONTROL]: t('enable-volume-control'),
         },
 
         [t('local-co-op')]: {
@@ -10520,8 +10573,18 @@ function setupSettingsUi() {
                 continue;
             }
 
-            const settingLabel = SETTINGS_UI[groupLabel][settingId];
-            const settingNote = setting.note;
+            let settingLabel = SETTINGS_UI[groupLabel][settingId];
+            let settingNote = setting.note || '';
+
+            // Add Experimental text
+            if (setting.experimental) {
+                settingLabel = '🧪 ' + settingLabel;
+                if (!settingNote) {
+                    settingNote = t('experimental')
+                } else {
+                    settingNote = `[🧪 ${t('experimental')}] ${settingNote}`
+                }
+            }
 
             let $control, $inpCustomUserAgent;
             let labelAttrs = {};
