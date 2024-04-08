@@ -16,7 +16,7 @@
 
 /* ADDITIONAL CODE */
 
-const SCRIPT_VERSION = '3.4.0';
+const SCRIPT_VERSION = '3.5.0';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 // Setup flags
