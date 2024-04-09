@@ -1,0 +1,7 @@
+{
+  "name": "GAME NAME",
+  "default_layout": "custom",
+  "layouts": [
+    "arcade-paradise"
+  ]
+}
