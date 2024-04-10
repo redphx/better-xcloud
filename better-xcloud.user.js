@@ -8662,17 +8662,17 @@ a.bx-button.bx-full-width {
     opacity: 0.5;
 }
 
-.bx-settings-button {
+.bx-header-settings-button {
     line-height: 30px;
     font-size: 14px;
-    text-transform: none;
+    text-transform: uppercase;
 }
 
-.bx-settings-button[data-update-available]::after {
+.bx-header-settings-button[data-update-available]::after {
     content: ' 🌟';
 }
 
-.bx-button.bx-focusable, .bx-settings-button {
+.bx-button.bx-focusable, .bx-header-settings-button {
     position: relative;
 }
 
@@ -9903,16 +9903,16 @@ body::-webkit-scrollbar {
 }
 
 
-function getPreferredServerRegion() {
+function getPreferredServerRegion(shortName = false) {
     let preferredRegion = getPref(Preferences.SERVER_REGION);
     if (preferredRegion in SERVER_REGIONS) {
-        return preferredRegion;
+        return shortName ? SERVER_REGIONS[preferredRegion].shortName : preferredRegion;
     }
 
     for (let regionName in SERVER_REGIONS) {
         const region = SERVER_REGIONS[regionName];
         if (region.isDefault) {
-            return regionName;
+            return shortName ? region.shortName : regionName;
         }
     }
 
@@ -10266,7 +10266,38 @@ function interceptHttpRequests() {
 
             // Get server list
             if (!Object.keys(SERVER_REGIONS).length) {
+                const serverEmojis = {
+                    AustraliaEast: '🇦🇺',
+                    AustraliaSouthEast: '🇦🇺',
+                    BrazilSouth: '🇧🇷',
+                    EastUS: '🇺🇸',
+                    EastUS2: '🇺🇸',
+                    JapanEast: '🇯🇵',
+                    KoreaCentral: '🇰🇷',
+                    MexicoCentral: '🇲🇽',
+                    NorthCentralUs: '🇺🇸',
+                    SouthCentralUS: '🇺🇸',
+                    UKSouth: '🇬🇧',
+                    WestEurope: '🇪🇺',
+                    WestUS: '🇺🇸',
+                    WestUS2: '🇺🇸',
+                };
+
+                const regex = /\/\/(\w+)\./;
+
                 for (let region of obj.offeringSettings.regions) {
+                    let shortName = region.name;
+
+                    let match = regex.exec(region.baseUri);
+                    if (match) {
+                        shortName = match[1];
+                        if (serverEmojis[region.name]) {
+                            shortName = serverEmojis[region.name] + ' ' + shortName;
+                        }
+                    }
+
+                    region.shortName = shortName;
+
                     SERVER_REGIONS[region.name] = Object.assign({}, region);
                 }
 
@@ -10650,7 +10681,7 @@ function setupSettingsUi() {
                     const region = SERVER_REGIONS[regionName];
                     let value = regionName;
 
-                    let label = regionName;
+                    let label = `${region.shortName} - ${regionName}`;
                     if (region.isDefault) {
                         label += ` (${t('default')})`;
                         value = 'default';
@@ -10742,7 +10773,7 @@ function injectSettingsButton($parent) {
         return;
     }
 
-    const PREF_PREFERRED_REGION = getPreferredServerRegion();
+    const PREF_PREFERRED_REGION = getPreferredServerRegion(true);
     const PREF_LATEST_VERSION = getPref(Preferences.LATEST_VERSION);
 
     const $headerFragment = document.createDocumentFragment();
@@ -10764,7 +10795,7 @@ function injectSettingsButton($parent) {
 
     // Setup Settings button
     const $settingsBtn = createButton({
-        classes: ['bx-settings-button'],
+        classes: ['bx-header-settings-button'],
         label: PREF_PREFERRED_REGION,
         style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
         onClick: e => {
@@ -10889,7 +10920,7 @@ div[data-testid="media-container"] {
 
 
 function checkHeader() {
-    const $button = document.querySelector('.bx-settings-button');
+    const $button = document.querySelector('.bx-header-settings-button');
 
     if (!$button) {
         const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
