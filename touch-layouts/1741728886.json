@@ -1,0 +1,7 @@
+{
+  "name": "Arcade Paradise",
+  "default_layout": "custom",
+  "layouts": [
+    "arcade-paradise"
+  ]
+}
