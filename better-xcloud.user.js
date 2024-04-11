@@ -3803,7 +3803,7 @@ class RemotePlay {
         // Test servers one by one
         for (const server of servers) {
             try {
-                const url = `https://${server}.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50`;
+                const url = `https://${server}.core.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50`;
                 const resp = await fetch(url, options);
 
                 const json = await resp.json();
