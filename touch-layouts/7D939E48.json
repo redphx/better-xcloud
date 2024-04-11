@@ -1,0 +1,7 @@
+{
+  "name": "Close to the Sun",
+  "default_layout": "custom",
+  "layouts": [
+    "close-to-the-sun"
+  ]
+}
