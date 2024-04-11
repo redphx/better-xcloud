@@ -7967,6 +7967,16 @@ class Patcher {
             return funcStr.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
         },
 
+        // Fix the Guide/Nexus button not working in Remote Play
+        remotePlayGuideWorkaround: function(funcStr) {
+            const text = 'nexusButtonHandler:this.featureGates.EnableClientGuideInStream';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            return funcStr.replace(text, `nexusButtonHandler: !window.BX_REMOTE_PLAY_CONFIG && this.featureGates.EnableClientGuideInStream`);
+        },
+
         // Disable trackEvent() function
         disableTrackEvent: function(funcStr) {
             const text = 'this.trackEvent=';
@@ -8279,6 +8289,7 @@ if (gamepadFound) {
     // Only when playing
     static #PLAYING_PATCH_ORDERS = [
         getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
+        getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayGuideWorkaround'],
 
         ['playVibration'],
         HAS_TOUCH_SUPPORT && getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
