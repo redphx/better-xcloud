@@ -3601,6 +3601,7 @@ class RemotePlay {
     static XCLOUD_TOKEN;
     static XHOME_TOKEN;
     static #CONSOLES = null;
+    static #REGIONS;
 
     static #STATE_LABELS = {
         'On': t('powered-on'),
@@ -3775,6 +3776,7 @@ class RemotePlay {
             },
         }).then(resp => resp.json())
             .then(json => {
+                RemotePlay.#REGIONS = json.offeringSettings.regions;
                 RemotePlay.XHOME_TOKEN = json.gsToken;
                 callback();
             });
@@ -3786,13 +3788,6 @@ class RemotePlay {
             return;
         }
 
-        let servers;
-        if (!REMOTE_PLAY_SERVER) {
-            servers = ['wus2', 'eus', 'uks']; // Possible values: wus2 (WestUS2), eus (EastUS), uks (UkSouth)
-        } else {
-            servers = REMOTE_PLAY_SERVER;
-        }
-
         const options = {
                 method: 'GET',
                 headers: {
@@ -3801,16 +3796,16 @@ class RemotePlay {
             };
 
         // Test servers one by one
-        for (const server of servers) {
+        for (const region of RemotePlay.#REGIONS) {
             try {
-                const url = `https://${server}.core.gssv-play-prodxhome.xboxlive.com/v6/servers/home?mr=50`;
+                const url = `${region.baseUri}/v6/servers/home?mr=50`;
                 const resp = await fetch(url, options);
 
                 const json = await resp.json();
                 RemotePlay.#CONSOLES = json.results;
 
                 // Store working server
-                REMOTE_PLAY_SERVER = server;
+                REMOTE_PLAY_SERVER = region.baseUri;
 
                 callback();
             } catch (e) {}
@@ -10171,7 +10166,7 @@ function interceptHttpRequests() {
             }
 
             const index = request.url.indexOf('.xboxlive.com');
-            let newUrl = `https://${REMOTE_PLAY_SERVER}.core.gssv-play-prodxhome` + request.url.substring(index);
+            let newUrl = REMOTE_PLAY_SERVER + request.url.substring(index + 13);
 
             request = new Request(newUrl, opts);
 
