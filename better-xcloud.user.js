@@ -10447,7 +10447,7 @@ function interceptHttpRequests() {
             return response;
         }
 
-        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.includes('/titles') || url.includes('/mru'))) {
+        if (PREF_STREAM_TOUCH_CONTROLLER === 'all' && (url.includes('/v2/titles') || url.includes('/mru'))) {
             const response = await NATIVE_FETCH(...arg);
             const json = await response.clone().json()
             for (let game of json.results) {
