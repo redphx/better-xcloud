@@ -8582,9 +8582,11 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
     left: -9999px;
 }
 
-/* Remove the "Cloud Gaming" text in header */
-header a[href="/play"] {
-    display: none;
+/* Remove the "Cloud Gaming" text in header when the screen is too small */
+@media screen and (max-width: 600px) {
+    header a[href="/play"] {
+        display: none;
+    }
 }
 
 a.bx-button {
