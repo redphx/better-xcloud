@@ -9933,13 +9933,23 @@ body::-webkit-scrollbar {
 function getPreferredServerRegion(shortName = false) {
     let preferredRegion = getPref(Preferences.SERVER_REGION);
     if (preferredRegion in SERVER_REGIONS) {
-        return shortName ? SERVER_REGIONS[preferredRegion].shortName : preferredRegion;
+        if (shortName && SERVER_REGIONS[preferredRegion].shortName) {
+            return SERVER_REGIONS[preferredRegion].shortName;
+        } else {
+            return preferredRegion;
+        }
     }
 
     for (let regionName in SERVER_REGIONS) {
         const region = SERVER_REGIONS[regionName];
-        if (region.isDefault) {
-            return shortName ? region.shortName : regionName;
+        if (!region.isDefault) {
+            continue;
+        }
+
+        if (shortName && region.shortName) {
+            return region.shortName;
+        } else {
+            return regionName;
         }
     }
 
