@@ -10141,7 +10141,7 @@ function interceptHttpRequests() {
             }
 
             const index = request.url.indexOf('.xboxlive.com');
-            let newUrl = `https://${REMOTE_PLAY_SERVER}.gssv-play-prodxhome` + request.url.substring(index);
+            let newUrl = `https://${REMOTE_PLAY_SERVER}.core.gssv-play-prodxhome` + request.url.substring(index);
 
             request = new Request(newUrl, opts);
 
