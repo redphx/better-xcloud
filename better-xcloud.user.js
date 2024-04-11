@@ -10321,7 +10321,7 @@ function interceptHttpRequests() {
                         }
                     }
 
-                    region.shortName = shortName;
+                    region.shortName = shortName.toUpperCase();
 
                     SERVER_REGIONS[region.name] = Object.assign({}, region);
                 }
