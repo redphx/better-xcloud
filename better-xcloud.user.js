@@ -8587,6 +8587,11 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
     left: -9999px;
 }
 
+/* Remove the "Cloud Gaming" text in header */
+header a[href="/play"] {
+    display: none;
+}
+
 a.bx-button {
     display: inline-block;
 }
@@ -8677,18 +8682,14 @@ a.bx-button.bx-full-width {
     text-align: center;
 }
 
-.bx-remote-play-button {
+.bx-header-remote-play-button {
     height: auto;
     margin-right: 8px !important;
 }
 
-.bx-remote-play-button svg {
-    width: 28px;
+.bx-header-remote-play-button svg {
+    width: 24px;
     height: 46px;
-}
-
-.bx-remote-play-button[disabled] {
-    opacity: 0.5;
 }
 
 .bx-header-settings-button {
@@ -10810,7 +10811,7 @@ function injectSettingsButton($parent) {
     // Remote Play button
     if (getPref(Preferences.REMOTE_PLAY_ENABLED)) {
         const $remotePlayBtn = createButton({
-            classes: ['bx-remote-play-button'],
+            classes: ['bx-header-remote-play-button'],
             icon: Icon.REMOTE_PLAY,
             title: t('remote-play'),
             style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
