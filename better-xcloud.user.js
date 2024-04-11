@@ -8249,6 +8249,22 @@ if (gamepadFound) {
             funcStr = funcStr.replace(text, 'this.useCombinedAudioVideoStream=true');
             return funcStr;
         },
+
+        patchStreamHud: function(funcStr) {
+            const text = 'let{onCollapse';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            // Restore the "..." button
+            funcStr = funcStr.replace(text, 'e.guideUI = null;' + text);
+
+            // Remove the TAK Edit button when the touch controller is disabled
+            if (getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'off') {
+                funcStr = funcStr.replace(text, 'e.canShowTakHUD = false;' + text);
+            }
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -8290,6 +8306,8 @@ if (gamepadFound) {
     static #PLAYING_PATCH_ORDERS = [
         getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
         getPref(Preferences.REMOTE_PLAY_ENABLED) && ['remotePlayGuideWorkaround'],
+
+        ['patchStreamHud'],
 
         ['playVibration'],
         HAS_TOUCH_SUPPORT && getPref(Preferences.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
