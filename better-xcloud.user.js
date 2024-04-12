@@ -5010,7 +5010,7 @@ class MkbPreset {
         [MkbPreset.KEY_MOUSE_STICK_DECAY_STRENGTH]: {
             label: t('stick-decay-strength'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
-            default: 18,
+            default: 100,
             min: 10,
             max: 100,
 
@@ -5023,7 +5023,7 @@ class MkbPreset {
         [MkbPreset.KEY_MOUSE_STICK_DECAY_MIN]: {
             label: t('stick-decay-minimum'),
             type: SettingElement.TYPE_NUMBER_STEPPER,
-            default: 6,
+            default: 10,
             min: 1,
             max: 10,
 
