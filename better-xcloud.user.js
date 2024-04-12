@@ -5413,7 +5413,7 @@ class MkbHandler {
         const isKeyDown = e.type === 'keydown';
 
         // Toggle MKB feature
-        if (isKeyDown && e.code === 'F9') {
+        if (isKeyDown && e.code === 'F8') {
             e.preventDefault();
             this.toggle();
             return;
@@ -5633,7 +5633,7 @@ class MkbHandler {
                 }),
                 CE('div', {},
                     CE('p', {}, t('mkb-click-to-activate')),
-                    CE('p', {}, t('press-key-to-toggle-mkb')({key: 'F9'})),
+                    CE('p', {}, t('press-key-to-toggle-mkb')({key: 'F8'})),
                 ),
             );
 
