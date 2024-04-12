@@ -12099,6 +12099,11 @@ MkbHandler.setupEvents();
 
 // Show a toast when connecting/disconecting controller
 function showGamepadToast(gamepad) {
+    // Don't show Toast for virtual controller
+    if (gamepad.id === MkbHandler.VIRTUAL_GAMEPAD_ID) {
+        return;
+    }
+
     console.log(gamepad);
     let text = '🎮';
 
@@ -12108,12 +12113,6 @@ function showGamepadToast(gamepad) {
 
     // Remove "(STANDARD GAMEPAD Vendor: xxx Product: xxx)" from ID
     const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, '');
-
-    // Don't show Toast for virtual controller
-    if (gamepadId === MkbHandler.VIRTUAL_GAMEPAD_ID) {
-        return;
-    }
-
     text += ` - ${gamepadId}`;
 
     let status;
