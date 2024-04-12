@@ -10469,7 +10469,7 @@ function interceptHttpRequests() {
         if (PREF_UI_LOADING_SCREEN_WAIT_TIME && url.includes('xboxlive.com') && url.includes('/waittime/')) {
             const response = await NATIVE_FETCH(...arg);
 
-            const json = await response.clone.json();
+            const json = await response.clone().json();
             if (json.estimatedAllocationTimeInSeconds > 0) {
                 // Setup wait time overlay
                 LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
