@@ -3673,40 +3673,56 @@ class RemotePlay {
 
         if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
             $fragment.appendChild(CE('span', {}, t('no-consoles-found')));
-        } else {
-            const $settingNote = CE('p', {});
+            RemotePlay.#$content = CE('div', {}, $fragment);
+            return;
+        }
 
-            const resolutions = [1080, 720];
-            const currentResolution = getPref(Preferences.REMOTE_PLAY_RESOLUTION);
-            const $resolutionSelect = CE('select', {});
-            for (const resolution of resolutions) {
-                const value = `${resolution}p`;
+        const $settingNote = CE('p', {});
 
-                const $option = CE('option', {'value': value}, value);
-                if (currentResolution === value) {
-                    $option.selected = true;
-                }
+        const resolutions = [1080, 720];
+        const currentResolution = getPref(Preferences.REMOTE_PLAY_RESOLUTION);
+        const $resolutionGroup = CE('div', {});
+        for (const resolution of resolutions) {
+            const value = `${resolution}p`;
+            const id = `bx_radio_xhome_resolution_${resolution}`;
 
-                $resolutionSelect.appendChild($option);
-            }
-            $resolutionSelect.addEventListener('change', e => {
-                const value = $resolutionSelect.value;
+            const $radio = CE('input', {
+                'type': 'radio',
+                'value': value,
+                'id': id,
+                'name': 'bx_radio_xhome_resolution',
+            }, value);
+
+            $radio.addEventListener('change', e => {
+                const value = e.target.value;
 
                 $settingNote.textContent = value === '1080p' ? '✅ ' + t('can-stream-xbox-360-games') : '❌ ' + t('cant-stream-xbox-360-games');
                 setPref(Preferences.REMOTE_PLAY_RESOLUTION, value);
             });
-            $resolutionSelect.dispatchEvent(new Event('change'));
 
-            const $qualitySettings = CE('div', {'class': 'bx-remote-play-settings'},
-                CE('div', {},
-                    CE('label', {}, t('target-resolution'), $settingNote),
-                    $resolutionSelect,
-                )
-            );
+            const $label = CE('label', {
+                'for': id,
+                'class': 'bx-remote-play-resolution',
+            }, $radio, `${resolution}p`);
 
-            $fragment.appendChild($qualitySettings);
+            $resolutionGroup.appendChild($label);
+
+            if (currentResolution === value) {
+                $radio.checked = true;
+                $radio.dispatchEvent(new Event('change'));
+            }
         }
 
+        const $qualitySettings = CE('div', {'class': 'bx-remote-play-settings'},
+                                    CE('div', {},
+                                       CE('label', {}, t('target-resolution'), $settingNote),
+                                       $resolutionGroup,
+                                      )
+                                   );
+
+        $fragment.appendChild($qualitySettings);
+
+        // Render concoles list
         for (let con of RemotePlay.#CONSOLES) {
             let $connectButton;
             const $child = CE('div', {'class': 'bx-remote-play-device-wrapper'},
@@ -3731,6 +3747,14 @@ class RemotePlay {
 
             $fragment.appendChild($child);
         }
+
+        // Add Help button
+        $fragment.appendChild(createButton({
+            icon: Icon.QUESTION,
+            style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+            url: 'https://better-xcloud.github.io/remote-play',
+            label: t('help'),
+        }));
 
         RemotePlay.#$content = CE('div', {}, $fragment);
     }
@@ -9730,6 +9754,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
   }
 }
 
+.bx-remote-play-container > .bx-button {
+    display: table;
+    margin: 0 0 0 auto;
+}
+
 .bx-remote-play-settings {
     margin-bottom: 12px;
     padding-bottom: 12px;
@@ -9757,6 +9786,19 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     display: block;
     margin-bottom: 8px;
     text-align: center;
+}
+
+.bx-remote-play-resolution {
+    display: block;
+}
+
+.bx-remote-play-resolution input[type="radio"] {
+    accent-color: var(--bx-primary-button-color);
+    margin-right: 6px;
+}
+
+.bx-remote-play-resolution input[type="radio"]:focus {
+    accent-color: var(--bx-primary-button-hover-color);
 }
 
 .bx-remote-play-device-wrapper {
