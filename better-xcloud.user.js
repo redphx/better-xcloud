@@ -10780,6 +10780,7 @@ function setupSettingsUi() {
                 });
 
                 selectedValue = PREF_PREFERRED_REGION;
+
                 setting.options = {};
                 for (let regionName in SERVER_REGIONS) {
                     const region = SERVER_REGIONS[regionName];
@@ -10789,6 +10790,10 @@ function setupSettingsUi() {
                     if (region.isDefault) {
                         label += ` (${t('default')})`;
                         value = 'default';
+
+                        if (selectedValue === regionName) {
+                            selectedValue = 'default';
+                        }
                     }
 
                     setting.options[value] = label;
@@ -10798,9 +10803,11 @@ function setupSettingsUi() {
                     const label = setting.options[value];
 
                     const $option = CE('option', {value: value}, label);
-                    $option.selected = value === selectedValue || label.includes(selectedValue);
                     $control.appendChild($option);
                 }
+
+                // Select preferred region
+                $control.value = selectedValue;
             } else {
                 if (settingId === Preferences.BETTER_XCLOUD_LOCALE) {
                     $control = PREFS.toElement(settingId, e => {
