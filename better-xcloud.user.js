@@ -5624,6 +5624,7 @@ class MkbHandler {
         this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
                 createButton({
                     icon: Icon.MOUSE_SETTINGS,
+                    style: ButtonStyle.PRIMARY,
                     onClick: e => {
                         e.preventDefault();
                         e.stopPropagation();
