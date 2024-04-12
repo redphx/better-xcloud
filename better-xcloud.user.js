@@ -5290,8 +5290,10 @@ class MkbHandler {
     static get DEFAULT_DEADZONE_COUNTERWEIGHT() { return 0.01; }
     static get MAXIMUM_STICK_RANGE() { return 1.1; }
 
+    VIRTUAL_GAMEPAD_ID = 'Xbox 360 Controller';
+
     #VIRTUAL_GAMEPAD = {
-            id: 'Xbox 360 Controller',
+            id: MkbHandler.VIRTUAL_GAMEPAD_ID,
             index: 3,
             connected: false,
             hapticActuators: null,
@@ -5553,7 +5555,7 @@ class MkbHandler {
         this.#enabled = !this.#enabled;
         this.#enabled ? document.pointerLockElement && this.start() : this.stop();
 
-        Toast.show(t('mouse-and-keyboard'), t(this.#enabled ? 'enabled' : 'disabled'));
+        Toast.show(t('mouse-and-keyboard'), t(this.#enabled ? 'enabled' : 'disabled'), {instant: true});
 
         if (this.#enabled) {
             !document.pointerLockElement && this.#waitForPointerLock(true);
@@ -12099,6 +12101,12 @@ function showGamepadToast(gamepad) {
 
     // Remove "(STANDARD GAMEPAD Vendor: xxx Product: xxx)" from ID
     const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, '');
+
+    // Don't show Toast for virtual controller
+    if (gamepadId === MkbHandler.VIRTUAL_GAMEPAD_ID) {
+        return;
+    }
+
     text += ` - ${gamepadId}`;
 
     let status;
