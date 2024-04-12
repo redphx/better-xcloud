@@ -7904,6 +7904,26 @@ class Patcher {
             return funcStr.replace(text, '.disableTelemetry=function(){return!0}');
         },
 
+        disableTelemetryProvider: function(funcStr) {
+            const text = 'this.enableLightweightTelemetry=!';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            const newCode = [
+                    'this.trackEvent',
+                    'this.trackPageView',
+                    'this.trackHttpCompleted',
+                    'this.trackHttpFailed',
+                    'this.trackError',
+                    'this.trackErrorLike',
+                    'this.onTrackEvent',
+                    '()=>{}',
+                ].join('=');
+
+            return funcStr.replace(text, newCode + ';' + text);
+        },
+
         // Disable IndexDB logging
         disableIndexDbLogging(funcStr) {
             const text = 'async addLog(e,t=1e4){';
@@ -8004,7 +8024,7 @@ class Patcher {
         },
 
         enableXcloudLogger: function(funcStr) {
-            const text = 'this.telemetryProvider=e}log(e,t,r){';
+            const text = 'this.telemetryProvider=e}log(e,t,i){';
             if (!funcStr.includes(text)) {
                 return false;
             }
@@ -8267,6 +8287,8 @@ if (gamepadFound) {
             'disableAiTrack',
             'disableTelemetry',
         ],
+
+        getPref(Preferences.BLOCK_TRACKING) && ['disableTelemetryProvider'],
 
         ['disableStreamGate'],
 
