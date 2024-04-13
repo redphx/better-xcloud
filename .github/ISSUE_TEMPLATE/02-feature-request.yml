@@ -1,0 +1,59 @@
+name: Feature Request 🚀
+description: Request a new feature, improvement, or general suggestion
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the following information to help us understand your request.
+  - type: dropdown
+    id: device_type
+    attributes:
+      label: Device
+      description: "Which device are you using?"
+      options:
+        - Phone/Tablet
+        - Laptop
+        - Desktop
+        - TV
+        - Other
+      multiple: false
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating System"
+      description: "Which operating system is it running?"
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Android
+        - iOS/iPadOS
+        - Other
+      multiple: false
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: "Browser"
+      description: "Which browser are you using?"
+      options:
+        - Chrome/Edge/Chromium
+        - Kiwi Browser
+        - Safari
+        - Other
+      multiple: false
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: "Suggestion"
+      description: "What do you want to suggest?"
+    validations:
+      required: true
