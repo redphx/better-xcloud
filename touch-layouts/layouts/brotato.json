@@ -37,7 +37,6 @@
           "inner": [
             {
               "type": "joystick",
-              "relative": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
@@ -149,7 +148,6 @@
           "inner": [
             {
               "type": "joystick",
-              "relative": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
@@ -229,7 +227,6 @@
           "inner": [
             {
               "type": "joystick",
-              "relative": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
@@ -275,7 +272,6 @@
           "inner": [
             {
               "type": "joystick",
-              "relative": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"

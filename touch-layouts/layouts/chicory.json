@@ -12,7 +12,6 @@
                 "input": "axisXY",
                 "output": "leftJoystick"
               },
-              "relative": false,
               "styles": {
                 "default": {
                   "outline": {

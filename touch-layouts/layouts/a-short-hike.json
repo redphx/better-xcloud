@@ -11,8 +11,7 @@
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
-              },
-              "relative": false
+              }
             }
           ]
         },
