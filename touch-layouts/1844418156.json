@@ -1,0 +1,7 @@
+{
+  "name": "Botany Manor",
+  "default_layout": "custom",
+  "layouts": [
+    "botany-manor"
+  ]
+}
