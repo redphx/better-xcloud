@@ -25,6 +25,7 @@ const DEFAULT_FLAGS = {
     PreloadRemotePlay: true,
     PreloadUi: false,
     EnableXcloudLogging: false,
+    SafariWorkaround: true,
 
     UseDevTouchLayout: false,
 }
@@ -3428,8 +3429,7 @@ let LOCALE = Translations.getLocale();
 const t = Translations.get;
 
 
-const ENABLE_SAFARI_WORKAROUND = true;
-if (ENABLE_SAFARI_WORKAROUND && document.readyState !== 'loading') {
+if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
     // Stop loading
     window.stop();
 
