@@ -12,27 +12,7 @@
                 "input": "axisXY",
                 "output": "leftJoystick"
               },
-              "action": "leftBumper",
-              "actionThreshold": 2,
-              "expand": false,
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "walk"
-                    }
-                  }
-                },
-                "activated": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "run"
-                    }
-                  }
-                }
-              }
+              "expand": false
             }
           ],
           "outer": [
