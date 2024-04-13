@@ -3487,7 +3487,30 @@ var GAME_XBOX_TITLE_ID;
 var GAME_PRODUCT_ID;
 var APP_CONTEXT;
 
-window.BX_EXPOSED = {};
+window.BX_EXPOSED = {
+    onPollingModeChanged: mode => {
+        if (!IS_PLAYING) {
+            return false;
+        }
+
+        const $screenshotBtn = document.querySelector('.bx-screenshot-button');
+        const $touchControllerBar = document.getElementById('bx-touch-controller-bar');
+
+        if (mode !== 'None') {
+            // Hide screenshot button
+            $screenshotBtn && $screenshotBtn.classList.add('bx-gone');
+
+            // Hide touch controller bar
+            $touchControllerBar && $touchControllerBar.classList.add('bx-gone');
+        } else {
+            // Show screenshot button
+            $screenshotBtn && $screenshotBtn.classList.remove('bx-gone');
+
+            // Show touch controller bar
+            $touchControllerBar && $touchControllerBar.classList.remove('bx-gone');
+        }
+    },
+};
 
 let IS_REMOTE_PLAYING;
 let REMOTE_PLAY_CONFIG;
@@ -8307,6 +8330,19 @@ if (gamepadFound) {
             }
             return funcStr;
         },
+
+        broadcastPollingMode: function(funcStr) {
+            const text = '.setPollingMode=e=>{';
+            if (!funcStr.includes(text)) {
+                return false;
+            }
+
+            const newCode = `
+window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged(e);
+`;
+            funcStr = funcStr.replace(text, text + newCode);
+            return funcStr;
+        },
     };
 
     static #PATCH_ORDERS = [
@@ -8315,9 +8351,9 @@ if (gamepadFound) {
             'disableTelemetry',
         ],
 
-        getPref(Preferences.BLOCK_TRACKING) && ['disableTelemetryProvider'],
-
         ['disableStreamGate'],
+
+        ['broadcastPollingMode'],
 
         getPref(Preferences.UI_LAYOUT) === 'tv' && ['tvLayout'],
 
@@ -8331,6 +8367,10 @@ if (gamepadFound) {
         getPref(Preferences.BLOCK_TRACKING) && [
             'blockWebRtcStatsCollector',
             'disableIndexDbLogging',
+        ],
+
+        getPref(Preferences.BLOCK_TRACKING) && [
+            'disableTelemetryProvider',
             'disableTrackEvent',
         ],
 
@@ -8340,8 +8380,9 @@ if (gamepadFound) {
         [
             'overrideSettings',
             ENABLE_NATIVE_MKB_BETA && 'mkbIsMouseAndKeyboardTitle',
-            HAS_TOUCH_SUPPORT && 'patchUpdateInputConfigurationAsync',
         ],
+
+        getPref(Preferences.REMOTE_PLAY_ENABLED) && HAS_TOUCH_SUPPORT && ['patchUpdateInputConfigurationAsync'],
 
         getPref(Preferences.GAME_FORTNITE_FORCE_CONSOLE) && ['forceFortniteConsole'],
     ];
@@ -9672,7 +9713,7 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 }
 
 #bx-touch-controller-bar[data-showing=true] {
-    display: block !important;
+    display: block;
 }
 
 .bx-wait-time-box {
