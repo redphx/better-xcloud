@@ -8,6 +8,8 @@ body:
     attributes:
       value: |
         Please fill out the following information to help us understand your request.
+        > [!warning]
+        > Only use English. Any other languages will be deleted.
   - type: dropdown
     id: device_type
     attributes:
