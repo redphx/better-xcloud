@@ -11,16 +11,6 @@
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
-              },
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "gamepadwhite"
-                    }
-                  }
-                }
               }
             }
           ],
@@ -54,16 +44,6 @@
               "axis": {
                 "input": "axisXY",
                 "output": "rightJoystick"
-              },
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "look"
-                    }
-                  }
-                }
               }
             }
           ],
