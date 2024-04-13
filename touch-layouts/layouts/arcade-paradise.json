@@ -11,6 +11,16 @@
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "gamepadwhite"
+                    }
+                  }
+                }
               }
             }
           ],
@@ -18,10 +28,19 @@
             null,
             null,
             null,
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            {
+              "type": "button",
+              "action": "leftBumper"
+            },
             null,
-            null,
-            null,
-            null,
+            {
+              "type": "button",
+              "action": "leftTrigger"
+            },
             {
               "type": "button",
               "action": "rightTrigger"
@@ -35,6 +54,16 @@
               "axis": {
                 "input": "axisXY",
                 "output": "rightJoystick"
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "look"
+                    }
+                  }
+                }
               }
             }
           ],
