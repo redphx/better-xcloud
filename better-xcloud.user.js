@@ -3512,6 +3512,23 @@ window.BX_EXPOSED = {
     },
 };
 
+
+function localRedirect(path) {
+    const url = window.location.href.substring(0, 31) + path;
+
+    const $pageContent = document.getElementById('PageContent');
+    const $anchor = CE('a', { href: url, class: 'bx-hidden bx-offscreen' }, '');
+    $anchor.addEventListener('click', e => {
+        setTimeout(() => {
+            $pageContent.removeChild($anchor);
+        }, 1000);
+    });
+
+    $pageContent.appendChild($anchor);
+    $anchor.click();
+}
+
+
 let IS_REMOTE_PLAYING;
 let REMOTE_PLAY_CONFIG;
 
@@ -3878,19 +3895,7 @@ class RemotePlay {
         };
         window.BX_REMOTE_PLAY_CONFIG = REMOTE_PLAY_CONFIG;
 
-        const url = window.location.href.substring(0, 31) + '/launch/fortnite/BT5P2X999VH2#remote-play';
-
-        const $pageContent = document.getElementById('PageContent');
-        const $anchor = CE('a', { href: url, class: 'bx-hidden bx-offscreen' }, '');
-        $anchor.addEventListener('click', e => {
-            setTimeout(() => {
-                $pageContent.removeChild($anchor);
-            }, 1000);
-        });
-
-        $pageContent.appendChild($anchor);
-        $anchor.click();
-
+        localRedirect('/launch/fortnite/BT5P2X999VH2#remote-play');
         RemotePlay.detachPopup();
     }
 
@@ -12169,3 +12174,37 @@ function showGamepadToast(gamepad) {
 
 window.addEventListener('gamepadconnected', e => showGamepadToast(e.gamepad));
 window.addEventListener('gamepaddisconnected', e => showGamepadToast(e.gamepad));
+
+function handleDeepLink() {
+    const hash = window.location.hash;
+    if (!hash || !hash.startsWith('#@')) {
+        return;
+    }
+
+    let path = '';
+    if (hash.startsWith('#@play')) {
+        path = '/launch' + hash.substring(6);
+    }
+
+    if (!path) {
+        return;
+    }
+
+    const observer = new MutationObserver(mutationList => {
+        mutationList.forEach(mutation => {
+            if (mutation.type !== 'childList') {
+                return;
+            }
+
+            const target = mutation.target;
+            if (target.className && target.className.startsWith('AllGamesRow')) {
+                localRedirect(path);
+                observer.disconnect();
+            }
+        });
+
+    });
+    observer.observe(document.documentElement, {subtree: true, childList: true});
+}
+
+handleDeepLink();
