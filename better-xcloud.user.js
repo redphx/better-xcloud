@@ -14,8 +14,6 @@
 // ==/UserScript==
 'use strict';
 
-/* ADDITIONAL CODE */
-
 const SCRIPT_VERSION = '3.5.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
@@ -34,6 +32,51 @@ const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 delete window.BX_FLAGS;
 
 const AppInterface = window.AppInterface;
+
+const BxEvent = {
+    JUMP_BACK_IN_READY: 'bx-jump-back-in-ready',
+    POPSTATE: 'bx-popstate',
+
+    STREAM_LOADING: 'bx-stream-loading',
+    STREAM_STARTING: 'bx-stream-starting',
+    STREAM_STARTED: 'bx-stream-started',
+    STREAM_PLAYING: 'bx-stream-playing',
+    STREAM_STOPPED: 'bx-stream-stopped',
+    STREAM_ERROR_PAGE: 'bx-stream-error-page',
+
+    STREAM_MENU_SHOWN: 'bx-stream-menu-shown',
+    STREAM_MENU_HIDDEN: 'bx-stream-menu-hidden',
+
+    STREAM_WEBRTC_CONNECTED: 'bx-stream-webrtc-connected',
+    STREAM_WEBRTC_DISCONNECTED: 'bx-stream-webrtc-disconnected',
+
+    CUSTOM_TOUCH_LAYOUTS_LOADED: 'bx-custom-touch-layouts-loaded',
+
+    REMOTE_PLAY_READY: 'bx-remote-play-ready',
+    REMOTE_PLAY_FAILED: 'bx-remote-play-failed',
+
+    DATA_CHANNEL_CREATED: 'bx-data-channel-created',
+
+    dispatch: (target, eventName, data) => {
+        if (!eventName) {
+            alert('BxEvent.dispatch(): eventName is null');
+            return;
+        }
+
+        const event = new Event(eventName);
+
+        if (data) {
+            for (const key in data) {
+                event[key] = data[key];
+            }
+        }
+
+        AppInterface && AppInterface.onEvent(eventName);
+        target.dispatchEvent(event);
+    },
+};
+
+/* ADDITIONAL CODE */
 
 let REMOTE_PLAY_SERVER;
 
@@ -68,45 +111,6 @@ if (window.location.pathname.includes('/auth/msa')) {
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
-const BxEvent = {
-    JUMP_BACK_IN_READY: 'bx-jump-back-in-ready',
-    POPSTATE: 'bx-popstate',
-
-    STREAM_LOADING: 'bx-stream-loading',
-    STREAM_STARTING: 'bx-stream-starting',
-    STREAM_STARTED: 'bx-stream-started',
-    STREAM_PLAYING: 'bx-stream-playing',
-    STREAM_STOPPED: 'bx-stream-stopped',
-    STREAM_ERROR_PAGE: 'bx-stream-error-page',
-
-    STREAM_MENU_SHOWN: 'bx-stream-menu-shown',
-    STREAM_MENU_HIDDEN: 'bx-stream-menu-hidden',
-
-    STREAM_WEBRTC_CONNECTED: 'bx-stream-webrtc-connected',
-    STREAM_WEBRTC_DISCONNECTED: 'bx-stream-webrtc-disconnected',
-
-    CUSTOM_TOUCH_LAYOUTS_LOADED: 'bx-custom-touch-layouts-loaded',
-
-    DATA_CHANNEL_CREATED: 'bx-data-channel-created',
-
-    dispatch: (target, eventName, data) => {
-        if (!eventName) {
-            alert('BxEvent.dispatch(): eventName is null');
-            return;
-        }
-
-        const event = new Event(eventName);
-
-        if (data) {
-            for (const key in data) {
-                event[key] = data[key];
-            }
-        }
-
-        AppInterface && AppInterface.onEvent(eventName);
-        target.dispatchEvent(event);
-    },
-};
 
 // Quickly create a tree of elements without having to use innerHTML
 function createElement(elmName, props = {}) {
@@ -3705,6 +3709,7 @@ class RemotePlay {
             RemotePlay.#getConsolesList(() => {
                 console.log(RemotePlay.#CONSOLES);
                 RemotePlay.#renderConsoles();
+                BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
             });
         });
     }
@@ -10378,7 +10383,7 @@ function interceptHttpRequests() {
             return NATIVE_FETCH(...arg);
         }
 
-        if (IS_REMOTE_PLAYING && url.includes('/titles')) {
+        if (IS_REMOTE_PLAYING && url.endsWith('/titles')) {
             const clone = request.clone();
 
             const headers = {};
@@ -12175,44 +12180,3 @@ function showGamepadToast(gamepad) {
 
 window.addEventListener('gamepadconnected', e => showGamepadToast(e.gamepad));
 window.addEventListener('gamepaddisconnected', e => showGamepadToast(e.gamepad));
-
-function handleDeepLink() {
-    const hash = window.location.hash;
-    if (!hash || !hash.startsWith('#@')) {
-        return;
-    }
-
-    // Remove hash
-    window.history.replaceState({origin: 'better-xcloud'}, '', window.location.href.substring(0, window.location.href.indexOf('#@')));
-
-    let path = '';
-    if (window.location.href.indexOf('/play/launch/') === -1 && hash.startsWith('#@play')) {
-        path = '/launch' + hash.substring(6);
-    }
-
-    if (!path) {
-        return;
-    }
-
-    let handled = false
-    const observer = new MutationObserver(mutationList => {
-        mutationList.forEach(mutation => {
-            if (handled || mutation.type !== 'childList') {
-                return;
-            }
-
-            const target = mutation.target;
-            if (!handled && target.className && target.className.startsWith && target.className.startsWith('AllGamesRow')) {
-                observer.disconnect();
-
-                handled = true;
-                localRedirect(path);
-                return;
-            }
-        });
-
-    });
-    observer.observe(document.documentElement, {subtree: true, childList: true});
-}
-
-handleDeepLink();
