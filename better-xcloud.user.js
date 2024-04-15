@@ -12186,7 +12186,7 @@ function handleDeepLink() {
     window.history.replaceState({origin: 'better-xcloud'}, '', window.location.href.substring(0, window.location.href.indexOf('#@')));
 
     let path = '';
-    if (hash.startsWith('#@play')) {
+    if (window.location.href.indexOf('/play/launch/') === -1 && hash.startsWith('#@play')) {
         path = '/launch' + hash.substring(6);
     }
 
@@ -12202,7 +12202,7 @@ function handleDeepLink() {
             }
 
             const target = mutation.target;
-            if (!handled && target.className && target.className.startsWith('AllGamesRow')) {
+            if (!handled && target.className && target.className.startsWith && target.className.startsWith('AllGamesRow')) {
                 observer.disconnect();
 
                 handled = true;
