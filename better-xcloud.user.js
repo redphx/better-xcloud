@@ -3489,6 +3489,7 @@ var APP_CONTEXT;
 
 window.BX_EXPOSED = {
     onPollingModeChanged: mode => {
+
         if (!IS_PLAYING) {
             return false;
         }
@@ -12181,6 +12182,9 @@ function handleDeepLink() {
         return;
     }
 
+    // Remove hash
+    window.history.replaceState({origin: 'better-xcloud'}, '', window.location.href.substring(0, window.location.href.indexOf('#@')));
+
     let path = '';
     if (hash.startsWith('#@play')) {
         path = '/launch' + hash.substring(6);
@@ -12200,6 +12204,7 @@ function handleDeepLink() {
             if (target.className && target.className.startsWith('AllGamesRow')) {
                 localRedirect(path);
                 observer.disconnect();
+                return;
             }
         });
 
