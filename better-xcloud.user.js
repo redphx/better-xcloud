@@ -12194,16 +12194,19 @@ function handleDeepLink() {
         return;
     }
 
+    let handled = false
     const observer = new MutationObserver(mutationList => {
         mutationList.forEach(mutation => {
-            if (mutation.type !== 'childList') {
+            if (handled || mutation.type !== 'childList') {
                 return;
             }
 
             const target = mutation.target;
-            if (target.className && target.className.startsWith('AllGamesRow')) {
-                localRedirect(path);
+            if (!handled && target.className && target.className.startsWith('AllGamesRow')) {
                 observer.disconnect();
+
+                handled = true;
+                localRedirect(path);
                 return;
             }
         });
