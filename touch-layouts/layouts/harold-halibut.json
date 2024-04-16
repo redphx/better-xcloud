@@ -13,7 +13,7 @@
                 "output": "leftJoystick"
               },
               "action": "gamepadX",
-              "actionThreshold": 3,
+              "actionThreshold": 2.5,
               "expand": false,
               "styles": {
                 "default": {
