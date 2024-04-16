@@ -8796,8 +8796,11 @@ a.bx-button.bx-full-width {
     text-transform: uppercase;
 }
 
-.bx-header-settings-button[data-update-available]::after {
-    content: ' 🌟';
+.bx-header-settings-button[data-update-available]::before {
+    content: '🌟' !important;
+    line-height: var(--bx-button-height);
+    display: inline-block;
+    margin-left: 4px;
 }
 
 .bx-button.bx-focusable, .bx-header-settings-button {
