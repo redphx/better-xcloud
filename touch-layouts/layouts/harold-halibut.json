@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              },
+              "action": "gamepadX",
+              "actionThreshold": 3,
+              "expand": false,
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "walk"
+                    }
+                  }
+                },
+                "activated": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "run"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "leftTrigger"
+            },
+            {
+              "type": "button",
+              "action": "leftBumper"
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadA"
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "gamepadY",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "phone"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "rightTrigger"
+            },
+            {
+              "type": "button",
+              "action": "gamepadB"
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
