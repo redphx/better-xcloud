@@ -7143,13 +7143,7 @@ class UserAgent {
 
         const profile = getPref(Preferences.USER_AGENT_PROFILE);
         if (profile === UserAgent.PROFILE_DEFAULT) {
-            // Fix Kiwi 124
-            if (window.navigator.userAgent.includes('Chrome/124.0.0.0')) {
-                newUserAgent = window.navigator.userAgent.replace('Chrome/124.0.0.0', 'Chrome/122.0.0.0')
-            } else {
-                return;
-            }
-
+            return;
         }
 
         if (!newUserAgent) {
