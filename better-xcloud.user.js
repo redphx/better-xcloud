@@ -17,22 +17,7 @@
 const SCRIPT_VERSION = '3.5.2';
 const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
-// Setup flags
-const DEFAULT_FLAGS = {
-    CheckForUpdate: true,
-    PreloadRemotePlay: true,
-    PreloadUi: false,
-    EnableXcloudLogging: false,
-    SafariWorkaround: true,
-
-    UseDevTouchLayout: false,
-}
-
-const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
-delete window.BX_FLAGS;
-
 const AppInterface = window.AppInterface;
-
 const BxEvent = {
     JUMP_BACK_IN_READY: 'bx-jump-back-in-ready',
     POPSTATE: 'bx-popstate',
@@ -77,6 +62,20 @@ const BxEvent = {
 };
 
 /* ADDITIONAL CODE */
+
+// Setup flags
+const DEFAULT_FLAGS = {
+    CheckForUpdate: true,
+    PreloadRemotePlay: true,
+    PreloadUi: false,
+    EnableXcloudLogging: false,
+    SafariWorkaround: true,
+
+    UseDevTouchLayout: false,
+}
+
+const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+delete window.BX_FLAGS;
 
 let REMOTE_PLAY_SERVER;
 
