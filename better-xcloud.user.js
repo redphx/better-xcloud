@@ -9368,24 +9368,6 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     overflow: hidden;
 }
 
-.bx-quick-settings-bar:not([data-clarity-boost="true"]) .bx-clarity-boost-warning {
-    display: none;
-}
-
-.bx-quick-settings-bar[data-clarity-boost="true"] .bx-clarity-boost-warning {
-    display: block;
-    margin: 0px 8px;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: normal;
-    background: #282828;
-    border-radius: 4px;
-}
-
-.bx-quick-settings-bar[data-clarity-boost="true"] div[data-type="video"] {
-    display: none;
-}
-
 .bx-quick-settings-tab-contents *:focus {
     outline: none !important;
 }
@@ -11294,9 +11276,6 @@ function injectStreamMenuButtons() {
                         hideGripHandle();
                         e.preventDefault();
 
-                        const msVideoProcessing = $STREAM_VIDEO.msVideoProcessing;
-                        $quickBar.setAttribute('data-clarity-boost', (msVideoProcessing && msVideoProcessing !== 'default'));
-
                         // Show Quick settings bar
                         $quickBar.classList.remove('bx-gone');
 
@@ -11497,7 +11476,6 @@ function setupQuickSettingsBar() {
                     group: 'video',
                     label: t('video'),
                     help_url: 'https://better-xcloud.github.io/ingame-features/#video',
-                    note: CE('div', {'class': 'bx-quick-settings-bar-note bx-clarity-boost-warning'}, `⚠️ ${t('clarity-boost-warning')}`),
                     items: [
                         {
                             pref: Preferences.VIDEO_RATIO,
