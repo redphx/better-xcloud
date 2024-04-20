@@ -11425,9 +11425,16 @@ function patchRtcCodecs() {
         try {
             nativeSetCodecPreferences.apply(this, [newCodecs]);
         } catch (e) {
-            // Didn't work -> use default codecs
-            console.log(e);
-            nativeSetCodecPreferences.apply(this, [codecs]);
+            try {
+                // Fix Kiwi 124
+                console.log(e);
+                newCodec.push(...RTCRtpSender.getCapabilities('video').codecs);
+                nativeSetCodecPreferences.apply(this, [newCodecs]);
+            } catch (x) {
+                // Didn't work -> use default codecs
+                console.log(x);
+                nativeSetCodecPreferences.apply(this, [codecs]);
+            }
         }
     }
 }
