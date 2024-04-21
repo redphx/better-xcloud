@@ -1,4 +1,6 @@
-export const GamepadKey: {[index: string | number]: string | number} = {};
+import type { GamepadKeyNameType } from "../../types/mkb";
+
+export const GamepadKey: DualEnum = {};
 GamepadKey[GamepadKey.A = 0] = 'A';
 GamepadKey[GamepadKey.B = 1] = 'B';
 GamepadKey[GamepadKey.X = 2] = 'X';
@@ -27,7 +29,7 @@ GamepadKey[GamepadKey.RS_LEFT = 202] = 'RS_LEFT';
 GamepadKey[GamepadKey.RS_RIGHT = 203] = 'RS_RIGHT';
 
 
-export const GamepadKeyName: {[index: string | number]: string[]} = {
+export const GamepadKeyName: GamepadKeyNameType = {
     [GamepadKey.A]: ['A', '⇓'],
     [GamepadKey.B]: ['B', '⇒'],
     [GamepadKey.X]: ['X', '⇐'],
@@ -72,7 +74,7 @@ export enum MouseButtonCode {
     MIDDLE_CLICK = 'Mouse1',
 };
 
-export const MouseMapTo: {[index: string | number]: string | number} = {};
+export const MouseMapTo: DualEnum = {};
 MouseMapTo[MouseMapTo.OFF = 0] = 'OFF';
 MouseMapTo[MouseMapTo.LS = 1] = 'LS';
 MouseMapTo[MouseMapTo.RS = 2] = 'RS';

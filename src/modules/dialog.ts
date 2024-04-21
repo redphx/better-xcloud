@@ -34,9 +34,9 @@ export class Dialog {
             this.$overlay = CE('div', {'class': 'bx-dialog-overlay bx-gone'});
 
             // Disable right click
-            this.$overlay.addEventListener('contextmenu', e => e.preventDefault());
+            this.$overlay!.addEventListener('contextmenu', e => e.preventDefault());
 
-            document.documentElement.appendChild(this.$overlay);
+            document.documentElement.appendChild(this.$overlay!);
         }
 
         let $close;
@@ -45,7 +45,7 @@ export class Dialog {
                 this.$title = CE('h2', {}, CE('b', {}, title),
                         helpUrl && createButton({
                                 icon: Icon.QUESTION,
-                                style: (ButtonStyle.GHOST as number),
+                                style: ButtonStyle.GHOST,
                                 title: t('help'),
                                 url: helpUrl,
                             }),

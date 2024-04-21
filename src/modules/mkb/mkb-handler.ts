@@ -7,6 +7,7 @@ import { Toast } from "../../utils/toast";
 import { t } from "../translation";
 import { LocalDb } from "../../utils/local-db";
 import { KeyHelper } from "./key-helper";
+import type { MkbStoredPreset } from "../../types/mkb";
 
 /*
 This class uses some code from Yuzu emulator to handle mouse's movements
@@ -164,7 +165,7 @@ export class MkbHandler {
             return;
         }
 
-        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code];
+        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code]!;
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -178,14 +179,14 @@ export class MkbHandler {
         this.#pressButton(buttonIndex, isKeyDown);
     }
 
-    #onMouseEvent = e => {
+    #onMouseEvent = (e: MouseEvent) => {
         const isMouseDown = e.type === 'mousedown';
         const key = KeyHelper.getKeyFromEvent(e);
         if (!key) {
             return;
         }
 
-        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
+        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code]!;
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -200,7 +201,7 @@ export class MkbHandler {
             return;
         }
 
-        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
+        const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code]!;
         if (typeof buttonIndex === 'undefined') {
             return;
         }
@@ -212,7 +213,7 @@ export class MkbHandler {
             this.#pressButton(buttonIndex, true);
         }
 
-        this.#wheelStoppedTimeout = setTimeout(e => {
+        this.#wheelStoppedTimeout = setTimeout(() => {
             this.#prevWheelCode = null;
             this.#pressButton(buttonIndex, false);
         }, 20);
@@ -308,30 +309,30 @@ export class MkbHandler {
         }
     }
 
-    #getCurrentPreset = () => {
+    #getCurrentPreset = (): Promise<MkbStoredPreset> => {
         return new Promise(resolve => {
             const presetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
-            LocalDb.INSTANCE.getPreset(presetId).then(preset => {
-                resolve(preset ? preset : MkbPreset.DEFAULT_PRESET);
+            LocalDb.INSTANCE.getPreset(presetId).then((preset: MkbStoredPreset) => {
+                resolve(preset);
             });
         });
     }
 
     refreshPresetData = () => {
-        this.#getCurrentPreset().then(preset => {
-            this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset.data);
+        this.#getCurrentPreset().then((preset: MkbStoredPreset) => {
+            this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset ? preset.data : MkbPreset.DEFAULT_PRESET);
             this.#resetGamepad();
         });
     }
 
-    #onPointerLockChange = e => {
+    #onPointerLockChange = (e: Event) => {
         if (this.#enabled && !document.pointerLockElement) {
             this.stop();
             this.#waitForPointerLock(true);
         }
     }
 
-    #onPointerLockError = e => {
+    #onPointerLockError = (e: Event) => {
         console.log(e);
         this.stop();
     }
@@ -369,7 +370,7 @@ export class MkbHandler {
         this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
                 createButton({
                     icon: Icon.MOUSE_SETTINGS,
-                    style: ButtonStyle.PRIMARY as number,
+                    style: ButtonStyle.PRIMARY,
                     onClick: e => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -458,7 +459,7 @@ export class MkbHandler {
     static setupEvents() {
         window.addEventListener(BxEvent.STREAM_PLAYING, e => {
             // Enable MKB
-            if (getPref(PrefKey.MKB_ENABLED) && (!ENABLE_NATIVE_MKB_BETA || !window.NATIVE_MKB_TITLES.includes(GAME_PRODUCT_ID))) {
+            if (getPref(PrefKey.MKB_ENABLED)) {
                 console.log('Emulate MKB');
                 MkbHandler.INSTANCE.init();
             }

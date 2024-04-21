@@ -3,22 +3,7 @@ import { t } from "./translation";
 import { SettingElement, SettingElementType } from "./settings";
 import { UserAgentProfile } from "../utils/user-agent";
 import { StreamStat } from "./stream-stats";
-
-export type PreferenceSetting = {
-    default: any;
-    options?: {[index: string]: string};
-    multiple_options?: {[index: string]: string};
-    unsupported?: string | boolean;
-    note?: string | HTMLElement;
-    type?: SettingElementType;
-    ready?: () => void;
-    migrate?: (savedPrefs: any, value: any) => {};
-    min?: number;
-    max?: number;
-    steps?: number;
-    experimental?: boolean;
-    params?: any;
-};
+import type { PreferenceSetting, PreferenceSettings } from "../types/preferences";
 
 declare var HAS_TOUCH_SUPPORT: boolean;
 
@@ -103,7 +88,7 @@ export enum PrefKey {
 }
 
 export class Preferences {
-    static SETTINGS: {[index: string]: PreferenceSetting} = {
+    static SETTINGS: PreferenceSettings = {
         [PrefKey.LAST_UPDATE_CHECK]: {
             'default': 0,
         },
@@ -714,7 +699,7 @@ export class Preferences {
 
     toElement(key: keyof typeof Preferences.SETTINGS, onChange: any, overrideParams={}) {
         const setting = Preferences.SETTINGS[key];
-        let currentValue = this.get(key as string);
+        let currentValue = this.get(key);
 
         let $control;
         let type;
@@ -736,14 +721,14 @@ export class Preferences {
         }
 
         $control = SettingElement.render(type!, key as string, setting, currentValue, (e: any, value: any) => {
-                this.set(key as string, value);
+                this.set(key, value);
                 onChange && onChange(e, value);
             }, params);
 
         return $control;
     }
 
-    toNumberStepper(key: string, onChange: any, options={}) {
+    toNumberStepper(key: keyof typeof Preferences.SETTINGS, onChange: any, options={}) {
         return SettingElement.render(SettingElementType.NUMBER_STEPPER, key, Preferences.SETTINGS[key], this.get(key), (e: any, value: any) => {
                 this.set(key, value);
                 onChange && onChange(e, value);

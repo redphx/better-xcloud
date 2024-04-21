@@ -10,52 +10,60 @@ import { MkbHandler } from "./mkb-handler";
 import { LocalDb } from "../../utils/local-db";
 import { Icon } from "../../utils/html";
 import { SettingElement } from "../settings";
+import type { MkbConvertedPresetData, MkbPresetData, MkbStoredPresets } from "../../types/mkb";
+
 
 type MkbRemapperElements = {
-    wrapper: HTMLElement | null,
-    presetsSelect: HTMLSelectElement | null,
-    activateButton: HTMLButtonElement | null,
-    currentBindingKey: HTMLElement | null,
+    wrapper: HTMLElement | null;
+    presetsSelect: HTMLSelectElement | null;
+    activateButton: HTMLButtonElement | null;
+    currentBindingKey: HTMLElement | null;
 
-    allKeyElements: HTMLElement[],
-    allMouseElements: {[key in MkbPresetKey]?: HTMLElement},
-}
+    allKeyElements: HTMLElement[];
+    allMouseElements: {[key in MkbPresetKey]?: HTMLElement};
+};
+
+type MkbRemapperStates = {
+    currentPresetId: number;
+    presets: MkbStoredPresets;
+
+    editingPresetData?: MkbPresetData | null;
+    isEditing: boolean;
+};
 
 export class MkbRemapper {
-    get #BUTTON_ORDERS() {
-        return [
-            GamepadKey.UP,
-            GamepadKey.DOWN,
-            GamepadKey.LEFT,
-            GamepadKey.RIGHT,
+    readonly #BUTTON_ORDERS = [
+        GamepadKey.UP,
+        GamepadKey.DOWN,
+        GamepadKey.LEFT,
+        GamepadKey.RIGHT,
 
-            GamepadKey.A,
-            GamepadKey.B,
-            GamepadKey.X,
-            GamepadKey.Y,
+        GamepadKey.A,
+        GamepadKey.B,
+        GamepadKey.X,
+        GamepadKey.Y,
 
-            GamepadKey.LB,
-            GamepadKey.RB,
-            GamepadKey.LT,
-            GamepadKey.RT,
+        GamepadKey.LB,
+        GamepadKey.RB,
+        GamepadKey.LT,
+        GamepadKey.RT,
 
-            GamepadKey.SELECT,
-            GamepadKey.START,
-            GamepadKey.HOME,
+        GamepadKey.SELECT,
+        GamepadKey.START,
+        GamepadKey.HOME,
 
-            GamepadKey.L3,
-            GamepadKey.LS_UP,
-            GamepadKey.LS_DOWN,
-            GamepadKey.LS_LEFT,
-            GamepadKey.LS_RIGHT,
+        GamepadKey.L3,
+        GamepadKey.LS_UP,
+        GamepadKey.LS_DOWN,
+        GamepadKey.LS_LEFT,
+        GamepadKey.LS_RIGHT,
 
-            GamepadKey.R3,
-            GamepadKey.RS_UP,
-            GamepadKey.RS_DOWN,
-            GamepadKey.RS_LEFT,
-            GamepadKey.RS_RIGHT,
-        ];
-    };
+        GamepadKey.R3,
+        GamepadKey.RS_UP,
+        GamepadKey.RS_DOWN,
+        GamepadKey.RS_LEFT,
+        GamepadKey.RS_RIGHT,
+    ];
 
     static #instance: MkbRemapper;
     static get INSTANCE() {
@@ -66,11 +74,11 @@ export class MkbRemapper {
         return MkbRemapper.#instance;
     };
 
-    #STATE = {
+    #STATE: MkbRemapperStates = {
         currentPresetId: 0,
-        presets: [],
+        presets: {},
 
-        editingPresetData: {},
+        editingPresetData: null,
 
         isEditing: false,
     };
@@ -123,7 +131,7 @@ export class MkbRemapper {
             }
         }
 
-        this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code;
+        this.#STATE.editingPresetData!.mapping[buttonIndex][keySlot] = key.code;
         $elm.textContent = key.name;
         $elm.setAttribute('data-key-code', key.code);
     }
@@ -133,7 +141,7 @@ export class MkbRemapper {
         const keySlot = parseInt($elm.getAttribute('data-key-slot')!);
 
         // Remove key from preset
-        this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null;
+        this.#STATE.editingPresetData!.mapping[buttonIndex][keySlot] = null;
         $elm.textContent = '';
         $elm.removeAttribute('data-key-code');
     }
@@ -146,7 +154,7 @@ export class MkbRemapper {
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
-    #onMouseDown = e => {
+    #onMouseDown = (e: MouseEvent) => {
         e.preventDefault();
         this.#clearEventListeners();
 
@@ -154,7 +162,7 @@ export class MkbRemapper {
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
-    #onKeyDown = e => {
+    #onKeyDown = (e: KeyboardEvent) => {
         e.preventDefault();
         e.stopPropagation();
         this.#clearEventListeners();
@@ -166,20 +174,20 @@ export class MkbRemapper {
         setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
-    #onBindingKey = e => {
+    #onBindingKey = (e: MouseEvent) => {
         if (!this.#STATE.isEditing || e.button !== 0) {
             return;
         }
 
         console.log(e);
 
-        this.#$.currentBindingKey = e.target;
+        this.#$.currentBindingKey = e.target as HTMLElement;
 
         window.addEventListener('keydown', this.#onKeyDown);
         window.addEventListener('mousedown', this.#onMouseDown);
         window.addEventListener('wheel', this.#onWheel);
 
-        this.bindingDialog.show({title: e.target.getAttribute('data-prompt')});
+        this.bindingDialog.show({title: this.#$.currentBindingKey.getAttribute('data-prompt')!});
     };
 
     #onContextMenu = (e: Event) => {
@@ -191,7 +199,7 @@ export class MkbRemapper {
         this.#unbindKey(e.target as HTMLElement);
     };
 
-    #getPreset = (presetId: string) => {
+    #getPreset = (presetId: number) => {
         return this.#STATE.presets[presetId];
     }
 
@@ -199,31 +207,30 @@ export class MkbRemapper {
         return this.#getPreset(this.#STATE.currentPresetId);
     }
 
-    #switchPreset = presetId => {
-        presetId = parseInt(presetId);
-
+    #switchPreset = (presetId: number) => {
         this.#STATE.currentPresetId = presetId;
         const presetData = this.#getCurrentPreset().data;
 
         for (const $elm of this.#$.allKeyElements) {
-            const buttonIndex = $elm.getAttribute('data-button-index');
-            const keySlot = $elm.getAttribute('data-key-slot');
+            const buttonIndex = parseInt($elm.getAttribute('data-button-index')!);
+            const keySlot = parseInt($elm.getAttribute('data-key-slot')!);
 
             const buttonKeys = presetData.mapping[buttonIndex];
             if (buttonKeys && buttonKeys[keySlot]) {
-                $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
-                $elm.setAttribute('data-key-code', buttonKeys[keySlot]);
+                $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]!);
+                $elm.setAttribute('data-key-code', buttonKeys[keySlot]!);
             } else {
                 $elm.textContent = '';
                 $elm.removeAttribute('data-key-code');
             }
         }
 
-        for (const key in this.#$.allMouseElements) {
-            const $elm = this.#$.allMouseElements[key as MkbPresetKey]!;
+        let key: MkbPresetKey;
+        for (key in this.#$.allMouseElements) {
+            const $elm = this.#$.allMouseElements[key]!;
             let value = presetData.mouse[key];
             if (typeof value === 'undefined') {
-                value = MkbPreset.MOUSE_SETTINGS[key as MkbPresetKey].default;
+                value = MkbPreset.MOUSE_SETTINGS[key].default;
             }
 
             'setValue' in $elm && ($elm as any).setValue(value);
@@ -241,46 +248,43 @@ export class MkbRemapper {
             this.#$.presetsSelect!.removeChild(this.#$.presetsSelect!.firstChild);
         }
 
-        LocalDb.INSTANCE.getPresets()
-            .then(presets => {
-                this.#STATE.presets = presets;
-                const $fragment = document.createDocumentFragment();
+        LocalDb.INSTANCE.getPresets().then(presets => {
+            this.#STATE.presets = presets;
+            const $fragment = document.createDocumentFragment();
 
-                let defaultPresetId;
-                if (this.#STATE.currentPresetId === 0) {
-                    this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
+            let defaultPresetId;
+            if (this.#STATE.currentPresetId === 0) {
+                this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
 
-                    defaultPresetId = this.#STATE.currentPresetId;
-                    setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId);
-                    MkbHandler.INSTANCE.refreshPresetData();
-                } else {
-                    defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
+                defaultPresetId = this.#STATE.currentPresetId;
+                setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId);
+                MkbHandler.INSTANCE.refreshPresetData();
+            } else {
+                defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
+            }
+
+            for (let id in presets) {
+                const preset = presets[id];
+                let name = preset.name;
+                if (id === defaultPresetId) {
+                    name = `🎮 ` + name;
                 }
 
-                for (let id in presets) {
-                    id = parseInt(id);
+                const $options = CE<HTMLOptionElement>('option', {value: id}, name);
+                $options.selected = parseInt(id) === this.#STATE.currentPresetId;
 
-                    const preset = presets[id];
-                    let name = preset.name;
-                    if (id === defaultPresetId) {
-                        name = `🎮 ` + name;
-                    }
+                $fragment.appendChild($options);
+            };
 
-                    const $options = CE('option', {value: id}, name);
-                    $options.selected = id === this.#STATE.currentPresetId;
+            this.#$.presetsSelect!.appendChild($fragment);
 
-                    $fragment.appendChild($options);
-                };
+            // Update state of Activate button
+            const activated = defaultPresetId === this.#STATE.currentPresetId;
+            this.#$.activateButton!.disabled = activated;
+            this.#$.activateButton!.querySelector('span')!.textContent = activated ? t('activated') : t('activate');
 
-                this.#$.presetsSelect!.appendChild($fragment);
-
-                // Update state of Activate button
-                const activated = defaultPresetId === this.#STATE.currentPresetId;
-                this.#$.activateButton!.disabled = activated;
-                this.#$.activateButton!.querySelector('span')!.textContent = activated ? t('activated') : t('activate');
-
-                !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
-            });
+            !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
+        });
     }
 
     #toggleEditing = (force?: boolean) => {
@@ -290,7 +294,7 @@ export class MkbRemapper {
         if (this.#STATE.isEditing) {
             this.#STATE.editingPresetData = structuredClone(this.#getCurrentPreset().data);
         } else {
-            this.#STATE.editingPresetData = {};
+            this.#STATE.editingPresetData = null;
         }
 
 
@@ -315,7 +319,7 @@ export class MkbRemapper {
 
         this.#$.presetsSelect = CE<HTMLSelectElement>('select', {});
         this.#$.presetsSelect!.addEventListener('change', e => {
-            this.#switchPreset((e.target as HTMLSelectElement).value);
+            this.#switchPreset(parseInt((e.target as HTMLSelectElement).value));
         });
 
         const promptNewName = (value?: string) => {
@@ -446,13 +450,15 @@ export class MkbRemapper {
 
         // Render mouse settings
         const $mouseSettings = document.createDocumentFragment();
-        for (const key in MkbPreset.MOUSE_SETTINGS) {
-            const setting = MkbPreset.MOUSE_SETTINGS[key as MkbPresetKey];
+
+        let key: MkbPresetKey;
+        for (key in MkbPreset.MOUSE_SETTINGS) {
+            const setting = MkbPreset.MOUSE_SETTINGS[key];
             const value = setting.default;
 
             let $elm;
-            const onChange = (e, value) => {
-                this.#STATE.editingPresetData.mouse[key] = value;
+            const onChange = (e: Event, value: any) => {
+                (this.#STATE.editingPresetData!.mouse as any)[key] = value;
             };
             const $row = CE('div', {'class': 'bx-quick-settings-row'},
                     CE('label', {'for': `bx_setting_${key}`}, setting.label),
@@ -460,7 +466,7 @@ export class MkbRemapper {
                 );
 
             $mouseSettings.appendChild($row);
-            this.#$.allMouseElements[key as MkbPresetKey] = $elm;
+            this.#$.allMouseElements[key] = $elm;
         }
 
         $rows.appendChild($mouseSettings);
@@ -506,7 +512,7 @@ export class MkbRemapper {
                            style: ButtonStyle.PRIMARY,
                            onClick: e => {
                                const updatedPreset = structuredClone(this.#getCurrentPreset());
-                               updatedPreset.data = this.#STATE.editingPresetData;
+                               updatedPreset.data = this.#STATE.editingPresetData as MkbPresetData;
 
                                LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
                                    // If this is the default preset => refresh preset data

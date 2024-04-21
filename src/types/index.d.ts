@@ -39,6 +39,8 @@ type BxStates = {
     appContext: any | null;
 }
 
+type DualEnum = {[index: string]: number} & {[index: number]: string};
+
 declare var window: Window & typeof globalThis;
 declare var AppInterface: any;
 declare var STREAM_WEBRTC: RTCPeerConnection;

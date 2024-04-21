@@ -2,10 +2,12 @@ import { t } from "../translation";
 import { SettingElementType } from "../settings";
 import { GamepadKey, MouseButtonCode, MouseMapTo, MkbPresetKey } from "./definitions";
 import { MkbHandler } from "./mkb-handler";
+import type { MkbPresetData, MkbConvertedPresetData } from "../../types/mkb";
+import type { PreferenceSettings } from "../../types/preferences";
 
 
 export class MkbPreset {
-    static MOUSE_SETTINGS = {
+    static MOUSE_SETTINGS: PreferenceSettings = {
         [MkbPresetKey.MOUSE_MAP_TO]: {
             label: t('map-mouse-to'),
             type: SettingElementType.OPTIONS,
@@ -82,7 +84,7 @@ export class MkbPreset {
         },
     };
 
-    static DEFAULT_PRESET = {
+    static DEFAULT_PRESET: MkbPresetData = {
         'mapping': {
             // Use "e.code" value from https://keyjs.dev
             [GamepadKey.UP]: ['ArrowUp'],
@@ -130,15 +132,15 @@ export class MkbPreset {
         },
     };
 
-    static convert(preset) {
-        const obj = {
-            'mapping': {},
-            'mouse': Object.assign({}, preset.mouse),
+    static convert(preset: MkbPresetData): MkbConvertedPresetData {
+        const obj: MkbConvertedPresetData = {
+            mapping: {},
+            mouse: Object.assign({}, preset.mouse),
         };
 
         for (const buttonIndex in preset.mapping) {
-            for (const keyName of preset.mapping[buttonIndex]) {
-                obj.mapping[keyName] = parseInt(buttonIndex);
+            for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
+                obj.mapping[keyName!] = parseInt(buttonIndex);
             }
         }
 
@@ -150,7 +152,7 @@ export class MkbPreset {
         mouse[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
         mouse[MkbPresetKey.MOUSE_STICK_DECAY_MIN] *= 0.01;
 
-        const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
+        const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]!];
         if (typeof mouseMapTo !== 'undefined') {
             mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
         } else {
