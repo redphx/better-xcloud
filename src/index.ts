@@ -40,15 +40,15 @@ import { PreloadedState } from "./utils/titles-info";
 import { patchAudioContext, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "./utils/monkey-patches";
 import { interceptHttpRequests } from "./utils/network";
 
-const SCRIPT_VERSION = '3.5.3';
-const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
+globalThis.SCRIPT_VERSION = '3.5.3';
+globalThis.SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
-const NATIVE_FETCH = window.fetch;
+globalThis.NATIVE_FETCH = window.fetch;
 
-let LOCALE = getLocale();
+globalThis.LOCALE = getLocale();
 
-const AppInterface = window.AppInterface;
-let States: BxStates = {
+globalThis.AppInterface = window.AppInterface;
+globalThis.States = {
     isPlaying: false,
     appContext: {},
     serverRegions: {},

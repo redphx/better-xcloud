@@ -1,8 +1,6 @@
 import { getPref, Preferences, PrefKey } from "../modules/preferences";
 
 
-declare var States: BxStates;
-
 export function getPreferredServerRegion(shortName = false) {
     let preferredRegion = getPref(PrefKey.SERVER_REGION);
     if (preferredRegion in States.serverRegions) {

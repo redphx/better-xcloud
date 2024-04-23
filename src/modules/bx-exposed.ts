@@ -1,5 +1,3 @@
-declare var States: BxStates;
-
 export const BxExposed = {
     onPollingModeChanged: (mode: 'All' | 'None') => {
         if (!States.isPlaying) {

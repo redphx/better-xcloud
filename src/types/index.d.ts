@@ -51,11 +51,11 @@ type BxStates = {
 
 type DualEnum = {[index: string]: number} & {[index: number]: string};
 
-declare const window: Window & typeof globalThis;
-declare const AppInterface: any;
-declare const STREAM_WEBRTC: RTCPeerConnection;
-declare let States: BxStates;
-declare const NATIVE_FETCH: typeof window.fetch;
-declare const SCRIPT_VERSION: string;
-declare const SCRIPT_HOME: string;
+declare var SCRIPT_VERSION: string;
+declare var window: Window & typeof globalThis;
+declare var AppInterface: any;
+declare var STREAM_WEBRTC: RTCPeerConnection;
+declare var States: BxStates;
+declare var NATIVE_FETCH: typeof window.fetch;
+declare var SCRIPT_HOME: string;
 declare var LOCALE: number;
