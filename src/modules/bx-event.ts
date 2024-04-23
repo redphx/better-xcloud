@@ -20,11 +20,13 @@ export enum BxEvent {
     REMOTE_PLAY_READY = 'bx-remote-play-ready',
     REMOTE_PLAY_FAILED = 'bx-remote-play-failed',
 
+    XCLOUD_SERVERS_READY = 'bx-servers-ready',
+
     DATA_CHANNEL_CREATED = 'bx-data-channel-created',
 }
 
 export namespace BxEvent {
-    export function dispatch(target: HTMLElement | Window, eventName: string, data: any) {
+    export function dispatch(target: HTMLElement | Window, eventName: string, data?: any) {
         if (!eventName) {
             alert('BxEvent.dispatch(): eventName is null');
             return;

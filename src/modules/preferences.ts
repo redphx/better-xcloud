@@ -2,10 +2,8 @@ import { CE } from "../utils/html";
 import { t } from "./translation";
 import { SettingElement, SettingElementType } from "./settings";
 import { UserAgentProfile } from "../utils/user-agent";
-import { StreamStat } from "./stream-stats";
+import { StreamStat } from "./stream/stream-stats";
 import type { PreferenceSetting, PreferenceSettings } from "../types/preferences";
-
-declare var HAS_TOUCH_SUPPORT: boolean;
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',
@@ -90,17 +88,18 @@ export enum PrefKey {
 export class Preferences {
     static SETTINGS: PreferenceSettings = {
         [PrefKey.LAST_UPDATE_CHECK]: {
-            'default': 0,
+            default: 0,
         },
         [PrefKey.LATEST_VERSION]: {
-            'default': '',
+            default: '',
         },
         [PrefKey.CURRENT_VERSION]: {
-            'default': '',
+            default: '',
         },
         [PrefKey.BETTER_XCLOUD_LOCALE]: {
-            'default': localStorage.getItem('better_xcloud_locale') || 'en-US',
-            'options': {
+            label: t('language'),
+            default: localStorage.getItem('better_xcloud_locale') || 'en-US',
+            options: {
                 'en-ID': 'Bahasa Indonesia',
                 'de-DE': 'Deutsch',
                 'en-US': 'English (United States)',
@@ -119,12 +118,14 @@ export class Preferences {
             },
         },
         [PrefKey.SERVER_REGION]: {
-            'default': 'default',
+            label: t('region'),
+            default: 'default',
         },
         [PrefKey.STREAM_PREFERRED_LOCALE]: {
-            'default': 'default',
-            'options': {
-                'default': t('default'),
+            label: t('preferred-game-language'),
+            default: 'default',
+            options: {
+                default: t('default'),
                 'ar-SA': 'العربية',
                 'cs-CZ': 'čeština',
                 'da-DK': 'dansk',
@@ -155,18 +156,20 @@ export class Preferences {
             },
         },
         [PrefKey.STREAM_TARGET_RESOLUTION]: {
-            'default': 'auto',
-            'options': {
-                'auto': t('default'),
+            label: t('target-resolution'),
+            default: 'auto',
+            options: {
+                auto: t('default'),
                 '1080p': '1080p',
                 '720p': '720p',
             },
         },
         [PrefKey.STREAM_CODEC_PROFILE]: {
-            'default': 'default',
-            'options': (() => {
+            label: t('visual-quality'),
+            default: 'default',
+            options: (() => {
                 const options: {[index: string]: string} = {
-                    'default': t('default'),
+                    default: t('default'),
                 };
 
                 if (!('getCapabilities' in RTCRtpReceiver) || typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
@@ -219,7 +222,7 @@ export class Preferences {
 
                 return options;
             })(),
-            'ready': () => {
+            ready: () => {
                 const setting = Preferences.SETTINGS[PrefKey.STREAM_CODEC_PROFILE]
                 const options: any = setting.options;
                 const keys = Object.keys(options);
@@ -234,43 +237,50 @@ export class Preferences {
             },
         },
         [PrefKey.PREFER_IPV6_SERVER]: {
-            'default': false,
+            label: t('prefer-ipv6-server'),
+            default: false,
         },
 
         [PrefKey.SCREENSHOT_BUTTON_POSITION]: {
-            'default': 'bottom-left',
-            'options': {
+            label: t('screenshot-button-position'),
+            default: 'bottom-left',
+            options: {
                 'bottom-left': t('bottom-left'),
                 'bottom-right': t('bottom-right'),
                 'none': t('disable'),
             },
         },
         [PrefKey.SCREENSHOT_APPLY_FILTERS]: {
-            'default': false,
+            label: t('screenshot-apply-filters'),
+            default: false,
         },
 
         [PrefKey.SKIP_SPLASH_VIDEO]: {
-            'default': false,
+            label: t('skip-splash-video'),
+            default: false,
         },
         [PrefKey.HIDE_DOTS_ICON]: {
-            'default': false,
+            label: t('hide-system-menu-icon'),
+            default: false,
         },
 
         [PrefKey.STREAM_COMBINE_SOURCES]: {
-            'default': false,
-            'experimental': true,
-            'note': t('combine-audio-video-streams-summary'),
+            label: t('combine-audio-video-streams'),
+            default: false,
+            experimental: true,
+            note: t('combine-audio-video-streams-summary'),
         },
 
         [PrefKey.STREAM_TOUCH_CONTROLLER]: {
-            'default': 'all',
-            'options': {
-                'default': t('default'),
-                'all': t('tc-all-games'),
-                'off': t('off'),
+            label: t('tc-availability'),
+            default: 'all',
+            options: {
+                default: t('default'),
+                all: t('tc-all-games'),
+                off: t('off'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT,
-            'ready': () => {
+            unsupported: !States.hasTouchSupport,
+            ready: () => {
                 const setting = Preferences.SETTINGS[PrefKey.STREAM_TOUCH_CONTROLLER];
                 if (setting.unsupported) {
                     setting.default = 'default';
@@ -278,88 +288,96 @@ export class Preferences {
             },
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
-            'default': false,
-            'unsupported': !HAS_TOUCH_SUPPORT,
+            label: t('tc-auto-off'),
+            default: false,
+            unsupported: !States.hasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
-            'default': 'default',
-            'options': {
-                'default': t('default'),
-                'white': t('tc-all-white'),
-                'muted': t('tc-muted-colors'),
+            label: t('tc-standard-layout-style'),
+            default: 'default',
+            options: {
+                default: t('default'),
+                white: t('tc-all-white'),
+                muted: t('tc-muted-colors'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT,
+            unsupported: !States.hasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
-            'default': 'default',
-            'options': {
-                'default': t('default'),
-                'muted': t('tc-muted-colors'),
+            label: t('tc-custom-layout-style'),
+            default: 'default',
+            options: {
+                default: t('default'),
+                muted: t('tc-muted-colors'),
             },
-            'unsupported': !HAS_TOUCH_SUPPORT,
+            unsupported: !States.hasTouchSupport,
         },
 
         [PrefKey.STREAM_SIMPLIFY_MENU]: {
-            'default': false,
+            label: t('simplify-stream-menu'),
+            default: false,
         },
         [PrefKey.MKB_HIDE_IDLE_CURSOR]: {
-            'default': false,
+            label: t('hide-idle-cursor'),
+            default: false,
         },
         [PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG]: {
-            'default': false,
+            label: t('disable-post-stream-feedback-dialog'),
+            default: false,
         },
 
         [PrefKey.LOCAL_CO_OP_ENABLED]: {
-            'default': false,
-            'note': CE<HTMLAnchorElement>('a', {
-                           href: 'https://github.com/redphx/better-xcloud/discussions/275',
-                           target: '_blank',
-                       }, t('enable-local-co-op-support-note')),
+            label: t('enable-local-co-op-support'),
+            default: false,
+            note: CE<HTMLAnchorElement>('a', {
+                    href: 'https://github.com/redphx/better-xcloud/discussions/275',
+                    target: '_blank',
+                }, t('enable-local-co-op-support-note')),
         },
 
         /*
         [Preferences.LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER]: {
-            'default': false,
+            default: false,
             'note': t('separate-touch-controller-note'),
         },
         */
 
         [PrefKey.CONTROLLER_ENABLE_SHORTCUTS]: {
-            'default': false,
+            default: false,
         },
 
         [PrefKey.CONTROLLER_ENABLE_VIBRATION]: {
-            'default': true,
+            default: true,
         },
 
         [PrefKey.CONTROLLER_DEVICE_VIBRATION]: {
-            'default': 'off',
-            'options': {
-                'on': t('on'),
-                'auto': t('device-vibration-not-using-gamepad'),
-                'off': t('off'),
+            default: 'off',
+            options: {
+                on: t('on'),
+                auto: t('device-vibration-not-using-gamepad'),
+                off: t('off'),
             },
         },
 
         [PrefKey.CONTROLLER_VIBRATION_INTENSITY]: {
-            'type': SettingElementType.NUMBER_STEPPER,
-            'default': 100,
-            'min': 0,
-            'max': 100,
-            'steps': 10,
-            'params': {
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 100,
+            min: 0,
+            max: 100,
+            steps: 10,
+            params: {
                 suffix: '%',
                 ticks: 10,
             },
         },
 
         [PrefKey.MKB_ENABLED]: {
-            'default': false,
-            'unsupported': ((): string | boolean => {
+            label: t('enable-mkb'),
+            default: false,
+            unsupported: ((): string | boolean => {
                     const userAgent = ((window.navigator as any).orgUserAgent || window.navigator.userAgent || '').toLowerCase();
                     return userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
                 })(),
-            'ready': () => {
+            ready: () => {
                 const pref = Preferences.SETTINGS[PrefKey.MKB_ENABLED];
 
                 let note;
@@ -380,52 +398,61 @@ export class Preferences {
         },
 
         [PrefKey.MKB_DEFAULT_PRESET_ID]: {
-            'default': 0,
+            default: 0,
         },
 
         [PrefKey.MKB_ABSOLUTE_MOUSE]: {
-            'default': false,
+            default: false,
         },
 
         [PrefKey.REDUCE_ANIMATIONS]: {
-            'default': false,
+            label: t('reduce-animations'),
+            default: false,
         },
 
         [PrefKey.UI_LOADING_SCREEN_GAME_ART]: {
-            'default': true,
+            label: t('show-game-art'),
+            default: true,
         },
         [PrefKey.UI_LOADING_SCREEN_WAIT_TIME]: {
-            'default': true,
+            label: t('show-wait-time'),
+            default: true,
         },
         [PrefKey.UI_LOADING_SCREEN_ROCKET]: {
-            'default': 'show',
-            'options': {
-                'show': t('rocket-always-show'),
+            label: t('rocket-animation'),
+            default: 'show',
+            options: {
+                show: t('rocket-always-show'),
                 'hide-queue': t('rocket-hide-queue'),
-                'hide': t('rocket-always-hide'),
+                hide: t('rocket-always-hide'),
             },
         },
         [PrefKey.UI_LAYOUT]: {
-            'default': 'default',
-            'options': {
-                'default': t('default'),
-                'tv': t('smart-tv'),
+            label: t('layout'),
+            default: 'default',
+            options: {
+                default: t('default'),
+                tv: t('smart-tv'),
             },
         },
 
         [PrefKey.UI_SCROLLBAR_HIDE]: {
-            'default': false,
+            label: t('hide-scrollbar'),
+            default: false,
         },
 
         [PrefKey.BLOCK_SOCIAL_FEATURES]: {
-            'default': false,
+            label: t('disable-social-features'),
+            default: false,
         },
         [PrefKey.BLOCK_TRACKING]: {
-            'default': false,
+            label: t('disable-xcloud-analytics'),
+            default: false,
         },
         [PrefKey.USER_AGENT_PROFILE]: {
-            'default': 'default',
-            'options': {
+            label: t('user-agent-profile'),
+            default: 'default',
+            options: {
                 [UserAgentProfile.DEFAULT]: t('default'),
                 [UserAgentProfile.EDGE_WINDOWS]: 'Edge + Windows',
                 [UserAgentProfile.SAFARI_MACOS]: 'Safari + macOS',
@@ -434,74 +461,76 @@ export class Preferences {
             },
         },
         [PrefKey.USER_AGENT_CUSTOM]: {
-            'default': '',
+            default: '',
         },
         [PrefKey.VIDEO_CLARITY]: {
-            'type': SettingElementType.NUMBER_STEPPER,
-            'default': 0,
-            'min': 0,
-            'max': 5,
-            'params': {
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 0,
+            min: 0,
+            max: 5,
+            params: {
                 hideSlider: true,
             },
         },
         [PrefKey.VIDEO_RATIO]: {
-            'default': '16:9',
-            'options': {
+            default: '16:9',
+            options: {
                 '16:9': '16:9',
                 '18:9': '18:9',
                 '21:9': '21:9',
                 '16:10': '16:10',
                 '4:3': '4:3',
 
-                'fill': t('stretch'),
+                fill: t('stretch'),
                 //'cover': 'Cover',
             },
         },
         [PrefKey.VIDEO_SATURATION]: {
-            'type': SettingElementType.NUMBER_STEPPER,
-            'default': 100,
-            'min': 50,
-            'max': 150,
-            'params': {
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 100,
+            min: 50,
+            max: 150,
+            params: {
                 suffix: '%',
                 ticks: 25,
             },
         },
         [PrefKey.VIDEO_CONTRAST]: {
-            'type': SettingElementType.NUMBER_STEPPER,
-            'default': 100,
-            'min': 50,
-            'max': 150,
-            'params': {
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 100,
+            min: 50,
+            max: 150,
+            params: {
                 suffix: '%',
                 ticks: 25,
             },
         },
         [PrefKey.VIDEO_BRIGHTNESS]: {
-            'type': SettingElementType.NUMBER_STEPPER,
-            'default': 100,
-            'min': 50,
-            'max': 150,
-            'params': {
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 100,
+            min: 50,
+            max: 150,
+            params: {
                 suffix: '%',
                 ticks: 25,
             },
         },
 
         [PrefKey.AUDIO_MIC_ON_PLAYING]: {
-            'default': false,
+            label: t('enable-mic-on-startup'),
+            default: false,
         },
         [PrefKey.AUDIO_ENABLE_VOLUME_CONTROL]: {
-            'default': false,
-            'experimental': true,
+            label: t('enable-volume-control'),
+            default: false,
+            experimental: true,
         },
         [PrefKey.AUDIO_VOLUME]: {
-            'type': SettingElementType.NUMBER_STEPPER,
-            'default': 100,
-            'min': 0,
-            'max': 600,
-            'params': {
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 100,
+            min: 0,
+            max: 600,
+            params: {
                 suffix: '%',
                 ticks: 100,
             },
@@ -509,8 +538,8 @@ export class Preferences {
 
 
         [PrefKey.STATS_ITEMS]: {
-            'default': [StreamStat.PING, StreamStat.FPS, StreamStat.BITRATE, StreamStat.DECODE_TIME, StreamStat.PACKETS_LOST, StreamStat.FRAMES_LOST],
-            'multiple_options': {
+            default: [StreamStat.PING, StreamStat.FPS, StreamStat.BITRATE, StreamStat.DECODE_TIME, StreamStat.PACKETS_LOST, StreamStat.FRAMES_LOST],
+            multipleOptions: {
                 [StreamStat.PING]: `${StreamStat.PING.toUpperCase()}: ${t('stat-ping')}`,
                 [StreamStat.FPS]: `${StreamStat.FPS.toUpperCase()}: ${t('stat-fps')}`,
                 [StreamStat.BITRATE]: `${StreamStat.BITRATE.toUpperCase()}: ${t('stat-bitrate')}`,
@@ -518,70 +547,72 @@ export class Preferences {
                 [StreamStat.PACKETS_LOST]: `${StreamStat.PACKETS_LOST.toUpperCase()}: ${t('stat-packets-lost')}`,
                 [StreamStat.FRAMES_LOST]: `${StreamStat.FRAMES_LOST.toUpperCase()}: ${t('stat-frames-lost')}`,
             },
-            'params': {
+            params: {
                 size: 6,
             },
         },
         [PrefKey.STATS_SHOW_WHEN_PLAYING]: {
-            'default': false,
+            default: false,
         },
         [PrefKey.STATS_QUICK_GLANCE]: {
-            'default': true,
+            default: true,
         },
         [PrefKey.STATS_POSITION]: {
-            'default': 'top-right',
-            'options': {
+            default: 'top-right',
+            options: {
                 'top-left': t('top-left'),
                 'top-center': t('top-center'),
                 'top-right': t('top-right'),
             },
         },
         [PrefKey.STATS_TEXT_SIZE]: {
-            'default': '0.9rem',
-            'options': {
+            default: '0.9rem',
+            options: {
                 '0.9rem': t('small'),
                 '1.0rem': t('normal'),
                 '1.1rem': t('large'),
             },
         },
         [PrefKey.STATS_TRANSPARENT]: {
-            'default': false,
+            default: false,
         },
         [PrefKey.STATS_OPACITY]: {
-            'type':  SettingElementType.NUMBER_STEPPER,
-            'default': 80,
-            'min': 50,
-            'max': 100,
-            'params': {
+            type:  SettingElementType.NUMBER_STEPPER,
+            default: 80,
+            min: 50,
+            max: 100,
+            params: {
                 suffix: '%',
                 ticks: 10,
             },
         },
         [PrefKey.STATS_CONDITIONAL_FORMATTING]: {
-            'default': false,
+            default: false,
         },
 
         [PrefKey.REMOTE_PLAY_ENABLED]: {
-            'default': false,
+            label: t('enable-remote-play-feature'),
+            default: false,
         },
 
         [PrefKey.REMOTE_PLAY_RESOLUTION]: {
-            'default': '1080p',
-            'options': {
+            default: '1080p',
+            options: {
                 '1080p': '1080p',
                 '720p': '720p',
             },
         },
 
         [PrefKey.GAME_FORTNITE_FORCE_CONSOLE]: {
-            'default': false,
-            'note': t('fortnite-allow-stw-mode'),
+            label: '🎮 ' + t('fortnite-force-console-version'),
+            default: false,
+            note: t('fortnite-allow-stw-mode'),
         },
 
         // Deprecated
         /*
         [Preferences.DEPRECATED_CONTROLLER_SUPPORT_LOCAL_CO_OP]: {
-            'default': false,
+            default: false,
             'migrate': function(savedPrefs, value) {
                 this.set(Preferences.LOCAL_CO_OP_ENABLED, value);
                 savedPrefs[Preferences.LOCAL_CO_OP_ENABLED] = value;
@@ -652,9 +683,9 @@ export class Preferences {
 
         if ('options' in config && !(value in config.options!)) {
             value = config.default;
-        } else if ('multiple_options' in config) {
+        } else if ('multipleOptions' in config) {
             if (value.length) {
-                const validOptions = Object.keys(config.multiple_options!);
+                const validOptions = Object.keys(config.multipleOptions!);
                 value.forEach((item: any, idx: number) => {
                     (validOptions.indexOf(item) === -1) && value.splice(idx, 1);
                 });
@@ -707,7 +738,7 @@ export class Preferences {
             type = setting.type;
         } else if ('options' in setting) {
             type = SettingElementType.OPTIONS;
-        } else if ('multiple_options' in setting) {
+        } else if ('multipleOptions' in setting) {
             type = SettingElementType.MULTIPLE_OPTIONS;
         } else if (typeof setting.default === 'number') {
             type = SettingElementType.NUMBER;
@@ -737,6 +768,7 @@ export class Preferences {
 }
 
 
-const PREFS = new Preferences();
-export const getPref = PREFS.get.bind(PREFS);
-export const setPref = PREFS.set.bind(PREFS);
+const prefs = new Preferences();
+export const getPref = prefs.get.bind(prefs);
+export const setPref = prefs.set.bind(prefs);
+export const toPrefElement = prefs.toElement.bind(prefs);

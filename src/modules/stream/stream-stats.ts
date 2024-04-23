@@ -1,9 +1,9 @@
-import { Preferences } from "./preferences"
-import { BxEvent } from "./bx-event"
-import { getPref } from "./preferences"
+import { PrefKey, Preferences } from "../preferences"
+import { BxEvent } from "../bx-event"
+import { getPref } from "../preferences"
 import { StreamBadges } from "./stream-badges"
-import { CE } from "../utils/html"
-import { t } from "./translation"
+import { CE } from "../../utils/html"
+import { t } from "../translation"
 
 export enum StreamStat {
     PING = 'ping',
@@ -110,7 +110,7 @@ export class StreamStats {
             return;
         }
 
-        const PREF_STATS_CONDITIONAL_FORMATTING = getPref(Preferences.STATS_CONDITIONAL_FORMATTING);
+        const PREF_STATS_CONDITIONAL_FORMATTING = getPref(PrefKey.STATS_CONDITIONAL_FORMATTING);
         STREAM_WEBRTC.getStats().then(stats => {
             stats.forEach(stat => {
                 let grade = '';
@@ -165,11 +165,11 @@ export class StreamStats {
     }
 
     static refreshStyles() {
-        const PREF_ITEMS = getPref(Preferences.STATS_ITEMS);
-        const PREF_POSITION = getPref(Preferences.STATS_POSITION);
-        const PREF_TRANSPARENT = getPref(Preferences.STATS_TRANSPARENT);
-        const PREF_OPACITY = getPref(Preferences.STATS_OPACITY);
-        const PREF_TEXT_SIZE = getPref(Preferences.STATS_TEXT_SIZE);
+        const PREF_ITEMS = getPref(PrefKey.STATS_ITEMS);
+        const PREF_POSITION = getPref(PrefKey.STATS_POSITION);
+        const PREF_TRANSPARENT = getPref(PrefKey.STATS_TRANSPARENT);
+        const PREF_OPACITY = getPref(PrefKey.STATS_OPACITY);
+        const PREF_TEXT_SIZE = getPref(PrefKey.STATS_TEXT_SIZE);
 
         const $container = StreamStats.#$container;
         $container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
@@ -180,7 +180,7 @@ export class StreamStats {
     }
 
     static hideSettingsUi() {
-        if (StreamStats.isGlancing() && !getPref(Preferences.STATS_QUICK_GLANCE)) {
+        if (StreamStats.isGlancing() && !getPref(PrefKey.STATS_QUICK_GLANCE)) {
             StreamStats.stop();
         }
     }
@@ -277,7 +277,7 @@ export class StreamStats {
                 StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
             }
 
-            if (getPref(Preferences.STATS_SHOW_WHEN_PLAYING)) {
+            if (getPref(PrefKey.STATS_SHOW_WHEN_PLAYING)) {
                 StreamStats.start();
             }
         });
@@ -285,8 +285,8 @@ export class StreamStats {
 
     static setupEvents() {
         window.addEventListener(BxEvent.STREAM_PLAYING, e => {
-            const PREF_STATS_QUICK_GLANCE = getPref(Preferences.STATS_QUICK_GLANCE);
-            const PREF_STATS_SHOW_WHEN_PLAYING = getPref(Preferences.STATS_SHOW_WHEN_PLAYING);
+            const PREF_STATS_QUICK_GLANCE = getPref(PrefKey.STATS_QUICK_GLANCE);
+            const PREF_STATS_SHOW_WHEN_PLAYING = getPref(PrefKey.STATS_SHOW_WHEN_PLAYING);
 
             StreamStats.getServerStats();
             // Setup Stat's Quick Glance mode

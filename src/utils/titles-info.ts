@@ -2,32 +2,6 @@ import { PrefKey } from "../modules/preferences";
 import { getPref } from "../modules/preferences";
 import { UserAgent } from "./user-agent";
 
-type TitleInfo = {
-    titleId?: string;
-    xboxTitleId?: string;
-    hasTouchSupport?: boolean;
-    imageHero?: string;
-};
-
-type ApiTitleInfo = {
-    titleId: string;
-    details: {
-        xboxTitleId: string;
-        productId: string;
-        supportedInputTypes: string[];
-    };
-};
-
-type ApiCatalogInfo = {
-    StoreId: string;
-    Image_Hero: {
-        URL: string;
-    };
-    Image_Tile: {
-        URL: string;
-    };
-};
-
 export class TitlesInfo {
     static #INFO: {[index: string]: TitleInfo} = {};
 
@@ -44,7 +18,7 @@ export class TitlesInfo {
         const details = titleInfo.details;
         const info: TitleInfo = {
             titleId: titleInfo.titleId,
-            xboxTitleId: details.xboxTitleId,
+            xboxTitleId: '' + details.xboxTitleId,
             // Has more than one input type -> must have touch support
             hasTouchSupport: (details.supportedInputTypes.length > 1),
         };
@@ -85,7 +59,7 @@ export class TitlesInfo {
 }
 
 
-class PreloadedState {
+export class PreloadedState {
     static override() {
         Object.defineProperty(window, '__PRELOADED_STATE__', {
             configurable: true,

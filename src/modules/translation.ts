@@ -3222,5 +3222,5 @@ const Translations = {
     ],
 }
 
-let LOCALE = Translations.getLocale();
 export const t = Translations.get;
+export const getLocale = Translations.getLocale;

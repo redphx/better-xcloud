@@ -14,7 +14,7 @@ export class Toast {
     static #timeout?: number | null;
     static #DURATION = 3000;
 
-    static show(msg: string, status: string, options: ToastOptions={}) {
+    static show(msg: string, status?: string, options: Partial<ToastOptions>={}) {
         options = options || {};
 
         const args = Array.from(arguments) as [string, string, ToastOptions];

@@ -8,6 +8,7 @@ import { t } from "../translation";
 import { LocalDb } from "../../utils/local-db";
 import { KeyHelper } from "./key-helper";
 import type { MkbStoredPreset } from "../../types/mkb";
+import { showStreamSettings } from "../stream/stream-ui";
 
 /*
 This class uses some code from Yuzu emulator to handle mouse's movements
@@ -25,10 +26,10 @@ export class MkbHandler {
 
     #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
 
-    static get DEFAULT_PANNING_SENSITIVITY() { return 0.0010; }
-    static get DEFAULT_STICK_SENSITIVITY() { return 0.0006; }
-    static get DEFAULT_DEADZONE_COUNTERWEIGHT() { return 0.01; }
-    static get MAXIMUM_STICK_RANGE() { return 1.1; }
+    static readonly DEFAULT_PANNING_SENSITIVITY = 0.0010;
+    static readonly DEFAULT_STICK_SENSITIVITY = 0.0006;
+    static readonly DEFAULT_DEADZONE_COUNTERWEIGHT = 0.01;
+    static readonly MAXIMUM_STICK_RANGE = 1.1;
 
     static VIRTUAL_GAMEPAD_ID = 'Xbox 360 Controller';
 

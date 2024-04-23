@@ -1,6 +1,6 @@
-import { t } from "./translation";
-import { BxEvent } from "./bx-event";
-import { CE } from "../utils/html";
+import { t } from "../translation";
+import { BxEvent } from "../bx-event";
+import { CE } from "../../utils/html";
 
 enum StreamBadge {
     PLAYTIME = 'playtime',
@@ -29,7 +29,7 @@ export class StreamBadges {
     static #cachedDoms: {[index: string]: HTMLElement} = {};
 
     static #interval?: number | null;
-    static get #REFRESH_INTERVAL() { return 3000; };
+    static readonly #REFRESH_INTERVAL = 3000;
 
     static #renderBadge(name: StreamBadge, value: string, color: string) {
         if (name === StreamBadge.BREAK) {

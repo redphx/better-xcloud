@@ -6,6 +6,12 @@ interface Window {
     BX_FLAGS?: BxFlags;
     BX_CE: (elmName: string, props: {[index: string]: any}={}) => HTMLElement;
     BX_EXPOSED: any;
+
+    BX_VIBRATION_INTENSITY: number;
+    BX_ENABLE_CONTROLLER_VIBRATION: boolean;
+    BX_ENABLE_DEVICE_VIBRATION: boolean;
+
+    BX_REMOTE_PLAY_CONFIG: BxStates.remotePlay.config;
 }
 
 interface NavigatorBattery extends Navigator {
@@ -15,33 +21,41 @@ interface NavigatorBattery extends Navigator {
     }>,
 }
 
-type RTCBasicStat = {
-    address: string,
-    bytesReceived: number,
-    clockRate: number,
-    codecId: string,
-    framesDecoded: number,
-    id: string,
-    kind: string,
-    mimeType: string,
-    packetsReceived: number,
-    profile: string,
-    remoteCandidateId: string,
-    sdpFmtpLine: string,
-    state: string,
-    timestamp: number,
-    totalDecodeTime: number,
-    type: string,
-}
-
 type BxStates = {
     isPlaying: boolean;
     appContext: any | null;
+    serverRegions: any;
+    hasTouchSupport: boolean;
+
+    currentStream: Partial<{
+        titleId: string;
+        xboxTitleId: string;
+        productId: string;
+
+        $video: HTMLVideoElement | null;
+        $screenshotCanvas: HTMLCanvasElement | null;
+
+        peerConnection: RTCPeerConnection;
+        audioContext: AudioContext | null;
+        audioGainNode: GainNode | null;
+    }>;
+
+    remotePlay: Partial<{
+        isPlaying: boolean;
+        server: string;
+        config: {
+            serverId: string;
+        };
+    }>;
 }
 
 type DualEnum = {[index: string]: number} & {[index: number]: string};
 
-declare var window: Window & typeof globalThis;
-declare var AppInterface: any;
-declare var STREAM_WEBRTC: RTCPeerConnection;
-declare var States: BxStates;
+declare const window: Window & typeof globalThis;
+declare const AppInterface: any;
+declare const STREAM_WEBRTC: RTCPeerConnection;
+declare let States: BxStates;
+declare const NATIVE_FETCH: typeof window.fetch;
+declare const SCRIPT_VERSION: string;
+declare const SCRIPT_HOME: string;
+declare var LOCALE: number;
