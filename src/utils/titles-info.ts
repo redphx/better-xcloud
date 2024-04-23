@@ -74,7 +74,6 @@ export class PreloadedState {
             },
             set: state => {
                 (this as any)._state = state;
-                States
                 States.appContext = structuredClone(state.appContext);
 
                 // Get a list of touch-supported games
