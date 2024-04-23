@@ -1,6 +1,9 @@
 {
-  "includes": [
-    "./types"
+  "include": [
+    "./src/**/*.ts"
+  ],
+  "exclude": [
+    "./dist"
   ],
   "compilerOptions": {
     // Enable latest features
