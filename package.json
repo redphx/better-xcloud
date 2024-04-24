@@ -2,6 +2,10 @@
   "name": "better-xcloud",
   "module": "src/index.ts",
   "type": "module",
+  "bin": {
+    "build": "build.ts",
+    "build-watch": "build.ts --watch"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
