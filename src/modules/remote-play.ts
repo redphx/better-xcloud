@@ -219,16 +219,17 @@ export class RemotePlay {
             }
         }
 
-        fetch('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
-            method: 'POST',
-            body: JSON.stringify({
-                offeringId: 'xhome',
-                token: GSSV_TOKEN,
-            }),
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8',
-            },
-        }).then(resp => resp.json())
+        const request = new Request('https://xhome.gssv-play-prod.xboxlive.com/v2/login/user', {
+                method: 'POST',
+                body: JSON.stringify({
+                    offeringId: 'xhome',
+                    token: GSSV_TOKEN,
+                }),
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                },
+            });
+        fetch(request).then(resp => resp.json())
             .then(json => {
                 RemotePlay.#REGIONS = json.offeringSettings.regions;
                 RemotePlay.XHOME_TOKEN = json.gsToken;
@@ -252,8 +253,8 @@ export class RemotePlay {
         // Test servers one by one
         for (const region of RemotePlay.#REGIONS) {
             try {
-                const url = `${region.baseUri}/v6/servers/home?mr=50`;
-                const resp = await fetch(url, options);
+                const request = new Request(`${region.baseUri}/v6/servers/home?mr=50`, options);
+                const resp = await fetch(request);
 
                 const json = await resp.json();
                 RemotePlay.#CONSOLES = json.results;

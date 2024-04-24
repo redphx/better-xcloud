@@ -264,8 +264,11 @@ class XhomeInterceptor {
             opts.body = await clone.text();
         }
 
-        const index = request.url.indexOf('.xboxlive.com');
-        let newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
+        let newUrl = request.url;
+        if (!newUrl.includes('/servers/home')) {
+            const index = request.url.indexOf('.xboxlive.com');
+            newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
+        }
 
         request = new Request(newUrl, opts);
         let url = (typeof request === 'string') ? request : request.url;
@@ -292,7 +295,7 @@ class XcloudInterceptor {
         const obj = await response.clone().json();
 
         // Preload Remote Play
-        BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+        getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
 
         // Store xCloud token
         RemotePlay.XCLOUD_TOKEN = obj.gsToken;
@@ -573,7 +576,7 @@ export function interceptHttpRequests() {
         }
 
         let requestType: RequestType;
-        if (STATES.remotePlay.isPlaying || url.includes('/sessions/home')) {
+        if (STATES.remotePlay.isPlaying || url.includes('/sessions/home') || url.includes('xhome.')) {
             requestType = RequestType.XHOME;
         } else {
             requestType = RequestType.XCLOUD;
