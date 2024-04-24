@@ -95,7 +95,7 @@ function setupQuickSettingsBar() {
                             pref: PrefKey.AUDIO_VOLUME,
                             label: t('volume'),
                             onChange: (e: any, value: number) => {
-                                STATES.currentStream && (STATES.currentStream.audioGainNode!.gain.value = value / 100)
+                                STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
                             },
                             params: {
                                 disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL),

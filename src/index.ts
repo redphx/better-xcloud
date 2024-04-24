@@ -44,9 +44,6 @@ if (window.location.pathname.includes('/auth/msa')) {
 
 console.log(`[Better xCloud] readyState: ${document.readyState}`);
 
-console.log(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED)
-console.log(BX_FLAGS)
-
 if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
     // Stop loading
     window.stop();
