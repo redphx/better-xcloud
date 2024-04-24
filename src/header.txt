@@ -1,0 +1,14 @@
+// ==UserScript==
+// @name         Better xCloud
+// @namespace    https://github.com/redphx
+// @version      3.5.3
+// @description  Improve Xbox Cloud Gaming (xCloud) experience
+// @author       redphx
+// @license      MIT
+// @match        https://www.xbox.com/*/play*
+// @match        https://www.xbox.com/*/auth/msa?*loggedIn*
+// @run-at       document-start
+// @grant        none
+// @updateURL    https://raw.githubusercontent.com/redphx/better-xcloud/main/better-xcloud.meta.js
+// @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
+// ==/UserScript==
