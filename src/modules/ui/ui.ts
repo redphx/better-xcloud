@@ -1,4 +1,4 @@
-import { States } from "../../utils/global";
+import { STATES } from "../../utils/global";
 import { Icon, CE, createButton, ButtonStyle } from "../../utils/html";
 import { UserAgent } from "../../utils/user-agent";
 import { BxEvent } from "../bx-event";
@@ -95,7 +95,7 @@ function setupQuickSettingsBar() {
                             pref: PrefKey.AUDIO_VOLUME,
                             label: t('volume'),
                             onChange: (e: any, value: number) => {
-                                States.currentStream && (States.currentStream.audioGainNode!.gain.value = value / 100)
+                                STATES.currentStream && (STATES.currentStream.audioGainNode!.gain.value = value / 100)
                             },
                             params: {
                                 disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL),
@@ -176,7 +176,7 @@ function setupQuickSettingsBar() {
                     ],
                 },
 
-                States.hasTouchSupport && {
+                STATES.hasTouchSupport && {
                     group: 'touch-controller',
                     label: t('touch-controller'),
                     items: [
@@ -185,18 +185,18 @@ function setupQuickSettingsBar() {
                             content: CE('select', {disabled: true}, CE('option', {}, t('default'))),
                             onMounted: ($elm: HTMLSelectElement) => {
                                 $elm.addEventListener('change', e => {
-                                    TouchController.loadCustomLayout(States.currentStream?.xboxTitleId!, $elm.value, 1000);
+                                    TouchController.loadCustomLayout(STATES.currentStream?.xboxTitleId!, $elm.value, 1000);
                                 });
 
                                 window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, e => {
                                     const data = (e as any).data;
 
-                                    if (States.currentStream?.xboxTitleId && ($elm as any).xboxTitleId === States.currentStream?.xboxTitleId) {
+                                    if (STATES.currentStream?.xboxTitleId && ($elm as any).xboxTitleId === STATES.currentStream?.xboxTitleId) {
                                         $elm.dispatchEvent(new Event('change'));
                                         return;
                                     }
 
-                                    ($elm as any).xboxTitleId = States.currentStream?.xboxTitleId;
+                                    ($elm as any).xboxTitleId = STATES.currentStream?.xboxTitleId;
 
                                     // Clear options
                                     while ($elm.firstChild) {
@@ -431,7 +431,7 @@ export function updateVideoPlayerCss() {
 
     // Apply video filters to screenshots
     if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
-        States.currentStream.$screenshotCanvas!.getContext('2d')!.filter = filters;
+        STATES.currentStream.$screenshotCanvas!.getContext('2d')!.filter = filters;
     }
 
     const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);

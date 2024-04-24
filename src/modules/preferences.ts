@@ -4,7 +4,7 @@ import { SettingElement, SettingElementType } from "./settings";
 import { UserAgentProfile } from "../utils/user-agent";
 import { StreamStat } from "./stream/stream-stats";
 import type { PreferenceSettings } from "../types/preferences";
-import { States } from "../utils/global";
+import { STATES } from "../utils/global";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',
@@ -280,7 +280,7 @@ export class Preferences {
                 all: t('tc-all-games'),
                 off: t('off'),
             },
-            unsupported: !States.hasTouchSupport,
+            unsupported: !STATES.hasTouchSupport,
             ready: () => {
                 const setting = Preferences.SETTINGS[PrefKey.STREAM_TOUCH_CONTROLLER];
                 if (setting.unsupported) {
@@ -291,7 +291,7 @@ export class Preferences {
         [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
             label: t('tc-auto-off'),
             default: false,
-            unsupported: !States.hasTouchSupport,
+            unsupported: !STATES.hasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             label: t('tc-standard-layout-style'),
@@ -301,7 +301,7 @@ export class Preferences {
                 white: t('tc-all-white'),
                 muted: t('tc-muted-colors'),
             },
-            unsupported: !States.hasTouchSupport,
+            unsupported: !STATES.hasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             label: t('tc-custom-layout-style'),
@@ -310,7 +310,7 @@ export class Preferences {
                 default: t('default'),
                 muted: t('tc-muted-colors'),
             },
-            unsupported: !States.hasTouchSupport,
+            unsupported: !STATES.hasTouchSupport,
         },
 
         [PrefKey.STREAM_SIMPLIFY_MENU]: {

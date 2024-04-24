@@ -24,7 +24,7 @@ import { VibrationManager } from "./modules/vibration-manager";
 import { PreloadedState } from "./utils/titles-info";
 import { patchAudioContext, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "./utils/monkey-patches";
 import { interceptHttpRequests } from "./utils/network";
-import { States } from "./utils/global";
+import { STATES } from "./utils/global";
 import { injectStreamMenuButtons } from "./modules/stream/stream-ui";
 
 /* ADDITIONAL CODE */
@@ -118,12 +118,12 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
     if (window.location.pathname.includes('/launch/')) {
         const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
         if (matches?.groups) {
-            States.currentStream.titleId = matches.groups.title_id;
-            States.currentStream.productId = matches.groups.product_id;
+            STATES.currentStream.titleId = matches.groups.title_id;
+            STATES.currentStream.productId = matches.groups.product_id;
         }
     } else {
-        States.currentStream.titleId = 'remote-play';
-        States.currentStream.productId = '';
+        STATES.currentStream.titleId = 'remote-play';
+        STATES.currentStream.productId = '';
     }
 
     // Setup UI
@@ -147,9 +147,9 @@ window.addEventListener(BxEvent.STREAM_STARTING, e => {
 
 window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     const $video = (e as any).$video;
-    States.currentStream.$video = $video;
+    STATES.currentStream.$video = $video;
 
-    States.isPlaying = true;
+    STATES.isPlaying = true;
     injectStreamMenuButtons();
     /*
     if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
@@ -158,8 +158,8 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     */
 
     const PREF_SCREENSHOT_BUTTON_POSITION = getPref(PrefKey.SCREENSHOT_BUTTON_POSITION);
-    States.currentStream.$screenshotCanvas!.width = $video.videoWidth;
-    States.currentStream.$screenshotCanvas!.height = $video.videoHeight;
+    STATES.currentStream.$screenshotCanvas!.width = $video.videoWidth;
+    STATES.currentStream.$screenshotCanvas!.height = $video.videoHeight;
     updateVideoPlayerCss();
 
     // Setup screenshot button
@@ -180,11 +180,11 @@ window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
 });
 
 window.addEventListener(BxEvent.STREAM_STOPPED, e => {
-    if (!States.isPlaying) {
+    if (!STATES.isPlaying) {
         return;
     }
 
-    States.isPlaying = false;
+    STATES.isPlaying = false;
 
     // Stop MKB listeners
     getPref(PrefKey.MKB_ENABLED) && MkbHandler.INSTANCE.destroy();
@@ -194,8 +194,8 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
         $quickBar.classList.add('bx-gone');
     }
 
-    States.currentStream.audioGainNode = null;
-    States.currentStream.$video = null;
+    STATES.currentStream.audioGainNode = null;
+    STATES.currentStream.$video = null;
     StreamStats.onStoppedPlaying();
 
     const $screenshotBtn = document.querySelector('.bx-screenshot-button');

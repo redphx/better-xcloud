@@ -1,8 +1,8 @@
-import { States } from "../utils/global";
+import { STATES } from "../utils/global";
 
 export const BxExposed = {
     onPollingModeChanged: (mode: 'All' | 'None') => {
-        if (!States.isPlaying) {
+        if (!STATES.isPlaying) {
             return false;
         }
 

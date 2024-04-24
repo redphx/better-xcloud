@@ -1,4 +1,4 @@
-import { States } from "../utils/global";
+import { STATES } from "../utils/global";
 import { BX_FLAGS } from "./bx-flags";
 import { getPref, PrefKey } from "./preferences";
 import { VibrationManager } from "./vibration-manager";
@@ -424,7 +424,7 @@ let PATCH_ORDERS = [
         'overrideSettings',
     ],
 
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && States.hasTouchSupport && ['patchUpdateInputConfigurationAsync'],
+    getPref(PrefKey.REMOTE_PLAY_ENABLED) && STATES.hasTouchSupport && ['patchUpdateInputConfigurationAsync'],
 
     getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && ['forceFortniteConsole'],
 ];
@@ -438,8 +438,8 @@ const PLAYING_PATCH_ORDERS = [
     ['patchStreamHud'],
 
     ['playVibration'],
-    States.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
-    States.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ['disableTakRenderer'],
+    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
+    STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ['disableTakRenderer'],
 
     BX_FLAGS.EnableXcloudLogging && ['enableConsoleLogging'],
 

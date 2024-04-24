@@ -1,6 +1,6 @@
 import { BxEvent } from "../modules/bx-event";
 import { getPref, PrefKey } from "../modules/preferences";
-import { States } from "./global";
+import { STATES } from "./global";
 import { UserAgent } from "./user-agent";
 
 export function patchVideoApi() {
@@ -100,11 +100,11 @@ export function patchRtcPeerConnection() {
     // @ts-ignore
     window.RTCPeerConnection = function() {
         const conn = new OrgRTCPeerConnection();
-        States.currentStream.peerConnection = conn;
+        STATES.currentStream.peerConnection = conn;
 
         conn.addEventListener('connectionstatechange', e => {
                 if (conn.connectionState === 'connecting') {
-                    States.currentStream.audioGainNode = null;
+                    STATES.currentStream.audioGainNode = null;
                 }
                 console.log('connectionState', conn.connectionState);
             });
@@ -118,7 +118,7 @@ export function patchAudioContext() {
         window.AudioContext.prototype.createGain = function() {
             const gainNode = nativeCreateGain.apply(this);
             gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100;
-            States.currentStream.audioGainNode = gainNode;
+            STATES.currentStream.audioGainNode = gainNode;
             return gainNode;
         }
     }
@@ -127,8 +127,8 @@ export function patchAudioContext() {
     // @ts-ignore
     window.AudioContext = function() {
         const ctx = new OrgAudioContext();
-        States.currentStream.audioContext = ctx;
-        States.currentStream.audioGainNode = null;
+        STATES.currentStream.audioContext = ctx;
+        STATES.currentStream.audioGainNode = null;
         return ctx;
     }
 
@@ -137,13 +137,13 @@ export function patchAudioContext() {
         this.muted = true;
 
         const promise = nativePlay.apply(this);
-        if (States.currentStream.audioGainNode) {
+        if (STATES.currentStream.audioGainNode) {
             return promise;
         }
 
         this.addEventListener('playing', e => (e.target as HTMLAudioElement).pause());
 
-        const audioCtx = States.currentStream.audioContext!;
+        const audioCtx = STATES.currentStream.audioContext!;
         // TOOD: check srcObject
         const audioStream = audioCtx.createMediaStreamSource(this.srcObject as any);
         const gainNode = audioCtx.createGain();
@@ -151,7 +151,7 @@ export function patchAudioContext() {
         audioStream.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100;
-        States.currentStream.audioGainNode = gainNode;
+        STATES.currentStream.audioGainNode = gainNode;
 
         return promise;
     }

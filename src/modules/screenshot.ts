@@ -1,8 +1,8 @@
-import { States, AppInterface } from "../utils/global";
+import { STATES, AppInterface } from "../utils/global";
 import { CE } from "../utils/html";
 
 export function takeScreenshot(callback: any) {
-    const currentStream = States.currentStream!;
+    const currentStream = STATES.currentStream!;
     const $video = currentStream.$video;
     const $canvas = currentStream.$screenshotCanvas;
     if (!$video || !$canvas) {
@@ -44,7 +44,7 @@ export function takeScreenshot(callback: any) {
 
 
 export function setupScreenshotButton() {
-    const currentStream = States.currentStream!
+    const currentStream = STATES.currentStream!
     currentStream.$screenshotCanvas = CE('canvas', {'class': 'bx-screenshot-canvas'});
     document.documentElement.appendChild(currentStream.$screenshotCanvas!);
 

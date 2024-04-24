@@ -4,7 +4,7 @@ import { getPref } from "../preferences"
 import { StreamBadges } from "./stream-badges"
 import { CE } from "../../utils/html"
 import { t } from "../translation"
-import { States } from "../../utils/global"
+import { STATES } from "../../utils/global"
 
 export enum StreamStat {
     PING = 'ping',
@@ -106,13 +106,13 @@ export class StreamStats {
     }
 
     static update() {
-        if (StreamStats.isHidden() || !States.currentStream.peerConnection) {
+        if (StreamStats.isHidden() || !STATES.currentStream.peerConnection) {
             StreamStats.onStoppedPlaying();
             return;
         }
 
         const PREF_STATS_CONDITIONAL_FORMATTING = getPref(PrefKey.STATS_CONDITIONAL_FORMATTING);
-        States.currentStream.peerConnection.getStats().then(stats => {
+        STATES.currentStream.peerConnection.getStats().then(stats => {
             stats.forEach(stat => {
                 let grade = '';
                 if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
@@ -214,7 +214,7 @@ export class StreamStats {
     }
 
     static getServerStats() {
-        States.currentStream.peerConnection && States.currentStream.peerConnection.getStats().then(stats => {
+        STATES.currentStream.peerConnection && STATES.currentStream.peerConnection.getStats().then(stats => {
             const allVideoCodecs: {[index: string]: RTCBasicStat} = {};
             let videoCodecId;
 

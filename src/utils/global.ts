@@ -2,7 +2,7 @@ import { getLocale } from "../modules/translation";
 
 export const AppInterface = window.AppInterface;
 export const NATIVE_FETCH = window.fetch;
-export const States: BxStates = {
+export const STATES: BxStates = {
     isPlaying: false,
     appContext: {},
     serverRegions: {},

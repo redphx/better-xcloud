@@ -1,19 +1,19 @@
 import { getPref, PrefKey } from "../modules/preferences";
-import { States } from "./global";
+import { STATES } from "./global";
 
 
 export function getPreferredServerRegion(shortName = false) {
     let preferredRegion = getPref(PrefKey.SERVER_REGION);
-    if (preferredRegion in States.serverRegions) {
-        if (shortName && States.serverRegions[preferredRegion].shortName) {
-            return States.serverRegions[preferredRegion].shortName;
+    if (preferredRegion in STATES.serverRegions) {
+        if (shortName && STATES.serverRegions[preferredRegion].shortName) {
+            return STATES.serverRegions[preferredRegion].shortName;
         } else {
             return preferredRegion;
         }
     }
 
-    for (let regionName in States.serverRegions) {
-        const region = States.serverRegions[regionName];
+    for (let regionName in STATES.serverRegions) {
+        const region = STATES.serverRegions[regionName];
         if (!region.isDefault) {
             continue;
         }

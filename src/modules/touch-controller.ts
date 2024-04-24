@@ -1,4 +1,4 @@
-import { NATIVE_FETCH, States } from "../utils/global";
+import { NATIVE_FETCH, STATES } from "../utils/global";
 import { CE } from "../utils/html";
 import { Toast } from "../utils/toast";
 import { BxEvent } from "./bx-event";
@@ -189,7 +189,7 @@ export class TouchController {
 
             touch_layout_manager && touch_layout_manager.changeLayoutForScope({
                 type: 'showLayout',
-                scope: '' + States.currentStream?.xboxTitleId,
+                scope: '' + STATES.currentStream?.xboxTitleId,
                 subscope: 'base',
                 layout: {
                     id: 'System.Standard',
@@ -273,7 +273,7 @@ export class TouchController {
                 if (msg.data.includes('touchcontrols/showtitledefault')) {
                     if (TouchController.#enable) {
                         if (focused) {
-                            TouchController.getCustomLayouts(States.currentStream?.xboxTitleId!);
+                            TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId!);
                         } else {
                             TouchController.#showDefault();
                         }
@@ -292,7 +292,7 @@ export class TouchController {
                             TouchController.#show();
                         }
 
-                        States.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
+                        STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
                     }
                 } catch (e) {
                     console.log(e);

@@ -1,4 +1,4 @@
-import { States, AppInterface } from "../utils/global";
+import { STATES, AppInterface } from "../utils/global";
 import { CE, createButton, ButtonStyle, Icon } from "../utils/html";
 import { Toast } from "../utils/toast";
 import { BxEvent } from "./bx-event";
@@ -259,7 +259,7 @@ export class RemotePlay {
                 RemotePlay.#CONSOLES = json.results;
 
                 // Store working server
-                States.remotePlay.server = region.baseUri;
+                STATES.remotePlay.server = region.baseUri;
 
                 callback();
             } catch (e) {}
@@ -270,7 +270,7 @@ export class RemotePlay {
         }
 
         // None of the servers worked
-        if (!States.remotePlay.server) {
+        if (!STATES.remotePlay.server) {
             RemotePlay.#CONSOLES = [];
         }
     }
@@ -280,10 +280,10 @@ export class RemotePlay {
             setPref(PrefKey.REMOTE_PLAY_RESOLUTION, resolution);
         }
 
-        States.remotePlay.config = {
+        STATES.remotePlay.config = {
             serverId: serverId,
         };
-        window.BX_REMOTE_PLAY_CONFIG = States.remotePlay.config;
+        window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
 
         localRedirect('/launch/fortnite/BT5P2X999VH2#remote-play');
         RemotePlay.detachPopup();
@@ -337,9 +337,9 @@ export class RemotePlay {
             return;
         }
 
-        States.remotePlay.isPlaying = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
-        if (States.remotePlay?.isPlaying) {
-            window.BX_REMOTE_PLAY_CONFIG = States.remotePlay.config;
+        STATES.remotePlay.isPlaying = window.location.pathname.includes('/launch/') && window.location.hash.startsWith('#remote-play');
+        if (STATES.remotePlay?.isPlaying) {
+            window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
             // Remove /launch/... from URL
             window.history.replaceState({origin: 'better-xcloud'}, '', 'https://www.xbox.com/' + location.pathname.substring(1, 6) + '/play');
         } else {

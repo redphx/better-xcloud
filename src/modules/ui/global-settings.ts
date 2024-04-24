@@ -1,4 +1,4 @@
-import { States, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "../../utils/global";
+import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "../../utils/global";
 import { CE, createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { UserAgent, UserAgentProfile } from "../../utils/user-agent";
@@ -51,8 +51,8 @@ const SETTINGS_UI = {
     },
 
     [t('touch-controller')]: {
-        note: !States.hasTouchSupport ? '⚠️ ' + t('device-unsupported-touch') : null,
-        unsupported: !States.hasTouchSupport,
+        note: !STATES.hasTouchSupport ? '⚠️ ' + t('device-unsupported-touch') : null,
+        unsupported: !STATES.hasTouchSupport,
         items: [
             PrefKey.STREAM_TOUCH_CONTROLLER,
             PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
@@ -251,8 +251,8 @@ export function setupSettingsUi() {
                 selectedValue = PREF_PREFERRED_REGION;
 
                 setting.options = {};
-                for (let regionName in States.serverRegions) {
-                    const region = States.serverRegions[regionName];
+                for (let regionName in STATES.serverRegions) {
+                    const region = STATES.serverRegions[regionName];
                     let value = regionName;
 
                     let label = `${region.shortName} - ${regionName}`;

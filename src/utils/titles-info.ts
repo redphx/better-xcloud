@@ -1,6 +1,6 @@
 import { PrefKey } from "../modules/preferences";
 import { getPref } from "../modules/preferences";
-import { States } from "./global";
+import { STATES } from "./global";
 import { UserAgent } from "./user-agent";
 
 export class TitlesInfo {
@@ -39,14 +39,14 @@ export class TitlesInfo {
     }
 
     static requestCatalogInfo(titleId: string, callback: any) {
-        const url = `https://catalog.gamepass.com/v3/products?market=${States.appContext.marketInfo.market}&language=${States.appContext.marketInfo.locale}&hydration=RemoteHighSapphire0`;
+        const url = `https://catalog.gamepass.com/v3/products?market=${STATES.appContext.marketInfo.market}&language=${STATES.appContext.marketInfo.locale}&hydration=RemoteHighSapphire0`;
         const appVersion = document.querySelector('meta[name=gamepass-app-version]')!.getAttribute('content');
 
         fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Ms-Cv': States.appContext.telemetryInfo.initialCv,
+                'Ms-Cv': STATES.appContext.telemetryInfo.initialCv,
                 'Calling-App-Name': 'Xbox Cloud Gaming Web',
                 'Calling-App-Version': appVersion,
             } as any,
@@ -75,7 +75,7 @@ export class PreloadedState {
             },
             set: state => {
                 (this as any)._state = state;
-                States.appContext = structuredClone(state.appContext);
+                STATES.appContext = structuredClone(state.appContext);
 
                 // Get a list of touch-supported games
                 if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all') {

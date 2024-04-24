@@ -5,7 +5,7 @@ import { PrefKey, getPref } from "../modules/preferences";
 import { RemotePlay } from "../modules/remote-play";
 import { StreamBadges } from "../modules/stream/stream-badges";
 import { TouchController } from "../modules/touch-controller";
-import { NATIVE_FETCH, States } from "./global";
+import { NATIVE_FETCH, STATES } from "./global";
 import { getPreferredServerRegion } from "./region";
 import { TitlesInfo } from "./titles-info";
 
@@ -189,7 +189,7 @@ class XhomeInterceptor {
         const obj = await response.clone().json() as any;
 
         const xboxTitleId = JSON.parse(opts.body).titleIds[0];
-        States.currentStream.xboxTitleId = xboxTitleId;
+        STATES.currentStream.xboxTitleId = xboxTitleId;
 
         const inputConfigs = obj[0];
 
@@ -265,7 +265,7 @@ class XhomeInterceptor {
         }
 
         const index = request.url.indexOf('.xboxlive.com');
-        let newUrl = States.remotePlay.server + request.url.substring(index + 13);
+        let newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
 
         request = new Request(newUrl, opts);
         let url = (typeof request === 'string') ? request : request.url;
@@ -330,14 +330,14 @@ class XcloudInterceptor {
             }
 
             region.shortName = shortName.toUpperCase();
-            States.serverRegions[region.name] = Object.assign({}, region);
+            STATES.serverRegions[region.name] = Object.assign({}, region);
         }
 
         BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
 
         const preferredRegion = getPreferredServerRegion();
-        if (preferredRegion in States.serverRegions) {
-            const tmp = Object.assign({}, States.serverRegions[preferredRegion]);
+        if (preferredRegion in STATES.serverRegions) {
+            const tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
             tmp.isDefault = true;
 
             obj.offeringSettings.regions = [tmp];
@@ -355,8 +355,8 @@ class XcloudInterceptor {
         const parsedUrl = new URL(url);
 
         StreamBadges.region = parsedUrl.host.split('.', 1)[0];
-        for (let regionName in States.appContext) {
-            const region = States.appContext[regionName];
+        for (let regionName in STATES.appContext) {
+            const region = STATES.appContext[regionName];
             if (parsedUrl.origin == region.baseUri) {
                 StreamBadges.region = regionName;
                 break;
@@ -573,7 +573,7 @@ export function interceptHttpRequests() {
         }
 
         let requestType: RequestType;
-        if (States.remotePlay.isPlaying || url.includes('/sessions/home')) {
+        if (STATES.remotePlay.isPlaying || url.includes('/sessions/home')) {
             requestType = RequestType.XHOME;
         } else {
             requestType = RequestType.XCLOUD;

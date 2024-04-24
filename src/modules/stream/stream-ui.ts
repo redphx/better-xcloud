@@ -1,4 +1,4 @@
-import { States } from "../../utils/global";
+import { STATES } from "../../utils/global";
 import { Icon } from "../../utils/html";
 import { BxEvent } from "../bx-event";
 import { PrefKey, getPref } from "../preferences";
@@ -93,7 +93,7 @@ function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: I
         }
     };
 
-    if (States.hasTouchSupport) {
+    if (STATES.hasTouchSupport) {
         $container.addEventListener('transitionstart', onTransitionStart);
         $container.addEventListener('transitionend', onTransitionEnd);
     }

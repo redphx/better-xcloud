@@ -1,7 +1,7 @@
 import { t } from "../translation";
 import { BxEvent } from "../bx-event";
 import { CE } from "../../utils/html";
-import { States } from "../../utils/global";
+import { STATES } from "../../utils/global";
 
 enum StreamBadge {
     PLAYTIME = 'playtime',
@@ -86,7 +86,7 @@ export class StreamBadges {
             } catch(e) {}
         }
 
-        const stats = await States.currentStream.peerConnection?.getStats()!;
+        const stats = await STATES.currentStream.peerConnection?.getStats()!;
         let totalIn = 0;
         let totalOut = 0;
         stats.forEach(stat => {
