@@ -1,19 +1,3 @@
-// ==UserScript==
-// @name         Better xCloud
-// @namespace    https://github.com/redphx
-// @version      3.5.3
-// @description  Improve Xbox Cloud Gaming (xCloud) experience
-// @author       redphx
-// @license      MIT
-// @match        https://www.xbox.com/*/play*
-// @match        https://www.xbox.com/*/auth/msa?*loggedIn*
-// @run-at       document-start
-// @grant        none
-// @updateURL    https://raw.githubusercontent.com/redphx/better-xcloud/main/better-xcloud.meta.js
-// @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
-// ==/UserScript==
-'use strict';
-
 import "./utils/global";
 import { BxEvent } from "./modules/bx-event";
 import { BX_FLAGS } from "./modules/bx-flags";
@@ -41,6 +25,7 @@ import { PreloadedState } from "./utils/titles-info";
 import { patchAudioContext, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "./utils/monkey-patches";
 import { interceptHttpRequests } from "./utils/network";
 import { States } from "./utils/global";
+import { injectStreamMenuButtons } from "./modules/stream/stream-ui";
 
 /* ADDITIONAL CODE */
 
@@ -269,6 +254,3 @@ function main() {
 }
 
 main();
-function injectStreamMenuButtons() {
-    throw new Error("Function not implemented.");
-}

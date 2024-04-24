@@ -185,8 +185,8 @@ export function setupSettingsUi() {
             continue;
         }
 
-        const settingItems = SETTINGS_UI[groupLabel].items
-        for (let settingId in settingItems) {
+        const settingItems = SETTINGS_UI[groupLabel].items;
+        for (let settingId of settingItems) {
             // Don't render custom settings
             if (!settingId) {
                 continue;
