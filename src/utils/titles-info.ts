@@ -1,5 +1,6 @@
 import { PrefKey } from "../modules/preferences";
 import { getPref } from "../modules/preferences";
+import { States } from "./global";
 import { UserAgent } from "./user-agent";
 
 export class TitlesInfo {

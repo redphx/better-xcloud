@@ -50,12 +50,3 @@ type BxStates = {
 }
 
 type DualEnum = {[index: string]: number} & {[index: number]: string};
-
-declare var SCRIPT_VERSION: string;
-declare var window: Window & typeof globalThis;
-declare var AppInterface: any;
-declare var STREAM_WEBRTC: RTCPeerConnection;
-declare var States: BxStates;
-declare var NATIVE_FETCH: typeof window.fetch;
-declare var SCRIPT_HOME: string;
-declare var LOCALE: number;

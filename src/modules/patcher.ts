@@ -1,5 +1,6 @@
+import { States } from "../utils/global";
 import { BX_FLAGS } from "./bx-flags";
-import { getPref, Preferences, PrefKey } from "./preferences";
+import { getPref, PrefKey } from "./preferences";
 import { VibrationManager } from "./vibration-manager";
 
 const PATCHES = {
@@ -492,7 +493,6 @@ export class Patcher {
 
     static patch(item: any) {
         // console.log('patch', '-----');
-        let patchName;
         let appliedPatches;
 
         for (let id in item[1]) {

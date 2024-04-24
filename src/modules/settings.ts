@@ -1,5 +1,5 @@
+import type { PreferenceSetting } from "../types/preferences";
 import { CE } from "../utils/html";
-import type { PreferenceSetting } from "./preferences";
 
 type MultipleOptionsParams = {
     size?: number;
@@ -53,8 +53,8 @@ export class SettingElement {
             $control.setAttribute('size', params.size.toString());
         }
 
-        for (let value in setting.multiple_options) {
-            const label = setting.multiple_options[value];
+        for (let value in setting.multipleOptions) {
+            const label = setting.multipleOptions[value];
 
             const $option = CE<HTMLOptionElement>('option', {value: value}, label) as HTMLOptionElement;
             $option.selected = currentValue.indexOf(value) > -1;

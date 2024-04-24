@@ -1,3 +1,4 @@
+import { States, AppInterface } from "../utils/global";
 import { CE } from "../utils/html";
 
 export function takeScreenshot(callback: any) {

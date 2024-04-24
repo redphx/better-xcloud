@@ -1,5 +1,5 @@
 import { CE, Icon } from "./html";
-import { Preferences, getPref } from "../modules/preferences";
+import { PrefKey, getPref } from "../modules/preferences";
 
 
 export function addCss() {
@@ -1273,7 +1273,7 @@ div[class*=NotFocusedDialog] {
 `;
 
     // Hide "Play with friends" section
-    if (getPref(Preferences.BLOCK_SOCIAL_FEATURES)) {
+    if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
         css += `
 div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
 button[class*=SocialEmptyCard] {
@@ -1283,7 +1283,7 @@ button[class*=SocialEmptyCard] {
     }
 
     // Reduce animations
-    if (getPref(Preferences.REDUCE_ANIMATIONS)) {
+    if (getPref(PrefKey.REDUCE_ANIMATIONS)) {
         css += `
 div[class*=GameCard-module__gameTitleInnerWrapper],
 div[class*=GameCard-module__card],
@@ -1294,7 +1294,7 @@ div[class*=ScrollArrows-module] {
     }
 
     // Hide the top-left dots icon while playing
-    if (getPref(Preferences.HIDE_DOTS_ICON)) {
+    if (getPref(PrefKey.HIDE_DOTS_ICON)) {
         css += `
 div[class*=Grip-module__container] {
     visibility: hidden;
@@ -1326,7 +1326,7 @@ div[class*=StreamMenu-module__menu] {
     min-width: 100vw !important;
 }
 `;
-    if (getPref(Preferences.STREAM_SIMPLIFY_MENU)) {
+    if (getPref(PrefKey.STREAM_SIMPLIFY_MENU)) {
         css += `
 div[class*=Menu-module__scrollable] {
     --bxStreamMenuItemSize: 80px;
@@ -1386,7 +1386,7 @@ body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
     }
 
     // Hide scrollbar
-    if (getPref(Preferences.UI_SCROLLBAR_HIDE)) {
+    if (getPref(PrefKey.UI_SCROLLBAR_HIDE)) {
         css += `
 html {
     scrollbar-width: none;

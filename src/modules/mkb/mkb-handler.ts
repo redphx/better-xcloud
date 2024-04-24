@@ -126,7 +126,7 @@ export class MkbHandler {
         const virtualGamepad = this.#getVirtualGamepad();
 
         if (buttonIndex >= 100) {
-            let [valueArr, axisIndex, fullValue] = this.#STICK_MAP[buttonIndex];
+            let [valueArr, axisIndex] = this.#STICK_MAP[buttonIndex];
             valueArr = valueArr as number[];
             axisIndex = axisIndex as number;
 
@@ -232,7 +232,6 @@ export class MkbHandler {
 
         const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
 
-        const virtualGamepad = this.#getVirtualGamepad();
         let { x, y } = this.#getStickAxes(analog);
         const length = this.#vectorLength(x, y);
 
@@ -258,7 +257,7 @@ export class MkbHandler {
         }
     }
 
-    #onMouseStopped = (e: MouseEvent) => {
+    #onMouseStopped = () => {
         this.#allowStickDecaying = true;
         requestAnimationFrame(this.#decayStick);
     }
@@ -273,7 +272,7 @@ export class MkbHandler {
 
         this.#allowStickDecaying = false;
         this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
-        this.#detectMouseStoppedTimeout = setTimeout(this.#onMouseStopped.bind(this, e), 100);
+        this.#detectMouseStoppedTimeout = setTimeout(this.#onMouseStopped.bind(this), 100);
 
         const deltaX = e.movementX;
         const deltaY = e.movementY;
@@ -326,7 +325,7 @@ export class MkbHandler {
         });
     }
 
-    #onPointerLockChange = (e: Event) => {
+    #onPointerLockChange = () => {
         if (this.#enabled && !document.pointerLockElement) {
             this.stop();
             this.#waitForPointerLock(true);
@@ -458,7 +457,7 @@ export class MkbHandler {
     }
 
     static setupEvents() {
-        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+        window.addEventListener(BxEvent.STREAM_PLAYING, () => {
             // Enable MKB
             if (getPref(PrefKey.MKB_ENABLED)) {
                 console.log('Emulate MKB');

@@ -1,3 +1,5 @@
+import { LOCALE } from "../utils/global";
+
 const Translations = {
     enUS: -1,
 

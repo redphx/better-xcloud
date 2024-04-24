@@ -1,7 +1,7 @@
 export type PreferenceSetting = {
     default: any;
     options?: {[index: string]: string};
-    multiplOptions?: {[index: string]: string};
+    multipleOptions?: {[index: string]: string};
     unsupported?: string | boolean;
     note?: string | HTMLElement;
     type?: SettingElementType;

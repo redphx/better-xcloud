@@ -14,10 +14,11 @@
 // ==/UserScript==
 'use strict';
 
+import "./utils/global";
 import { BxEvent } from "./modules/bx-event";
 import { BX_FLAGS } from "./modules/bx-flags";
 import { BxExposed } from "./modules/bx-exposed";
-import { getLocale, t } from "./modules/translation";
+import { t } from "./modules/translation";
 import { CE } from "./utils/html";
 import { showGamepadToast } from "./utils/gamepad";
 import { MkbHandler } from "./modules/mkb/mkb-handler";
@@ -26,7 +27,7 @@ import { StreamStats } from "./modules/stream/stream-stats";
 import { addCss } from "./utils/css";
 import { Toast } from "./utils/toast";
 import { setupBxUi, updateVideoPlayerCss } from "./modules/ui/ui";
-import { PrefKey, Preferences, getPref } from "./modules/preferences";
+import { PrefKey, getPref } from "./modules/preferences";
 import { LoadingScreen } from "./modules/loading-screen";
 import { MouseCursorHider } from "./modules/mkb/mouse-cursor-hider";
 import { TouchController } from "./modules/touch-controller";
@@ -39,25 +40,7 @@ import { VibrationManager } from "./modules/vibration-manager";
 import { PreloadedState } from "./utils/titles-info";
 import { patchAudioContext, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "./utils/monkey-patches";
 import { interceptHttpRequests } from "./utils/network";
-
-globalThis.SCRIPT_VERSION = '3.5.3';
-globalThis.SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
-
-globalThis.NATIVE_FETCH = window.fetch;
-
-globalThis.LOCALE = getLocale();
-
-globalThis.AppInterface = window.AppInterface;
-globalThis.States = {
-    isPlaying: false,
-    appContext: {},
-    serverRegions: {},
-    hasTouchSupport: ('ontouchstart' in window || navigator.maxTouchPoints > 0),
-
-    currentStream: {},
-    remotePlay: {},
-};
-
+import { States } from "./utils/global";
 
 /* ADDITIONAL CODE */
 

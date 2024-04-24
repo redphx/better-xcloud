@@ -1,8 +1,9 @@
+import { States } from "../../utils/global";
 import { Icon, CE, createButton, ButtonStyle } from "../../utils/html";
 import { UserAgent } from "../../utils/user-agent";
 import { BxEvent } from "../bx-event";
 import { MkbRemapper } from "../mkb/mkb-remapper";
-import { getPref, Preferences, PrefKey, toPrefElement } from "../preferences";
+import { getPref, PrefKey, toPrefElement } from "../preferences";
 import { setupScreenshotButton } from "../screenshot";
 import { StreamStats } from "../stream/stream-stats";
 import { TouchController } from "../touch-controller";

@@ -1,4 +1,5 @@
 import { PrefKey, getPref, setPref } from "../modules/preferences";
+import { SCRIPT_VERSION } from "./global";
 import { UserAgent } from "./user-agent";
 
 export function checkForUpdate() {

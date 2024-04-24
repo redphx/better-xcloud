@@ -1,4 +1,5 @@
-import { getPref, Preferences, PrefKey } from "../modules/preferences";
+import { getPref, PrefKey } from "../modules/preferences";
+import { States } from "./global";
 
 
 export function getPreferredServerRegion(shortName = false) {

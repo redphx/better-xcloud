@@ -1,3 +1,5 @@
+import { AppInterface } from "../utils/global";
+
 export enum BxEvent {
     JUMP_BACK_IN_READY = 'bx-jump-back-in-ready',
     POPSTATE = 'bx-popstate',

@@ -1,3 +1,4 @@
+import { SCRIPT_VERSION } from "../../utils/global";
 import { createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { PrefKey, getPref } from "../preferences";

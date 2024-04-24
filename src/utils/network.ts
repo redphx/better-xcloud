@@ -1,11 +1,11 @@
 import { BxEvent } from "../modules/bx-event";
 import { BX_FLAGS } from "../modules/bx-flags";
 import { LoadingScreen } from "../modules/loading-screen";
-import { MouseCursorHider } from "../modules/mkb/mouse-cursor-hider";
 import { PrefKey, getPref } from "../modules/preferences";
 import { RemotePlay } from "../modules/remote-play";
 import { StreamBadges } from "../modules/stream/stream-badges";
 import { TouchController } from "../modules/touch-controller";
+import { NATIVE_FETCH, States } from "./global";
 import { getPreferredServerRegion } from "./region";
 import { TitlesInfo } from "./titles-info";
 
@@ -548,8 +548,6 @@ export function interceptHttpRequests() {
         // @ts-ignore
         return nativeXhrSend.apply(this, arguments);
     };
-
-    const PREF_UI_LOADING_SCREEN_GAME_ART = getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART);
 
     window.fetch = async (request: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
         let url = (typeof request === 'string') ? request : (request as Request).url;

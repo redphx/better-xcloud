@@ -1,7 +1,8 @@
+import { States, AppInterface } from "../utils/global";
 import { CE, createButton, ButtonStyle, Icon } from "../utils/html";
 import { Toast } from "../utils/toast";
 import { BxEvent } from "./bx-event";
-import { getPref, Preferences, PrefKey, setPref } from "./preferences";
+import { getPref, PrefKey, setPref } from "./preferences";
 import { t } from "./translation";
 import { localRedirect } from "./ui/ui";
 
@@ -82,7 +83,6 @@ export class RemotePlay {
     };
 
     static #$content: HTMLElement;
-    static #$consoles: HTMLElement;
 
     static #initialize() {
         if (RemotePlay.#$content) {

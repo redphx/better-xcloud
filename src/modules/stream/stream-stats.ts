@@ -1,9 +1,10 @@
-import { PrefKey, Preferences } from "../preferences"
+import { PrefKey } from "../preferences"
 import { BxEvent } from "../bx-event"
 import { getPref } from "../preferences"
 import { StreamBadges } from "./stream-badges"
 import { CE } from "../../utils/html"
 import { t } from "../translation"
+import { States } from "../../utils/global"
 
 export enum StreamStat {
     PING = 'ping',
@@ -105,13 +106,13 @@ export class StreamStats {
     }
 
     static update() {
-        if (StreamStats.isHidden() || !STREAM_WEBRTC) {
+        if (StreamStats.isHidden() || !States.currentStream.peerConnection) {
             StreamStats.onStoppedPlaying();
             return;
         }
 
         const PREF_STATS_CONDITIONAL_FORMATTING = getPref(PrefKey.STATS_CONDITIONAL_FORMATTING);
-        STREAM_WEBRTC.getStats().then(stats => {
+        States.currentStream.peerConnection.getStats().then(stats => {
             stats.forEach(stat => {
                 let grade = '';
                 if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
@@ -213,7 +214,7 @@ export class StreamStats {
     }
 
     static getServerStats() {
-        STREAM_WEBRTC && STREAM_WEBRTC.getStats().then(stats => {
+        States.currentStream.peerConnection && States.currentStream.peerConnection.getStats().then(stats => {
             const allVideoCodecs: {[index: string]: RTCBasicStat} = {};
             let videoCodecId;
 

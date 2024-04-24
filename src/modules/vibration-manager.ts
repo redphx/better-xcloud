@@ -1,3 +1,4 @@
+import { AppInterface } from "../utils/global";
 import { BxEvent } from "./bx-event";
 import { PrefKey, getPref } from "./preferences";
 

@@ -1,3 +1,5 @@
+import { States } from "../utils/global";
+
 export const BxExposed = {
     onPollingModeChanged: (mode: 'All' | 'None') => {
         if (!States.isPlaying) {

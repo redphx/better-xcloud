@@ -3,7 +3,8 @@ import { t } from "./translation";
 import { SettingElement, SettingElementType } from "./settings";
 import { UserAgentProfile } from "../utils/user-agent";
 import { StreamStat } from "./stream/stream-stats";
-import type { PreferenceSetting, PreferenceSettings } from "../types/preferences";
+import type { PreferenceSettings } from "../types/preferences";
+import { States } from "../utils/global";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',

@@ -1,3 +1,4 @@
+import { States } from "../../utils/global";
 import { Icon } from "../../utils/html";
 import { BxEvent } from "../bx-event";
 import { PrefKey, getPref } from "../preferences";
@@ -44,6 +45,7 @@ class MouseHoldEvent {
         this.#$elm.addEventListener('touchend', this.#onMouseUp.bind(this));
     }
 
+    /*
     #clearEventLiseners = () => {
         this.#$elm.removeEventListener('mousedown', this.#onMouseDown);
         this.#$elm.removeEventListener('click', this.#onMouseUp);
@@ -51,6 +53,7 @@ class MouseHoldEvent {
         this.#$elm.removeEventListener('touchstart', this.#onMouseDown);
         this.#$elm.removeEventListener('touchend', this.#onMouseUp);
     }
+    */
 
     constructor($elm: HTMLElement, callback: any, duration=1000) {
         this.#$elm = $elm;

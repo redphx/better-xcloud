@@ -1,8 +1,9 @@
+import { NATIVE_FETCH, States } from "../utils/global";
 import { CE } from "../utils/html";
 import { Toast } from "../utils/toast";
 import { BxEvent } from "./bx-event";
 import { BX_FLAGS } from "./bx-flags";
-import { getPref, Preferences, PrefKey } from "./preferences";
+import { getPref, PrefKey } from "./preferences";
 import { t } from "./translation";
 
 export class TouchController {
@@ -11,10 +12,12 @@ export class TouchController {
             origin: 'better-xcloud',
         });
 
+    /*
     static readonly #EVENT_HIDE_CONTROLLER = new MessageEvent('message', {
             data: '{"content":"","target":"/streaming/touchcontrols/hide","type":"Message"}',
             origin: 'better-xcloud',
         });
+    */
 
     static #$bar: HTMLElement;
     static #$style: HTMLStyleElement;

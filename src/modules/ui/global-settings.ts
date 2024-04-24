@@ -1,8 +1,9 @@
+import { States, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "../../utils/global";
 import { CE, createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { UserAgent, UserAgentProfile } from "../../utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "../preferences";
-import { getLocale, t } from "../translation";
+import { t } from "../translation";
 
 const SETTINGS_UI = {
     'Better xCloud': {
@@ -159,7 +160,7 @@ export function setupSettingsUi() {
 
         if ((e.target as HTMLElement).id === 'bx_setting_' + PrefKey.BETTER_XCLOUD_LOCALE) {
             // Update locale
-            LOCALE = getLocale();
+            refreshLocale();
 
             const $btn = $reloadBtnWrapper.firstElementChild! as HTMLButtonElement;
             $btn.textContent = t('settings-reloading');
@@ -344,4 +345,7 @@ export function setupSettingsUi() {
     // Add Settings UI to the web page
     const $pageContent = document.getElementById('PageContent');
     $pageContent?.parentNode?.insertBefore($container, $pageContent);
+}
+function refreshLocale() {
+    throw new Error("Function not implemented.");
 }

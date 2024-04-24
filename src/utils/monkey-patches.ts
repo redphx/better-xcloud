@@ -1,5 +1,6 @@
 import { BxEvent } from "../modules/bx-event";
 import { getPref, PrefKey } from "../modules/preferences";
+import { States } from "./global";
 import { UserAgent } from "./user-agent";
 
 export function patchVideoApi() {

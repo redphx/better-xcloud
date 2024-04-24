@@ -1,7 +1,7 @@
 import { CE } from "../utils/html";
 import { getPreferredServerRegion } from "../utils/region";
 import { TitlesInfo } from "../utils/titles-info";
-import { PrefKey, Preferences, getPref } from "./preferences";
+import { PrefKey, getPref } from "./preferences";
 import { t } from "./translation";
 
 export class LoadingScreen {
@@ -111,8 +111,6 @@ export class LoadingScreen {
         let endDateStr = endDate.toISOString().slice(0, 19);
         endDateStr = endDateStr.substring(0, 10) + ' ' + endDateStr.substring(11, 19);
         endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
-
-        let estimatedWaitTime = LoadingScreen.#secondsToString(waitTime);
 
         let $waitTimeBox = LoadingScreen.#$waitTimeBox;
         if (!$waitTimeBox) {

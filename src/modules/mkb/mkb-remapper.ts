@@ -10,7 +10,7 @@ import { MkbHandler } from "./mkb-handler";
 import { LocalDb } from "../../utils/local-db";
 import { Icon } from "../../utils/html";
 import { SettingElement } from "../settings";
-import type { MkbConvertedPresetData, MkbPresetData, MkbStoredPresets } from "../../types/mkb";
+import type { MkbPresetData, MkbStoredPresets } from "../../types/mkb";
 
 
 type MkbRemapperElements = {
