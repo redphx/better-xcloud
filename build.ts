@@ -1,5 +1,12 @@
 #!/usr/bin/env bun
-import { watch, readFile } from "node:fs/promises"
+import { watch, readFile } from "node:fs/promises";
+
+enum BuildTarget {
+	ALL = 'all',
+	ANDROID_APP = 'android-app',
+	MOBILE = 'mobile',
+	WEBOS = 'webos',
+}
 
 const postProcess = (str: string): string => {
     // Unescape unicode charaters
@@ -13,34 +20,45 @@ const postProcess = (str: string): string => {
     return str;
 }
 
-const build = (config?: any={}) => {
+const build = async (target: BuildTarget, config?: any={}) => {
+	console.log('--- Building:', target);
 	const startTime = performance.now();
 
-	return Bun.build({
+	let outputFileName = 'better-xcloud';
+	if (target !== BuildTarget.ALL) {
+		outputFileName += `.${target}`;
+	}
+	outputFileName += '.user.js';
+
+	let output = await Bun.build({
 		entrypoints: ['src/index.ts'],
 		outdir: './dist',
-	}).then(async (output) => {
-		if (!output.success) {
-			console.log(output);
-			process.exit(1);
-		}
-		const {path} = output.outputs[0];
-		let result = postProcess(await readFile(path, 'utf-8'));
-		await Bun.write(
-			path,
-			await readFile('src/header.txt', 'utf-8') + result
-		);
-		console.log(`done in ${performance.now() - startTime} ms`);
-	})
+		naming: outputFileName,
+		define: {
+			'Bun.env.BUILD_TARGET': JSON.stringify(target),
+		},
+	});
+
+	if (!output.success) {
+		console.log(output);
+		process.exit(1);
+	}
+
+	const {path} = output.outputs[0];
+	let result = postProcess(await readFile(path, 'utf-8'));
+	const header = await readFile('src/header.txt', 'utf-8');
+	await Bun.write(path, header + result);
+	console.log(`[${target}] done in ${performance.now() - startTime} ms`);
 }
 
+const buildTargets = [
+	BuildTarget.ALL,
+	BuildTarget.ANDROID_APP,
+	BuildTarget.MOBILE,
+	// BuildTarget.WEBOS,
+];
+
 const config = {};
-await build(config);
-
-if (!process.argv.includes('--watch')) process.exit(0);
-
-for await (const event of watch('./src', {recursive: true})) {
-	const {filename} = event;
-	console.log(filename)
-	await build(config);
+for (const target of buildTargets) {
+	await build(target, config);
 }

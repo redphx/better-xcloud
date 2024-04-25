@@ -1,3 +1,4 @@
+import { getBuildConfig } from "./build-config" with { type: "macro" };
 import "./utils/global";
 import { BxEvent } from "./modules/bx-event";
 import { BX_FLAGS } from "./modules/bx-flags";
