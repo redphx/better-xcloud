@@ -1,5 +1,5 @@
 import { AppInterface } from "../utils/global";
-import { BxEvent } from "./bx-event";
+import { BxEvent } from "../utils/bx-event";
 import { PrefKey, getPref } from "./preferences";
 
 const VIBRATION_DATA_MAP = {

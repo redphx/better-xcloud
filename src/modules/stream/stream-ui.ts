@@ -1,6 +1,6 @@
 import { STATES } from "../../utils/global";
 import { Icon } from "../../utils/html";
-import { BxEvent } from "../bx-event";
+import { BxEvent } from "../../utils/bx-event";
 import { PrefKey, getPref } from "../preferences";
 import { t } from "../translation";
 import { StreamBadges } from "./stream-badges";

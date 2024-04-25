@@ -1,4 +1,4 @@
-import { BxEvent } from "../modules/bx-event";
+import { BxEvent } from "./bx-event";
 import { LoadingScreen } from "../modules/loading-screen";
 import { RemotePlay } from "../modules/remote-play";
 import { checkHeader } from "../modules/ui/header";

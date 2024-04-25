@@ -1,7 +1,7 @@
 import { MkbPreset } from "./mkb-preset";
 import { GamepadKey, MkbPresetKey, GamepadStick, MouseMapTo } from "./definitions";
 import { createButton, Icon, ButtonStyle, CE } from "../../utils/html";
-import { BxEvent } from "../bx-event";
+import { BxEvent } from "../../utils/bx-event";
 import { PrefKey, getPref } from "../preferences";
 import { Toast } from "../../utils/toast";
 import { t } from "../translation";

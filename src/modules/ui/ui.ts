@@ -1,7 +1,7 @@
 import { STATES } from "../../utils/global";
 import { Icon, CE, createButton, ButtonStyle } from "../../utils/html";
 import { UserAgent } from "../../utils/user-agent";
-import { BxEvent } from "../bx-event";
+import { BxEvent } from "../../utils/bx-event";
 import { MkbRemapper } from "../mkb/mkb-remapper";
 import { getPref, PrefKey, toPrefElement } from "../preferences";
 import { setupScreenshotButton } from "../screenshot";

@@ -1,8 +1,8 @@
 import { getBuildConfig } from "./build-config" with { type: "macro" };
 import "./utils/global";
-import { BxEvent } from "./modules/bx-event";
-import { BX_FLAGS } from "./modules/bx-flags";
-import { BxExposed } from "./modules/bx-exposed";
+import { BxEvent } from "./utils/bx-event";
+import { BX_FLAGS } from "./utils/bx-flags";
+import { BxExposed } from "./utils/bx-exposed";
 import { t } from "./modules/translation";
 import { CE } from "./utils/html";
 import { showGamepadToast } from "./utils/gamepad";

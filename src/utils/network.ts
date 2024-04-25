@@ -1,5 +1,5 @@
-import { BxEvent } from "../modules/bx-event";
-import { BX_FLAGS } from "../modules/bx-flags";
+import { BxEvent } from "./bx-event";
+import { BX_FLAGS } from "./bx-flags";
 import { LoadingScreen } from "../modules/loading-screen";
 import { PrefKey, getPref } from "../modules/preferences";
 import { RemotePlay } from "../modules/remote-play";

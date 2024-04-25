@@ -1,5 +1,5 @@
 import { PrefKey } from "../preferences"
-import { BxEvent } from "../bx-event"
+import { BxEvent } from "../../utils/bx-event"
 import { getPref } from "../preferences"
 import { StreamBadges } from "./stream-badges"
 import { CE } from "../../utils/html"

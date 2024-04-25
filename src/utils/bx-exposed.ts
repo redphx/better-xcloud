@@ -1,4 +1,4 @@
-import { STATES } from "../utils/global";
+import { STATES } from "./global";
 
 export const BxExposed = {
     onPollingModeChanged: (mode: 'All' | 'None') => {

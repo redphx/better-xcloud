@@ -1,5 +1,5 @@
 import { t } from "../translation";
-import { BxEvent } from "../bx-event";
+import { BxEvent } from "../../utils/bx-event";
 import { CE } from "../../utils/html";
 import { STATES } from "../../utils/global";
 

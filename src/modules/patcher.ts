@@ -1,5 +1,5 @@
 import { STATES } from "../utils/global";
-import { BX_FLAGS } from "./bx-flags";
+import { BX_FLAGS } from "../utils/bx-flags";
 import { getPref, PrefKey } from "./preferences";
 import { VibrationManager } from "./vibration-manager";
 

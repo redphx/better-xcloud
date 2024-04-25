@@ -1,8 +1,8 @@
 import { NATIVE_FETCH, STATES } from "../utils/global";
 import { CE } from "../utils/html";
 import { Toast } from "../utils/toast";
-import { BxEvent } from "./bx-event";
-import { BX_FLAGS } from "./bx-flags";
+import { BxEvent } from "../utils/bx-event";
+import { BX_FLAGS } from "../utils/bx-flags";
 import { getPref, PrefKey } from "./preferences";
 import { t } from "./translation";
 
