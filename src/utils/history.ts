@@ -23,7 +23,7 @@ export function onHistoryChanged(e: PopStateEvent) {
         return;
     }
 
-    setTimeout(RemotePlay.detect, 10);
+    window.setTimeout(RemotePlay.detect, 10);
 
     const $settings = document.querySelector('.bx-settings-container');
     if ($settings) {
@@ -34,7 +34,7 @@ export function onHistoryChanged(e: PopStateEvent) {
     RemotePlay.detachPopup();
 
     LoadingScreen.reset();
-    setTimeout(checkHeader, 2000);
+    window.setTimeout(checkHeader, 2000);
 
     BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }

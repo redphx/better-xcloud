@@ -151,7 +151,7 @@ export class MkbRemapper {
         this.#clearEventListeners();
 
         this.#bindKey(this.#$.currentBindingKey!, KeyHelper.getKeyFromEvent(e));
-        setTimeout(() => this.bindingDialog.hide(), 200);
+        window.setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
     #onMouseDown = (e: MouseEvent) => {
@@ -159,7 +159,7 @@ export class MkbRemapper {
         this.#clearEventListeners();
 
         this.#bindKey(this.#$.currentBindingKey!, KeyHelper.getKeyFromEvent(e));
-        setTimeout(() => this.bindingDialog.hide(), 200);
+        window.setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
     #onKeyDown = (e: KeyboardEvent) => {
@@ -171,7 +171,7 @@ export class MkbRemapper {
             this.#bindKey(this.#$.currentBindingKey!, KeyHelper.getKeyFromEvent(e));
         }
 
-        setTimeout(() => this.bindingDialog.hide(), 200);
+        window.setTimeout(() => this.bindingDialog.hide(), 200);
     };
 
     #onBindingKey = (e: MouseEvent) => {

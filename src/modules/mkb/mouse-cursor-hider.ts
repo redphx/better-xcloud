@@ -18,7 +18,7 @@ export class MouseCursorHider {
         !MouseCursorHider.#cursorVisible && MouseCursorHider.show();
         // Setup timeout
         MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout);
-        MouseCursorHider.#timeout = setTimeout(MouseCursorHider.hide, 3000);
+        MouseCursorHider.#timeout = window.setTimeout(MouseCursorHider.hide, 3000);
     }
 
     static start() {

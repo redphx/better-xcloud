@@ -37,7 +37,7 @@ export class Toast {
         Toast.#isShowing = true;
 
         Toast.#timeout && clearTimeout(Toast.#timeout);
-        Toast.#timeout = setTimeout(Toast.#hide, Toast.#DURATION);
+        Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
 
         // Get values from item
         const [msg, status, _] = Toast.#stack.shift()!;

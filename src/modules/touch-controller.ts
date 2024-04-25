@@ -79,7 +79,7 @@ export class TouchController {
     }
 
     static #dispatchMessage(msg: any) {
-        TouchController.#dataChannel && setTimeout(() => {
+        TouchController.#dataChannel && window.setTimeout(() => {
             TouchController.#dataChannel!.dispatchEvent(msg);
         }, 10);
     }
@@ -100,7 +100,7 @@ export class TouchController {
         if (retries > 2) {
             TouchController.#customLayouts[xboxTitleId] = null;
             // Wait for BX_EXPOSED.touch_layout_manager
-            setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+            window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
             return;
         }
 
@@ -136,7 +136,7 @@ export class TouchController {
             TouchController.#customLayouts[xboxTitleId] = json;
 
             // Wait for BX_EXPOSED.touch_layout_manager
-            setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+            window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
         } catch (e) {
             // Retry
             TouchController.getCustomLayouts(xboxTitleId, retries + 1);
@@ -166,7 +166,7 @@ export class TouchController {
         // Show a toast with layout's name
         layoutChanged && Toast.show(t('touch-control-layout'), layout.name);
 
-        setTimeout(() => {
+        window.setTimeout(() => {
             window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
                 type: 'showLayout',
                 scope: xboxTitleId,
@@ -221,7 +221,7 @@ export class TouchController {
                 return;
             }
 
-            clickTimeout = setTimeout(() => {
+            clickTimeout = window.setTimeout(() => {
                 clickTimeout = null;
             }, 400);
         });
@@ -260,7 +260,7 @@ export class TouchController {
 
             // Fix sometimes the touch controller doesn't show at the beginning
             dataChannel.addEventListener('open', () => {
-                setTimeout(TouchController.#show, 1000);
+                window.setTimeout(TouchController.#show, 1000);
             });
 
             let focused = false;

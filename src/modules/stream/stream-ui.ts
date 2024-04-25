@@ -20,7 +20,7 @@ class MouseHoldEvent {
         this.#isHolding = false;
 
         this.#timeout && clearTimeout(this.#timeout);
-        this.#timeout = setTimeout(() => {
+        this.#timeout = window.setTimeout(() => {
             _this.#isHolding = true;
             _this.#callback();
         }, this.#duration);
@@ -87,7 +87,7 @@ function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: I
         const left = document.getElementById('StreamHud')?.style.left;
         if (left === '0px') {
             timeout && clearTimeout(timeout);
-            timeout = setTimeout(() => {
+            timeout = window.setTimeout(() => {
                     $container.style.pointerEvents = 'auto';
                 }, 100);
         }

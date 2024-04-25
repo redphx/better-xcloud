@@ -76,7 +76,7 @@ export function watchHeader() {
     let timeout: number | null;
     const observer = new MutationObserver(mutationList => {
         timeout && clearTimeout(timeout);
-        timeout = setTimeout(checkHeader, 2000);
+        timeout = window.setTimeout(checkHeader, 2000);
     });
     observer.observe($header, {subtree: true, childList: true});
 

@@ -33,7 +33,7 @@ import { injectStreamMenuButtons } from "./modules/stream/stream-ui";
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
     window.addEventListener('load', e => {
-            window.location.search.includes('loggedIn') && setTimeout(() => {
+            window.location.search.includes('loggedIn') && window.setTimeout(() => {
                 const location = window.location;
                 // @ts-ignore
                 location.pathname.includes('/play') && location.reload(true);
@@ -81,7 +81,7 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
 
 // Automatically reload the page when running into the "We are sorry..." error message
 window.addEventListener('load', e => {
-    setTimeout(() => {
+    window.setTimeout(() => {
         if (document.body.classList.contains('legacyBackground')) {
             // Has error message -> reload page
             window.stop();
@@ -105,7 +105,7 @@ window.history.replaceState = patchHistoryMethod('replaceState');
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
     // Start rendering UI
     if (document.querySelector('div[class^=UnsupportedMarketPage]')) {
-        setTimeout(watchHeader, 2000);
+        window.setTimeout(watchHeader, 2000);
     } else {
         watchHeader();
     }

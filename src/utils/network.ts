@@ -543,7 +543,7 @@ export function interceptHttpRequests() {
         for (const blocked of BLOCKED_URLS) {
             if ((this as any)._url.startsWith(blocked)) {
                 if (blocked === 'https://dc.services.visualstudio.com') {
-                    setTimeout(clearAllLogs, 1000);
+                    window.setTimeout(clearAllLogs, 1000);
                 }
                 return false;
             }

@@ -76,7 +76,7 @@ export class SettingElement {
         $control.addEventListener('mousedown', function(e) {
             const self = this;
             const orgScrollTop = self.scrollTop;
-            setTimeout(() => (self.scrollTop = orgScrollTop), 0);
+            window.setTimeout(() => (self.scrollTop = orgScrollTop), 0);
         });
 
         $control.addEventListener('mousemove', e => e.preventDefault());
@@ -209,7 +209,7 @@ export class SettingElement {
             isHolding = true;
 
             const args = arguments;
-            interval = setInterval(() => {
+            interval = window.setInterval(() => {
                 const event = new Event('click');
                 (event as any).arguments = args;
 

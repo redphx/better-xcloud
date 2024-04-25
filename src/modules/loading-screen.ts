@@ -135,7 +135,7 @@ export class LoadingScreen {
         $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
         document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
 
-        LoadingScreen.#waitTimeInterval = setInterval(() => {
+        LoadingScreen.#waitTimeInterval = window.setInterval(() => {
             secondsLeft--;
             $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
             document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;

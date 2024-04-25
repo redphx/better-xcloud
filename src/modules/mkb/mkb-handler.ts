@@ -214,7 +214,7 @@ export class MkbHandler {
             this.#pressButton(buttonIndex, true);
         }
 
-        this.#wheelStoppedTimeout = setTimeout(() => {
+        this.#wheelStoppedTimeout = window.setTimeout(() => {
             this.#prevWheelCode = null;
             this.#pressButton(buttonIndex, false);
         }, 20);
@@ -272,7 +272,7 @@ export class MkbHandler {
 
         this.#allowStickDecaying = false;
         this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
-        this.#detectMouseStoppedTimeout = setTimeout(this.#onMouseStopped.bind(this), 100);
+        this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 100);
 
         const deltaX = e.movementX;
         const deltaY = e.movementY;

@@ -39,7 +39,7 @@ export class StreamStats {
         StreamStats.#$container.classList.remove('bx-gone');
         StreamStats.#$container.setAttribute('data-display', glancing ? 'glancing' : 'fixed');
 
-        StreamStats.#interval = setInterval(StreamStats.update, StreamStats.#updateInterval);
+        StreamStats.#interval = window.setInterval(StreamStats.update, StreamStats.#updateInterval);
     }
 
     static stop(glancing=false) {

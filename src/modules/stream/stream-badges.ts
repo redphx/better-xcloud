@@ -215,7 +215,7 @@ export class StreamBadges {
 
         await StreamBadges.#updateBadges(true);
         StreamBadges.#stop();
-        StreamBadges.#interval = setInterval(StreamBadges.#updateBadges, StreamBadges.#REFRESH_INTERVAL);
+        StreamBadges.#interval = window.setInterval(StreamBadges.#updateBadges, StreamBadges.#REFRESH_INTERVAL);
 
         return $wrapper;
     }

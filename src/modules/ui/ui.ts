@@ -25,7 +25,7 @@ export function localRedirect(path: string) {
         }, '');
     $anchor.addEventListener('click', e => {
         // Remove element after clicking on it
-        setTimeout(() => {
+        window.setTimeout(() => {
             $pageContent.removeChild($anchor);
         }, 1000);
     });

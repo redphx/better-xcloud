@@ -67,7 +67,7 @@ export function setupScreenshotButton() {
             takeScreenshot(() => {
                 // Hide button
                 $btn.setAttribute('data-showing', 'false');
-                setTimeout(() => {
+                window.setTimeout(() => {
                     if (!timeout) {
                         $btn.setAttribute('data-capturing', 'false');
                     }
@@ -84,7 +84,7 @@ export function setupScreenshotButton() {
             $btn.setAttribute('data-capturing', 'false');
 
             timeout && clearTimeout(timeout);
-            timeout = setTimeout(() => {
+            timeout = window.setTimeout(() => {
                 timeout = null;
                 $btn.setAttribute('data-showing', 'false');
                 $btn.setAttribute('data-capturing', 'false');
