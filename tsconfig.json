@@ -1,9 +1,10 @@
 {
   "include": [
-    "./src/**/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
-    "./dist"
+    "node_modules",
+    "dist"
   ],
   "compilerOptions": {
     // Enable latest features
@@ -28,6 +29,8 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": true,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    "checkJs": false
   }
 }
