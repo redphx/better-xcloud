@@ -17,6 +17,9 @@ const postProcess = (str: string): string => {
     // Replace "globalThis." with "var";
     str = str.replaceAll('globalThis.', 'var ');
 
+	// Add ADDITIONAL CODE block
+	str = str.replace('var DEFAULT_FLAGS', '\n/* ADDITIONAL CODE */\n\nvar DEFAULT_FLAGS');
+
     return str;
 }
 
