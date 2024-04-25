@@ -1,4 +1,4 @@
-import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "../../utils/global";
+import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION, refreshLocale } from "../../utils/global";
 import { CE, createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { UserAgent, UserAgentProfile } from "../../utils/user-agent";
@@ -345,7 +345,4 @@ export function setupSettingsUi() {
     // Add Settings UI to the web page
     const $pageContent = document.getElementById('PageContent');
     $pageContent?.parentNode?.insertBefore($container, $pageContent);
-}
-function refreshLocale() {
-    throw new Error("Function not implemented.");
 }
