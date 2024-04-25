@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { watch, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 
 enum BuildTarget {
 	ALL = 'all',
@@ -23,7 +23,7 @@ const postProcess = (str: string): string => {
     return str;
 }
 
-const build = async (target: BuildTarget, config?: any={}) => {
+const build = async (target: BuildTarget, config: any={}) => {
 	console.log('--- Building:', target);
 	const startTime = performance.now();
 
