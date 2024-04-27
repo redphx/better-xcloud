@@ -582,6 +582,10 @@ export function interceptHttpRequests() {
             requestType = RequestType.XCLOUD;
         }
 
+        if (url.includes('.gamepass.com')) {
+            requestType = RequestType.XCLOUD;
+        }
+
         if (requestType === RequestType.XHOME) {
             return XhomeInterceptor.handle(request as Request);
         }
