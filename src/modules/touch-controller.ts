@@ -3,7 +3,7 @@ import { CE } from "../utils/html";
 import { Toast } from "../utils/toast";
 import { BxEvent } from "../utils/bx-event";
 import { BX_FLAGS } from "../utils/bx-flags";
-import { getPref, PrefKey } from "./preferences";
+import { getPref, PrefKey } from "../utils/preferences";
 import { t } from "../utils/translation";
 
 export class TouchController {

@@ -1,4 +1,4 @@
-import { PrefKey, getPref } from "../modules/preferences";
+import { PrefKey, getPref } from "./preferences";
 
 export enum UserAgentProfile {
     EDGE_WINDOWS = 'edge-windows',

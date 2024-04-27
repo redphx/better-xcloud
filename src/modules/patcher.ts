@@ -1,6 +1,6 @@
 import { STATES } from "../utils/global";
 import { BX_FLAGS } from "../utils/bx-flags";
-import { getPref, PrefKey } from "./preferences";
+import { getPref, PrefKey } from "../utils/preferences";
 import { VibrationManager } from "./vibration-manager";
 
 const PATCHES = {

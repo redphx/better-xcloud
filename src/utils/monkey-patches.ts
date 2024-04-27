@@ -1,5 +1,5 @@
 import { BxEvent } from "./bx-event";
-import { getPref, PrefKey } from "../modules/preferences";
+import { getPref, PrefKey } from "./preferences";
 import { STATES } from "./global";
 import { UserAgent } from "./user-agent";
 

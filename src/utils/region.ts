@@ -1,4 +1,4 @@
-import { getPref, PrefKey } from "../modules/preferences";
+import { getPref, PrefKey } from "./preferences";
 import { STATES } from "./global";
 
 

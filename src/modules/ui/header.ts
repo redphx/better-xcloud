@@ -1,7 +1,7 @@
 import { SCRIPT_VERSION } from "../../utils/global";
 import { createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
-import { PrefKey, getPref } from "../preferences";
+import { PrefKey, getPref } from "../../utils/preferences";
 import { RemotePlay } from "../remote-play";
 import { t } from "../../utils/translation";
 import { setupSettingsUi } from "./global-settings";

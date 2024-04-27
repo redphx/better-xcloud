@@ -1,6 +1,6 @@
-import { PrefKey } from "../preferences"
+import { PrefKey } from "../../utils/preferences"
 import { BxEvent } from "../../utils/bx-event"
-import { getPref } from "../preferences"
+import { getPref } from "../../utils/preferences"
 import { StreamBadges } from "./stream-badges"
 import { CE } from "../../utils/html"
 import { t } from "../../utils/translation"

@@ -1,5 +1,5 @@
 import { CE } from "./html";
-import { PrefKey, getPref } from "../modules/preferences";
+import { PrefKey, getPref } from "./preferences";
 import { renderStylus } from "../macros/build" with {type: "macro"};
 
 

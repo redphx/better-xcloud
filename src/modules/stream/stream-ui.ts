@@ -1,7 +1,7 @@
 import { STATES } from "../../utils/global";
 import { Icon } from "../../utils/html";
 import { BxEvent } from "../../utils/bx-event";
-import { PrefKey, getPref } from "../preferences";
+import { PrefKey, getPref } from "../../utils/preferences";
 import { t } from "../../utils/translation";
 import { StreamBadges } from "./stream-badges";
 import { StreamStats } from "./stream-stats";

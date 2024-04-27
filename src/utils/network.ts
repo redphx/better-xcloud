@@ -1,7 +1,7 @@
 import { BxEvent } from "./bx-event";
 import { BX_FLAGS } from "./bx-flags";
 import { LoadingScreen } from "../modules/loading-screen";
-import { PrefKey, getPref } from "../modules/preferences";
+import { PrefKey, getPref } from "./preferences";
 import { RemotePlay } from "../modules/remote-play";
 import { StreamBadges } from "../modules/stream/stream-badges";
 import { TouchController } from "../modules/touch-controller";

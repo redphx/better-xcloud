@@ -1,4 +1,4 @@
-import { PrefKey, getPref, setPref } from "../modules/preferences";
+import { PrefKey, getPref, setPref } from "./preferences";
 import { SCRIPT_VERSION } from "./global";
 import { UserAgent } from "./user-agent";
 

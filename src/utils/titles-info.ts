@@ -1,5 +1,5 @@
-import { PrefKey } from "../modules/preferences";
-import { getPref } from "../modules/preferences";
+import { PrefKey } from "./preferences";
+import { getPref } from "./preferences";
 import { STATES } from "./global";
 import { UserAgent } from "./user-agent";
 

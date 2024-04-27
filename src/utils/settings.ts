@@ -1,5 +1,5 @@
 import type { PreferenceSetting } from "../types/preferences";
-import { CE } from "../utils/html";
+import { CE } from "./html";
 
 type MultipleOptionsParams = {
     size?: number;

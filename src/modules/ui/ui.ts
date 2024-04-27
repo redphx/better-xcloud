@@ -3,7 +3,7 @@ import { Icon, CE, createButton, ButtonStyle } from "../../utils/html";
 import { UserAgent } from "../../utils/user-agent";
 import { BxEvent } from "../../utils/bx-event";
 import { MkbRemapper } from "../mkb/mkb-remapper";
-import { getPref, PrefKey, toPrefElement } from "../preferences";
+import { getPref, PrefKey, toPrefElement } from "../../utils/preferences";
 import { setupScreenshotButton } from "../screenshot";
 import { StreamStats } from "../stream/stream-stats";
 import { TouchController } from "../touch-controller";

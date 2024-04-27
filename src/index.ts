@@ -12,7 +12,7 @@ import { StreamStats } from "./modules/stream/stream-stats";
 import { addCss } from "./utils/css";
 import { Toast } from "./utils/toast";
 import { setupBxUi, updateVideoPlayerCss } from "./modules/ui/ui";
-import { PrefKey, getPref } from "./modules/preferences";
+import { PrefKey, getPref } from "./utils/preferences";
 import { LoadingScreen } from "./modules/loading-screen";
 import { MouseCursorHider } from "./modules/mkb/mouse-cursor-hider";
 import { TouchController } from "./modules/touch-controller";

@@ -2,7 +2,7 @@ import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "../../utils/g
 import { CE, createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { UserAgent, UserAgentProfile } from "../../utils/user-agent";
-import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "../preferences";
+import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "../../utils/preferences";
 import { t, refreshCurrentLocale } from "../../utils/translation";
 
 const SETTINGS_UI = {

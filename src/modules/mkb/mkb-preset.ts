@@ -1,5 +1,5 @@
 import { t } from "../../utils/translation";
-import { SettingElementType } from "../settings";
+import { SettingElementType } from "../../utils/settings";
 import { GamepadKey, MouseButtonCode, MouseMapTo, MkbPresetKey } from "./definitions";
 import { MkbHandler } from "./mkb-handler";
 import type { MkbPresetData, MkbConvertedPresetData } from "../../types/mkb";

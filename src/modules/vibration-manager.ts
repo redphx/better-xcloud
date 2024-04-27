@@ -1,6 +1,6 @@
 import { AppInterface } from "../utils/global";
 import { BxEvent } from "../utils/bx-event";
-import { PrefKey, getPref } from "./preferences";
+import { PrefKey, getPref } from "../utils/preferences";
 
 const VIBRATION_DATA_MAP = {
     'gamepadIndex': 8,
