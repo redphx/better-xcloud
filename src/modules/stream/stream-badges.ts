@@ -1,4 +1,4 @@
-import { t } from "../translation";
+import { t } from "../../utils/translation";
 import { BxEvent } from "../../utils/bx-event";
 import { CE } from "../../utils/html";
 import { STATES } from "../../utils/global";

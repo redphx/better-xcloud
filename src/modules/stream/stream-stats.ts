@@ -3,7 +3,7 @@ import { BxEvent } from "../../utils/bx-event"
 import { getPref } from "../preferences"
 import { StreamBadges } from "./stream-badges"
 import { CE } from "../../utils/html"
-import { t } from "../translation"
+import { t } from "../../utils/translation"
 import { STATES } from "../../utils/global"
 
 export enum StreamStat {

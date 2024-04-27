@@ -3,7 +3,7 @@ import { CE, createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { UserAgent, UserAgentProfile } from "../../utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "../preferences";
-import { t, refreshCurrentLocale } from "../translation";
+import { t, refreshCurrentLocale } from "../../utils/translation";
 
 const SETTINGS_UI = {
     'Better xCloud': {

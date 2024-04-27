@@ -2,7 +2,7 @@ import { CE } from "../utils/html";
 import { getPreferredServerRegion } from "../utils/region";
 import { TitlesInfo } from "../utils/titles-info";
 import { PrefKey, getPref } from "./preferences";
-import { t } from "./translation";
+import { t } from "../utils/translation";
 
 export class LoadingScreen {
     static #$bgStyle: HTMLElement;

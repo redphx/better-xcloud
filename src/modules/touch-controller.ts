@@ -4,7 +4,7 @@ import { Toast } from "../utils/toast";
 import { BxEvent } from "../utils/bx-event";
 import { BX_FLAGS } from "../utils/bx-flags";
 import { getPref, PrefKey } from "./preferences";
-import { t } from "./translation";
+import { t } from "../utils/translation";
 
 export class TouchController {
     static readonly #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent('message', {

@@ -1,6 +1,6 @@
 import { GamepadKey } from "./definitions";
 import { CE, createButton, ButtonStyle } from "../../utils/html";
-import { t } from "../translation";
+import { t } from "../../utils/translation";
 import { Dialog } from "../dialog";
 import { getPref, setPref, PrefKey } from "../preferences";
 import { MkbPresetKey, GamepadKeyName } from "./definitions";

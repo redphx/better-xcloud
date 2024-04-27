@@ -1,6 +1,6 @@
 import { MkbHandler } from "../modules/mkb/mkb-handler";
 import { PrefKey, getPref } from "../modules/preferences";
-import { t } from "../modules/translation";
+import { t } from "./translation";
 import { Toast } from "./toast";
 
 // Show a toast when connecting/disconecting controller

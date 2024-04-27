@@ -7,7 +7,7 @@ import { getPref, PrefKey, toPrefElement } from "../preferences";
 import { setupScreenshotButton } from "../screenshot";
 import { StreamStats } from "../stream/stream-stats";
 import { TouchController } from "../touch-controller";
-import { t } from "../translation";
+import { t } from "../../utils/translation";
 import { VibrationManager } from "../vibration-manager";
 
 

@@ -1,5 +1,5 @@
 import { CE } from "../utils/html";
-import { SUPPORTED_LANGUAGES, t } from "./translation";
+import { SUPPORTED_LANGUAGES, t } from "../utils/translation";
 import { SettingElement, SettingElementType } from "./settings";
 import { UserAgentProfile } from "../utils/user-agent";
 import { StreamStat } from "./stream/stream-stats";

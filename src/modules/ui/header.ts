@@ -3,7 +3,7 @@ import { createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { PrefKey, getPref } from "../preferences";
 import { RemotePlay } from "../remote-play";
-import { t } from "../translation";
+import { t } from "../../utils/translation";
 import { setupSettingsUi } from "./global-settings";
 
 

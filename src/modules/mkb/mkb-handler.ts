@@ -4,7 +4,7 @@ import { createButton, Icon, ButtonStyle, CE } from "../../utils/html";
 import { BxEvent } from "../../utils/bx-event";
 import { PrefKey, getPref } from "../preferences";
 import { Toast } from "../../utils/toast";
-import { t } from "../translation";
+import { t } from "../../utils/translation";
 import { LocalDb } from "../../utils/local-db";
 import { KeyHelper } from "./key-helper";
 import type { MkbStoredPreset } from "../../types/mkb";
