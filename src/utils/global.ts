@@ -1,3 +1,6 @@
+export const SCRIPT_VERSION = Bun.env.SCRIPT_VERSION;
+export const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
+
 export const AppInterface = window.AppInterface;
 export const NATIVE_FETCH = window.fetch;
 export const STATES: BxStates = {
@@ -9,6 +12,3 @@ export const STATES: BxStates = {
     currentStream: {},
     remotePlay: {},
 };
-
-export const SCRIPT_VERSION = '3.5.3';
-export const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';

@@ -27,7 +27,7 @@ const postProcess = (str: string): string => {
     return str;
 }
 
-const build = async (target: BuildTarget, version, config: any={}) => {
+const build = async (target: BuildTarget, version: string, config: any={}) => {
 	console.log('-- Target:', target);
 	const startTime = performance.now();
 
@@ -47,6 +47,7 @@ const build = async (target: BuildTarget, version, config: any={}) => {
 		naming: outputScriptName,
 		define: {
 			'Bun.env.BUILD_TARGET': JSON.stringify(target),
+			'Bun.env.SCRIPT_VERSION': JSON.stringify(version),
 		},
 	});
 
