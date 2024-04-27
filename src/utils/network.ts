@@ -102,34 +102,27 @@ function updateIceCandidates(candidates: any, options: any) {
 
 
 async function patchIceCandidates(request: Request, consoleAddrs?: {[index: string]: number}) {
-    // ICE server candidates
-    const url = (typeof request === 'string') ? request : request.url;
+    const response = await NATIVE_FETCH(request);
+    const text = await response.clone().text();
 
-    if (url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
-        const response = await NATIVE_FETCH(request);
-        const text = await response.clone().text();
-
-        if (!text.length) {
-            return response;
-        }
-
-        const options = {
-            preferIpv6Server: getPref(PrefKey.PREFER_IPV6_SERVER),
-            consoleAddrs: consoleAddrs,
-        };
-
-        const obj = JSON.parse(text);
-        let exchangeResponse = JSON.parse(obj.exchangeResponse);
-        exchangeResponse = updateIceCandidates(exchangeResponse, options)
-        obj.exchangeResponse = JSON.stringify(exchangeResponse);
-
-        response.json = () => Promise.resolve(obj);
-        response.text = () => Promise.resolve(JSON.stringify(obj));
-
+    if (!text.length) {
         return response;
     }
 
-    return null;
+    const options = {
+        preferIpv6Server: getPref(PrefKey.PREFER_IPV6_SERVER),
+        consoleAddrs: consoleAddrs,
+    };
+
+    const obj = JSON.parse(text);
+    let exchangeResponse = JSON.parse(obj.exchangeResponse);
+    exchangeResponse = updateIceCandidates(exchangeResponse, options)
+    obj.exchangeResponse = JSON.stringify(exchangeResponse);
+
+    response.json = () => Promise.resolve(obj);
+    response.text = () => Promise.resolve(JSON.stringify(obj));
+
+    return response;
 }
 
 
@@ -282,9 +275,11 @@ class XhomeInterceptor {
             return XhomeInterceptor.#handleLogin(request);
         } else if (url.endsWith('/titles')) {
             return XhomeInterceptor.#handleTitles(request);
+        } else if (url && url.endsWith('/ice') && url.includes('/sessions/') && (request as Request).method === 'GET') {
+            return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
         }
 
-        return await patchIceCandidates(request, XhomeInterceptor.#consoleAddrs) || NATIVE_FETCH(request);
+        return await NATIVE_FETCH(request);
     }
 }
 
@@ -479,12 +474,6 @@ class XcloudInterceptor {
     static async handle(request: RequestInfo | URL, init?: RequestInit) {
         let url = (typeof request === 'string') ? request : (request as Request).url;
 
-        // ICE server candidates
-        const patchedIpv6 = await patchIceCandidates(request as Request);
-        if (patchedIpv6) {
-            return patchedIpv6;
-        }
-
         // Server list
         if (url.endsWith('/v2/login/user')) {
             return XcloudInterceptor.#handleLogin(request, init);
@@ -498,6 +487,8 @@ class XcloudInterceptor {
             return XcloudInterceptor.#handleCatalog(request, init);
         } else if (url.includes('/v2/titles') || url.includes('/mru')) {
             return XcloudInterceptor.#handleTitles(request, init);
+        } else if (url && url.endsWith('/ice') && url.includes('/sessions/') && (request as Request).method === 'GET') {
+            return patchIceCandidates(request as Request);
         }
 
         return NATIVE_FETCH(request, init);
