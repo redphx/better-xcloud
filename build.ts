@@ -1,5 +1,9 @@
 #!/usr/bin/env bun
 import { readFile } from "node:fs/promises";
+import { parseArgs } from "node:util";
+import { sys } from "typescript";
+import txtScriptHeader from "./src/header_script.txt" with { type: "text" };
+import txtMetaHeader from "./src/header_meta.txt" with { type: "text" };
 
 enum BuildTarget {
 	ALL = 'all',
@@ -23,20 +27,24 @@ const postProcess = (str: string): string => {
     return str;
 }
 
-const build = async (target: BuildTarget, config: any={}) => {
-	console.log('--- Building:', target);
+const build = async (target: BuildTarget, version, config: any={}) => {
+	console.log('-- Target:', target);
 	const startTime = performance.now();
 
-	let outputFileName = 'better-xcloud';
+	let outputScriptName = 'better-xcloud';
 	if (target !== BuildTarget.ALL) {
-		outputFileName += `.${target}`;
+		outputScriptName += `.${target}`;
 	}
-	outputFileName += '.user.js';
+	let outputMetaName = outputScriptName;
+	outputScriptName += '.user.js';
+	outputMetaName += '.meta.js';
+
+	const outDir = './dist';
 
 	let output = await Bun.build({
 		entrypoints: ['src/index.ts'],
-		outdir: './dist',
-		naming: outputFileName,
+		outdir: outDir,
+		naming: outputScriptName,
 		define: {
 			'Bun.env.BUILD_TARGET': JSON.stringify(target),
 		},
@@ -48,20 +56,47 @@ const build = async (target: BuildTarget, config: any={}) => {
 	}
 
 	const {path} = output.outputs[0];
+	// Get generated file
 	let result = postProcess(await readFile(path, 'utf-8'));
-	const header = await readFile('src/header.txt', 'utf-8');
-	await Bun.write(path, header + result);
-	console.log(`[${target}] done in ${performance.now() - startTime} ms`);
+
+	// Replace [[VERSION]] with real value
+	const scriptHeader = txtScriptHeader.replace('[[VERSION]]', version);
+
+	// Save to script
+	await Bun.write(path, scriptHeader + result);
+	console.log(`---- [${target}] done in ${performance.now() - startTime} ms`);
+
+	// Create meta file
+	await Bun.write(outDir + '/' + outputMetaName, txtMetaHeader.replace('[[VERSION]]', version));
 }
 
 const buildTargets = [
 	BuildTarget.ALL,
-	BuildTarget.ANDROID_APP,
-	BuildTarget.MOBILE,
+	// BuildTarget.ANDROID_APP,
+	// BuildTarget.MOBILE,
 	// BuildTarget.WEBOS,
 ];
 
+const { values, positionals } = parseArgs({
+	args: Bun.argv,
+	options: {
+	  version: {
+		type: 'string',
+
+	  },
+	},
+	strict: true,
+	allowPositionals: true,
+  });
+
+if (!values['version']) {
+	console.log('Missing --version param');
+	sys.exit(-1);
+}
+
+console.log('Building: ', values['version']);
+
 const config = {};
 for (const target of buildTargets) {
-	await build(target, config);
+	await build(target, values['version'], config);
 }
