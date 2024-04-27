@@ -1,5 +1,5 @@
 import { CE } from "../utils/html";
-import { t } from "./translation";
+import { SUPPORTED_LANGUAGES, t } from "./translation";
 import { SettingElement, SettingElementType } from "./settings";
 import { UserAgentProfile } from "../utils/user-agent";
 import { StreamStat } from "./stream/stream-stats";
@@ -100,23 +100,7 @@ export class Preferences {
         [PrefKey.BETTER_XCLOUD_LOCALE]: {
             label: t('language'),
             default: localStorage.getItem('better_xcloud_locale') || 'en-US',
-            options: {
-                'en-ID': 'Bahasa Indonesia',
-                'de-DE': 'Deutsch',
-                'en-US': 'English (United States)',
-                'es-ES': 'español (España)',
-                'fr-FR': 'français',
-                'it-IT': 'italiano',
-                'ja-JP': '日本語',
-                'ko-KR': '한국어',
-                'pl-PL': 'polski',
-                'pt-BR': 'português (Brasil)',
-                'ru-RU': 'русский',
-                'tr-TR': 'Türkçe',
-                'uk-UA': 'українська',
-                'vi-VN': 'Tiếng Việt',
-                'zh-CN': '中文(简体)',
-            },
+            options: SUPPORTED_LANGUAGES,
         },
         [PrefKey.SERVER_REGION]: {
             label: t('region'),

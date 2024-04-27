@@ -1,48 +1,22 @@
-import { LOCALE } from "../utils/global";
+export const SUPPORTED_LANGUAGES = {
+    'en-ID': 'Bahasa Indonesia',
+    'de-DE': 'Deutsch',
+    'en-US': 'English (United States)',
+    'es-ES': 'español (España)',
+    'fr-FR': 'français',
+    'it-IT': 'italiano',
+    'ja-JP': '日本語',
+    'ko-KR': '한국어',
+    'pl-PL': 'polski',
+    'pt-BR': 'português (Brasil)',
+    'ru-RU': 'русский',
+    'tr-TR': 'Türkçe',
+    'uk-UA': 'українська',
+    'vi-VN': 'Tiếng Việt',
+    'zh-CN': '中文(简体)',
+};
 
-const Translations = {
-    enUS: -1,
-
-    getLocale: () => {
-        const supportedLocales = [
-            'de-DE',
-            'en-ID',
-            'en-US',
-            'es-ES',
-            'fr-FR',
-            'it-IT',
-            'ja-JP',
-            'ko-KR',
-            'pl-PL',
-            'pt-BR',
-            'ru-RU',
-            'tr-TR',
-            'uk-UA',
-            'vi-VN',
-            'zh-CN',
-        ];
-
-        Translations.enUS = supportedLocales.indexOf('en-US');
-
-        let locale = localStorage.getItem('better_xcloud_locale');
-        if (!locale) {
-            locale = window.navigator.language || 'en-US';
-            if (supportedLocales.indexOf(locale) === -1) {
-                locale = 'en-US';
-            }
-            localStorage.setItem('better_xcloud_locale', locale);
-        }
-
-        return supportedLocales.indexOf(locale);
-    },
-
-    get: <T=string>(key: string, values?: any): T => {
-        const texts = (Translations as any)[key] || alert(`Missing translation key: ${key}`);
-        const translation = texts[LOCALE] || texts[Translations.enUS];
-
-        return values ? translation(values) : translation;
-    },
-
+const Texts = {
     "activate": [
         "Aktivieren",
         "Aktifkan",
@@ -3222,7 +3196,39 @@ const Translations = {
         "Thời gian hoàn thành dự kiến",
         "预计等待时间",
     ],
+};
+
+class Translations {
+    static #enUS = -1;
+    static #selectedLocale = -1;
+
+    static refreshCurrentLocale() {
+        const supportedLocales = Object.keys(SUPPORTED_LANGUAGES);
+        supportedLocales.sort();
+
+        Translations.#enUS = supportedLocales.indexOf('en-US');
+
+        let locale = localStorage.getItem('better_xcloud_locale');
+        if (!locale) {
+            locale = window.navigator.language || 'en-US';
+            if (supportedLocales.indexOf(locale) === -1) {
+                locale = 'en-US';
+            }
+            localStorage.setItem('better_xcloud_locale', locale);
+        }
+
+        Translations.#selectedLocale = supportedLocales.indexOf(locale);
+    }
+
+    static get<T=string>(key: keyof typeof Texts, values?: any): T {
+        const texts = Texts[key] || alert(`Missing translation key: ${key}`);
+        const translation = texts[Translations.#selectedLocale] || texts[Translations.#enUS];
+
+        return values ? (translation as any)(values) : translation;
+    }
 }
 
 export const t = Translations.get;
-export const getLocale = Translations.getLocale;
+export const refreshCurrentLocale = Translations.refreshCurrentLocale;
+
+refreshCurrentLocale();

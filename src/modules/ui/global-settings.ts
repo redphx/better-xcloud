@@ -1,9 +1,9 @@
-import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION, refreshLocale } from "../../utils/global";
+import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "../../utils/global";
 import { CE, createButton, Icon, ButtonStyle } from "../../utils/html";
 import { getPreferredServerRegion } from "../../utils/region";
 import { UserAgent, UserAgentProfile } from "../../utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "../preferences";
-import { t } from "../translation";
+import { t, refreshCurrentLocale } from "../translation";
 
 const SETTINGS_UI = {
     'Better xCloud': {
@@ -160,7 +160,7 @@ export function setupSettingsUi() {
 
         if ((e.target as HTMLElement).id === 'bx_setting_' + PrefKey.BETTER_XCLOUD_LOCALE) {
             // Update locale
-            refreshLocale();
+            refreshCurrentLocale();
 
             const $btn = $reloadBtnWrapper.firstElementChild! as HTMLButtonElement;
             $btn.textContent = t('settings-reloading');
@@ -229,7 +229,7 @@ export function setupSettingsUi() {
                 $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e: Event) => {
                     const value = (e.target as HTMLInputElement).value;
                     let isCustom = value === UserAgentProfile.CUSTOM;
-                    let userAgent = UserAgent.get(value);
+                    let userAgent = UserAgent.get(value as UserAgentProfile);
 
                     $inpCustomUserAgent.value = userAgent;
                     $inpCustomUserAgent.readOnly = !isCustom;

@@ -19,13 +19,12 @@ export class UserAgent {
         return (window.navigator as any).orgUserAgent || window.navigator.userAgent;
     }
 
-    static get(profile: string): string {
+    static get(profile: UserAgentProfile): string {
         const defaultUserAgent = UserAgent.getDefault();
         if (profile === UserAgentProfile.CUSTOM) {
             return getPref(PrefKey.USER_AGENT_CUSTOM);
         }
 
-        // TODO: check type
         return (UserAgent.#USER_AGENTS as any)[profile] || defaultUserAgent;
     }
 
