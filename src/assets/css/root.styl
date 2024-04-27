@@ -1,0 +1,106 @@
+:root {
+    --bx-title-font: Bahnschrift, Arial, Helvetica, sans-serif;
+    --bx-title-font-semibold: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
+    --bx-normal-font: "Segoe UI", Arial, Helvetica, sans-serif;
+    --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
+    --bx-promptfont-font: promptfont;
+
+    --bx-button-height: 36px;
+
+    --bx-default-button-color: #2d3036;
+    --bx-default-button-hover-color: #515863;
+    --bx-default-button-disabled-color: #8e8e8e;
+
+    --bx-primary-button-color: #008746;
+    --bx-primary-button-hover-color: #04b358;
+    --bx-primary-button-disabled-color: #448262;
+
+    --bx-danger-button-color: #c10404;
+    --bx-danger-button-hover-color: #e61d1d;
+    --bx-danger-button-disabled-color: #a26c6c;
+
+    --bx-toast-z-index: 9999;
+    --bx-reload-button-z-index: 9200;
+    --bx-dialog-z-index: 9101;
+    --bx-dialog-overlay-z-index: 9100;
+    --bx-remote-play-popup-z-index: 9090;
+    --bx-stats-bar-z-index: 9001;
+    --bx-stream-settings-z-index: 9000;
+    --bx-mkb-pointer-lock-msg-z-index: 8999;
+    --bx-screenshot-z-index: 8888;
+    --bx-touch-controller-bar-z-index: 5555;
+    --bx-wait-time-box-z-index: 100;
+}
+
+@font-face {
+    font-family: 'promptfont';
+    src: url('https://redphx.github.io/better-xcloud/fonts/promptfont.otf');
+}
+
+/* Fix Stream menu buttons not hiding */
+div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]) {
+    opacity: 0;
+    pointer-events: none !important;
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+}
+
+/* Remove the "Cloud Gaming" text in header when the screen is too small */
+@media screen and (max-width: 600px) {
+    header a[href="/play"] {
+        display: none;
+    }
+}
+
+.bx-full-width {
+    width: 100% !important;
+}
+
+.bx-full-height {
+    height: 100% !important;
+}
+
+.bx-no-scroll {
+    overflow: hidden !important;
+}
+
+.bx-gone {
+    display: none !important;
+}
+
+.bx-offscreen {
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    visibility: hidden !important;
+}
+
+.bx-hidden {
+    visibility: hidden !important;
+}
+
+.bx-no-margin {
+    margin: 0 !important;
+}
+
+.bx-no-padding {
+    padding: 0 !important;
+}
+
+/* Hide UI elements */
+#headerArea, #uhfSkipToMain, .uhf-footer {
+    display: none;
+}
+
+div[class*=NotFocusedDialog] {
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    width: 0px !important;
+    height: 0px !important;
+}
+
+#game-stream video:not([src]) {
+    visibility: hidden;
+}

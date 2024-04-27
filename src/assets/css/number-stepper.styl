@@ -1,0 +1,41 @@
+.bx-number-stepper {
+    span {
+        display: inline-block;
+        width: 40px;
+        font-family: var(--bx-monospaced-font);
+        font-size: 14px;
+    }
+
+    button {
+        border: none;
+        width: 24px;
+        height: 24px;
+        margin: 0 4px;
+        line-height: 24px;
+        background-color: var(--bx-default-button-color);
+        color: #fff;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 14px;
+        font-family: var(--bx-monospaced-font);
+        color: #fff;
+
+        &:hover {
+            @media (hover: hover) {
+                background-color: var(--bx-default-button-hover-color);
+            }
+        }
+
+        &:active {
+            background-color: var(--bx-default-button-hover-color);
+        }
+
+        &:disabled + span {
+            font-family: var(--bx-title-font);
+        }
+    }
+
+    input[type=range]:disabled, button:disabled {
+        display: none;
+    }
+}

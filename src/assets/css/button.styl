@@ -1,0 +1,108 @@
+.bx-button {
+    background-color: var(--bx-default-button-color);
+    user-select: none;
+    -webkit-user-select: none;
+    color: #fff;
+    font-family: var(--bx-title-font-semibold);
+    font-size: 14px;
+    border: none;
+    font-weight: 400;
+    height: var(--bx-button-height);
+    border-radius: 4px;
+    padding: 0 8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    overflow: hidden;
+
+    &:focus {
+        outline: none !important;
+    }
+
+    &:hover, &.bx-focusable:focus {
+        background-color: var(--bx-default-button-hover-color);
+    }
+
+    &:disabled {
+        cursor: default;
+        background-color: var(--bx-default-button-disabled-color);
+    }
+
+    &.bx-ghost {
+        background-color: transparent;
+
+        &:hover, &.bx-focusable:focus {
+            background-color: var(--bx-default-button-hover-color);
+        }
+    }
+
+    &.bx-primary {
+        background-color: var(--bx-primary-button-color);
+
+        &:hover, &.bx-focusable:focus {
+            background-color: var(--bx-primary-button-hover-color);
+        }
+
+        &:disabled {
+            background-color: var(--bx-primary-button-disabled-color);
+        }
+    }
+
+    &.bx-danger {
+        background-color: var(--bx-danger-button-color);
+
+        &:hover, &.bx-focusable:focus {
+            background-color: var(--bx-danger-button-hover-color);
+        }
+
+        &:disabled {
+            background-color: var(--bx-danger-button-disabled-color);
+        }
+    }
+
+    svg {
+        display: inline-block;
+        width: 16px;
+        height: var(--bx-button-height);
+
+        &:not(:only-child) {
+            margin-right: 4px;
+        }
+    }
+
+    span {
+        display: inline-block;
+        height: calc(var(--bx-button-height) - 2px);
+        line-height: var(--bx-button-height);
+        vertical-align: middle;
+        color: #fff;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    &.bx-focusable {
+        position: relative;
+
+        &::after {
+            border: 2px solid transparent;
+            border-radius: 4px;
+        }
+
+        &:focus::after {
+            content: '';
+            border-color: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    }
+}
+
+a.bx-button {
+    display: inline-block;
+
+    &.bx-full-width {
+        text-align: center;
+    }
+}

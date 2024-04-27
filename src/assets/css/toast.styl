@@ -1,0 +1,45 @@
+.bx-toast {
+    user-select: none;
+    -webkit-user-select: none;
+    position: fixed;
+    left: 50%;
+    top: 24px;
+    transform: translate(-50%, 0);
+    background: #000000;
+    border-radius: 16px;
+    color: white;
+    z-index: var(--bx-toast-z-index);
+    font-family: var(--bx-normal-font);
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    overflow: clip;
+    transition: opacity 0.2s ease-in;
+
+    &.bx-show {
+        opacity: 0.85;
+    }
+
+    &.bx-hide {
+        opacity: 0;
+    }
+}
+
+.bx-toast-msg {
+    font-size: 14px;
+    display: inline-block;
+    padding: 12px 16px;
+    white-space: pre;
+}
+
+.bx-toast-status {
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    display: inline-block;
+    background: #515863;
+    padding: 12px 16px;
+    color: #fff;
+    white-space: pre;
+}

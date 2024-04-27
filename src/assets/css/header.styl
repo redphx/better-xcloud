@@ -1,0 +1,23 @@
+.bx-header-remote-play-button {
+    height: auto;
+    margin-right: 8px !important;
+
+    svg {
+        width: 24px;
+        height: 46px;
+    }
+}
+
+.bx-header-settings-button {
+    line-height: 30px;
+    font-size: 14px;
+    text-transform: uppercase;
+    position: relative;
+
+    &[data-update-available]::before {
+        content: '🌟' !important;
+        line-height: var(--bx-button-height);
+        display: inline-block;
+        margin-left: 4px;
+    }
+}

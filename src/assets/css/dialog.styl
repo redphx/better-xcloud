@@ -1,0 +1,95 @@
+.bx-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--bx-dialog-overlay-z-index);
+    background: black;
+    opacity: 50%;
+}
+
+.bx-dialog {
+    display: flex;
+    flex-flow: column;
+    max-height: 90vh;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    min-width: 420px;
+    padding: 20px;
+    border-radius: 8px;
+    z-index: var(--bx-dialog-z-index);
+    background: #1a1b1e;
+    color: #fff;
+    font-weight: 400;
+    font-size: 16px;
+    font-family: var(--bx-normal-font);
+    box-shadow: 0 0 6px #000;
+    user-select: none;
+    -webkit-user-select: none;
+
+    *:focus {
+        outline: none !important;
+    }
+
+    h2 {
+        display: flex;
+        margin-bottom: 12px;
+
+        b {
+            flex: 1;
+            color: #fff;
+            display: block;
+            font-family: var(--bx-title-font);
+            font-size: 26px;
+            font-weight: 400;
+            line-height: var(--bx-button-height);
+        }
+    }
+
+    &.bx-binding-dialog {
+        h2 {
+            b {
+                font-family: var(--bx-promptfont-font) !important;
+            }
+        }
+    }
+
+    > div {
+        overflow: auto;
+        padding: 2px 0;
+    }
+
+    > button {
+        padding: 8px 32px;
+        margin: 10px auto 0;
+        border: none;
+        border-radius: 4px;
+        display: block;
+        background-color: #2d3036;
+        text-align: center;
+        color: white;
+        text-transform: uppercase;
+        font-family: var(--bx-title-font);
+        font-weight: 400;
+        line-height: 18px;
+        font-size: 14px;
+
+        &:hover {
+            @media (hover: hover) {
+                background-color: #515863;
+            }
+        }
+
+        &:focus {
+            background-color: #515863;
+        }
+    }
+}
+
+
+@media screen and (max-width: 450px) {
+    .bx-dialog {
+        min-width: 100%;
+    }
+}

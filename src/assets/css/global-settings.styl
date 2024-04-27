@@ -1,0 +1,169 @@
+.bx-settings-reload-button-wrapper {
+    z-index: var(--bx-reload-button-z-index);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    background: #000000cf;
+    padding: 10px;
+
+    button {
+        max-width: 450px;
+        margin: 0 !important;
+    }
+}
+
+.bx-settings-container {
+    background-color: #151515;
+    user-select: none;
+    -webkit-user-select: none;
+    color: #fff;
+    font-family: var(--bx-normal-font);
+}
+
+@media (hover: hover) {
+    .bx-settings-wrapper a.bx-settings-title:hover {
+        color: #83f73a;
+    }
+}
+
+.bx-settings-wrapper {
+    width: 450px;
+    margin: auto;
+    padding: 12px 6px;
+
+    @media screen and (max-width: 450px) {
+        width: 100%;
+    }
+
+    *:focus {
+        outline: none !important;
+    }
+
+    .bx-settings-title-wrapper {
+        display: flex;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+
+    a.bx-settings-title {
+        font-family: var(--bx-title-font);
+        font-size: 1.4rem;
+        text-decoration: none;
+        font-weight: bold;
+        display: block;
+        color: #5dc21e;
+        flex: 1;
+
+        &:focus {
+            color: #83f73a;
+        }
+    }
+
+    .bx-button.bx-primary {
+        margin-top: 8px;
+    }
+
+    a.bx-settings-update {
+        display: block;
+        color: #ff834b;
+        text-decoration: none;
+        margin-bottom: 8px;
+        text-align: center;
+        background: #222;
+        border-radius: 4px;
+        padding: 4px;
+
+        &:hover {
+            @media (hover: hover) {
+                color: #ff9869;
+                text-decoration: underline;
+            }
+        }
+
+        &:focus {
+            color: #ff9869;
+            text-decoration: underline;
+        }
+    }
+}
+
+.bx-settings-group-label {
+    font-weight: bold;
+    display: block;
+    font-size: 1.1rem;
+}
+
+
+.bx-settings-row {
+    display: flex;
+    margin-bottom: 8px;
+    padding: 2px 4px;
+
+    label {
+        flex: 1;
+        align-self: center;
+        margin-bottom: 0;
+        padding-left: 10px;
+    }
+
+
+    &:focus-within {
+        @media (hover: none) {
+            background-color: #242424;
+        }
+    }
+
+    input {
+        align-self: center;
+        accent-color: var(--bx-primary-button-color);
+    }
+
+    select:disabled {
+        -webkit-appearance: none;
+        background: transparent;
+        text-align-last: right;
+        border: none;
+        color: #fff;
+    }
+}
+
+.bx-settings-group-label b, .bx-settings-row label b {
+    display: block;
+    font-size: 12px;
+    font-style: italic;
+    font-weight: normal;
+    color: #828282;
+}
+
+.bx-settings-group-label b {
+    margin-bottom: 8px;
+}
+
+.bx-settings-app-version {
+    margin-top: 10px;
+    text-align: center;
+    color: #747474;
+    font-size: 12px;
+}
+
+.bx-donation-link {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    margin-top: 10px;
+    color: #5dc21e;
+
+    &:hover {
+        color: #6dd72b;
+    }
+}
+
+.bx-settings-custom-user-agent {
+    display: block;
+    width: 100%;
+}

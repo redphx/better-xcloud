@@ -7,7 +7,9 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^20.12.7"
+    "@types/node": "^20.12.7",
+    "@types/stylus": "^0.48.42",
+    "stylus": "^0.63.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

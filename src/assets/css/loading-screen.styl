@@ -1,0 +1,31 @@
+.bx-wait-time-box {
+    position: fixed;
+    top: 0;
+    right: 0;
+    background-color: #000000cc;
+    color: #fff;
+    z-index: var(--bx-wait-time-box-z-index);
+    padding: 12px;
+    border-radius: 0 0 0 8px;
+
+    label {
+        display: block;
+        text-transform: uppercase;
+        text-align: right;
+        font-size: 12px;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    span {
+        display: block;
+        font-family: var(--bx-monospaced-font);
+        text-align: right;
+        font-size: 16px;
+        margin-bottom: 10px;
+
+        &:last-of-type {
+            margin-bottom: 0;
+        }
+    }
+}
