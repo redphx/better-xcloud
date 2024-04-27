@@ -451,8 +451,7 @@ export class MkbRemapper {
         // Render mouse settings
         const $mouseSettings = document.createDocumentFragment();
 
-        let key: MkbPresetKey;
-        for (key in MkbPreset.MOUSE_SETTINGS) {
+        for (const key in MkbPreset.MOUSE_SETTINGS) {
             const setting = MkbPreset.MOUSE_SETTINGS[key];
             const value = setting.default;
 
@@ -466,7 +465,7 @@ export class MkbRemapper {
                 );
 
             $mouseSettings.appendChild($row);
-            this.#$.allMouseElements[key] = $elm;
+            this.#$.allMouseElements[key as MkbPresetKey] = $elm;
         }
 
         $rows.appendChild($mouseSettings);

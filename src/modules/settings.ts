@@ -191,6 +191,7 @@ export class SettingElement {
                 return;
             }
 
+            let value = parseInt($range.value);
             const btnType = (e.target as HTMLElement).getAttribute('data-type');
             if (btnType === 'dec') {
                 value = Math.max(MIN, value - STEPS);
@@ -198,8 +199,8 @@ export class SettingElement {
                 value = Math.min(MAX, value + STEPS);
             }
 
-            $text.textContent = value + options.suffix;
-            $range && ($range.value = value);
+            $text.textContent = value.toString() + options.suffix;
+            $range && ($range.value = value.toString());
 
             isHolding = false;
             onChange && onChange(e, value);
