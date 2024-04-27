@@ -302,7 +302,7 @@ a.bx-button.bx-full-width {
     display: block;
     color: #ff834b;
     text-decoration: none;
-    margin-bottom: px;
+    margin-bottom: 8px;
     text-align: center;
     background: #222;
     border-radius: 4px;
