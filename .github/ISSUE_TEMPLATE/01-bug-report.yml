@@ -1,0 +1,83 @@
+name: Bug Report 🐞
+description: File a bug report
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the following information to help us resolve the issue.
+        > [!warning]
+        > Only use English. Any other languages will be deleted.
+  - type: dropdown
+    id: device_type
+    attributes:
+      label: Device
+      description: "Which device are you using?"
+      options:
+        - Phone/Tablet
+        - Laptop
+        - Desktop
+        - TV
+        - Other
+      multiple: false
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating System"
+      description: "Which operating system is it running?"
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Android
+        - iOS/iPadOS
+        - Other
+      multiple: false
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: "Browser"
+      description: "Which browser are you using?"
+      options:
+        - Chrome/Edge/Chromium
+        - Kiwi Browser
+        - Safari
+        - Other
+      multiple: false
+    validations:
+      required: true
+  - type: input
+    id: browser_version
+    attributes:
+      label: "Browser Version"
+      description: "What is the version of the browser?"
+      placeholder: "e.g., 122.0"
+    validations:
+      required: true
+  - type: input
+    id: extension_version
+    attributes:
+      label: "Better xCloud Version"
+      description: "What is the version of Better xCloud?"
+      placeholder: "e.g., 3.5.0"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: "Reproduction Steps"
+      description: |
+        How did you trigger this bug? Please provide screenshot/video if possible.
+      placeholder: |
+        Example:
+        1. Open game X
+        2. Click on Y
+        3. Error
+    validations:
+      required: true
