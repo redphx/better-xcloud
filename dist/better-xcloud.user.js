@@ -9647,7 +9647,6 @@ var clearDbLogs = function(dbName, table) {
         console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
       };
     } catch (ex) {
-      console.log(ex);
     }
   };
 };
@@ -9770,12 +9769,9 @@ function interceptHttpRequests() {
       BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
     }
     let requestType;
-    if (STATES.remotePlay.isPlaying || url.includes("/sessions/home") || url.includes("xhome.")) {
+    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs")) {
       requestType = RequestType.XHOME;
     } else {
-      requestType = RequestType.XCLOUD;
-    }
-    if (url.includes(".gamepass.com")) {
       requestType = RequestType.XCLOUD;
     }
     if (requestType === RequestType.XHOME) {
