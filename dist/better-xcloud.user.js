@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Beta)
 // @namespace    https://github.com/redphx
-// @version      4.0.0-beta.1
+// @version      4.0.0-beta.2
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -14,10 +14,9 @@
 // ==/UserScript==
 'use strict';
 // src/utils/global.ts
-var SCRIPT_VERSION = "4.0.0-beta.1";
+var SCRIPT_VERSION = "4.0.0-beta.2";
 var SCRIPT_HOME = "https://github.com/redphx/better-xcloud";
 var AppInterface = window.AppInterface;
-var NATIVE_FETCH = window.fetch;
 var STATES = {
   isPlaying: false,
   appContext: {},
@@ -79,7 +78,10 @@ var DEFAULT_FLAGS = {
   UseDevTouchLayout: false
 };
 var BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
-delete window.BX_FLAGS;
+try {
+  delete window.BX_FLAGS;
+} catch (e) {
+}
 
 // src/utils/bx-exposed.ts
 var BxExposed = {
@@ -3557,7 +3559,12 @@ class SettingElement {
         isHolding = false;
         return;
       }
-      let value2 = parseInt($range.value);
+      let value2;
+      if ($range) {
+        value2 = parseInt($range.value);
+      } else {
+        value2 = parseInt($text.textContent);
+      }
       const btnType = e.target.getAttribute("data-type");
       if (btnType === "dec") {
         value2 = Math.max(MIN, value2 - STEPS);
@@ -3613,224 +3620,6 @@ class SettingElement {
       $control.name = $control.id;
     }
     return $control;
-  }
-}
-
-// src/modules/mkb/definitions.ts
-var GamepadKey = {};
-GamepadKey[GamepadKey.A = 0] = "A";
-GamepadKey[GamepadKey.B = 1] = "B";
-GamepadKey[GamepadKey.X = 2] = "X";
-GamepadKey[GamepadKey.Y = 3] = "Y";
-GamepadKey[GamepadKey.LB = 4] = "LB";
-GamepadKey[GamepadKey.RB = 5] = "RB";
-GamepadKey[GamepadKey.LT = 6] = "LT";
-GamepadKey[GamepadKey.RT = 7] = "RT";
-GamepadKey[GamepadKey.SELECT = 8] = "SELECT";
-GamepadKey[GamepadKey.START = 9] = "START";
-GamepadKey[GamepadKey.L3 = 10] = "L3";
-GamepadKey[GamepadKey.R3 = 11] = "R3";
-GamepadKey[GamepadKey.UP = 12] = "UP";
-GamepadKey[GamepadKey.DOWN = 13] = "DOWN";
-GamepadKey[GamepadKey.LEFT = 14] = "LEFT";
-GamepadKey[GamepadKey.RIGHT = 15] = "RIGHT";
-GamepadKey[GamepadKey.HOME = 16] = "HOME";
-GamepadKey[GamepadKey.LS_UP = 100] = "LS_UP";
-GamepadKey[GamepadKey.LS_DOWN = 101] = "LS_DOWN";
-GamepadKey[GamepadKey.LS_LEFT = 102] = "LS_LEFT";
-GamepadKey[GamepadKey.LS_RIGHT = 103] = "LS_RIGHT";
-GamepadKey[GamepadKey.RS_UP = 200] = "RS_UP";
-GamepadKey[GamepadKey.RS_DOWN = 201] = "RS_DOWN";
-GamepadKey[GamepadKey.RS_LEFT = 202] = "RS_LEFT";
-GamepadKey[GamepadKey.RS_RIGHT = 203] = "RS_RIGHT";
-var GamepadKeyName = {
-  [GamepadKey.A]: ["A", "⇓"],
-  [GamepadKey.B]: ["B", "⇒"],
-  [GamepadKey.X]: ["X", "⇐"],
-  [GamepadKey.Y]: ["Y", "⇑"],
-  [GamepadKey.LB]: ["LB", "↘"],
-  [GamepadKey.RB]: ["RB", "↙"],
-  [GamepadKey.LT]: ["LT", "↖"],
-  [GamepadKey.RT]: ["RT", "↗"],
-  [GamepadKey.SELECT]: ["Select", "⇺"],
-  [GamepadKey.START]: ["Start", "⇻"],
-  [GamepadKey.HOME]: ["Home", ""],
-  [GamepadKey.UP]: ["D-Pad Up", "≻"],
-  [GamepadKey.DOWN]: ["D-Pad Down", "≽"],
-  [GamepadKey.LEFT]: ["D-Pad Left", "≺"],
-  [GamepadKey.RIGHT]: ["D-Pad Right", "≼"],
-  [GamepadKey.L3]: ["L3", "↺"],
-  [GamepadKey.LS_UP]: ["Left Stick Up", "↾"],
-  [GamepadKey.LS_DOWN]: ["Left Stick Down", "⇂"],
-  [GamepadKey.LS_LEFT]: ["Left Stick Left", "↼"],
-  [GamepadKey.LS_RIGHT]: ["Left Stick Right", "⇀"],
-  [GamepadKey.R3]: ["R3", "↻"],
-  [GamepadKey.RS_UP]: ["Right Stick Up", "↿"],
-  [GamepadKey.RS_DOWN]: ["Right Stick Down", "⇃"],
-  [GamepadKey.RS_LEFT]: ["Right Stick Left", "↽"],
-  [GamepadKey.RS_RIGHT]: ["Right Stick Right", "⇁"]
-};
-var GamepadStick;
-(function(GamepadStick2) {
-  GamepadStick2[GamepadStick2["LEFT"] = 0] = "LEFT";
-  GamepadStick2[GamepadStick2["RIGHT"] = 1] = "RIGHT";
-})(GamepadStick || (GamepadStick = {}));
-var MouseButtonCode;
-(function(MouseButtonCode2) {
-  MouseButtonCode2["LEFT_CLICK"] = "Mouse0";
-  MouseButtonCode2["RIGHT_CLICK"] = "Mouse2";
-  MouseButtonCode2["MIDDLE_CLICK"] = "Mouse1";
-})(MouseButtonCode || (MouseButtonCode = {}));
-var MouseMapTo = {};
-MouseMapTo[MouseMapTo.OFF = 0] = "OFF";
-MouseMapTo[MouseMapTo.LS = 1] = "LS";
-MouseMapTo[MouseMapTo.RS = 2] = "RS";
-var WheelCode;
-(function(WheelCode2) {
-  WheelCode2["SCROLL_UP"] = "ScrollUp";
-  WheelCode2["SCROLL_DOWN"] = "ScrollDown";
-  WheelCode2["SCROLL_LEFT"] = "ScrollLeft";
-  WheelCode2["SCROLL_RIGHT"] = "ScrollRight";
-})(WheelCode || (WheelCode = {}));
-var MkbPresetKey;
-(function(MkbPresetKey2) {
-  MkbPresetKey2["MOUSE_MAP_TO"] = "map_to";
-  MkbPresetKey2["MOUSE_SENSITIVITY_X"] = "sensitivity_x";
-  MkbPresetKey2["MOUSE_SENSITIVITY_Y"] = "sensitivity_y";
-  MkbPresetKey2["MOUSE_DEADZONE_COUNTERWEIGHT"] = "deadzone_counterweight";
-  MkbPresetKey2["MOUSE_STICK_DECAY_STRENGTH"] = "stick_decay_strength";
-  MkbPresetKey2["MOUSE_STICK_DECAY_MIN"] = "stick_decay_min";
-})(MkbPresetKey || (MkbPresetKey = {}));
-
-// src/modules/mkb/mkb-preset.ts
-class MkbPreset {
-  static MOUSE_SETTINGS = {
-    [MkbPresetKey.MOUSE_MAP_TO]: {
-      label: t("map-mouse-to"),
-      type: SettingElementType.OPTIONS,
-      default: MouseMapTo[MouseMapTo.RS],
-      options: {
-        [MouseMapTo[MouseMapTo.RS]]: t("right-stick"),
-        [MouseMapTo[MouseMapTo.LS]]: t("left-stick"),
-        [MouseMapTo[MouseMapTo.OFF]]: t("off")
-      }
-    },
-    [MkbPresetKey.MOUSE_SENSITIVITY_Y]: {
-      label: t("horizontal-sensitivity"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 50,
-      min: 1,
-      max: 200,
-      params: {
-        suffix: "%",
-        exactTicks: 20
-      }
-    },
-    [MkbPresetKey.MOUSE_SENSITIVITY_X]: {
-      label: t("vertical-sensitivity"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 50,
-      min: 1,
-      max: 200,
-      params: {
-        suffix: "%",
-        exactTicks: 20
-      }
-    },
-    [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: {
-      label: t("deadzone-counterweight"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 20,
-      min: 1,
-      max: 100,
-      params: {
-        suffix: "%",
-        exactTicks: 10
-      }
-    },
-    [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: {
-      label: t("stick-decay-strength"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 100,
-      min: 10,
-      max: 100,
-      params: {
-        suffix: "%",
-        exactTicks: 10
-      }
-    },
-    [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: {
-      label: t("stick-decay-minimum"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 10,
-      min: 1,
-      max: 10,
-      params: {
-        suffix: "%"
-      }
-    }
-  };
-  static DEFAULT_PRESET = {
-    mapping: {
-      [GamepadKey.UP]: ["ArrowUp"],
-      [GamepadKey.DOWN]: ["ArrowDown"],
-      [GamepadKey.LEFT]: ["ArrowLeft"],
-      [GamepadKey.RIGHT]: ["ArrowRight"],
-      [GamepadKey.LS_UP]: ["KeyW"],
-      [GamepadKey.LS_DOWN]: ["KeyS"],
-      [GamepadKey.LS_LEFT]: ["KeyA"],
-      [GamepadKey.LS_RIGHT]: ["KeyD"],
-      [GamepadKey.RS_UP]: ["KeyI"],
-      [GamepadKey.RS_DOWN]: ["KeyK"],
-      [GamepadKey.RS_LEFT]: ["KeyJ"],
-      [GamepadKey.RS_RIGHT]: ["KeyL"],
-      [GamepadKey.A]: ["Space", "KeyE"],
-      [GamepadKey.X]: ["KeyR"],
-      [GamepadKey.B]: ["ControlLeft", "Backspace"],
-      [GamepadKey.Y]: ["KeyV"],
-      [GamepadKey.START]: ["Enter"],
-      [GamepadKey.SELECT]: ["Tab"],
-      [GamepadKey.LB]: ["KeyC", "KeyG"],
-      [GamepadKey.RB]: ["KeyQ"],
-      [GamepadKey.HOME]: ["Backquote"],
-      [GamepadKey.RT]: [MouseButtonCode.LEFT_CLICK],
-      [GamepadKey.LT]: [MouseButtonCode.RIGHT_CLICK],
-      [GamepadKey.L3]: ["ShiftLeft"],
-      [GamepadKey.R3]: ["KeyF"]
-    },
-    mouse: {
-      [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
-      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
-      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
-      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
-      [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 18,
-      [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 6
-    }
-  };
-  static convert(preset) {
-    const obj = {
-      mapping: {},
-      mouse: Object.assign({}, preset.mouse)
-    };
-    for (const buttonIndex in preset.mapping) {
-      for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
-        obj.mapping[keyName] = parseInt(buttonIndex);
-      }
-    }
-    const mouse = obj.mouse;
-    mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
-    mouse[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
-    mouse[MkbPresetKey.MOUSE_STICK_DECAY_MIN] *= 0.01;
-    const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
-    if (typeof mouseMapTo !== "undefined") {
-      mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
-    } else {
-      mouse[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
-    }
-    console.log(obj);
-    return obj;
   }
 }
 
@@ -4972,6 +4761,245 @@ var getPref = prefs.get.bind(prefs);
 var setPref = prefs.set.bind(prefs);
 var toPrefElement = prefs.toElement.bind(prefs);
 
+// src/utils/region.ts
+function getPreferredServerRegion(shortName = false) {
+  let preferredRegion = getPref(PrefKey.SERVER_REGION);
+  if (preferredRegion in STATES.serverRegions) {
+    if (shortName && STATES.serverRegions[preferredRegion].shortName) {
+      return STATES.serverRegions[preferredRegion].shortName;
+    } else {
+      return preferredRegion;
+    }
+  }
+  for (let regionName in STATES.serverRegions) {
+    const region = STATES.serverRegions[regionName];
+    if (!region.isDefault) {
+      continue;
+    }
+    if (shortName && region.shortName) {
+      return region.shortName;
+    } else {
+      return regionName;
+    }
+  }
+  return "???";
+}
+
+// src/utils/titles-info.ts
+class TitlesInfo {
+  static #INFO = {};
+  static get(titleId) {
+    return TitlesInfo.#INFO[titleId];
+  }
+  static update(titleId, info) {
+    TitlesInfo.#INFO[titleId] = TitlesInfo.#INFO[titleId] || {};
+    Object.assign(TitlesInfo.#INFO[titleId], info);
+  }
+  static saveFromTitleInfo(titleInfo) {
+    const details = titleInfo.details;
+    const info = {
+      titleId: titleInfo.titleId,
+      xboxTitleId: "" + details.xboxTitleId,
+      hasTouchSupport: details.supportedInputTypes.length > 1
+    };
+    TitlesInfo.update(details.productId, info);
+  }
+  static saveFromCatalogInfo(catalogInfo) {
+    const titleId = catalogInfo.StoreId;
+    const imageHero = (catalogInfo.Image_Hero || catalogInfo.Image_Tile || {}).URL;
+    TitlesInfo.update(titleId, {
+      imageHero
+    });
+  }
+  static hasTouchSupport(titleId) {
+    return !!TitlesInfo.#INFO[titleId]?.hasTouchSupport;
+  }
+  static requestCatalogInfo(titleId, callback) {
+    const url = `https://catalog.gamepass.com/v3/products?market=${STATES.appContext.marketInfo.market}&language=${STATES.appContext.marketInfo.locale}&hydration=RemoteHighSapphire0`;
+    const appVersion = document.querySelector("meta[name=gamepass-app-version]").getAttribute("content");
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Ms-Cv": STATES.appContext.telemetryInfo.initialCv,
+        "Calling-App-Name": "Xbox Cloud Gaming Web",
+        "Calling-App-Version": appVersion
+      },
+      body: JSON.stringify({
+        Products: [titleId]
+      })
+    }).then((resp) => {
+      callback && callback(TitlesInfo.get(titleId));
+    });
+  }
+}
+
+class PreloadedState {
+  static override() {
+    Object.defineProperty(window, "__PRELOADED_STATE__", {
+      configurable: true,
+      get: () => {
+        const userAgent = UserAgent.spoof();
+        if (userAgent) {
+          this._state.appContext.requestInfo.userAgent = userAgent;
+        }
+        return this._state;
+      },
+      set: (state) => {
+        this._state = state;
+        STATES.appContext = structuredClone(state.appContext);
+        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
+          let titles = {};
+          try {
+            titles = state.xcloud.titles.data.titles;
+          } catch (e) {
+          }
+          for (let id2 in titles) {
+            TitlesInfo.saveFromTitleInfo(titles[id2].data);
+          }
+        }
+      }
+    });
+  }
+}
+
+// src/modules/loading-screen.ts
+class LoadingScreen {
+  static #$bgStyle;
+  static #$waitTimeBox;
+  static #waitTimeInterval = null;
+  static #orgWebTitle;
+  static #secondsToString(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    const mDisplay = m > 0 ? `${m}m` : "";
+    const sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
+    return mDisplay + sDisplay;
+  }
+  static setup() {
+    const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+    if (!match) {
+      return;
+    }
+    if (!LoadingScreen.#$bgStyle) {
+      const $bgStyle = CE("style");
+      document.documentElement.appendChild($bgStyle);
+      LoadingScreen.#$bgStyle = $bgStyle;
+    }
+    const titleId = match[1];
+    const titleInfo = TitlesInfo.get(titleId);
+    if (titleInfo && titleInfo.imageHero) {
+      LoadingScreen.#setBackground(titleInfo.imageHero);
+    } else {
+      TitlesInfo.requestCatalogInfo(titleId, (info) => {
+        info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
+      });
+    }
+    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide") {
+      LoadingScreen.#hideRocket();
+    }
+  }
+  static #hideRocket() {
+    let $bgStyle = LoadingScreen.#$bgStyle;
+    const css = `
+#game-stream div[class*=RocketAnimation-module__container] > svg {
+    display: none;
+}
+`;
+    $bgStyle.textContent += css;
+  }
+  static #setBackground(imageUrl) {
+    let $bgStyle = LoadingScreen.#$bgStyle;
+    imageUrl = imageUrl + "?w=1920";
+    const css = `
+#game-stream {
+    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
+    background-color: transparent !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+}
+
+#game-stream rect[width="800"] {
+    transition: opacity 0.3s ease-in-out !important;
+}
+`;
+    $bgStyle.textContent += css;
+    const bg = new Image;
+    bg.onload = (e) => {
+      $bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 0 !important;
+}
+`;
+    };
+    bg.src = imageUrl;
+  }
+  static setupWaitTime(waitTime) {
+    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue") {
+      LoadingScreen.#hideRocket();
+    }
+    let secondsLeft = waitTime;
+    let $countDown;
+    let $estimated;
+    LoadingScreen.#orgWebTitle = document.title;
+    const endDate = new Date;
+    const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
+    endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
+    let endDateStr = endDate.toISOString().slice(0, 19);
+    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19);
+    endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
+    if (!$waitTimeBox) {
+      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {}));
+      document.documentElement.appendChild($waitTimeBox);
+      LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    } else {
+      $waitTimeBox.classList.remove("bx-gone");
+      $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated");
+      $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
+    }
+    $estimated.textContent = endDateStr;
+    $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+    document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+    LoadingScreen.#waitTimeInterval = window.setInterval(() => {
+      secondsLeft--;
+      $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+      document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+      if (secondsLeft <= 0) {
+        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+        LoadingScreen.#waitTimeInterval = null;
+      }
+    }, 1000);
+  }
+  static hide() {
+    LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
+    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
+    if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
+      const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
+      $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
+        LoadingScreen.#$bgStyle.textContent += `
+#game-stream {
+    background: #000 !important;
+}
+`;
+      });
+      LoadingScreen.#$bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 1 !important;
+}
+`;
+    }
+    LoadingScreen.reset();
+  }
+  static reset() {
+    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
+    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
+    LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+    LoadingScreen.#waitTimeInterval = null;
+  }
+}
+
 // src/utils/toast.ts
 class Toast {
   static #$wrapper;
@@ -5029,6 +5057,192 @@ class Toast {
       }
     });
     document.documentElement.appendChild(Toast.#$wrapper);
+  }
+}
+
+// src/modules/mkb/definitions.ts
+var GamepadKey = {};
+GamepadKey[GamepadKey.A = 0] = "A";
+GamepadKey[GamepadKey.B = 1] = "B";
+GamepadKey[GamepadKey.X = 2] = "X";
+GamepadKey[GamepadKey.Y = 3] = "Y";
+GamepadKey[GamepadKey.LB = 4] = "LB";
+GamepadKey[GamepadKey.RB = 5] = "RB";
+GamepadKey[GamepadKey.LT = 6] = "LT";
+GamepadKey[GamepadKey.RT = 7] = "RT";
+GamepadKey[GamepadKey.SELECT = 8] = "SELECT";
+GamepadKey[GamepadKey.START = 9] = "START";
+GamepadKey[GamepadKey.L3 = 10] = "L3";
+GamepadKey[GamepadKey.R3 = 11] = "R3";
+GamepadKey[GamepadKey.UP = 12] = "UP";
+GamepadKey[GamepadKey.DOWN = 13] = "DOWN";
+GamepadKey[GamepadKey.LEFT = 14] = "LEFT";
+GamepadKey[GamepadKey.RIGHT = 15] = "RIGHT";
+GamepadKey[GamepadKey.HOME = 16] = "HOME";
+GamepadKey[GamepadKey.LS_UP = 100] = "LS_UP";
+GamepadKey[GamepadKey.LS_DOWN = 101] = "LS_DOWN";
+GamepadKey[GamepadKey.LS_LEFT = 102] = "LS_LEFT";
+GamepadKey[GamepadKey.LS_RIGHT = 103] = "LS_RIGHT";
+GamepadKey[GamepadKey.RS_UP = 200] = "RS_UP";
+GamepadKey[GamepadKey.RS_DOWN = 201] = "RS_DOWN";
+GamepadKey[GamepadKey.RS_LEFT = 202] = "RS_LEFT";
+GamepadKey[GamepadKey.RS_RIGHT = 203] = "RS_RIGHT";
+var GamepadKeyName = {
+  [GamepadKey.A]: ["A", "⇓"],
+  [GamepadKey.B]: ["B", "⇒"],
+  [GamepadKey.X]: ["X", "⇐"],
+  [GamepadKey.Y]: ["Y", "⇑"],
+  [GamepadKey.LB]: ["LB", "↘"],
+  [GamepadKey.RB]: ["RB", "↙"],
+  [GamepadKey.LT]: ["LT", "↖"],
+  [GamepadKey.RT]: ["RT", "↗"],
+  [GamepadKey.SELECT]: ["Select", "⇺"],
+  [GamepadKey.START]: ["Start", "⇻"],
+  [GamepadKey.HOME]: ["Home", ""],
+  [GamepadKey.UP]: ["D-Pad Up", "≻"],
+  [GamepadKey.DOWN]: ["D-Pad Down", "≽"],
+  [GamepadKey.LEFT]: ["D-Pad Left", "≺"],
+  [GamepadKey.RIGHT]: ["D-Pad Right", "≼"],
+  [GamepadKey.L3]: ["L3", "↺"],
+  [GamepadKey.LS_UP]: ["Left Stick Up", "↾"],
+  [GamepadKey.LS_DOWN]: ["Left Stick Down", "⇂"],
+  [GamepadKey.LS_LEFT]: ["Left Stick Left", "↼"],
+  [GamepadKey.LS_RIGHT]: ["Left Stick Right", "⇀"],
+  [GamepadKey.R3]: ["R3", "↻"],
+  [GamepadKey.RS_UP]: ["Right Stick Up", "↿"],
+  [GamepadKey.RS_DOWN]: ["Right Stick Down", "⇃"],
+  [GamepadKey.RS_LEFT]: ["Right Stick Left", "↽"],
+  [GamepadKey.RS_RIGHT]: ["Right Stick Right", "⇁"]
+};
+var GamepadStick;
+(function(GamepadStick2) {
+  GamepadStick2[GamepadStick2["LEFT"] = 0] = "LEFT";
+  GamepadStick2[GamepadStick2["RIGHT"] = 1] = "RIGHT";
+})(GamepadStick || (GamepadStick = {}));
+var MouseButtonCode;
+(function(MouseButtonCode2) {
+  MouseButtonCode2["LEFT_CLICK"] = "Mouse0";
+  MouseButtonCode2["RIGHT_CLICK"] = "Mouse2";
+  MouseButtonCode2["MIDDLE_CLICK"] = "Mouse1";
+})(MouseButtonCode || (MouseButtonCode = {}));
+var MouseMapTo = {};
+MouseMapTo[MouseMapTo.OFF = 0] = "OFF";
+MouseMapTo[MouseMapTo.LS = 1] = "LS";
+MouseMapTo[MouseMapTo.RS = 2] = "RS";
+var WheelCode;
+(function(WheelCode2) {
+  WheelCode2["SCROLL_UP"] = "ScrollUp";
+  WheelCode2["SCROLL_DOWN"] = "ScrollDown";
+  WheelCode2["SCROLL_LEFT"] = "ScrollLeft";
+  WheelCode2["SCROLL_RIGHT"] = "ScrollRight";
+})(WheelCode || (WheelCode = {}));
+var MkbPresetKey;
+(function(MkbPresetKey2) {
+  MkbPresetKey2["MOUSE_MAP_TO"] = "map_to";
+  MkbPresetKey2["MOUSE_SENSITIVITY_X"] = "sensitivity_x";
+  MkbPresetKey2["MOUSE_SENSITIVITY_Y"] = "sensitivity_y";
+  MkbPresetKey2["MOUSE_DEADZONE_COUNTERWEIGHT"] = "deadzone_counterweight";
+  MkbPresetKey2["MOUSE_STICK_DECAY_STRENGTH"] = "stick_decay_strength";
+  MkbPresetKey2["MOUSE_STICK_DECAY_MIN"] = "stick_decay_min";
+})(MkbPresetKey || (MkbPresetKey = {}));
+
+// src/modules/dialog.ts
+class Dialog {
+  $dialog;
+  $title;
+  $content;
+  $overlay;
+  onClose;
+  constructor(options) {
+    const {
+      title,
+      className,
+      content,
+      hideCloseButton,
+      onClose,
+      helpUrl
+    } = options;
+    this.$overlay = document.querySelector(".bx-dialog-overlay");
+    if (!this.$overlay) {
+      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" });
+      this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault());
+      document.documentElement.appendChild(this.$overlay);
+    }
+    let $close;
+    this.onClose = onClose;
+    this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
+      icon: Icon.QUESTION,
+      style: ButtonStyle.GHOST,
+      title: t("help"),
+      url: helpUrl
+    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", {}, t("close"))));
+    $close && $close.addEventListener("click", (e) => {
+      this.hide(e);
+    });
+    !title && this.$title.classList.add("bx-gone");
+    !content && this.$content.classList.add("bx-gone");
+    this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.documentElement.appendChild(this.$dialog);
+  }
+  show(newOptions) {
+    document.activeElement && document.activeElement.blur();
+    if (newOptions && newOptions.title) {
+      this.$title.querySelector("b").textContent = newOptions.title;
+      this.$title.classList.remove("bx-gone");
+    }
+    this.$dialog.classList.remove("bx-gone");
+    this.$overlay.classList.remove("bx-gone");
+    document.body.classList.add("bx-no-scroll");
+  }
+  hide(e) {
+    this.$dialog.classList.add("bx-gone");
+    this.$overlay.classList.add("bx-gone");
+    document.body.classList.remove("bx-no-scroll");
+    this.onClose && this.onClose(e);
+  }
+  toggle() {
+    this.$dialog.classList.toggle("bx-gone");
+    this.$overlay.classList.toggle("bx-gone");
+  }
+}
+
+// src/modules/mkb/key-helper.ts
+class KeyHelper {
+  static #NON_PRINTABLE_KEYS = {
+    Backquote: "`",
+    [MouseButtonCode.LEFT_CLICK]: "Left Click",
+    [MouseButtonCode.RIGHT_CLICK]: "Right Click",
+    [MouseButtonCode.MIDDLE_CLICK]: "Middle Click",
+    [WheelCode.SCROLL_UP]: "Scroll Up",
+    [WheelCode.SCROLL_DOWN]: "Scroll Down",
+    [WheelCode.SCROLL_LEFT]: "Scroll Left",
+    [WheelCode.SCROLL_RIGHT]: "Scroll Right"
+  };
+  static getKeyFromEvent(e) {
+    let code;
+    let name;
+    if (e instanceof KeyboardEvent) {
+      code = e.code;
+    } else if (e instanceof WheelEvent) {
+      if (e.deltaY < 0) {
+        code = WheelCode.SCROLL_UP;
+      } else if (e.deltaY > 0) {
+        code = WheelCode.SCROLL_DOWN;
+      } else if (e.deltaX < 0) {
+        code = WheelCode.SCROLL_LEFT;
+      } else {
+        code = WheelCode.SCROLL_RIGHT;
+      }
+    } else if (e instanceof MouseEvent) {
+      code = "Mouse" + e.button;
+    }
+    if (code) {
+      name = KeyHelper.codeToKeyName(code);
+    }
+    return code ? { code, name } : null;
+  }
+  static codeToKeyName(code) {
+    return KeyHelper.#NON_PRINTABLE_KEYS[code] || code.startsWith("Key") && code.substring(3) || code.startsWith("Digit") && code.substring(5) || code.startsWith("Numpad") && "Numpad " + code.substring(6) || code.startsWith("Arrow") && "Arrow " + code.substring(5) || code.endsWith("Lock") && code.replace("Lock", " Lock") || code.endsWith("Left") && "Left " + code.replace("Left", "") || code.endsWith("Right") && "Right " + code.replace("Right", "") || code;
   }
 }
 
@@ -5140,46 +5354,6 @@ class LocalDb {
         });
       });
     });
-  }
-}
-
-// src/modules/mkb/key-helper.ts
-class KeyHelper {
-  static #NON_PRINTABLE_KEYS = {
-    Backquote: "`",
-    [MouseButtonCode.LEFT_CLICK]: "Left Click",
-    [MouseButtonCode.RIGHT_CLICK]: "Right Click",
-    [MouseButtonCode.MIDDLE_CLICK]: "Middle Click",
-    [WheelCode.SCROLL_UP]: "Scroll Up",
-    [WheelCode.SCROLL_DOWN]: "Scroll Down",
-    [WheelCode.SCROLL_LEFT]: "Scroll Left",
-    [WheelCode.SCROLL_RIGHT]: "Scroll Right"
-  };
-  static getKeyFromEvent(e) {
-    let code;
-    let name;
-    if (e instanceof KeyboardEvent) {
-      code = e.code;
-    } else if (e instanceof WheelEvent) {
-      if (e.deltaY < 0) {
-        code = WheelCode.SCROLL_UP;
-      } else if (e.deltaY > 0) {
-        code = WheelCode.SCROLL_DOWN;
-      } else if (e.deltaX < 0) {
-        code = WheelCode.SCROLL_LEFT;
-      } else {
-        code = WheelCode.SCROLL_RIGHT;
-      }
-    } else if (e instanceof MouseEvent) {
-      code = "Mouse" + e.button;
-    }
-    if (code) {
-      name = KeyHelper.codeToKeyName(code);
-    }
-    return code ? { code, name } : null;
-  }
-  static codeToKeyName(code) {
-    return KeyHelper.#NON_PRINTABLE_KEYS[code] || code.startsWith("Key") && code.substring(3) || code.startsWith("Digit") && code.substring(5) || code.startsWith("Numpad") && "Numpad " + code.substring(6) || code.startsWith("Arrow") && "Arrow " + code.substring(5) || code.endsWith("Lock") && code.replace("Lock", " Lock") || code.endsWith("Left") && "Left " + code.replace("Left", "") || code.endsWith("Right") && "Right " + code.replace("Right", "") || code;
   }
 }
 
@@ -5759,6 +5933,1981 @@ class MkbHandler {
         MkbHandler.INSTANCE.init();
       }
     });
+  }
+}
+
+// src/modules/mkb/mkb-preset.ts
+class MkbPreset {
+  static MOUSE_SETTINGS = {
+    [MkbPresetKey.MOUSE_MAP_TO]: {
+      label: t("map-mouse-to"),
+      type: SettingElementType.OPTIONS,
+      default: MouseMapTo[MouseMapTo.RS],
+      options: {
+        [MouseMapTo[MouseMapTo.RS]]: t("right-stick"),
+        [MouseMapTo[MouseMapTo.LS]]: t("left-stick"),
+        [MouseMapTo[MouseMapTo.OFF]]: t("off")
+      }
+    },
+    [MkbPresetKey.MOUSE_SENSITIVITY_Y]: {
+      label: t("horizontal-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 50,
+      min: 1,
+      max: 200,
+      params: {
+        suffix: "%",
+        exactTicks: 20
+      }
+    },
+    [MkbPresetKey.MOUSE_SENSITIVITY_X]: {
+      label: t("vertical-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 50,
+      min: 1,
+      max: 200,
+      params: {
+        suffix: "%",
+        exactTicks: 20
+      }
+    },
+    [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: {
+      label: t("deadzone-counterweight"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 20,
+      min: 1,
+      max: 100,
+      params: {
+        suffix: "%",
+        exactTicks: 10
+      }
+    },
+    [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: {
+      label: t("stick-decay-strength"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 100,
+      min: 10,
+      max: 100,
+      params: {
+        suffix: "%",
+        exactTicks: 10
+      }
+    },
+    [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: {
+      label: t("stick-decay-minimum"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 10,
+      min: 1,
+      max: 10,
+      params: {
+        suffix: "%"
+      }
+    }
+  };
+  static DEFAULT_PRESET = {
+    mapping: {
+      [GamepadKey.UP]: ["ArrowUp"],
+      [GamepadKey.DOWN]: ["ArrowDown"],
+      [GamepadKey.LEFT]: ["ArrowLeft"],
+      [GamepadKey.RIGHT]: ["ArrowRight"],
+      [GamepadKey.LS_UP]: ["KeyW"],
+      [GamepadKey.LS_DOWN]: ["KeyS"],
+      [GamepadKey.LS_LEFT]: ["KeyA"],
+      [GamepadKey.LS_RIGHT]: ["KeyD"],
+      [GamepadKey.RS_UP]: ["KeyI"],
+      [GamepadKey.RS_DOWN]: ["KeyK"],
+      [GamepadKey.RS_LEFT]: ["KeyJ"],
+      [GamepadKey.RS_RIGHT]: ["KeyL"],
+      [GamepadKey.A]: ["Space", "KeyE"],
+      [GamepadKey.X]: ["KeyR"],
+      [GamepadKey.B]: ["ControlLeft", "Backspace"],
+      [GamepadKey.Y]: ["KeyV"],
+      [GamepadKey.START]: ["Enter"],
+      [GamepadKey.SELECT]: ["Tab"],
+      [GamepadKey.LB]: ["KeyC", "KeyG"],
+      [GamepadKey.RB]: ["KeyQ"],
+      [GamepadKey.HOME]: ["Backquote"],
+      [GamepadKey.RT]: [MouseButtonCode.LEFT_CLICK],
+      [GamepadKey.LT]: [MouseButtonCode.RIGHT_CLICK],
+      [GamepadKey.L3]: ["ShiftLeft"],
+      [GamepadKey.R3]: ["KeyF"]
+    },
+    mouse: {
+      [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
+      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
+      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
+      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
+      [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 18,
+      [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 6
+    }
+  };
+  static convert(preset) {
+    const obj = {
+      mapping: {},
+      mouse: Object.assign({}, preset.mouse)
+    };
+    for (const buttonIndex in preset.mapping) {
+      for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
+        obj.mapping[keyName] = parseInt(buttonIndex);
+      }
+    }
+    const mouse = obj.mouse;
+    mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+    mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+    mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+    mouse[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
+    mouse[MkbPresetKey.MOUSE_STICK_DECAY_MIN] *= 0.01;
+    const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
+    if (typeof mouseMapTo !== "undefined") {
+      mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
+    } else {
+      mouse[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
+    }
+    console.log(obj);
+    return obj;
+  }
+}
+
+// src/modules/mkb/mkb-remapper.ts
+class MkbRemapper {
+  #BUTTON_ORDERS = [
+    GamepadKey.UP,
+    GamepadKey.DOWN,
+    GamepadKey.LEFT,
+    GamepadKey.RIGHT,
+    GamepadKey.A,
+    GamepadKey.B,
+    GamepadKey.X,
+    GamepadKey.Y,
+    GamepadKey.LB,
+    GamepadKey.RB,
+    GamepadKey.LT,
+    GamepadKey.RT,
+    GamepadKey.SELECT,
+    GamepadKey.START,
+    GamepadKey.HOME,
+    GamepadKey.L3,
+    GamepadKey.LS_UP,
+    GamepadKey.LS_DOWN,
+    GamepadKey.LS_LEFT,
+    GamepadKey.LS_RIGHT,
+    GamepadKey.R3,
+    GamepadKey.RS_UP,
+    GamepadKey.RS_DOWN,
+    GamepadKey.RS_LEFT,
+    GamepadKey.RS_RIGHT
+  ];
+  static #instance;
+  static get INSTANCE() {
+    if (!MkbRemapper.#instance) {
+      MkbRemapper.#instance = new MkbRemapper;
+    }
+    return MkbRemapper.#instance;
+  }
+  #STATE = {
+    currentPresetId: 0,
+    presets: {},
+    editingPresetData: null,
+    isEditing: false
+  };
+  #$ = {
+    wrapper: null,
+    presetsSelect: null,
+    activateButton: null,
+    currentBindingKey: null,
+    allKeyElements: [],
+    allMouseElements: {}
+  };
+  bindingDialog;
+  constructor() {
+    this.#STATE.currentPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
+    this.bindingDialog = new Dialog({
+      className: "bx-binding-dialog",
+      content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
+      hideCloseButton: true
+    });
+  }
+  #clearEventListeners = () => {
+    window.removeEventListener("keydown", this.#onKeyDown);
+    window.removeEventListener("mousedown", this.#onMouseDown);
+    window.removeEventListener("wheel", this.#onWheel);
+  };
+  #bindKey = ($elm, key) => {
+    const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
+    const keySlot = parseInt($elm.getAttribute("data-key-slot"));
+    if ($elm.getAttribute("data-key-code") === key.code) {
+      return;
+    }
+    for (const $otherElm of this.#$.allKeyElements) {
+      if ($otherElm.getAttribute("data-key-code") === key.code) {
+        this.#unbindKey($otherElm);
+      }
+    }
+    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code;
+    $elm.textContent = key.name;
+    $elm.setAttribute("data-key-code", key.code);
+  };
+  #unbindKey = ($elm) => {
+    const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
+    const keySlot = parseInt($elm.getAttribute("data-key-slot"));
+    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null;
+    $elm.textContent = "";
+    $elm.removeAttribute("data-key-code");
+  };
+  #onWheel = (e) => {
+    e.preventDefault();
+    this.#clearEventListeners();
+    this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
+    window.setTimeout(() => this.bindingDialog.hide(), 200);
+  };
+  #onMouseDown = (e) => {
+    e.preventDefault();
+    this.#clearEventListeners();
+    this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
+    window.setTimeout(() => this.bindingDialog.hide(), 200);
+  };
+  #onKeyDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.#clearEventListeners();
+    if (e.code !== "Escape") {
+      this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
+    }
+    window.setTimeout(() => this.bindingDialog.hide(), 200);
+  };
+  #onBindingKey = (e) => {
+    if (!this.#STATE.isEditing || e.button !== 0) {
+      return;
+    }
+    console.log(e);
+    this.#$.currentBindingKey = e.target;
+    window.addEventListener("keydown", this.#onKeyDown);
+    window.addEventListener("mousedown", this.#onMouseDown);
+    window.addEventListener("wheel", this.#onWheel);
+    this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
+  };
+  #onContextMenu = (e) => {
+    e.preventDefault();
+    if (!this.#STATE.isEditing) {
+      return;
+    }
+    this.#unbindKey(e.target);
+  };
+  #getPreset = (presetId) => {
+    return this.#STATE.presets[presetId];
+  };
+  #getCurrentPreset = () => {
+    return this.#getPreset(this.#STATE.currentPresetId);
+  };
+  #switchPreset = (presetId) => {
+    this.#STATE.currentPresetId = presetId;
+    const presetData = this.#getCurrentPreset().data;
+    for (const $elm of this.#$.allKeyElements) {
+      const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
+      const keySlot = parseInt($elm.getAttribute("data-key-slot"));
+      const buttonKeys = presetData.mapping[buttonIndex];
+      if (buttonKeys && buttonKeys[keySlot]) {
+        $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
+        $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
+      } else {
+        $elm.textContent = "";
+        $elm.removeAttribute("data-key-code");
+      }
+    }
+    let key;
+    for (key in this.#$.allMouseElements) {
+      const $elm = this.#$.allMouseElements[key];
+      let value = presetData.mouse[key];
+      if (typeof value === "undefined") {
+        value = MkbPreset.MOUSE_SETTINGS[key].default;
+      }
+      "setValue" in $elm && $elm.setValue(value);
+    }
+    const activated = getPref(PrefKey.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
+    this.#$.activateButton.disabled = activated;
+    this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
+  };
+  #refresh() {
+    while (this.#$.presetsSelect.firstChild) {
+      this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
+    }
+    LocalDb.INSTANCE.getPresets().then((presets) => {
+      this.#STATE.presets = presets;
+      const $fragment = document.createDocumentFragment();
+      let defaultPresetId;
+      if (this.#STATE.currentPresetId === 0) {
+        this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
+        defaultPresetId = this.#STATE.currentPresetId;
+        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId);
+        MkbHandler.INSTANCE.refreshPresetData();
+      } else {
+        defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
+      }
+      for (let id2 in presets) {
+        const preset = presets[id2];
+        let name = preset.name;
+        if (id2 === defaultPresetId) {
+          name = `🎮 ` + name;
+        }
+        const $options = CE("option", { value: id2 }, name);
+        $options.selected = parseInt(id2) === this.#STATE.currentPresetId;
+        $fragment.appendChild($options);
+      }
+      this.#$.presetsSelect.appendChild($fragment);
+      const activated = defaultPresetId === this.#STATE.currentPresetId;
+      this.#$.activateButton.disabled = activated;
+      this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
+      !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
+    });
+  }
+  #toggleEditing = (force) => {
+    this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing;
+    this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing);
+    if (this.#STATE.isEditing) {
+      this.#STATE.editingPresetData = structuredClone(this.#getCurrentPreset().data);
+    } else {
+      this.#STATE.editingPresetData = null;
+    }
+    const childElements = this.#$.wrapper.querySelectorAll("select, button, input");
+    for (const $elm of Array.from(childElements)) {
+      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons")) {
+        continue;
+      }
+      let disable = !this.#STATE.isEditing;
+      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools")) {
+        disable = !disable;
+      }
+      $elm.disabled = disable;
+    }
+  };
+  render() {
+    this.#$.wrapper = CE("div", { class: "bx-mkb-settings" });
+    this.#$.presetsSelect = CE("select", {});
+    this.#$.presetsSelect.addEventListener("change", (e) => {
+      this.#switchPreset(parseInt(e.target.value));
+    });
+    const promptNewName = (value) => {
+      let newName = "";
+      while (!newName) {
+        newName = prompt(t("prompt-preset-name"), value);
+        if (newName === null) {
+          return false;
+        }
+        newName = newName.trim();
+      }
+      return newName ? newName : false;
+    };
+    const $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
+      title: t("rename"),
+      icon: Icon.CURSOR_TEXT,
+      onClick: (e) => {
+        const preset = this.#getCurrentPreset();
+        let newName = promptNewName(preset.name);
+        if (!newName || newName === preset.name) {
+          return;
+        }
+        preset.name = newName;
+        LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
+      }
+    }), createButton({
+      icon: Icon.NEW,
+      title: t("new"),
+      onClick: (e) => {
+        let newName = promptNewName("");
+        if (!newName) {
+          return;
+        }
+        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
+          this.#STATE.currentPresetId = id2;
+          this.#refresh();
+        });
+      }
+    }), createButton({
+      icon: Icon.COPY,
+      title: t("copy"),
+      onClick: (e) => {
+        const preset = this.#getCurrentPreset();
+        let newName = promptNewName(`${preset.name} (2)`);
+        if (!newName) {
+          return;
+        }
+        LocalDb.INSTANCE.newPreset(newName, preset.data).then((id2) => {
+          this.#STATE.currentPresetId = id2;
+          this.#refresh();
+        });
+      }
+    }), createButton({
+      icon: Icon.TRASH,
+      style: ButtonStyle.DANGER,
+      title: t("delete"),
+      onClick: (e) => {
+        if (!confirm(t("confirm-delete-preset"))) {
+          return;
+        }
+        LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id2) => {
+          this.#STATE.currentPresetId = 0;
+          this.#refresh();
+        });
+      }
+    }));
+    this.#$.wrapper.appendChild($header);
+    const $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind")));
+    const keysPerButton = 2;
+    for (const buttonIndex of this.#BUTTON_ORDERS) {
+      const [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex];
+      let $elm;
+      const $fragment = document.createDocumentFragment();
+      for (let i = 0;i < keysPerButton; i++) {
+        $elm = CE("button", {
+          "data-prompt": buttonPrompt,
+          "data-button-index": buttonIndex,
+          "data-key-slot": i
+        }, " ");
+        $elm.addEventListener("mouseup", this.#onBindingKey);
+        $elm.addEventListener("contextmenu", this.#onContextMenu);
+        $fragment.appendChild($elm);
+        this.#$.allKeyElements.push($elm);
+      }
+      const $keyRow = CE("div", { class: "bx-mkb-key-row" }, CE("label", { title: buttonName }, buttonPrompt), $fragment);
+      $rows.appendChild($keyRow);
+    }
+    $rows.appendChild(CE("i", { class: "bx-mkb-note" }, t("mkb-adjust-ingame-settings")));
+    const $mouseSettings = document.createDocumentFragment();
+    for (const key in MkbPreset.MOUSE_SETTINGS) {
+      const setting = MkbPreset.MOUSE_SETTINGS[key];
+      const value = setting.default;
+      let $elm;
+      const onChange = (e, value2) => {
+        this.#STATE.editingPresetData.mouse[key] = value2;
+      };
+      const $row = CE("div", { class: "bx-quick-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
+      $mouseSettings.appendChild($row);
+      this.#$.allMouseElements[key] = $elm;
+    }
+    $rows.appendChild($mouseSettings);
+    this.#$.wrapper.appendChild($rows);
+    const $actionButtons = CE("div", { class: "bx-mkb-action-buttons" }, CE("div", {}, createButton({
+      label: t("edit"),
+      onClick: (e) => this.#toggleEditing(true)
+    }), this.#$.activateButton = createButton({
+      label: t("activate"),
+      style: ButtonStyle.PRIMARY,
+      onClick: (e) => {
+        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
+        MkbHandler.INSTANCE.refreshPresetData();
+        this.#refresh();
+      }
+    })), CE("div", {}, createButton({
+      label: t("cancel"),
+      style: ButtonStyle.GHOST,
+      onClick: (e) => {
+        this.#switchPreset(this.#STATE.currentPresetId);
+        this.#toggleEditing(false);
+      }
+    }), createButton({
+      label: t("save"),
+      style: ButtonStyle.PRIMARY,
+      onClick: (e) => {
+        const updatedPreset = structuredClone(this.#getCurrentPreset());
+        updatedPreset.data = this.#STATE.editingPresetData;
+        LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
+          if (id2 === getPref(PrefKey.MKB_DEFAULT_PRESET_ID)) {
+            MkbHandler.INSTANCE.refreshPresetData();
+          }
+          this.#toggleEditing(false);
+          this.#refresh();
+        });
+      }
+    })));
+    this.#$.wrapper.appendChild($actionButtons);
+    this.#toggleEditing(false);
+    this.#refresh();
+    return this.#$.wrapper;
+  }
+}
+
+// src/modules/screenshot.ts
+function takeScreenshot(callback) {
+  const currentStream = STATES.currentStream;
+  const $video = currentStream.$video;
+  const $canvas = currentStream.$screenshotCanvas;
+  if (!$video || !$canvas) {
+    return;
+  }
+  const $canvasContext = $canvas.getContext("2d");
+  $canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
+  if (AppInterface) {
+    const data = $canvas.toDataURL("image/png").split(";base64,")[1];
+    AppInterface.saveScreenshot(currentStream.titleId, data);
+    $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+    callback && callback();
+    return;
+  }
+  $canvas && $canvas.toBlob((blob) => {
+    const now = +new Date;
+    const $anchor = CE("a", {
+      download: `${currentStream.titleId}-${now}.png`,
+      href: URL.createObjectURL(blob)
+    });
+    $anchor.click();
+    URL.revokeObjectURL($anchor.href);
+    $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+    callback && callback();
+  }, "image/png");
+}
+function setupScreenshotButton() {
+  const currentStream = STATES.currentStream;
+  currentStream.$screenshotCanvas = CE("canvas", { class: "bx-screenshot-canvas" });
+  document.documentElement.appendChild(currentStream.$screenshotCanvas);
+  const delay = 2000;
+  const $btn = CE("div", { class: "bx-screenshot-button", "data-showing": false });
+  let timeout;
+  const detectDbClick = (e) => {
+    if (!currentStream.$video) {
+      timeout = null;
+      $btn.style.display = "none";
+      return;
+    }
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+      $btn.setAttribute("data-capturing", "true");
+      takeScreenshot(() => {
+        $btn.setAttribute("data-showing", "false");
+        window.setTimeout(() => {
+          if (!timeout) {
+            $btn.setAttribute("data-capturing", "false");
+          }
+        }, 100);
+      });
+      return;
+    }
+    const isShowing = $btn.getAttribute("data-showing") === "true";
+    if (!isShowing) {
+      $btn.setAttribute("data-showing", "true");
+      $btn.setAttribute("data-capturing", "false");
+      timeout && clearTimeout(timeout);
+      timeout = window.setTimeout(() => {
+        timeout = null;
+        $btn.setAttribute("data-showing", "false");
+        $btn.setAttribute("data-capturing", "false");
+      }, delay);
+    }
+  };
+  $btn.addEventListener("mousedown", detectDbClick);
+  document.documentElement.appendChild($btn);
+}
+
+// src/modules/touch-controller.ts
+class TouchController {
+  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
+    data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
+    origin: "better-xcloud"
+  });
+  static #$bar;
+  static #$style;
+  static #enable = false;
+  static #showing = false;
+  static #dataChannel;
+  static #customLayouts = {};
+  static #baseCustomLayouts = {};
+  static #currentLayoutId;
+  static enable() {
+    TouchController.#enable = true;
+  }
+  static disable() {
+    TouchController.#enable = false;
+  }
+  static isEnabled() {
+    return TouchController.#enable;
+  }
+  static #showDefault() {
+    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
+    TouchController.#showing = true;
+  }
+  static #show() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
+    TouchController.#showing = true;
+  }
+  static #hide() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
+    TouchController.#showing = false;
+  }
+  static #toggleVisibility() {
+    if (!TouchController.#dataChannel) {
+      return;
+    }
+    TouchController.#showing ? TouchController.#hide() : TouchController.#show();
+  }
+  static #toggleBar(value) {
+    TouchController.#$bar && TouchController.#$bar.setAttribute("data-showing", value.toString());
+  }
+  static reset() {
+    TouchController.#enable = false;
+    TouchController.#showing = false;
+    TouchController.#dataChannel = null;
+    TouchController.#$bar && TouchController.#$bar.removeAttribute("data-showing");
+    TouchController.#$style && (TouchController.#$style.textContent = "");
+  }
+  static #dispatchMessage(msg) {
+    TouchController.#dataChannel && window.setTimeout(() => {
+      TouchController.#dataChannel.dispatchEvent(msg);
+    }, 10);
+  }
+  static #dispatchLayouts(data) {
+    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+      data
+    });
+  }
+  static async getCustomLayouts(xboxTitleId, retries = 1) {
+    if (xboxTitleId in TouchController.#customLayouts) {
+      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
+      return;
+    }
+    retries = retries || 1;
+    if (retries > 2) {
+      TouchController.#customLayouts[xboxTitleId] = null;
+      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+      return;
+    }
+    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
+    const url = `${baseUrl}/${xboxTitleId}.json`;
+    try {
+      const resp = await NATIVE_FETCH(url);
+      const json = await resp.json();
+      const layouts = {};
+      json.layouts.forEach(async (layoutName) => {
+        let baseLayouts = {};
+        if (layoutName in TouchController.#baseCustomLayouts) {
+          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
+        } else {
+          try {
+            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
+            const resp2 = await NATIVE_FETCH(layoutUrl);
+            const json2 = await resp2.json();
+            baseLayouts = json2.layouts;
+            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
+          } catch (e) {
+          }
+        }
+        Object.assign(layouts, baseLayouts);
+      });
+      json.layouts = layouts;
+      TouchController.#customLayouts[xboxTitleId] = json;
+      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+    } catch (e) {
+      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
+    }
+  }
+  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
+    if (!window.BX_EXPOSED.touch_layout_manager) {
+      return;
+    }
+    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
+    TouchController.#currentLayoutId = layoutId;
+    const layoutData = TouchController.#customLayouts[xboxTitleId];
+    if (!xboxTitleId || !layoutId || !layoutData) {
+      TouchController.#enable && TouchController.#showDefault();
+      return;
+    }
+    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
+    if (!layout) {
+      return;
+    }
+    layoutChanged && Toast.show(t("touch-control-layout"), layout.name);
+    window.setTimeout(() => {
+      window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+        type: "showLayout",
+        scope: xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "System",
+          layoutFile: {
+            content: layout.content
+          }
+        }
+      });
+    }, delay);
+  }
+  static setup() {
+    window.BX_EXPOSED.test_touch_control = (content) => {
+      const { touch_layout_manager } = window.BX_EXPOSED;
+      touch_layout_manager && touch_layout_manager.changeLayoutForScope({
+        type: "showLayout",
+        scope: "" + STATES.currentStream?.xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "Custom",
+          layoutFile: {
+            content
+          }
+        }
+      });
+    };
+    const $fragment = document.createDocumentFragment();
+    const $style = document.createElement("style");
+    $fragment.appendChild($style);
+    const $bar = CE("div", { id: "bx-touch-controller-bar" });
+    $fragment.appendChild($bar);
+    document.documentElement.appendChild($fragment);
+    let clickTimeout;
+    $bar.addEventListener("mousedown", (e) => {
+      clickTimeout && clearTimeout(clickTimeout);
+      if (clickTimeout) {
+        clickTimeout = null;
+        TouchController.#toggleVisibility();
+        return;
+      }
+      clickTimeout = window.setTimeout(() => {
+        clickTimeout = null;
+      }, 400);
+    });
+    TouchController.#$bar = $bar;
+    TouchController.#$style = $style;
+    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
+    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+      const dataChannel = e.dataChannel;
+      if (!dataChannel || dataChannel.label !== "message") {
+        return;
+      }
+      let filter = "";
+      if (TouchController.#enable) {
+        if (PREF_STYLE_STANDARD === "white") {
+          filter = "grayscale(1) brightness(2)";
+        } else if (PREF_STYLE_STANDARD === "muted") {
+          filter = "sepia(0.5)";
+        }
+      } else if (PREF_STYLE_CUSTOM === "muted") {
+        filter = "sepia(0.5)";
+      }
+      if (filter) {
+        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+      } else {
+        $style.textContent = "";
+      }
+      TouchController.#dataChannel = dataChannel;
+      dataChannel.addEventListener("open", () => {
+        window.setTimeout(TouchController.#show, 1000);
+      });
+      let focused = false;
+      dataChannel.addEventListener("message", (msg) => {
+        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
+          return;
+        }
+        if (msg.data.includes("touchcontrols/showtitledefault")) {
+          if (TouchController.#enable) {
+            if (focused) {
+              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
+            } else {
+              TouchController.#showDefault();
+            }
+          }
+          return;
+        }
+        try {
+          if (msg.data.includes("/titleinfo")) {
+            const json = JSON.parse(JSON.parse(msg.data).content);
+            TouchController.#toggleBar(json.focused);
+            focused = json.focused;
+            if (!json.focused) {
+              TouchController.#show();
+            }
+            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
+          }
+        } catch (e2) {
+          console.log(e2);
+        }
+      });
+    });
+  }
+}
+
+// src/modules/vibration-manager.ts
+var VIBRATION_DATA_MAP = {
+  gamepadIndex: 8,
+  leftMotorPercent: 8,
+  rightMotorPercent: 8,
+  leftTriggerMotorPercent: 8,
+  rightTriggerMotorPercent: 8,
+  durationMs: 16
+};
+
+class VibrationManager {
+  static #playDeviceVibration(data) {
+    if (AppInterface) {
+      AppInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
+      return;
+    }
+    const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY;
+    if (intensity === 0 || intensity === 100) {
+      window.navigator.vibrate(intensity ? data.durationMs : 0);
+      return;
+    }
+    const pulseDuration = 200;
+    const onDuration = Math.floor(pulseDuration * intensity / 100);
+    const offDuration = pulseDuration - onDuration;
+    const repeats = Math.ceil(data.durationMs / pulseDuration);
+    const pulses = Array(repeats).fill([onDuration, offDuration]).flat();
+    window.navigator.vibrate(pulses);
+  }
+  static supportControllerVibration() {
+    return Gamepad.prototype.hasOwnProperty("vibrationActuator");
+  }
+  static supportDeviceVibration() {
+    return !!window.navigator.vibrate;
+  }
+  static updateGlobalVars() {
+    window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : false;
+    window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100;
+    if (!VibrationManager.supportDeviceVibration()) {
+      window.BX_ENABLE_DEVICE_VIBRATION = false;
+      return;
+    }
+    window.navigator.vibrate(0);
+    const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
+    let enabled;
+    if (value === "on") {
+      enabled = true;
+    } else if (value === "auto") {
+      enabled = true;
+      const gamepads = window.navigator.getGamepads();
+      for (const gamepad of gamepads) {
+        if (gamepad) {
+          enabled = false;
+          break;
+        }
+      }
+    } else {
+      enabled = false;
+    }
+    window.BX_ENABLE_DEVICE_VIBRATION = enabled;
+  }
+  static #onMessage(e) {
+    if (!window.BX_ENABLE_DEVICE_VIBRATION) {
+      return;
+    }
+    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer)) {
+      return;
+    }
+    const dataView = new DataView(e.data);
+    let offset = 0;
+    let messageType;
+    if (dataView.byteLength === 13) {
+      messageType = dataView.getUint16(offset, true);
+      offset += Uint16Array.BYTES_PER_ELEMENT;
+    } else {
+      messageType = dataView.getUint8(offset);
+      offset += Uint8Array.BYTES_PER_ELEMENT;
+    }
+    if (!(messageType & 128)) {
+      return;
+    }
+    const vibrationType = dataView.getUint8(offset);
+    offset += Uint8Array.BYTES_PER_ELEMENT;
+    if (vibrationType !== 0) {
+      return;
+    }
+    const data = {};
+    let key;
+    for (key in VIBRATION_DATA_MAP) {
+      if (VIBRATION_DATA_MAP[key] === 16) {
+        data[key] = dataView.getUint16(offset, true);
+        offset += Uint16Array.BYTES_PER_ELEMENT;
+      } else {
+        data[key] = dataView.getUint8(offset);
+        offset += Uint8Array.BYTES_PER_ELEMENT;
+      }
+    }
+    VibrationManager.#playDeviceVibration(data);
+  }
+  static initialSetup() {
+    window.addEventListener("gamepadconnected", VibrationManager.updateGlobalVars);
+    window.addEventListener("gamepaddisconnected", VibrationManager.updateGlobalVars);
+    VibrationManager.updateGlobalVars();
+    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+      const dataChannel = e.dataChannel;
+      if (!dataChannel || dataChannel.label !== "input") {
+        return;
+      }
+      dataChannel.addEventListener("message", VibrationManager.#onMessage);
+    });
+  }
+}
+
+// src/modules/ui/ui.ts
+function localRedirect(path) {
+  const url = window.location.href.substring(0, 31) + path;
+  const $pageContent = document.getElementById("PageContent");
+  if (!$pageContent) {
+    return;
+  }
+  const $anchor = CE("a", {
+    href: url,
+    class: "bx-hidden bx-offscreen"
+  }, "");
+  $anchor.addEventListener("click", (e) => {
+    window.setTimeout(() => {
+      $pageContent.removeChild($anchor);
+    }, 1000);
+  });
+  $pageContent.appendChild($anchor);
+  $anchor.click();
+}
+var getVideoPlayerFilterStyle = function() {
+  const filters = [];
+  const clarity = getPref(PrefKey.VIDEO_CLARITY);
+  if (clarity != 0) {
+    const level = (7 - (clarity - 1) * 0.5).toFixed(1);
+    const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
+    document.getElementById("bx-filter-clarity-matrix").setAttributeNS(null, "kernelMatrix", matrix);
+    filters.push(`url(#bx-filter-clarity)`);
+  }
+  const saturation = getPref(PrefKey.VIDEO_SATURATION);
+  if (saturation != 100) {
+    filters.push(`saturate(${saturation}%)`);
+  }
+  const contrast = getPref(PrefKey.VIDEO_CONTRAST);
+  if (contrast != 100) {
+    filters.push(`contrast(${contrast}%)`);
+  }
+  const brightness = getPref(PrefKey.VIDEO_BRIGHTNESS);
+  if (brightness != 100) {
+    filters.push(`brightness(${brightness}%)`);
+  }
+  return filters.join(" ");
+};
+var setupQuickSettingsBar = function() {
+  const isSafari = UserAgent.isSafari();
+  const SETTINGS_UI = [
+    getPref(PrefKey.MKB_ENABLED) && {
+      icon: Icon.MOUSE,
+      group: "mkb",
+      items: [
+        {
+          group: "mkb",
+          label: t("mouse-and-keyboard"),
+          help_url: "https://better-xcloud.github.io/mouse-and-keyboard/",
+          content: MkbRemapper.INSTANCE.render()
+        }
+      ]
+    },
+    {
+      icon: Icon.DISPLAY,
+      group: "stream",
+      items: [
+        {
+          group: "audio",
+          label: t("audio"),
+          help_url: "https://better-xcloud.github.io/ingame-features/#audio",
+          items: [
+            {
+              pref: PrefKey.AUDIO_VOLUME,
+              label: t("volume"),
+              onChange: (e, value) => {
+                STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
+              },
+              params: {
+                disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)
+              }
+            }
+          ]
+        },
+        {
+          group: "video",
+          label: t("video"),
+          help_url: "https://better-xcloud.github.io/ingame-features/#video",
+          items: [
+            {
+              pref: PrefKey.VIDEO_RATIO,
+              label: t("ratio"),
+              onChange: updateVideoPlayerCss
+            },
+            {
+              pref: PrefKey.VIDEO_CLARITY,
+              label: t("clarity"),
+              onChange: updateVideoPlayerCss,
+              unsupported: isSafari
+            },
+            {
+              pref: PrefKey.VIDEO_SATURATION,
+              label: t("saturation"),
+              onChange: updateVideoPlayerCss
+            },
+            {
+              pref: PrefKey.VIDEO_CONTRAST,
+              label: t("contrast"),
+              onChange: updateVideoPlayerCss
+            },
+            {
+              pref: PrefKey.VIDEO_BRIGHTNESS,
+              label: t("brightness"),
+              onChange: updateVideoPlayerCss
+            }
+          ]
+        }
+      ]
+    },
+    {
+      icon: Icon.CONTROLLER,
+      group: "controller",
+      items: [
+        {
+          group: "controller",
+          label: t("controller"),
+          help_url: "https://better-xcloud.github.io/ingame-features/#controller",
+          items: [
+            {
+              pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
+              label: t("controller-vibration"),
+              unsupported: !VibrationManager.supportControllerVibration(),
+              onChange: VibrationManager.updateGlobalVars
+            },
+            {
+              pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
+              label: t("device-vibration"),
+              unsupported: !VibrationManager.supportDeviceVibration(),
+              onChange: VibrationManager.updateGlobalVars
+            },
+            (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
+              pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
+              label: t("vibration-intensity"),
+              unsupported: !VibrationManager.supportDeviceVibration(),
+              onChange: VibrationManager.updateGlobalVars
+            }
+          ]
+        },
+        STATES.hasTouchSupport && {
+          group: "touch-controller",
+          label: t("touch-controller"),
+          items: [
+            {
+              label: t("layout"),
+              content: CE("select", { disabled: true }, CE("option", {}, t("default"))),
+              onMounted: ($elm) => {
+                $elm.addEventListener("change", (e) => {
+                  TouchController.loadCustomLayout(STATES.currentStream?.xboxTitleId, $elm.value, 1000);
+                });
+                window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, (e) => {
+                  const data = e.data;
+                  if (STATES.currentStream?.xboxTitleId && $elm.xboxTitleId === STATES.currentStream?.xboxTitleId) {
+                    $elm.dispatchEvent(new Event("change"));
+                    return;
+                  }
+                  $elm.xboxTitleId = STATES.currentStream?.xboxTitleId;
+                  while ($elm.firstChild) {
+                    $elm.removeChild($elm.firstChild);
+                  }
+                  $elm.disabled = !data;
+                  if (!data) {
+                    $elm.appendChild(CE("option", { value: "" }, t("default")));
+                    $elm.value = "";
+                    $elm.dispatchEvent(new Event("change"));
+                    return;
+                  }
+                  const $fragment = document.createDocumentFragment();
+                  for (const key in data.layouts) {
+                    const layout = data.layouts[key];
+                    const $option = CE("option", { value: key }, layout.name);
+                    $fragment.appendChild($option);
+                  }
+                  $elm.appendChild($fragment);
+                  $elm.value = data.default_layout;
+                  $elm.dispatchEvent(new Event("change"));
+                });
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      icon: Icon.STREAM_STATS,
+      group: "stats",
+      items: [
+        {
+          group: "stats",
+          label: t("menu-stream-stats"),
+          help_url: "https://better-xcloud.github.io/stream-stats/",
+          items: [
+            {
+              pref: PrefKey.STATS_SHOW_WHEN_PLAYING,
+              label: t("show-stats-on-startup")
+            },
+            {
+              pref: PrefKey.STATS_QUICK_GLANCE,
+              label: "👀 " + t("enable-quick-glance-mode"),
+              onChange: (e) => {
+                e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+              }
+            },
+            {
+              pref: PrefKey.STATS_ITEMS,
+              label: t("stats"),
+              onChange: StreamStats.refreshStyles
+            },
+            {
+              pref: PrefKey.STATS_POSITION,
+              label: t("position"),
+              onChange: StreamStats.refreshStyles
+            },
+            {
+              pref: PrefKey.STATS_TEXT_SIZE,
+              label: t("text-size"),
+              onChange: StreamStats.refreshStyles
+            },
+            {
+              pref: PrefKey.STATS_OPACITY,
+              label: t("opacity"),
+              onChange: StreamStats.refreshStyles
+            },
+            {
+              pref: PrefKey.STATS_TRANSPARENT,
+              label: t("transparent-background"),
+              onChange: StreamStats.refreshStyles
+            },
+            {
+              pref: PrefKey.STATS_CONDITIONAL_FORMATTING,
+              label: t("conditional-formatting"),
+              onChange: StreamStats.refreshStyles
+            }
+          ]
+        }
+      ]
+    }
+  ];
+  let $tabs;
+  let $settings;
+  const $wrapper = CE("div", { class: "bx-quick-settings-bar bx-gone" }, $tabs = CE("div", { class: "bx-quick-settings-tabs" }), $settings = CE("div", { class: "bx-quick-settings-tab-contents" }));
+  for (const settingTab of SETTINGS_UI) {
+    if (!settingTab) {
+      continue;
+    }
+    const $svg = CE("svg", {
+      xmlns: "http://www.w3.org/2000/svg",
+      "data-group": settingTab.group,
+      fill: "none",
+      stroke: "#fff",
+      "fill-rule": "evenodd",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+      "stroke-width": 2
+    });
+    $svg.innerHTML = settingTab.icon;
+    $svg.setAttribute("viewBox", "0 0 32 32");
+    $svg.addEventListener("click", (e) => {
+      for (const $child of Array.from($settings.children)) {
+        if ($child.getAttribute("data-group") === settingTab.group) {
+          $child.classList.remove("bx-gone");
+        } else {
+          $child.classList.add("bx-gone");
+        }
+      }
+      for (const $child of Array.from($tabs.children)) {
+        $child.classList.remove("bx-active");
+      }
+      $svg.classList.add("bx-active");
+    });
+    $tabs.appendChild($svg);
+    const $group = CE("div", { "data-group": settingTab.group, class: "bx-gone" });
+    for (const settingGroup of settingTab.items) {
+      if (!settingGroup) {
+        continue;
+      }
+      $group.appendChild(CE("h2", {}, CE("span", {}, settingGroup.label), settingGroup.help_url && createButton({
+        icon: Icon.QUESTION,
+        style: ButtonStyle.GHOST,
+        url: settingGroup.help_url,
+        title: t("help")
+      })));
+      if (settingGroup.note) {
+        if (typeof settingGroup.note === "string") {
+          settingGroup.note = document.createTextNode(settingGroup.note);
+        }
+        $group.appendChild(settingGroup.note);
+      }
+      if (settingGroup.content) {
+        $group.appendChild(settingGroup.content);
+        continue;
+      }
+      if (!settingGroup.items) {
+        settingGroup.items = [];
+      }
+      for (const setting of settingGroup.items) {
+        if (!setting) {
+          continue;
+        }
+        const pref = setting.pref;
+        let $control;
+        if (setting.content) {
+          $control = setting.content;
+        } else if (!setting.unsupported) {
+          $control = toPrefElement(pref, setting.onChange, setting.params);
+        }
+        const $content = CE("div", { class: "bx-quick-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, setting.label, setting.unsupported && CE("div", { class: "bx-quick-settings-bar-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
+        $group.appendChild($content);
+        setting.onMounted && setting.onMounted($control);
+      }
+    }
+    $settings.appendChild($group);
+  }
+  $tabs.firstElementChild.dispatchEvent(new Event("click"));
+  document.documentElement.appendChild($wrapper);
+};
+function updateVideoPlayerCss() {
+  let $elm = document.getElementById("bx-video-css");
+  if (!$elm) {
+    const $fragment = document.createDocumentFragment();
+    $elm = CE("style", { id: "bx-video-css" });
+    $fragment.appendChild($elm);
+    const $svg = CE("svg", {
+      id: "bx-video-filters",
+      xmlns: "http://www.w3.org/2000/svg",
+      class: "bx-gone"
+    }, CE("defs", { xmlns: "http://www.w3.org/2000/svg" }, CE("filter", { id: "bx-filter-clarity", xmlns: "http://www.w3.org/2000/svg" }, CE("feConvolveMatrix", { id: "bx-filter-clarity-matrix", order: "3", xmlns: "http://www.w3.org/2000/svg" }))));
+    $fragment.appendChild($svg);
+    document.documentElement.appendChild($fragment);
+  }
+  let filters = getVideoPlayerFilterStyle();
+  let videoCss = "";
+  if (filters) {
+    videoCss += `filter: ${filters} !important;`;
+  }
+  if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
+    STATES.currentStream.$screenshotCanvas.getContext("2d").filter = filters;
+  }
+  const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
+  if (PREF_RATIO && PREF_RATIO !== "16:9") {
+    if (PREF_RATIO.includes(":")) {
+      videoCss += `aspect-ratio: ${PREF_RATIO.replace(":", "/")}; object-fit: unset !important;`;
+      const tmp = PREF_RATIO.split(":");
+      const ratio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
+      const maxRatio = window.innerWidth / window.innerHeight;
+      if (ratio < maxRatio) {
+        videoCss += "width: fit-content !important;";
+      } else {
+        videoCss += "height: fit-content !important;";
+      }
+    } else {
+      videoCss += `object-fit: ${PREF_RATIO} !important;`;
+    }
+  }
+  let css = "";
+  if (videoCss) {
+    css = `
+div[data-testid="media-container"] {
+    display: flex;
+}
+
+#game-stream video {
+    margin: 0 auto;
+    align-self: center;
+    background: #000;
+    ${videoCss}
+}
+`;
+  }
+  $elm.textContent = css;
+}
+function setupBxUi() {
+  if (!document.querySelector(".bx-quick-settings-bar")) {
+    window.addEventListener("resize", updateVideoPlayerCss);
+    setupQuickSettingsBar();
+    setupScreenshotButton();
+    StreamStats.render();
+  }
+  updateVideoPlayerCss();
+}
+
+// src/modules/remote-play.ts
+var RemotePlayConsoleState;
+(function(RemotePlayConsoleState2) {
+  RemotePlayConsoleState2["ON"] = "On";
+  RemotePlayConsoleState2["OFF"] = "Off";
+  RemotePlayConsoleState2["STANDBY"] = "ConnectedStandby";
+  RemotePlayConsoleState2["UNKNOWN"] = "Unknown";
+})(RemotePlayConsoleState || (RemotePlayConsoleState = {}));
+
+class RemotePlay {
+  static XCLOUD_TOKEN;
+  static XHOME_TOKEN;
+  static #CONSOLES;
+  static #REGIONS;
+  static #STATE_LABELS = {
+    [RemotePlayConsoleState.ON]: t("powered-on"),
+    [RemotePlayConsoleState.OFF]: t("powered-off"),
+    [RemotePlayConsoleState.STANDBY]: t("standby"),
+    [RemotePlayConsoleState.UNKNOWN]: t("unknown")
+  };
+  static BASE_DEVICE_INFO = {
+    appInfo: {
+      env: {
+        clientAppId: window.location.host,
+        clientAppType: "browser",
+        clientAppVersion: "21.1.98",
+        clientSdkVersion: "8.5.3",
+        httpEnvironment: "prod",
+        sdkInstallId: ""
+      }
+    },
+    dev: {
+      displayInfo: {
+        dimensions: {
+          widthInPixels: 1920,
+          heightInPixels: 1080
+        },
+        pixelDensity: {
+          dpiX: 1,
+          dpiY: 1
+        }
+      },
+      hw: {
+        make: "Microsoft",
+        model: "unknown",
+        sdktype: "web"
+      },
+      os: {
+        name: "windows",
+        ver: "22631.2715",
+        platform: "desktop"
+      },
+      browser: {
+        browserName: "chrome",
+        browserVersion: "119.0"
+      }
+    }
+  };
+  static #$content;
+  static #initialize() {
+    if (RemotePlay.#$content) {
+      return;
+    }
+    RemotePlay.#$content = CE("div", {}, t("getting-consoles-list"));
+    RemotePlay.#getXhomeToken(() => {
+      RemotePlay.#getConsolesList(() => {
+        console.log(RemotePlay.#CONSOLES);
+        RemotePlay.#renderConsoles();
+        BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+      });
+    });
+  }
+  static #renderConsoles() {
+    const $fragment = CE("div", { class: "bx-remote-play-container" });
+    if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
+      $fragment.appendChild(CE("span", {}, t("no-consoles-found")));
+      RemotePlay.#$content = CE("div", {}, $fragment);
+      return;
+    }
+    const $settingNote = CE("p", {});
+    const resolutions = [1080, 720];
+    const currentResolution = getPref(PrefKey.REMOTE_PLAY_RESOLUTION);
+    const $resolutionGroup = CE("div", {});
+    for (const resolution of resolutions) {
+      const value = `${resolution}p`;
+      const id2 = `bx_radio_xhome_resolution_${resolution}`;
+      const $radio = CE("input", {
+        type: "radio",
+        value,
+        id: id2,
+        name: "bx_radio_xhome_resolution"
+      }, value);
+      $radio.addEventListener("change", (e) => {
+        const value2 = e.target.value;
+        $settingNote.textContent = value2 === "1080p" ? "✅ " + t("can-stream-xbox-360-games") : "❌ " + t("cant-stream-xbox-360-games");
+        setPref(PrefKey.REMOTE_PLAY_RESOLUTION, value2);
+      });
+      const $label = CE("label", {
+        for: id2,
+        class: "bx-remote-play-resolution"
+      }, $radio, `${resolution}p`);
+      $resolutionGroup.appendChild($label);
+      if (currentResolution === value) {
+        $radio.checked = true;
+        $radio.dispatchEvent(new Event("change"));
+      }
+    }
+    const $qualitySettings = CE("div", { class: "bx-remote-play-settings" }, CE("div", {}, CE("label", {}, t("target-resolution"), $settingNote), $resolutionGroup));
+    $fragment.appendChild($qualitySettings);
+    for (let con of RemotePlay.#CONSOLES) {
+      const $child = CE("div", { class: "bx-remote-play-device-wrapper" }, CE("div", { class: "bx-remote-play-device-info" }, CE("div", {}, CE("span", { class: "bx-remote-play-device-name" }, con.deviceName), CE("span", { class: "bx-remote-play-console-type" }, con.consoleType.replace("Xbox", ""))), CE("div", { class: "bx-remote-play-power-state" }, RemotePlay.#STATE_LABELS[con.powerState])), createButton({
+        classes: ["bx-remote-play-connect-button"],
+        label: t("console-connect"),
+        style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE,
+        onClick: (e) => {
+          RemotePlay.play(con.serverId);
+        }
+      }));
+      $fragment.appendChild($child);
+    }
+    $fragment.appendChild(createButton({
+      icon: Icon.QUESTION,
+      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+      url: "https://better-xcloud.github.io/remote-play",
+      label: t("help")
+    }));
+    RemotePlay.#$content = CE("div", {}, $fragment);
+  }
+  static #getXhomeToken(callback) {
+    if (RemotePlay.XHOME_TOKEN) {
+      callback();
+      return;
+    }
+    let GSSV_TOKEN;
+    try {
+      GSSV_TOKEN = JSON.parse(localStorage.getItem("xboxcom_xbl_user_info")).tokens["http://gssv.xboxlive.com/"].token;
+    } catch (e) {
+      for (let i = 0;i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key.startsWith("Auth.User.")) {
+          continue;
+        }
+        const json = JSON.parse(localStorage.getItem(key));
+        for (const token of json.tokens) {
+          if (!token.relyingParty.includes("gssv.xboxlive.com")) {
+            continue;
+          }
+          GSSV_TOKEN = token.tokenData.token;
+          break;
+        }
+        break;
+      }
+    }
+    const request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
+      method: "POST",
+      body: JSON.stringify({
+        offeringId: "xhome",
+        token: GSSV_TOKEN
+      }),
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    });
+    fetch(request).then((resp) => resp.json()).then((json) => {
+      RemotePlay.#REGIONS = json.offeringSettings.regions;
+      RemotePlay.XHOME_TOKEN = json.gsToken;
+      callback();
+    });
+  }
+  static async#getConsolesList(callback) {
+    if (RemotePlay.#CONSOLES) {
+      callback();
+      return;
+    }
+    const options = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${RemotePlay.XHOME_TOKEN}`
+      }
+    };
+    for (const region2 of RemotePlay.#REGIONS) {
+      try {
+        const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options);
+        const resp = await fetch(request);
+        const json = await resp.json();
+        RemotePlay.#CONSOLES = json.results;
+        STATES.remotePlay.server = region2.baseUri;
+        callback();
+      } catch (e) {
+      }
+      if (RemotePlay.#CONSOLES) {
+        break;
+      }
+    }
+    if (!STATES.remotePlay.server) {
+      RemotePlay.#CONSOLES = [];
+    }
+  }
+  static play(serverId, resolution) {
+    if (resolution) {
+      setPref(PrefKey.REMOTE_PLAY_RESOLUTION, resolution);
+    }
+    STATES.remotePlay.config = {
+      serverId
+    };
+    window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
+    localRedirect("/launch/fortnite/BT5P2X999VH2#remote-play");
+    RemotePlay.detachPopup();
+  }
+  static preload() {
+    RemotePlay.#initialize();
+  }
+  static detachPopup() {
+    const $popup = document.querySelector(".bx-remote-play-popup");
+    $popup && $popup.remove();
+  }
+  static togglePopup(force = null) {
+    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED) || !RemotePlay.isReady()) {
+      Toast.show(t("getting-consoles-list"));
+      return;
+    }
+    RemotePlay.#initialize();
+    if (AppInterface && AppInterface.showRemotePlayDialog) {
+      AppInterface.showRemotePlayDialog(JSON.stringify(RemotePlay.#CONSOLES));
+      document.activeElement.blur();
+      return;
+    }
+    if (document.querySelector(".bx-remote-play-popup")) {
+      if (force === false) {
+        RemotePlay.#$content.classList.add("bx-gone");
+      } else {
+        RemotePlay.#$content.classList.toggle("bx-gone");
+      }
+      return;
+    }
+    const $header = document.querySelector("#gamepass-root header");
+    const group2 = $header.firstElementChild.getAttribute("data-group");
+    RemotePlay.#$content.setAttribute("data-group", group2);
+    RemotePlay.#$content.classList.add("bx-remote-play-popup");
+    RemotePlay.#$content.classList.remove("bx-gone");
+    $header.insertAdjacentElement("afterend", RemotePlay.#$content);
+  }
+  static detect() {
+    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
+      return;
+    }
+    STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play");
+    if (STATES.remotePlay?.isPlaying) {
+      window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
+      window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
+    } else {
+      window.BX_REMOTE_PLAY_CONFIG = null;
+    }
+  }
+  static isReady() {
+    return RemotePlay.#CONSOLES !== null && RemotePlay.#CONSOLES.length > 0;
+  }
+}
+
+// src/utils/network.ts
+var clearApplicationInsightsBuffers = function() {
+  window.sessionStorage.removeItem("AI_buffer");
+  window.sessionStorage.removeItem("AI_sentBuffer");
+};
+var clearDbLogs = function(dbName, table) {
+  const request = window.indexedDB.open(dbName);
+  request.onsuccess = (e) => {
+    const db = e.target.result;
+    try {
+      const objectStore = db.transaction(table, "readwrite").objectStore(table);
+      const objectStoreRequest = objectStore.clear();
+      objectStoreRequest.onsuccess = function() {
+        console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
+      };
+    } catch (ex) {
+    }
+  };
+};
+var clearAllLogs = function() {
+  clearApplicationInsightsBuffers();
+  clearDbLogs("StreamClientLogHandler", "logs");
+  clearDbLogs("XCloudAppLogs", "logs");
+};
+var updateIceCandidates = function(candidates, options) {
+  const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/);
+  const lst = [];
+  for (let item2 of candidates) {
+    if (item2.candidate == "a=end-of-candidates") {
+      continue;
+    }
+    const groups = pattern.exec(item2.candidate).groups;
+    lst.push(groups);
+  }
+  if (options.preferIpv6Server) {
+    lst.sort((a, b) => {
+      const firstIp = a.ip;
+      const secondIp = b.ip;
+      return !firstIp.includes(":") && secondIp.includes(":") ? 1 : -1;
+    });
+  }
+  const newCandidates = [];
+  let foundation = 1;
+  const newCandidate = (candidate) => {
+    return {
+      candidate,
+      messageType: "iceCandidate",
+      sdpMLineIndex: "0",
+      sdpMid: "0"
+    };
+  };
+  lst.forEach((item2) => {
+    item2.foundation = foundation;
+    item2.priority = foundation == 1 ? 1e4 : 1;
+    newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`));
+    ++foundation;
+  });
+  if (options.consoleAddrs) {
+    for (const ip in options.consoleAddrs) {
+      const port = options.consoleAddrs[ip];
+      newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
+    }
+  }
+  newCandidates.push(newCandidate("a=end-of-candidates"));
+  console.log(newCandidates);
+  return newCandidates;
+};
+async function patchIceCandidates(request, consoleAddrs) {
+  const response = await NATIVE_FETCH(request);
+  const text = await response.clone().text();
+  if (!text.length) {
+    return response;
+  }
+  const options = {
+    preferIpv6Server: getPref(PrefKey.PREFER_IPV6_SERVER),
+    consoleAddrs
+  };
+  const obj = JSON.parse(text);
+  let exchangeResponse = JSON.parse(obj.exchangeResponse);
+  exchangeResponse = updateIceCandidates(exchangeResponse, options);
+  obj.exchangeResponse = JSON.stringify(exchangeResponse);
+  response.json = () => Promise.resolve(obj);
+  response.text = () => Promise.resolve(JSON.stringify(obj));
+  return response;
+}
+function interceptHttpRequests() {
+  let BLOCKED_URLS = [];
+  if (getPref(PrefKey.BLOCK_TRACKING)) {
+    clearAllLogs();
+    BLOCKED_URLS = BLOCKED_URLS.concat([
+      "https://arc.msn.com",
+      "https://browser.events.data.microsoft.com",
+      "https://dc.services.visualstudio.com"
+    ]);
+  }
+  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
+    BLOCKED_URLS = BLOCKED_URLS.concat([
+      "https://peoplehub.xboxlive.com/users/me/people/social",
+      "https://peoplehub.xboxlive.com/users/me/people/recommendations",
+      "https://notificationinbox.xboxlive.com"
+    ]);
+  }
+  const xhrPrototype = XMLHttpRequest.prototype;
+  const nativeXhrOpen = xhrPrototype.open;
+  const nativeXhrSend = xhrPrototype.send;
+  xhrPrototype.open = function(method, url) {
+    this._url = url;
+    return nativeXhrOpen.apply(this, arguments);
+  };
+  xhrPrototype.send = function(...arg) {
+    for (const blocked of BLOCKED_URLS) {
+      if (this._url.startsWith(blocked)) {
+        if (blocked === "https://dc.services.visualstudio.com") {
+          window.setTimeout(clearAllLogs, 1000);
+        }
+        return false;
+      }
+    }
+    return nativeXhrSend.apply(this, arguments);
+  };
+  window.fetch = async (request, init) => {
+    let url = typeof request === "string" ? request : request.url;
+    for (let blocked of BLOCKED_URLS) {
+      if (!url.startsWith(blocked)) {
+        continue;
+      }
+      return new Response('{"acc":1,"webResult":{}}', {
+        status: 200,
+        statusText: "200 OK"
+      });
+    }
+    if (url.endsWith("/play")) {
+      BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+    }
+    if (url.endsWith("/configuration")) {
+      BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+    }
+    let requestType;
+    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs")) {
+      requestType = RequestType.XHOME;
+    } else {
+      requestType = RequestType.XCLOUD;
+    }
+    if (requestType === RequestType.XHOME) {
+      return XhomeInterceptor.handle(request);
+    }
+    return XcloudInterceptor.handle(request, init);
+  };
+}
+var NATIVE_FETCH = window.fetch;
+var RequestType;
+(function(RequestType2) {
+  RequestType2["XCLOUD"] = "xcloud";
+  RequestType2["XHOME"] = "xhome";
+})(RequestType || (RequestType = {}));
+
+class XhomeInterceptor {
+  static #consoleAddrs = {};
+  static async#handleLogin(request) {
+    try {
+      const clone = request.clone();
+      const obj = await clone.json();
+      obj.offeringId = "xhome";
+      request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
+        method: "POST",
+        body: JSON.stringify(obj),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    } catch (e) {
+      alert(e);
+      console.log(e);
+    }
+    return NATIVE_FETCH(request);
+  }
+  static async#handleConfiguration(request) {
+    const response = await NATIVE_FETCH(request);
+    const obj = await response.clone().json();
+    console.log(obj);
+    const serverDetails = obj.serverDetails;
+    if (serverDetails.ipV4Address) {
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
+    }
+    if (serverDetails.ipV6Address) {
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+    }
+    response.json = () => Promise.resolve(obj);
+    response.text = () => Promise.resolve(JSON.stringify(obj));
+    return response;
+  }
+  static async#handleInputConfigs(request, opts) {
+    const response = await NATIVE_FETCH(request);
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "all") {
+      return response;
+    }
+    const obj = await response.clone().json();
+    const xboxTitleId = JSON.parse(opts.body).titleIds[0];
+    STATES.currentStream.xboxTitleId = xboxTitleId;
+    const inputConfigs = obj[0];
+    let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
+    if (!hasTouchSupport) {
+      const supportedInputTypes = inputConfigs.supportedInputTypes;
+      hasTouchSupport = supportedInputTypes.includes("NativeTouch");
+    }
+    if (hasTouchSupport) {
+      TouchController.disable();
+      BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+        data: null
+      });
+    } else {
+      TouchController.enable();
+      TouchController.getCustomLayouts(xboxTitleId);
+    }
+    response.json = () => Promise.resolve(obj);
+    response.text = () => Promise.resolve(JSON.stringify(obj));
+    return response;
+  }
+  static async#handleTitles(request) {
+    const clone = request.clone();
+    const headers = {};
+    for (const pair of clone.headers.entries()) {
+      headers[pair[0]] = pair[1];
+    }
+    headers.authorization = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
+    const index = request.url.indexOf(".xboxlive.com");
+    request = new Request("https://wus.core.gssv-play-prod" + request.url.substring(index), {
+      method: clone.method,
+      body: await clone.text(),
+      headers
+    });
+    return NATIVE_FETCH(request);
+  }
+  static async handle(request) {
+    TouchController.disable();
+    const clone = request.clone();
+    const headers = {};
+    for (const pair of clone.headers.entries()) {
+      headers[pair[0]] = pair[1];
+    }
+    headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+    const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
+    if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === "720p") {
+      deviceInfo.dev.os.name = "android";
+    }
+    headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
+    const opts = {
+      method: clone.method,
+      headers
+    };
+    if (clone.method === "POST") {
+      opts.body = await clone.text();
+    }
+    let newUrl = request.url;
+    if (!newUrl.includes("/servers/home")) {
+      const index = request.url.indexOf(".xboxlive.com");
+      newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
+    }
+    request = new Request(newUrl, opts);
+    let url = typeof request === "string" ? request : request.url;
+    if (url.includes("/configuration")) {
+      return XhomeInterceptor.#handleConfiguration(request);
+    } else if (url.includes("inputconfigs")) {
+      return XhomeInterceptor.#handleInputConfigs(request, opts);
+    } else if (url.includes("/login/user")) {
+      return XhomeInterceptor.#handleLogin(request);
+    } else if (url.endsWith("/titles")) {
+      return XhomeInterceptor.#handleTitles(request);
+    } else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") {
+      return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
+    }
+    return await NATIVE_FETCH(request);
+  }
+}
+
+class XcloudInterceptor {
+  static async#handleLogin(request, init) {
+    const response = await NATIVE_FETCH(request, init);
+    const obj = await response.clone().json();
+    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+    RemotePlay.XCLOUD_TOKEN = obj.gsToken;
+    const serverEmojis = {
+      AustraliaEast: "🇦🇺",
+      AustraliaSouthEast: "🇦🇺",
+      BrazilSouth: "🇧🇷",
+      EastUS: "🇺🇸",
+      EastUS2: "🇺🇸",
+      JapanEast: "🇯🇵",
+      KoreaCentral: "🇰🇷",
+      MexicoCentral: "🇲🇽",
+      NorthCentralUs: "🇺🇸",
+      SouthCentralUS: "🇺🇸",
+      UKSouth: "🇬🇧",
+      WestEurope: "🇪🇺",
+      WestUS: "🇺🇸",
+      WestUS2: "🇺🇸"
+    };
+    const serverRegex = /\/\/(\w+)\./;
+    for (let region3 of obj.offeringSettings.regions) {
+      const regionName = region3.name;
+      let shortName = region3.name;
+      let match = serverRegex.exec(region3.baseUri);
+      if (match) {
+        shortName = match[1];
+        if (serverEmojis[regionName]) {
+          shortName = serverEmojis[regionName] + " " + shortName;
+        }
+      }
+      region3.shortName = shortName.toUpperCase();
+      STATES.serverRegions[region3.name] = Object.assign({}, region3);
+    }
+    BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
+    const preferredRegion = getPreferredServerRegion();
+    if (preferredRegion in STATES.serverRegions) {
+      const tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
+      tmp.isDefault = true;
+      obj.offeringSettings.regions = [tmp];
+    }
+    response.json = () => Promise.resolve(obj);
+    return response;
+  }
+  static async#handlePlay(request, init) {
+    const PREF_STREAM_TARGET_RESOLUTION = getPref(PrefKey.STREAM_TARGET_RESOLUTION);
+    const PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE);
+    const url = typeof request === "string" ? request : request.url;
+    const parsedUrl = new URL(url);
+    StreamBadges.region = parsedUrl.host.split(".", 1)[0];
+    for (let regionName in STATES.serverRegions) {
+      const region3 = STATES.serverRegions[regionName];
+      if (parsedUrl.origin == region3.baseUri) {
+        StreamBadges.region = regionName;
+        break;
+      }
+    }
+    const clone = request.clone();
+    const body = await clone.json();
+    if (PREF_STREAM_TARGET_RESOLUTION !== "auto") {
+      const osName = PREF_STREAM_TARGET_RESOLUTION === "720p" ? "android" : "windows";
+      body.settings.osName = osName;
+    }
+    if (PREF_STREAM_PREFERRED_LOCALE !== "default") {
+      body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
+    }
+    const newRequest = new Request(request, {
+      body: JSON.stringify(body)
+    });
+    return NATIVE_FETCH(newRequest);
+  }
+  static async#handleWaitTime(request, init) {
+    const response = await NATIVE_FETCH(request, init);
+    if (getPref(PrefKey.UI_LOADING_SCREEN_WAIT_TIME)) {
+      const json = await response.clone().json();
+      if (json.estimatedAllocationTimeInSeconds > 0) {
+        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
+      }
+    }
+    return response;
+  }
+  static async#handleConfiguration(request, init) {
+    if (request.method !== "GET") {
+      return NATIVE_FETCH(request, init);
+    }
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
+      TouchController.disable();
+      const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
+      if (match) {
+        const titleId = match[1];
+        !TitlesInfo.hasTouchSupport(titleId) && TouchController.enable();
+      }
+    }
+    const response = await NATIVE_FETCH(request, init);
+    const text = await response.clone().text();
+    if (!text.length) {
+      return response;
+    }
+    const obj = JSON.parse(text);
+    let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
+    overrides.inputConfiguration = overrides.inputConfiguration || {};
+    overrides.inputConfiguration.enableVibration = true;
+    if (TouchController.isEnabled()) {
+      overrides.inputConfiguration.enableTouchInput = true;
+      overrides.inputConfiguration.maxTouchPoints = 10;
+    }
+    if (getPref(PrefKey.AUDIO_MIC_ON_PLAYING)) {
+      overrides.audioConfiguration = overrides.audioConfiguration || {};
+      overrides.audioConfiguration.enableMicrophone = true;
+    }
+    obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
+    response.json = () => Promise.resolve(obj);
+    response.text = () => Promise.resolve(JSON.stringify(obj));
+    return response;
+  }
+  static async#handleCatalog(request, init) {
+    const response = await NATIVE_FETCH(request, init);
+    const json = await response.clone().json();
+    for (let productId in json.Products) {
+      TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
+    }
+    return response;
+  }
+  static async#handleTitles(request, init) {
+    const response = await NATIVE_FETCH(request, init);
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
+      const json = await response.clone().json();
+      for (let game of json.results) {
+        TitlesInfo.saveFromTitleInfo(game);
+      }
+    }
+    return response;
+  }
+  static async handle(request, init) {
+    let url = typeof request === "string" ? request : request.url;
+    if (url.endsWith("/v2/login/user")) {
+      return XcloudInterceptor.#handleLogin(request, init);
+    } else if (url.endsWith("/sessions/cloud/play")) {
+      return XcloudInterceptor.#handlePlay(request, init);
+    } else if (url.includes("xboxlive.com") && url.includes("/waittime/")) {
+      return XcloudInterceptor.#handleWaitTime(request, init);
+    } else if (url.endsWith("/configuration")) {
+      return XcloudInterceptor.#handleConfiguration(request, init);
+    } else if (url.startsWith("https://catalog.gamepass.com") && url.includes("/products")) {
+      return XcloudInterceptor.#handleCatalog(request, init);
+    } else if (url.includes("/v2/titles") || url.includes("/mru")) {
+      return XcloudInterceptor.#handleTitles(request, init);
+    } else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") {
+      return patchIceCandidates(request);
+    }
+    return NATIVE_FETCH(request, init);
   }
 }
 
@@ -6967,1458 +9116,6 @@ body::-webkit-scrollbar {
   document.documentElement.appendChild($style);
 }
 
-// src/modules/dialog.ts
-class Dialog {
-  $dialog;
-  $title;
-  $content;
-  $overlay;
-  onClose;
-  constructor(options) {
-    const {
-      title,
-      className,
-      content,
-      hideCloseButton,
-      onClose,
-      helpUrl
-    } = options;
-    this.$overlay = document.querySelector(".bx-dialog-overlay");
-    if (!this.$overlay) {
-      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" });
-      this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault());
-      document.documentElement.appendChild(this.$overlay);
-    }
-    let $close;
-    this.onClose = onClose;
-    this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
-      icon: Icon.QUESTION,
-      style: ButtonStyle.GHOST,
-      title: t("help"),
-      url: helpUrl
-    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", {}, t("close"))));
-    $close && $close.addEventListener("click", (e) => {
-      this.hide(e);
-    });
-    !title && this.$title.classList.add("bx-gone");
-    !content && this.$content.classList.add("bx-gone");
-    this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault());
-    document.documentElement.appendChild(this.$dialog);
-  }
-  show(newOptions) {
-    document.activeElement && document.activeElement.blur();
-    if (newOptions && newOptions.title) {
-      this.$title.querySelector("b").textContent = newOptions.title;
-      this.$title.classList.remove("bx-gone");
-    }
-    this.$dialog.classList.remove("bx-gone");
-    this.$overlay.classList.remove("bx-gone");
-    document.body.classList.add("bx-no-scroll");
-  }
-  hide(e) {
-    this.$dialog.classList.add("bx-gone");
-    this.$overlay.classList.add("bx-gone");
-    document.body.classList.remove("bx-no-scroll");
-    this.onClose && this.onClose(e);
-  }
-  toggle() {
-    this.$dialog.classList.toggle("bx-gone");
-    this.$overlay.classList.toggle("bx-gone");
-  }
-}
-
-// src/modules/mkb/mkb-remapper.ts
-class MkbRemapper {
-  #BUTTON_ORDERS = [
-    GamepadKey.UP,
-    GamepadKey.DOWN,
-    GamepadKey.LEFT,
-    GamepadKey.RIGHT,
-    GamepadKey.A,
-    GamepadKey.B,
-    GamepadKey.X,
-    GamepadKey.Y,
-    GamepadKey.LB,
-    GamepadKey.RB,
-    GamepadKey.LT,
-    GamepadKey.RT,
-    GamepadKey.SELECT,
-    GamepadKey.START,
-    GamepadKey.HOME,
-    GamepadKey.L3,
-    GamepadKey.LS_UP,
-    GamepadKey.LS_DOWN,
-    GamepadKey.LS_LEFT,
-    GamepadKey.LS_RIGHT,
-    GamepadKey.R3,
-    GamepadKey.RS_UP,
-    GamepadKey.RS_DOWN,
-    GamepadKey.RS_LEFT,
-    GamepadKey.RS_RIGHT
-  ];
-  static #instance;
-  static get INSTANCE() {
-    if (!MkbRemapper.#instance) {
-      MkbRemapper.#instance = new MkbRemapper;
-    }
-    return MkbRemapper.#instance;
-  }
-  #STATE = {
-    currentPresetId: 0,
-    presets: {},
-    editingPresetData: null,
-    isEditing: false
-  };
-  #$ = {
-    wrapper: null,
-    presetsSelect: null,
-    activateButton: null,
-    currentBindingKey: null,
-    allKeyElements: [],
-    allMouseElements: {}
-  };
-  bindingDialog;
-  constructor() {
-    this.#STATE.currentPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
-    this.bindingDialog = new Dialog({
-      className: "bx-binding-dialog",
-      content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
-      hideCloseButton: true
-    });
-  }
-  #clearEventListeners = () => {
-    window.removeEventListener("keydown", this.#onKeyDown);
-    window.removeEventListener("mousedown", this.#onMouseDown);
-    window.removeEventListener("wheel", this.#onWheel);
-  };
-  #bindKey = ($elm, key) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
-    const keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    if ($elm.getAttribute("data-key-code") === key.code) {
-      return;
-    }
-    for (const $otherElm of this.#$.allKeyElements) {
-      if ($otherElm.getAttribute("data-key-code") === key.code) {
-        this.#unbindKey($otherElm);
-      }
-    }
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code;
-    $elm.textContent = key.name;
-    $elm.setAttribute("data-key-code", key.code);
-  };
-  #unbindKey = ($elm) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
-    const keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null;
-    $elm.textContent = "";
-    $elm.removeAttribute("data-key-code");
-  };
-  #onWheel = (e) => {
-    e.preventDefault();
-    this.#clearEventListeners();
-    this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onMouseDown = (e) => {
-    e.preventDefault();
-    this.#clearEventListeners();
-    this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onKeyDown = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    this.#clearEventListeners();
-    if (e.code !== "Escape") {
-      this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    }
-    window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onBindingKey = (e) => {
-    if (!this.#STATE.isEditing || e.button !== 0) {
-      return;
-    }
-    console.log(e);
-    this.#$.currentBindingKey = e.target;
-    window.addEventListener("keydown", this.#onKeyDown);
-    window.addEventListener("mousedown", this.#onMouseDown);
-    window.addEventListener("wheel", this.#onWheel);
-    this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
-  };
-  #onContextMenu = (e) => {
-    e.preventDefault();
-    if (!this.#STATE.isEditing) {
-      return;
-    }
-    this.#unbindKey(e.target);
-  };
-  #getPreset = (presetId) => {
-    return this.#STATE.presets[presetId];
-  };
-  #getCurrentPreset = () => {
-    return this.#getPreset(this.#STATE.currentPresetId);
-  };
-  #switchPreset = (presetId) => {
-    this.#STATE.currentPresetId = presetId;
-    const presetData = this.#getCurrentPreset().data;
-    for (const $elm of this.#$.allKeyElements) {
-      const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
-      const keySlot = parseInt($elm.getAttribute("data-key-slot"));
-      const buttonKeys = presetData.mapping[buttonIndex];
-      if (buttonKeys && buttonKeys[keySlot]) {
-        $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
-        $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
-      } else {
-        $elm.textContent = "";
-        $elm.removeAttribute("data-key-code");
-      }
-    }
-    let key;
-    for (key in this.#$.allMouseElements) {
-      const $elm = this.#$.allMouseElements[key];
-      let value = presetData.mouse[key];
-      if (typeof value === "undefined") {
-        value = MkbPreset.MOUSE_SETTINGS[key].default;
-      }
-      "setValue" in $elm && $elm.setValue(value);
-    }
-    const activated = getPref(PrefKey.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
-    this.#$.activateButton.disabled = activated;
-    this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
-  };
-  #refresh() {
-    while (this.#$.presetsSelect.firstChild) {
-      this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
-    }
-    LocalDb.INSTANCE.getPresets().then((presets) => {
-      this.#STATE.presets = presets;
-      const $fragment = document.createDocumentFragment();
-      let defaultPresetId;
-      if (this.#STATE.currentPresetId === 0) {
-        this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
-        defaultPresetId = this.#STATE.currentPresetId;
-        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId);
-        MkbHandler.INSTANCE.refreshPresetData();
-      } else {
-        defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
-      }
-      for (let id2 in presets) {
-        const preset = presets[id2];
-        let name = preset.name;
-        if (id2 === defaultPresetId) {
-          name = `🎮 ` + name;
-        }
-        const $options = CE("option", { value: id2 }, name);
-        $options.selected = parseInt(id2) === this.#STATE.currentPresetId;
-        $fragment.appendChild($options);
-      }
-      this.#$.presetsSelect.appendChild($fragment);
-      const activated = defaultPresetId === this.#STATE.currentPresetId;
-      this.#$.activateButton.disabled = activated;
-      this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
-      !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
-    });
-  }
-  #toggleEditing = (force) => {
-    this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing;
-    this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing);
-    if (this.#STATE.isEditing) {
-      this.#STATE.editingPresetData = structuredClone(this.#getCurrentPreset().data);
-    } else {
-      this.#STATE.editingPresetData = null;
-    }
-    const childElements = this.#$.wrapper.querySelectorAll("select, button, input");
-    for (const $elm of Array.from(childElements)) {
-      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons")) {
-        continue;
-      }
-      let disable = !this.#STATE.isEditing;
-      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools")) {
-        disable = !disable;
-      }
-      $elm.disabled = disable;
-    }
-  };
-  render() {
-    this.#$.wrapper = CE("div", { class: "bx-mkb-settings" });
-    this.#$.presetsSelect = CE("select", {});
-    this.#$.presetsSelect.addEventListener("change", (e) => {
-      this.#switchPreset(parseInt(e.target.value));
-    });
-    const promptNewName = (value) => {
-      let newName = "";
-      while (!newName) {
-        newName = prompt(t("prompt-preset-name"), value);
-        if (newName === null) {
-          return false;
-        }
-        newName = newName.trim();
-      }
-      return newName ? newName : false;
-    };
-    const $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
-      title: t("rename"),
-      icon: Icon.CURSOR_TEXT,
-      onClick: (e) => {
-        const preset = this.#getCurrentPreset();
-        let newName = promptNewName(preset.name);
-        if (!newName || newName === preset.name) {
-          return;
-        }
-        preset.name = newName;
-        LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
-      }
-    }), createButton({
-      icon: Icon.NEW,
-      title: t("new"),
-      onClick: (e) => {
-        let newName = promptNewName("");
-        if (!newName) {
-          return;
-        }
-        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
-          this.#STATE.currentPresetId = id2;
-          this.#refresh();
-        });
-      }
-    }), createButton({
-      icon: Icon.COPY,
-      title: t("copy"),
-      onClick: (e) => {
-        const preset = this.#getCurrentPreset();
-        let newName = promptNewName(`${preset.name} (2)`);
-        if (!newName) {
-          return;
-        }
-        LocalDb.INSTANCE.newPreset(newName, preset.data).then((id2) => {
-          this.#STATE.currentPresetId = id2;
-          this.#refresh();
-        });
-      }
-    }), createButton({
-      icon: Icon.TRASH,
-      style: ButtonStyle.DANGER,
-      title: t("delete"),
-      onClick: (e) => {
-        if (!confirm(t("confirm-delete-preset"))) {
-          return;
-        }
-        LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id2) => {
-          this.#STATE.currentPresetId = 0;
-          this.#refresh();
-        });
-      }
-    }));
-    this.#$.wrapper.appendChild($header);
-    const $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind")));
-    const keysPerButton = 2;
-    for (const buttonIndex of this.#BUTTON_ORDERS) {
-      const [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex];
-      let $elm;
-      const $fragment = document.createDocumentFragment();
-      for (let i = 0;i < keysPerButton; i++) {
-        $elm = CE("button", {
-          "data-prompt": buttonPrompt,
-          "data-button-index": buttonIndex,
-          "data-key-slot": i
-        }, " ");
-        $elm.addEventListener("mouseup", this.#onBindingKey);
-        $elm.addEventListener("contextmenu", this.#onContextMenu);
-        $fragment.appendChild($elm);
-        this.#$.allKeyElements.push($elm);
-      }
-      const $keyRow = CE("div", { class: "bx-mkb-key-row" }, CE("label", { title: buttonName }, buttonPrompt), $fragment);
-      $rows.appendChild($keyRow);
-    }
-    $rows.appendChild(CE("i", { class: "bx-mkb-note" }, t("mkb-adjust-ingame-settings")));
-    const $mouseSettings = document.createDocumentFragment();
-    for (const key in MkbPreset.MOUSE_SETTINGS) {
-      const setting = MkbPreset.MOUSE_SETTINGS[key];
-      const value = setting.default;
-      let $elm;
-      const onChange = (e, value2) => {
-        this.#STATE.editingPresetData.mouse[key] = value2;
-      };
-      const $row = CE("div", { class: "bx-quick-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
-      $mouseSettings.appendChild($row);
-      this.#$.allMouseElements[key] = $elm;
-    }
-    $rows.appendChild($mouseSettings);
-    this.#$.wrapper.appendChild($rows);
-    const $actionButtons = CE("div", { class: "bx-mkb-action-buttons" }, CE("div", {}, createButton({
-      label: t("edit"),
-      onClick: (e) => this.#toggleEditing(true)
-    }), this.#$.activateButton = createButton({
-      label: t("activate"),
-      style: ButtonStyle.PRIMARY,
-      onClick: (e) => {
-        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
-        MkbHandler.INSTANCE.refreshPresetData();
-        this.#refresh();
-      }
-    })), CE("div", {}, createButton({
-      label: t("cancel"),
-      style: ButtonStyle.GHOST,
-      onClick: (e) => {
-        this.#switchPreset(this.#STATE.currentPresetId);
-        this.#toggleEditing(false);
-      }
-    }), createButton({
-      label: t("save"),
-      style: ButtonStyle.PRIMARY,
-      onClick: (e) => {
-        const updatedPreset = structuredClone(this.#getCurrentPreset());
-        updatedPreset.data = this.#STATE.editingPresetData;
-        LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
-          if (id2 === getPref(PrefKey.MKB_DEFAULT_PRESET_ID)) {
-            MkbHandler.INSTANCE.refreshPresetData();
-          }
-          this.#toggleEditing(false);
-          this.#refresh();
-        });
-      }
-    })));
-    this.#$.wrapper.appendChild($actionButtons);
-    this.#toggleEditing(false);
-    this.#refresh();
-    return this.#$.wrapper;
-  }
-}
-
-// src/modules/screenshot.ts
-function takeScreenshot(callback) {
-  const currentStream = STATES.currentStream;
-  const $video = currentStream.$video;
-  const $canvas = currentStream.$screenshotCanvas;
-  if (!$video || !$canvas) {
-    return;
-  }
-  const $canvasContext = $canvas.getContext("2d");
-  $canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
-  if (AppInterface) {
-    const data = $canvas.toDataURL("image/png").split(";base64,")[1];
-    AppInterface.saveScreenshot(currentStream.titleId, data);
-    $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-    callback && callback();
-    return;
-  }
-  $canvas && $canvas.toBlob((blob) => {
-    const now = +new Date;
-    const $anchor = CE("a", {
-      download: `${currentStream.titleId}-${now}.png`,
-      href: URL.createObjectURL(blob)
-    });
-    $anchor.click();
-    URL.revokeObjectURL($anchor.href);
-    $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-    callback && callback();
-  }, "image/png");
-}
-function setupScreenshotButton() {
-  const currentStream = STATES.currentStream;
-  currentStream.$screenshotCanvas = CE("canvas", { class: "bx-screenshot-canvas" });
-  document.documentElement.appendChild(currentStream.$screenshotCanvas);
-  const delay = 2000;
-  const $btn = CE("div", { class: "bx-screenshot-button", "data-showing": false });
-  let timeout;
-  const detectDbClick = (e) => {
-    if (!currentStream.$video) {
-      timeout = null;
-      $btn.style.display = "none";
-      return;
-    }
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-      $btn.setAttribute("data-capturing", "true");
-      takeScreenshot(() => {
-        $btn.setAttribute("data-showing", "false");
-        window.setTimeout(() => {
-          if (!timeout) {
-            $btn.setAttribute("data-capturing", "false");
-          }
-        }, 100);
-      });
-      return;
-    }
-    const isShowing = $btn.getAttribute("data-showing") === "true";
-    if (!isShowing) {
-      $btn.setAttribute("data-showing", "true");
-      $btn.setAttribute("data-capturing", "false");
-      timeout && clearTimeout(timeout);
-      timeout = window.setTimeout(() => {
-        timeout = null;
-        $btn.setAttribute("data-showing", "false");
-        $btn.setAttribute("data-capturing", "false");
-      }, delay);
-    }
-  };
-  $btn.addEventListener("mousedown", detectDbClick);
-  document.documentElement.appendChild($btn);
-}
-
-// src/modules/touch-controller.ts
-class TouchController {
-  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
-    data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
-    origin: "better-xcloud"
-  });
-  static #$bar;
-  static #$style;
-  static #enable = false;
-  static #showing = false;
-  static #dataChannel;
-  static #customLayouts = {};
-  static #baseCustomLayouts = {};
-  static #currentLayoutId;
-  static enable() {
-    TouchController.#enable = true;
-  }
-  static disable() {
-    TouchController.#enable = false;
-  }
-  static isEnabled() {
-    return TouchController.#enable;
-  }
-  static #showDefault() {
-    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
-    TouchController.#showing = true;
-  }
-  static #show() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
-    TouchController.#showing = true;
-  }
-  static #hide() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
-    TouchController.#showing = false;
-  }
-  static #toggleVisibility() {
-    if (!TouchController.#dataChannel) {
-      return;
-    }
-    TouchController.#showing ? TouchController.#hide() : TouchController.#show();
-  }
-  static #toggleBar(value) {
-    TouchController.#$bar && TouchController.#$bar.setAttribute("data-showing", value.toString());
-  }
-  static reset() {
-    TouchController.#enable = false;
-    TouchController.#showing = false;
-    TouchController.#dataChannel = null;
-    TouchController.#$bar && TouchController.#$bar.removeAttribute("data-showing");
-    TouchController.#$style && (TouchController.#$style.textContent = "");
-  }
-  static #dispatchMessage(msg) {
-    TouchController.#dataChannel && window.setTimeout(() => {
-      TouchController.#dataChannel.dispatchEvent(msg);
-    }, 10);
-  }
-  static #dispatchLayouts(data) {
-    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-      data
-    });
-  }
-  static async getCustomLayouts(xboxTitleId, retries = 1) {
-    if (xboxTitleId in TouchController.#customLayouts) {
-      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
-      return;
-    }
-    retries = retries || 1;
-    if (retries > 2) {
-      TouchController.#customLayouts[xboxTitleId] = null;
-      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
-      return;
-    }
-    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
-    const url = `${baseUrl}/${xboxTitleId}.json`;
-    try {
-      const resp = await NATIVE_FETCH(url);
-      const json = await resp.json();
-      const layouts = {};
-      json.layouts.forEach(async (layoutName) => {
-        let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts) {
-          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        } else {
-          try {
-            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
-            const resp2 = await NATIVE_FETCH(layoutUrl);
-            const json2 = await resp2.json();
-            baseLayouts = json2.layouts;
-            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
-          } catch (e) {
-          }
-        }
-        Object.assign(layouts, baseLayouts);
-      });
-      json.layouts = layouts;
-      TouchController.#customLayouts[xboxTitleId] = json;
-      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
-    } catch (e) {
-      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
-    }
-  }
-  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
-    if (!window.BX_EXPOSED.touch_layout_manager) {
-      return;
-    }
-    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
-    TouchController.#currentLayoutId = layoutId;
-    const layoutData = TouchController.#customLayouts[xboxTitleId];
-    if (!xboxTitleId || !layoutId || !layoutData) {
-      TouchController.#enable && TouchController.#showDefault();
-      return;
-    }
-    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout) {
-      return;
-    }
-    layoutChanged && Toast.show(t("touch-control-layout"), layout.name);
-    window.setTimeout(() => {
-      window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
-        type: "showLayout",
-        scope: xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "System",
-          layoutFile: {
-            content: layout.content
-          }
-        }
-      });
-    }, delay);
-  }
-  static setup() {
-    window.BX_EXPOSED.test_touch_control = (content) => {
-      const { touch_layout_manager } = window.BX_EXPOSED;
-      touch_layout_manager && touch_layout_manager.changeLayoutForScope({
-        type: "showLayout",
-        scope: "" + STATES.currentStream?.xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "Custom",
-          layoutFile: {
-            content
-          }
-        }
-      });
-    };
-    const $fragment = document.createDocumentFragment();
-    const $style = document.createElement("style");
-    $fragment.appendChild($style);
-    const $bar = CE("div", { id: "bx-touch-controller-bar" });
-    $fragment.appendChild($bar);
-    document.documentElement.appendChild($fragment);
-    let clickTimeout;
-    $bar.addEventListener("mousedown", (e) => {
-      clickTimeout && clearTimeout(clickTimeout);
-      if (clickTimeout) {
-        clickTimeout = null;
-        TouchController.#toggleVisibility();
-        return;
-      }
-      clickTimeout = window.setTimeout(() => {
-        clickTimeout = null;
-      }, 400);
-    });
-    TouchController.#$bar = $bar;
-    TouchController.#$style = $style;
-    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
-    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message") {
-        return;
-      }
-      let filter = "";
-      if (TouchController.#enable) {
-        if (PREF_STYLE_STANDARD === "white") {
-          filter = "grayscale(1) brightness(2)";
-        } else if (PREF_STYLE_STANDARD === "muted") {
-          filter = "sepia(0.5)";
-        }
-      } else if (PREF_STYLE_CUSTOM === "muted") {
-        filter = "sepia(0.5)";
-      }
-      if (filter) {
-        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      } else {
-        $style.textContent = "";
-      }
-      TouchController.#dataChannel = dataChannel;
-      dataChannel.addEventListener("open", () => {
-        window.setTimeout(TouchController.#show, 1000);
-      });
-      let focused = false;
-      dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
-          return;
-        }
-        if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enable) {
-            if (focused) {
-              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
-            } else {
-              TouchController.#showDefault();
-            }
-          }
-          return;
-        }
-        try {
-          if (msg.data.includes("/titleinfo")) {
-            const json = JSON.parse(JSON.parse(msg.data).content);
-            TouchController.#toggleBar(json.focused);
-            focused = json.focused;
-            if (!json.focused) {
-              TouchController.#show();
-            }
-            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
-          }
-        } catch (e2) {
-          console.log(e2);
-        }
-      });
-    });
-  }
-}
-
-// src/modules/vibration-manager.ts
-var VIBRATION_DATA_MAP = {
-  gamepadIndex: 8,
-  leftMotorPercent: 8,
-  rightMotorPercent: 8,
-  leftTriggerMotorPercent: 8,
-  rightTriggerMotorPercent: 8,
-  durationMs: 16
-};
-
-class VibrationManager {
-  static #playDeviceVibration(data) {
-    if (AppInterface) {
-      AppInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
-      return;
-    }
-    const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY;
-    if (intensity === 0 || intensity === 100) {
-      window.navigator.vibrate(intensity ? data.durationMs : 0);
-      return;
-    }
-    const pulseDuration = 200;
-    const onDuration = Math.floor(pulseDuration * intensity / 100);
-    const offDuration = pulseDuration - onDuration;
-    const repeats = Math.ceil(data.durationMs / pulseDuration);
-    const pulses = Array(repeats).fill([onDuration, offDuration]).flat();
-    window.navigator.vibrate(pulses);
-  }
-  static supportControllerVibration() {
-    return Gamepad.prototype.hasOwnProperty("vibrationActuator");
-  }
-  static supportDeviceVibration() {
-    return !!window.navigator.vibrate;
-  }
-  static updateGlobalVars() {
-    window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : false;
-    window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100;
-    if (!VibrationManager.supportDeviceVibration()) {
-      window.BX_ENABLE_DEVICE_VIBRATION = false;
-      return;
-    }
-    window.navigator.vibrate(0);
-    const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
-    let enabled;
-    if (value === "on") {
-      enabled = true;
-    } else if (value === "auto") {
-      enabled = true;
-      const gamepads = window.navigator.getGamepads();
-      for (const gamepad of gamepads) {
-        if (gamepad) {
-          enabled = false;
-          break;
-        }
-      }
-    } else {
-      enabled = false;
-    }
-    window.BX_ENABLE_DEVICE_VIBRATION = enabled;
-  }
-  static #onMessage(e) {
-    if (!window.BX_ENABLE_DEVICE_VIBRATION) {
-      return;
-    }
-    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer)) {
-      return;
-    }
-    const dataView = new DataView(e.data);
-    let offset = 0;
-    let messageType;
-    if (dataView.byteLength === 13) {
-      messageType = dataView.getUint16(offset, true);
-      offset += Uint16Array.BYTES_PER_ELEMENT;
-    } else {
-      messageType = dataView.getUint8(offset);
-      offset += Uint8Array.BYTES_PER_ELEMENT;
-    }
-    if (!(messageType & 128)) {
-      return;
-    }
-    const vibrationType = dataView.getUint8(offset);
-    offset += Uint8Array.BYTES_PER_ELEMENT;
-    if (vibrationType !== 0) {
-      return;
-    }
-    const data = {};
-    let key;
-    for (key in VIBRATION_DATA_MAP) {
-      if (VIBRATION_DATA_MAP[key] === 16) {
-        data[key] = dataView.getUint16(offset, true);
-        offset += Uint16Array.BYTES_PER_ELEMENT;
-      } else {
-        data[key] = dataView.getUint8(offset);
-        offset += Uint8Array.BYTES_PER_ELEMENT;
-      }
-    }
-    VibrationManager.#playDeviceVibration(data);
-  }
-  static initialSetup() {
-    window.addEventListener("gamepadconnected", VibrationManager.updateGlobalVars);
-    window.addEventListener("gamepaddisconnected", VibrationManager.updateGlobalVars);
-    VibrationManager.updateGlobalVars();
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "input") {
-        return;
-      }
-      dataChannel.addEventListener("message", VibrationManager.#onMessage);
-    });
-  }
-}
-
-// src/modules/ui/ui.ts
-function localRedirect(path) {
-  const url = window.location.href.substring(0, 31) + path;
-  const $pageContent = document.getElementById("PageContent");
-  if (!$pageContent) {
-    return;
-  }
-  const $anchor = CE("a", {
-    href: url,
-    class: "bx-hidden bx-offscreen"
-  }, "");
-  $anchor.addEventListener("click", (e) => {
-    window.setTimeout(() => {
-      $pageContent.removeChild($anchor);
-    }, 1000);
-  });
-  $pageContent.appendChild($anchor);
-  $anchor.click();
-}
-var getVideoPlayerFilterStyle = function() {
-  const filters = [];
-  const clarity = getPref(PrefKey.VIDEO_CLARITY);
-  if (clarity != 0) {
-    const level = (7 - (clarity - 1) * 0.5).toFixed(1);
-    const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
-    document.getElementById("bx-filter-clarity-matrix").setAttributeNS(null, "kernelMatrix", matrix);
-    filters.push(`url(#bx-filter-clarity)`);
-  }
-  const saturation = getPref(PrefKey.VIDEO_SATURATION);
-  if (saturation != 100) {
-    filters.push(`saturate(${saturation}%)`);
-  }
-  const contrast = getPref(PrefKey.VIDEO_CONTRAST);
-  if (contrast != 100) {
-    filters.push(`contrast(${contrast}%)`);
-  }
-  const brightness = getPref(PrefKey.VIDEO_BRIGHTNESS);
-  if (brightness != 100) {
-    filters.push(`brightness(${brightness}%)`);
-  }
-  return filters.join(" ");
-};
-var setupQuickSettingsBar = function() {
-  const isSafari = UserAgent.isSafari();
-  const SETTINGS_UI = [
-    getPref(PrefKey.MKB_ENABLED) && {
-      icon: Icon.MOUSE,
-      group: "mkb",
-      items: [
-        {
-          group: "mkb",
-          label: t("mouse-and-keyboard"),
-          help_url: "https://better-xcloud.github.io/mouse-and-keyboard/",
-          content: MkbRemapper.INSTANCE.render()
-        }
-      ]
-    },
-    {
-      icon: Icon.DISPLAY,
-      group: "stream",
-      items: [
-        {
-          group: "audio",
-          label: t("audio"),
-          help_url: "https://better-xcloud.github.io/ingame-features/#audio",
-          items: [
-            {
-              pref: PrefKey.AUDIO_VOLUME,
-              label: t("volume"),
-              onChange: (e, value) => {
-                STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
-              },
-              params: {
-                disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)
-              }
-            }
-          ]
-        },
-        {
-          group: "video",
-          label: t("video"),
-          help_url: "https://better-xcloud.github.io/ingame-features/#video",
-          items: [
-            {
-              pref: PrefKey.VIDEO_RATIO,
-              label: t("ratio"),
-              onChange: updateVideoPlayerCss
-            },
-            {
-              pref: PrefKey.VIDEO_CLARITY,
-              label: t("clarity"),
-              onChange: updateVideoPlayerCss,
-              unsupported: isSafari
-            },
-            {
-              pref: PrefKey.VIDEO_SATURATION,
-              label: t("saturation"),
-              onChange: updateVideoPlayerCss
-            },
-            {
-              pref: PrefKey.VIDEO_CONTRAST,
-              label: t("contrast"),
-              onChange: updateVideoPlayerCss
-            },
-            {
-              pref: PrefKey.VIDEO_BRIGHTNESS,
-              label: t("brightness"),
-              onChange: updateVideoPlayerCss
-            }
-          ]
-        }
-      ]
-    },
-    {
-      icon: Icon.CONTROLLER,
-      group: "controller",
-      items: [
-        {
-          group: "controller",
-          label: t("controller"),
-          help_url: "https://better-xcloud.github.io/ingame-features/#controller",
-          items: [
-            {
-              pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
-              label: t("controller-vibration"),
-              unsupported: !VibrationManager.supportControllerVibration(),
-              onChange: VibrationManager.updateGlobalVars
-            },
-            {
-              pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
-              label: t("device-vibration"),
-              unsupported: !VibrationManager.supportDeviceVibration(),
-              onChange: VibrationManager.updateGlobalVars
-            },
-            (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
-              pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
-              label: t("vibration-intensity"),
-              unsupported: !VibrationManager.supportDeviceVibration(),
-              onChange: VibrationManager.updateGlobalVars
-            }
-          ]
-        },
-        STATES.hasTouchSupport && {
-          group: "touch-controller",
-          label: t("touch-controller"),
-          items: [
-            {
-              label: t("layout"),
-              content: CE("select", { disabled: true }, CE("option", {}, t("default"))),
-              onMounted: ($elm) => {
-                $elm.addEventListener("change", (e) => {
-                  TouchController.loadCustomLayout(STATES.currentStream?.xboxTitleId, $elm.value, 1000);
-                });
-                window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, (e) => {
-                  const data = e.data;
-                  if (STATES.currentStream?.xboxTitleId && $elm.xboxTitleId === STATES.currentStream?.xboxTitleId) {
-                    $elm.dispatchEvent(new Event("change"));
-                    return;
-                  }
-                  $elm.xboxTitleId = STATES.currentStream?.xboxTitleId;
-                  while ($elm.firstChild) {
-                    $elm.removeChild($elm.firstChild);
-                  }
-                  $elm.disabled = !data;
-                  if (!data) {
-                    $elm.appendChild(CE("option", { value: "" }, t("default")));
-                    $elm.value = "";
-                    $elm.dispatchEvent(new Event("change"));
-                    return;
-                  }
-                  const $fragment = document.createDocumentFragment();
-                  for (const key in data.layouts) {
-                    const layout = data.layouts[key];
-                    const $option = CE("option", { value: key }, layout.name);
-                    $fragment.appendChild($option);
-                  }
-                  $elm.appendChild($fragment);
-                  $elm.value = data.default_layout;
-                  $elm.dispatchEvent(new Event("change"));
-                });
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      icon: Icon.STREAM_STATS,
-      group: "stats",
-      items: [
-        {
-          group: "stats",
-          label: t("menu-stream-stats"),
-          help_url: "https://better-xcloud.github.io/stream-stats/",
-          items: [
-            {
-              pref: PrefKey.STATS_SHOW_WHEN_PLAYING,
-              label: t("show-stats-on-startup")
-            },
-            {
-              pref: PrefKey.STATS_QUICK_GLANCE,
-              label: "👀 " + t("enable-quick-glance-mode"),
-              onChange: (e) => {
-                e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
-              }
-            },
-            {
-              pref: PrefKey.STATS_ITEMS,
-              label: t("stats"),
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_POSITION,
-              label: t("position"),
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_TEXT_SIZE,
-              label: t("text-size"),
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_OPACITY,
-              label: t("opacity"),
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_TRANSPARENT,
-              label: t("transparent-background"),
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_CONDITIONAL_FORMATTING,
-              label: t("conditional-formatting"),
-              onChange: StreamStats.refreshStyles
-            }
-          ]
-        }
-      ]
-    }
-  ];
-  let $tabs;
-  let $settings;
-  const $wrapper = CE("div", { class: "bx-quick-settings-bar bx-gone" }, $tabs = CE("div", { class: "bx-quick-settings-tabs" }), $settings = CE("div", { class: "bx-quick-settings-tab-contents" }));
-  for (const settingTab of SETTINGS_UI) {
-    if (!settingTab) {
-      continue;
-    }
-    const $svg = CE("svg", {
-      xmlns: "http://www.w3.org/2000/svg",
-      "data-group": settingTab.group,
-      fill: "none",
-      stroke: "#fff",
-      "fill-rule": "evenodd",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      "stroke-width": 2
-    });
-    $svg.innerHTML = settingTab.icon;
-    $svg.setAttribute("viewBox", "0 0 32 32");
-    $svg.addEventListener("click", (e) => {
-      for (const $child of Array.from($settings.children)) {
-        if ($child.getAttribute("data-group") === settingTab.group) {
-          $child.classList.remove("bx-gone");
-        } else {
-          $child.classList.add("bx-gone");
-        }
-      }
-      for (const $child of Array.from($tabs.children)) {
-        $child.classList.remove("bx-active");
-      }
-      $svg.classList.add("bx-active");
-    });
-    $tabs.appendChild($svg);
-    const $group = CE("div", { "data-group": settingTab.group, class: "bx-gone" });
-    for (const settingGroup of settingTab.items) {
-      if (!settingGroup) {
-        continue;
-      }
-      $group.appendChild(CE("h2", {}, CE("span", {}, settingGroup.label), settingGroup.help_url && createButton({
-        icon: Icon.QUESTION,
-        style: ButtonStyle.GHOST,
-        url: settingGroup.help_url,
-        title: t("help")
-      })));
-      if (settingGroup.note) {
-        if (typeof settingGroup.note === "string") {
-          settingGroup.note = document.createTextNode(settingGroup.note);
-        }
-        $group.appendChild(settingGroup.note);
-      }
-      if (settingGroup.content) {
-        $group.appendChild(settingGroup.content);
-        continue;
-      }
-      if (!settingGroup.items) {
-        settingGroup.items = [];
-      }
-      for (const setting of settingGroup.items) {
-        if (!setting) {
-          continue;
-        }
-        const pref = setting.pref;
-        let $control;
-        if (setting.content) {
-          $control = setting.content;
-        } else if (!setting.unsupported) {
-          $control = toPrefElement(pref, setting.onChange, setting.params);
-        }
-        const $content = CE("div", { class: "bx-quick-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, setting.label, setting.unsupported && CE("div", { class: "bx-quick-settings-bar-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
-        $group.appendChild($content);
-        setting.onMounted && setting.onMounted($control);
-      }
-    }
-    $settings.appendChild($group);
-  }
-  $tabs.firstElementChild.dispatchEvent(new Event("click"));
-  document.documentElement.appendChild($wrapper);
-};
-function updateVideoPlayerCss() {
-  let $elm = document.getElementById("bx-video-css");
-  if (!$elm) {
-    const $fragment = document.createDocumentFragment();
-    $elm = CE("style", { id: "bx-video-css" });
-    $fragment.appendChild($elm);
-    const $svg = CE("svg", {
-      id: "bx-video-filters",
-      xmlns: "http://www.w3.org/2000/svg",
-      class: "bx-gone"
-    }, CE("defs", { xmlns: "http://www.w3.org/2000/svg" }, CE("filter", { id: "bx-filter-clarity", xmlns: "http://www.w3.org/2000/svg" }, CE("feConvolveMatrix", { id: "bx-filter-clarity-matrix", order: "3", xmlns: "http://www.w3.org/2000/svg" }))));
-    $fragment.appendChild($svg);
-    document.documentElement.appendChild($fragment);
-  }
-  let filters = getVideoPlayerFilterStyle();
-  let videoCss = "";
-  if (filters) {
-    videoCss += `filter: ${filters} !important;`;
-  }
-  if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
-    STATES.currentStream.$screenshotCanvas.getContext("2d").filter = filters;
-  }
-  const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
-  if (PREF_RATIO && PREF_RATIO !== "16:9") {
-    if (PREF_RATIO.includes(":")) {
-      videoCss += `aspect-ratio: ${PREF_RATIO.replace(":", "/")}; object-fit: unset !important;`;
-      const tmp = PREF_RATIO.split(":");
-      const ratio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
-      const maxRatio = window.innerWidth / window.innerHeight;
-      if (ratio < maxRatio) {
-        videoCss += "width: fit-content !important;";
-      } else {
-        videoCss += "height: fit-content !important;";
-      }
-    } else {
-      videoCss += `object-fit: ${PREF_RATIO} !important;`;
-    }
-  }
-  let css = "";
-  if (videoCss) {
-    css = `
-div[data-testid="media-container"] {
-    display: flex;
-}
-
-#game-stream video {
-    margin: 0 auto;
-    align-self: center;
-    background: #000;
-    ${videoCss}
-}
-`;
-  }
-  $elm.textContent = css;
-}
-function setupBxUi() {
-  if (!document.querySelector(".bx-quick-settings-bar")) {
-    window.addEventListener("resize", updateVideoPlayerCss);
-    setupQuickSettingsBar();
-    setupScreenshotButton();
-    StreamStats.render();
-  }
-  updateVideoPlayerCss();
-}
-
-// src/utils/region.ts
-function getPreferredServerRegion(shortName = false) {
-  let preferredRegion = getPref(PrefKey.SERVER_REGION);
-  if (preferredRegion in STATES.serverRegions) {
-    if (shortName && STATES.serverRegions[preferredRegion].shortName) {
-      return STATES.serverRegions[preferredRegion].shortName;
-    } else {
-      return preferredRegion;
-    }
-  }
-  for (let regionName in STATES.serverRegions) {
-    const region = STATES.serverRegions[regionName];
-    if (!region.isDefault) {
-      continue;
-    }
-    if (shortName && region.shortName) {
-      return region.shortName;
-    } else {
-      return regionName;
-    }
-  }
-  return "???";
-}
-
-// src/utils/titles-info.ts
-class TitlesInfo {
-  static #INFO = {};
-  static get(titleId) {
-    return TitlesInfo.#INFO[titleId];
-  }
-  static update(titleId, info) {
-    TitlesInfo.#INFO[titleId] = TitlesInfo.#INFO[titleId] || {};
-    Object.assign(TitlesInfo.#INFO[titleId], info);
-  }
-  static saveFromTitleInfo(titleInfo) {
-    const details = titleInfo.details;
-    const info = {
-      titleId: titleInfo.titleId,
-      xboxTitleId: "" + details.xboxTitleId,
-      hasTouchSupport: details.supportedInputTypes.length > 1
-    };
-    TitlesInfo.update(details.productId, info);
-  }
-  static saveFromCatalogInfo(catalogInfo) {
-    const titleId = catalogInfo.StoreId;
-    const imageHero = (catalogInfo.Image_Hero || catalogInfo.Image_Tile || {}).URL;
-    TitlesInfo.update(titleId, {
-      imageHero
-    });
-  }
-  static hasTouchSupport(titleId) {
-    return !!TitlesInfo.#INFO[titleId]?.hasTouchSupport;
-  }
-  static requestCatalogInfo(titleId, callback) {
-    const url = `https://catalog.gamepass.com/v3/products?market=${STATES.appContext.marketInfo.market}&language=${STATES.appContext.marketInfo.locale}&hydration=RemoteHighSapphire0`;
-    const appVersion = document.querySelector("meta[name=gamepass-app-version]").getAttribute("content");
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Ms-Cv": STATES.appContext.telemetryInfo.initialCv,
-        "Calling-App-Name": "Xbox Cloud Gaming Web",
-        "Calling-App-Version": appVersion
-      },
-      body: JSON.stringify({
-        Products: [titleId]
-      })
-    }).then((resp) => {
-      callback && callback(TitlesInfo.get(titleId));
-    });
-  }
-}
-
-class PreloadedState {
-  static override() {
-    Object.defineProperty(window, "__PRELOADED_STATE__", {
-      configurable: true,
-      get: () => {
-        const userAgent = UserAgent.spoof();
-        if (userAgent) {
-          this._state.appContext.requestInfo.userAgent = userAgent;
-        }
-        return this._state;
-      },
-      set: (state) => {
-        this._state = state;
-        STATES.appContext = structuredClone(state.appContext);
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
-          let titles = {};
-          try {
-            titles = state.xcloud.titles.data.titles;
-          } catch (e) {
-          }
-          for (let id2 in titles) {
-            TitlesInfo.saveFromTitleInfo(titles[id2].data);
-          }
-        }
-      }
-    });
-  }
-}
-
-// src/modules/loading-screen.ts
-class LoadingScreen {
-  static #$bgStyle;
-  static #$waitTimeBox;
-  static #waitTimeInterval = null;
-  static #orgWebTitle;
-  static #secondsToString(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    const mDisplay = m > 0 ? `${m}m` : "";
-    const sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
-    return mDisplay + sDisplay;
-  }
-  static setup() {
-    const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-    if (!match) {
-      return;
-    }
-    if (!LoadingScreen.#$bgStyle) {
-      const $bgStyle = CE("style");
-      document.documentElement.appendChild($bgStyle);
-      LoadingScreen.#$bgStyle = $bgStyle;
-    }
-    const titleId = match[1];
-    const titleInfo = TitlesInfo.get(titleId);
-    if (titleInfo && titleInfo.imageHero) {
-      LoadingScreen.#setBackground(titleInfo.imageHero);
-    } else {
-      TitlesInfo.requestCatalogInfo(titleId, (info) => {
-        info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
-      });
-    }
-    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide") {
-      LoadingScreen.#hideRocket();
-    }
-  }
-  static #hideRocket() {
-    let $bgStyle = LoadingScreen.#$bgStyle;
-    const css = `
-#game-stream div[class*=RocketAnimation-module__container] > svg {
-    display: none;
-}
-`;
-    $bgStyle.textContent += css;
-  }
-  static #setBackground(imageUrl) {
-    let $bgStyle = LoadingScreen.#$bgStyle;
-    imageUrl = imageUrl + "?w=1920";
-    const css = `
-#game-stream {
-    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
-    background-color: transparent !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-}
-
-#game-stream rect[width="800"] {
-    transition: opacity 0.3s ease-in-out !important;
-}
-`;
-    $bgStyle.textContent += css;
-    const bg = new Image;
-    bg.onload = (e) => {
-      $bgStyle.textContent += `
-#game-stream rect[width="800"] {
-    opacity: 0 !important;
-}
-`;
-    };
-    bg.src = imageUrl;
-  }
-  static setupWaitTime(waitTime) {
-    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue") {
-      LoadingScreen.#hideRocket();
-    }
-    let secondsLeft = waitTime;
-    let $countDown;
-    let $estimated;
-    LoadingScreen.#orgWebTitle = document.title;
-    const endDate = new Date;
-    const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
-    endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
-    let endDateStr = endDate.toISOString().slice(0, 19);
-    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19);
-    endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
-    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-    if (!$waitTimeBox) {
-      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {}));
-      document.documentElement.appendChild($waitTimeBox);
-      LoadingScreen.#$waitTimeBox = $waitTimeBox;
-    } else {
-      $waitTimeBox.classList.remove("bx-gone");
-      $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated");
-      $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
-    }
-    $estimated.textContent = endDateStr;
-    $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-    document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-    LoadingScreen.#waitTimeInterval = window.setInterval(() => {
-      secondsLeft--;
-      $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-      document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-      if (secondsLeft <= 0) {
-        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-        LoadingScreen.#waitTimeInterval = null;
-      }
-    }, 1000);
-  }
-  static hide() {
-    LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
-    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
-    if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
-      const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
-      $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
-        LoadingScreen.#$bgStyle.textContent += `
-#game-stream {
-    background: #000 !important;
-}
-`;
-      });
-      LoadingScreen.#$bgStyle.textContent += `
-#game-stream rect[width="800"] {
-    opacity: 1 !important;
-}
-`;
-    }
-    LoadingScreen.reset();
-  }
-  static reset() {
-    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
-    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
-    LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-    LoadingScreen.#waitTimeInterval = null;
-  }
-}
-
 // src/modules/mkb/mouse-cursor-hider.ts
 class MouseCursorHider {
   static #timeout;
@@ -8445,265 +9142,6 @@ class MouseCursorHider {
     MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout);
     document.removeEventListener("mousemove", MouseCursorHider.onMouseMove);
     MouseCursorHider.show();
-  }
-}
-
-// src/modules/remote-play.ts
-var RemotePlayConsoleState;
-(function(RemotePlayConsoleState2) {
-  RemotePlayConsoleState2["ON"] = "On";
-  RemotePlayConsoleState2["OFF"] = "Off";
-  RemotePlayConsoleState2["STANDBY"] = "ConnectedStandby";
-  RemotePlayConsoleState2["UNKNOWN"] = "Unknown";
-})(RemotePlayConsoleState || (RemotePlayConsoleState = {}));
-
-class RemotePlay {
-  static XCLOUD_TOKEN;
-  static XHOME_TOKEN;
-  static #CONSOLES;
-  static #REGIONS;
-  static #STATE_LABELS = {
-    [RemotePlayConsoleState.ON]: t("powered-on"),
-    [RemotePlayConsoleState.OFF]: t("powered-off"),
-    [RemotePlayConsoleState.STANDBY]: t("standby"),
-    [RemotePlayConsoleState.UNKNOWN]: t("unknown")
-  };
-  static BASE_DEVICE_INFO = {
-    appInfo: {
-      env: {
-        clientAppId: window.location.host,
-        clientAppType: "browser",
-        clientAppVersion: "21.1.98",
-        clientSdkVersion: "8.5.3",
-        httpEnvironment: "prod",
-        sdkInstallId: ""
-      }
-    },
-    dev: {
-      displayInfo: {
-        dimensions: {
-          widthInPixels: 1920,
-          heightInPixels: 1080
-        },
-        pixelDensity: {
-          dpiX: 1,
-          dpiY: 1
-        }
-      },
-      hw: {
-        make: "Microsoft",
-        model: "unknown",
-        sdktype: "web"
-      },
-      os: {
-        name: "windows",
-        ver: "22631.2715",
-        platform: "desktop"
-      },
-      browser: {
-        browserName: "chrome",
-        browserVersion: "119.0"
-      }
-    }
-  };
-  static #$content;
-  static #initialize() {
-    if (RemotePlay.#$content) {
-      return;
-    }
-    RemotePlay.#$content = CE("div", {}, t("getting-consoles-list"));
-    RemotePlay.#getXhomeToken(() => {
-      RemotePlay.#getConsolesList(() => {
-        console.log(RemotePlay.#CONSOLES);
-        RemotePlay.#renderConsoles();
-        BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
-      });
-    });
-  }
-  static #renderConsoles() {
-    const $fragment = CE("div", { class: "bx-remote-play-container" });
-    if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
-      $fragment.appendChild(CE("span", {}, t("no-consoles-found")));
-      RemotePlay.#$content = CE("div", {}, $fragment);
-      return;
-    }
-    const $settingNote = CE("p", {});
-    const resolutions = [1080, 720];
-    const currentResolution = getPref(PrefKey.REMOTE_PLAY_RESOLUTION);
-    const $resolutionGroup = CE("div", {});
-    for (const resolution of resolutions) {
-      const value = `${resolution}p`;
-      const id2 = `bx_radio_xhome_resolution_${resolution}`;
-      const $radio = CE("input", {
-        type: "radio",
-        value,
-        id: id2,
-        name: "bx_radio_xhome_resolution"
-      }, value);
-      $radio.addEventListener("change", (e) => {
-        const value2 = e.target.value;
-        $settingNote.textContent = value2 === "1080p" ? "✅ " + t("can-stream-xbox-360-games") : "❌ " + t("cant-stream-xbox-360-games");
-        setPref(PrefKey.REMOTE_PLAY_RESOLUTION, value2);
-      });
-      const $label = CE("label", {
-        for: id2,
-        class: "bx-remote-play-resolution"
-      }, $radio, `${resolution}p`);
-      $resolutionGroup.appendChild($label);
-      if (currentResolution === value) {
-        $radio.checked = true;
-        $radio.dispatchEvent(new Event("change"));
-      }
-    }
-    const $qualitySettings = CE("div", { class: "bx-remote-play-settings" }, CE("div", {}, CE("label", {}, t("target-resolution"), $settingNote), $resolutionGroup));
-    $fragment.appendChild($qualitySettings);
-    for (let con of RemotePlay.#CONSOLES) {
-      const $child = CE("div", { class: "bx-remote-play-device-wrapper" }, CE("div", { class: "bx-remote-play-device-info" }, CE("div", {}, CE("span", { class: "bx-remote-play-device-name" }, con.deviceName), CE("span", { class: "bx-remote-play-console-type" }, con.consoleType.replace("Xbox", ""))), CE("div", { class: "bx-remote-play-power-state" }, RemotePlay.#STATE_LABELS[con.powerState])), createButton({
-        classes: ["bx-remote-play-connect-button"],
-        label: t("console-connect"),
-        style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE,
-        onClick: (e) => {
-          RemotePlay.play(con.serverId);
-        }
-      }));
-      $fragment.appendChild($child);
-    }
-    $fragment.appendChild(createButton({
-      icon: Icon.QUESTION,
-      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
-      url: "https://better-xcloud.github.io/remote-play",
-      label: t("help")
-    }));
-    RemotePlay.#$content = CE("div", {}, $fragment);
-  }
-  static #getXhomeToken(callback) {
-    if (RemotePlay.XHOME_TOKEN) {
-      callback();
-      return;
-    }
-    let GSSV_TOKEN;
-    try {
-      GSSV_TOKEN = JSON.parse(localStorage.getItem("xboxcom_xbl_user_info")).tokens["http://gssv.xboxlive.com/"].token;
-    } catch (e) {
-      for (let i = 0;i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key.startsWith("Auth.User.")) {
-          continue;
-        }
-        const json = JSON.parse(localStorage.getItem(key));
-        for (const token of json.tokens) {
-          if (!token.relyingParty.includes("gssv.xboxlive.com")) {
-            continue;
-          }
-          GSSV_TOKEN = token.tokenData.token;
-          break;
-        }
-        break;
-      }
-    }
-    const request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
-      method: "POST",
-      body: JSON.stringify({
-        offeringId: "xhome",
-        token: GSSV_TOKEN
-      }),
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-      }
-    });
-    fetch(request).then((resp) => resp.json()).then((json) => {
-      RemotePlay.#REGIONS = json.offeringSettings.regions;
-      RemotePlay.XHOME_TOKEN = json.gsToken;
-      callback();
-    });
-  }
-  static async#getConsolesList(callback) {
-    if (RemotePlay.#CONSOLES) {
-      callback();
-      return;
-    }
-    const options = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${RemotePlay.XHOME_TOKEN}`
-      }
-    };
-    for (const region2 of RemotePlay.#REGIONS) {
-      try {
-        const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options);
-        const resp = await fetch(request);
-        const json = await resp.json();
-        RemotePlay.#CONSOLES = json.results;
-        STATES.remotePlay.server = region2.baseUri;
-        callback();
-      } catch (e) {
-      }
-      if (RemotePlay.#CONSOLES) {
-        break;
-      }
-    }
-    if (!STATES.remotePlay.server) {
-      RemotePlay.#CONSOLES = [];
-    }
-  }
-  static play(serverId, resolution) {
-    if (resolution) {
-      setPref(PrefKey.REMOTE_PLAY_RESOLUTION, resolution);
-    }
-    STATES.remotePlay.config = {
-      serverId
-    };
-    window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
-    localRedirect("/launch/fortnite/BT5P2X999VH2#remote-play");
-    RemotePlay.detachPopup();
-  }
-  static preload() {
-    RemotePlay.#initialize();
-  }
-  static detachPopup() {
-    const $popup = document.querySelector(".bx-remote-play-popup");
-    $popup && $popup.remove();
-  }
-  static togglePopup(force = null) {
-    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED) || !RemotePlay.isReady()) {
-      Toast.show(t("getting-consoles-list"));
-      return;
-    }
-    RemotePlay.#initialize();
-    if (AppInterface && AppInterface.showRemotePlayDialog) {
-      AppInterface.showRemotePlayDialog(JSON.stringify(RemotePlay.#CONSOLES));
-      document.activeElement.blur();
-      return;
-    }
-    if (document.querySelector(".bx-remote-play-popup")) {
-      if (force === false) {
-        RemotePlay.#$content.classList.add("bx-gone");
-      } else {
-        RemotePlay.#$content.classList.toggle("bx-gone");
-      }
-      return;
-    }
-    const $header = document.querySelector("#gamepass-root header");
-    const group2 = $header.firstElementChild.getAttribute("data-group");
-    RemotePlay.#$content.setAttribute("data-group", group2);
-    RemotePlay.#$content.classList.add("bx-remote-play-popup");
-    RemotePlay.#$content.classList.remove("bx-gone");
-    $header.insertAdjacentElement("afterend", RemotePlay.#$content);
-  }
-  static detect() {
-    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
-      return;
-    }
-    STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play");
-    if (STATES.remotePlay?.isPlaying) {
-      window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
-      window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
-    } else {
-      window.BX_REMOTE_PLAY_CONFIG = null;
-    }
-  }
-  static isReady() {
-    return RemotePlay.#CONSOLES !== null && RemotePlay.#CONSOLES.length > 0;
   }
 }
 
@@ -8820,10 +9258,10 @@ function setupSettingsUi() {
         selectedValue = PREF_PREFERRED_REGION;
         setting.options = {};
         for (let regionName in STATES.serverRegions) {
-          const region3 = STATES.serverRegions[regionName];
+          const region4 = STATES.serverRegions[regionName];
           let value = regionName;
-          let label = `${region3.shortName} - ${regionName}`;
-          if (region3.isDefault) {
+          let label = `${region4.shortName} - ${regionName}`;
+          if (region4.isDefault) {
             label += ` (${t("default")})`;
             value = "default";
             if (selectedValue === regionName) {
@@ -9641,436 +10079,6 @@ function patchAudioContext() {
     STATES.currentStream.audioGainNode = gainNode;
     return promise;
   };
-}
-
-// src/utils/network.ts
-var clearApplicationInsightsBuffers = function() {
-  window.sessionStorage.removeItem("AI_buffer");
-  window.sessionStorage.removeItem("AI_sentBuffer");
-};
-var clearDbLogs = function(dbName, table) {
-  const request = window.indexedDB.open(dbName);
-  request.onsuccess = (e) => {
-    const db = e.target.result;
-    try {
-      const objectStore = db.transaction(table, "readwrite").objectStore(table);
-      const objectStoreRequest = objectStore.clear();
-      objectStoreRequest.onsuccess = function() {
-        console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
-      };
-    } catch (ex) {
-    }
-  };
-};
-var clearAllLogs = function() {
-  clearApplicationInsightsBuffers();
-  clearDbLogs("StreamClientLogHandler", "logs");
-  clearDbLogs("XCloudAppLogs", "logs");
-};
-var updateIceCandidates = function(candidates, options) {
-  const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/);
-  const lst = [];
-  for (let item2 of candidates) {
-    if (item2.candidate == "a=end-of-candidates") {
-      continue;
-    }
-    const groups = pattern.exec(item2.candidate).groups;
-    lst.push(groups);
-  }
-  if (options.preferIpv6Server) {
-    lst.sort((a, b) => {
-      const firstIp = a.ip;
-      const secondIp = b.ip;
-      return !firstIp.includes(":") && secondIp.includes(":") ? 1 : -1;
-    });
-  }
-  const newCandidates = [];
-  let foundation = 1;
-  const newCandidate = (candidate) => {
-    return {
-      candidate,
-      messageType: "iceCandidate",
-      sdpMLineIndex: "0",
-      sdpMid: "0"
-    };
-  };
-  lst.forEach((item2) => {
-    item2.foundation = foundation;
-    item2.priority = foundation == 1 ? 1e4 : 1;
-    newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`));
-    ++foundation;
-  });
-  if (options.consoleAddrs) {
-    for (const ip in options.consoleAddrs) {
-      const port = options.consoleAddrs[ip];
-      newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
-    }
-  }
-  newCandidates.push(newCandidate("a=end-of-candidates"));
-  console.log(newCandidates);
-  return newCandidates;
-};
-async function patchIceCandidates(request, consoleAddrs) {
-  const response = await NATIVE_FETCH(request);
-  const text = await response.clone().text();
-  if (!text.length) {
-    return response;
-  }
-  const options = {
-    preferIpv6Server: getPref(PrefKey.PREFER_IPV6_SERVER),
-    consoleAddrs
-  };
-  const obj = JSON.parse(text);
-  let exchangeResponse = JSON.parse(obj.exchangeResponse);
-  exchangeResponse = updateIceCandidates(exchangeResponse, options);
-  obj.exchangeResponse = JSON.stringify(exchangeResponse);
-  response.json = () => Promise.resolve(obj);
-  response.text = () => Promise.resolve(JSON.stringify(obj));
-  return response;
-}
-function interceptHttpRequests() {
-  let BLOCKED_URLS = [];
-  if (getPref(PrefKey.BLOCK_TRACKING)) {
-    clearAllLogs();
-    BLOCKED_URLS = BLOCKED_URLS.concat([
-      "https://arc.msn.com",
-      "https://browser.events.data.microsoft.com",
-      "https://dc.services.visualstudio.com"
-    ]);
-  }
-  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
-    BLOCKED_URLS = BLOCKED_URLS.concat([
-      "https://peoplehub.xboxlive.com/users/me/people/social",
-      "https://peoplehub.xboxlive.com/users/me/people/recommendations",
-      "https://notificationinbox.xboxlive.com"
-    ]);
-  }
-  const xhrPrototype = XMLHttpRequest.prototype;
-  const nativeXhrOpen = xhrPrototype.open;
-  const nativeXhrSend = xhrPrototype.send;
-  xhrPrototype.open = function(method, url) {
-    this._url = url;
-    return nativeXhrOpen.apply(this, arguments);
-  };
-  xhrPrototype.send = function(...arg) {
-    for (const blocked of BLOCKED_URLS) {
-      if (this._url.startsWith(blocked)) {
-        if (blocked === "https://dc.services.visualstudio.com") {
-          window.setTimeout(clearAllLogs, 1000);
-        }
-        return false;
-      }
-    }
-    return nativeXhrSend.apply(this, arguments);
-  };
-  window.fetch = async (request, init) => {
-    let url = typeof request === "string" ? request : request.url;
-    for (let blocked of BLOCKED_URLS) {
-      if (!url.startsWith(blocked)) {
-        continue;
-      }
-      return new Response('{"acc":1,"webResult":{}}', {
-        status: 200,
-        statusText: "200 OK"
-      });
-    }
-    if (url.endsWith("/play")) {
-      BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
-    }
-    if (url.endsWith("/configuration")) {
-      BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
-    }
-    let requestType;
-    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs")) {
-      requestType = RequestType.XHOME;
-    } else {
-      requestType = RequestType.XCLOUD;
-    }
-    if (requestType === RequestType.XHOME) {
-      return XhomeInterceptor.handle(request);
-    }
-    return XcloudInterceptor.handle(request, init);
-  };
-}
-var RequestType;
-(function(RequestType2) {
-  RequestType2["XCLOUD"] = "xcloud";
-  RequestType2["XHOME"] = "xhome";
-})(RequestType || (RequestType = {}));
-
-class XhomeInterceptor {
-  static #consoleAddrs = {};
-  static async#handleLogin(request) {
-    try {
-      const clone = request.clone();
-      const obj = await clone.json();
-      obj.offeringId = "xhome";
-      request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
-        method: "POST",
-        body: JSON.stringify(obj),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-    } catch (e) {
-      alert(e);
-      console.log(e);
-    }
-    return NATIVE_FETCH(request);
-  }
-  static async#handleConfiguration(request) {
-    const response = await NATIVE_FETCH(request);
-    const obj = await response.clone().json();
-    console.log(obj);
-    const serverDetails = obj.serverDetails;
-    if (serverDetails.ipV4Address) {
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
-    }
-    if (serverDetails.ipV6Address) {
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
-    }
-    response.json = () => Promise.resolve(obj);
-    response.text = () => Promise.resolve(JSON.stringify(obj));
-    return response;
-  }
-  static async#handleInputConfigs(request, opts) {
-    const response = await NATIVE_FETCH(request);
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "all") {
-      return response;
-    }
-    const obj = await response.clone().json();
-    const xboxTitleId = JSON.parse(opts.body).titleIds[0];
-    STATES.currentStream.xboxTitleId = xboxTitleId;
-    const inputConfigs = obj[0];
-    let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
-    if (!hasTouchSupport) {
-      const supportedInputTypes = inputConfigs.supportedInputTypes;
-      hasTouchSupport = supportedInputTypes.includes("NativeTouch");
-    }
-    if (hasTouchSupport) {
-      TouchController.disable();
-      BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-        data: null
-      });
-    } else {
-      TouchController.enable();
-      TouchController.getCustomLayouts(xboxTitleId);
-    }
-    response.json = () => Promise.resolve(obj);
-    response.text = () => Promise.resolve(JSON.stringify(obj));
-    return response;
-  }
-  static async#handleTitles(request) {
-    const clone = request.clone();
-    const headers = {};
-    for (const pair of clone.headers.entries()) {
-      headers[pair[0]] = pair[1];
-    }
-    headers.authorization = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
-    const index = request.url.indexOf(".xboxlive.com");
-    request = new Request("https://wus.core.gssv-play-prod" + request.url.substring(index), {
-      method: clone.method,
-      body: await clone.text(),
-      headers
-    });
-    return NATIVE_FETCH(request);
-  }
-  static async handle(request) {
-    TouchController.disable();
-    const clone = request.clone();
-    const headers = {};
-    for (const pair of clone.headers.entries()) {
-      headers[pair[0]] = pair[1];
-    }
-    headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
-    const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
-    if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === "720p") {
-      deviceInfo.dev.os.name = "android";
-    }
-    headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
-    const opts = {
-      method: clone.method,
-      headers
-    };
-    if (clone.method === "POST") {
-      opts.body = await clone.text();
-    }
-    let newUrl = request.url;
-    if (!newUrl.includes("/servers/home")) {
-      const index = request.url.indexOf(".xboxlive.com");
-      newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
-    }
-    request = new Request(newUrl, opts);
-    let url = typeof request === "string" ? request : request.url;
-    if (url.includes("/configuration")) {
-      return XhomeInterceptor.#handleConfiguration(request);
-    } else if (url.includes("inputconfigs")) {
-      return XhomeInterceptor.#handleInputConfigs(request, opts);
-    } else if (url.includes("/login/user")) {
-      return XhomeInterceptor.#handleLogin(request);
-    } else if (url.endsWith("/titles")) {
-      return XhomeInterceptor.#handleTitles(request);
-    } else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") {
-      return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
-    }
-    return await NATIVE_FETCH(request);
-  }
-}
-
-class XcloudInterceptor {
-  static async#handleLogin(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    const obj = await response.clone().json();
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
-    RemotePlay.XCLOUD_TOKEN = obj.gsToken;
-    const serverEmojis = {
-      AustraliaEast: "🇦🇺",
-      AustraliaSouthEast: "🇦🇺",
-      BrazilSouth: "🇧🇷",
-      EastUS: "🇺🇸",
-      EastUS2: "🇺🇸",
-      JapanEast: "🇯🇵",
-      KoreaCentral: "🇰🇷",
-      MexicoCentral: "🇲🇽",
-      NorthCentralUs: "🇺🇸",
-      SouthCentralUS: "🇺🇸",
-      UKSouth: "🇬🇧",
-      WestEurope: "🇪🇺",
-      WestUS: "🇺🇸",
-      WestUS2: "🇺🇸"
-    };
-    const serverRegex = /\/\/(\w+)\./;
-    for (let region5 of obj.offeringSettings.regions) {
-      const regionName = region5.name;
-      let shortName = region5.name;
-      let match = serverRegex.exec(region5.baseUri);
-      if (match) {
-        shortName = match[1];
-        if (serverEmojis[regionName]) {
-          shortName = serverEmojis[regionName] + " " + shortName;
-        }
-      }
-      region5.shortName = shortName.toUpperCase();
-      STATES.serverRegions[region5.name] = Object.assign({}, region5);
-    }
-    BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
-    const preferredRegion = getPreferredServerRegion();
-    if (preferredRegion in STATES.serverRegions) {
-      const tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
-      tmp.isDefault = true;
-      obj.offeringSettings.regions = [tmp];
-    }
-    response.json = () => Promise.resolve(obj);
-    return response;
-  }
-  static async#handlePlay(request, init) {
-    const PREF_STREAM_TARGET_RESOLUTION = getPref(PrefKey.STREAM_TARGET_RESOLUTION);
-    const PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE);
-    const url = typeof request === "string" ? request : request.url;
-    const parsedUrl = new URL(url);
-    StreamBadges.region = parsedUrl.host.split(".", 1)[0];
-    for (let regionName in STATES.serverRegions) {
-      const region5 = STATES.serverRegions[regionName];
-      if (parsedUrl.origin == region5.baseUri) {
-        StreamBadges.region = regionName;
-        break;
-      }
-    }
-    const clone = request.clone();
-    const body = await clone.json();
-    if (PREF_STREAM_TARGET_RESOLUTION !== "auto") {
-      const osName = PREF_STREAM_TARGET_RESOLUTION === "720p" ? "android" : "windows";
-      body.settings.osName = osName;
-    }
-    if (PREF_STREAM_PREFERRED_LOCALE !== "default") {
-      body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
-    }
-    const newRequest = new Request(request, {
-      body: JSON.stringify(body)
-    });
-    return NATIVE_FETCH(newRequest);
-  }
-  static async#handleWaitTime(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    if (getPref(PrefKey.UI_LOADING_SCREEN_WAIT_TIME)) {
-      const json = await response.clone().json();
-      if (json.estimatedAllocationTimeInSeconds > 0) {
-        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
-      }
-    }
-    return response;
-  }
-  static async#handleConfiguration(request, init) {
-    if (request.method !== "GET") {
-      return NATIVE_FETCH(request, init);
-    }
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
-      TouchController.disable();
-      const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-      if (match) {
-        const titleId = match[1];
-        !TitlesInfo.hasTouchSupport(titleId) && TouchController.enable();
-      }
-    }
-    const response = await NATIVE_FETCH(request, init);
-    const text = await response.clone().text();
-    if (!text.length) {
-      return response;
-    }
-    const obj = JSON.parse(text);
-    let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
-    overrides.inputConfiguration = overrides.inputConfiguration || {};
-    overrides.inputConfiguration.enableVibration = true;
-    if (TouchController.isEnabled()) {
-      overrides.inputConfiguration.enableTouchInput = true;
-      overrides.inputConfiguration.maxTouchPoints = 10;
-    }
-    if (getPref(PrefKey.AUDIO_MIC_ON_PLAYING)) {
-      overrides.audioConfiguration = overrides.audioConfiguration || {};
-      overrides.audioConfiguration.enableMicrophone = true;
-    }
-    obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
-    response.json = () => Promise.resolve(obj);
-    response.text = () => Promise.resolve(JSON.stringify(obj));
-    return response;
-  }
-  static async#handleCatalog(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    const json = await response.clone().json();
-    for (let productId in json.Products) {
-      TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
-    }
-    return response;
-  }
-  static async#handleTitles(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
-      const json = await response.clone().json();
-      for (let game of json.results) {
-        TitlesInfo.saveFromTitleInfo(game);
-      }
-    }
-    return response;
-  }
-  static async handle(request, init) {
-    let url = typeof request === "string" ? request : request.url;
-    if (url.endsWith("/v2/login/user")) {
-      return XcloudInterceptor.#handleLogin(request, init);
-    } else if (url.endsWith("/sessions/cloud/play")) {
-      return XcloudInterceptor.#handlePlay(request, init);
-    } else if (url.includes("xboxlive.com") && url.includes("/waittime/")) {
-      return XcloudInterceptor.#handleWaitTime(request, init);
-    } else if (url.endsWith("/configuration")) {
-      return XcloudInterceptor.#handleConfiguration(request, init);
-    } else if (url.startsWith("https://catalog.gamepass.com") && url.includes("/products")) {
-      return XcloudInterceptor.#handleCatalog(request, init);
-    } else if (url.includes("/v2/titles") || url.includes("/mru")) {
-      return XcloudInterceptor.#handleTitles(request, init);
-    } else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") {
-      return patchIceCandidates(request);
-    }
-    return NATIVE_FETCH(request, init);
-  }
 }
 
 // src/index.ts
