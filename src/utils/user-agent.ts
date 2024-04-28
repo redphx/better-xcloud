@@ -4,6 +4,7 @@ export enum UserAgentProfile {
     EDGE_WINDOWS = 'edge-windows',
     SAFARI_MACOS = 'safari-macos',
     SMARTTV_TIZEN = 'smarttv-tizen',
+    KIWI_V123 = 'kiwi-v123',
     DEFAULT = 'default',
     CUSTOM = 'custom',
 }
@@ -26,6 +27,7 @@ export class UserAgent {
         [UserAgentProfile.EDGE_WINDOWS]: EDGE_USER_AGENT,
         [UserAgentProfile.SAFARI_MACOS]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
         [UserAgentProfile.SMARTTV_TIZEN]: 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36',
+        [UserAgentProfile.KIWI_V123]: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36',
     }
 
     static getDefault(): string {

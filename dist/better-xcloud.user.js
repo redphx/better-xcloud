@@ -3840,6 +3840,7 @@ var UserAgentProfile;
   UserAgentProfile2["EDGE_WINDOWS"] = "edge-windows";
   UserAgentProfile2["SAFARI_MACOS"] = "safari-macos";
   UserAgentProfile2["SMARTTV_TIZEN"] = "smarttv-tizen";
+  UserAgentProfile2["KIWI_V123"] = "kiwi-v123";
   UserAgentProfile2["DEFAULT"] = "default";
   UserAgentProfile2["CUSTOM"] = "custom";
 })(UserAgentProfile || (UserAgentProfile = {}));
@@ -3857,7 +3858,8 @@ class UserAgent {
   static #USER_AGENTS = {
     [UserAgentProfile.EDGE_WINDOWS]: EDGE_USER_AGENT,
     [UserAgentProfile.SAFARI_MACOS]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
-    [UserAgentProfile.SMARTTV_TIZEN]: "Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36"
+    [UserAgentProfile.SMARTTV_TIZEN]: "Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36",
+    [UserAgentProfile.KIWI_V123]: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36"
   };
   static getDefault() {
     return window.navigator.orgUserAgent || window.navigator.userAgent;
@@ -4704,6 +4706,7 @@ class Preferences {
         [UserAgentProfile.EDGE_WINDOWS]: "Edge + Windows",
         [UserAgentProfile.SAFARI_MACOS]: "Safari + macOS",
         [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV",
+        [UserAgentProfile.KIWI_V123]: "Kiwi Browser v123",
         [UserAgentProfile.CUSTOM]: t("custom")
       }
     },

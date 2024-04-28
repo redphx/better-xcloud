@@ -442,6 +442,7 @@ export class Preferences {
                 [UserAgentProfile.EDGE_WINDOWS]: 'Edge + Windows',
                 [UserAgentProfile.SAFARI_MACOS]: 'Safari + macOS',
                 [UserAgentProfile.SMARTTV_TIZEN]: 'Samsung Smart TV',
+                [UserAgentProfile.KIWI_V123]: 'Kiwi Browser v123',
                 [UserAgentProfile.CUSTOM]: t('custom'),
             },
         },
