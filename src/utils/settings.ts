@@ -191,7 +191,12 @@ export class SettingElement {
                 return;
             }
 
-            let value = parseInt($range.value);
+            let value: number;
+            if ($range) {
+                value = parseInt($range.value);
+            } else {
+                value = parseInt($text.textContent!);
+            }
             const btnType = (e.target as HTMLElement).getAttribute('data-type');
             if (btnType === 'dec') {
                 value = Math.max(MIN, value - STEPS);
