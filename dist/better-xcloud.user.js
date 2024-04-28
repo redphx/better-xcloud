@@ -5148,8 +5148,6 @@ class KeyHelper {
     let name;
     if (e instanceof KeyboardEvent) {
       code = e.code;
-    } else if (e instanceof MouseEvent) {
-      code = "Mouse" + e.button;
     } else if (e instanceof WheelEvent) {
       if (e.deltaY < 0) {
         code = WheelCode.SCROLL_UP;
@@ -5160,6 +5158,8 @@ class KeyHelper {
       } else {
         code = WheelCode.SCROLL_RIGHT;
       }
+    } else if (e instanceof MouseEvent) {
+      code = "Mouse" + e.button;
     }
     if (code) {
       name = KeyHelper.codeToKeyName(code);
