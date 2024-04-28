@@ -3843,10 +3843,19 @@ var UserAgentProfile;
   UserAgentProfile2["DEFAULT"] = "default";
   UserAgentProfile2["CUSTOM"] = "custom";
 })(UserAgentProfile || (UserAgentProfile = {}));
+var CHROMIUM_VERSION = "123.0.0.0";
+if (!!window.chrome) {
+  const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
+  if (match) {
+    CHROMIUM_VERSION = match[1];
+  }
+}
+var EDGE_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/[[VERSION]] Safari/537.36 Edg/[[VERSION]]";
+EDGE_USER_AGENT = EDGE_USER_AGENT.replaceAll("[[VERSION]]", CHROMIUM_VERSION);
 
 class UserAgent {
   static #USER_AGENTS = {
-    [UserAgentProfile.EDGE_WINDOWS]: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.188",
+    [UserAgentProfile.EDGE_WINDOWS]: EDGE_USER_AGENT,
     [UserAgentProfile.SAFARI_MACOS]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
     [UserAgentProfile.SMARTTV_TIZEN]: "Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36"
   };
