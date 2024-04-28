@@ -19,7 +19,7 @@ const DEFAULT_FLAGS: BxFlags = {
     UseDevTouchLayout: false,
 }
 
-const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
-delete window.BX_FLAGS;
-
-export { BX_FLAGS }
+export const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+try {
+    delete window.BX_FLAGS;
+} catch (e) {}

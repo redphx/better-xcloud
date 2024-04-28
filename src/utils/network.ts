@@ -5,10 +5,11 @@ import { PrefKey, getPref } from "./preferences";
 import { RemotePlay } from "../modules/remote-play";
 import { StreamBadges } from "../modules/stream/stream-badges";
 import { TouchController } from "../modules/touch-controller";
-import { NATIVE_FETCH, STATES } from "./global";
+import { STATES } from "./global";
 import { getPreferredServerRegion } from "./region";
 import { TitlesInfo } from "./titles-info";
 
+export const NATIVE_FETCH = window.fetch;
 
 enum RequestType {
     XCLOUD = 'xcloud',

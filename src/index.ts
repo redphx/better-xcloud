@@ -1,9 +1,9 @@
-import { getBuildConfig } from "./build-config" with { type: "macro" };
 import "./utils/global";
 import { BxEvent } from "./utils/bx-event";
 import { BX_FLAGS } from "./utils/bx-flags";
 import { BxExposed } from "./utils/bx-exposed";
 import { t } from "./utils/translation";
+import { interceptHttpRequests } from "./utils/network";
 import { CE } from "./utils/html";
 import { showGamepadToast } from "./utils/gamepad";
 import { MkbHandler } from "./modules/mkb/mkb-handler";
@@ -24,11 +24,8 @@ import { onHistoryChanged, patchHistoryMethod } from "./utils/history";
 import { VibrationManager } from "./modules/vibration-manager";
 import { PreloadedState } from "./utils/titles-info";
 import { patchAudioContext, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "./utils/monkey-patches";
-import { interceptHttpRequests } from "./utils/network";
 import { STATES } from "./utils/global";
 import { injectStreamMenuButtons } from "./modules/stream/stream-ui";
-
-/* ADDITIONAL CODE */
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {

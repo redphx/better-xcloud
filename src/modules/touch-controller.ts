@@ -1,10 +1,11 @@
-import { NATIVE_FETCH, STATES } from "../utils/global";
+import { STATES } from "../utils/global";
 import { CE } from "../utils/html";
 import { Toast } from "../utils/toast";
 import { BxEvent } from "../utils/bx-event";
 import { BX_FLAGS } from "../utils/bx-flags";
 import { getPref, PrefKey } from "../utils/preferences";
 import { t } from "../utils/translation";
+import { NATIVE_FETCH } from "../utils/network";
 
 export class TouchController {
     static readonly #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent('message', {
