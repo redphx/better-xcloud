@@ -351,8 +351,8 @@ class XcloudInterceptor {
         const parsedUrl = new URL(url);
 
         StreamBadges.region = parsedUrl.host.split('.', 1)[0];
-        for (let regionName in STATES.appContext) {
-            const region = STATES.appContext[regionName];
+        for (let regionName in STATES.serverRegions) {
+            const region = STATES.serverRegions[regionName];
             if (parsedUrl.origin == region.baseUri) {
                 StreamBadges.region = regionName;
                 break;
