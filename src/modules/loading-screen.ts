@@ -1,8 +1,8 @@
 import { CE } from "../utils/html";
 import { getPreferredServerRegion } from "../utils/region";
-import { TitlesInfo } from "../utils/titles-info";
 import { PrefKey, getPref } from "../utils/preferences";
 import { t } from "../utils/translation";
+import { STATES } from "../utils/global";
 
 export class LoadingScreen {
     static #$bgStyle: HTMLElement;
@@ -21,9 +21,8 @@ export class LoadingScreen {
     }
 
     static setup() {
-        // Get titleId from location
-        const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-        if (!match) {
+        const titleInfo = STATES.currentStream.titleInfo;
+        if (!titleInfo) {
             return;
         }
 
@@ -33,15 +32,7 @@ export class LoadingScreen {
             LoadingScreen.#$bgStyle = $bgStyle;
         }
 
-        const titleId = match[1];
-        const titleInfo = TitlesInfo.get(titleId);
-        if (titleInfo && titleInfo.imageHero) {
-            LoadingScreen.#setBackground(titleInfo.imageHero);
-        } else {
-            TitlesInfo.requestCatalogInfo(titleId, (info: TitleInfo) => {
-                info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
-            });
-        }
+        LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl);
 
         if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === 'hide') {
             LoadingScreen.#hideRocket();

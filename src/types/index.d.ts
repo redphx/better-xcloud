@@ -31,6 +31,7 @@ type BxStates = {
         titleId: string;
         xboxTitleId: string;
         productId: string;
+        titleInfo: XcloudTitleInfo;
 
         $video: HTMLVideoElement | null;
         $screenshotCanvas: HTMLCanvasElement | null;
@@ -50,3 +51,17 @@ type BxStates = {
 }
 
 type DualEnum = {[index: string]: number} & {[index: number]: string};
+
+type XcloudTitleInfo = {
+    details: {
+        productId: string;
+        supportedInputTypes: InputType[];
+        hasTouchSupport: boolean;
+    };
+
+    product: {
+        heroImageUrl: string;
+        titledHeroImageUrl: string;
+        tileImageUrl: string;
+    };
+};

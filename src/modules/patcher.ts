@@ -332,14 +332,14 @@ const gamepads = window.navigator.getGamepads();
 let gamepadFound = false;
 
 for (let gamepad of gamepads) {
-if (gamepad && gamepad.connected) {
-    gamepadFound = true;
-    break;
-}
+    if (gamepad && gamepad.connected) {
+        gamepadFound = true;
+        break;
+    }
 }
 
 if (gamepadFound) {
-return;
+    return;
 }
 `;
         }
@@ -384,6 +384,24 @@ return;
 window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged(e);
 `;
         str = str.replace(text, text + newCode);
+        return str;
+    },
+
+    patchXcloudTitleInfo(str: string) {
+        const text = 'async cloudConnect';
+        let index = str.indexOf(text);
+        if (index === -1) {
+            return false;
+        }
+
+        // Find the next "{" backet
+        index = str.indexOf('{', index) + 1;
+
+        const newCode = `
+e = window.BX_EXPOSED.modifyTitleInfo(e);
+console.log(e);
+`;
+        str = str.substring(0, index) + newCode + str.substring(index);
         return str;
     },
 };
@@ -432,6 +450,8 @@ let PATCH_ORDERS = [
 
 // Only when playing
 const PLAYING_PATCH_ORDERS = [
+    ['patchXcloudTitleInfo'],
+
     getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
     getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayGuideWorkaround'],
 

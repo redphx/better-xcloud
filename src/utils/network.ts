@@ -7,7 +7,6 @@ import { StreamBadges } from "../modules/stream/stream-badges";
 import { TouchController } from "../modules/touch-controller";
 import { STATES } from "./global";
 import { getPreferredServerRegion } from "./region";
-import { TitlesInfo } from "./titles-info";
 
 export const NATIVE_FETCH = window.fetch;
 
@@ -402,14 +401,11 @@ class XcloudInterceptor {
 
         // Touch controller for all games
         if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all') {
-            TouchController.disable();
-
-            // Get game ID from window.location
-            const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-            // Check touch support
-            if (match) {
-                const titleId = match[1];
-                !TitlesInfo.hasTouchSupport(titleId) && TouchController.enable();
+            const titleInfo = STATES.currentStream.titleInfo;
+            if (titleInfo?.details.hasTouchSupport) {
+                TouchController.disable();
+            } else {
+                TouchController.enable();
             }
         }
 
@@ -446,30 +442,6 @@ class XcloudInterceptor {
         return response;
     }
 
-    static async #handleCatalog(request: RequestInfo | URL, init?: RequestInit) {
-        const response = await NATIVE_FETCH(request, init);
-        const json = await response.clone().json()
-
-        for (let productId in json.Products) {
-            TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
-        }
-
-        return response;
-    }
-
-    static async #handleTitles(request: RequestInfo | URL, init?: RequestInit) {
-        const response = await NATIVE_FETCH(request, init);
-
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all') {
-            const json = await response.clone().json()
-            for (let game of json.results) {
-                TitlesInfo.saveFromTitleInfo(game);
-            }
-        }
-
-        return response;
-    }
-
     static async handle(request: RequestInfo | URL, init?: RequestInit) {
         let url = (typeof request === 'string') ? request : (request as Request).url;
 
@@ -482,10 +454,6 @@ class XcloudInterceptor {
             return XcloudInterceptor.#handleWaitTime(request, init);
         } else if (url.endsWith('/configuration')) {
             return XcloudInterceptor.#handleConfiguration(request, init);
-        } else if (url.startsWith('https://catalog.gamepass.com') && url.includes('/products')) {
-            return XcloudInterceptor.#handleCatalog(request, init);
-        } else if (url.includes('/v2/titles') || url.includes('/mru')) {
-            return XcloudInterceptor.#handleTitles(request, init);
         } else if (url && url.endsWith('/ice') && url.includes('/sessions/') && (request as Request).method === 'GET') {
             return patchIceCandidates(request as Request);
         }

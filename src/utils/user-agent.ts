@@ -43,7 +43,7 @@ export class UserAgent {
         return (UserAgent.#USER_AGENTS as any)[profile] || defaultUserAgent;
     }
 
-    static isSafari(mobile=false) {
+    static isSafari(mobile=false): boolean {
         const userAgent = (UserAgent.getDefault() || '').toLowerCase();
         let result = userAgent.includes('safari') && !userAgent.includes('chrom');
 
@@ -52,6 +52,11 @@ export class UserAgent {
         }
 
         return result;
+    }
+
+    static isMobile(): boolean {
+        const userAgent = (UserAgent.getDefault() || '').toLowerCase();
+        return /iphone|ipad|android/.test(userAgent);
     }
 
     static spoof() {
@@ -67,6 +72,7 @@ export class UserAgent {
         }
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
+        (window.navigator as any).orgUserAgentData = (window.navigator as any).userAgentData;
         Object.defineProperty(window.navigator, 'userAgentData', {});
 
         // Override navigator.userAgent

@@ -124,10 +124,11 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
     // Setup UI
     setupBxUi();
 
-    // Setup loading screen
-    getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.setup();
+
 });
 
+// Setup loading screen
+getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && window.addEventListener(BxEvent.TITLE_INFO_READY, LoadingScreen.setup);
 
 window.addEventListener(BxEvent.STREAM_STARTING, e => {
     // Hide loading screen
