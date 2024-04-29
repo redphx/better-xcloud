@@ -49,7 +49,8 @@ export const BxExposed = {
             supportedInputTypes = supportedInputTypes.filter(i => i !== 'MKB');
         }
 
-        // Add custom property
+        // Pre-check supported input types
+        titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
         titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) &&
                 !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) &&
                 !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
