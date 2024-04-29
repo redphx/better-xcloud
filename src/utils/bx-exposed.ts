@@ -79,6 +79,7 @@ export const BxExposed = {
 
             if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === 'all') {
                 // Add generic touch support for non touch-supported games
+                titleInfo.details.hasFakeTouchSupport = true;
                 supportedInputTypes.push(InputType.GENERIC_TOUCH);
             }
 

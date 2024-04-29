@@ -325,7 +325,7 @@ if (match) {
 
         const newCode = `
 const titleInfo = window.BX_EXPOSED.getTitleInfo();
-if (!titleInfo.details.hasTouchSupport) {
+if (!titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
     return;
 }
 `;
