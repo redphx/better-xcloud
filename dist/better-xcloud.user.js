@@ -9799,7 +9799,7 @@ var PLAYING_PATCH_ORDERS = [
   ["patchStreamHud"],
   ["playVibration"],
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && ["exposeTouchLayoutManager"],
-  STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" && ["disableTakRenderer"],
+  STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ["disableTakRenderer"],
   BX_FLAGS.EnableXcloudLogging && ["enableConsoleLogging"],
   getPref(PrefKey.BLOCK_TRACKING) && ["blockGamepadStatsCollector"],
   [
