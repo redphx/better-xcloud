@@ -4800,6 +4800,7 @@ var BxExposed = {
       titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
       titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) && !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) && !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
       if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
+        titleInfo.details.hasFakeTouchSupport = true;
         supportedInputTypes.push(InputType.GENERIC_TOUCH);
       }
       titleInfo.details.supportedInputTypes = supportedInputTypes;
@@ -9688,7 +9689,7 @@ if (match) {
     }
     const newCode = `
 const titleInfo = window.BX_EXPOSED.getTitleInfo();
-if (!titleInfo.details.hasTouchSupport) {
+if (!titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
     return;
 }
 `;
