@@ -31,6 +31,7 @@ var BxEvent;
 (function(BxEvent2) {
   BxEvent2["JUMP_BACK_IN_READY"] = "bx-jump-back-in-ready";
   BxEvent2["POPSTATE"] = "bx-popstate";
+  BxEvent2["TITLE_INFO_READY"] = "bx-title-info-ready";
   BxEvent2["STREAM_LOADING"] = "bx-stream-loading";
   BxEvent2["STREAM_STARTING"] = "bx-stream-starting";
   BxEvent2["STREAM_STARTED"] = "bx-stream-started";
@@ -83,23 +84,99 @@ try {
 } catch (e) {
 }
 
-// src/utils/bx-exposed.ts
-var BxExposed = {
-  onPollingModeChanged: (mode) => {
-    if (!STATES.isPlaying) {
-      return false;
+// src/utils/html.ts
+var createElement = function(elmName, props = {}, ..._) {
+  let $elm;
+  const hasNs = "xmlns" in props;
+  if (hasNs) {
+    $elm = document.createElementNS(props.xmlns, elmName);
+    delete props.xmlns;
+  } else {
+    $elm = document.createElement(elmName);
+  }
+  for (const key in props) {
+    if ($elm.hasOwnProperty(key)) {
+      continue;
     }
-    const $screenshotBtn = document.querySelector(".bx-screenshot-button");
-    const $touchControllerBar = document.getElementById("bx-touch-controller-bar");
-    if (mode !== "None") {
-      $screenshotBtn && $screenshotBtn.classList.add("bx-gone");
-      $touchControllerBar && $touchControllerBar.classList.add("bx-gone");
+    if (hasNs) {
+      $elm.setAttributeNS(null, key, props[key]);
     } else {
-      $screenshotBtn && $screenshotBtn.classList.remove("bx-gone");
-      $touchControllerBar && $touchControllerBar.classList.remove("bx-gone");
+      $elm.setAttribute(key, props[key]);
     }
   }
+  for (let i = 2, size = arguments.length;i < size; i++) {
+    const arg = arguments[i];
+    const argType = typeof arg;
+    if (argType === "string" || argType === "number") {
+      $elm.appendChild(document.createTextNode(arg));
+    } else if (arg) {
+      $elm.appendChild(arg);
+    }
+  }
+  return $elm;
 };
+var CE = createElement;
+var Icon;
+(function(Icon2) {
+  Icon2["STREAM_SETTINGS"] = '<g transform="matrix(.142357 0 0 .142357 -2.22021 -2.22164)" fill="none" stroke="#fff" stroke-width="16"><circle cx="128" cy="128" r="40"/><path d="M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z"/></g>';
+  Icon2["STREAM_STATS"] = '<path d="M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z"/><path d="M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74"/>';
+  Icon2["CONTROLLER"] = '<path d="M19.193 12.807h3.193m-13.836 0h4.257"/><path d="M10.678 10.678v4.257"/><path d="M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z"/><path d="M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194"/>';
+  Icon2["DISPLAY"] = '<path d="M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08"/>';
+  Icon2["MOUSE"] = '<path d="M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z"/><path d="M16 13.721V6.883"/>';
+  Icon2["MOUSE_SETTINGS"] = '<g transform="matrix(1.10403 0 0 1.10403 -4.17656 -.560429)" fill="none" stroke="#fff"><g stroke-width="1.755"><path d="M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714"/><path d="M15.5 12.501v-6"/></g><circle cx="48" cy="48" r="15" stroke-width="7.02" transform="matrix(.142357 0 0 .142357 17.667421 16.541885)"/><path d="M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z" stroke-width=".999"/></g>';
+  Icon2["NEW"] = '<path d="M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z"/><path d="M19.625 1.5v8.458h8.458m-15.708 9.667h7.25"/><path d="M16 16v7.25"/>';
+  Icon2["COPY"] = '<path d="M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73"/>';
+  Icon2["TRASH"] = '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>';
+  Icon2["CURSOR_TEXT"] = '<path d="M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8"/><path d="M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3"/><path d="M11.65 16h8.7"/>';
+  Icon2["QUESTION"] = '<g transform="matrix(.256867 0 0 .256867 -16.878964 -18.049342)"><circle cx="128" cy="180" r="12" fill="#fff"/><path d="M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4" fill="none" stroke="#fff" stroke-width="16"/></g>';
+  Icon2["REMOTE_PLAY"] = '<g transform="matrix(.492308 0 0 .581818 -14.7692 -11.6364)"><clipPath id="A"><path d="M30 20h65v55H30z"/></clipPath><g clip-path="url(#A)"><g transform="matrix(.395211 0 0 .334409 11.913 7.01124)"><g transform="matrix(.555556 0 0 .555556 57.8889 -20.2417)" fill="none" stroke="#fff" stroke-width="13.88"><path d="M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0"/></g><g transform="matrix(-.555556 0 0 -.555556 200.111 262.393)"><g transform="matrix(1 0 0 1 0 11.5642)"><path d="M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129" fill="none" stroke="#fff" stroke-width="13.88"/></g><path d="M168 165c-23.783-17.3-56.217-17.3-80 0" fill="none" stroke="#fff" stroke-width="13.88"/></g><g transform="matrix(.75 0 0 .75 32 32)"><path d="M24 72h208v93.881H24z" fill="none" stroke="#fff" stroke-linejoin="miter" stroke-width="9.485"/><circle cx="188" cy="128" r="12" stroke-width="10" transform="matrix(.708333 0 0 .708333 71.8333 12.8333)"/><path d="M24.358 103.5h110" fill="none" stroke="#fff" stroke-linecap="butt" stroke-width="10.282"/></g></g></g></g>';
+  Icon2["HAND_TAP"] = '<path d="M6.537 8.906c0-4.216 3.469-7.685 7.685-7.685s7.685 3.469 7.685 7.685M7.719 30.778l-4.333-7.389C3.133 22.944 3 22.44 3 21.928a2.97 2.97 0 0 1 2.956-2.956 2.96 2.96 0 0 1 2.55 1.461l2.761 4.433V8.906a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v8.276a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v2.365a2.97 2.97 0 0 1 2.956-2.956A2.97 2.97 0 0 1 29 19.547v5.32c0 3.547-1.182 5.911-1.182 5.911"/>';
+})(Icon || (Icon = {}));
+var createSvgIcon = (icon, strokeWidth = 2) => {
+  const $svg = CE("svg", {
+    xmlns: "http://www.w3.org/2000/svg",
+    fill: "none",
+    stroke: "#fff",
+    "fill-rule": "evenodd",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+    "stroke-width": strokeWidth
+  });
+  $svg.innerHTML = icon;
+  $svg.setAttribute("viewBox", "0 0 32 32");
+  return $svg;
+};
+var ButtonStyle = {};
+ButtonStyle[ButtonStyle.PRIMARY = 1] = "bx-primary";
+ButtonStyle[ButtonStyle.DANGER = 2] = "bx-danger";
+ButtonStyle[ButtonStyle.GHOST = 4] = "bx-ghost";
+ButtonStyle[ButtonStyle.FOCUSABLE = 8] = "bx-focusable";
+ButtonStyle[ButtonStyle.FULL_WIDTH = 16] = "bx-full-width";
+ButtonStyle[ButtonStyle.FULL_HEIGHT = 32] = "bx-full-height";
+var ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map((i) => parseInt(i));
+var createButton = (options) => {
+  let $btn;
+  if (options.url) {
+    $btn = CE("a", { class: "bx-button" });
+    $btn.href = options.url;
+    $btn.target = "_blank";
+  } else {
+    $btn = CE("button", { class: "bx-button" });
+  }
+  const style = options.style || 0;
+  style && ButtonStyleIndices.forEach((index) => {
+    style & index && $btn.classList.add(ButtonStyle[index]);
+  });
+  options.classes && $btn.classList.add(...options.classes);
+  options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
+  options.label && $btn.appendChild(CE("span", {}, options.label));
+  options.title && $btn.setAttribute("title", options.title);
+  options.disabled && ($btn.disabled = true);
+  options.onClick && $btn.addEventListener("click", options.onClick);
+  return $btn;
+};
+var CTN = document.createTextNode.bind(document);
+window.BX_CE = createElement;
 
 // src/utils/translation.ts
 var SUPPORTED_LANGUAGES = {
@@ -3329,100 +3406,6 @@ var t = Translations.get;
 var refreshCurrentLocale = Translations.refreshCurrentLocale;
 refreshCurrentLocale();
 
-// src/utils/html.ts
-var createElement = function(elmName, props = {}, ..._) {
-  let $elm;
-  const hasNs = "xmlns" in props;
-  if (hasNs) {
-    $elm = document.createElementNS(props.xmlns, elmName);
-    delete props.xmlns;
-  } else {
-    $elm = document.createElement(elmName);
-  }
-  for (const key in props) {
-    if ($elm.hasOwnProperty(key)) {
-      continue;
-    }
-    if (hasNs) {
-      $elm.setAttributeNS(null, key, props[key]);
-    } else {
-      $elm.setAttribute(key, props[key]);
-    }
-  }
-  for (let i = 2, size = arguments.length;i < size; i++) {
-    const arg = arguments[i];
-    const argType = typeof arg;
-    if (argType === "string" || argType === "number") {
-      $elm.appendChild(document.createTextNode(arg));
-    } else if (arg) {
-      $elm.appendChild(arg);
-    }
-  }
-  return $elm;
-};
-var CE = createElement;
-var Icon;
-(function(Icon2) {
-  Icon2["STREAM_SETTINGS"] = '<g transform="matrix(.142357 0 0 .142357 -2.22021 -2.22164)" fill="none" stroke="#fff" stroke-width="16"><circle cx="128" cy="128" r="40"/><path d="M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z"/></g>';
-  Icon2["STREAM_STATS"] = '<path d="M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z"/><path d="M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74"/>';
-  Icon2["CONTROLLER"] = '<path d="M19.193 12.807h3.193m-13.836 0h4.257"/><path d="M10.678 10.678v4.257"/><path d="M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z"/><path d="M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194"/>';
-  Icon2["DISPLAY"] = '<path d="M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08"/>';
-  Icon2["MOUSE"] = '<path d="M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z"/><path d="M16 13.721V6.883"/>';
-  Icon2["MOUSE_SETTINGS"] = '<g transform="matrix(1.10403 0 0 1.10403 -4.17656 -.560429)" fill="none" stroke="#fff"><g stroke-width="1.755"><path d="M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714"/><path d="M15.5 12.501v-6"/></g><circle cx="48" cy="48" r="15" stroke-width="7.02" transform="matrix(.142357 0 0 .142357 17.667421 16.541885)"/><path d="M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z" stroke-width=".999"/></g>';
-  Icon2["NEW"] = '<path d="M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z"/><path d="M19.625 1.5v8.458h8.458m-15.708 9.667h7.25"/><path d="M16 16v7.25"/>';
-  Icon2["COPY"] = '<path d="M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73"/>';
-  Icon2["TRASH"] = '<path d="M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818"/><path d="M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455"/>';
-  Icon2["CURSOR_TEXT"] = '<path d="M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8"/><path d="M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3"/><path d="M11.65 16h8.7"/>';
-  Icon2["QUESTION"] = '<g transform="matrix(.256867 0 0 .256867 -16.878964 -18.049342)"><circle cx="128" cy="180" r="12" fill="#fff"/><path d="M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4" fill="none" stroke="#fff" stroke-width="16"/></g>';
-  Icon2["REMOTE_PLAY"] = '<g transform="matrix(.492308 0 0 .581818 -14.7692 -11.6364)"><clipPath id="A"><path d="M30 20h65v55H30z"/></clipPath><g clip-path="url(#A)"><g transform="matrix(.395211 0 0 .334409 11.913 7.01124)"><g transform="matrix(.555556 0 0 .555556 57.8889 -20.2417)" fill="none" stroke="#fff" stroke-width="13.88"><path d="M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0"/></g><g transform="matrix(-.555556 0 0 -.555556 200.111 262.393)"><g transform="matrix(1 0 0 1 0 11.5642)"><path d="M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129" fill="none" stroke="#fff" stroke-width="13.88"/></g><path d="M168 165c-23.783-17.3-56.217-17.3-80 0" fill="none" stroke="#fff" stroke-width="13.88"/></g><g transform="matrix(.75 0 0 .75 32 32)"><path d="M24 72h208v93.881H24z" fill="none" stroke="#fff" stroke-linejoin="miter" stroke-width="9.485"/><circle cx="188" cy="128" r="12" stroke-width="10" transform="matrix(.708333 0 0 .708333 71.8333 12.8333)"/><path d="M24.358 103.5h110" fill="none" stroke="#fff" stroke-linecap="butt" stroke-width="10.282"/></g></g></g></g>';
-  Icon2["HAND_TAP"] = '<path d="M6.537 8.906c0-4.216 3.469-7.685 7.685-7.685s7.685 3.469 7.685 7.685M7.719 30.778l-4.333-7.389C3.133 22.944 3 22.44 3 21.928a2.97 2.97 0 0 1 2.956-2.956 2.96 2.96 0 0 1 2.55 1.461l2.761 4.433V8.906a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v8.276a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v2.365a2.97 2.97 0 0 1 2.956-2.956A2.97 2.97 0 0 1 29 19.547v5.32c0 3.547-1.182 5.911-1.182 5.911"/>';
-})(Icon || (Icon = {}));
-var createSvgIcon = (icon, strokeWidth = 2) => {
-  const $svg = CE("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    fill: "none",
-    stroke: "#fff",
-    "fill-rule": "evenodd",
-    "stroke-linecap": "round",
-    "stroke-linejoin": "round",
-    "stroke-width": strokeWidth
-  });
-  $svg.innerHTML = icon;
-  $svg.setAttribute("viewBox", "0 0 32 32");
-  return $svg;
-};
-var ButtonStyle = {};
-ButtonStyle[ButtonStyle.PRIMARY = 1] = "bx-primary";
-ButtonStyle[ButtonStyle.DANGER = 2] = "bx-danger";
-ButtonStyle[ButtonStyle.GHOST = 4] = "bx-ghost";
-ButtonStyle[ButtonStyle.FOCUSABLE = 8] = "bx-focusable";
-ButtonStyle[ButtonStyle.FULL_WIDTH = 16] = "bx-full-width";
-ButtonStyle[ButtonStyle.FULL_HEIGHT = 32] = "bx-full-height";
-var ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map((i) => parseInt(i));
-var createButton = (options) => {
-  let $btn;
-  if (options.url) {
-    $btn = CE("a", { class: "bx-button" });
-    $btn.href = options.url;
-    $btn.target = "_blank";
-  } else {
-    $btn = CE("button", { class: "bx-button" });
-  }
-  const style = options.style || 0;
-  style && ButtonStyleIndices.forEach((index) => {
-    style & index && $btn.classList.add(ButtonStyle[index]);
-  });
-  options.classes && $btn.classList.add(...options.classes);
-  options.icon && $btn.appendChild(createSvgIcon(options.icon, 4));
-  options.label && $btn.appendChild(CE("span", {}, options.label));
-  options.title && $btn.setAttribute("title", options.title);
-  options.disabled && ($btn.disabled = true);
-  options.onClick && $btn.addEventListener("click", options.onClick);
-  return $btn;
-};
-var CTN = document.createTextNode.bind(document);
-window.BX_CE = createElement;
-
 // src/utils/settings.ts
 var SettingElementType;
 (function(SettingElementType2) {
@@ -3668,6 +3651,10 @@ class UserAgent {
     }
     return result;
   }
+  static isMobile() {
+    const userAgent = (UserAgent.getDefault() || "").toLowerCase();
+    return /iphone|ipad|android/.test(userAgent);
+  }
   static spoof() {
     let newUserAgent;
     const profile = getPref(PrefKey.USER_AGENT_PROFILE);
@@ -3677,6 +3664,7 @@ class UserAgent {
     if (!newUserAgent) {
       newUserAgent = UserAgent.get(profile);
     }
+    window.navigator.orgUserAgentData = window.navigator.userAgentData;
     Object.defineProperty(window.navigator, "userAgentData", {});
     window.navigator.orgUserAgent = window.navigator.userAgent;
     Object.defineProperty(window.navigator, "userAgent", {
@@ -4761,6 +4749,50 @@ var getPref = prefs.get.bind(prefs);
 var setPref = prefs.set.bind(prefs);
 var toPrefElement = prefs.toElement.bind(prefs);
 
+// src/utils/bx-exposed.ts
+var InputType;
+(function(InputType2) {
+  InputType2["CONTROLLER"] = "Controller";
+  InputType2["MKB"] = "MKB";
+  InputType2["CUSTOM_TOUCH_OVERLAY"] = "CustomTouchOverlay";
+  InputType2["GENERIC_TOUCH"] = "GenericTouch";
+  InputType2["NATIVE_TOUCH"] = "NativeTouch";
+  InputType2["BATIVE_SENSOR"] = "NativeSensor";
+})(InputType || (InputType = {}));
+var BxExposed = {
+  onPollingModeChanged: (mode) => {
+    if (!STATES.isPlaying) {
+      return false;
+    }
+    const $screenshotBtn = document.querySelector(".bx-screenshot-button");
+    const $touchControllerBar = document.getElementById("bx-touch-controller-bar");
+    if (mode !== "None") {
+      $screenshotBtn && $screenshotBtn.classList.add("bx-gone");
+      $touchControllerBar && $touchControllerBar.classList.add("bx-gone");
+    } else {
+      $screenshotBtn && $screenshotBtn.classList.remove("bx-gone");
+      $touchControllerBar && $touchControllerBar.classList.remove("bx-gone");
+    }
+  },
+  modifyTitleInfo: (titleInfo) => {
+    titleInfo = structuredClone(titleInfo);
+    const touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
+    let supportedInputTypes = titleInfo.details.supportedInputTypes;
+    if (UserAgent.isMobile()) {
+      supportedInputTypes = supportedInputTypes.filter((i) => i !== "MKB");
+    }
+    titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
+    titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) && !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) && !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+    if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
+      supportedInputTypes.push(InputType.GENERIC_TOUCH);
+    }
+    titleInfo.details.supportedInputTypes = supportedInputTypes;
+    STATES.currentStream.titleInfo = titleInfo;
+    BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
+    return titleInfo;
+  }
+};
+
 // src/utils/region.ts
 function getPreferredServerRegion(shortName = false) {
   let preferredRegion = getPref(PrefKey.SERVER_REGION);
@@ -4785,84 +4817,6 @@ function getPreferredServerRegion(shortName = false) {
   return "???";
 }
 
-// src/utils/titles-info.ts
-class TitlesInfo {
-  static #INFO = {};
-  static get(titleId) {
-    return TitlesInfo.#INFO[titleId];
-  }
-  static update(titleId, info) {
-    TitlesInfo.#INFO[titleId] = TitlesInfo.#INFO[titleId] || {};
-    Object.assign(TitlesInfo.#INFO[titleId], info);
-  }
-  static saveFromTitleInfo(titleInfo) {
-    const details = titleInfo.details;
-    const info = {
-      titleId: titleInfo.titleId,
-      xboxTitleId: "" + details.xboxTitleId,
-      hasTouchSupport: details.supportedInputTypes.length > 1
-    };
-    TitlesInfo.update(details.productId, info);
-  }
-  static saveFromCatalogInfo(catalogInfo) {
-    const titleId = catalogInfo.StoreId;
-    const imageHero = (catalogInfo.Image_Hero || catalogInfo.Image_Tile || {}).URL;
-    TitlesInfo.update(titleId, {
-      imageHero
-    });
-  }
-  static hasTouchSupport(titleId) {
-    return !!TitlesInfo.#INFO[titleId]?.hasTouchSupport;
-  }
-  static requestCatalogInfo(titleId, callback) {
-    const url = `https://catalog.gamepass.com/v3/products?market=${STATES.appContext.marketInfo.market}&language=${STATES.appContext.marketInfo.locale}&hydration=RemoteHighSapphire0`;
-    const appVersion = document.querySelector("meta[name=gamepass-app-version]").getAttribute("content");
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Ms-Cv": STATES.appContext.telemetryInfo.initialCv,
-        "Calling-App-Name": "Xbox Cloud Gaming Web",
-        "Calling-App-Version": appVersion
-      },
-      body: JSON.stringify({
-        Products: [titleId]
-      })
-    }).then((resp) => {
-      callback && callback(TitlesInfo.get(titleId));
-    });
-  }
-}
-
-class PreloadedState {
-  static override() {
-    Object.defineProperty(window, "__PRELOADED_STATE__", {
-      configurable: true,
-      get: () => {
-        const userAgent = UserAgent.spoof();
-        if (userAgent) {
-          this._state.appContext.requestInfo.userAgent = userAgent;
-        }
-        return this._state;
-      },
-      set: (state) => {
-        this._state = state;
-        STATES.appContext = structuredClone(state.appContext);
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
-          let titles = {};
-          try {
-            titles = state.xcloud.titles.data.titles;
-          } catch (e) {
-          }
-          for (let id2 in titles) {
-            TitlesInfo.saveFromTitleInfo(titles[id2].data);
-          }
-        }
-      }
-    });
-  }
-}
-
 // src/modules/loading-screen.ts
 class LoadingScreen {
   static #$bgStyle;
@@ -4877,8 +4831,8 @@ class LoadingScreen {
     return mDisplay + sDisplay;
   }
   static setup() {
-    const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-    if (!match) {
+    const titleInfo = STATES.currentStream.titleInfo;
+    if (!titleInfo) {
       return;
     }
     if (!LoadingScreen.#$bgStyle) {
@@ -4886,15 +4840,7 @@ class LoadingScreen {
       document.documentElement.appendChild($bgStyle);
       LoadingScreen.#$bgStyle = $bgStyle;
     }
-    const titleId = match[1];
-    const titleInfo = TitlesInfo.get(titleId);
-    if (titleInfo && titleInfo.imageHero) {
-      LoadingScreen.#setBackground(titleInfo.imageHero);
-    } else {
-      TitlesInfo.requestCatalogInfo(titleId, (info) => {
-        info && info.imageHero && LoadingScreen.#setBackground(info.imageHero);
-      });
-    }
+    LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl);
     if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide") {
       LoadingScreen.#hideRocket();
     }
@@ -5629,6 +5575,7 @@ class MkbHandler {
   };
   #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
   #enabled = false;
+  #isPolling = false;
   #prevWheelCode = null;
   #wheelStoppedTimeout;
   #detectMouseStoppedTimeout;
@@ -5708,10 +5655,15 @@ class MkbHandler {
   };
   #onKeyboardEvent = (e) => {
     const isKeyDown = e.type === "keydown";
-    if (isKeyDown && e.code === "F8") {
-      e.preventDefault();
-      this.toggle();
-      return;
+    if (isKeyDown) {
+      if (e.code === "F8") {
+        e.preventDefault();
+        this.toggle();
+        return;
+      }
+      if (!this.#isPolling) {
+        return;
+      }
     }
     const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code];
     if (typeof buttonIndex === "undefined") {
@@ -5884,6 +5836,7 @@ class MkbHandler {
     this.#waitForPointerLock(true);
   };
   destroy = () => {
+    this.#isPolling = false;
     this.#enabled = false;
     this.stop();
     this.#waitForPointerLock(false);
@@ -5895,6 +5848,7 @@ class MkbHandler {
     window.removeEventListener(BxEvent.STREAM_MENU_HIDDEN, this.#onStreamMenuHidden);
   };
   start = () => {
+    this.#isPolling = true;
     window.navigator.getGamepads = this.#patchedGetGamepads;
     this.#resetGamepad();
     window.addEventListener("keyup", this.#onKeyboardEvent);
@@ -5911,6 +5865,7 @@ class MkbHandler {
     });
   };
   stop = () => {
+    this.#isPolling = false;
     const virtualGamepad = this.#getVirtualGamepad();
     virtualGamepad.connected = false;
     virtualGamepad.timestamp = performance.now();
@@ -5927,8 +5882,8 @@ class MkbHandler {
     window.removeEventListener("contextmenu", this.#disableContextMenu);
   };
   static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, () => {
-      if (getPref(PrefKey.MKB_ENABLED)) {
+    getPref(PrefKey.MKB_ENABLED) && !UserAgent.isMobile() && window.addEventListener(BxEvent.STREAM_PLAYING, () => {
+      if (!STATES.currentStream.titleInfo?.details.hasMkbSupport) {
         console.log("Emulate MKB");
         MkbHandler.INSTANCE.init();
       }
@@ -7843,11 +7798,11 @@ class XcloudInterceptor {
       return NATIVE_FETCH(request, init);
     }
     if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
-      TouchController.disable();
-      const match = window.location.pathname.match(/\/launch\/[^\/]+\/([\w\d]+)/);
-      if (match) {
-        const titleId = match[1];
-        !TitlesInfo.hasTouchSupport(titleId) && TouchController.enable();
+      const titleInfo = STATES.currentStream.titleInfo;
+      if (titleInfo?.details.hasTouchSupport) {
+        TouchController.disable();
+      } else {
+        TouchController.enable();
       }
     }
     const response = await NATIVE_FETCH(request, init);
@@ -7872,24 +7827,6 @@ class XcloudInterceptor {
     response.text = () => Promise.resolve(JSON.stringify(obj));
     return response;
   }
-  static async#handleCatalog(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    const json = await response.clone().json();
-    for (let productId in json.Products) {
-      TitlesInfo.saveFromCatalogInfo(json.Products[productId]);
-    }
-    return response;
-  }
-  static async#handleTitles(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
-      const json = await response.clone().json();
-      for (let game of json.results) {
-        TitlesInfo.saveFromTitleInfo(game);
-      }
-    }
-    return response;
-  }
   static async handle(request, init) {
     let url = typeof request === "string" ? request : request.url;
     if (url.endsWith("/v2/login/user")) {
@@ -7900,10 +7837,6 @@ class XcloudInterceptor {
       return XcloudInterceptor.#handleWaitTime(request, init);
     } else if (url.endsWith("/configuration")) {
       return XcloudInterceptor.#handleConfiguration(request, init);
-    } else if (url.startsWith("https://catalog.gamepass.com") && url.includes("/products")) {
-      return XcloudInterceptor.#handleCatalog(request, init);
-    } else if (url.includes("/v2/titles") || url.includes("/mru")) {
-      return XcloudInterceptor.#handleTitles(request, init);
     } else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") {
       return patchIceCandidates(request);
     }
@@ -9745,14 +9678,14 @@ const gamepads = window.navigator.getGamepads();
 let gamepadFound = false;
 
 for (let gamepad of gamepads) {
-if (gamepad && gamepad.connected) {
-    gamepadFound = true;
-    break;
-}
+    if (gamepad && gamepad.connected) {
+        gamepadFound = true;
+        break;
+    }
 }
 
 if (gamepadFound) {
-return;
+    return;
 }
 `;
     }
@@ -9788,6 +9721,42 @@ window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged
 `;
     str2 = str2.replace(text, text + newCode);
     return str2;
+  },
+  patchXcloudTitleInfo(str2) {
+    const text = "async cloudConnect";
+    let index = str2.indexOf(text);
+    if (index === -1) {
+      return false;
+    }
+    let backetIndex = str2.indexOf("{", index);
+    const params = str2.substring(index, backetIndex).match(/\(([^)]+)\)/)[1];
+    const titleInfoVar = params.split(",")[0];
+    const newCode = `
+${titleInfoVar} = window.BX_EXPOSED.modifyTitleInfo(${titleInfoVar});
+console.log(${titleInfoVar});
+`;
+    str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1);
+    return str2;
+  },
+  patchRemotePlayMkb(str2) {
+    const text = "async homeConsoleConnect";
+    let index = str2.indexOf(text);
+    if (index === -1) {
+      return false;
+    }
+    let backetIndex = str2.indexOf("{", index);
+    const params = str2.substring(index, backetIndex).match(/\(([^)]+)\)/)[1];
+    const configsVar = params.split(",")[1];
+    const newCode = `
+Object.assign(${configsVar}.inputConfiguration, {
+    enableMouseInput: false,
+    enableKeyboardInput: false,
+    enableAbsoluteMouse: false,
+});
+console.log(${configsVar});
+`;
+    str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1);
+    return str2;
   }
 };
 var PATCH_ORDERS = [
@@ -9820,6 +9789,8 @@ var PATCH_ORDERS = [
   getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && ["forceFortniteConsole"]
 ];
 var PLAYING_PATCH_ORDERS = [
+  ["patchXcloudTitleInfo"],
+  getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["patchRemotePlayMkb"],
   getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["remotePlayConnectMode"],
   getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["remotePlayGuideWorkaround"],
   ["patchStreamHud"],
@@ -9960,6 +9931,26 @@ function onHistoryChanged(e) {
   LoadingScreen.reset();
   window.setTimeout(checkHeader, 2000);
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+}
+
+// src/utils/titles-info.ts
+class PreloadedState {
+  static override() {
+    Object.defineProperty(window, "__PRELOADED_STATE__", {
+      configurable: true,
+      get: () => {
+        const userAgent = UserAgent.spoof();
+        if (userAgent) {
+          this._state.appContext.requestInfo.userAgent = userAgent;
+        }
+        return this._state;
+      },
+      set: (state) => {
+        this._state = state;
+        STATES.appContext = structuredClone(state.appContext);
+      }
+    });
+  }
 }
 
 // src/utils/monkey-patches.ts
@@ -10176,8 +10167,8 @@ window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
     STATES.currentStream.productId = "";
   }
   setupBxUi();
-  getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.setup();
 });
+getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && window.addEventListener(BxEvent.TITLE_INFO_READY, LoadingScreen.setup);
 window.addEventListener(BxEvent.STREAM_STARTING, (e) => {
   LoadingScreen.hide();
   if (!getPref(PrefKey.MKB_ENABLED) && getPref(PrefKey.MKB_HIDE_IDLE_CURSOR)) {
