@@ -478,7 +478,7 @@ const PLAYING_PATCH_ORDERS = [
 
     ['playVibration'],
     STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
-    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' && ['disableTakRenderer'],
+    STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ['disableTakRenderer'],
 
     BX_FLAGS.EnableXcloudLogging && ['enableConsoleLogging'],
 
