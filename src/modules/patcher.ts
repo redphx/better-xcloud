@@ -395,14 +395,46 @@ window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged
         }
 
         // Find the next "{" backet
-        index = str.indexOf('{', index) + 1;
+        let backetIndex = str.indexOf('{', index);
+
+        // Get param name
+        const params = str.substring(index, backetIndex).match(/\(([^)]+)\)/)![1];
+        const titleInfoVar = params.split(',')[0];
 
         const newCode = `
-e = window.BX_EXPOSED.modifyTitleInfo(e);
-console.log(e);
+${titleInfoVar} = window.BX_EXPOSED.modifyTitleInfo(${titleInfoVar});
+console.log(${titleInfoVar});
 `;
-        str = str.substring(0, index) + newCode + str.substring(index);
+        str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1);
         return str;
+    },
+
+    patchRemotePlayMkb(str: string) {
+        const text = 'async homeConsoleConnect';
+        let index = str.indexOf(text);
+        if (index === -1) {
+            return false;
+        }
+
+        // Find the next "{" backet
+        let backetIndex = str.indexOf('{', index);
+
+        // Get param name
+        const params = str.substring(index, backetIndex).match(/\(([^)]+)\)/)![1];
+        const configsVar = params.split(',')[1];
+
+        const newCode = `
+Object.assign(${configsVar}.inputConfiguration, {
+    enableMouseInput: false,
+    enableKeyboardInput: false,
+    enableAbsoluteMouse: false,
+});
+console.log(${configsVar});
+`;
+
+        str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1);
+        return str;
+
     },
 };
 
@@ -451,6 +483,7 @@ let PATCH_ORDERS = [
 // Only when playing
 const PLAYING_PATCH_ORDERS = [
     ['patchXcloudTitleInfo'],
+    getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['patchRemotePlayMkb'],
 
     getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
     getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayGuideWorkaround'],

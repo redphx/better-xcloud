@@ -51,6 +51,7 @@ export class MkbHandler {
     #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
 
     #enabled = false;
+    #isPolling = false;
 
     #prevWheelCode = null;
     #wheelStoppedTimeout?: number | null;
@@ -162,10 +163,16 @@ export class MkbHandler {
         const isKeyDown = e.type === 'keydown';
 
         // Toggle MKB feature
-        if (isKeyDown && e.code === 'F8') {
-            e.preventDefault();
-            this.toggle();
-            return;
+        if (isKeyDown) {
+            if (e.code === 'F8') {
+                e.preventDefault();
+                this.toggle();
+                return;
+            }
+
+            if (!this.#isPolling) {
+                return;
+            }
         }
 
         const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code]!;
@@ -396,6 +403,7 @@ export class MkbHandler {
     }
 
     destroy = () => {
+        this.#isPolling = false;
         this.#enabled = false;
         this.stop();
 
@@ -412,6 +420,7 @@ export class MkbHandler {
     }
 
     start = () => {
+        this.#isPolling = true;
         window.navigator.getGamepads = this.#patchedGetGamepads;
 
         this.#resetGamepad();
@@ -435,6 +444,7 @@ export class MkbHandler {
     }
 
     stop = () => {
+        this.#isPolling = false;
 
         // Dispatch "gamepaddisconnected" event
         const virtualGamepad = this.#getVirtualGamepad();
