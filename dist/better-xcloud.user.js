@@ -4774,19 +4774,36 @@ var BxExposed = {
       $touchControllerBar && $touchControllerBar.classList.remove("bx-gone");
     }
   },
+  getTitleInfo: () => STATES.currentStream.titleInfo,
   modifyTitleInfo: (titleInfo) => {
     titleInfo = structuredClone(titleInfo);
-    const touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
-    let supportedInputTypes = titleInfo.details.supportedInputTypes;
-    if (UserAgent.isMobile()) {
-      supportedInputTypes = supportedInputTypes.filter((i) => i !== "MKB");
+    if (STATES.hasTouchSupport) {
+      let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
+      let supportedInputTypes = titleInfo.details.supportedInputTypes;
+      if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+        const gamepads = window.navigator.getGamepads();
+        let gamepadFound = false;
+        for (let gamepad of gamepads) {
+          if (gamepad && gamepad.connected) {
+            gamepadFound = true;
+            break;
+          }
+        }
+        gamepadFound && (touchControllerAvailability = "off");
+      }
+      if (UserAgent.isMobile()) {
+        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
+      }
+      if (touchControllerAvailability === "off") {
+        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
+      }
+      titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
+      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) && !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) && !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+      if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
+        supportedInputTypes.push(InputType.GENERIC_TOUCH);
+      }
+      titleInfo.details.supportedInputTypes = supportedInputTypes;
     }
-    titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-    titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) && !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) && !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
-    if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
-      supportedInputTypes.push(InputType.GENERIC_TOUCH);
-    }
-    titleInfo.details.supportedInputTypes = supportedInputTypes;
     STATES.currentStream.titleInfo = titleInfo;
     BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
     return titleInfo;
@@ -9669,26 +9686,12 @@ if (match) {
     if (!str2.includes(text)) {
       return false;
     }
-    let newCode = "";
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off") {
-      newCode = "return;";
-    } else {
-      newCode = `
-const gamepads = window.navigator.getGamepads();
-let gamepadFound = false;
-
-for (let gamepad of gamepads) {
-    if (gamepad && gamepad.connected) {
-        gamepadFound = true;
-        break;
-    }
-}
-
-if (gamepadFound) {
+    const newCode = `
+const titleInfo = window.BX_EXPOSED.getTitleInfo();
+if (!titleInfo.details.hasTouchSupport) {
     return;
 }
 `;
-    }
     str2 = str2.replace(text, newCode + text);
     return str2;
   },
@@ -9796,7 +9799,7 @@ var PLAYING_PATCH_ORDERS = [
   ["patchStreamHud"],
   ["playVibration"],
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && ["exposeTouchLayoutManager"],
-  STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ["disableTakRenderer"],
+  STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" && ["disableTakRenderer"],
   BX_FLAGS.EnableXcloudLogging && ["enableConsoleLogging"],
   getPref(PrefKey.BLOCK_TRACKING) && ["blockGamepadStatsCollector"],
   [
