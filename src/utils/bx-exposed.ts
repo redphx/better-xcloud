@@ -36,30 +36,54 @@ export const BxExposed = {
         }
     },
 
+    getTitleInfo: () => STATES.currentStream.titleInfo,
+
     modifyTitleInfo: (titleInfo: XcloudTitleInfo): XcloudTitleInfo => {
         // Clone the object since the original is read-only
         titleInfo = structuredClone(titleInfo);
 
-        const touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
+        if (STATES.hasTouchSupport) {
+            let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
+            let supportedInputTypes = titleInfo.details.supportedInputTypes;
 
-        let supportedInputTypes = titleInfo.details.supportedInputTypes;
+            // Disable touch control when gamepad found
+            if (touchControllerAvailability !== 'off' && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+                const gamepads = window.navigator.getGamepads();
+                let gamepadFound = false;
 
-        // Remove MKB support on mobile browsers
-        if (UserAgent.isMobile()) {
-            supportedInputTypes = supportedInputTypes.filter(i => i !== 'MKB');
+                for (let gamepad of gamepads) {
+                    if (gamepad && gamepad.connected) {
+                        gamepadFound = true;
+                        break;
+                    }
+                }
+
+                gamepadFound && (touchControllerAvailability = 'off');
+            }
+
+            // Remove MKB support on mobile browsers
+            if (UserAgent.isMobile()) {
+                supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.MKB);
+            }
+
+            if (touchControllerAvailability === 'off') {
+                // Disable touch on all games (not native touch)
+                supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
+            }
+
+            // Pre-check supported input types
+            titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
+            titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) &&
+                    !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) &&
+                    !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+
+            if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === 'all') {
+                // Add generic touch support for non touch-supported games
+                supportedInputTypes.push(InputType.GENERIC_TOUCH);
+            }
+
+            titleInfo.details.supportedInputTypes = supportedInputTypes;
         }
-
-        // Pre-check supported input types
-        titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-        titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) &&
-                !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) &&
-                !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
-
-        // Add generic touch support for non touch-supported games
-        if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === 'all') {
-            supportedInputTypes.push(InputType.GENERIC_TOUCH);
-        }
-        titleInfo.details.supportedInputTypes = supportedInputTypes;
 
         // Save this info in STATES
         STATES.currentStream.titleInfo = titleInfo;

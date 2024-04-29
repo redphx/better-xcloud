@@ -323,26 +323,12 @@ if (match) {
             return false;
         }
 
-        let newCode = '';
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off') {
-            newCode = 'return;';
-        } else {
-            newCode = `
-const gamepads = window.navigator.getGamepads();
-let gamepadFound = false;
-
-for (let gamepad of gamepads) {
-    if (gamepad && gamepad.connected) {
-        gamepadFound = true;
-        break;
-    }
-}
-
-if (gamepadFound) {
+        const newCode = `
+const titleInfo = window.BX_EXPOSED.getTitleInfo();
+if (!titleInfo.details.hasTouchSupport) {
     return;
 }
 `;
-        }
 
         str = str.replace(text, newCode + text);
         return str;
@@ -492,7 +478,7 @@ const PLAYING_PATCH_ORDERS = [
 
     ['playVibration'],
     STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
-    STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ['disableTakRenderer'],
+    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' && ['disableTakRenderer'],
 
     BX_FLAGS.EnableXcloudLogging && ['enableConsoleLogging'],
 
