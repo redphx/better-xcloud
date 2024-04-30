@@ -226,6 +226,19 @@ class XhomeInterceptor {
         return NATIVE_FETCH(request);
     }
 
+    static async #handlePlay(request: RequestInfo | URL) {
+        const clone = (request as Request).clone();
+        const body = await clone.json();
+
+        // body.settings.useIceConnection = true;
+
+        const newRequest = new Request(request, {
+            body: JSON.stringify(body),
+        });
+
+        return NATIVE_FETCH(newRequest);
+    }
+
     static async handle(request: Request) {
         TouchController.disable();
 
@@ -267,6 +280,8 @@ class XhomeInterceptor {
         // Get console IP
         if (url.includes('/configuration')) {
             return XhomeInterceptor.#handleConfiguration(request);
+        } else if (url.endsWith('/sessions/home/play')) {
+            return XhomeInterceptor.#handlePlay(request);
         } else if (url.includes('inputconfigs')) {
             return XhomeInterceptor.#handleInputConfigs(request, opts);
         } else if (url.includes('/login/user')) {
