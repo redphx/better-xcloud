@@ -177,13 +177,13 @@ const PATCHES = {
 
         const newCode = `
 if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {
-return void(0);
+    return void(0);
 }
 if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
-e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
-e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
-e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
-e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
 }
 `;
 
