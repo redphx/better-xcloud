@@ -2,6 +2,9 @@ import { STATES } from "../utils/global";
 import { BX_FLAGS } from "../utils/bx-flags";
 import { getPref, PrefKey } from "../utils/preferences";
 import { VibrationManager } from "./vibration-manager";
+import { BxLogger } from "../utils/bx-logger";
+
+const LOG_TAG = 'Patcher';
 
 const PATCHES = {
     // Disable ApplicationInsights.track() function
@@ -243,7 +246,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return false;
         }
 
-        console.log('[Better xCloud] Remaining patches:', PATCH_ORDERS);
+        BxLogger.info(LOG_TAG, 'Remaining patches:', PATCH_ORDERS);
         PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
         Patcher.cleanupPatches();
 
@@ -293,9 +296,9 @@ if (match) {
     const gamepadIndexVar = match[0];
     onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar},\`);
     eval(\`this.onGamepadInput = function \${onGamepadInputStr}\`);
-    console.log('[Better xCloud] ✅ Successfully patched local co-op support');
+    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');
 } else {
-    console.log('[Better xCloud] ❌ Unable to patch local co-op support');
+    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');
 }
 `;
 
@@ -389,7 +392,7 @@ window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged
 
         const newCode = `
 ${titleInfoVar} = window.BX_EXPOSED.modifyTitleInfo(${titleInfoVar});
-console.log(${titleInfoVar});
+BxLogger.info('patchXcloudTitleInfo', ${titleInfoVar});
 `;
         str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1);
         return str;
@@ -415,7 +418,7 @@ Object.assign(${configsVar}.inputConfiguration, {
     enableKeyboardInput: false,
     enableAbsoluteMouse: false,
 });
-console.log(${configsVar});
+BxLogger.info('patchRemotePlayMkb', ${configsVar});
 `;
 
         str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1);
@@ -508,7 +511,7 @@ export class Patcher {
             }
 
             if (typeof arguments[1] === 'function') {
-                console.log('[Better xCloud] Restored Function.prototype.bind()');
+                BxLogger.info(LOG_TAG, 'Restored Function.prototype.bind()');
                 Function.prototype.bind = nativeBind;
             }
 
@@ -566,7 +569,7 @@ export class Patcher {
                     modified = true;
                     str = patchedstr;
 
-                    console.log(`[Better xCloud] Applied "${patchName}" patch`);
+                    BxLogger.info(LOG_TAG, `Applied "${patchName}" patch`);
                     appliedPatches.push(patchName);
 
                     // Remove patch from group

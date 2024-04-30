@@ -5,6 +5,7 @@ import { StreamBadges } from "./stream-badges"
 import { CE } from "../../utils/html"
 import { t } from "../../utils/translation"
 import { STATES } from "../../utils/global"
+import { BxLogger } from "../../utils/bx-logger"
 
 export enum StreamStat {
     PING = 'ping',
@@ -274,7 +275,7 @@ export class StreamStats {
 
             // Get server type
             if (candidateId) {
-                console.log('candidate', candidateId, allCandidates);
+                BxLogger.info('candidate', candidateId, allCandidates);
                 StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
             }
 

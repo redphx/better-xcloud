@@ -2,6 +2,7 @@ import { MkbHandler } from "../modules/mkb/mkb-handler";
 import { PrefKey, getPref } from "./preferences";
 import { t } from "./translation";
 import { Toast } from "./toast";
+import { BxLogger } from "./bx-logger";
 
 // Show a toast when connecting/disconecting controller
 export function showGamepadToast(gamepad: Gamepad) {
@@ -10,7 +11,7 @@ export function showGamepadToast(gamepad: Gamepad) {
         return;
     }
 
-    console.log(gamepad);
+    BxLogger.info('Gamepad', gamepad);
     let text = '🎮';
 
     if (getPref(PrefKey.LOCAL_CO_OP_ENABLED)) {

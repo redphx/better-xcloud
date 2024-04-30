@@ -11,6 +11,9 @@ import type { MkbStoredPreset } from "../../types/mkb";
 import { showStreamSettings } from "../stream/stream-ui";
 import { STATES } from "../../utils/global";
 import { UserAgent } from "../../utils/user-agent";
+import { BxLogger } from "../../utils/bx-logger";
+
+const LOG_TAG = 'MkbHandler';
 
 /*
 This class uses some code from Yuzu emulator to handle mouse's movements
@@ -472,7 +475,7 @@ export class MkbHandler {
         getPref(PrefKey.MKB_ENABLED) && !UserAgent.isMobile() && window.addEventListener(BxEvent.STREAM_PLAYING, () => {
             // Enable MKB
             if (!STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-                console.log('Emulate MKB');
+                BxLogger.info(LOG_TAG, 'Emulate MKB');
                 MkbHandler.INSTANCE.init();
             }
         });

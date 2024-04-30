@@ -26,6 +26,7 @@ import { PreloadedState } from "./utils/titles-info";
 import { patchAudioContext, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "./utils/monkey-patches";
 import { STATES } from "./utils/global";
 import { injectStreamMenuButtons } from "./modules/stream/stream-ui";
+import { BxLogger } from "./utils/bx-logger";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
@@ -40,7 +41,7 @@ if (window.location.pathname.includes('/auth/msa')) {
     throw new Error('[Better xCloud] Refreshing the page after logging in');
 }
 
-console.log(`[Better xCloud] readyState: ${document.readyState}`);
+BxLogger.info('readyState', document.readyState);
 
 if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
     // Stop loading

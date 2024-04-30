@@ -6,6 +6,9 @@ import { BX_FLAGS } from "../utils/bx-flags";
 import { getPref, PrefKey } from "../utils/preferences";
 import { t } from "../utils/translation";
 import { NATIVE_FETCH } from "../utils/network";
+import { BxLogger } from "../utils/bx-logger";
+
+const LOG_TAG = 'TouchController';
 
 export class TouchController {
     static readonly #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent('message', {
@@ -296,7 +299,7 @@ export class TouchController {
                         STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
                     }
                 } catch (e) {
-                    console.log(e);
+                    BxLogger.error(LOG_TAG, 'Load custom layout', e);
                 }
             });
         });

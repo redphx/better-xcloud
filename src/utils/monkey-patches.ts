@@ -2,6 +2,7 @@ import { BxEvent } from "./bx-event";
 import { getPref, PrefKey } from "./preferences";
 import { STATES } from "./global";
 import { UserAgent } from "./user-agent";
+import { BxLogger } from "./bx-logger";
 
 export function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);
@@ -77,7 +78,7 @@ export function patchRtcCodecs() {
             nativeSetCodecPreferences.apply(this, [newCodecs]);
         } catch (e) {
             // Didn't work -> use default codecs
-            console.log(e);
+            BxLogger.error('setCodecPreferences', e);
             nativeSetCodecPreferences.apply(this, [codecs]);
         }
     }
@@ -106,7 +107,8 @@ export function patchRtcPeerConnection() {
                 if (conn.connectionState === 'connecting') {
                     STATES.currentStream.audioGainNode = null;
                 }
-                console.log('connectionState', conn.connectionState);
+
+                BxLogger.info('connectionstatechange', conn.connectionState);
             });
         return conn;
     }

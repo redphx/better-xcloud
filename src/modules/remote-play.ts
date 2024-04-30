@@ -5,6 +5,9 @@ import { BxEvent } from "../utils/bx-event";
 import { getPref, PrefKey, setPref } from "../utils/preferences";
 import { t } from "../utils/translation";
 import { localRedirect } from "./ui/ui";
+import { BxLogger } from "../utils/bx-logger";
+
+const LOG_TAG = 'RemotePlay';
 
 enum RemotePlayConsoleState {
     ON = 'On',
@@ -92,7 +95,7 @@ export class RemotePlay {
         RemotePlay.#$content = CE('div', {}, t('getting-consoles-list'));
         RemotePlay.#getXhomeToken(() => {
             RemotePlay.#getConsolesList(() => {
-                console.log(RemotePlay.#CONSOLES);
+                BxLogger.info(LOG_TAG, 'Consoles', RemotePlay.#CONSOLES);
                 RemotePlay.#renderConsoles();
                 BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
             });
