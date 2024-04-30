@@ -1,0 +1,7 @@
+{
+  "name": "The Rewinder",
+  "default_layout": "custom",
+  "layouts": [
+    "the-rewinder"
+  ]
+}
