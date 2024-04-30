@@ -3864,6 +3864,31 @@ class StreamBadges {
   }
 }
 
+// src/utils/bx-logger.ts
+var TextColor;
+(function(TextColor2) {
+  TextColor2["INFO"] = "#008746";
+  TextColor2["WARNING"] = "#c1a404";
+  TextColor2["ERROR"] = "#c10404";
+})(TextColor || (TextColor = {}));
+
+class BxLogger {
+  static #PREFIX = "[BxC]";
+  static info(tag, ...args) {
+    BxLogger.#log(TextColor.INFO, tag, ...args);
+  }
+  static warning(tag, ...args) {
+    BxLogger.#log(TextColor.WARNING, tag, ...args);
+  }
+  static error(tag, ...args) {
+    BxLogger.#log(TextColor.ERROR, tag, ...args);
+  }
+  static #log(color, tag, ...args) {
+    console.log("%c" + BxLogger.#PREFIX, "color:" + color + ";font-weight:bold;", tag, "-", ...args);
+  }
+}
+window.BxLogger = BxLogger;
+
 // src/modules/stream/stream-stats.ts
 var StreamStat;
 (function(StreamStat2) {
@@ -4080,7 +4105,7 @@ class StreamStats {
         };
       }
       if (candidateId) {
-        console.log("candidate", candidateId, allCandidates);
+        BxLogger.info("candidate", candidateId, allCandidates);
         StreamBadges.ipv6 = allCandidates[candidateId].includes(":");
       }
       if (getPref(PrefKey.STATS_SHOW_WHEN_PLAYING)) {
@@ -5566,6 +5591,8 @@ class MouseHoldEvent {
 }
 
 // src/modules/mkb/mkb-handler.ts
+var LOG_TAG = "MkbHandler";
+
 class MkbHandler {
   static #instance;
   static get INSTANCE() {
@@ -5902,7 +5929,7 @@ class MkbHandler {
   static setupEvents() {
     getPref(PrefKey.MKB_ENABLED) && !UserAgent.isMobile() && window.addEventListener(BxEvent.STREAM_PLAYING, () => {
       if (!STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-        console.log("Emulate MKB");
+        BxLogger.info(LOG_TAG, "Emulate MKB");
         MkbHandler.INSTANCE.init();
       }
     });
@@ -6472,6 +6499,8 @@ function setupScreenshotButton() {
 }
 
 // src/modules/touch-controller.ts
+var LOG_TAG2 = "TouchController";
+
 class TouchController {
   static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
     data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
@@ -6691,7 +6720,7 @@ class TouchController {
             STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
           }
         } catch (e2) {
-          console.log(e2);
+          BxLogger.error(LOG_TAG2, "Load custom layout", e2);
         }
       });
     });
@@ -7195,6 +7224,7 @@ function setupBxUi() {
 }
 
 // src/modules/remote-play.ts
+var LOG_TAG3 = "RemotePlay";
 var RemotePlayConsoleState;
 (function(RemotePlayConsoleState2) {
   RemotePlayConsoleState2["ON"] = "On";
@@ -7260,7 +7290,7 @@ class RemotePlay {
     RemotePlay.#$content = CE("div", {}, t("getting-consoles-list"));
     RemotePlay.#getXhomeToken(() => {
       RemotePlay.#getConsolesList(() => {
-        console.log(RemotePlay.#CONSOLES);
+        BxLogger.info(LOG_TAG3, "Consoles", RemotePlay.#CONSOLES);
         RemotePlay.#renderConsoles();
         BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
       });
@@ -7686,6 +7716,14 @@ class XhomeInterceptor {
     });
     return NATIVE_FETCH(request);
   }
+  static async#handlePlay(request) {
+    const clone = request.clone();
+    const body = await clone.json();
+    const newRequest = new Request(request, {
+      body: JSON.stringify(body)
+    });
+    return NATIVE_FETCH(newRequest);
+  }
   static async handle(request) {
     TouchController.disable();
     const clone = request.clone();
@@ -7715,6 +7753,8 @@ class XhomeInterceptor {
     let url = typeof request === "string" ? request : request.url;
     if (url.includes("/configuration")) {
       return XhomeInterceptor.#handleConfiguration(request);
+    } else if (url.endsWith("/sessions/home/play")) {
+      return XhomeInterceptor.#handlePlay(request);
     } else if (url.includes("inputconfigs")) {
       return XhomeInterceptor.#handleInputConfigs(request, opts);
     } else if (url.includes("/login/user")) {
@@ -7867,7 +7907,7 @@ function showGamepadToast(gamepad) {
   if (gamepad.id === MkbHandler.VIRTUAL_GAMEPAD_ID) {
     return;
   }
-  console.log(gamepad);
+  BxLogger.info("Gamepad", gamepad);
   let text = "🎮";
   if (getPref(PrefKey.LOCAL_CO_OP_ENABLED)) {
     text += ` #${gamepad.index + 1}`;
@@ -9442,6 +9482,7 @@ function disablePwa() {
 }
 
 // src/modules/patcher.ts
+var LOG_TAG4 = "Patcher";
 var PATCHES = {
   disableAiTrack(str2) {
     const text = ".track=function(";
@@ -9574,13 +9615,13 @@ var PATCHES = {
     }
     const newCode = `
 if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {
-return void(0);
+    return void(0);
 }
 if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
-e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
-e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
-e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
-e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
+    e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
 }
 `;
     VibrationManager.updateGlobalVars();
@@ -9623,7 +9664,7 @@ e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_IN
     if (!str2.includes(text)) {
       return false;
     }
-    console.log("[Better xCloud] Remaining patches:", PATCH_ORDERS);
+    BxLogger.info(LOG_TAG4, "Remaining patches:", PATCH_ORDERS);
     PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
     Patcher.cleanupPatches();
     return str2;
@@ -9664,9 +9705,9 @@ if (match) {
     const gamepadIndexVar = match[0];
     onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar},\`);
     eval(\`this.onGamepadInput = function \${onGamepadInputStr}\`);
-    console.log('[Better xCloud] ✅ Successfully patched local co-op support');
+    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');
 } else {
-    console.log('[Better xCloud] ❌ Unable to patch local co-op support');
+    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');
 }
 `;
     const newCode = `true; ${patchstr}; true,`;
@@ -9737,7 +9778,7 @@ window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged
     const titleInfoVar = params.split(",")[0];
     const newCode = `
 ${titleInfoVar} = window.BX_EXPOSED.modifyTitleInfo(${titleInfoVar});
-console.log(${titleInfoVar});
+BxLogger.info('patchXcloudTitleInfo', ${titleInfoVar});
 `;
     str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1);
     return str2;
@@ -9757,7 +9798,7 @@ Object.assign(${configsVar}.inputConfiguration, {
     enableKeyboardInput: false,
     enableAbsoluteMouse: false,
 });
-console.log(${configsVar});
+BxLogger.info('patchRemotePlayMkb', ${configsVar});
 `;
     str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1);
     return str2;
@@ -9823,7 +9864,7 @@ class Patcher {
         return nativeBind.apply(this, arguments);
       }
       if (typeof arguments[1] === "function") {
-        console.log("[Better xCloud] Restored Function.prototype.bind()");
+        BxLogger.info(LOG_TAG4, "Restored Function.prototype.bind()");
         Function.prototype.bind = nativeBind;
       }
       const orgFunc = this;
@@ -9868,7 +9909,7 @@ class Patcher {
           }
           modified = true;
           str = patchedstr;
-          console.log(`[Better xCloud] Applied "${patchName}" patch`);
+          BxLogger.info(LOG_TAG4, `Applied "${patchName}" patch`);
           appliedPatches.push(patchName);
           group.splice(patchIndex, 1);
           patchIndex--;
@@ -10013,7 +10054,7 @@ function patchRtcCodecs() {
     try {
       nativeSetCodecPreferences.apply(this, [newCodecs]);
     } catch (e) {
-      console.log(e);
+      BxLogger.error("setCodecPreferences", e);
       nativeSetCodecPreferences.apply(this, [codecs]);
     }
   };
@@ -10035,7 +10076,7 @@ function patchRtcPeerConnection() {
       if (conn.connectionState === "connecting") {
         STATES.currentStream.audioGainNode = null;
       }
-      console.log("connectionState", conn.connectionState);
+      BxLogger.info("connectionstatechange", conn.connectionState);
     });
     return conn;
   };
@@ -10114,7 +10155,7 @@ if (window.location.pathname.includes("/auth/msa")) {
   });
   throw new Error("[Better xCloud] Refreshing the page after logging in");
 }
-console.log(`[Better xCloud] readyState: ${document.readyState}`);
+BxLogger.info("readyState", document.readyState);
 if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
   window.stop();
   const css2 = `
