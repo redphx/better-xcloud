@@ -64,11 +64,11 @@ export class MkbHandler {
 
     #$message?: HTMLElement;
 
-    #STICK_MAP: {[index: keyof typeof GamepadKey]: (number | number[])[]};
-    #LEFT_STICK_X: number[] = [];
-    #LEFT_STICK_Y: number[] = [];
-    #RIGHT_STICK_X: number[] = [];
-    #RIGHT_STICK_Y: number[] = [];
+    #STICK_MAP: {[key in GamepadKey]?: [GamepadKey[], number, number]};
+    #LEFT_STICK_X: GamepadKey[] = [];
+    #LEFT_STICK_Y: GamepadKey[] = [];
+    #RIGHT_STICK_X: GamepadKey[] = [];
+    #RIGHT_STICK_Y: GamepadKey[] = [];
 
     constructor() {
         this.#STICK_MAP = {
@@ -128,11 +128,11 @@ export class MkbHandler {
         gamepad.timestamp = performance.now();
     }
 
-    #pressButton = (buttonIndex: number, pressed: boolean) => {
+    #pressButton = (buttonIndex: GamepadKey, pressed: boolean) => {
         const virtualGamepad = this.#getVirtualGamepad();
 
         if (buttonIndex >= 100) {
-            let [valueArr, axisIndex] = this.#STICK_MAP[buttonIndex];
+            let [valueArr, axisIndex] = this.#STICK_MAP[buttonIndex]!;
             valueArr = valueArr as number[];
             axisIndex = axisIndex as number;
 
@@ -148,7 +148,7 @@ export class MkbHandler {
             let value;
             if (valueArr.length) {
                 // Get value of the last key of the axis
-                value = this.#STICK_MAP[valueArr[valueArr.length - 1]][2] as number;
+                value = this.#STICK_MAP[valueArr[valueArr.length - 1]]![2] as number;
             } else {
                 value = 0;
             }
