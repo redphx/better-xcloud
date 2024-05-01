@@ -1,6 +1,6 @@
-import { MkbPreset } from "@/modules/mkb/mkb-preset";
-import { PrefKey, setPref } from "./preferences";
-import { t } from "./translation";
+import { MkbPreset } from "@modules/mkb/mkb-preset";
+import { PrefKey, setPref } from "@utils/preferences";
+import { t } from "@utils/translation";
 import type { MkbStoredPreset, MkbStoredPresets } from "@/types/mkb";
 
 export class LocalDb {

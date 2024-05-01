@@ -1,7 +1,7 @@
-import { BxEvent } from "./bx-event";
-import { LoadingScreen } from "@/modules/loading-screen";
-import { RemotePlay } from "@/modules/remote-play";
-import { checkHeader } from "@/modules/ui/header";
+import { BxEvent } from "@utils/bx-event";
+import { LoadingScreen } from "@modules/loading-screen";
+import { RemotePlay } from "@modules/remote-play";
+import { checkHeader } from "@modules/ui/header";
 
 export function patchHistoryMethod(type: 'pushState' | 'replaceState') {
     const orig = window.history[type];

@@ -9,7 +9,11 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@assets/*": ["./assets/*"],
+      "@macros/*": ["./macros/*"],
+      "@modules/*": ["./modules/*"],
+      "@utils/*": ["./utils/*"],
     },
     // Enable latest features
     "lib": ["ESNext", "DOM"],

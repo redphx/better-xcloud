@@ -1,8 +1,8 @@
-import { BxEvent } from "./bx-event";
-import { getPref, PrefKey } from "./preferences";
-import { STATES } from "./global";
-import { UserAgent } from "./user-agent";
-import { BxLogger } from "./bx-logger";
+import { BxEvent } from "@utils/bx-event";
+import { getPref, PrefKey } from "@utils/preferences";
+import { STATES } from "@utils/global";
+import { UserAgent } from "@utils/user-agent";
+import { BxLogger } from "@utils/bx-logger";
 
 export function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);

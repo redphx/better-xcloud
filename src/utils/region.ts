@@ -1,5 +1,5 @@
-import { getPref, PrefKey } from "./preferences";
-import { STATES } from "./global";
+import { getPref, PrefKey } from "@utils/preferences";
+import { STATES } from "@utils/global";
 
 
 export function getPreferredServerRegion(shortName = false) {

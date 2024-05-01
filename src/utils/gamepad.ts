@@ -1,8 +1,8 @@
-import { MkbHandler } from "@/modules/mkb/mkb-handler";
-import { PrefKey, getPref } from "./preferences";
-import { t } from "./translation";
-import { Toast } from "./toast";
-import { BxLogger } from "./bx-logger";
+import { MkbHandler } from "@modules/mkb/mkb-handler";
+import { PrefKey, getPref } from "@utils/preferences";
+import { t } from "@utils/translation";
+import { Toast } from "@utils/toast";
+import { BxLogger } from "@utils/bx-logger";
 
 // Show a toast when connecting/disconecting controller
 export function showGamepadToast(gamepad: Gamepad) {

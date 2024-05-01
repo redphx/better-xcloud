@@ -1,10 +1,10 @@
-import { CE } from "./html";
-import { SUPPORTED_LANGUAGES, t } from "./translation";
-import { SettingElement, SettingElementType } from "./settings";
-import { UserAgentProfile } from "./user-agent";
-import { StreamStat } from "@/modules/stream/stream-stats";
+import { CE } from "@utils/html";
+import { SUPPORTED_LANGUAGES, t } from "@utils/translation";
+import { SettingElement, SettingElementType } from "@utils/settings";
+import { UserAgentProfile } from "@utils/user-agent";
+import { StreamStat } from "@modules/stream/stream-stats";
 import type { PreferenceSettings } from "@/types/preferences";
-import { STATES } from "./global";
+import { STATES } from "@utils/global";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',

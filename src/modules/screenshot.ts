@@ -1,5 +1,5 @@
-import { STATES, AppInterface } from "@/utils/global";
-import { CE } from "@/utils/html";
+import { STATES, AppInterface } from "@utils/global";
+import { CE } from "@utils/html";
 
 export function takeScreenshot(callback: any) {
     const currentStream = STATES.currentStream!;

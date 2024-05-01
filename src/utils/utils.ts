@@ -1,6 +1,6 @@
-import { PrefKey, getPref, setPref } from "./preferences";
-import { SCRIPT_VERSION } from "./global";
-import { UserAgent } from "./user-agent";
+import { PrefKey, getPref, setPref } from "@utils/preferences";
+import { SCRIPT_VERSION } from "@utils/global";
+import { UserAgent } from "@utils/user-agent";
 
 export function checkForUpdate() {
     const CHECK_INTERVAL_SECONDS = 2 * 3600; // check every 2 hours

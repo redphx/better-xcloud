@@ -1,9 +1,9 @@
-import { SCRIPT_VERSION } from "@/utils/global";
-import { createButton, Icon, ButtonStyle } from "@/utils/html";
-import { getPreferredServerRegion } from "@/utils/region";
-import { PrefKey, getPref } from "@/utils/preferences";
-import { RemotePlay } from "@/modules/remote-play";
-import { t } from "@/utils/translation";
+import { SCRIPT_VERSION } from "@utils/global";
+import { createButton, Icon, ButtonStyle } from "@utils/html";
+import { getPreferredServerRegion } from "@utils/region";
+import { PrefKey, getPref } from "@utils/preferences";
+import { RemotePlay } from "@modules/remote-play";
+import { t } from "@utils/translation";
 import { setupSettingsUi } from "./global-settings";
 
 

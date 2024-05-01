@@ -1,4 +1,4 @@
-import { CE } from "./html";
+import { CE } from "@utils/html";
 
 type ToastOptions = {
     instant?: boolean;

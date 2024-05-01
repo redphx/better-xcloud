@@ -1,7 +1,7 @@
-import { BxEvent } from "./bx-event";
-import { STATES } from "./global";
-import { getPref, PrefKey } from "./preferences";
-import { UserAgent } from "./user-agent";
+import { BxEvent } from "@utils/bx-event";
+import { STATES } from "@utils/global";
+import { getPref, PrefKey } from "@utils/preferences";
+import { UserAgent } from "@utils/user-agent";
 
 enum InputType {
     CONTROLLER = 'Controller',

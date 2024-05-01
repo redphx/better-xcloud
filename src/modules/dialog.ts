@@ -1,5 +1,5 @@
-import { t } from "@/utils/translation";
-import { CE, createButton, ButtonStyle, Icon } from "@/utils/html";
+import { t } from "@utils/translation";
+import { CE, createButton, ButtonStyle, Icon } from "@utils/html";
 
 type DialogOptions = {
     title?: string;

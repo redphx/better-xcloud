@@ -1,12 +1,12 @@
-import { BxEvent } from "@/utils/bx-event";
-import { BX_FLAGS } from "@/utils/bx-flags";
-import { LoadingScreen } from "@/modules/loading-screen";
-import { PrefKey, getPref } from "@/utils/preferences";
-import { RemotePlay } from "@/modules/remote-play";
-import { StreamBadges } from "@/modules/stream/stream-badges";
-import { TouchController } from "@/modules/touch-controller";
-import { STATES } from "@/utils/global";
-import { getPreferredServerRegion } from "@/utils/region";
+import { BxEvent } from "@utils/bx-event";
+import { BX_FLAGS } from "@utils/bx-flags";
+import { LoadingScreen } from "@modules/loading-screen";
+import { PrefKey, getPref } from "@utils/preferences";
+import { RemotePlay } from "@modules/remote-play";
+import { StreamBadges } from "@modules/stream/stream-badges";
+import { TouchController } from "@modules/touch-controller";
+import { STATES } from "@utils/global";
+import { getPreferredServerRegion } from "@utils/region";
 
 export const NATIVE_FETCH = window.fetch;
 

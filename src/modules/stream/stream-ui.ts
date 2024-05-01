@@ -1,8 +1,8 @@
-import { STATES } from "@/utils/global.ts";
-import { Icon, createSvgIcon } from "@/utils/html.ts";
-import { BxEvent } from "@/utils/bx-event.ts";
-import { PrefKey, getPref } from "@/utils/preferences.ts";
-import { t } from "@/utils/translation.ts";
+import { STATES } from "@utils/global.ts";
+import { Icon, createSvgIcon } from "@utils/html.ts";
+import { BxEvent } from "@utils/bx-event.ts";
+import { PrefKey, getPref } from "@utils/preferences.ts";
+import { t } from "@utils/translation.ts";
 import { StreamBadges } from "./stream-badges.ts";
 import { StreamStats } from "./stream-stats.ts";
 

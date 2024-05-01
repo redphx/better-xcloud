@@ -1,5 +1,5 @@
-import { STATES } from "./global";
-import { UserAgent } from "./user-agent";
+import { STATES } from "@utils/global";
+import { UserAgent } from "@utils/user-agent";
 
 
 export class PreloadedState {
