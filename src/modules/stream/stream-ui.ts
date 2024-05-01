@@ -1,5 +1,5 @@
 import { STATES } from "../../utils/global";
-import { Icon } from "../../utils/html";
+import { Icon, createSvgIcon } from "../../utils/html";
 import { BxEvent } from "../../utils/bx-event";
 import { PrefKey, getPref } from "../../utils/preferences";
 import { t } from "../../utils/translation";
@@ -101,25 +101,13 @@ function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: I
     const $button = $container.querySelector('button')!;
     $button.setAttribute('title', label);
 
-    const $svg = $button.querySelector('svg')!;
-    $svg.innerHTML = svgIcon;
+    const $orgSvg = $button.querySelector('svg')!;
+    const $svg = createSvgIcon(svgIcon);
     $svg.style.fill = 'none';
+    $svg.setAttribute('class', $orgSvg.getAttribute('class') || '');
+    $svg.ariaHidden = 'true';
 
-    const attrs = {
-        'fill': 'none',
-        'stroke': '#fff',
-        'fill-rule': 'evenodd',
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        'stroke-width': '2',
-        'viewBox': '0 0 32 32'
-    };
-
-    let attr: keyof typeof attrs;
-    for (attr in attrs) {
-        $svg.setAttribute(attr, attrs[attr]);
-    }
-
+    $orgSvg.replaceWith($svg);
     return $container;
 }
 

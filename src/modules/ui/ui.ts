@@ -1,5 +1,5 @@
 import { STATES } from "../../utils/global";
-import { Icon, CE, createButton, ButtonStyle } from "../../utils/html";
+import { Icon, CE, createButton, ButtonStyle, createSvgIcon } from "../../utils/html";
 import { UserAgent } from "../../utils/user-agent";
 import { BxEvent } from "../../utils/bx-event";
 import { MkbRemapper } from "../mkb/mkb-remapper";
@@ -300,18 +300,7 @@ function setupQuickSettingsBar() {
             continue;
         }
 
-        const $svg = CE('svg', {
-            'xmlns': 'http://www.w3.org/2000/svg',
-            'data-group': settingTab.group,
-            'fill': 'none',
-            'stroke': '#fff',
-            'fill-rule': 'evenodd',
-            'stroke-linecap': 'round',
-            'stroke-linejoin': 'round',
-            'stroke-width': 2,
-        });
-        $svg.innerHTML = settingTab.icon;
-        $svg.setAttribute('viewBox', '0 0 32 32');
+        const $svg = createSvgIcon(settingTab.icon);
         $svg.addEventListener('click', e => {
             // Switch tab
             for (const $child of Array.from($settings.children)) {
