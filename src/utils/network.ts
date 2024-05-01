@@ -78,7 +78,7 @@ function updateIceCandidates(candidates: any, options: any) {
 
     lst.forEach(item => {
         item.foundation = foundation;
-        item.priority = (foundation == 1) ? 10000 : 1;
+        item.priority = (foundation == 1) ? 2130706431 : 1;
 
         newCandidates.push(newCandidate(`a=candidate:${item.foundation} 1 UDP ${item.priority} ${item.ip} ${item.port} ${item.the_rest}`));
         ++foundation;
