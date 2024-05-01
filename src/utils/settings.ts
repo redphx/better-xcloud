@@ -1,4 +1,4 @@
-import type { PreferenceSetting } from "../types/preferences";
+import type { PreferenceSetting } from "@/types/preferences";
 import { CE } from "./html";
 
 type MultipleOptionsParams = {

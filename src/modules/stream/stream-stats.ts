@@ -1,11 +1,11 @@
-import { PrefKey } from "../../utils/preferences"
-import { BxEvent } from "../../utils/bx-event"
-import { getPref } from "../../utils/preferences"
+import { PrefKey } from "@/utils/preferences"
+import { BxEvent } from "@/utils/bx-event"
+import { getPref } from "@/utils/preferences"
 import { StreamBadges } from "./stream-badges"
-import { CE } from "../../utils/html"
-import { t } from "../../utils/translation"
-import { STATES } from "../../utils/global"
-import { BxLogger } from "../../utils/bx-logger"
+import { CE } from "@/utils/html"
+import { t } from "@/utils/translation"
+import { STATES } from "@/utils/global"
+import { BxLogger } from "@/utils/bx-logger"
 
 export enum StreamStat {
     PING = 'ping',

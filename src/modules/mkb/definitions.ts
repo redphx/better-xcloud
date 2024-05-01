@@ -1,4 +1,4 @@
-import type { GamepadKeyNameType } from "../../types/mkb";
+import type { GamepadKeyNameType } from "@/types/mkb";
 
 export enum GamepadKey {
     A = 0,

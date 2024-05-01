@@ -1,27 +1,27 @@
 // @ts-ignore
-import iconController from "../assets/svg/controller.svg" with { type: "text" };
+import iconController from "@/assets/svg/controller.svg" with { type: "text" };
 // @ts-ignore
-import iconCopy from "../assets/svg/copy.svg" with { type: "text" };
+import iconCopy from "@/assets/svg/copy.svg" with { type: "text" };
 // @ts-ignore
-import iconCursorText from "../assets/svg/cursor-text.svg" with { type: "text" };
+import iconCursorText from "@/assets/svg/cursor-text.svg" with { type: "text" };
 // @ts-ignore
-import iconDisplay from "../assets/svg/display.svg" with { type: "text" };
+import iconDisplay from "@/assets/svg/display.svg" with { type: "text" };
 // @ts-ignore
-import iconMouseSettings from "../assets/svg/mouse-settings.svg" with { type: "text" };
+import iconMouseSettings from "@/assets/svg/mouse-settings.svg" with { type: "text" };
 // @ts-ignore
-import iconMouse from "../assets/svg/mouse.svg" with { type: "text" };
+import iconMouse from "@/assets/svg/mouse.svg" with { type: "text" };
 // @ts-ignore
-import iconNew from "../assets/svg/new.svg" with { type: "text" };
+import iconNew from "@/assets/svg/new.svg" with { type: "text" };
 // @ts-ignore
-import iconQuestion from "../assets/svg/question.svg" with { type: "text" };
+import iconQuestion from "@/assets/svg/question.svg" with { type: "text" };
 // @ts-ignore
-import iconRemotePlay from "../assets/svg/remote-play.svg" with { type: "text" };
+import iconRemotePlay from "@/assets/svg/remote-play.svg" with { type: "text" };
 // @ts-ignore
-import iconStreamSettings from "../assets/svg/stream-settings.svg" with { type: "text" };
+import iconStreamSettings from "@/assets/svg/stream-settings.svg" with { type: "text" };
 // @ts-ignore
-import iconStreamStats from "../assets/svg/stream-stats.svg" with { type: "text" };
+import iconStreamStats from "@/assets/svg/stream-stats.svg" with { type: "text" };
 // @ts-ignore
-import iconTrash from "../assets/svg/trash.svg" with { type: "text" };
+import iconTrash from "@/assets/svg/trash.svg" with { type: "text" };
 
 
 type BxButton = {

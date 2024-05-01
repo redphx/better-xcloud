@@ -1,7 +1,7 @@
-import { MkbPreset } from "../modules/mkb/mkb-preset";
+import { MkbPreset } from "@/modules/mkb/mkb-preset";
 import { PrefKey, setPref } from "./preferences";
 import { t } from "./translation";
-import type { MkbStoredPreset, MkbStoredPresets } from "../types/mkb";
+import type { MkbStoredPreset, MkbStoredPresets } from "@/types/mkb";
 
 export class LocalDb {
     static #instance: LocalDb;

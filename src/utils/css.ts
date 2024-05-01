@@ -1,6 +1,6 @@
 import { CE } from "./html";
 import { PrefKey, getPref } from "./preferences";
-import { renderStylus } from "../macros/build" with {type: "macro"};
+import { renderStylus } from "@/macros/build" with {type: "macro"};
 
 
 export function addCss() {

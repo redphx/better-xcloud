@@ -1,10 +1,10 @@
-import { STATES } from "../../utils/global";
-import { Icon, createSvgIcon } from "../../utils/html";
-import { BxEvent } from "../../utils/bx-event";
-import { PrefKey, getPref } from "../../utils/preferences";
-import { t } from "../../utils/translation";
-import { StreamBadges } from "./stream-badges";
-import { StreamStats } from "./stream-stats";
+import { STATES } from "@/utils/global.ts";
+import { Icon, createSvgIcon } from "@/utils/html.ts";
+import { BxEvent } from "@/utils/bx-event.ts";
+import { PrefKey, getPref } from "@/utils/preferences.ts";
+import { t } from "@/utils/translation.ts";
+import { StreamBadges } from "./stream-badges.ts";
+import { StreamStats } from "./stream-stats.ts";
 
 
 class MouseHoldEvent {

@@ -1,11 +1,11 @@
-import { STATES, AppInterface } from "../utils/global";
-import { CE, createButton, ButtonStyle, Icon } from "../utils/html";
-import { Toast } from "../utils/toast";
-import { BxEvent } from "../utils/bx-event";
-import { getPref, PrefKey, setPref } from "../utils/preferences";
-import { t } from "../utils/translation";
-import { localRedirect } from "./ui/ui";
-import { BxLogger } from "../utils/bx-logger";
+import { STATES, AppInterface } from "@/utils/global";
+import { CE, createButton, ButtonStyle, Icon } from "@/utils/html";
+import { Toast } from "@/utils/toast";
+import { BxEvent } from "@/utils/bx-event";
+import { getPref, PrefKey, setPref } from "@/utils/preferences";
+import { t } from "@/utils/translation";
+import { localRedirect } from "@/modules/ui/ui";
+import { BxLogger } from "@/utils/bx-logger";
 
 const LOG_TAG = 'RemotePlay';
 

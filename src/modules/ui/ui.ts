@@ -1,14 +1,14 @@
-import { STATES } from "../../utils/global";
-import { Icon, CE, createButton, ButtonStyle, createSvgIcon } from "../../utils/html";
-import { UserAgent } from "../../utils/user-agent";
-import { BxEvent } from "../../utils/bx-event";
-import { MkbRemapper } from "../mkb/mkb-remapper";
-import { getPref, PrefKey, toPrefElement } from "../../utils/preferences";
-import { setupScreenshotButton } from "../screenshot";
-import { StreamStats } from "../stream/stream-stats";
-import { TouchController } from "../touch-controller";
-import { t } from "../../utils/translation";
-import { VibrationManager } from "../vibration-manager";
+import { STATES } from "@/utils/global";
+import { Icon, CE, createButton, ButtonStyle, createSvgIcon } from "@/utils/html";
+import { UserAgent } from "@/utils/user-agent";
+import { BxEvent } from "@/utils/bx-event";
+import { MkbRemapper } from "@/modules/mkb/mkb-remapper";
+import { getPref, PrefKey, toPrefElement } from "@/utils/preferences";
+import { setupScreenshotButton } from "@/modules/screenshot";
+import { StreamStats } from "@/modules/stream/stream-stats";
+import { TouchController } from "@/modules/touch-controller";
+import { t } from "@/utils/translation";
+import { VibrationManager } from "@/modules/vibration-manager";
 
 
 export function localRedirect(path: string) {

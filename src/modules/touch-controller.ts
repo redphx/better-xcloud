@@ -1,12 +1,12 @@
-import { STATES } from "../utils/global";
-import { CE } from "../utils/html";
-import { Toast } from "../utils/toast";
-import { BxEvent } from "../utils/bx-event";
-import { BX_FLAGS } from "../utils/bx-flags";
-import { getPref, PrefKey } from "../utils/preferences";
-import { t } from "../utils/translation";
-import { NATIVE_FETCH } from "../utils/network";
-import { BxLogger } from "../utils/bx-logger";
+import { STATES } from "@/utils/global";
+import { CE } from "@/utils/html";
+import { Toast } from "@/utils/toast";
+import { BxEvent } from "@/utils/bx-event";
+import { BX_FLAGS } from "@/utils/bx-flags";
+import { getPref, PrefKey } from "@/utils/preferences";
+import { t } from "@/utils/translation";
+import { NATIVE_FETCH } from "@/utils/network";
+import { BxLogger } from "@/utils/bx-logger";
 
 const LOG_TAG = 'TouchController';
 

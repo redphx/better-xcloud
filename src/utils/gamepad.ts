@@ -1,4 +1,4 @@
-import { MkbHandler } from "../modules/mkb/mkb-handler";
+import { MkbHandler } from "@/modules/mkb/mkb-handler";
 import { PrefKey, getPref } from "./preferences";
 import { t } from "./translation";
 import { Toast } from "./toast";

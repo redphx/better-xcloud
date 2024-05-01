@@ -1,8 +1,8 @@
-import { STATES } from "../utils/global";
-import { BX_FLAGS } from "../utils/bx-flags";
-import { getPref, PrefKey } from "../utils/preferences";
-import { VibrationManager } from "./vibration-manager";
-import { BxLogger } from "../utils/bx-logger";
+import { STATES } from "@/utils/global";
+import { BX_FLAGS } from "@/utils/bx-flags";
+import { getPref, PrefKey } from "@/utils/preferences";
+import { VibrationManager } from "@/modules/vibration-manager";
+import { BxLogger } from "@/utils/bx-logger";
 
 const LOG_TAG = 'Patcher';
 

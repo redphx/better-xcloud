@@ -2,8 +2,8 @@ import { CE } from "./html";
 import { SUPPORTED_LANGUAGES, t } from "./translation";
 import { SettingElement, SettingElementType } from "./settings";
 import { UserAgentProfile } from "./user-agent";
-import { StreamStat } from "../modules/stream/stream-stats";
-import type { PreferenceSettings } from "../types/preferences";
+import { StreamStat } from "@/modules/stream/stream-stats";
+import type { PreferenceSettings } from "@/types/preferences";
 import { STATES } from "./global";
 
 export enum PrefKey {
