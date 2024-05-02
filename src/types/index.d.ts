@@ -67,3 +67,6 @@ type XcloudTitleInfo = {
         tileImageUrl: string;
     };
 };
+
+declare module "*.svg";
+declare module "*.styl";

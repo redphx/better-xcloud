@@ -1,6 +1,5 @@
 import stylus from 'stylus';
 
-// @ts-ignore
 import cssStr from "@assets/css/styles.styl" with { type: "text" };
 
 const generatedCss = await (stylus(cssStr, {})
