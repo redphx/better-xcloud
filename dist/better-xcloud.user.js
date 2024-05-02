@@ -5075,32 +5075,34 @@ class Toast {
 }
 
 // src/modules/mkb/definitions.ts
-var GamepadKey = {};
-GamepadKey[GamepadKey.A = 0] = "A";
-GamepadKey[GamepadKey.B = 1] = "B";
-GamepadKey[GamepadKey.X = 2] = "X";
-GamepadKey[GamepadKey.Y = 3] = "Y";
-GamepadKey[GamepadKey.LB = 4] = "LB";
-GamepadKey[GamepadKey.RB = 5] = "RB";
-GamepadKey[GamepadKey.LT = 6] = "LT";
-GamepadKey[GamepadKey.RT = 7] = "RT";
-GamepadKey[GamepadKey.SELECT = 8] = "SELECT";
-GamepadKey[GamepadKey.START = 9] = "START";
-GamepadKey[GamepadKey.L3 = 10] = "L3";
-GamepadKey[GamepadKey.R3 = 11] = "R3";
-GamepadKey[GamepadKey.UP = 12] = "UP";
-GamepadKey[GamepadKey.DOWN = 13] = "DOWN";
-GamepadKey[GamepadKey.LEFT = 14] = "LEFT";
-GamepadKey[GamepadKey.RIGHT = 15] = "RIGHT";
-GamepadKey[GamepadKey.HOME = 16] = "HOME";
-GamepadKey[GamepadKey.LS_UP = 100] = "LS_UP";
-GamepadKey[GamepadKey.LS_DOWN = 101] = "LS_DOWN";
-GamepadKey[GamepadKey.LS_LEFT = 102] = "LS_LEFT";
-GamepadKey[GamepadKey.LS_RIGHT = 103] = "LS_RIGHT";
-GamepadKey[GamepadKey.RS_UP = 200] = "RS_UP";
-GamepadKey[GamepadKey.RS_DOWN = 201] = "RS_DOWN";
-GamepadKey[GamepadKey.RS_LEFT = 202] = "RS_LEFT";
-GamepadKey[GamepadKey.RS_RIGHT = 203] = "RS_RIGHT";
+var GamepadKey;
+(function(GamepadKey2) {
+  GamepadKey2[GamepadKey2["A"] = 0] = "A";
+  GamepadKey2[GamepadKey2["B"] = 1] = "B";
+  GamepadKey2[GamepadKey2["X"] = 2] = "X";
+  GamepadKey2[GamepadKey2["Y"] = 3] = "Y";
+  GamepadKey2[GamepadKey2["LB"] = 4] = "LB";
+  GamepadKey2[GamepadKey2["RB"] = 5] = "RB";
+  GamepadKey2[GamepadKey2["LT"] = 6] = "LT";
+  GamepadKey2[GamepadKey2["RT"] = 7] = "RT";
+  GamepadKey2[GamepadKey2["SELECT"] = 8] = "SELECT";
+  GamepadKey2[GamepadKey2["START"] = 9] = "START";
+  GamepadKey2[GamepadKey2["L3"] = 10] = "L3";
+  GamepadKey2[GamepadKey2["R3"] = 11] = "R3";
+  GamepadKey2[GamepadKey2["UP"] = 12] = "UP";
+  GamepadKey2[GamepadKey2["DOWN"] = 13] = "DOWN";
+  GamepadKey2[GamepadKey2["LEFT"] = 14] = "LEFT";
+  GamepadKey2[GamepadKey2["RIGHT"] = 15] = "RIGHT";
+  GamepadKey2[GamepadKey2["HOME"] = 16] = "HOME";
+  GamepadKey2[GamepadKey2["LS_UP"] = 100] = "LS_UP";
+  GamepadKey2[GamepadKey2["LS_DOWN"] = 101] = "LS_DOWN";
+  GamepadKey2[GamepadKey2["LS_LEFT"] = 102] = "LS_LEFT";
+  GamepadKey2[GamepadKey2["LS_RIGHT"] = 103] = "LS_RIGHT";
+  GamepadKey2[GamepadKey2["RS_UP"] = 200] = "RS_UP";
+  GamepadKey2[GamepadKey2["RS_DOWN"] = 201] = "RS_DOWN";
+  GamepadKey2[GamepadKey2["RS_LEFT"] = 202] = "RS_LEFT";
+  GamepadKey2[GamepadKey2["RS_RIGHT"] = 203] = "RS_RIGHT";
+})(GamepadKey || (GamepadKey = {}));
 var GamepadKeyName = {
   [GamepadKey.A]: ["A", "⇓"],
   [GamepadKey.B]: ["B", "⇒"],
@@ -5139,10 +5141,12 @@ var MouseButtonCode;
   MouseButtonCode2["RIGHT_CLICK"] = "Mouse2";
   MouseButtonCode2["MIDDLE_CLICK"] = "Mouse1";
 })(MouseButtonCode || (MouseButtonCode = {}));
-var MouseMapTo = {};
-MouseMapTo[MouseMapTo.OFF = 0] = "OFF";
-MouseMapTo[MouseMapTo.LS = 1] = "LS";
-MouseMapTo[MouseMapTo.RS = 2] = "RS";
+var MouseMapTo;
+(function(MouseMapTo2) {
+  MouseMapTo2[MouseMapTo2["OFF"] = 0] = "OFF";
+  MouseMapTo2[MouseMapTo2["LS"] = 1] = "LS";
+  MouseMapTo2[MouseMapTo2["RS"] = 2] = "RS";
+})(MouseMapTo || (MouseMapTo = {}));
 var WheelCode;
 (function(WheelCode2) {
   WheelCode2["SCROLL_UP"] = "ScrollUp";
