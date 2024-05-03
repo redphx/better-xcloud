@@ -8,7 +8,7 @@ import { KeyHelper } from "./key-helper";
 import { MkbPreset } from "./mkb-preset";
 import { MkbHandler } from "./mkb-handler";
 import { LocalDb } from "@utils/local-db";
-import { Icon } from "@utils/html";
+import { BxIcon } from "@utils/bx-icon";
 import { SettingElement } from "@utils/settings";
 import type { MkbPresetData, MkbStoredPresets } from "@/types/mkb";
 
@@ -340,7 +340,7 @@ export class MkbRemapper {
                 // Rename button
                 createButton({
                     title: t('rename'),
-                    icon: Icon.CURSOR_TEXT,
+                    icon: BxIcon.CURSOR_TEXT,
                     onClick: e => {
                         const preset = this.#getCurrentPreset();
 
@@ -357,7 +357,7 @@ export class MkbRemapper {
 
                 // New button
                 createButton({
-                      icon: Icon.NEW,
+                      icon: BxIcon.NEW,
                       title: t('new'),
                       onClick: e => {
                           let newName = promptNewName('');
@@ -375,7 +375,7 @@ export class MkbRemapper {
 
                 // Copy button
                 createButton({
-                        icon: Icon.COPY,
+                        icon: BxIcon.COPY,
                         title: t('copy'),
                         onClick: e => {
                             const preset = this.#getCurrentPreset();
@@ -395,7 +395,7 @@ export class MkbRemapper {
 
                 // Delete button
                 createButton({
-                        icon: Icon.TRASH,
+                        icon: BxIcon.TRASH,
                         style: ButtonStyle.DANGER,
                         title: t('delete'),
                         onClick: e => {

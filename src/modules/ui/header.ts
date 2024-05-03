@@ -1,5 +1,6 @@
 import { SCRIPT_VERSION } from "@utils/global";
-import { createButton, Icon, ButtonStyle } from "@utils/html";
+import { createButton, ButtonStyle } from "@utils/html";
+import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
 import { PrefKey, getPref } from "@utils/preferences";
 import { RemotePlay } from "@modules/remote-play";
@@ -21,7 +22,7 @@ function injectSettingsButton($parent?: HTMLElement) {
     if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
         const $remotePlayBtn = createButton({
             classes: ['bx-header-remote-play-button'],
-            icon: Icon.REMOTE_PLAY,
+            icon: BxIcon.REMOTE_PLAY,
             title: t('remote-play'),
             style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
             onClick: e => {

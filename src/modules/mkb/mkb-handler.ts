@@ -1,6 +1,6 @@
 import { MkbPreset } from "./mkb-preset";
 import { GamepadKey, MkbPresetKey, GamepadStick, MouseMapTo } from "./definitions";
-import { createButton, Icon, ButtonStyle, CE } from "@utils/html";
+import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BxEvent } from "@utils/bx-event";
 import { PrefKey, getPref } from "@utils/preferences";
 import { Toast } from "@utils/toast";
@@ -12,6 +12,7 @@ import { showStreamSettings } from "@modules/stream/stream-ui";
 import { STATES } from "@utils/global";
 import { UserAgent } from "@utils/user-agent";
 import { BxLogger } from "@utils/bx-logger";
+import { BxIcon } from "@utils/bx-icon";
 
 const LOG_TAG = 'MkbHandler';
 
@@ -381,7 +382,7 @@ export class MkbHandler {
 
         this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
                 createButton({
-                    icon: Icon.MOUSE_SETTINGS,
+                    icon: BxIcon.MOUSE_SETTINGS,
                     style: ButtonStyle.PRIMARY,
                     onClick: e => {
                         e.preventDefault();

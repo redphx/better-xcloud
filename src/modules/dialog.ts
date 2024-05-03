@@ -1,5 +1,6 @@
 import { t } from "@utils/translation";
-import { CE, createButton, ButtonStyle, Icon } from "@utils/html";
+import { CE, createButton, ButtonStyle } from "@utils/html";
+import { BxIcon } from "@utils/bx-icon";
 
 type DialogOptions = Partial<{
     title: string;
@@ -47,7 +48,7 @@ export class Dialog {
         this.$dialog = CE('div', {'class': `bx-dialog ${className || ''} bx-gone`},
                 this.$title = CE('h2', {}, CE('b', {}, title),
                         helpUrl && createButton({
-                                icon: Icon.QUESTION,
+                                icon: BxIcon.QUESTION,
                                 style: ButtonStyle.GHOST,
                                 title: t('help'),
                                 url: helpUrl,

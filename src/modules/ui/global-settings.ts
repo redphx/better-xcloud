@@ -1,5 +1,6 @@
 import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "@utils/global";
-import { CE, createButton, Icon, ButtonStyle } from "@utils/html";
+import { CE, createButton, ButtonStyle } from "@utils/html";
+import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
 import { UserAgent, UserAgentProfile } from "@utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/preferences";
@@ -120,7 +121,7 @@ export function setupSettingsUi() {
                     'href': SCRIPT_HOME,
                     'target': '_blank',
                 }, 'Better xCloud ' + SCRIPT_VERSION),
-                createButton({icon: Icon.QUESTION, label: t('help'), url: 'https://better-xcloud.github.io/features/'}),
+                createButton({icon: BxIcon.QUESTION, label: t('help'), url: 'https://better-xcloud.github.io/features/'}),
             )
         );
     $updateAvailable = CE('a', {

@@ -1,5 +1,6 @@
 import { STATES, AppInterface } from "@utils/global";
-import { CE, createButton, ButtonStyle, Icon } from "@utils/html";
+import { CE, createButton, ButtonStyle } from "@utils/html";
+import { BxIcon } from "@utils/bx-icon";
 import { Toast } from "@utils/toast";
 import { BxEvent } from "@utils/bx-event";
 import { getPref, PrefKey, setPref } from "@utils/preferences";
@@ -183,7 +184,7 @@ export class RemotePlay {
 
         // Add Help button
         $fragment.appendChild(createButton({
-            icon: Icon.QUESTION,
+            icon: BxIcon.QUESTION,
             style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
             url: 'https://better-xcloud.github.io/remote-play',
             label: t('help'),

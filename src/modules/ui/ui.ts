@@ -1,5 +1,6 @@
 import { STATES } from "@utils/global";
-import { Icon, CE, createButton, ButtonStyle, createSvgIcon } from "@utils/html";
+import { CE, createButton, ButtonStyle, createSvgIcon } from "@utils/html";
+import { BxIcon } from "@utils/bx-icon";
 import { UserAgent } from "@utils/user-agent";
 import { BxEvent } from "@utils/bx-event";
 import { MkbRemapper } from "@modules/mkb/mkb-remapper";
@@ -70,7 +71,7 @@ function setupQuickSettingsBar() {
 
     const SETTINGS_UI = [
         getPref(PrefKey.MKB_ENABLED) && {
-            icon: Icon.MOUSE,
+            icon: BxIcon.MOUSE,
             group: 'mkb',
             items: [
                 {
@@ -83,7 +84,7 @@ function setupQuickSettingsBar() {
         },
 
         {
-            icon: Icon.DISPLAY,
+            icon: BxIcon.DISPLAY,
             group: 'stream',
             items: [
                 {
@@ -145,7 +146,7 @@ function setupQuickSettingsBar() {
         },
 
         {
-            icon: Icon.CONTROLLER,
+            icon: BxIcon.CONTROLLER,
             group: 'controller',
             items: [
                 {
@@ -232,7 +233,7 @@ function setupQuickSettingsBar() {
         },
 
         {
-            icon: Icon.STREAM_STATS,
+            icon: BxIcon.STREAM_STATS,
             group: 'stats',
             items: [
                 {
@@ -331,7 +332,7 @@ function setupQuickSettingsBar() {
             $group.appendChild(CE('h2', {},
                     CE('span', {}, settingGroup.label),
                     settingGroup.help_url && createButton({
-                            icon: Icon.QUESTION,
+                            icon: BxIcon.QUESTION,
                             style: ButtonStyle.GHOST,
                             url: settingGroup.help_url,
                             title: t('help'),

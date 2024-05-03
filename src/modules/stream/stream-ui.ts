@@ -1,5 +1,6 @@
 import { STATES } from "@utils/global.ts";
-import { Icon, createSvgIcon } from "@utils/html.ts";
+import { createSvgIcon } from "@utils/html.ts";
+import { BxIcon } from "@utils/bx-icon";
 import { BxEvent } from "@utils/bx-event.ts";
 import { PrefKey, getPref } from "@utils/preferences.ts";
 import { t } from "@utils/translation.ts";
@@ -66,7 +67,7 @@ class MouseHoldEvent {
 }
 
 
-function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: Icon) {
+function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: typeof BxIcon) {
     const $container = $orgButton.cloneNode(true) as HTMLElement;
     let timeout: number | null;
 
@@ -249,7 +250,7 @@ export function injectStreamMenuButtons() {
 
                 // Create Stream Settings button
                 if (!$btnStreamSettings) {
-                    $btnStreamSettings = cloneStreamHudButton($orgButton, t('menu-stream-settings'), Icon.STREAM_SETTINGS);
+                    $btnStreamSettings = cloneStreamHudButton($orgButton, t('menu-stream-settings'), BxIcon.STREAM_SETTINGS);
                     $btnStreamSettings.addEventListener('click', e => {
                         hideGripHandle();
                         e.preventDefault();
@@ -267,7 +268,7 @@ export function injectStreamMenuButtons() {
 
                 // Create Stream Stats button
                 if (!$btnStreamStats) {
-                    $btnStreamStats = cloneStreamHudButton($orgButton, t('menu-stream-stats'), Icon.STREAM_STATS);
+                    $btnStreamStats = cloneStreamHudButton($orgButton, t('menu-stream-stats'), BxIcon.STREAM_STATS);
                     $btnStreamStats.addEventListener('click', e => {
                         hideGripHandle();
                         e.preventDefault();
