@@ -2,6 +2,9 @@ import { PrefKey, getPref, setPref } from "@utils/preferences";
 import { SCRIPT_VERSION } from "@utils/global";
 import { UserAgent } from "@utils/user-agent";
 
+/**
+ * Check for update
+ */
 export function checkForUpdate() {
     const CHECK_INTERVAL_SECONDS = 2 * 3600; // check every 2 hours
 
@@ -25,6 +28,9 @@ export function checkForUpdate() {
 }
 
 
+/**
+ * Disable PWA requirement on Safari
+ */
 export function disablePwa() {
     const userAgent = ((window.navigator as any).orgUserAgent || window.navigator.userAgent || '').toLowerCase();
     if (!userAgent) {
@@ -38,4 +44,20 @@ export function disablePwa() {
             value: true,
         });
     }
+}
+
+
+/**
+ * Calculate hash code from a string
+ * @see http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+ */
+export function hashCode(str: string): number {
+    let hash = 0;
+    for (let i = 0, len = str.length; i < len; i++) {
+        const chr = str.charCodeAt(i);
+        hash = (hash << 5) - hash + chr;
+        hash |= 0; // Convert to 32-bit integer
+    }
+
+    return hash;
 }

@@ -1,8 +1,13 @@
-import { STATES } from "@utils/global";
+import { SCRIPT_VERSION, STATES } from "@utils/global";
 import { BX_FLAGS } from "@utils/bx-flags";
 import { getPref, PrefKey } from "@utils/preferences";
 import { VibrationManager } from "@modules/vibration-manager";
 import { BxLogger } from "@utils/bx-logger";
+import { hashCode } from "@/utils/utils";
+
+type PatchArray = (keyof typeof PATCHES)[];
+
+const ENDING_CHUNKS_PATCH_NAME = 'loadingEndingChunks';
 
 const LOG_TAG = 'Patcher';
 
@@ -39,15 +44,15 @@ const PATCHES = {
         }
 
         const newCode = [
-                'this.trackEvent',
-                'this.trackPageView',
-                'this.trackHttpCompleted',
-                'this.trackHttpFailed',
-                'this.trackError',
-                'this.trackErrorLike',
-                'this.onTrackEvent',
-                '()=>{}',
-            ].join('=');
+            'this.trackEvent',
+            'this.trackPageView',
+            'this.trackHttpCompleted',
+            'this.trackHttpFailed',
+            'this.trackError',
+            'this.trackErrorLike',
+            'this.onTrackEvent',
+            '()=>{}',
+        ].join('=');
 
         return str.replace(text, newCode + ';' + text);
     },
@@ -108,16 +113,6 @@ const PATCHES = {
         }
 
         return str.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
-    },
-
-    // Fix the Guide/Nexus button not working in Remote Play
-    remotePlayGuideWorkaround(str: string) {
-        const text = 'nexusButtonHandler:this.featureGates.EnableClientGuideInStream';
-        if (!str.includes(text)) {
-            return false;
-        }
-
-        return str.replace(text, `nexusButtonHandler: !window.BX_REMOTE_PLAY_CONFIG && this.featureGates.EnableClientGuideInStream`);
     },
 
     // Disable trackEvent() function
@@ -241,14 +236,13 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
 
     // Add patches that are only needed when start playing
     loadingEndingChunks(str: string) {
-        const text = 'Symbol("ChatSocketPlugin")';
+        const text = '"FamilySagaManager"';
         if (!str.includes(text)) {
             return false;
         }
 
         BxLogger.info(LOG_TAG, 'Remaining patches:', PATCH_ORDERS);
         PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
-        Patcher.cleanupPatches();
 
         return str;
     },
@@ -427,77 +421,66 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
     },
 };
 
-let PATCH_ORDERS = [
-    getPref(PrefKey.BLOCK_TRACKING) && [
+let PATCH_ORDERS: PatchArray = [
+    'disableStreamGate',
+    'overrideSettings',
+    'broadcastPollingMode',
+
+    getPref(PrefKey.UI_LAYOUT) === 'tv' && 'tvLayout',
+    getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
+    getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && 'forceFortniteConsole',
+
+    ...(getPref(PrefKey.BLOCK_TRACKING) ? [
         'disableAiTrack',
         'disableTelemetry',
-    ],
 
-    ['disableStreamGate'],
-
-    ['broadcastPollingMode'],
-
-    getPref(PrefKey.UI_LAYOUT) === 'tv' && ['tvLayout'],
-
-    BX_FLAGS.EnableXcloudLogging && [
-        'enableConsoleLogging',
-        'enableXcloudLogger',
-    ],
-
-    getPref(PrefKey.LOCAL_CO_OP_ENABLED) && ['supportLocalCoOp'],
-
-    getPref(PrefKey.BLOCK_TRACKING) && [
         'blockWebRtcStatsCollector',
         'disableIndexDbLogging',
-    ],
 
-    getPref(PrefKey.BLOCK_TRACKING) && [
         'disableTelemetryProvider',
         'disableTrackEvent',
-    ],
+    ] : []),
 
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayKeepAlive'],
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayDirectConnectUrl'],
+    ...(getPref(PrefKey.REMOTE_PLAY_ENABLED) ? [
+        'remotePlayKeepAlive',
+        'remotePlayDirectConnectUrl',
+        STATES.hasTouchSupport && 'patchUpdateInputConfigurationAsync',
+    ] : []),
 
-    [
-        'overrideSettings',
-    ],
-
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && STATES.hasTouchSupport && ['patchUpdateInputConfigurationAsync'],
-
-    getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && ['forceFortniteConsole'],
-];
-
+    ...(BX_FLAGS.EnableXcloudLogging ? [
+        'enableConsoleLogging',
+        'enableXcloudLogger',
+    ] : []),
+].filter(item => !!item);
 
 // Only when playing
-const PLAYING_PATCH_ORDERS = [
-    ['patchXcloudTitleInfo'],
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['patchRemotePlayMkb'],
+let PLAYING_PATCH_ORDERS: PatchArray = [
+    'patchXcloudTitleInfo',
+    'disableGamepadDisconnectedScreen',
+    'patchStreamHud',
+    'playVibration',
 
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayConnectMode'],
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && ['remotePlayGuideWorkaround'],
+    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
+    STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',
 
-    ['patchStreamHud'],
+    BX_FLAGS.EnableXcloudLogging && 'enableConsoleLogging',
 
-    ['playVibration'],
-    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && ['exposeTouchLayoutManager'],
-    STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ['disableTakRenderer'],
+    getPref(PrefKey.BLOCK_TRACKING) && 'blockGamepadStatsCollector',
 
-    BX_FLAGS.EnableXcloudLogging && ['enableConsoleLogging'],
+    getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'streamCombineSources',
 
-    getPref(PrefKey.BLOCK_TRACKING) && ['blockGamepadStatsCollector'],
+    ...(getPref(PrefKey.REMOTE_PLAY_ENABLED) ? [
+        'patchRemotePlayMkb',
+        'remotePlayConnectMode',
+    ] : []),
+].filter(item => !!item);
 
-    [
-        'disableGamepadDisconnectedScreen',
-    ],
-
-    getPref(PrefKey.STREAM_COMBINE_SOURCES) && ['streamCombineSources'],
-];
+const ALL_PATCHES = [...PATCH_ORDERS, ...PLAYING_PATCH_ORDERS];
 
 export class Patcher {
     static #patchFunctionBind() {
         const nativeBind = Function.prototype.bind;
-        Function.prototype.bind = function() {
+        Function.prototype.bind = function () {
             let valid = false;
             if (this.name.length <= 2 && arguments.length === 2 && arguments[0] === null) {
                 if (arguments[1] === 0 || (typeof arguments[1] === 'function')) {
@@ -517,11 +500,6 @@ export class Patcher {
 
             const orgFunc = this;
             const newFunc = (a: any, item: any) => {
-                if (Patcher.length() === 0) {
-                    orgFunc(a, item);
-                    return;
-                }
-
                 Patcher.patch(item);
                 orgFunc(a, item);
             }
@@ -533,96 +511,185 @@ export class Patcher {
 
     static length() { return PATCH_ORDERS.length; };
 
-    static patch(item: any) {
+    static patch(item: [[number], { [key: string]: () => {} }]) {
         // console.log('patch', '-----');
+        let patchesToCheck: PatchArray;
         let appliedPatches;
+        const caches: { [key: string]: string[] } = {};
 
         for (let id in item[1]) {
-            if (PATCH_ORDERS.length <= 0) {
-                return;
+            const cachedPatches = PatcherCache.getPatches(id);
+            if (cachedPatches) {
+                patchesToCheck = cachedPatches;
+                patchesToCheck.push(...PATCH_ORDERS);
+            } else {
+                patchesToCheck = PATCH_ORDERS;
             }
+
+            // Empty patch list
+            if (!patchesToCheck.length) {
+                continue;
+            }
+
+            // console.log(patchesToCheck);
 
             appliedPatches = [];
             const func = item[1][id];
             let str = func.toString();
 
-            for (let groupIndex = 0; groupIndex < PATCH_ORDERS.length; groupIndex++) {
-                const group = PATCH_ORDERS[groupIndex];
+            // console.log(id, str);
+
+            for (let groupIndex = 0; groupIndex < patchesToCheck.length; groupIndex++) {
+                const patchName = patchesToCheck[groupIndex];
                 let modified = false;
 
-                for (let patchIndex = 0; patchIndex < group.length; patchIndex++) {
-                    const patchName = group[patchIndex] as keyof typeof PATCHES;
-                    if (appliedPatches.indexOf(patchName) > -1) {
-                        continue;
-                    }
-
-                    const patchedstr = PATCHES[patchName].call(null, str);
-                    if (!patchedstr) {
-                        // Only stop if the first patch is failed
-                        if (patchIndex === 0) {
-                            break;
-                        } else {
-                            continue;
-                        }
-                    }
-
-                    modified = true;
-                    str = patchedstr;
-
-                    BxLogger.info(LOG_TAG, `Applied "${patchName}" patch`);
-                    appliedPatches.push(patchName);
-
-                    // Remove patch from group
-                    group.splice(patchIndex, 1);
-                    patchIndex--;
+                if (appliedPatches.indexOf(patchName) > -1) {
+                    continue;
                 }
+
+                // Check function against patch
+                const patchedStr = PATCHES[patchName].call(null, str);
+
+                // Not patched
+                if (!patchedStr) {
+                    continue;
+                }
+
+                modified = true;
+                str = patchedStr;
+
+                BxLogger.info(LOG_TAG, `Applied "${patchName}" patch`);
+                appliedPatches.push(patchName);
+
+                // Remove patch
+                patchesToCheck.splice(groupIndex, 1);
+                groupIndex--;
+                PATCH_ORDERS = PATCH_ORDERS.filter(item => item != patchName);
 
                 // Apply patched functions
                 if (modified) {
                     item[1][id] = eval(str);
                 }
-
-                // Remove empty group
-                if (!group.length) {
-                    PATCH_ORDERS.splice(groupIndex, 1);
-                    groupIndex--;
-                }
             }
+
+            // Save to cache
+            if (appliedPatches.length) {
+                caches[id] = appliedPatches;
+            }
+        }
+
+        if (Object.keys(caches).length) {
+            PatcherCache.saveToCache(caches);
         }
     }
 
-    // Remove disabled patches
-    static cleanupPatches() {
-        for (let groupIndex = PATCH_ORDERS.length - 1; groupIndex >= 0; groupIndex--) {
-            const group = PATCH_ORDERS[groupIndex];
-            if (group === false) {
-                PATCH_ORDERS.splice(groupIndex, 1);
-                continue;
-            }
-
-            for (let patchIndex = group.length - 1; patchIndex >= 0; patchIndex--) {
-                const patchName = group[patchIndex] as keyof typeof PATCHES;
-                if (!PATCHES[patchName]) {
-                    // Remove disabled patch
-                    group.splice(patchIndex, 1);
-                }
-            }
-
-            // Remove empty group
-            if (!group.length) {
-                PATCH_ORDERS.splice(groupIndex, 1);
-            }
-        }
-    }
-
-    static initialize() {
-        if (window.location.pathname.includes('/play/')) {
-            PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
-        } else {
-            PATCH_ORDERS.push(['loadingEndingChunks']);
-        }
-
-        Patcher.cleanupPatches();
+    static init() {
         Patcher.#patchFunctionBind();
     }
 }
+
+class PatcherCache {
+    static #KEY_CACHE = 'better_xcloud_patches_cache';
+    static #KEY_SIGNATURE = 'better_xcloud_patches_cache_signature';
+
+    static #CACHE: any;
+
+    /**
+     * Get patch's signature
+     */
+    static #getSignature(): number {
+        const scriptVersion = SCRIPT_VERSION;
+        const webVersion = (document.querySelector('meta[name=gamepass-app-version]') as HTMLMetaElement)?.content;
+        const patches = JSON.stringify(ALL_PATCHES);
+
+        // Calculate signature
+        const sig = hashCode(scriptVersion + webVersion + patches)
+        return sig;
+    }
+
+    static checkSignature() {
+        const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0;
+        const currentSig = PatcherCache.#getSignature();
+
+        if (currentSig !== parseInt(storedSig as string)) {
+            BxLogger.warning(LOG_TAG, 'Signature changed');
+
+            // Clear cache
+            window.localStorage.setItem(PatcherCache.#KEY_CACHE, '{}');
+            // Save new signature
+            window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
+
+            // Refresh page
+            // @ts-ignore
+            window.location.reload(true);
+
+        } else {
+            BxLogger.info(LOG_TAG, 'Signature unchanged');
+        }
+    }
+
+    static #cleanupPatches(patches: PatchArray): PatchArray {
+        return patches.filter(item => {
+            for (const id in PatcherCache.#CACHE) {
+                const cached = PatcherCache.#CACHE[id];
+
+                if (cached.includes(item)) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    static getPatches(id: string): PatchArray {
+        return PatcherCache.#CACHE[id];
+    }
+
+    static saveToCache(subCache: { [key: string]: string[] }) {
+        for (const id in subCache) {
+            const patchNames = subCache[id];
+
+            let data = PatcherCache.#CACHE[id];
+            if (!data) {
+                PatcherCache.#CACHE[id] = patchNames;
+            } else {
+                for (const patchName of patchNames) {
+                    if (!data.includes(patchName)) {
+                        data.push(patchName);
+                    }
+                }
+            }
+        }
+
+        // Save to storage
+        window.localStorage.setItem(PatcherCache.#KEY_CACHE, JSON.stringify(PatcherCache.#CACHE));
+    }
+
+    static init() {
+        // Read cache from storage
+        PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || '{}');
+        BxLogger.info(LOG_TAG, PatcherCache.#CACHE);
+
+        if (window.location.pathname.includes('/play/')) {
+            PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
+        } else {
+            PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
+        }
+
+        // Remove cached patches from PATCH_ORDERS & PLAYING_PATCH_ORDERS
+        PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS);
+        PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS);
+
+        BxLogger.info(LOG_TAG, PATCH_ORDERS.slice(0));
+        BxLogger.info(LOG_TAG, PLAYING_PATCH_ORDERS.slice(0));
+    }
+}
+
+document.addEventListener('readystatechange', e => {
+    if (document.readyState === 'interactive') {
+        PatcherCache.checkSignature();
+    }
+});
+
+PatcherCache.init();

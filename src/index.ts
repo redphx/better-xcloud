@@ -232,7 +232,7 @@ function main() {
     StreamStats.setupEvents();
     MkbHandler.setupEvents();
 
-    Patcher.initialize();
+    Patcher.init();
 
     disablePwa();
 
