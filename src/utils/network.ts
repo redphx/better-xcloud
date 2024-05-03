@@ -488,7 +488,7 @@ export function interceptHttpRequests() {
             'https://arc.msn.com',
             'https://browser.events.data.microsoft.com',
             'https://dc.services.visualstudio.com',
-            // 'https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io',
+            'https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io',
         ]);
     }
 
@@ -496,7 +496,8 @@ export function interceptHttpRequests() {
         BLOCKED_URLS = BLOCKED_URLS.concat([
             'https://peoplehub.xboxlive.com/users/me/people/social',
             'https://peoplehub.xboxlive.com/users/me/people/recommendations',
-            'https://notificationinbox.xboxlive.com',
+            'https://xblmessaging.xboxlive.com/network/xbox/users/me/inbox',
+            // 'https://notificationinbox.xboxlive.com',
             // 'https://accounts.xboxlive.com/family/memberXuid',
         ]);
     }
@@ -525,7 +526,7 @@ export function interceptHttpRequests() {
         return nativeXhrSend.apply(this, arguments);
     };
 
-    window.fetch = async (request: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    (window as any).BX_FETCH = window.fetch = async (request: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
         let url = (typeof request === 'string') ? request : (request as Request).url;
 
         // Check blocked URLs
