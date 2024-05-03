@@ -558,6 +558,8 @@ export class Patcher {
         const caches: { [key: string]: string[] } = {};
 
         for (let id in item[1]) {
+            appliedPatches = [];
+
             const cachedPatches = PatcherCache.getPatches(id);
             if (cachedPatches) {
                 patchesToCheck = cachedPatches;
@@ -572,8 +574,6 @@ export class Patcher {
             }
 
             // console.log(patchesToCheck);
-
-            appliedPatches = [];
             const func = item[1][id];
             let str = func.toString();
 
