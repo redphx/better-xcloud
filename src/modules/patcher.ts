@@ -115,6 +115,22 @@ const PATCHES = {
         return str.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
     },
 
+    // Disable achievement toast in Remote Play
+    remotePlayDisableAchievementToast(str: string) {
+        const text = '.AchievementUnlock:{';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `
+if (!!window.BX_REMOTE_PLAY_CONFIG) {
+    return;
+}
+`;
+
+        return str.replace(text, text + newCode);
+    },
+
     // Disable trackEvent() function
     disableTrackEvent(str: string) {
         const text = 'this.trackEvent=';
@@ -467,6 +483,7 @@ let PATCH_ORDERS: PatchArray = [
     ...(getPref(PrefKey.REMOTE_PLAY_ENABLED) ? [
         'remotePlayKeepAlive',
         'remotePlayDirectConnectUrl',
+        'remotePlayDisableAchievementToast',
         STATES.hasTouchSupport && 'patchUpdateInputConfigurationAsync',
     ] : []),
 
