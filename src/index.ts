@@ -162,6 +162,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     // Setup screenshot button
     if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
         const $btn = document.querySelector('.bx-screenshot-button')! as HTMLElement;
+        $btn.classList.remove('bx-gone');
         $btn.style.display = 'block';
 
         if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
@@ -170,6 +171,9 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
             $btn.style.left = '0';
         }
     }
+
+    const $touchControllerBar = document.getElementById('bx-touch-controller-bar');
+    $touchControllerBar && $touchControllerBar.classList.remove('bx-gone');
 });
 
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
