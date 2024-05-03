@@ -1,20 +1,20 @@
 import { t } from "@utils/translation";
 import { CE, createButton, ButtonStyle, Icon } from "@utils/html";
 
-type DialogOptions = {
-    title?: string;
-    className?: string;
-    content?: string | HTMLElement;
-    hideCloseButton?: boolean;
-    onClose?: string;
-    helpUrl?: string;
-}
+type DialogOptions = Partial<{
+    title: string;
+    className: string;
+    content: string | HTMLElement;
+    hideCloseButton: boolean;
+    onClose: string;
+    helpUrl: string;
+}>;
 
 export class Dialog {
-    $dialog?: HTMLElement;
-    $title?: HTMLElement;
-    $content?: HTMLElement;
-    $overlay?: Element | null;
+    $dialog: HTMLElement;
+    $title: HTMLElement;
+    $content: HTMLElement;
+    $overlay: HTMLElement;
 
     onClose: any;
 
@@ -29,14 +29,17 @@ export class Dialog {
         } = options;
 
         // Create dialog overlay
-        this.$overlay = document.querySelector('.bx-dialog-overlay');
-        if (!this.$overlay) {
+        const $overlay = document.querySelector('.bx-dialog-overlay') as HTMLElement;
+
+        if (!$overlay) {
             this.$overlay = CE('div', {'class': 'bx-dialog-overlay bx-gone'});
 
             // Disable right click
-            this.$overlay!.addEventListener('contextmenu', e => e.preventDefault());
+            this.$overlay.addEventListener('contextmenu', e => e.preventDefault());
 
-            document.documentElement.appendChild(this.$overlay!);
+            document.documentElement.appendChild(this.$overlay);
+        } else {
+            this.$overlay = $overlay;
         }
 
         let $close;
@@ -72,19 +75,19 @@ export class Dialog {
         document.activeElement && (document.activeElement as HTMLElement).blur();
 
         if (newOptions && newOptions.title) {
-            this.$title!.querySelector('b')!.textContent = newOptions.title;
-            this.$title!.classList.remove('bx-gone');
+            this.$title.querySelector('b')!.textContent = newOptions.title;
+            this.$title.classList.remove('bx-gone');
         }
 
-        this.$dialog!.classList.remove('bx-gone');
-        this.$overlay!.classList.remove('bx-gone');
+        this.$dialog.classList.remove('bx-gone');
+        this.$overlay.classList.remove('bx-gone');
 
         document.body.classList.add('bx-no-scroll');
     }
 
     hide(e?: any) {
-        this.$dialog!.classList.add('bx-gone');
-        this.$overlay!.classList.add('bx-gone');
+        this.$dialog.classList.add('bx-gone');
+        this.$overlay.classList.add('bx-gone');
 
         document.body.classList.remove('bx-no-scroll');
 
@@ -92,7 +95,7 @@ export class Dialog {
     }
 
     toggle() {
-        this.$dialog!.classList.toggle('bx-gone');
-        this.$overlay!.classList.toggle('bx-gone');
+        this.$dialog.classList.toggle('bx-gone');
+        this.$overlay.classList.toggle('bx-gone');
     }
 }
