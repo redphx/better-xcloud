@@ -320,10 +320,33 @@ if (match) {
             return false;
         }
 
-        const newCode = `
-const titleInfo = window.BX_EXPOSED.getTitleInfo();
-if (!titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
+        let remotePlayCode = '';
+        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'off' && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+            remotePlayCode = `
+const gamepads = window.navigator.getGamepads();
+let gamepadFound = false;
+
+for (let gamepad of gamepads) {
+    if (gamepad && gamepad.connected) {
+        gamepadFound = true;
+        break;
+    }
+}
+
+if (gamepadFound) {
     return;
+}
+`;
+        }
+
+        const newCode = `
+if (!!window.BX_REMOTE_PLAY_CONFIG) {
+    ${remotePlayCode}
+} else {
+    const titleInfo = window.BX_EXPOSED.getTitleInfo();
+    if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
+        return;
+    }
 }
 `;
 
