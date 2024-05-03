@@ -84,42 +84,6 @@ try {
 } catch (e) {
 }
 
-// src/assets/svg/controller.svg
-var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
-
-// src/assets/svg/copy.svg
-var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
-
-// src/assets/svg/cursor-text.svg
-var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
-
-// src/assets/svg/display.svg
-var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
-
-// src/assets/svg/mouse-settings.svg
-var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
-
-// src/assets/svg/mouse.svg
-var mouse_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z'/><path d='M16 13.721V6.883'/>\n</svg>\n";
-
-// src/assets/svg/new.svg
-var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
-
-// src/assets/svg/question.svg
-var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
-
-// src/assets/svg/remote-play.svg
-var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
-
-// src/assets/svg/stream-settings.svg
-var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
-
-// src/assets/svg/stream-stats.svg
-var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
-
-// src/assets/svg/trash.svg
-var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
-
 // src/utils/html.ts
 var createElement = function(elmName, props = {}, ..._) {
   let $elm;
@@ -153,21 +117,6 @@ var createElement = function(elmName, props = {}, ..._) {
 };
 var CE = createElement;
 var svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
-var Icon;
-(function(Icon2) {
-  Icon2[Icon2["STREAM_SETTINGS"] = stream_settings_default] = "STREAM_SETTINGS";
-  Icon2[Icon2["STREAM_STATS"] = stream_stats_default] = "STREAM_STATS";
-  Icon2[Icon2["CONTROLLER"] = controller_default] = "CONTROLLER";
-  Icon2[Icon2["DISPLAY"] = display_default] = "DISPLAY";
-  Icon2[Icon2["MOUSE"] = mouse_default] = "MOUSE";
-  Icon2[Icon2["MOUSE_SETTINGS"] = mouse_settings_default] = "MOUSE_SETTINGS";
-  Icon2[Icon2["NEW"] = new_default] = "NEW";
-  Icon2[Icon2["COPY"] = copy_default] = "COPY";
-  Icon2[Icon2["TRASH"] = trash_default] = "TRASH";
-  Icon2[Icon2["CURSOR_TEXT"] = cursor_text_default] = "CURSOR_TEXT";
-  Icon2[Icon2["QUESTION"] = question_default] = "QUESTION";
-  Icon2[Icon2["REMOTE_PLAY"] = remote_play_default] = "REMOTE_PLAY";
-})(Icon || (Icon = {}));
 var createSvgIcon = (icon) => {
   return svgParser(icon.toString());
 };
@@ -5014,6 +4963,58 @@ class LoadingScreen {
   }
 }
 
+// src/assets/svg/controller.svg
+var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
+
+// src/assets/svg/copy.svg
+var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
+
+// src/assets/svg/cursor-text.svg
+var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
+
+// src/assets/svg/display.svg
+var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
+
+// src/assets/svg/mouse-settings.svg
+var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
+
+// src/assets/svg/mouse.svg
+var mouse_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z'/><path d='M16 13.721V6.883'/>\n</svg>\n";
+
+// src/assets/svg/new.svg
+var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
+
+// src/assets/svg/question.svg
+var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
+
+// src/assets/svg/remote-play.svg
+var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
+
+// src/assets/svg/stream-settings.svg
+var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
+
+// src/assets/svg/stream-stats.svg
+var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
+
+// src/assets/svg/trash.svg
+var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
+
+// src/utils/bx-icon.ts
+var BxIcon = {
+  STREAM_SETTINGS: stream_settings_default,
+  STREAM_STATS: stream_stats_default,
+  CONTROLLER: controller_default,
+  DISPLAY: display_default,
+  MOUSE: mouse_default,
+  MOUSE_SETTINGS: mouse_settings_default,
+  NEW: new_default,
+  COPY: copy_default,
+  TRASH: trash_default,
+  CURSOR_TEXT: cursor_text_default,
+  QUESTION: question_default,
+  REMOTE_PLAY: remote_play_default
+};
+
 // src/utils/toast.ts
 class Toast {
   static #$wrapper;
@@ -5180,16 +5181,18 @@ class Dialog {
       onClose,
       helpUrl
     } = options;
-    this.$overlay = document.querySelector(".bx-dialog-overlay");
-    if (!this.$overlay) {
+    const $overlay = document.querySelector(".bx-dialog-overlay");
+    if (!$overlay) {
       this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" });
       this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault());
       document.documentElement.appendChild(this.$overlay);
+    } else {
+      this.$overlay = $overlay;
     }
     let $close;
     this.onClose = onClose;
     this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
-      icon: Icon.QUESTION,
+      icon: BxIcon.QUESTION,
       style: ButtonStyle.GHOST,
       title: t("help"),
       url: helpUrl
@@ -5511,7 +5514,7 @@ function injectStreamMenuButtons() {
           return;
         }
         if (!$btnStreamSettings) {
-          $btnStreamSettings = cloneStreamHudButton($orgButton, t("menu-stream-settings"), Icon.STREAM_SETTINGS);
+          $btnStreamSettings = cloneStreamHudButton($orgButton, t("menu-stream-settings"), BxIcon.STREAM_SETTINGS);
           $btnStreamSettings.addEventListener("click", (e) => {
             hideGripHandle();
             e.preventDefault();
@@ -5522,7 +5525,7 @@ function injectStreamMenuButtons() {
           });
         }
         if (!$btnStreamStats) {
-          $btnStreamStats = cloneStreamHudButton($orgButton, t("menu-stream-stats"), Icon.STREAM_STATS);
+          $btnStreamStats = cloneStreamHudButton($orgButton, t("menu-stream-stats"), BxIcon.STREAM_STATS);
           $btnStreamStats.addEventListener("click", (e) => {
             hideGripHandle();
             e.preventDefault();
@@ -5885,7 +5888,7 @@ class MkbHandler {
     document.addEventListener("pointerlockchange", this.#onPointerLockChange);
     document.addEventListener("pointerlockerror", this.#onPointerLockError);
     this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, createButton({
-      icon: Icon.MOUSE_SETTINGS,
+      icon: BxIcon.MOUSE_SETTINGS,
       style: ButtonStyle.PRIMARY,
       onClick: (e) => {
         e.preventDefault();
@@ -6318,7 +6321,7 @@ class MkbRemapper {
     };
     const $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
       title: t("rename"),
-      icon: Icon.CURSOR_TEXT,
+      icon: BxIcon.CURSOR_TEXT,
       onClick: (e) => {
         const preset = this.#getCurrentPreset();
         let newName = promptNewName(preset.name);
@@ -6329,7 +6332,7 @@ class MkbRemapper {
         LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
       }
     }), createButton({
-      icon: Icon.NEW,
+      icon: BxIcon.NEW,
       title: t("new"),
       onClick: (e) => {
         let newName = promptNewName("");
@@ -6342,7 +6345,7 @@ class MkbRemapper {
         });
       }
     }), createButton({
-      icon: Icon.COPY,
+      icon: BxIcon.COPY,
       title: t("copy"),
       onClick: (e) => {
         const preset = this.#getCurrentPreset();
@@ -6356,7 +6359,7 @@ class MkbRemapper {
         });
       }
     }), createButton({
-      icon: Icon.TRASH,
+      icon: BxIcon.TRASH,
       style: ButtonStyle.DANGER,
       title: t("delete"),
       onClick: (e) => {
@@ -6904,7 +6907,7 @@ var setupQuickSettingsBar = function() {
   const isSafari = UserAgent.isSafari();
   const SETTINGS_UI = [
     getPref(PrefKey.MKB_ENABLED) && {
-      icon: Icon.MOUSE,
+      icon: BxIcon.MOUSE,
       group: "mkb",
       items: [
         {
@@ -6916,7 +6919,7 @@ var setupQuickSettingsBar = function() {
       ]
     },
     {
-      icon: Icon.DISPLAY,
+      icon: BxIcon.DISPLAY,
       group: "stream",
       items: [
         {
@@ -6972,7 +6975,7 @@ var setupQuickSettingsBar = function() {
       ]
     },
     {
-      icon: Icon.CONTROLLER,
+      icon: BxIcon.CONTROLLER,
       group: "controller",
       items: [
         {
@@ -7045,7 +7048,7 @@ var setupQuickSettingsBar = function() {
       ]
     },
     {
-      icon: Icon.STREAM_STATS,
+      icon: BxIcon.STREAM_STATS,
       group: "stats",
       items: [
         {
@@ -7127,7 +7130,7 @@ var setupQuickSettingsBar = function() {
         continue;
       }
       $group.appendChild(CE("h2", {}, CE("span", {}, settingGroup.label), settingGroup.help_url && createButton({
-        icon: Icon.QUESTION,
+        icon: BxIcon.QUESTION,
         style: ButtonStyle.GHOST,
         url: settingGroup.help_url,
         title: t("help")
@@ -7353,7 +7356,7 @@ class RemotePlay {
       $fragment.appendChild($child);
     }
     $fragment.appendChild(createButton({
-      icon: Icon.QUESTION,
+      icon: BxIcon.QUESTION,
       style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
       url: "https://better-xcloud.github.io/remote-play",
       label: t("help")
@@ -7468,8 +7471,8 @@ class RemotePlay {
       return;
     }
     const $header = document.querySelector("#gamepass-root header");
-    const group2 = $header.firstElementChild.getAttribute("data-group");
-    RemotePlay.#$content.setAttribute("data-group", group2);
+    const group = $header.firstElementChild.getAttribute("data-group");
+    RemotePlay.#$content.setAttribute("data-group", group);
     RemotePlay.#$content.classList.add("bx-remote-play-popup");
     RemotePlay.#$content.classList.remove("bx-gone");
     $header.insertAdjacentElement("afterend", RemotePlay.#$content);
@@ -7583,14 +7586,15 @@ function interceptHttpRequests() {
     BLOCKED_URLS = BLOCKED_URLS.concat([
       "https://arc.msn.com",
       "https://browser.events.data.microsoft.com",
-      "https://dc.services.visualstudio.com"
+      "https://dc.services.visualstudio.com",
+      "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
     ]);
   }
   if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
     BLOCKED_URLS = BLOCKED_URLS.concat([
       "https://peoplehub.xboxlive.com/users/me/people/social",
       "https://peoplehub.xboxlive.com/users/me/people/recommendations",
-      "https://notificationinbox.xboxlive.com"
+      "https://xblmessaging.xboxlive.com/network/xbox/users/me/inbox"
     ]);
   }
   const xhrPrototype = XMLHttpRequest.prototype;
@@ -7611,7 +7615,7 @@ function interceptHttpRequests() {
     }
     return nativeXhrSend.apply(this, arguments);
   };
-  window.fetch = async (request, init) => {
+  window.BX_FETCH = window.fetch = async (request, init) => {
     let url = typeof request === "string" ? request : request.url;
     for (let blocked of BLOCKED_URLS) {
       if (!url.startsWith(blocked)) {
@@ -9160,7 +9164,7 @@ function setupSettingsUi() {
     class: "bx-settings-title",
     href: SCRIPT_HOME,
     target: "_blank"
-  }, "Better xCloud " + SCRIPT_VERSION), createButton({ icon: Icon.QUESTION, label: t("help"), url: "https://better-xcloud.github.io/features/" })));
+  }, "Better xCloud " + SCRIPT_VERSION), createButton({ icon: BxIcon.QUESTION, label: t("help"), url: "https://better-xcloud.github.io/features/" })));
   $updateAvailable = CE("a", {
     class: "bx-settings-update bx-gone",
     href: "https://github.com/redphx/better-xcloud/releases",
@@ -9414,7 +9418,7 @@ var injectSettingsButton = function($parent) {
   if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
     const $remotePlayBtn = createButton({
       classes: ["bx-header-remote-play-button"],
-      icon: Icon.REMOTE_PLAY,
+      icon: BxIcon.REMOTE_PLAY,
       title: t("remote-play"),
       style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
@@ -9488,8 +9492,18 @@ function disablePwa() {
     });
   }
 }
+function hashCode(str2) {
+  let hash = 0;
+  for (let i = 0, len = str2.length;i < len; i++) {
+    const chr = str2.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0;
+  }
+  return hash;
+}
 
 // src/modules/patcher.ts
+var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks";
 var LOG_TAG4 = "Patcher";
 var PATCHES = {
   disableAiTrack(str2) {
@@ -9570,12 +9584,17 @@ var PATCHES = {
     }
     return str2.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
   },
-  remotePlayGuideWorkaround(str2) {
-    const text = "nexusButtonHandler:this.featureGates.EnableClientGuideInStream";
+  remotePlayDisableAchievementToast(str2) {
+    const text = ".AchievementUnlock:{";
     if (!str2.includes(text)) {
       return false;
     }
-    return str2.replace(text, `nexusButtonHandler: !window.BX_REMOTE_PLAY_CONFIG && this.featureGates.EnableClientGuideInStream`);
+    const newCode = `
+if (!!window.BX_REMOTE_PLAY_CONFIG) {
+    return;
+}
+`;
+    return str2.replace(text, text + newCode);
   },
   disableTrackEvent(str2) {
     const text = "this.trackEvent=";
@@ -9668,13 +9687,12 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     return str2;
   },
   loadingEndingChunks(str2) {
-    const text = 'Symbol("ChatSocketPlugin")';
+    const text = '"FamilySagaManager"';
     if (!str2.includes(text)) {
       return false;
     }
     BxLogger.info(LOG_TAG4, "Remaining patches:", PATCH_ORDERS);
     PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
-    Patcher.cleanupPatches();
     return str2;
   },
   disableStreamGate(str2) {
@@ -9736,10 +9754,32 @@ if (match) {
     if (!str2.includes(text)) {
       return false;
     }
-    const newCode = `
-const titleInfo = window.BX_EXPOSED.getTitleInfo();
-if (!titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
+    let remotePlayCode = "";
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+      remotePlayCode = `
+const gamepads = window.navigator.getGamepads();
+let gamepadFound = false;
+
+for (let gamepad of gamepads) {
+    if (gamepad && gamepad.connected) {
+        gamepadFound = true;
+        break;
+    }
+}
+
+if (gamepadFound) {
     return;
+}
+`;
+    }
+    const newCode = `
+if (!!window.BX_REMOTE_PLAY_CONFIG) {
+    ${remotePlayCode}
+} else {
+    const titleInfo = window.BX_EXPOSED.getTitleInfo();
+    if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
+        return;
+    }
 }
 `;
     str2 = str2.replace(text, newCode + text);
@@ -9813,50 +9853,47 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
   }
 };
 var PATCH_ORDERS = [
-  getPref(PrefKey.BLOCK_TRACKING) && [
+  "disableStreamGate",
+  "overrideSettings",
+  "broadcastPollingMode",
+  getPref(PrefKey.UI_LAYOUT) === "tv" && "tvLayout",
+  getPref(PrefKey.LOCAL_CO_OP_ENABLED) && "supportLocalCoOp",
+  getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && "forceFortniteConsole",
+  ...getPref(PrefKey.BLOCK_TRACKING) ? [
     "disableAiTrack",
-    "disableTelemetry"
-  ],
-  ["disableStreamGate"],
-  ["broadcastPollingMode"],
-  getPref(PrefKey.UI_LAYOUT) === "tv" && ["tvLayout"],
-  BX_FLAGS.EnableXcloudLogging && [
-    "enableConsoleLogging",
-    "enableXcloudLogger"
-  ],
-  getPref(PrefKey.LOCAL_CO_OP_ENABLED) && ["supportLocalCoOp"],
-  getPref(PrefKey.BLOCK_TRACKING) && [
+    "disableTelemetry",
     "blockWebRtcStatsCollector",
-    "disableIndexDbLogging"
-  ],
-  getPref(PrefKey.BLOCK_TRACKING) && [
+    "disableIndexDbLogging",
     "disableTelemetryProvider",
     "disableTrackEvent"
-  ],
-  getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["remotePlayKeepAlive"],
-  getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["remotePlayDirectConnectUrl"],
-  [
-    "overrideSettings"
-  ],
-  getPref(PrefKey.REMOTE_PLAY_ENABLED) && STATES.hasTouchSupport && ["patchUpdateInputConfigurationAsync"],
-  getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && ["forceFortniteConsole"]
-];
+  ] : [],
+  ...getPref(PrefKey.REMOTE_PLAY_ENABLED) ? [
+    "remotePlayKeepAlive",
+    "remotePlayDirectConnectUrl",
+    "remotePlayDisableAchievementToast",
+    STATES.hasTouchSupport && "patchUpdateInputConfigurationAsync"
+  ] : [],
+  ...BX_FLAGS.EnableXcloudLogging ? [
+    "enableConsoleLogging",
+    "enableXcloudLogger"
+  ] : []
+].filter((item2) => !!item2);
 var PLAYING_PATCH_ORDERS = [
-  ["patchXcloudTitleInfo"],
-  getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["patchRemotePlayMkb"],
-  getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["remotePlayConnectMode"],
-  getPref(PrefKey.REMOTE_PLAY_ENABLED) && ["remotePlayGuideWorkaround"],
-  ["patchStreamHud"],
-  ["playVibration"],
-  STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && ["exposeTouchLayoutManager"],
-  STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && ["disableTakRenderer"],
-  BX_FLAGS.EnableXcloudLogging && ["enableConsoleLogging"],
-  getPref(PrefKey.BLOCK_TRACKING) && ["blockGamepadStatsCollector"],
-  [
-    "disableGamepadDisconnectedScreen"
-  ],
-  getPref(PrefKey.STREAM_COMBINE_SOURCES) && ["streamCombineSources"]
-];
+  "patchXcloudTitleInfo",
+  "disableGamepadDisconnectedScreen",
+  "patchStreamHud",
+  "playVibration",
+  STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
+  STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
+  BX_FLAGS.EnableXcloudLogging && "enableConsoleLogging",
+  getPref(PrefKey.BLOCK_TRACKING) && "blockGamepadStatsCollector",
+  getPref(PrefKey.STREAM_COMBINE_SOURCES) && "streamCombineSources",
+  ...getPref(PrefKey.REMOTE_PLAY_ENABLED) ? [
+    "patchRemotePlayMkb",
+    "remotePlayConnectMode"
+  ] : []
+].filter((item2) => !!item2);
+var ALL_PATCHES = [...PATCH_ORDERS, ...PLAYING_PATCH_ORDERS];
 
 class Patcher {
   static #patchFunctionBind() {
@@ -9877,10 +9914,6 @@ class Patcher {
       }
       const orgFunc = this;
       const newFunc = (a, item2) => {
-        if (Patcher.length() === 0) {
-          orgFunc(a, item2);
-          return;
-        }
         Patcher.patch(item2);
         orgFunc(a, item2);
       };
@@ -9891,75 +9924,129 @@ class Patcher {
     return PATCH_ORDERS.length;
   }
   static patch(item) {
+    let patchesToCheck;
     let appliedPatches;
+    const caches = {};
     for (let id in item[1]) {
-      if (PATCH_ORDERS.length <= 0) {
-        return;
+      const cachedPatches = PatcherCache.getPatches(id);
+      if (cachedPatches) {
+        patchesToCheck = cachedPatches;
+        patchesToCheck.push(...PATCH_ORDERS);
+      } else {
+        patchesToCheck = PATCH_ORDERS;
+      }
+      if (!patchesToCheck.length) {
+        continue;
       }
       appliedPatches = [];
       const func = item[1][id];
       let str = func.toString();
-      for (let groupIndex = 0;groupIndex < PATCH_ORDERS.length; groupIndex++) {
-        const group = PATCH_ORDERS[groupIndex];
+      for (let groupIndex = 0;groupIndex < patchesToCheck.length; groupIndex++) {
+        const patchName = patchesToCheck[groupIndex];
         let modified = false;
-        for (let patchIndex = 0;patchIndex < group.length; patchIndex++) {
-          const patchName = group[patchIndex];
-          if (appliedPatches.indexOf(patchName) > -1) {
-            continue;
-          }
-          const patchedstr = PATCHES[patchName].call(null, str);
-          if (!patchedstr) {
-            if (patchIndex === 0) {
-              break;
-            } else {
-              continue;
-            }
-          }
-          modified = true;
-          str = patchedstr;
-          BxLogger.info(LOG_TAG4, `Applied "${patchName}" patch`);
-          appliedPatches.push(patchName);
-          group.splice(patchIndex, 1);
-          patchIndex--;
+        if (appliedPatches.indexOf(patchName) > -1) {
+          continue;
         }
+        const patchedStr = PATCHES[patchName].call(null, str);
+        if (!patchedStr) {
+          continue;
+        }
+        modified = true;
+        str = patchedStr;
+        BxLogger.info(LOG_TAG4, `Applied "${patchName}" patch`);
+        appliedPatches.push(patchName);
+        patchesToCheck.splice(groupIndex, 1);
+        groupIndex--;
+        PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
         if (modified) {
           item[1][id] = eval(str);
         }
-        if (!group.length) {
-          PATCH_ORDERS.splice(groupIndex, 1);
-          groupIndex--;
-        }
       }
+      if (appliedPatches.length) {
+        caches[id] = appliedPatches;
+      }
+    }
+    if (Object.keys(caches).length) {
+      PatcherCache.saveToCache(caches);
     }
   }
-  static cleanupPatches() {
-    for (let groupIndex2 = PATCH_ORDERS.length - 1;groupIndex2 >= 0; groupIndex2--) {
-      const group2 = PATCH_ORDERS[groupIndex2];
-      if (group2 === false) {
-        PATCH_ORDERS.splice(groupIndex2, 1);
-        continue;
-      }
-      for (let patchIndex = group2.length - 1;patchIndex >= 0; patchIndex--) {
-        const patchName = group2[patchIndex];
-        if (!PATCHES[patchName]) {
-          group2.splice(patchIndex, 1);
-        }
-      }
-      if (!group2.length) {
-        PATCH_ORDERS.splice(groupIndex2, 1);
-      }
-    }
-  }
-  static initialize() {
-    if (window.location.pathname.includes("/play/")) {
-      PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
-    } else {
-      PATCH_ORDERS.push(["loadingEndingChunks"]);
-    }
-    Patcher.cleanupPatches();
+  static init() {
     Patcher.#patchFunctionBind();
   }
 }
+
+class PatcherCache {
+  static #KEY_CACHE = "better_xcloud_patches_cache";
+  static #KEY_SIGNATURE = "better_xcloud_patches_cache_signature";
+  static #CACHE;
+  static #getSignature() {
+    const scriptVersion = SCRIPT_VERSION;
+    const webVersion = document.querySelector("meta[name=gamepass-app-version]")?.content;
+    const patches = JSON.stringify(ALL_PATCHES);
+    const sig = hashCode(scriptVersion + webVersion + patches);
+    return sig;
+  }
+  static checkSignature() {
+    const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0;
+    const currentSig = PatcherCache.#getSignature();
+    if (currentSig !== parseInt(storedSig)) {
+      BxLogger.warning(LOG_TAG4, "Signature changed");
+      window.localStorage.setItem(PatcherCache.#KEY_CACHE, "{}");
+      window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
+    } else {
+      BxLogger.info(LOG_TAG4, "Signature unchanged");
+    }
+  }
+  static #cleanupPatches(patches) {
+    return patches.filter((item2) => {
+      for (const id2 in PatcherCache.#CACHE) {
+        const cached = PatcherCache.#CACHE[id2];
+        if (cached.includes(item2)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+  static getPatches(id2) {
+    return PatcherCache.#CACHE[id2];
+  }
+  static saveToCache(subCache) {
+    for (const id2 in subCache) {
+      const patchNames = subCache[id2];
+      let data = PatcherCache.#CACHE[id2];
+      if (!data) {
+        PatcherCache.#CACHE[id2] = patchNames;
+      } else {
+        for (const patchName2 of patchNames) {
+          if (!data.includes(patchName2)) {
+            data.push(patchName2);
+          }
+        }
+      }
+    }
+    window.localStorage.setItem(PatcherCache.#KEY_CACHE, JSON.stringify(PatcherCache.#CACHE));
+  }
+  static init() {
+    PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}");
+    BxLogger.info(LOG_TAG4, PatcherCache.#CACHE);
+    if (window.location.pathname.includes("/play/")) {
+      PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
+    } else {
+      PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
+    }
+    PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS);
+    PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS);
+    BxLogger.info(LOG_TAG4, PATCH_ORDERS.slice(0));
+    BxLogger.info(LOG_TAG4, PLAYING_PATCH_ORDERS.slice(0));
+  }
+}
+document.addEventListener("readystatechange", (e) => {
+  if (document.readyState === "interactive") {
+    PatcherCache.checkSignature();
+  }
+});
+PatcherCache.init();
 
 // src/utils/history.ts
 function patchHistoryMethod(type) {
@@ -10143,7 +10230,7 @@ var main = function() {
   StreamBadges.setupEvents();
   StreamStats.setupEvents();
   MkbHandler.setupEvents();
-  Patcher.initialize();
+  Patcher.init();
   disablePwa();
   window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad));
   window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
