@@ -616,13 +616,9 @@ class PatcherCache {
 
             // Clear cache
             window.localStorage.setItem(PatcherCache.#KEY_CACHE, '{}');
+
             // Save new signature
             window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
-
-            // Refresh page
-            // @ts-ignore
-            window.location.reload(true);
-
         } else {
             BxLogger.info(LOG_TAG, 'Signature unchanged');
         }
