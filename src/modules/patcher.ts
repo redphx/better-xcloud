@@ -520,8 +520,14 @@ const ALL_PATCHES = [...PATCH_ORDERS, ...PLAYING_PATCH_ORDERS];
 export class Patcher {
     static #patchFunctionBind() {
         const nativeBind = Function.prototype.bind;
-        Function.prototype.bind = function () {
+        Function.prototype.bind = function() {
             let valid = false;
+
+            // Looking for these criteria:
+            // - Variable name <= 2 characters
+            // - Has 2 params:
+            //     - The first one is null
+            //     - The second one is either 0 or a function
             if (this.name.length <= 2 && arguments.length === 2 && arguments[0] === null) {
                 if (arguments[1] === 0 || (typeof arguments[1] === 'function')) {
                     valid = true;
@@ -532,6 +538,8 @@ export class Patcher {
                 // @ts-ignore
                 return nativeBind.apply(this, arguments);
             }
+
+            PatcherCache.init();
 
             if (typeof arguments[1] === 'function') {
                 BxLogger.info(LOG_TAG, 'Restored Function.prototype.bind()');
@@ -635,6 +643,8 @@ export class PatcherCache {
 
     static #CACHE: any;
 
+    static #isInitialized = false;
+
     /**
      * Get patch's signature
      */
@@ -664,9 +674,6 @@ export class PatcherCache {
             window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
 
             PatcherCache.clear();
-
-            // @ts-ignore
-            window.location.reload(true);
         } else {
             BxLogger.info(LOG_TAG, 'Signature unchanged');
         }
@@ -711,6 +718,13 @@ export class PatcherCache {
     }
 
     static init() {
+        if (PatcherCache.#isInitialized) {
+            return;
+        }
+        PatcherCache.#isInitialized = true;
+
+        PatcherCache.checkSignature();
+
         // Read cache from storage
         PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || '{}');
         BxLogger.info(LOG_TAG, PatcherCache.#CACHE);
@@ -729,11 +743,3 @@ export class PatcherCache {
         BxLogger.info(LOG_TAG, PLAYING_PATCH_ORDERS.slice(0));
     }
 }
-
-document.addEventListener('readystatechange', e => {
-    if (document.readyState === 'interactive') {
-        PatcherCache.checkSignature();
-    }
-});
-
-PatcherCache.init();
