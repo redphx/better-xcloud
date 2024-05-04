@@ -7,3 +7,11 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
     background-color: #2d2d2d !important;
     color: #000 !important;
 }
+
+.bx-stream-refresh-button {
+    top: calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important;
+}
+
+body[data-media-type=tv] .bx-stream-refresh-button {
+    top: calc(var(--gds-focus-borderSize) + 80px) !important;
+}

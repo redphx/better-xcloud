@@ -6,6 +6,7 @@ import iconMouseSettings from "@assets/svg/mouse-settings.svg" with { type: "tex
 import iconMouse from "@assets/svg/mouse.svg" with { type: "text" };
 import iconNew from "@assets/svg/new.svg" with { type: "text" };
 import iconQuestion from "@assets/svg/question.svg" with { type: "text" };
+import iconRefresh from "@assets/svg/refresh.svg" with { type: "text" };
 import iconRemotePlay from "@assets/svg/remote-play.svg" with { type: "text" };
 import iconStreamSettings from "@assets/svg/stream-settings.svg" with { type: "text" };
 import iconStreamStats from "@assets/svg/stream-stats.svg" with { type: "text" };
@@ -23,6 +24,7 @@ export const BxIcon = {
     TRASH: iconTrash,
     CURSOR_TEXT: iconCursorText,
     QUESTION: iconQuestion,
+    REFRESH: iconRefresh,
 
     REMOTE_PLAY: iconRemotePlay,
 

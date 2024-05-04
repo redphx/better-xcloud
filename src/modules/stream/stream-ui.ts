@@ -8,65 +8,6 @@ import { StreamBadges } from "./stream-badges.ts";
 import { StreamStats } from "./stream-stats.ts";
 
 
-class MouseHoldEvent {
-    #isHolding = false;
-    #timeout?: number | null;
-
-    #$elm;
-    #callback;
-    #duration;
-
-    #onMouseDown(e: MouseEvent | TouchEvent) {
-        const _this = this;
-        this.#isHolding = false;
-
-        this.#timeout && clearTimeout(this.#timeout);
-        this.#timeout = window.setTimeout(() => {
-            _this.#isHolding = true;
-            _this.#callback();
-        }, this.#duration);
-    };
-
-    #onMouseUp(e: MouseEvent | TouchEvent) {
-        this.#timeout && clearTimeout(this.#timeout);
-        this.#timeout = null;
-
-        if (this.#isHolding) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        this.#isHolding = false;
-    };
-
-    #addEventListeners = () => {
-        this.#$elm.addEventListener('mousedown', this.#onMouseDown.bind(this));
-        this.#$elm.addEventListener('click', this.#onMouseUp.bind(this));
-
-        this.#$elm.addEventListener('touchstart', this.#onMouseDown.bind(this));
-        this.#$elm.addEventListener('touchend', this.#onMouseUp.bind(this));
-    }
-
-    /*
-    #clearEventLiseners = () => {
-        this.#$elm.removeEventListener('mousedown', this.#onMouseDown);
-        this.#$elm.removeEventListener('click', this.#onMouseUp);
-
-        this.#$elm.removeEventListener('touchstart', this.#onMouseDown);
-        this.#$elm.removeEventListener('touchend', this.#onMouseUp);
-    }
-    */
-
-    constructor($elm: HTMLElement, callback: any, duration=1000) {
-        this.#$elm = $elm;
-        this.#callback = callback;
-        this.#duration = duration;
-
-        this.#addEventListeners();
-        // $elm.clearMouseHoldEventListeners = this.#clearEventLiseners;
-    }
-}
-
-
 function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: typeof BxIcon) {
     const $container = $orgButton.cloneNode(true) as HTMLElement;
     let timeout: number | null;
@@ -192,25 +133,39 @@ export function injectStreamMenuButtons() {
                 }
 
                 // Render badges
-                if ($elm.className.startsWith('StreamMenu')) {
+                if ($elm.className.startsWith('StreamMenu-module__container')) {
                     BxEvent.dispatch(window, BxEvent.STREAM_MENU_SHOWN);
 
-                    // Hide Quick bar when closing HUD
                     const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
                     if (!$btnCloseHud) {
                         return;
                     }
 
+                    // Hide Quick bar when closing HUD
                     $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
                         $quickBar.classList.add('bx-gone');
                     });
 
-                    // Get "Quit game" button
-                    const $btnQuit = $elm.querySelector('div[class^=StreamMenu] > div > button:last-child') as HTMLElement;
-                    // Hold "Quit game" button to refresh the stream
-                    new MouseHoldEvent($btnQuit, () => {
+                    // Create Refresh button from the Close button
+                    const $btnRefresh = $btnCloseHud.cloneNode(true) as HTMLElement;
+
+                    // Refresh SVG
+                    const $svgRefresh = createSvgIcon(BxIcon.REFRESH);
+                    // Copy classes
+                    $svgRefresh.setAttribute('class', $btnRefresh.firstElementChild!.getAttribute('class') || '');
+                    $svgRefresh.style.fill = 'none';
+
+                    $btnRefresh.classList.add('bx-stream-refresh-button');
+                    // Remove icon
+                    $btnRefresh.removeChild($btnRefresh.firstElementChild!);
+                    // Add Refresh icon
+                    $btnRefresh.appendChild($svgRefresh);
+                    // Add "click" event listener
+                    $btnRefresh.addEventListener('click', e => {
                         confirm(t('confirm-reload-stream')) && window.location.reload();
-                    }, 1000);
+                    });
+                    // Add to website
+                    $btnCloseHud.insertAdjacentElement('afterend', $btnRefresh);
 
                     // Render stream badges
                     const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
