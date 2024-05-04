@@ -67,14 +67,15 @@ const PATCHES = {
         return str.replace(text, text + 'return;');
     },
 
-    // Set TV layout
-    tvLayout(str: string) {
+    // Set custom website layout
+    websiteLayout(str: string) {
         const text = '?"tv":"default"';
         if (!str.includes(text)) {
             return false;
         }
 
-        return str.replace(text, '?"tv":"tv"');
+        const layout = getPref(PrefKey.UI_LAYOUT) === 'tv' ? 'tv' : 'default';
+        return str.replace(text, `?"${layout}":"${layout}"`);
     },
 
     // Replace "/direct-connect" with "/play"
@@ -465,7 +466,7 @@ let PATCH_ORDERS: PatchArray = [
     'overrideSettings',
     'broadcastPollingMode',
 
-    getPref(PrefKey.UI_LAYOUT) === 'tv' && 'tvLayout',
+    getPref(PrefKey.UI_LAYOUT) !== 'default' && 'websiteLayout',
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
     getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && 'forceFortniteConsole',
 

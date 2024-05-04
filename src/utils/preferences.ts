@@ -417,6 +417,7 @@ export class Preferences {
             default: 'default',
             options: {
                 default: t('default'),
+                normal: t('normal'),
                 tv: t('smart-tv'),
             },
         },
