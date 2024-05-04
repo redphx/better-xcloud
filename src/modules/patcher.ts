@@ -549,23 +549,23 @@ export class Patcher {
         };
     }
 
-    static length() { return PATCH_ORDERS.length; };
-
     static patch(item: [[number], { [key: string]: () => {} }]) {
+        // !!! Use "caches" as variable name will break touch controller???
         // console.log('patch', '-----');
         let patchesToCheck: PatchArray;
-        let appliedPatches;
-        const caches: { [key: string]: string[] } = {};
+        let appliedPatches: PatchArray;
+
+        const patchesMap: { [key: string]: PatchArray } = {};
 
         for (let id in item[1]) {
             appliedPatches = [];
 
             const cachedPatches = PatcherCache.getPatches(id);
             if (cachedPatches) {
-                patchesToCheck = cachedPatches;
+                patchesToCheck = cachedPatches.slice(0);
                 patchesToCheck.push(...PATCH_ORDERS);
             } else {
-                patchesToCheck = PATCH_ORDERS;
+                patchesToCheck = PATCH_ORDERS.slice(0);
             }
 
             // Empty patch list
@@ -573,17 +573,18 @@ export class Patcher {
                 continue;
             }
 
-            // console.log(patchesToCheck);
             const func = item[1][id];
             let str = func.toString();
 
-            // console.log(id, str);
+            let modified = false;
 
-            for (let groupIndex = 0; groupIndex < patchesToCheck.length; groupIndex++) {
-                const patchName = patchesToCheck[groupIndex];
-                let modified = false;
-
+            for (let patchIndex = 0; patchIndex < patchesToCheck.length; patchIndex++) {
+                const patchName = patchesToCheck[patchIndex];
                 if (appliedPatches.indexOf(patchName) > -1) {
+                    continue;
+                }
+
+                if (!PATCHES[patchName]) {
                     continue;
                 }
 
@@ -602,24 +603,24 @@ export class Patcher {
                 appliedPatches.push(patchName);
 
                 // Remove patch
-                patchesToCheck.splice(groupIndex, 1);
-                groupIndex--;
+                patchesToCheck.splice(patchIndex, 1);
+                patchIndex--;
                 PATCH_ORDERS = PATCH_ORDERS.filter(item => item != patchName);
+            }
 
-                // Apply patched functions
-                if (modified) {
-                    item[1][id] = eval(str);
-                }
+            // Apply patched functions
+            if (modified) {
+                item[1][id] = eval(str);
             }
 
             // Save to cache
             if (appliedPatches.length) {
-                caches[id] = appliedPatches;
+                patchesMap[id] = appliedPatches;
             }
         }
 
-        if (Object.keys(caches).length) {
-            PatcherCache.saveToCache(caches);
+        if (Object.keys(patchesMap).length) {
+            PatcherCache.saveToCache(patchesMap);
         }
     }
 
@@ -628,7 +629,7 @@ export class Patcher {
     }
 }
 
-class PatcherCache {
+export class PatcherCache {
     static #KEY_CACHE = 'better_xcloud_patches_cache';
     static #KEY_SIGNATURE = 'better_xcloud_patches_cache_signature';
 
@@ -647,18 +648,25 @@ class PatcherCache {
         return sig;
     }
 
+    static clear() {
+        // Clear cache
+        window.localStorage.removeItem(PatcherCache.#KEY_CACHE);
+        PatcherCache.#CACHE = {};
+    }
+
     static checkSignature() {
         const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0;
         const currentSig = PatcherCache.#getSignature();
 
         if (currentSig !== parseInt(storedSig as string)) {
-            BxLogger.warning(LOG_TAG, 'Signature changed');
-
-            // Clear cache
-            window.localStorage.setItem(PatcherCache.#KEY_CACHE, '{}');
-
             // Save new signature
+            BxLogger.warning(LOG_TAG, 'Signature changed');
             window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
+
+            PatcherCache.clear();
+
+            // @ts-ignore
+            window.location.reload(true);
         } else {
             BxLogger.info(LOG_TAG, 'Signature unchanged');
         }
@@ -682,7 +690,7 @@ class PatcherCache {
         return PatcherCache.#CACHE[id];
     }
 
-    static saveToCache(subCache: { [key: string]: string[] }) {
+    static saveToCache(subCache: { [key: string]: PatchArray }) {
         for (const id in subCache) {
             const patchNames = subCache[id];
 

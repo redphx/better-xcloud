@@ -73,9 +73,9 @@ export const BxExposed = {
 
             // Pre-check supported input types
             titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-            titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) &&
-                    !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) &&
-                    !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+            titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) ||
+                    supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) ||
+                    supportedInputTypes.includes(InputType.GENERIC_TOUCH);
 
             if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === 'all') {
                 // Add generic touch support for non touch-supported games
