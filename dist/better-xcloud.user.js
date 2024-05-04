@@ -9590,6 +9590,7 @@ class Patcher {
       if (!valid) {
         return nativeBind.apply(this, arguments);
       }
+      PatcherCache.init();
       if (typeof arguments[1] === "function") {
         BxLogger.info(LOG_TAG4, "Restored Function.prototype.bind()");
         Function.prototype.bind = nativeBind;
@@ -9661,6 +9662,7 @@ class PatcherCache {
   static #KEY_CACHE = "better_xcloud_patches_cache";
   static #KEY_SIGNATURE = "better_xcloud_patches_cache_signature";
   static #CACHE;
+  static #isInitialized = false;
   static #getSignature() {
     const scriptVersion = SCRIPT_VERSION;
     const webVersion = document.querySelector("meta[name=gamepass-app-version]")?.content;
@@ -9679,7 +9681,6 @@ class PatcherCache {
       BxLogger.warning(LOG_TAG4, "Signature changed");
       window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
       PatcherCache.clear();
-      window.location.reload(true);
     } else {
       BxLogger.info(LOG_TAG4, "Signature unchanged");
     }
@@ -9715,6 +9716,11 @@ class PatcherCache {
     window.localStorage.setItem(PatcherCache.#KEY_CACHE, JSON.stringify(PatcherCache.#CACHE));
   }
   static init() {
+    if (PatcherCache.#isInitialized) {
+      return;
+    }
+    PatcherCache.#isInitialized = true;
+    PatcherCache.checkSignature();
     PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}");
     BxLogger.info(LOG_TAG4, PatcherCache.#CACHE);
     if (window.location.pathname.includes("/play/")) {
@@ -9728,12 +9734,6 @@ class PatcherCache {
     BxLogger.info(LOG_TAG4, PLAYING_PATCH_ORDERS.slice(0));
   }
 }
-document.addEventListener("readystatechange", (e) => {
-  if (document.readyState === "interactive") {
-    PatcherCache.checkSignature();
-  }
-});
-PatcherCache.init();
 
 // src/modules/ui/global-settings.ts
 function setupSettingsUi() {
