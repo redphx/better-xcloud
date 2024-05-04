@@ -4994,6 +4994,9 @@ var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#
 // src/assets/svg/question.svg
 var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
 
+// src/assets/svg/refresh.svg
+var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M23.247 12.377h7.247V5.13\"/><path d=\"M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772\"/>\n</svg>\n";
+
 // src/assets/svg/remote-play.svg
 var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
 
@@ -5019,6 +5022,7 @@ var BxIcon = {
   TRASH: trash_default,
   CURSOR_TEXT: cursor_text_default,
   QUESTION: question_default,
+  REFRESH: refresh_default,
   REMOTE_PLAY: remote_play_default
 };
 
@@ -5482,7 +5486,7 @@ function injectStreamMenuButtons() {
           $btnClose && $btnClose.click();
           return;
         }
-        if ($elm.className.startsWith("StreamMenu")) {
+        if ($elm.className.startsWith("StreamMenu-module__container")) {
           BxEvent.dispatch(window, BxEvent.STREAM_MENU_SHOWN);
           const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
           if (!$btnCloseHud) {
@@ -5491,10 +5495,17 @@ function injectStreamMenuButtons() {
           $btnCloseHud && $btnCloseHud.addEventListener("click", (e) => {
             $quickBar.classList.add("bx-gone");
           });
-          const $btnQuit = $elm.querySelector("div[class^=StreamMenu] > div > button:last-child");
-          new MouseHoldEvent($btnQuit, () => {
+          const $btnRefresh = $btnCloseHud.cloneNode(true);
+          const $svgRefresh = createSvgIcon(BxIcon.REFRESH);
+          $svgRefresh.setAttribute("class", $btnRefresh.firstElementChild.getAttribute("class") || "");
+          $svgRefresh.style.fill = "none";
+          $btnRefresh.classList.add("bx-stream-refresh-button");
+          $btnRefresh.removeChild($btnRefresh.firstElementChild);
+          $btnRefresh.appendChild($svgRefresh);
+          $btnRefresh.addEventListener("click", (e) => {
             confirm(t("confirm-reload-stream")) && window.location.reload();
-          }, 1000);
+          });
+          $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh);
           const $menu = document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]");
           $menu?.appendChild(await StreamBadges.render());
           hideQuickBarFunc();
@@ -5578,44 +5589,6 @@ function showStreamSettings(tabId) {
       $parent.removeEventListener("click", onClick);
     };
     $parent.addEventListener("click", onClick);
-  }
-}
-
-class MouseHoldEvent {
-  #isHolding = false;
-  #timeout;
-  #$elm;
-  #callback;
-  #duration;
-  #onMouseDown(e) {
-    const _this = this;
-    this.#isHolding = false;
-    this.#timeout && clearTimeout(this.#timeout);
-    this.#timeout = window.setTimeout(() => {
-      _this.#isHolding = true;
-      _this.#callback();
-    }, this.#duration);
-  }
-  #onMouseUp(e) {
-    this.#timeout && clearTimeout(this.#timeout);
-    this.#timeout = null;
-    if (this.#isHolding) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    this.#isHolding = false;
-  }
-  #addEventListeners = () => {
-    this.#$elm.addEventListener("mousedown", this.#onMouseDown.bind(this));
-    this.#$elm.addEventListener("click", this.#onMouseUp.bind(this));
-    this.#$elm.addEventListener("touchstart", this.#onMouseDown.bind(this));
-    this.#$elm.addEventListener("touchend", this.#onMouseUp.bind(this));
-  };
-  constructor($elm, callback, duration = 1000) {
-    this.#$elm = $elm;
-    this.#callback = callback;
-    this.#duration = duration;
-    this.#addEventListeners();
   }
 }
 
@@ -6654,15 +6627,13 @@ class TouchController {
         layout: {
           id: "System.Standard",
           displayName: "System",
-          layoutFile: {
-            content: layout.content
-          }
+          layoutFile: layout
         }
       });
     }, delay);
   }
   static setup() {
-    window.BX_EXPOSED.test_touch_control = (content) => {
+    window.BX_EXPOSED.test_touch_control = (layout) => {
       const { touch_layout_manager } = window.BX_EXPOSED;
       touch_layout_manager && touch_layout_manager.changeLayoutForScope({
         type: "showLayout",
@@ -6671,9 +6642,7 @@ class TouchController {
         layout: {
           id: "System.Standard",
           displayName: "Custom",
-          layoutFile: {
-            content
-          }
+          layoutFile: layout
         }
       });
     };
@@ -8554,6 +8523,12 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
   fill: #000 !important;
   background-color: #2d2d2d !important;
   color: #000 !important;
+}
+.bx-stream-refresh-button {
+  top: calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important;
+}
+body[data-media-type=tv] .bx-stream-refresh-button {
+  top: calc(var(--gds-focus-borderSize) + 80px) !important;
 }
 .bx-number-stepper span {
   display: inline-block;
