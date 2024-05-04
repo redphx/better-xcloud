@@ -4797,7 +4797,7 @@ var BxExposed = {
         supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
       }
       titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) && !supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) && !supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
       if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
         titleInfo.details.hasFakeTouchSupport = true;
         supportedInputTypes.push(InputType.GENERIC_TOUCH);
@@ -9148,324 +9148,6 @@ class MouseCursorHider {
   }
 }
 
-// src/modules/ui/global-settings.ts
-function setupSettingsUi() {
-  if (document.querySelector(".bx-settings-container")) {
-    return;
-  }
-  const PREF_PREFERRED_REGION = getPreferredServerRegion();
-  const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
-  let $reloadBtnWrapper;
-  const $container = CE("div", {
-    class: "bx-settings-container bx-gone"
-  });
-  let $updateAvailable;
-  const $wrapper = CE("div", { class: "bx-settings-wrapper" }, CE("div", { class: "bx-settings-title-wrapper" }, CE("a", {
-    class: "bx-settings-title",
-    href: SCRIPT_HOME,
-    target: "_blank"
-  }, "Better xCloud " + SCRIPT_VERSION), createButton({ icon: BxIcon.QUESTION, label: t("help"), url: "https://better-xcloud.github.io/features/" })));
-  $updateAvailable = CE("a", {
-    class: "bx-settings-update bx-gone",
-    href: "https://github.com/redphx/better-xcloud/releases",
-    target: "_blank"
-  });
-  $wrapper.appendChild($updateAvailable);
-  if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
-    $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
-    $updateAvailable.classList.remove("bx-gone");
-  }
-  if (!AppInterface) {
-    const userAgent = UserAgent.getDefault().toLowerCase();
-    if (userAgent.includes("android")) {
-      const $btn = createButton({
-        label: "🔥 " + t("install-android"),
-        style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-        url: "https://better-xcloud.github.io/android"
-      });
-      $wrapper.appendChild($btn);
-    }
-  }
-  const onChange = (e) => {
-    if (!$reloadBtnWrapper) {
-      return;
-    }
-    $reloadBtnWrapper.classList.remove("bx-gone");
-    if (e.target.id === "bx_setting_" + PrefKey.BETTER_XCLOUD_LOCALE) {
-      refreshCurrentLocale();
-      const $btn = $reloadBtnWrapper.firstElementChild;
-      $btn.textContent = t("settings-reloading");
-      $btn.click();
-    }
-  };
-  for (let groupLabel in SETTINGS_UI) {
-    const $group = CE("span", { class: "bx-settings-group-label" }, groupLabel);
-    if (SETTINGS_UI[groupLabel].note) {
-      const $note = CE("b", {}, SETTINGS_UI[groupLabel].note);
-      $group.appendChild($note);
-    }
-    $wrapper.appendChild($group);
-    if (SETTINGS_UI[groupLabel].unsupported) {
-      continue;
-    }
-    const settingItems = SETTINGS_UI[groupLabel].items;
-    for (let settingId of settingItems) {
-      if (!settingId) {
-        continue;
-      }
-      const setting = Preferences.SETTINGS[settingId];
-      if (!setting) {
-        continue;
-      }
-      let settingLabel = setting.label;
-      let settingNote = setting.note || "";
-      if (setting.experimental) {
-        settingLabel = "🧪 " + settingLabel;
-        if (!settingNote) {
-          settingNote = t("experimental");
-        } else {
-          settingNote = `${t("experimental")}: ${settingNote}`;
-        }
-      }
-      let $control;
-      let $inpCustomUserAgent;
-      let labelAttrs = {};
-      if (settingId === PrefKey.USER_AGENT_PROFILE) {
-        let defaultUserAgent = window.navigator.orgUserAgent || window.navigator.userAgent;
-        $inpCustomUserAgent = CE("input", {
-          type: "text",
-          placeholder: defaultUserAgent,
-          class: "bx-settings-custom-user-agent"
-        });
-        $inpCustomUserAgent.addEventListener("change", (e) => {
-          setPref(PrefKey.USER_AGENT_CUSTOM, e.target.value.trim());
-          onChange(e);
-        });
-        $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e) => {
-          const value = e.target.value;
-          let isCustom = value === UserAgentProfile.CUSTOM;
-          let userAgent = UserAgent.get(value);
-          $inpCustomUserAgent.value = userAgent;
-          $inpCustomUserAgent.readOnly = !isCustom;
-          $inpCustomUserAgent.disabled = !isCustom;
-          onChange(e);
-        });
-      } else if (settingId === PrefKey.SERVER_REGION) {
-        let selectedValue;
-        $control = CE("select", { id: `bx_setting_${settingId}` });
-        $control.name = $control.id;
-        $control.addEventListener("change", (e) => {
-          setPref(settingId, e.target.value);
-          onChange(e);
-        });
-        selectedValue = PREF_PREFERRED_REGION;
-        setting.options = {};
-        for (let regionName in STATES.serverRegions) {
-          const region4 = STATES.serverRegions[regionName];
-          let value = regionName;
-          let label = `${region4.shortName} - ${regionName}`;
-          if (region4.isDefault) {
-            label += ` (${t("default")})`;
-            value = "default";
-            if (selectedValue === regionName) {
-              selectedValue = "default";
-            }
-          }
-          setting.options[value] = label;
-        }
-        for (let value in setting.options) {
-          const label = setting.options[value];
-          const $option = CE("option", { value }, label);
-          $control.appendChild($option);
-        }
-        $control.value = selectedValue;
-      } else {
-        if (settingId === PrefKey.BETTER_XCLOUD_LOCALE) {
-          $control = toPrefElement(settingId, (e) => {
-            localStorage.setItem("better_xcloud_locale", e.target.value);
-            onChange(e);
-          });
-        } else {
-          $control = toPrefElement(settingId, onChange);
-        }
-        labelAttrs = { for: $control.id, tabindex: 0 };
-      }
-      if (setting.unsupported) {
-        $control.disabled = true;
-      }
-      const $label = CE("label", labelAttrs, settingLabel);
-      if (settingNote) {
-        $label.appendChild(CE("b", {}, settingNote));
-      }
-      const $elm = CE("div", { class: "bx-settings-row" }, $label, $control);
-      $wrapper.appendChild($elm);
-      if (settingId === PrefKey.USER_AGENT_PROFILE) {
-        $wrapper.appendChild($inpCustomUserAgent);
-        $control.dispatchEvent(new Event("change"));
-      }
-    }
-  }
-  const $reloadBtn = createButton({
-    label: t("settings-reload"),
-    style: ButtonStyle.DANGER | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
-    onClick: (e) => {
-      window.location.reload();
-      $reloadBtn.disabled = true;
-      $reloadBtn.textContent = t("settings-reloading");
-    }
-  });
-  $reloadBtn.setAttribute("tabindex", "0");
-  $reloadBtnWrapper = CE("div", { class: "bx-settings-reload-button-wrapper bx-gone" }, $reloadBtn);
-  $wrapper.appendChild($reloadBtnWrapper);
-  const $donationLink = CE("a", { class: "bx-donation-link", href: "https://ko-fi.com/redphx", target: "_blank" }, `❤️ ${t("support-better-xcloud")}`);
-  $wrapper.appendChild($donationLink);
-  try {
-    const appVersion = document.querySelector("meta[name=gamepass-app-version]").content;
-    const appDate = new Date(document.querySelector("meta[name=gamepass-app-date]").content).toISOString().substring(0, 10);
-    $wrapper.appendChild(CE("div", { class: "bx-settings-app-version" }, `xCloud website version ${appVersion} (${appDate})`));
-  } catch (e) {
-  }
-  $container.appendChild($wrapper);
-  const $pageContent = document.getElementById("PageContent");
-  $pageContent?.parentNode?.insertBefore($container, $pageContent);
-}
-var SETTINGS_UI = {
-  "Better xCloud": {
-    items: [
-      PrefKey.BETTER_XCLOUD_LOCALE,
-      PrefKey.REMOTE_PLAY_ENABLED
-    ]
-  },
-  [t("server")]: {
-    items: [
-      PrefKey.SERVER_REGION,
-      PrefKey.STREAM_PREFERRED_LOCALE,
-      PrefKey.PREFER_IPV6_SERVER
-    ]
-  },
-  [t("stream")]: {
-    items: [
-      PrefKey.STREAM_TARGET_RESOLUTION,
-      PrefKey.STREAM_CODEC_PROFILE,
-      PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
-      PrefKey.AUDIO_MIC_ON_PLAYING,
-      PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
-      PrefKey.SCREENSHOT_BUTTON_POSITION,
-      PrefKey.SCREENSHOT_APPLY_FILTERS,
-      PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
-      PrefKey.STREAM_COMBINE_SOURCES
-    ]
-  },
-  [t("local-co-op")]: {
-    items: [
-      PrefKey.LOCAL_CO_OP_ENABLED
-    ]
-  },
-  [t("mouse-and-keyboard")]: {
-    items: [
-      PrefKey.MKB_ENABLED,
-      PrefKey.MKB_HIDE_IDLE_CURSOR
-    ]
-  },
-  [t("touch-controller")]: {
-    note: !STATES.hasTouchSupport ? "⚠️ " + t("device-unsupported-touch") : null,
-    unsupported: !STATES.hasTouchSupport,
-    items: [
-      PrefKey.STREAM_TOUCH_CONTROLLER,
-      PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
-      PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD,
-      PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM
-    ]
-  },
-  [t("loading-screen")]: {
-    items: [
-      PrefKey.UI_LOADING_SCREEN_GAME_ART,
-      PrefKey.UI_LOADING_SCREEN_WAIT_TIME,
-      PrefKey.UI_LOADING_SCREEN_ROCKET
-    ]
-  },
-  [t("ui")]: {
-    items: [
-      PrefKey.UI_LAYOUT,
-      PrefKey.STREAM_SIMPLIFY_MENU,
-      PrefKey.SKIP_SPLASH_VIDEO,
-      !AppInterface && PrefKey.UI_SCROLLBAR_HIDE,
-      PrefKey.HIDE_DOTS_ICON,
-      PrefKey.REDUCE_ANIMATIONS
-    ]
-  },
-  [t("other")]: {
-    items: [
-      PrefKey.BLOCK_SOCIAL_FEATURES,
-      PrefKey.BLOCK_TRACKING
-    ]
-  },
-  [t("advanced")]: {
-    items: [
-      PrefKey.USER_AGENT_PROFILE
-    ]
-  }
-};
-
-// src/modules/ui/header.ts
-var injectSettingsButton = function($parent) {
-  if (!$parent) {
-    return;
-  }
-  const PREF_PREFERRED_REGION = getPreferredServerRegion(true);
-  const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
-  const $headerFragment = document.createDocumentFragment();
-  if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
-    const $remotePlayBtn = createButton({
-      classes: ["bx-header-remote-play-button"],
-      icon: BxIcon.REMOTE_PLAY,
-      title: t("remote-play"),
-      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
-      onClick: (e) => {
-        RemotePlay.togglePopup();
-      }
-    });
-    $headerFragment.appendChild($remotePlayBtn);
-  }
-  const $settingsBtn = createButton({
-    classes: ["bx-header-settings-button"],
-    label: PREF_PREFERRED_REGION,
-    style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
-    onClick: (e) => {
-      setupSettingsUi();
-      const $settings = document.querySelector(".bx-settings-container");
-      $settings.classList.toggle("bx-gone");
-      window.scrollTo(0, 0);
-      document.activeElement && document.activeElement.blur();
-    }
-  });
-  if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
-    $settingsBtn.setAttribute("data-update-available", "true");
-  }
-  $headerFragment.appendChild($settingsBtn);
-  $parent.appendChild($headerFragment);
-};
-function checkHeader() {
-  const $button = document.querySelector(".bx-header-settings-button");
-  if (!$button) {
-    const $rightHeader = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
-    injectSettingsButton($rightHeader);
-  }
-}
-function watchHeader() {
-  const $header = document.querySelector("#PageContent header");
-  if (!$header) {
-    return;
-  }
-  let timeout;
-  const observer = new MutationObserver((mutationList) => {
-    timeout && clearTimeout(timeout);
-    timeout = window.setTimeout(checkHeader, 2000);
-  });
-  observer.observe($header, { subtree: true, childList: true });
-  checkHeader();
-}
-
 // src/utils/utils.ts
 function checkForUpdate() {
   const CHECK_INTERVAL_SECONDS = 7200;
@@ -9920,31 +9602,31 @@ class Patcher {
       return nativeBind.apply(newFunc, arguments);
     };
   }
-  static length() {
-    return PATCH_ORDERS.length;
-  }
   static patch(item) {
     let patchesToCheck;
     let appliedPatches;
-    const caches = {};
+    const patchesMap = {};
     for (let id in item[1]) {
       appliedPatches = [];
       const cachedPatches = PatcherCache.getPatches(id);
       if (cachedPatches) {
-        patchesToCheck = cachedPatches;
+        patchesToCheck = cachedPatches.slice(0);
         patchesToCheck.push(...PATCH_ORDERS);
       } else {
-        patchesToCheck = PATCH_ORDERS;
+        patchesToCheck = PATCH_ORDERS.slice(0);
       }
       if (!patchesToCheck.length) {
         continue;
       }
       const func = item[1][id];
       let str = func.toString();
-      for (let groupIndex = 0;groupIndex < patchesToCheck.length; groupIndex++) {
-        const patchName = patchesToCheck[groupIndex];
-        let modified = false;
+      let modified = false;
+      for (let patchIndex = 0;patchIndex < patchesToCheck.length; patchIndex++) {
+        const patchName = patchesToCheck[patchIndex];
         if (appliedPatches.indexOf(patchName) > -1) {
+          continue;
+        }
+        if (!PATCHES[patchName]) {
           continue;
         }
         const patchedStr = PATCHES[patchName].call(null, str);
@@ -9955,19 +9637,19 @@ class Patcher {
         str = patchedStr;
         BxLogger.info(LOG_TAG4, `Applied "${patchName}" patch`);
         appliedPatches.push(patchName);
-        patchesToCheck.splice(groupIndex, 1);
-        groupIndex--;
+        patchesToCheck.splice(patchIndex, 1);
+        patchIndex--;
         PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
-        if (modified) {
-          item[1][id] = eval(str);
-        }
+      }
+      if (modified) {
+        item[1][id] = eval(str);
       }
       if (appliedPatches.length) {
-        caches[id] = appliedPatches;
+        patchesMap[id] = appliedPatches;
       }
     }
-    if (Object.keys(caches).length) {
-      PatcherCache.saveToCache(caches);
+    if (Object.keys(patchesMap).length) {
+      PatcherCache.saveToCache(patchesMap);
     }
   }
   static init() {
@@ -9986,13 +9668,18 @@ class PatcherCache {
     const sig = hashCode(scriptVersion + webVersion + patches);
     return sig;
   }
+  static clear() {
+    window.localStorage.removeItem(PatcherCache.#KEY_CACHE);
+    PatcherCache.#CACHE = {};
+  }
   static checkSignature() {
     const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0;
     const currentSig = PatcherCache.#getSignature();
     if (currentSig !== parseInt(storedSig)) {
       BxLogger.warning(LOG_TAG4, "Signature changed");
-      window.localStorage.setItem(PatcherCache.#KEY_CACHE, "{}");
       window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
+      PatcherCache.clear();
+      window.location.reload(true);
     } else {
       BxLogger.info(LOG_TAG4, "Signature unchanged");
     }
@@ -10018,9 +9705,9 @@ class PatcherCache {
       if (!data) {
         PatcherCache.#CACHE[id2] = patchNames;
       } else {
-        for (const patchName2 of patchNames) {
-          if (!data.includes(patchName2)) {
-            data.push(patchName2);
+        for (const patchName of patchNames) {
+          if (!data.includes(patchName)) {
+            data.push(patchName);
           }
         }
       }
@@ -10047,6 +9734,325 @@ document.addEventListener("readystatechange", (e) => {
   }
 });
 PatcherCache.init();
+
+// src/modules/ui/global-settings.ts
+function setupSettingsUi() {
+  if (document.querySelector(".bx-settings-container")) {
+    return;
+  }
+  const PREF_PREFERRED_REGION = getPreferredServerRegion();
+  const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
+  let $reloadBtnWrapper;
+  const $container = CE("div", {
+    class: "bx-settings-container bx-gone"
+  });
+  let $updateAvailable;
+  const $wrapper = CE("div", { class: "bx-settings-wrapper" }, CE("div", { class: "bx-settings-title-wrapper" }, CE("a", {
+    class: "bx-settings-title",
+    href: SCRIPT_HOME,
+    target: "_blank"
+  }, "Better xCloud " + SCRIPT_VERSION), createButton({ icon: BxIcon.QUESTION, label: t("help"), url: "https://better-xcloud.github.io/features/" })));
+  $updateAvailable = CE("a", {
+    class: "bx-settings-update bx-gone",
+    href: "https://github.com/redphx/better-xcloud/releases",
+    target: "_blank"
+  });
+  $wrapper.appendChild($updateAvailable);
+  if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
+    $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
+    $updateAvailable.classList.remove("bx-gone");
+  }
+  if (!AppInterface) {
+    const userAgent = UserAgent.getDefault().toLowerCase();
+    if (userAgent.includes("android")) {
+      const $btn = createButton({
+        label: "🔥 " + t("install-android"),
+        style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+        url: "https://better-xcloud.github.io/android"
+      });
+      $wrapper.appendChild($btn);
+    }
+  }
+  const onChange = (e) => {
+    if (!$reloadBtnWrapper) {
+      return;
+    }
+    $reloadBtnWrapper.classList.remove("bx-gone");
+    PatcherCache.clear();
+    if (e.target.id === "bx_setting_" + PrefKey.BETTER_XCLOUD_LOCALE) {
+      refreshCurrentLocale();
+      const $btn = $reloadBtnWrapper.firstElementChild;
+      $btn.textContent = t("settings-reloading");
+      $btn.click();
+    }
+  };
+  for (let groupLabel in SETTINGS_UI) {
+    const $group = CE("span", { class: "bx-settings-group-label" }, groupLabel);
+    if (SETTINGS_UI[groupLabel].note) {
+      const $note = CE("b", {}, SETTINGS_UI[groupLabel].note);
+      $group.appendChild($note);
+    }
+    $wrapper.appendChild($group);
+    if (SETTINGS_UI[groupLabel].unsupported) {
+      continue;
+    }
+    const settingItems = SETTINGS_UI[groupLabel].items;
+    for (let settingId of settingItems) {
+      if (!settingId) {
+        continue;
+      }
+      const setting = Preferences.SETTINGS[settingId];
+      if (!setting) {
+        continue;
+      }
+      let settingLabel = setting.label;
+      let settingNote = setting.note || "";
+      if (setting.experimental) {
+        settingLabel = "🧪 " + settingLabel;
+        if (!settingNote) {
+          settingNote = t("experimental");
+        } else {
+          settingNote = `${t("experimental")}: ${settingNote}`;
+        }
+      }
+      let $control;
+      let $inpCustomUserAgent;
+      let labelAttrs = {};
+      if (settingId === PrefKey.USER_AGENT_PROFILE) {
+        let defaultUserAgent = window.navigator.orgUserAgent || window.navigator.userAgent;
+        $inpCustomUserAgent = CE("input", {
+          type: "text",
+          placeholder: defaultUserAgent,
+          class: "bx-settings-custom-user-agent"
+        });
+        $inpCustomUserAgent.addEventListener("change", (e) => {
+          setPref(PrefKey.USER_AGENT_CUSTOM, e.target.value.trim());
+          onChange(e);
+        });
+        $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e) => {
+          const value = e.target.value;
+          let isCustom = value === UserAgentProfile.CUSTOM;
+          let userAgent = UserAgent.get(value);
+          $inpCustomUserAgent.value = userAgent;
+          $inpCustomUserAgent.readOnly = !isCustom;
+          $inpCustomUserAgent.disabled = !isCustom;
+          onChange(e);
+        });
+      } else if (settingId === PrefKey.SERVER_REGION) {
+        let selectedValue;
+        $control = CE("select", { id: `bx_setting_${settingId}` });
+        $control.name = $control.id;
+        $control.addEventListener("change", (e) => {
+          setPref(settingId, e.target.value);
+          onChange(e);
+        });
+        selectedValue = PREF_PREFERRED_REGION;
+        setting.options = {};
+        for (let regionName in STATES.serverRegions) {
+          const region4 = STATES.serverRegions[regionName];
+          let value = regionName;
+          let label = `${region4.shortName} - ${regionName}`;
+          if (region4.isDefault) {
+            label += ` (${t("default")})`;
+            value = "default";
+            if (selectedValue === regionName) {
+              selectedValue = "default";
+            }
+          }
+          setting.options[value] = label;
+        }
+        for (let value in setting.options) {
+          const label = setting.options[value];
+          const $option = CE("option", { value }, label);
+          $control.appendChild($option);
+        }
+        $control.value = selectedValue;
+      } else {
+        if (settingId === PrefKey.BETTER_XCLOUD_LOCALE) {
+          $control = toPrefElement(settingId, (e) => {
+            localStorage.setItem("better_xcloud_locale", e.target.value);
+            onChange(e);
+          });
+        } else {
+          $control = toPrefElement(settingId, onChange);
+        }
+        labelAttrs = { for: $control.id, tabindex: 0 };
+      }
+      if (setting.unsupported) {
+        $control.disabled = true;
+      }
+      const $label = CE("label", labelAttrs, settingLabel);
+      if (settingNote) {
+        $label.appendChild(CE("b", {}, settingNote));
+      }
+      const $elm = CE("div", { class: "bx-settings-row" }, $label, $control);
+      $wrapper.appendChild($elm);
+      if (settingId === PrefKey.USER_AGENT_PROFILE) {
+        $wrapper.appendChild($inpCustomUserAgent);
+        $control.dispatchEvent(new Event("change"));
+      }
+    }
+  }
+  const $reloadBtn = createButton({
+    label: t("settings-reload"),
+    style: ButtonStyle.DANGER | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+    onClick: (e) => {
+      window.location.reload();
+      $reloadBtn.disabled = true;
+      $reloadBtn.textContent = t("settings-reloading");
+    }
+  });
+  $reloadBtn.setAttribute("tabindex", "0");
+  $reloadBtnWrapper = CE("div", { class: "bx-settings-reload-button-wrapper bx-gone" }, $reloadBtn);
+  $wrapper.appendChild($reloadBtnWrapper);
+  const $donationLink = CE("a", { class: "bx-donation-link", href: "https://ko-fi.com/redphx", target: "_blank" }, `❤️ ${t("support-better-xcloud")}`);
+  $wrapper.appendChild($donationLink);
+  try {
+    const appVersion = document.querySelector("meta[name=gamepass-app-version]").content;
+    const appDate = new Date(document.querySelector("meta[name=gamepass-app-date]").content).toISOString().substring(0, 10);
+    $wrapper.appendChild(CE("div", { class: "bx-settings-app-version" }, `xCloud website version ${appVersion} (${appDate})`));
+  } catch (e) {
+  }
+  $container.appendChild($wrapper);
+  const $pageContent = document.getElementById("PageContent");
+  $pageContent?.parentNode?.insertBefore($container, $pageContent);
+}
+var SETTINGS_UI = {
+  "Better xCloud": {
+    items: [
+      PrefKey.BETTER_XCLOUD_LOCALE,
+      PrefKey.REMOTE_PLAY_ENABLED
+    ]
+  },
+  [t("server")]: {
+    items: [
+      PrefKey.SERVER_REGION,
+      PrefKey.STREAM_PREFERRED_LOCALE,
+      PrefKey.PREFER_IPV6_SERVER
+    ]
+  },
+  [t("stream")]: {
+    items: [
+      PrefKey.STREAM_TARGET_RESOLUTION,
+      PrefKey.STREAM_CODEC_PROFILE,
+      PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
+      PrefKey.AUDIO_MIC_ON_PLAYING,
+      PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
+      PrefKey.SCREENSHOT_BUTTON_POSITION,
+      PrefKey.SCREENSHOT_APPLY_FILTERS,
+      PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
+      PrefKey.STREAM_COMBINE_SOURCES
+    ]
+  },
+  [t("local-co-op")]: {
+    items: [
+      PrefKey.LOCAL_CO_OP_ENABLED
+    ]
+  },
+  [t("mouse-and-keyboard")]: {
+    items: [
+      PrefKey.MKB_ENABLED,
+      PrefKey.MKB_HIDE_IDLE_CURSOR
+    ]
+  },
+  [t("touch-controller")]: {
+    note: !STATES.hasTouchSupport ? "⚠️ " + t("device-unsupported-touch") : null,
+    unsupported: !STATES.hasTouchSupport,
+    items: [
+      PrefKey.STREAM_TOUCH_CONTROLLER,
+      PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
+      PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD,
+      PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM
+    ]
+  },
+  [t("loading-screen")]: {
+    items: [
+      PrefKey.UI_LOADING_SCREEN_GAME_ART,
+      PrefKey.UI_LOADING_SCREEN_WAIT_TIME,
+      PrefKey.UI_LOADING_SCREEN_ROCKET
+    ]
+  },
+  [t("ui")]: {
+    items: [
+      PrefKey.UI_LAYOUT,
+      PrefKey.STREAM_SIMPLIFY_MENU,
+      PrefKey.SKIP_SPLASH_VIDEO,
+      !AppInterface && PrefKey.UI_SCROLLBAR_HIDE,
+      PrefKey.HIDE_DOTS_ICON,
+      PrefKey.REDUCE_ANIMATIONS
+    ]
+  },
+  [t("other")]: {
+    items: [
+      PrefKey.BLOCK_SOCIAL_FEATURES,
+      PrefKey.BLOCK_TRACKING
+    ]
+  },
+  [t("advanced")]: {
+    items: [
+      PrefKey.USER_AGENT_PROFILE
+    ]
+  }
+};
+
+// src/modules/ui/header.ts
+var injectSettingsButton = function($parent) {
+  if (!$parent) {
+    return;
+  }
+  const PREF_PREFERRED_REGION = getPreferredServerRegion(true);
+  const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
+  const $headerFragment = document.createDocumentFragment();
+  if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
+    const $remotePlayBtn = createButton({
+      classes: ["bx-header-remote-play-button"],
+      icon: BxIcon.REMOTE_PLAY,
+      title: t("remote-play"),
+      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+      onClick: (e) => {
+        RemotePlay.togglePopup();
+      }
+    });
+    $headerFragment.appendChild($remotePlayBtn);
+  }
+  const $settingsBtn = createButton({
+    classes: ["bx-header-settings-button"],
+    label: PREF_PREFERRED_REGION,
+    style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
+    onClick: (e) => {
+      setupSettingsUi();
+      const $settings = document.querySelector(".bx-settings-container");
+      $settings.classList.toggle("bx-gone");
+      window.scrollTo(0, 0);
+      document.activeElement && document.activeElement.blur();
+    }
+  });
+  if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
+    $settingsBtn.setAttribute("data-update-available", "true");
+  }
+  $headerFragment.appendChild($settingsBtn);
+  $parent.appendChild($headerFragment);
+};
+function checkHeader() {
+  const $button = document.querySelector(".bx-header-settings-button");
+  if (!$button) {
+    const $rightHeader = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
+    injectSettingsButton($rightHeader);
+  }
+}
+function watchHeader() {
+  const $header = document.querySelector("#PageContent header");
+  if (!$header) {
+    return;
+  }
+  let timeout;
+  const observer = new MutationObserver((mutationList) => {
+    timeout && clearTimeout(timeout);
+    timeout = window.setTimeout(checkHeader, 2000);
+  });
+  observer.observe($header, { subtree: true, childList: true });
+  checkHeader();
+}
 
 // src/utils/history.ts
 function patchHistoryMethod(type) {
