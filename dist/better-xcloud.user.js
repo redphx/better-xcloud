@@ -4486,9 +4486,9 @@ class Preferences {
         [UserAgentProfile.DEFAULT]: t("default"),
         [UserAgentProfile.EDGE_WINDOWS]: "Edge + Windows",
         [UserAgentProfile.SAFARI_MACOS]: "Safari + macOS",
-        [UserAgentProfile.SMARTTV]: "Smart TV (no touch control)",
-        [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV (no touch control)",
-        [UserAgentProfile.VR_OCULUS]: "Meta Quest VR (no touch control)",
+        [UserAgentProfile.SMARTTV]: "Smart TV",
+        [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV",
+        [UserAgentProfile.VR_OCULUS]: "Meta Quest VR",
         [UserAgentProfile.KIWI_V123]: "Kiwi Browser v123",
         [UserAgentProfile.CUSTOM]: t("custom")
       }
