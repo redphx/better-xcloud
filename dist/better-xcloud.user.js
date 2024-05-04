@@ -8527,6 +8527,9 @@ div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
 .bx-stream-refresh-button {
   top: calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important;
 }
+body[data-media-type=default] .bx-stream-refresh-button {
+  left: calc(env(safe-area-inset-left, 0px) + 11px) !important;
+}
 body[data-media-type=tv] .bx-stream-refresh-button {
   top: calc(var(--gds-focus-borderSize) + 80px) !important;
 }
