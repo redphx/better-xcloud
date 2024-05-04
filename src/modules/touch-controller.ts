@@ -178,9 +178,7 @@ export class TouchController {
                 layout: {
                     id: 'System.Standard',
                     displayName: 'System',
-                    layoutFile: {
-                        content: layout.content,
-                    },
+                    layoutFile: layout,
                 }
             });
         }, delay);
@@ -188,7 +186,7 @@ export class TouchController {
 
     static setup() {
         // Function for testing touch control
-        window.BX_EXPOSED.test_touch_control = (content: any) => {
+        window.BX_EXPOSED.test_touch_control = (layout: any) => {
             const { touch_layout_manager } = window.BX_EXPOSED;
 
             touch_layout_manager && touch_layout_manager.changeLayoutForScope({
@@ -198,9 +196,7 @@ export class TouchController {
                 layout: {
                     id: 'System.Standard',
                     displayName: 'Custom',
-                    layoutFile: {
-                        content: content,
-                    },
+                    layoutFile: layout,
                 },
             });
         };
