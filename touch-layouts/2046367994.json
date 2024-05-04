@@ -1,0 +1,7 @@
+{
+  "name": "Those Who Remain",
+  "default_layout": "custom",
+  "layouts": [
+    "those-who-remain"
+  ]
+}
