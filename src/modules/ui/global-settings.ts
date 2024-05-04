@@ -5,6 +5,7 @@ import { getPreferredServerRegion } from "@utils/region";
 import { UserAgent, UserAgentProfile } from "@utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/preferences";
 import { t, refreshCurrentLocale } from "@utils/translation";
+import { PatcherCache } from "../patcher";
 
 const SETTINGS_UI = {
     'Better xCloud': {
@@ -158,6 +159,9 @@ export function setupSettingsUi() {
         }
 
         $reloadBtnWrapper.classList.remove('bx-gone');
+
+        // Clear PatcherCache;
+        PatcherCache.clear();
 
         if ((e.target as HTMLElement).id === 'bx_setting_' + PrefKey.BETTER_XCLOUD_LOCALE) {
             // Update locale
