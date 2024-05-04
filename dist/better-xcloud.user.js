@@ -3585,7 +3585,9 @@ var UserAgentProfile;
 (function(UserAgentProfile2) {
   UserAgentProfile2["EDGE_WINDOWS"] = "edge-windows";
   UserAgentProfile2["SAFARI_MACOS"] = "safari-macos";
+  UserAgentProfile2["SMARTTV"] = "smarttv";
   UserAgentProfile2["SMARTTV_TIZEN"] = "smarttv-tizen";
+  UserAgentProfile2["VR_OCULUS"] = "vr-oculus";
   UserAgentProfile2["KIWI_V123"] = "kiwi-v123";
   UserAgentProfile2["DEFAULT"] = "default";
   UserAgentProfile2["CUSTOM"] = "custom";
@@ -3604,7 +3606,9 @@ class UserAgent {
   static #USER_AGENTS = {
     [UserAgentProfile.EDGE_WINDOWS]: EDGE_USER_AGENT,
     [UserAgentProfile.SAFARI_MACOS]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
+    [UserAgentProfile.SMARTTV]: window.navigator.userAgent + " SmartTV",
     [UserAgentProfile.SMARTTV_TIZEN]: "Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36",
+    [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR",
     [UserAgentProfile.KIWI_V123]: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36"
   };
   static getDefault() {
@@ -4459,6 +4463,7 @@ class Preferences {
       default: "default",
       options: {
         default: t("default"),
+        normal: t("normal"),
         tv: t("smart-tv")
       }
     },
@@ -4481,7 +4486,9 @@ class Preferences {
         [UserAgentProfile.DEFAULT]: t("default"),
         [UserAgentProfile.EDGE_WINDOWS]: "Edge + Windows",
         [UserAgentProfile.SAFARI_MACOS]: "Safari + macOS",
-        [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV",
+        [UserAgentProfile.SMARTTV]: "Smart TV (no touch control)",
+        [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV (no touch control)",
+        [UserAgentProfile.VR_OCULUS]: "Meta Quest VR (no touch control)",
         [UserAgentProfile.KIWI_V123]: "Kiwi Browser v123",
         [UserAgentProfile.CUSTOM]: t("custom")
       }
@@ -9230,12 +9237,13 @@ var PATCHES = {
     }
     return str2.replace(text, text + "return;");
   },
-  tvLayout(str2) {
+  websiteLayout(str2) {
     const text = '?"tv":"default"';
     if (!str2.includes(text)) {
       return false;
     }
-    return str2.replace(text, '?"tv":"tv"');
+    const layout = getPref(PrefKey.UI_LAYOUT) === "tv" ? "tv" : "default";
+    return str2.replace(text, `?"${layout}":"${layout}"`);
   },
   remotePlayDirectConnectUrl(str2) {
     const index = str2.indexOf("/direct-connect");
@@ -9538,7 +9546,7 @@ var PATCH_ORDERS = [
   "disableStreamGate",
   "overrideSettings",
   "broadcastPollingMode",
-  getPref(PrefKey.UI_LAYOUT) === "tv" && "tvLayout",
+  getPref(PrefKey.UI_LAYOUT) !== "default" && "websiteLayout",
   getPref(PrefKey.LOCAL_CO_OP_ENABLED) && "supportLocalCoOp",
   getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && "forceFortniteConsole",
   ...getPref(PrefKey.BLOCK_TRACKING) ? [
