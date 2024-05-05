@@ -23,7 +23,7 @@ import { RemotePlay } from "@modules/remote-play";
 import { onHistoryChanged, patchHistoryMethod } from "@utils/history";
 import { VibrationManager } from "@modules/vibration-manager";
 import { PreloadedState } from "@utils/titles-info";
-import { patchAudioContext, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
+import { patchAudioContext, patchMeControl, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
 import { STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
@@ -216,9 +216,8 @@ function main() {
     interceptHttpRequests();
     patchVideoApi();
 
-    if (getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)) {
-        patchAudioContext();
-    }
+    getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
+    getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
 
     PreloadedState.override();
 

@@ -130,3 +130,53 @@ export function patchAudioContext() {
         return ctx;
     }
 }
+
+/**
+ * Disable telemetry flags in meversion.js
+ */
+export function patchMeControl() {
+    const overrideConfigs = {
+        enableAADTelemetry: false,
+        enableTelemetry: false,
+        telEvs: '',
+        oneDSUrl: '',
+    };
+
+    const MSA = {
+        MeControl: {},
+    };
+    const MeControl = {};
+
+    const MsaHandler: ProxyHandler<any> = {
+        get(target, prop, receiver) {
+            return target[prop];
+        },
+
+        set(obj, prop, value) {
+            if (prop === 'MeControl' && value.Config) {
+                value.Config = Object.assign(value.Config, overrideConfigs);
+            }
+
+            obj[prop] = value;
+            return true;
+        },
+    };
+
+    const MeControlHandler: ProxyHandler<any> = {
+        get(target, prop, receiver) {
+            return target[prop];
+        },
+
+        set(obj, prop, value) {
+            if (prop === 'Config') {
+                value = Object.assign(value, overrideConfigs);
+            }
+
+            obj[prop] = value;
+            return true;
+        },
+    };
+
+    (window as any).MSA = new Proxy(MSA, MsaHandler);
+    (window as any).MeControl = new Proxy(MeControl, MeControlHandler);
+}
