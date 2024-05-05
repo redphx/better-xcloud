@@ -3862,7 +3862,7 @@ class BxLogger {
     BxLogger.#log(TextColor.ERROR, tag, ...args);
   }
   static #log(color, tag, ...args) {
-    console.log("%c" + BxLogger.#PREFIX, "color:" + color + ";font-weight:bold;", tag, "-", ...args);
+    console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, "//", ...args);
   }
 }
 window.BxLogger = BxLogger;
@@ -9227,11 +9227,12 @@ var PATCHES = {
     return str2.replace(text, newCode + ";" + text);
   },
   disableIndexDbLogging(str2) {
-    const text = "async addLog(e,t=1e4){";
+    const text = ",this.logsDb=new";
     if (!str2.includes(text)) {
       return false;
     }
-    return str2.replace(text, text + "return;");
+    let newCode = ",this.log = () => {}";
+    return str2.replace(text, newCode + text);
   },
   websiteLayout(str2) {
     const text = '?"tv":"default"';
@@ -9660,7 +9661,7 @@ class Patcher {
         }
         modified = true;
         str = patchedStr;
-        BxLogger.info(LOG_TAG4, `Applied "${patchName}" patch`);
+        BxLogger.info(LOG_TAG4, `✅ ${patchName}`);
         appliedPatches.push(patchName);
         patchesToCheck.splice(patchIndex, 1);
         patchIndex--;
@@ -10219,6 +10220,44 @@ function patchAudioContext() {
     return ctx;
   };
 }
+function patchMeControl() {
+  const overrideConfigs = {
+    enableAADTelemetry: false,
+    enableTelemetry: false,
+    telEvs: "",
+    oneDSUrl: ""
+  };
+  const MSA = {
+    MeControl: {}
+  };
+  const MeControl = {};
+  const MsaHandler = {
+    get(target, prop, receiver) {
+      return target[prop];
+    },
+    set(obj, prop, value) {
+      if (prop === "MeControl" && value.Config) {
+        value.Config = Object.assign(value.Config, overrideConfigs);
+      }
+      obj[prop] = value;
+      return true;
+    }
+  };
+  const MeControlHandler = {
+    get(target, prop, receiver) {
+      return target[prop];
+    },
+    set(obj, prop, value) {
+      if (prop === "Config") {
+        value = Object.assign(value, overrideConfigs);
+      }
+      obj[prop] = value;
+      return true;
+    }
+  };
+  window.MSA = new Proxy(MSA, MsaHandler);
+  window.MeControl = new Proxy(MeControl, MeControlHandler);
+}
 
 // src/index.ts
 var main = function() {
@@ -10226,9 +10265,8 @@ var main = function() {
   patchRtcCodecs();
   interceptHttpRequests();
   patchVideoApi();
-  if (getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)) {
-    patchAudioContext();
-  }
+  getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
+  getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
   PreloadedState.override();
   VibrationManager.initialSetup();
   BX_FLAGS.CheckForUpdate && checkForUpdate();
