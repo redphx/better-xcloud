@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      4.1.1
+// @version      4.1.2
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -14,7 +14,7 @@
 // ==/UserScript==
 'use strict';
 // src/utils/global.ts
-var SCRIPT_VERSION = "4.1.1";
+var SCRIPT_VERSION = "4.1.2";
 var SCRIPT_HOME = "https://github.com/redphx/better-xcloud";
 var AppInterface = window.AppInterface;
 var STATES = {
@@ -9231,7 +9231,7 @@ var PATCHES = {
     if (!str2.includes(text)) {
       return false;
     }
-    let newCode = ",this.log = () => {}";
+    let newCode = ",this.log=()=>{}";
     return str2.replace(text, newCode + text);
   },
   websiteLayout(str2) {
