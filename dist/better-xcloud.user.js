@@ -4814,6 +4814,24 @@ var BxExposed = {
     STATES.currentStream.titleInfo = titleInfo;
     BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
     return titleInfo;
+  },
+  setupGainNode: ($media, audioStream) => {
+    if ($media instanceof HTMLAudioElement) {
+      $media.muted = true;
+      $media.addEventListener("playing", (e) => {
+        $media.muted = true;
+        $media.pause();
+      });
+    } else {
+      $media.muted = true;
+      $media.addEventListener("playing", (e) => {
+        $media.muted = true;
+      });
+    }
+    const audioCtx = STATES.currentStream.audioContext;
+    const source = audioCtx.createMediaStreamSource(audioStream);
+    const gainNode = audioCtx.createGain();
+    source.connect(gainNode).connect(audioCtx.destination);
   }
 };
 
@@ -9518,6 +9536,24 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
 `;
     str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1);
     return str2;
+  },
+  patchAudioMediaStream(str2) {
+    const text = ".srcObject=this.audioMediaStream,";
+    if (!str2.includes(text)) {
+      return false;
+    }
+    const newCode = `window.BX_EXPOSED.setupGainNode(arguments[1], this.audioMediaStream),`;
+    str2 = str2.replace(text, text + newCode);
+    return str2;
+  },
+  patchCombinedAudioVideoMediaStream(str2) {
+    const text = ".srcObject=this.combinedAudioVideoStream";
+    if (!str2.includes(text)) {
+      return false;
+    }
+    const newCode = `,window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)`;
+    str2 = str2.replace(text, text + newCode);
+    return str2;
   }
 };
 var PATCH_ORDERS = [
@@ -9551,6 +9587,8 @@ var PLAYING_PATCH_ORDERS = [
   "disableGamepadDisconnectedScreen",
   "patchStreamHud",
   "playVibration",
+  getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
+  getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
   STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
   BX_FLAGS.EnableXcloudLogging && "enableConsoleLogging",
@@ -10160,47 +10198,25 @@ function patchRtcPeerConnection() {
     const conn = new OrgRTCPeerConnection;
     STATES.currentStream.peerConnection = conn;
     conn.addEventListener("connectionstatechange", (e) => {
-      if (conn.connectionState === "connecting") {
-        STATES.currentStream.audioGainNode = null;
-      }
       BxLogger.info("connectionstatechange", conn.connectionState);
     });
     return conn;
   };
 }
 function patchAudioContext() {
-  if (UserAgent.isSafari(true)) {
-    const nativeCreateGain = window.AudioContext.prototype.createGain;
-    window.AudioContext.prototype.createGain = function() {
+  const OrgAudioContext = window.AudioContext;
+  const nativeCreateGain = OrgAudioContext.prototype.createGain;
+  window.AudioContext = function(options) {
+    const ctx = new OrgAudioContext(options);
+    BxLogger.info("patchAudioContext", ctx, options);
+    ctx.createGain = function() {
       const gainNode = nativeCreateGain.apply(this);
       gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100;
       STATES.currentStream.audioGainNode = gainNode;
       return gainNode;
     };
-  }
-  const OrgAudioContext = window.AudioContext;
-  window.AudioContext = function() {
-    const ctx = new OrgAudioContext;
     STATES.currentStream.audioContext = ctx;
-    STATES.currentStream.audioGainNode = null;
     return ctx;
-  };
-  const nativePlay = HTMLAudioElement.prototype.play;
-  HTMLAudioElement.prototype.play = function() {
-    this.muted = true;
-    const promise = nativePlay.apply(this);
-    if (STATES.currentStream.audioGainNode) {
-      return promise;
-    }
-    this.addEventListener("playing", (e) => e.target.pause());
-    const audioCtx = STATES.currentStream.audioContext;
-    const audioStream = audioCtx.createMediaStreamSource(this.srcObject);
-    const gainNode = audioCtx.createGain();
-    audioStream.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100;
-    STATES.currentStream.audioGainNode = gainNode;
-    return promise;
   };
 }
 
