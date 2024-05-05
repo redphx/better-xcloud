@@ -20,7 +20,7 @@ export class BxLogger {
     }
 
     static #log(color: TextColor, tag: string, ...args: any) {
-        console.log('%c' + BxLogger.#PREFIX, 'color:' + color + ';font-weight:bold;', tag, '-', ...args);
+        console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, '//', ...args);
     }
 }
 

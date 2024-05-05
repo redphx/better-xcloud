@@ -593,7 +593,7 @@ export class Patcher {
         let patchesToCheck: PatchArray;
         let appliedPatches: PatchArray;
 
-        const patchesMap: { [key: string]: PatchArray } = {};
+        const patchesMap: Record<string, PatchArray> = {};
 
         for (let id in item[1]) {
             appliedPatches = [];
@@ -637,7 +637,7 @@ export class Patcher {
                 modified = true;
                 str = patchedStr;
 
-                BxLogger.info(LOG_TAG, `Applied "${patchName}" patch`);
+                BxLogger.info(LOG_TAG, `✅ ${patchName}`);
                 appliedPatches.push(patchName);
 
                 // Remove patch
@@ -727,7 +727,7 @@ export class PatcherCache {
         return PatcherCache.#CACHE[id];
     }
 
-    static saveToCache(subCache: { [key: string]: PatchArray }) {
+    static saveToCache(subCache: Record<string, PatchArray>) {
         for (const id in subCache) {
             const patchNames = subCache[id];
 
