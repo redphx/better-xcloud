@@ -59,12 +59,14 @@ const PATCHES = {
 
     // Disable IndexDB logging
     disableIndexDbLogging(str: string) {
-        const text = 'async addLog(e,t=1e4){';
+        const text = ',this.logsDb=new';
         if (!str.includes(text)) {
             return false;
         }
 
-        return str.replace(text, text + 'return;');
+        // Replace log() with an empty function
+        let newCode = ',this.log=()=>{}';
+        return str.replace(text, newCode + text);
     },
 
     // Set custom website layout
