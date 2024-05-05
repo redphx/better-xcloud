@@ -91,5 +91,26 @@ export const BxExposed = {
         BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
 
         return titleInfo;
+    },
+
+    setupGainNode: ($media: HTMLMediaElement, audioStream: MediaStream) => {
+        if ($media instanceof HTMLAudioElement) {
+            $media.muted = true;
+            $media.addEventListener('playing', e => {
+                $media.muted = true;
+                $media.pause();
+            });
+        } else {
+            $media.muted = true;
+            $media.addEventListener('playing', e => {
+                $media.muted = true;
+            });
+        }
+
+        const audioCtx = STATES.currentStream.audioContext!;
+        const source = audioCtx.createMediaStreamSource(audioStream);
+
+        const gainNode = audioCtx.createGain();  // call monkey-patched createGain() in BxAudioContext
+        source.connect(gainNode).connect(audioCtx.destination);
     }
 };

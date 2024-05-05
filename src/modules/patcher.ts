@@ -459,6 +459,29 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
         return str;
 
     },
+
+    patchAudioMediaStream(str: string) {
+        const text = '.srcObject=this.audioMediaStream,';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `window.BX_EXPOSED.setupGainNode(arguments[1], this.audioMediaStream),`;
+
+        str = str.replace(text, text + newCode);
+        return str;
+    },
+
+    patchCombinedAudioVideoMediaStream(str: string) {
+        const text = '.srcObject=this.combinedAudioVideoStream';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `,window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)`;
+        str = str.replace(text, text + newCode);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -500,6 +523,12 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     'disableGamepadDisconnectedScreen',
     'patchStreamHud',
     'playVibration',
+
+    // Patch volume control for normal stream
+    getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'patchAudioMediaStream',
+    // Patch volume control for combined audio+video stream
+    getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'patchCombinedAudioVideoMediaStream',
+
 
     STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
     STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',

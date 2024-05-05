@@ -1,7 +1,6 @@
 import { BxEvent } from "@utils/bx-event";
 import { getPref, PrefKey } from "@utils/preferences";
 import { STATES } from "@utils/global";
-import { UserAgent } from "@utils/user-agent";
 import { BxLogger } from "@utils/bx-logger";
 
 export function patchVideoApi() {
@@ -104,10 +103,6 @@ export function patchRtcPeerConnection() {
         STATES.currentStream.peerConnection = conn;
 
         conn.addEventListener('connectionstatechange', e => {
-                if (conn.connectionState === 'connecting') {
-                    STATES.currentStream.audioGainNode = null;
-                }
-
                 BxLogger.info('connectionstatechange', conn.connectionState);
             });
         return conn;
@@ -115,46 +110,23 @@ export function patchRtcPeerConnection() {
 }
 
 export function patchAudioContext() {
-    if (UserAgent.isSafari(true)) {
-        const nativeCreateGain = window.AudioContext.prototype.createGain;
-        window.AudioContext.prototype.createGain = function() {
+    const OrgAudioContext = window.AudioContext;
+    const nativeCreateGain = OrgAudioContext.prototype.createGain;
+
+    // @ts-ignore
+    window.AudioContext = function(options?: AudioContextOptions | undefined): AudioContext {
+        const ctx = new OrgAudioContext(options);
+        BxLogger.info('patchAudioContext', ctx, options);
+
+        ctx.createGain = function() {
             const gainNode = nativeCreateGain.apply(this);
             gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100;
+
             STATES.currentStream.audioGainNode = gainNode;
             return gainNode;
         }
-    }
 
-    const OrgAudioContext = window.AudioContext;
-    // @ts-ignore
-    window.AudioContext = function() {
-        const ctx = new OrgAudioContext();
         STATES.currentStream.audioContext = ctx;
-        STATES.currentStream.audioGainNode = null;
         return ctx;
-    }
-
-    const nativePlay = HTMLAudioElement.prototype.play;
-    HTMLAudioElement.prototype.play = function() {
-        this.muted = true;
-
-        const promise = nativePlay.apply(this);
-        if (STATES.currentStream.audioGainNode) {
-            return promise;
-        }
-
-        this.addEventListener('playing', e => (e.target as HTMLAudioElement).pause());
-
-        const audioCtx = STATES.currentStream.audioContext!;
-        // TOOD: check srcObject
-        const audioStream = audioCtx.createMediaStreamSource(this.srcObject as any);
-        const gainNode = audioCtx.createGain();
-
-        audioStream.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100;
-        STATES.currentStream.audioGainNode = gainNode;
-
-        return promise;
     }
 }
