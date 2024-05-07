@@ -211,10 +211,13 @@ export class SettingElement {
             onChange && onChange(e, value);
         }
 
-        const onMouseDown = (e: MouseEvent | TouchEvent) => {
+        const onMouseDown = (e: PointerEvent) => {
+            e.preventDefault();
+
             isHolding = true;
 
             const args = arguments;
+            interval && clearInterval(interval);
             interval = window.setInterval(() => {
                 const event = new Event('click');
                 (event as any).arguments = args;
@@ -223,10 +226,14 @@ export class SettingElement {
             }, 200);
         };
 
-        const onMouseUp = (e: MouseEvent | TouchEvent) => {
-            clearInterval(interval);
+        const onMouseUp = (e: PointerEvent) => {
+            e.preventDefault();
+
+            interval && clearInterval(interval);
             isHolding = false;
         };
+
+        const onContextMenu = (e: Event) => e.preventDefault();
 
         // Custom method
         ($wrapper as any).setValue = (value: any) => {
@@ -235,16 +242,14 @@ export class SettingElement {
         };
 
         $decBtn.addEventListener('click', onClick);
-        $decBtn.addEventListener('mousedown', onMouseDown);
-        $decBtn.addEventListener('mouseup', onMouseUp);
-        $decBtn.addEventListener('touchstart', onMouseDown);
-        $decBtn.addEventListener('touchend', onMouseUp);
+        $decBtn.addEventListener('pointerdown', onMouseDown);
+        $decBtn.addEventListener('pointerup', onMouseUp);
+        $decBtn.addEventListener('contextmenu', onContextMenu);
 
         $incBtn.addEventListener('click', onClick);
-        $incBtn.addEventListener('mousedown', onMouseDown);
-        $incBtn.addEventListener('mouseup', onMouseUp);
-        $incBtn.addEventListener('touchstart', onMouseDown);
-        $incBtn.addEventListener('touchend', onMouseUp);
+        $incBtn.addEventListener('pointerdown', onMouseDown);
+        $incBtn.addEventListener('pointerup', onMouseUp);
+        $incBtn.addEventListener('contextmenu', onContextMenu);
 
         return $wrapper;
     }
