@@ -6557,6 +6557,7 @@ function setupScreenshotButton() {
 
 // src/modules/touch-controller.ts
 var LOG_TAG2 = "TouchController";
+var GALLERY_TOUCH_GAMES = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
 
 class TouchController {
   static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
@@ -6686,6 +6687,14 @@ class TouchController {
         }
       });
     }, delay);
+  }
+  static updateCustomList() {
+    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
+      window.localStorage.setItem("better_xcloud_custom_touch_layouts", JSON.stringify(json));
+    });
+  }
+  static getCustomList() {
+    return JSON.parse(window.localStorage.getItem("better_xcloud_custom_touch_layouts") || "[]");
   }
   static setup() {
     window.BX_EXPOSED.test_touch_control = (layout) => {
@@ -7662,6 +7671,17 @@ function interceptHttpRequests() {
     }
     if (url.endsWith("/configuration")) {
       BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+    }
+    if (url.includes("catalog.gamepass.com") && url.includes(GALLERY_TOUCH_GAMES)) {
+      const response = await NATIVE_FETCH(request, init);
+      const obj = await response.clone().json();
+      try {
+        const customList = TouchController.getCustomList().map((item2) => ({ id: item2 }));
+        obj.push(...customList);
+      } catch (e) {
+      }
+      response.json = () => Promise.resolve(obj);
+      return response;
     }
     let requestType;
     if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs")) {
@@ -10156,25 +10176,38 @@ function onHistoryChanged(e) {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
 
-// src/utils/titles-info.ts
-class PreloadedState {
-  static override() {
-    Object.defineProperty(window, "__PRELOADED_STATE__", {
-      configurable: true,
-      get: () => {
-        const userAgent = UserAgent.spoof();
-        if (userAgent) {
-          this._state.appContext.requestInfo.userAgent = userAgent;
+// src/utils/preload-state.ts
+function overridePreloadState() {
+  let _state;
+  Object.defineProperty(window, "__PRELOADED_STATE__", {
+    configurable: true,
+    get: () => {
+      return _state;
+    },
+    set: (state) => {
+      const userAgent = UserAgent.spoof();
+      if (userAgent) {
+        try {
+          state.appContext.requestInfo.userAgent = userAgent;
+        } catch (e) {
+          BxLogger.error(LOG_TAG5, e);
         }
-        return this._state;
-      },
-      set: (state) => {
-        this._state = state;
-        STATES.appContext = structuredClone(state.appContext);
       }
-    });
-  }
+      if (STATES.hasTouchSupport) {
+        TouchController.updateCustomList();
+        const customList = TouchController.getCustomList();
+        try {
+          state.xcloud.sigls[GALLERY_TOUCH_GAMES]?.data.products.push(...customList);
+        } catch (e) {
+          BxLogger.error(LOG_TAG5, e);
+        }
+      }
+      _state = state;
+      STATES.appContext = structuredClone(state.appContext);
+    }
+  });
 }
+var LOG_TAG5 = "PreloadState";
 
 // src/utils/monkey-patches.ts
 function patchVideoApi() {
@@ -10333,7 +10366,7 @@ var main = function() {
   patchCanvasContext();
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
   getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
-  PreloadedState.override();
+  overridePreloadState();
   VibrationManager.initialSetup();
   BX_FLAGS.CheckForUpdate && checkForUpdate();
   addCss();
