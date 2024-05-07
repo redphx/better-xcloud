@@ -2909,6 +2909,23 @@ var Texts = {
     "Màu của bố cục tùy chọn",
     "特殊游戏按钮样式"
   ],
+  "tc-default-opacity": [
+    ,
+    ,
+    "Default opacity",
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    "Độ mờ mặc định",
+    ,
+  ],
   "tc-muted-colors": [
     "Matte Farben",
     "Warna redup",
@@ -3534,8 +3551,10 @@ class SettingElement {
       onChange && onChange(e, value2);
     };
     const onMouseDown = (e) => {
+      e.preventDefault();
       isHolding = true;
       const args = arguments;
+      interval && clearInterval(interval);
       interval = window.setInterval(() => {
         const event = new Event("click");
         event.arguments = args;
@@ -3543,23 +3562,23 @@ class SettingElement {
       }, 200);
     };
     const onMouseUp = (e) => {
-      clearInterval(interval);
+      e.preventDefault();
+      interval && clearInterval(interval);
       isHolding = false;
     };
+    const onContextMenu = (e) => e.preventDefault();
     $wrapper.setValue = (value2) => {
       $text.textContent = value2 + options.suffix;
       $range && ($range.value = value2);
     };
     $decBtn.addEventListener("click", onClick);
-    $decBtn.addEventListener("mousedown", onMouseDown);
-    $decBtn.addEventListener("mouseup", onMouseUp);
-    $decBtn.addEventListener("touchstart", onMouseDown);
-    $decBtn.addEventListener("touchend", onMouseUp);
+    $decBtn.addEventListener("pointerdown", onMouseDown);
+    $decBtn.addEventListener("pointerup", onMouseUp);
+    $decBtn.addEventListener("contextmenu", onContextMenu);
     $incBtn.addEventListener("click", onClick);
-    $incBtn.addEventListener("mousedown", onMouseDown);
-    $incBtn.addEventListener("mouseup", onMouseUp);
-    $incBtn.addEventListener("touchstart", onMouseDown);
-    $incBtn.addEventListener("touchend", onMouseUp);
+    $incBtn.addEventListener("pointerdown", onMouseDown);
+    $incBtn.addEventListener("pointerup", onMouseUp);
+    $incBtn.addEventListener("contextmenu", onContextMenu);
     return $wrapper;
   }
   static #METHOD_MAP = {
@@ -4122,6 +4141,7 @@ var PrefKey;
   PrefKey2["STREAM_COMBINE_SOURCES"] = "stream_combine_sources";
   PrefKey2["STREAM_TOUCH_CONTROLLER"] = "stream_touch_controller";
   PrefKey2["STREAM_TOUCH_CONTROLLER_AUTO_OFF"] = "stream_touch_controller_auto_off";
+  PrefKey2["STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY"] = "stream_touch_controller_default_opacity";
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_STANDARD"] = "stream_touch_controller_style_standard";
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM"] = "stream_touch_controller_style_custom";
   PrefKey2["STREAM_DISABLE_FEEDBACK_DIALOG"] = "stream_disable_feedback_dialog";
@@ -4341,6 +4361,20 @@ class Preferences {
     [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
       label: t("tc-auto-off"),
       default: false,
+      unsupported: !STATES.hasTouchSupport
+    },
+    [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
+      type: SettingElementType.NUMBER_STEPPER,
+      label: t("tc-default-opacity"),
+      default: 100,
+      min: 10,
+      max: 100,
+      steps: 10,
+      params: {
+        suffix: "%",
+        ticks: 10,
+        hideSlider: true
+      },
       unsupported: !STATES.hasTouchSupport
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
@@ -6454,7 +6488,10 @@ function takeScreenshot(callback) {
   if (!$video || !$canvas) {
     return;
   }
-  const $canvasContext = $canvas.getContext("2d");
+  const $canvasContext = $canvas.getContext("2d", {
+    alpha: false,
+    willReadFrequently: false
+  });
   $canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
   if (AppInterface) {
     const data = $canvas.toDataURL("image/png").split(";base64,")[1];
@@ -8551,6 +8588,9 @@ body[data-media-type=default] .bx-stream-refresh-button {
 body[data-media-type=tv] .bx-stream-refresh-button {
   top: calc(var(--gds-focus-borderSize) + 80px) !important;
 }
+.bx-number-stepper {
+  text-align: center;
+}
 .bx-number-stepper span {
   display: inline-block;
   width: 40px;
@@ -8581,6 +8621,12 @@ body[data-media-type=tv] .bx-stream-refresh-button {
 }
 .bx-number-stepper button:disabled + span {
   font-family: var(--bx-title-font);
+}
+.bx-number-stepper input[type="range"] {
+  display: block;
+  margin: 12px auto 2px;
+  width: 180px;
+  color: #959595 !important;
 }
 .bx-number-stepper input[type=range]:disabled,
 .bx-number-stepper button:disabled {
@@ -8827,12 +8873,6 @@ body[data-media-type=tv] .bx-stream-refresh-button {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-}
-.bx-quick-settings-tab-contents input[type="range"] {
-  display: block;
-  margin: 12px auto 2px;
-  width: 180px;
-  color: #959595 !important;
 }
 .bx-quick-settings-row {
   display: flex;
@@ -9555,6 +9595,16 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
     const newCode = `,window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)`;
     str2 = str2.replace(text, text + newCode);
     return str2;
+  },
+  patchTouchControlDefaultOpacity(str2) {
+    const text = "opacityMultiplier:1";
+    if (!str2.includes(text)) {
+      return false;
+    }
+    const opacity = (getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) / 100).toFixed(1);
+    const newCode = `opacityMultiplier: ${opacity}`;
+    str2 = str2.replace(text, newCode);
+    return str2;
   }
 };
 var PATCH_ORDERS = [
@@ -9592,6 +9642,7 @@ var PLAYING_PATCH_ORDERS = [
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
   STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
+  STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && "patchTouchControlDefaultOpacity",
   BX_FLAGS.EnableXcloudLogging && "enableConsoleLogging",
   getPref(PrefKey.BLOCK_TRACKING) && "blockGamepadStatsCollector",
   getPref(PrefKey.STREAM_COMBINE_SOURCES) && "streamCombineSources",
@@ -9986,6 +10037,7 @@ var SETTINGS_UI = {
     items: [
       PrefKey.STREAM_TOUCH_CONTROLLER,
       PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
+      PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY,
       PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD,
       PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM
     ]
@@ -10258,6 +10310,19 @@ function patchMeControl() {
   window.MSA = new Proxy(MSA, MsaHandler);
   window.MeControl = new Proxy(MeControl, MeControlHandler);
 }
+function patchCanvasContext() {
+  const nativeGetContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
+    if (contextType.includes("webgl")) {
+      contextAttributes = contextAttributes || {};
+      contextAttributes.antialias = false;
+      if (contextAttributes.powerPreference === "high-performance") {
+        contextAttributes.powerPreference = "low-power";
+      }
+    }
+    return nativeGetContext.apply(this, [contextType, contextAttributes]);
+  };
+}
 
 // src/index.ts
 var main = function() {
@@ -10265,6 +10330,7 @@ var main = function() {
   patchRtcCodecs();
   interceptHttpRequests();
   patchVideoApi();
+  patchCanvasContext();
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
   getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
   PreloadedState.override();
