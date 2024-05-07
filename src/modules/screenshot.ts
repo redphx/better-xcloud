@@ -9,7 +9,10 @@ export function takeScreenshot(callback: any) {
         return;
     }
 
-    const $canvasContext = $canvas.getContext('2d')!;
+    const $canvasContext = $canvas.getContext('2d', {
+        alpha: false,
+        willReadFrequently: false,
+    })!;
 
     $canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
 

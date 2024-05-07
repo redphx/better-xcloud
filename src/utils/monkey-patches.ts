@@ -180,3 +180,25 @@ export function patchMeControl() {
     (window as any).MSA = new Proxy(MSA, MsaHandler);
     (window as any).MeControl = new Proxy(MeControl, MeControlHandler);
 }
+
+/**
+ * Use power-saving flags for touch control
+ */
+export function patchCanvasContext() {
+    const nativeGetContext = HTMLCanvasElement.prototype.getContext;
+    // @ts-ignore
+    HTMLCanvasElement.prototype.getContext = function(contextType: string, contextAttributes?: any) {
+        if (contextType.includes('webgl')) {
+            contextAttributes = contextAttributes || {};
+
+            contextAttributes.antialias = false;
+
+            // Use low-power profile for touch controller
+            if (contextAttributes.powerPreference === 'high-performance') {
+                contextAttributes.powerPreference = 'low-power';
+            }
+        }
+
+        return nativeGetContext.apply(this, [contextType, contextAttributes]);
+    }
+}
