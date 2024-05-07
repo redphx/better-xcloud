@@ -3,7 +3,7 @@ import { BX_FLAGS } from "@utils/bx-flags";
 import { getPref, PrefKey } from "@utils/preferences";
 import { VibrationManager } from "@modules/vibration-manager";
 import { BxLogger } from "@utils/bx-logger";
-import { hashCode } from "@/utils/utils";
+import { hashCode } from "@utils/utils";
 
 type PatchArray = (keyof typeof PATCHES)[];
 

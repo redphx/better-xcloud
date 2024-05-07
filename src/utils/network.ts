@@ -4,7 +4,7 @@ import { LoadingScreen } from "@modules/loading-screen";
 import { PrefKey, getPref } from "@utils/preferences";
 import { RemotePlay } from "@modules/remote-play";
 import { StreamBadges } from "@modules/stream/stream-badges";
-import { TouchController } from "@modules/touch-controller";
+import { GALLERY_TOUCH_GAMES, TouchController } from "@modules/touch-controller";
 import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
 
@@ -547,6 +547,20 @@ export function interceptHttpRequests() {
 
         if (url.endsWith('/configuration')) {
             BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+        }
+
+        // Add list of games with custom layouts to the official list
+        if (url.includes('catalog.gamepass.com') && url.includes(GALLERY_TOUCH_GAMES)) {
+            const response = await NATIVE_FETCH(request, init);
+            const obj = await response.clone().json();
+
+            try {
+                const customList = TouchController.getCustomList().map(item => ({ id: item }));
+                obj.push(...customList);
+            } catch (e) {}
+
+            response.json = () => Promise.resolve(obj);
+            return response;
         }
 
         let requestType: RequestType;

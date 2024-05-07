@@ -22,7 +22,7 @@ import { Patcher } from "@modules/patcher";
 import { RemotePlay } from "@modules/remote-play";
 import { onHistoryChanged, patchHistoryMethod } from "@utils/history";
 import { VibrationManager } from "@modules/vibration-manager";
-import { PreloadedState } from "@utils/titles-info";
+import { overridePreloadState } from "@utils/preload-state";
 import { patchAudioContext, patchCanvasContext, patchMeControl, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
 import { STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
@@ -220,7 +220,7 @@ function main() {
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
     getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
 
-    PreloadedState.override();
+    overridePreloadState();
 
     VibrationManager.initialSetup();
 

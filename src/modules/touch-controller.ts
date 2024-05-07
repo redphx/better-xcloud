@@ -10,6 +10,8 @@ import { BxLogger } from "@utils/bx-logger";
 
 const LOG_TAG = 'TouchController';
 
+export const GALLERY_TOUCH_GAMES = '9c86f07a-f3e8-45ad-82a0-a1f759597059';
+
 export class TouchController {
     static readonly #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent('message', {
             data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
@@ -182,6 +184,18 @@ export class TouchController {
                 }
             });
         }, delay);
+    }
+
+    static updateCustomList() {
+        NATIVE_FETCH('https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json')
+            .then(response => response.json())
+            .then(json => {
+                window.localStorage.setItem('better_xcloud_custom_touch_layouts', JSON.stringify(json));
+            });
+    }
+
+    static getCustomList(): string[] {
+        return JSON.parse(window.localStorage.getItem('better_xcloud_custom_touch_layouts') || '[]');
     }
 
     static setup() {
