@@ -1,7 +1,8 @@
 {
-	"name": "Roboquest",
-	"default_layout": "custom",
-	"layouts": [
-		"roboquest"
-	]
+  "name": "Roboquest",
+  "product_id": "9P47S7NJGWZL",
+  "default_layout": "custom",
+  "layouts": [
+    "roboquest"
+  ]
 }

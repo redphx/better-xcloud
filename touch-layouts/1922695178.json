@@ -1,7 +1,8 @@
 {
-	"name": "PlateUp!",
-	"default_layout": "custom",
-	"layouts": [
-		"plateup"
-	]
+  "name": "PlateUp!",
+  "product_id": "9P2HHT3VS7MP",
+  "default_layout": "custom",
+  "layouts": [
+    "plateup"
+  ]
 }

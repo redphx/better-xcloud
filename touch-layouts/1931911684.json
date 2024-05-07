@@ -1,7 +1,8 @@
 {
-	"name": "Shredders",
-	"default_layout": "custom",
-	"layouts": [
-		"shredders"
-	]
+  "name": "Shredders",
+  "product_id": "9N4PGNQQ7ZFK",
+  "default_layout": "custom",
+  "layouts": [
+    "shredders"
+  ]
 }
