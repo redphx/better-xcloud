@@ -1,4 +1,6 @@
 .bx-number-stepper {
+    text-align: center;
+
     span {
         display: inline-block;
         width: 40px;
@@ -33,6 +35,13 @@
         &:disabled + span {
             font-family: var(--bx-title-font);
         }
+    }
+
+    input[type="range"] {
+        display: block;
+        margin: 12px auto 2px;
+        width: 180px;
+        color: #959595 !important;
     }
 
     input[type=range]:disabled, button:disabled {

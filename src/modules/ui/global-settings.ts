@@ -58,6 +58,7 @@ const SETTINGS_UI = {
         items: [
             PrefKey.STREAM_TOUCH_CONTROLLER,
             PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
+            PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY,
             PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD,
             PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM,
         ],

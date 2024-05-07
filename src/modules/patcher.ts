@@ -484,6 +484,18 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
         str = str.replace(text, text + newCode);
         return str;
     },
+
+    patchTouchControlDefaultOpacity(str: string) {
+        const text = 'opacityMultiplier:1';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const opacity = (getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) / 100).toFixed(1);
+        const newCode = `opacityMultiplier: ${opacity}`;
+        str = str.replace(text, newCode);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -534,6 +546,7 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
 
     STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
     STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',
+    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && 'patchTouchControlDefaultOpacity',
 
     BX_FLAGS.EnableXcloudLogging && 'enableConsoleLogging',
 

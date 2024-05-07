@@ -27,6 +27,7 @@ export enum PrefKey {
 
     STREAM_TOUCH_CONTROLLER = 'stream_touch_controller',
     STREAM_TOUCH_CONTROLLER_AUTO_OFF = 'stream_touch_controller_auto_off',
+    STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY = 'stream_touch_controller_default_opacity',
     STREAM_TOUCH_CONTROLLER_STYLE_STANDARD = 'stream_touch_controller_style_standard',
     STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM = 'stream_touch_controller_style_custom',
 
@@ -275,6 +276,20 @@ export class Preferences {
         [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
             label: t('tc-auto-off'),
             default: false,
+            unsupported: !STATES.hasTouchSupport,
+        },
+        [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
+            type: SettingElementType.NUMBER_STEPPER,
+            label: t('tc-default-opacity'),
+            default: 100,
+            min: 10,
+            max: 100,
+            steps: 10,
+            params: {
+                suffix: '%',
+                ticks: 10,
+                hideSlider: true,
+            },
             unsupported: !STATES.hasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
