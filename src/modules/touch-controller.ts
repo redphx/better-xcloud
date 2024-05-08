@@ -103,7 +103,7 @@ export class TouchController {
         retries = retries || 1;
         if (retries > 2) {
             TouchController.#customLayouts[xboxTitleId] = null;
-            // Wait for BX_EXPOSED.touch_layout_manager
+            // Wait for BX_EXPOSED.touchLayoutManager
             window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
             return;
         }
@@ -139,7 +139,7 @@ export class TouchController {
             json.layouts = layouts;
             TouchController.#customLayouts[xboxTitleId] = json;
 
-            // Wait for BX_EXPOSED.touch_layout_manager
+            // Wait for BX_EXPOSED.touchLayoutManager
             window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
         } catch (e) {
             // Retry
@@ -148,7 +148,7 @@ export class TouchController {
     }
 
     static loadCustomLayout(xboxTitleId: string, layoutId: string, delay: number=0) {
-        if (!window.BX_EXPOSED.touch_layout_manager) {
+        if (!window.BX_EXPOSED.touchLayoutManager) {
             return;
         }
 
@@ -181,7 +181,7 @@ export class TouchController {
         layoutChanged && Toast.show(msg, layout.name, {html: html});
 
         window.setTimeout(() => {
-            window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+            window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
                 type: 'showLayout',
                 scope: xboxTitleId,
                 subscope: 'base',
@@ -208,10 +208,10 @@ export class TouchController {
 
     static setup() {
         // Function for testing touch control
-        window.BX_EXPOSED.test_touch_control = (layout: any) => {
-            const { touch_layout_manager } = window.BX_EXPOSED;
+        (window as any).testTouchLayout = (layout: any) => {
+            const { touchLayoutManager } = window.BX_EXPOSED;
 
-            touch_layout_manager && touch_layout_manager.changeLayoutForScope({
+            touchLayoutManager && touchLayoutManager.changeLayoutForScope({
                 type: 'showLayout',
                 scope: '' + STATES.currentStream?.xboxTitleId,
                 subscope: 'base',

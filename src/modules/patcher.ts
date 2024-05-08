@@ -285,7 +285,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return false;
         }
 
-        str = str.replace(text, 'window.BX_EXPOSED["touch_layout_manager"] = this,' + text);
+        str = str.replace(text, 'window.BX_EXPOSED["touchLayoutManager"] = this,' + text);
         return str;
     },
 
