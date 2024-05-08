@@ -7683,12 +7683,10 @@ function interceptHttpRequests() {
       const response = await NATIVE_FETCH(request, init);
       const obj = await response.clone().json();
       if (url.includes(GamePassCloudGallery.ALL)) {
-        debugger;
         for (let i = 1;i < obj.length; i++) {
           gamepassAllGames.push(obj[i].id);
         }
       } else if (url.includes(GamePassCloudGallery.TOUCH)) {
-        debugger;
         try {
           let customList = TouchController.getCustomList();
           customList = customList.filter((id2) => gamepassAllGames.includes(id2));
