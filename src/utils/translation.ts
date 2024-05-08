@@ -1599,7 +1599,7 @@ const Texts = {
         "未找到主机",
     ],
     "normal": [
-        "Mittel",
+        "Normal",
         "Normal",
         "Normal",
         "Normal",
