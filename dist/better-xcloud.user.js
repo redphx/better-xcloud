@@ -115,6 +115,12 @@ var createElement = function(elmName, props = {}, ..._) {
   }
   return $elm;
 };
+function escapeHtml(html) {
+  const text = document.createTextNode(html);
+  const $span = document.createElement("span");
+  $span.appendChild(text);
+  return $span.innerHTML;
+}
 var CE = createElement;
 var svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
 var createSvgIcon = (icon) => {
@@ -1754,7 +1760,7 @@ var Texts = {
     "未找到主机"
   ],
   normal: [
-    "Mittel",
+    "Normal",
     "Normal",
     "Normal",
     "Normal",
@@ -2910,21 +2916,21 @@ var Texts = {
     "特殊游戏按钮样式"
   ],
   "tc-default-opacity": [
-    ,
+    "Standard Deckkraft",
     ,
     "Default opacity",
+    "Opacidad por defecto",
     ,
     ,
+    "既定の透過度",
     ,
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
+    "Domyślna przezroczystość",
+    "Opacidade padrão",
+    "Прозрачность по умолчанию",
+    "Varsayılan opaklık",
+    "Непрозорість за замовчуванням",
     "Độ mờ mặc định",
-    ,
+    "默认不透明度"
   ],
   "tc-muted-colors": [
     "Matte Farben",
@@ -3044,6 +3050,23 @@ var Texts = {
     "Розташування сенсорного керування",
     "Bố cục điều khiển cảm ứng",
     "触摸控制布局"
+  ],
+  "touch-control-layout-by": [
+    (e) => `Touch-Steuerungslayout von ${e.name}`,
+    ,
+    (e) => `Touch control layout by ${e.name}`,
+    ,
+    ,
+    ,
+    (e) => `タッチ操作レイアウト作成者: ${e.name}`,
+    ,
+    (e) => `Układ sterowania dotykowego stworzony przez ${e.name}`,
+    ,
+    ,
+    (e) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
+    (e) => `Розташування сенсорного керування від ${e.name}`,
+    (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
+    ,
   ],
   "touch-controller": [
     "Touch-Controller",
@@ -3612,21 +3635,19 @@ var UserAgentProfile;
   UserAgentProfile2["CUSTOM"] = "custom";
 })(UserAgentProfile || (UserAgentProfile = {}));
 var CHROMIUM_VERSION = "123.0.0.0";
-if (!!window.chrome) {
+if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
   if (match) {
     CHROMIUM_VERSION = match[1];
   }
 }
-var EDGE_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/[[VERSION]] Safari/537.36 Edg/[[VERSION]]";
-EDGE_USER_AGENT = EDGE_USER_AGENT.replaceAll("[[VERSION]]", CHROMIUM_VERSION);
 
 class UserAgent {
   static #USER_AGENTS = {
-    [UserAgentProfile.EDGE_WINDOWS]: EDGE_USER_AGENT,
+    [UserAgentProfile.EDGE_WINDOWS]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
     [UserAgentProfile.SAFARI_MACOS]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
     [UserAgentProfile.SMARTTV]: window.navigator.userAgent + " SmartTV",
-    [UserAgentProfile.SMARTTV_TIZEN]: "Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36",
+    [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
     [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR",
     [UserAgentProfile.KIWI_V123]: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36"
   };
@@ -5106,8 +5127,12 @@ class Toast {
     Toast.#isShowing = true;
     Toast.#timeout && clearTimeout(Toast.#timeout);
     Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
-    const [msg, status, _] = Toast.#stack.shift();
-    Toast.#$msg.textContent = msg;
+    const [msg, status, options] = Toast.#stack.shift();
+    if (options.html) {
+      Toast.#$msg.innerHTML = msg;
+    } else {
+      Toast.#$msg.textContent = msg;
+    }
     if (status) {
       Toast.#$status.classList.remove("bx-gone");
       Toast.#$status.textContent = status;
@@ -5927,7 +5952,7 @@ class MkbHandler {
         e.stopPropagation();
         showStreamSettings("mkb");
       }
-    }), CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb")({ key: "F8" }))));
+    }), CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))));
     this.#$message.addEventListener("click", this.#onActivatePointerLock);
     document.documentElement.appendChild(this.#$message);
     window.addEventListener(BxEvent.STREAM_MENU_SHOWN, this.#onStreamMenuShown);
@@ -6659,7 +6684,7 @@ class TouchController {
     }
   }
   static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
-    if (!window.BX_EXPOSED.touch_layout_manager) {
+    if (!window.BX_EXPOSED.touchLayoutManager) {
       return;
     }
     const layoutChanged = TouchController.#currentLayoutId !== layoutId;
@@ -6673,9 +6698,18 @@ class TouchController {
     if (!layout) {
       return;
     }
-    layoutChanged && Toast.show(t("touch-control-layout"), layout.name);
+    let msg;
+    let html13 = false;
+    if (layout.author) {
+      const author = `<b>${escapeHtml(layout.author)}</b>`;
+      msg = t("touch-control-layout-by", { name: author });
+      html13 = true;
+    } else {
+      msg = t("touch-control-layout");
+    }
+    layoutChanged && Toast.show(msg, layout.name, { html: html13 });
     window.setTimeout(() => {
-      window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({
+      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
         type: "showLayout",
         scope: xboxTitleId,
         subscope: "base",
@@ -6696,9 +6730,9 @@ class TouchController {
     return JSON.parse(window.localStorage.getItem("better_xcloud_custom_touch_layouts") || "[]");
   }
   static setup() {
-    window.BX_EXPOSED.test_touch_control = (layout) => {
-      const { touch_layout_manager } = window.BX_EXPOSED;
-      touch_layout_manager && touch_layout_manager.changeLayoutForScope({
+    window.testTouchLayout = (layout) => {
+      const { touchLayoutManager } = window.BX_EXPOSED;
+      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
         type: "showLayout",
         scope: "" + STATES.currentStream?.xboxTitleId,
         subscope: "base",
@@ -7073,7 +7107,13 @@ var setupQuickSettingsBar = function() {
                   const $fragment = document.createDocumentFragment();
                   for (const key in data.layouts) {
                     const layout = data.layouts[key];
-                    const $option = CE("option", { value: key }, layout.name);
+                    let name;
+                    if (layout.author) {
+                      name = `${layout.name} (${layout.author})`;
+                    } else {
+                      name = layout.name;
+                    }
+                    const $option = CE("option", { value: key }, name);
                     $fragment.appendChild($option);
                   }
                   $elm.appendChild($fragment);
@@ -9471,7 +9511,7 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     if (!str2.includes(text)) {
       return false;
     }
-    str2 = str2.replace(text, 'window.BX_EXPOSED["touch_layout_manager"] = this,' + text);
+    str2 = str2.replace(text, 'window.BX_EXPOSED["touchLayoutManager"] = this,' + text);
     return str2;
   },
   supportLocalCoOp(str2) {
@@ -10209,11 +10249,10 @@ function overridePreloadState() {
         }
       }
       if (STATES.hasTouchSupport) {
-        TouchController.updateCustomList();
-        let customList = TouchController.getCustomList();
         try {
           const sigls = state.xcloud.sigls;
           if (GamePassCloudGallery.TOUCH in sigls) {
+            let customList = TouchController.getCustomList();
             const allGames = sigls[GamePassCloudGallery.ALL].data.products;
             customList = customList.filter((id2) => allGames.includes(id2));
             sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
@@ -10386,6 +10425,7 @@ var main = function() {
   patchCanvasContext();
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
   getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
+  STATES.hasTouchSupport && TouchController.updateCustomList();
   overridePreloadState();
   VibrationManager.initialSetup();
   BX_FLAGS.CheckForUpdate && checkForUpdate();
