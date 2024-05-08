@@ -3,6 +3,7 @@
   "layouts": {
     "rightstick": {
       "name": "Right Stick Mode (Default)",
+      "author": "Tak-attack",
       "content": {
         "layers": {
           "AimTouchpad": {
@@ -279,6 +280,7 @@
     },
     "relativemouse": {
       "name": "Relative Mouse Mode",
+      "author": "Tak-attack",
       "content": {
         "layers": {
           "AimTouchpad": {

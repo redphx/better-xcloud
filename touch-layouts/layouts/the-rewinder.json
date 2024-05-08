@@ -3,6 +3,7 @@
   "layouts": {
     "custom": {
       "name": "Custom",
+      "author": "redphx",
       "content": {
         "left": {
           "inner": [

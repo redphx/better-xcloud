@@ -3,6 +3,7 @@
   "layouts": {
     "one-handed-left": {
       "name": "One-handed (Left)",
+      "author": "redphx",
       "content": {
         "layers": {
           "ToggleDpad": {
@@ -112,6 +113,7 @@
     },
     "one-handed-right": {
       "name": "One-handed (Right)",
+      "author": "redphx",
       "content": {
         "layers": {
           "ToggleDpad": {
@@ -222,6 +224,7 @@
     },
     "simplified": {
       "name": "Simplified",
+      "author": "redphx",
       "content": {
         "left": {
           "inner": [
@@ -267,6 +270,7 @@
     },
     "simplified-full": {
       "name": "Simplified (2 joysticks)",
+      "author": "redphx",
       "content": {
         "left": {
           "inner": [

@@ -3,6 +3,7 @@
   "layouts": {
     "type-a": {
       "name": "Type A",
+      "author": "redphx",
       "content": {
         "layers": {
           "EnableGyro": {

@@ -2,7 +2,8 @@
   "schema_version": 1,
   "layouts": {
     "custom": {
-      "name": "custom",
+      "name": "Custom",
+      "author": "Kode-Z",
       "content": {
         "left": {
           "inner": [

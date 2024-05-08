@@ -3,6 +3,7 @@
   "layouts": {
     "layout-1": {
       "name": "Layout 1",
+      "author": "redphx",
       "content": {
         "layers": {
           "dPadDisplay": {
@@ -242,6 +243,7 @@
     },
     "layout-1-throttle-pedal": {
       "name": "Layout 1 (Throttle Pedal)",
+      "author": "Tak-attack",
       "content": {
         "layers": {
           "dPadDisplay": {
