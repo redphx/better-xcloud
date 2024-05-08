@@ -4,9 +4,10 @@ import { LoadingScreen } from "@modules/loading-screen";
 import { PrefKey, getPref } from "@utils/preferences";
 import { RemotePlay } from "@modules/remote-play";
 import { StreamBadges } from "@modules/stream/stream-badges";
-import { GALLERY_TOUCH_GAMES, TouchController } from "@modules/touch-controller";
+import { TouchController } from "@modules/touch-controller";
 import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
+import { GamePassCloudGallery } from "./gamepass-gallery";
 
 export const NATIVE_FETCH = window.fetch;
 
@@ -526,6 +527,8 @@ export function interceptHttpRequests() {
         return nativeXhrSend.apply(this, arguments);
     };
 
+    let gamepassAllGames: string[] = [];
+
     (window as any).BX_FETCH = window.fetch = async (request: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
         let url = (typeof request === 'string') ? request : (request as Request).url;
 
@@ -550,14 +553,27 @@ export function interceptHttpRequests() {
         }
 
         // Add list of games with custom layouts to the official list
-        if (url.includes('catalog.gamepass.com') && url.includes(GALLERY_TOUCH_GAMES)) {
+        if (STATES.hasTouchSupport && url.includes('catalog.gamepass.com/sigls/')) {
             const response = await NATIVE_FETCH(request, init);
             const obj = await response.clone().json();
 
-            try {
-                const customList = TouchController.getCustomList().map(item => ({ id: item }));
-                obj.push(...customList);
-            } catch (e) {}
+            if (url.includes(GamePassCloudGallery.ALL)) {
+                debugger;
+                for (let i = 1; i < obj.length; i++) {
+                    gamepassAllGames.push(obj[i].id);
+                }
+            } else if (url.includes(GamePassCloudGallery.TOUCH)) {
+                debugger;
+                try {
+                    let customList = TouchController.getCustomList();
+
+                    // Remove non-cloud games from the list
+                    customList = customList.filter(id => gamepassAllGames.includes(id));
+
+                    const newCustomList = customList.map(item => ({ id: item }));
+                    obj.push(...newCustomList);
+                } catch (e) {}
+            }
 
             response.json = () => Promise.resolve(obj);
             return response;

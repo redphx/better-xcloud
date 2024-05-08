@@ -10,8 +10,6 @@ import { BxLogger } from "@utils/bx-logger";
 
 const LOG_TAG = 'TouchController';
 
-export const GALLERY_TOUCH_GAMES = '9c86f07a-f3e8-45ad-82a0-a1f759597059';
-
 export class TouchController {
     static readonly #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent('message', {
             data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
