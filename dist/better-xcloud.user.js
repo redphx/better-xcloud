@@ -6557,7 +6557,6 @@ function setupScreenshotButton() {
 
 // src/modules/touch-controller.ts
 var LOG_TAG2 = "TouchController";
-var GALLERY_TOUCH_GAMES = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
 
 class TouchController {
   static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
@@ -7534,6 +7533,13 @@ class RemotePlay {
   }
 }
 
+// src/utils/gamepass-gallery.ts
+var GamePassCloudGallery;
+(function(GamePassCloudGallery2) {
+  GamePassCloudGallery2["TOUCH"] = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
+  GamePassCloudGallery2["ALL"] = "29a81209-df6f-41fd-a528-2ae6b91f719c";
+})(GamePassCloudGallery || (GamePassCloudGallery = {}));
+
 // src/utils/network.ts
 var clearApplicationInsightsBuffers = function() {
   window.sessionStorage.removeItem("AI_buffer");
@@ -7655,6 +7661,7 @@ function interceptHttpRequests() {
     }
     return nativeXhrSend.apply(this, arguments);
   };
+  let gamepassAllGames = [];
   window.BX_FETCH = window.fetch = async (request, init) => {
     let url = typeof request === "string" ? request : request.url;
     for (let blocked of BLOCKED_URLS) {
@@ -7672,13 +7679,23 @@ function interceptHttpRequests() {
     if (url.endsWith("/configuration")) {
       BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
     }
-    if (url.includes("catalog.gamepass.com") && url.includes(GALLERY_TOUCH_GAMES)) {
+    if (STATES.hasTouchSupport && url.includes("catalog.gamepass.com/sigls/")) {
       const response = await NATIVE_FETCH(request, init);
       const obj = await response.clone().json();
-      try {
-        const customList = TouchController.getCustomList().map((item2) => ({ id: item2 }));
-        obj.push(...customList);
-      } catch (e) {
+      if (url.includes(GamePassCloudGallery.ALL)) {
+        debugger;
+        for (let i = 1;i < obj.length; i++) {
+          gamepassAllGames.push(obj[i].id);
+        }
+      } else if (url.includes(GamePassCloudGallery.TOUCH)) {
+        debugger;
+        try {
+          let customList = TouchController.getCustomList();
+          customList = customList.filter((id2) => gamepassAllGames.includes(id2));
+          const newCustomList = customList.map((item2) => ({ id: item2 }));
+          obj.push(...newCustomList);
+        } catch (e) {
+        }
       }
       response.json = () => Promise.resolve(obj);
       return response;
@@ -10195,9 +10212,14 @@ function overridePreloadState() {
       }
       if (STATES.hasTouchSupport) {
         TouchController.updateCustomList();
-        const customList = TouchController.getCustomList();
+        let customList = TouchController.getCustomList();
         try {
-          state.xcloud.sigls[GALLERY_TOUCH_GAMES]?.data.products.push(...customList);
+          const sigls = state.xcloud.sigls;
+          if (GamePassCloudGallery.TOUCH in sigls) {
+            const allGames = sigls[GamePassCloudGallery.ALL].data.products;
+            customList = customList.filter((id2) => allGames.includes(id2));
+            sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
+          }
         } catch (e) {
           BxLogger.error(LOG_TAG5, e);
         }
