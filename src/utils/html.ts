@@ -96,5 +96,13 @@ export const createButton = <T=HTMLButtonElement>(options: BxButton): T => {
     return $btn as T;
 }
 
+export function escapeHtml(html: string): string {
+    const text = document.createTextNode(html);
+    const $span = document.createElement('span');
+    $span.appendChild(text);
+
+    return $span.innerHTML;
+}
+
 export const CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;

@@ -217,7 +217,14 @@ function setupQuickSettingsBar() {
                                     for (const key in data.layouts) {
                                         const layout = data.layouts[key];
 
-                                        const $option = CE('option', {value: key}, layout.name);
+                                        let name;
+                                        if (layout.author) {
+                                            name = `${layout.name} (${layout.author})`;
+                                        } else {
+                                            name = layout.name;
+                                        }
+
+                                        const $option = CE('option', {value: key}, name);
                                         $fragment.appendChild($option);
                                     }
 

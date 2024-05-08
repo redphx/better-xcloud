@@ -2,6 +2,7 @@ import { CE } from "@utils/html";
 
 type ToastOptions = {
     instant?: boolean;
+    html?: boolean;
 }
 
 export class Toast {
@@ -40,9 +41,13 @@ export class Toast {
         Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
 
         // Get values from item
-        const [msg, status, _] = Toast.#stack.shift()!;
+        const [msg, status, options] = Toast.#stack.shift()!;
 
-        Toast.#$msg.textContent = msg;
+        if (options.html) {
+            Toast.#$msg.innerHTML = msg;
+        } else {
+            Toast.#$msg.textContent = msg;
+        }
 
         if (status) {
             Toast.#$status.classList.remove('bx-gone');

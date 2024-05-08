@@ -1,5 +1,5 @@
 import { STATES } from "@utils/global";
-import { CE } from "@utils/html";
+import { CE, escapeHtml } from "@utils/html";
 import { Toast } from "@utils/toast";
 import { BxEvent } from "@utils/bx-event";
 import { BX_FLAGS } from "@utils/bx-flags";
@@ -168,7 +168,17 @@ export class TouchController {
         }
 
         // Show a toast with layout's name
-        layoutChanged && Toast.show(t('touch-control-layout'), layout.name);
+        let msg: string;
+        let html = false;
+        if (layout.author) {
+            const author = `<b>${escapeHtml(layout.author)}</b>`;
+            msg = t('touch-control-layout-by', {name: author});
+            html = true;
+        } else {
+            msg = t('touch-control-layout');
+        }
+
+        layoutChanged && Toast.show(msg, layout.name, {html: html});
 
         window.setTimeout(() => {
             window.BX_EXPOSED.touch_layout_manager.changeLayoutForScope({

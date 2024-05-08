@@ -29,12 +29,11 @@ export function overridePreloadState() {
 
             // Add list of games with custom layouts to the official list
             if (STATES.hasTouchSupport) {
-                TouchController.updateCustomList();
-                let customList = TouchController.getCustomList();
-
                 try {
                     const sigls = state.xcloud.sigls;
                     if (GamePassCloudGallery.TOUCH in sigls) {
+                        let customList = TouchController.getCustomList();
+
                         const allGames = sigls[GamePassCloudGallery.ALL].data.products;
 
                         // Remove non-cloud games from the list

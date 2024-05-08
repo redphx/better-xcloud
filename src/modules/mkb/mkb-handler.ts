@@ -393,7 +393,7 @@ export class MkbHandler {
                 }),
                 CE('div', {},
                     CE('p', {}, t('mkb-click-to-activate')),
-                    CE('p', {}, t<any>('press-key-to-toggle-mkb')({key: 'F8'})),
+                    CE('p', {}, t('press-key-to-toggle-mkb', {key: 'F8'})),
                 ),
             );
 
