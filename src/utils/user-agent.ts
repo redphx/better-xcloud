@@ -12,7 +12,7 @@ export enum UserAgentProfile {
 }
 
 let CHROMIUM_VERSION = '123.0.0.0';
-if (!!(window as any).chrome) {
+if (!!(window as any).chrome || window.navigator.userAgent.includes('Chrome')) {
     // Get Chromium version in the original User-Agent value
     const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
     if (match) {
@@ -20,16 +20,12 @@ if (!!(window as any).chrome) {
     }
 }
 
-// Repace Chromium version
-let EDGE_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/[[VERSION]] Safari/537.36 Edg/[[VERSION]]';
-EDGE_USER_AGENT = EDGE_USER_AGENT.replaceAll('[[VERSION]]', CHROMIUM_VERSION);
-
 export class UserAgent {
-    static #USER_AGENTS = {
-        [UserAgentProfile.EDGE_WINDOWS]: EDGE_USER_AGENT,
+    static #USER_AGENTS: PartialRecord<UserAgentProfile, string> = {
+        [UserAgentProfile.EDGE_WINDOWS]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
         [UserAgentProfile.SAFARI_MACOS]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
         [UserAgentProfile.SMARTTV]: window.navigator.userAgent + ' SmartTV',
-        [UserAgentProfile.SMARTTV_TIZEN]: 'Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) 94.0.4606.31/7.0 TV Safari/537.36',
+        [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
         [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + ' OculusBrowser VR',
         [UserAgentProfile.KIWI_V123]: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36',
     }
