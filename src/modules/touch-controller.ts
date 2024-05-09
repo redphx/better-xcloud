@@ -12,7 +12,11 @@ const LOG_TAG = 'TouchController';
 
 export class TouchController {
     static readonly #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent('message', {
-            data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
+            data: JSON.stringify({
+                content: '{"layoutId":""}',
+                target: '/streaming/touchcontrols/showlayoutv2',
+                type: 'Message',
+            }),
             origin: 'better-xcloud',
         });
 
@@ -33,6 +37,8 @@ export class TouchController {
     static #customLayouts: {[index: string]: any} = {};
     static #baseCustomLayouts: {[index: string]: any} = {};
     static #currentLayoutId: string;
+
+    static #customList: string[];
 
     static enable() {
         TouchController.#enable = true;
@@ -195,15 +201,19 @@ export class TouchController {
     }
 
     static updateCustomList() {
+        const key = 'better_xcloud_custom_touch_layouts';
+        TouchController.#customList = JSON.parse(window.localStorage.getItem(key) || '[]');
+
         NATIVE_FETCH('https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json')
             .then(response => response.json())
             .then(json => {
-                window.localStorage.setItem('better_xcloud_custom_touch_layouts', JSON.stringify(json));
+                TouchController.#customList = json;
+                window.localStorage.setItem(key, JSON.stringify(json));
             });
     }
 
     static getCustomList(): string[] {
-        return JSON.parse(window.localStorage.getItem('better_xcloud_custom_touch_layouts') || '[]');
+        return TouchController.#customList;
     }
 
     static setup() {
