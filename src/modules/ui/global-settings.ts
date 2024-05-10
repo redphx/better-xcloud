@@ -31,7 +31,6 @@ const SETTINGS_UI = {
             PrefKey.AUDIO_MIC_ON_PLAYING,
             PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
 
-            PrefKey.SCREENSHOT_BUTTON_POSITION,
             PrefKey.SCREENSHOT_APPLY_FILTERS,
 
             PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
