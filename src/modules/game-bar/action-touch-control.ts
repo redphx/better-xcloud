@@ -3,6 +3,7 @@ import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { TouchController } from "@modules/touch-controller";
 import { BaseGameBarAction } from "./action-base";
+import { t } from "@utils/translation";
 
 export class TouchControlAction extends BaseGameBarAction {
     $content: HTMLElement;
@@ -23,14 +24,14 @@ export class TouchControlAction extends BaseGameBarAction {
         const $btnEnable = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.TOUCH_CONTROL_ENABLE,
-            title: 'Show touch control',
+            title: t('show-touch-controller'),
             onClick: onClick,
         });
 
         const $btnDisable = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.TOUCH_CONTROL_DISABLE,
-            title: 'Hide touch control',
+            title: t('hide-touch-controller'),
             onClick: onClick,
         });
 

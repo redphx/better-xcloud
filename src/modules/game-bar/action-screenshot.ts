@@ -3,6 +3,7 @@ import { AppInterface, STATES } from "@utils/global";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BaseGameBarAction } from "./action-base";
+import { t } from "@utils/translation";
 
 export class ScreenshotAction extends BaseGameBarAction {
     $content: HTMLElement;
@@ -22,7 +23,7 @@ export class ScreenshotAction extends BaseGameBarAction {
         this.$content = createButton({
                 style: ButtonStyle.GHOST,
                 icon: BxIcon.SCREENSHOT,
-                title: 'Take screenshot',
+                title: t('take-screenshot'),
                 onClick: onClick,
             });
     }
