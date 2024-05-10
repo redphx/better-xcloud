@@ -2,9 +2,14 @@ import { BxEvent } from "@/utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { TouchController } from "@modules/touch-controller";
+import { BaseGameBarAction } from "./action-base";
 
-export class ActionTouchControl {
-    static setup() {
+export class TouchControlAction extends BaseGameBarAction {
+    $content: HTMLElement;
+
+    constructor() {
+        super();
+
         const onClick = (e: Event) => {
             BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
 
@@ -29,11 +34,17 @@ export class ActionTouchControl {
             onClick: onClick,
         });
 
-        const $container = CE('div', {'data-enabled': 'true'},
+        this.$content = CE('div', {'data-enabled': 'true'},
             $btnEnable,
             $btnDisable,
         );
+    }
 
-        return $container;
+    render(): HTMLElement {
+        return this.$content;
+    }
+
+    reset(): void {
+        this.$content.setAttribute('data-enabled', 'true');
     }
 }

@@ -148,6 +148,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     STATES.isPlaying = true;
     injectStreamMenuButtons();
 
+    GameBar.reset();
     GameBar.enable();
     GameBar.showBar();
 

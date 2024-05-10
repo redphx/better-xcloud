@@ -1,8 +1,9 @@
 import { CE, createSvgIcon } from "@utils/html";
-import { ActionScreenshot } from "./action-screenshot";
-import { ActionTouchControl } from "./action-touch-control";
+import { ScreenshotAction } from "./action-screenshot";
+import { TouchControlAction } from "./action-touch-control";
 import { BxEvent } from "@/utils/bx-event";
 import { BxIcon } from "@/utils/bx-icon";
+import type { BaseGameBarAction } from "./action-base";
 
 
 export class GameBar {
@@ -11,6 +12,8 @@ export class GameBar {
 
     static #$gameBar: HTMLElement;
     static #$container: HTMLElement;
+
+    static #$actions: BaseGameBarAction[] = [];
 
     static #beginHideTimeout() {
         GameBar.#clearHideTimeout();
@@ -55,6 +58,13 @@ export class GameBar {
         GameBar.#$container.classList.add('bx-hide');
     }
 
+    // Reset all states
+    static reset() {
+        for (const action of GameBar.#$actions) {
+            action.reset();
+        }
+    }
+
     static setup() {
         let $container;
         const $gameBar = CE('div', {id: 'bx-game-bar', class: 'bx-gone'},
@@ -62,13 +72,13 @@ export class GameBar {
                 createSvgIcon(BxIcon.CARET_RIGHT),
             );
 
-        const actions = [
-            ActionScreenshot.setup(),
-            ActionTouchControl.setup(),
+        GameBar.#$actions = [
+            new ScreenshotAction(),
+            new TouchControlAction(),
         ];
 
-        for (const action of actions) {
-            $container.appendChild(action);
+        for (const action of GameBar.#$actions) {
+            $container.appendChild(action.render());
         }
 
         // Toggle game bar when clicking on the game bar box

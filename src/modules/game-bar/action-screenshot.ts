@@ -2,9 +2,36 @@ import { BxEvent } from "@utils/bx-event";
 import { AppInterface, STATES } from "@utils/global";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
+import { BaseGameBarAction } from "./action-base";
 
-export class ActionScreenshot {
-    static takeScreenshot(callback?: any) {
+export class ScreenshotAction extends BaseGameBarAction {
+    $content: HTMLElement;
+
+    constructor() {
+        super();
+
+        const currentStream = STATES.currentStream;
+        currentStream.$screenshotCanvas = CE('canvas', {'class': 'bx-gone'});
+        document.documentElement.appendChild(currentStream.$screenshotCanvas!);
+
+        const onClick = (e: Event) => {
+                BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+                this.takeScreenshot();
+            };
+
+        this.$content = createButton({
+                style: ButtonStyle.GHOST,
+                icon: BxIcon.SCREENSHOT,
+                title: 'Take screenshot',
+                onClick: onClick,
+            });
+    }
+
+    render(): HTMLElement {
+        return this.$content;
+    }
+
+    takeScreenshot(callback?: any) {
         const currentStream = STATES.currentStream;
         const $video = currentStream.$video;
         const $canvas = currentStream.$screenshotCanvas;
@@ -46,25 +73,5 @@ export class ActionScreenshot {
 
                 callback && callback();
             }, 'image/png');
-    }
-
-    static setup() {
-        const currentStream = STATES.currentStream;
-        currentStream.$screenshotCanvas = CE('canvas', {'class': 'bx-gone'});
-        document.documentElement.appendChild(currentStream.$screenshotCanvas!);
-
-        const onClick = (e: Event) => {
-                BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-                ActionScreenshot.takeScreenshot();
-            };
-
-        const $button = createButton({
-                style: ButtonStyle.GHOST,
-                icon: BxIcon.SCREENSHOT,
-                title: 'Take screenshot',
-                onClick: onClick,
-            });
-
-        return $button;
     }
 }
