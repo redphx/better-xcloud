@@ -8,6 +8,7 @@ export class GameBar {
     static readonly #VISIBLE_DURATION = 2000;
     static #timeout: number | null;
 
+    static #$gameBar: HTMLElement;
     static #$container: HTMLElement;
 
     static #beginHideTimeout() {
@@ -20,6 +21,14 @@ export class GameBar {
 
     static #clearHideTimeout() {
         GameBar.#timeout && clearTimeout(GameBar.#timeout);
+    }
+
+    static enable() {
+        GameBar.#$gameBar && GameBar.#$gameBar.classList.remove('bx-gone');
+    }
+
+    static disable() {
+        GameBar.#$gameBar && GameBar.#$gameBar.classList.add('bx-gone');
     }
 
     static setup() {
@@ -50,6 +59,7 @@ export class GameBar {
         $container.addEventListener('pointerout', GameBar.#beginHideTimeout);
 
         document.documentElement.appendChild($gameBar);
+        GameBar.#$gameBar = $gameBar;
         GameBar.#$container = $container;
     }
 }

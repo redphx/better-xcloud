@@ -1,3 +1,4 @@
+import { GameBar } from "@modules/game-bar/game-bar";
 import { BxEvent } from "@utils/bx-event";
 import { STATES } from "@utils/global";
 import { getPref, PrefKey } from "@utils/preferences";
@@ -15,25 +16,12 @@ enum InputType {
 export const BxExposed = {
     onPollingModeChanged: (mode: 'All' | 'None') => {
         if (!STATES.isPlaying) {
-            return false;
+            GameBar.disable();
+            return;
         }
 
-        const $screenshotBtn = document.querySelector('.bx-screenshot-button');
-        const $touchControllerBar = document.getElementById('bx-touch-controller-bar');
-
-        if (mode !== 'None') {
-            // Hide screenshot button
-            $screenshotBtn && $screenshotBtn.classList.add('bx-gone');
-
-            // Hide touch controller bar
-            $touchControllerBar && $touchControllerBar.classList.add('bx-gone');
-        } else {
-            // Show screenshot button
-            $screenshotBtn && $screenshotBtn.classList.remove('bx-gone');
-
-            // Show touch controller bar
-            $touchControllerBar && $touchControllerBar.classList.remove('bx-gone');
-        }
+        // Toggle Game bar
+        mode !== 'None' ? GameBar.disable() : GameBar.enable();
     },
 
     getTitleInfo: () => STATES.currentStream.titleInfo,
