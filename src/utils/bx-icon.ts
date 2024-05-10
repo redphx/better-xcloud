@@ -1,3 +1,4 @@
+import iconCadetRight from "@assets/svg/caret-right.svg" with { type: "text" };
 import iconCamera from "@assets/svg/camera.svg" with { type: "text" };
 import iconController from "@assets/svg/controller.svg" with { type: "text" };
 import iconCopy from "@assets/svg/copy.svg" with { type: "text" };
@@ -31,6 +32,7 @@ export const BxIcon = {
 
     REMOTE_PLAY: iconRemotePlay,
 
+    CARET_RIGHT: iconCadetRight,
     SCREENSHOT: iconCamera,
     TOUCH_CONTROL_ENABLE: iconTouchControlEnable,
     TOUCH_CONTROL_DISABLE: iconTouchControlDisable,
