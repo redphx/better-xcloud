@@ -438,6 +438,9 @@ class XcloudInterceptor {
         overrides.inputConfiguration = overrides.inputConfiguration || {};
         overrides.inputConfiguration.enableVibration = true;
 
+        overrides.videoConfiguration = overrides.videoConfiguration || {};
+        overrides.videoConfiguration.setCodecPreferences = true;
+
         // Enable touch controller
         if (TouchController.isEnabled()) {
             overrides.inputConfiguration.enableTouchInput = true;
