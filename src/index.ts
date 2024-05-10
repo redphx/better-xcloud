@@ -155,9 +155,6 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     STATES.currentStream.$screenshotCanvas!.width = $video.videoWidth;
     STATES.currentStream.$screenshotCanvas!.height = $video.videoHeight;
     updateVideoPlayerCss();
-
-    const $touchControllerBar = document.getElementById('bx-touch-controller-bar');
-    $touchControllerBar && $touchControllerBar.classList.remove('bx-gone');
 });
 
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
