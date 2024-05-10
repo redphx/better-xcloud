@@ -1,4 +1,4 @@
-import { BxEvent } from "@/utils/bx-event";
+import { BxEvent } from "@utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { TouchController } from "@modules/touch-controller";

@@ -1,11 +1,11 @@
 import { CE, createSvgIcon } from "@utils/html";
 import { ScreenshotAction } from "./action-screenshot";
 import { TouchControlAction } from "./action-touch-control";
-import { BxEvent } from "@/utils/bx-event";
-import { BxIcon } from "@/utils/bx-icon";
+import { BxEvent } from "@utils/bx-event";
+import { BxIcon } from "@utils/bx-icon";
 import type { BaseGameBarAction } from "./action-base";
-import { STATES } from "@/utils/global";
-import { PrefKey, getPref } from "@/utils/preferences";
+import { STATES } from "@utils/global";
+import { PrefKey, getPref } from "@utils/preferences";
 
 
 export class GameBar {
