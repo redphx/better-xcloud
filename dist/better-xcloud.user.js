@@ -47,6 +47,7 @@ var BxEvent;
   BxEvent2["REMOTE_PLAY_FAILED"] = "bx-remote-play-failed";
   BxEvent2["XCLOUD_SERVERS_READY"] = "bx-servers-ready";
   BxEvent2["DATA_CHANNEL_CREATED"] = "bx-data-channel-created";
+  BxEvent2["GAME_BAR_ACTION_ACTIVATED"] = "bx-game-bar-action-activated";
 })(BxEvent || (BxEvent = {}));
 (function(BxEvent) {
   function dispatch(target, eventName, data) {
@@ -158,6 +159,86 @@ var createButton = (options) => {
 var CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
 
+// src/assets/svg/caret-right.svg
+var caret_right_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 13 23\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <g transform=\"matrix(.399603 0 0 .709528 0 0)\">\n        <path d=\"M1.601 2.727l23.255 13.097L1.601 28.922c-.977.55-.977 1.443 0 1.993s2.563.55 3.539 0l25.025-14.094c.977-.55.977-1.443 0-1.993L5.14.734c-.977-.55-2.563-.55-3.539 0s-.977 1.443 0 1.993z\"/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/camera.svg
+var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform=\"matrix(.150985 0 0 .150985 -3.32603 -2.72209)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\">\n        <path d=\"M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z\"/>\n        <circle cx=\"128\" cy=\"132\" r=\"36\"/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/controller.svg
+var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
+
+// src/assets/svg/copy.svg
+var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
+
+// src/assets/svg/cursor-text.svg
+var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
+
+// src/assets/svg/display.svg
+var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
+
+// src/assets/svg/mouse-settings.svg
+var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
+
+// src/assets/svg/mouse.svg
+var mouse_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z'/><path d='M16 13.721V6.883'/>\n</svg>\n";
+
+// src/assets/svg/new.svg
+var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
+
+// src/assets/svg/question.svg
+var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
+
+// src/assets/svg/refresh.svg
+var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M23.247 12.377h7.247V5.13\"/><path d=\"M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772\"/>\n</svg>\n";
+
+// src/assets/svg/remote-play.svg
+var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
+
+// src/assets/svg/stream-settings.svg
+var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
+
+// src/assets/svg/stream-stats.svg
+var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
+
+// src/assets/svg/trash.svg
+var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
+
+// src/assets/svg/touch-control-enable.svg
+var touch_control_enable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M30.021 9.448a.89.89 0 0 0-.889-.889H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h26.223a.89.89 0 0 0 .889-.888V9.448z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.083\"/>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
+
+// src/assets/svg/touch-control-disable.svg
+var touch_control_disable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <g fill=\"none\" stroke=\"#fff\">\n        <path d=\"M6.021 5.021l20 22\" stroke-width=\"2\"/>\n        <path d=\"M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971\" stroke-miterlimit=\"1.5\" stroke-width=\"2.083\"/>\n    </g>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
+
+// src/utils/bx-icon.ts
+var BxIcon = {
+  STREAM_SETTINGS: stream_settings_default,
+  STREAM_STATS: stream_stats_default,
+  CONTROLLER: controller_default,
+  DISPLAY: display_default,
+  MOUSE: mouse_default,
+  MOUSE_SETTINGS: mouse_settings_default,
+  NEW: new_default,
+  COPY: copy_default,
+  TRASH: trash_default,
+  CURSOR_TEXT: cursor_text_default,
+  QUESTION: question_default,
+  REFRESH: refresh_default,
+  REMOTE_PLAY: remote_play_default,
+  CARET_RIGHT: caret_right_default,
+  SCREENSHOT: camera_default,
+  TOUCH_CONTROL_ENABLE: touch_control_enable_default,
+  TOUCH_CONTROL_DISABLE: touch_control_disable_default
+};
+
+// src/modules/game-bar/action-base.ts
+class BaseGameBarAction {
+  constructor() {
+  }
+  reset() {
+  }
+}
+
 // src/utils/translation.ts
 var SUPPORTED_LANGUAGES = {
   "en-ID": "Bahasa Indonesia",
@@ -183,7 +264,7 @@ var Texts = {
     "Activate",
     "Activo",
     ,
-    ,
+    "Abilita",
     "設定する",
     "활성화",
     "Aktywuj",
@@ -200,7 +281,7 @@ var Texts = {
     "Activated",
     "Activado",
     ,
-    ,
+    "In uso",
     "設定中",
     "활성화 됨",
     "Aktywowane",
@@ -217,7 +298,7 @@ var Texts = {
     "Active",
     "Activo",
     ,
-    ,
+    "Attivo",
     "有効",
     "활성화",
     "Aktywny",
@@ -251,7 +332,7 @@ var Texts = {
     "Apply",
     "Aplicar",
     ,
-    ,
+    "Applica",
     "適用",
     ,
     "Zastosuj",
@@ -463,7 +544,7 @@ var Texts = {
     "Яркость",
     "Aydınlık",
     "Яскравість",
-    "Độ sáng",
+    "Độ sáng",
     "亮度"
   ],
   "browser-unsupported-feature": [
@@ -574,7 +655,7 @@ var Texts = {
     "Clear",
     "Borrar",
     ,
-    ,
+    "Pulisci",
     "消去",
     "비우기",
     "Wyczyść",
@@ -608,7 +689,7 @@ var Texts = {
     "Combine audio & video streams",
     "Combinar flujos de audio y vídeo",
     ,
-    ,
+    "Combinare i flussi audio e video",
     "音声を映像ストリーミングと統合",
     ,
     "Połącz strumienie audio i wideo",
@@ -625,7 +706,7 @@ var Texts = {
     "May fix the laggy audio problem",
     "Puede arreglar el problema de audio con retraso",
     ,
-    ,
+    "Potrebbe risolvere il problema dell'audio irregolare",
     "音声の遅延を改善できる可能性があります",
     ,
     "Może rozwiązać problem z zacinającym dźwiękiem",
@@ -659,7 +740,7 @@ var Texts = {
     "Do you want to delete this preset?",
     "¿Desea eliminar este preajuste?",
     "Voulez-vous supprimer ce préréglage?",
-    ,
+    "Vuoi eliminare questo profilo?",
     "このプリセットを削除しますか？",
     "이 프리셋을 삭제하시겠습니까?",
     "Czy na pewno chcesz usunąć ten szablon?",
@@ -694,7 +775,7 @@ var Texts = {
     "Connected",
     "Conectado",
     ,
-    ,
+    "Connesso",
     "接続済み",
     ,
     "Połączony",
@@ -779,7 +860,7 @@ var Texts = {
     "Controller vibration",
     "Vibración del mando",
     ,
-    ,
+    "Vibrazione del controller",
     "コントローラーの振動",
     "컨트롤러 진동",
     "Wibracje kontrolera",
@@ -796,7 +877,7 @@ var Texts = {
     "Copy",
     "Copiar",
     ,
-    ,
+    "Duplica",
     "コピー",
     "복사",
     "Kopiuj",
@@ -830,7 +911,7 @@ var Texts = {
     "Deadzone counterweight",
     "Contrapeso de la zona muerta",
     ,
-    ,
+    "Compensazione della zona morta",
     "デッドゾーンのカウンターウエイト",
     ,
     "Przeciwwaga martwej strefy",
@@ -898,7 +979,7 @@ var Texts = {
     "Device vibration",
     "Vibración del dispositivo",
     ,
-    ,
+    "Vibrazione del dispositivo",
     "デバイスの振動",
     "기기 진동",
     "Wibracje urządzenia",
@@ -915,7 +996,7 @@ var Texts = {
     "On when not using gamepad",
     "Activado cuando no se utiliza el mando",
     ,
-    ,
+    "Abilita quando non si usa un gamepad",
     "ゲームパッド未使用時にオン",
     "게임패드를 사용하지 않을 때",
     "Włączone, gdy nie używasz kontrolera",
@@ -1000,7 +1081,7 @@ var Texts = {
     "Disabled",
     "Desactivado",
     ,
-    ,
+    "Disattivato",
     "無効",
     "비활성화됨",
     "Wyłączony",
@@ -1017,7 +1098,7 @@ var Texts = {
     "Disconnected",
     "Desconectado",
     ,
-    ,
+    "Disconnesso",
     "切断",
     ,
     "Rozłączony",
@@ -1068,7 +1149,7 @@ var Texts = {
     "Enable local co-op support",
     "Habilitar soporte co-op local",
     ,
-    ,
+    "Abilita supporto cooperativo locale",
     "ローカルマルチプレイのサポートを有効化",
     ,
     "Włącz lokalny co-op",
@@ -1085,7 +1166,7 @@ var Texts = {
     "Only works if the game doesn't require a different profile",
     "Solo funciona si el juego no requiere un perfil diferente",
     ,
-    ,
+    "Funziona quando il gioco non richiede un profilo differente",
     "別アカウントでのサインインを必要としないゲームのみ動作します",
     ,
     "Działa tylko wtedy, gdy gra nie wymaga innego profilu",
@@ -1187,7 +1268,7 @@ var Texts = {
     "Enabled",
     "Activado",
     ,
-    ,
+    "Attivato",
     "有効",
     "활성화됨",
     "Włączony",
@@ -1204,7 +1285,7 @@ var Texts = {
     "Experimental",
     "Experimental",
     ,
-    ,
+    "Sperimentale",
     "実験的機能",
     ,
     "Eksperymentalne",
@@ -1221,7 +1302,7 @@ var Texts = {
     "Export",
     "Exportar",
     ,
-    ,
+    "Esporta",
     "エクスポート（書出し）",
     "내보내기",
     "Eksportuj",
@@ -1255,7 +1336,7 @@ var Texts = {
     "Allows playing STW mode on mobile",
     "Permitir jugar al modo STW en el móvil",
     ,
-    ,
+    "Consente di riprodurre la modalità Salva il Mondo sul cellulare",
     "モバイル版で「世界を救え」をプレイできるようになります",
     ,
     "Zezwól na granie w tryb STW na urządzeniu mobilnym",
@@ -1272,7 +1353,7 @@ var Texts = {
     "Fortnite: force console version",
     "Fortnite: forzar versión de consola",
     ,
-    "Fortnite: Foza la versione console",
+    "Fortnite: forza la versione console",
     "Fortnite: 強制的にコンソール版を起動する",
     ,
     "Fortnite: wymuś wersję konsolową",
@@ -1306,7 +1387,7 @@ var Texts = {
     "Help",
     "Ayuda",
     ,
-    ,
+    "Guida",
     "ヘルプ",
     ,
     "Pomoc",
@@ -1340,7 +1421,7 @@ var Texts = {
     "Hide web page's scrollbar",
     "Oculta la barra de desplazamiento de la página",
     ,
-    ,
+    "Nascondi la barra di scorrimento della pagina web",
     "Webページのスクロールバーを隠す",
     ,
     "Ukryj pasek przewijania strony",
@@ -1368,13 +1449,30 @@ var Texts = {
     "Ẩn biểu tượng của menu Hệ thống",
     "隐藏系统菜单图标"
   ],
+  "hide-touch-controller": [
+    "Touch-Controller ausblenden",
+    ,
+    "Hide touch controller",
+    "Ocultar controles táctiles",
+    ,
+    ,
+    "タッチコントローラーを隠す",
+    ,
+    ,
+    ,
+    "Скрыть сенсорный контроллер",
+    ,
+    "Приховати сенсорний контролер",
+    "Ẩn bộ điều khiển cảm ứng",
+    ,
+  ],
   "horizontal-sensitivity": [
     "Horizontale Empfindlichkeit",
     "Sensitifitas horizontal",
     "Horizontal sensitivity",
     "Sensibilidad horizontal",
     ,
-    ,
+    "Sensibilità orizzontale",
     "左右方向の感度",
     ,
     "Czułość pozioma",
@@ -1391,7 +1489,7 @@ var Texts = {
     "Import",
     "Importar",
     ,
-    ,
+    "Importa",
     "インポート（読込み）",
     "가져오기",
     "Importuj",
@@ -1408,7 +1506,7 @@ var Texts = {
     "Install Better xCloud app for Android",
     "Instale la aplicación Better xCloud para Android",
     ,
-    ,
+    "Installa l'applicazione Better xCloud per Android",
     "Android用のBetter xCloudをインストール",
     ,
     "Zainstaluj aplikację Better xCloud na Androida",
@@ -1425,7 +1523,7 @@ var Texts = {
     "Keyboard shortcuts",
     "Atajos del teclado",
     ,
-    ,
+    "Scorciatoie da tastiera",
     "キーボードショートカット",
     ,
     "Skróty klawiszowe",
@@ -1493,7 +1591,7 @@ var Texts = {
     "Left stick",
     "Joystick izquierdo",
     ,
-    ,
+    "Levetta sinistra",
     "左スティック",
     "왼쪽 스틱",
     "Lewy drążek analogowy",
@@ -1527,7 +1625,7 @@ var Texts = {
     "Local co-op",
     "Co-op local",
     ,
-    ,
+    "Cooperativa locale",
     "ローカルマルチプレイ",
     ,
     "Lokalna kooperacja",
@@ -1544,7 +1642,7 @@ var Texts = {
     "Map mouse to",
     "Mapear ratón a",
     ,
-    ,
+    "Usa il mouse come",
     "マウスの割り当て",
     ,
     "Przypisz myszkę do",
@@ -1714,7 +1812,7 @@ var Texts = {
     "Name",
     "Nombre",
     ,
-    ,
+    "Nome",
     "名前",
     "이름",
     "Nazwa",
@@ -1731,7 +1829,7 @@ var Texts = {
     "New",
     "Nuevo",
     ,
-    ,
+    "Nuovo",
     "新しい",
     "새로 만들기",
     "Nowy",
@@ -1969,7 +2067,7 @@ var Texts = {
     "Preset",
     "Preajuste",
     ,
-    ,
+    "Profilo",
     "プリセット",
     "프리셋",
     "Szablon",
@@ -1986,7 +2084,7 @@ var Texts = {
     "Press Esc to cancel",
     "Presione Esc para cancelar",
     ,
-    ,
+    "Premi Esc per annullare",
     "Escを押してキャンセル",
     "ESC를 눌러 취소",
     "Naciśnij Esc, aby anulować",
@@ -2003,7 +2101,7 @@ var Texts = {
     (e) => `Press ${e.key} to toggle the Mouse and Keyboard feature`,
     (e) => `Pulsa ${e.key} para activar la función de ratón y teclado`,
     ,
-    ,
+    (e) => `Premi ${e.key} per attivare o disattivare la funzione Mouse e Tastiera`,
     (e) => `${e.key} キーでマウスとキーボードの機能を切り替える`,
     (e) => `${e.key} 키를 눌러 마우스와 키보드 기능을 활성화 하십시오`,
     (e) => `Naciśnij ${e.key}, aby przełączyć funkcję myszy i klawiatury`,
@@ -2020,7 +2118,7 @@ var Texts = {
     "Press a key or do a mouse click to bind...",
     "Presione una tecla o haga un clic del ratón para enlazar...",
     ,
-    ,
+    "Premi un tasto o fai un clic del mouse per associare...",
     "キーを押すかマウスをクリックして割り当て...",
     "정지하려면 아무키나 마우스를 클릭해주세요...",
     "Naciśnij klawisz lub kliknij myszą, aby przypisać...",
@@ -2037,7 +2135,7 @@ var Texts = {
     "Preset's name:",
     "Nombre del preajuste:",
     ,
-    ,
+    "Nome del profilo:",
     "プリセット名:",
     "프리셋 이름:",
     "Nazwa szablonu:",
@@ -2122,7 +2220,7 @@ var Texts = {
     "Rename",
     "Renombrar",
     ,
-    ,
+    "Rinomina",
     "名前変更",
     "이름 바꾸기",
     "Zmień nazwę",
@@ -2139,7 +2237,7 @@ var Texts = {
     "Right-click on a key to unbind it",
     "Clic derecho en una tecla para desvincularla",
     ,
-    ,
+    "Clic col tasto destro su una assegnazione per dissociarla",
     "右クリックで割り当て解除",
     "할당 해제하려면 키를 오른쪽 클릭하세요",
     "Kliknij prawym przyciskiem myszy na klawisz, aby anulować przypisanie",
@@ -2156,7 +2254,7 @@ var Texts = {
     "Right stick",
     "Joystick derecho",
     ,
-    ,
+    "Levetta destra",
     "右スティック",
     "오른쪽 스틱",
     "Prawy drążek analogowy",
@@ -2275,7 +2373,7 @@ var Texts = {
     "Save",
     "Guardar",
     ,
-    ,
+    "Conferma",
     "保存",
     "저장",
     "Zapisz",
@@ -2292,7 +2390,7 @@ var Texts = {
     "Applies video filters to screenshots",
     "Aplica filtros de vídeo a las capturas de pantalla",
     ,
-    ,
+    "Applica filtri video agli screenshot",
     "スクリーンショットにビデオフィルターを適用",
     ,
     "Stosuje filtry wideo do zrzutów ekranu",
@@ -2326,7 +2424,7 @@ var Texts = {
     "Separate Touch controller & Controller #1",
     "Separar controlador táctil y controlador #1",
     ,
-    ,
+    "Controller su schermo e Controller #1 separati",
     "タッチコントローラーとコントローラー#1を分ける",
     ,
     "Oddziel Kontroler dotykowy i Kontroler #1",
@@ -2343,7 +2441,7 @@ var Texts = {
     "Touch controller is Player 1, Controller #1 is Player 2",
     "El controlador táctil es Jugador 1, Controlador #1 es Jugador 2",
     ,
-    ,
+    "Il Giocatore 1 userà il Controller su schermo, il Giocatore 2 userà il Controller #1",
     "タッチコントローラーがプレイヤー1、コントローラー#1がプレイヤー2に割り当てられます",
     ,
     "Kontroler dotykowy to Gracz 1, Kontroler #1 to Gracz 2",
@@ -2411,7 +2509,7 @@ var Texts = {
     "Shortcut keys",
     "Teclas de atajo",
     ,
-    ,
+    "Tasti di scelta rapida",
     "ショートカットキー",
     ,
     "Skróty klawiszowe",
@@ -2455,6 +2553,23 @@ var Texts = {
     "Показувати статистику при запуску гри",
     "Hiển thị thông số khi vào game",
     "开始游戏时显示统计信息"
+  ],
+  "show-touch-controller": [
+    "Touch-Controller anzeigen",
+    ,
+    "Show touch controller",
+    "Mostrar controles táctiles",
+    ,
+    ,
+    "タッチコントローラーを表示",
+    ,
+    ,
+    ,
+    "Показать сенсорный контроллер",
+    ,
+    "Показати сенсорний контролер",
+    "Hiện bộ điều khiển cảm ứng",
+    ,
   ],
   "show-wait-time": [
     "Geschätzte Wartezeit anzeigen",
@@ -2717,7 +2832,7 @@ var Texts = {
     "Stick decay minimum",
     "Disminuir mínimamente el analógico",
     ,
-    ,
+    "Tempo minimo di rilascio dello stick",
     "スティックの減衰の最小値",
     ,
     "Minimalne opóźnienie drążka",
@@ -2734,7 +2849,7 @@ var Texts = {
     "Stick decay strength",
     "Intensidad de decaimiento del analógico",
     ,
-    ,
+    "Velocità di rilascio dello stick",
     "スティックの減衰の強さ",
     ,
     "Siła opóźnienia drążka",
@@ -2785,7 +2900,7 @@ var Texts = {
     "Support Better xCloud",
     "Apoyar a Better xCloud",
     ,
-    ,
+    "Sostieni Better xCloud",
     "Better xCloudをサポート",
     ,
     "Wesprzyj Better xCloud",
@@ -2812,6 +2927,23 @@ var Texts = {
     "Поміняти кнопки місцями",
     "Hoán đổi nút",
     "交换按钮"
+  ],
+  "take-screenshot": [
+    "Screenshot aufnehmen",
+    ,
+    "Take screenshot",
+    "Capturar pantalla",
+    ,
+    ,
+    "スクリーンショットを撮影",
+    ,
+    ,
+    ,
+    "Сделать снимок экрана",
+    ,
+    "Зробити знімок екрану",
+    "Lưu ảnh màn hình",
+    ,
   ],
   "target-resolution": [
     "Festgelegte Auflösung",
@@ -2870,7 +3002,7 @@ var Texts = {
     "Off when controller found",
     "Desactivar cuando se encuentra el controlador",
     ,
-    ,
+    "Disabilitata quando un controllor viene rilevato",
     "コントローラー接続時に無効化",
     ,
     "Wyłącz, gdy kontroler zostanie znaleziony",
@@ -2917,11 +3049,11 @@ var Texts = {
   ],
   "tc-default-opacity": [
     "Standard Deckkraft",
-    ,
+    "Opasitas bawaan",
     "Default opacity",
     "Opacidad por defecto",
     ,
-    ,
+    "Opacità predefinita",
     "既定の透過度",
     ,
     "Domyślna przezroczystość",
@@ -3055,14 +3187,14 @@ var Texts = {
     (e) => `Touch-Steuerungslayout von ${e.name}`,
     ,
     (e) => `Touch control layout by ${e.name}`,
+    (e) => `Disposición del control táctil por ${e.nombre}`,
     ,
-    ,
-    ,
+    (e) => `Configurazione dei comandi su schermo creata da ${e.name}`,
     (e) => `タッチ操作レイアウト作成者: ${e.name}`,
     ,
     (e) => `Układ sterowania dotykowego stworzony przez ${e.name}`,
     ,
-    ,
+    (e) => `Сенсорная раскладка по ${e.name}`,
     (e) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
     (e) => `Розташування сенсорного керування від ${e.name}`,
     (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
@@ -3176,7 +3308,7 @@ var Texts = {
     "Use mouse's absolute position",
     "Usar la posición absoluta del ratón",
     ,
-    ,
+    "Usa la posizione assoluta del mouse",
     "マウスの絶対座標を使用",
     "마우스 절대위치 사용",
     "Użyj pozycji bezwzględnej myszy",
@@ -3227,7 +3359,7 @@ var Texts = {
     "Vibration intensity",
     "Intensidad de la vibración",
     ,
-    ,
+    "Intensità della vibrazione",
     "振動の強さ",
     "진동 세기",
     "Siła wibracji",
@@ -3244,7 +3376,7 @@ var Texts = {
     "Vibration",
     "Vibración",
     ,
-    ,
+    "Vibrazione",
     "振動",
     ,
     "Wibracje",
@@ -3419,6 +3551,125 @@ class Translations {
 var t = Translations.get;
 var refreshCurrentLocale = Translations.refreshCurrentLocale;
 refreshCurrentLocale();
+
+// src/modules/game-bar/action-screenshot.ts
+class ScreenshotAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const currentStream = STATES.currentStream;
+    currentStream.$screenshotCanvas = CE("canvas", { class: "bx-gone" });
+    document.documentElement.appendChild(currentStream.$screenshotCanvas);
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      this.takeScreenshot();
+    };
+    this.$content = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.SCREENSHOT,
+      title: t("take-screenshot"),
+      onClick
+    });
+  }
+  render() {
+    return this.$content;
+  }
+  takeScreenshot(callback) {
+    const currentStream = STATES.currentStream;
+    const $video = currentStream.$video;
+    const $canvas = currentStream.$screenshotCanvas;
+    if (!$video || !$canvas) {
+      return;
+    }
+    const $canvasContext = $canvas.getContext("2d", {
+      alpha: false,
+      willReadFrequently: false
+    });
+    $canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
+    if (AppInterface) {
+      const data = $canvas.toDataURL("image/png").split(";base64,")[1];
+      AppInterface.saveScreenshot(currentStream.titleId, data);
+      $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      callback && callback();
+      return;
+    }
+    $canvas && $canvas.toBlob((blob) => {
+      const now = +new Date;
+      const $anchor = CE("a", {
+        download: `${currentStream.titleId}-${now}.png`,
+        href: URL.createObjectURL(blob)
+      });
+      $anchor.click();
+      URL.revokeObjectURL($anchor.href);
+      $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      callback && callback();
+    }, "image/png");
+  }
+}
+
+// src/utils/toast.ts
+class Toast {
+  static #$wrapper;
+  static #$msg;
+  static #$status;
+  static #stack = [];
+  static #isShowing = false;
+  static #timeout;
+  static #DURATION = 3000;
+  static show(msg, status, options = {}) {
+    options = options || {};
+    const args = Array.from(arguments);
+    if (options.instant) {
+      Toast.#stack = [args];
+      Toast.#showNext();
+    } else {
+      Toast.#stack.push(args);
+      !Toast.#isShowing && Toast.#showNext();
+    }
+  }
+  static #showNext() {
+    if (!Toast.#stack.length) {
+      Toast.#isShowing = false;
+      return;
+    }
+    Toast.#isShowing = true;
+    Toast.#timeout && clearTimeout(Toast.#timeout);
+    Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
+    const [msg, status, options] = Toast.#stack.shift();
+    if (options.html) {
+      Toast.#$msg.innerHTML = msg;
+    } else {
+      Toast.#$msg.textContent = msg;
+    }
+    if (status) {
+      Toast.#$status.classList.remove("bx-gone");
+      Toast.#$status.textContent = status;
+    } else {
+      Toast.#$status.classList.add("bx-gone");
+    }
+    const classList = Toast.#$wrapper.classList;
+    classList.remove("bx-offscreen", "bx-hide");
+    classList.add("bx-show");
+  }
+  static #hide() {
+    Toast.#timeout = null;
+    const classList = Toast.#$wrapper.classList;
+    classList.remove("bx-show");
+    classList.add("bx-hide");
+  }
+  static setup() {
+    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" }));
+    Toast.#$wrapper.addEventListener("transitionend", (e) => {
+      const classList = Toast.#$wrapper.classList;
+      if (classList.contains("bx-hide")) {
+        classList.remove("bx-offscreen", "bx-hide");
+        classList.add("bx-offscreen");
+        Toast.#showNext();
+      }
+    });
+    document.documentElement.appendChild(Toast.#$wrapper);
+  }
+}
 
 // src/utils/settings.ts
 var SettingElementType;
@@ -4175,7 +4426,6 @@ var PrefKey;
   PrefKey2["MKB_HIDE_IDLE_CURSOR"] = "mkb_hide_idle_cursor";
   PrefKey2["MKB_ABSOLUTE_MOUSE"] = "mkb_absolute_mouse";
   PrefKey2["MKB_DEFAULT_PRESET_ID"] = "mkb_default_preset_id";
-  PrefKey2["SCREENSHOT_BUTTON_POSITION"] = "screenshot_button_position";
   PrefKey2["SCREENSHOT_APPLY_FILTERS"] = "screenshot_apply_filters";
   PrefKey2["BLOCK_TRACKING"] = "block_tracking";
   PrefKey2["BLOCK_SOCIAL_FEATURES"] = "block_social_features";
@@ -4335,15 +4585,6 @@ class Preferences {
     [PrefKey.PREFER_IPV6_SERVER]: {
       label: t("prefer-ipv6-server"),
       default: false
-    },
-    [PrefKey.SCREENSHOT_BUTTON_POSITION]: {
-      label: t("screenshot-button-position"),
-      default: "bottom-left",
-      options: {
-        "bottom-left": t("bottom-left"),
-        "bottom-right": t("bottom-right"),
-        none: t("disable")
-      }
     },
     [PrefKey.SCREENSHOT_APPLY_FILTERS]: {
       label: t("screenshot-apply-filters"),
@@ -4810,86 +5051,6 @@ var getPref = prefs.get.bind(prefs);
 var setPref = prefs.set.bind(prefs);
 var toPrefElement = prefs.toElement.bind(prefs);
 
-// src/utils/bx-exposed.ts
-var InputType;
-(function(InputType2) {
-  InputType2["CONTROLLER"] = "Controller";
-  InputType2["MKB"] = "MKB";
-  InputType2["CUSTOM_TOUCH_OVERLAY"] = "CustomTouchOverlay";
-  InputType2["GENERIC_TOUCH"] = "GenericTouch";
-  InputType2["NATIVE_TOUCH"] = "NativeTouch";
-  InputType2["BATIVE_SENSOR"] = "NativeSensor";
-})(InputType || (InputType = {}));
-var BxExposed = {
-  onPollingModeChanged: (mode) => {
-    if (!STATES.isPlaying) {
-      return false;
-    }
-    const $screenshotBtn = document.querySelector(".bx-screenshot-button");
-    const $touchControllerBar = document.getElementById("bx-touch-controller-bar");
-    if (mode !== "None") {
-      $screenshotBtn && $screenshotBtn.classList.add("bx-gone");
-      $touchControllerBar && $touchControllerBar.classList.add("bx-gone");
-    } else {
-      $screenshotBtn && $screenshotBtn.classList.remove("bx-gone");
-      $touchControllerBar && $touchControllerBar.classList.remove("bx-gone");
-    }
-  },
-  getTitleInfo: () => STATES.currentStream.titleInfo,
-  modifyTitleInfo: (titleInfo) => {
-    titleInfo = structuredClone(titleInfo);
-    if (STATES.hasTouchSupport) {
-      let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
-      let supportedInputTypes = titleInfo.details.supportedInputTypes;
-      if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
-        const gamepads = window.navigator.getGamepads();
-        let gamepadFound = false;
-        for (let gamepad of gamepads) {
-          if (gamepad && gamepad.connected) {
-            gamepadFound = true;
-            break;
-          }
-        }
-        gamepadFound && (touchControllerAvailability = "off");
-      }
-      if (UserAgent.isMobile()) {
-        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
-      }
-      if (touchControllerAvailability === "off") {
-        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
-      }
-      titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
-      if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
-        titleInfo.details.hasFakeTouchSupport = true;
-        supportedInputTypes.push(InputType.GENERIC_TOUCH);
-      }
-      titleInfo.details.supportedInputTypes = supportedInputTypes;
-    }
-    STATES.currentStream.titleInfo = titleInfo;
-    BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
-    return titleInfo;
-  },
-  setupGainNode: ($media, audioStream) => {
-    if ($media instanceof HTMLAudioElement) {
-      $media.muted = true;
-      $media.addEventListener("playing", (e) => {
-        $media.muted = true;
-        $media.pause();
-      });
-    } else {
-      $media.muted = true;
-      $media.addEventListener("playing", (e) => {
-        $media.muted = true;
-      });
-    }
-    const audioCtx = STATES.currentStream.audioContext;
-    const source = audioCtx.createMediaStreamSource(audioStream);
-    const gainNode = audioCtx.createGain();
-    source.connect(gainNode).connect(audioCtx.destination);
-  }
-};
-
 // src/utils/region.ts
 function getPreferredServerRegion(shortName = false) {
   let preferredRegion = getPref(PrefKey.SERVER_REGION);
@@ -5040,126 +5201,6 @@ class LoadingScreen {
     LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
     LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
     LoadingScreen.#waitTimeInterval = null;
-  }
-}
-
-// src/assets/svg/controller.svg
-var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
-
-// src/assets/svg/copy.svg
-var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
-
-// src/assets/svg/cursor-text.svg
-var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
-
-// src/assets/svg/display.svg
-var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
-
-// src/assets/svg/mouse-settings.svg
-var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
-
-// src/assets/svg/mouse.svg
-var mouse_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z'/><path d='M16 13.721V6.883'/>\n</svg>\n";
-
-// src/assets/svg/new.svg
-var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
-
-// src/assets/svg/question.svg
-var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
-
-// src/assets/svg/refresh.svg
-var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M23.247 12.377h7.247V5.13\"/><path d=\"M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772\"/>\n</svg>\n";
-
-// src/assets/svg/remote-play.svg
-var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
-
-// src/assets/svg/stream-settings.svg
-var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
-
-// src/assets/svg/stream-stats.svg
-var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
-
-// src/assets/svg/trash.svg
-var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
-
-// src/utils/bx-icon.ts
-var BxIcon = {
-  STREAM_SETTINGS: stream_settings_default,
-  STREAM_STATS: stream_stats_default,
-  CONTROLLER: controller_default,
-  DISPLAY: display_default,
-  MOUSE: mouse_default,
-  MOUSE_SETTINGS: mouse_settings_default,
-  NEW: new_default,
-  COPY: copy_default,
-  TRASH: trash_default,
-  CURSOR_TEXT: cursor_text_default,
-  QUESTION: question_default,
-  REFRESH: refresh_default,
-  REMOTE_PLAY: remote_play_default
-};
-
-// src/utils/toast.ts
-class Toast {
-  static #$wrapper;
-  static #$msg;
-  static #$status;
-  static #stack = [];
-  static #isShowing = false;
-  static #timeout;
-  static #DURATION = 3000;
-  static show(msg, status, options = {}) {
-    options = options || {};
-    const args = Array.from(arguments);
-    if (options.instant) {
-      Toast.#stack = [args];
-      Toast.#showNext();
-    } else {
-      Toast.#stack.push(args);
-      !Toast.#isShowing && Toast.#showNext();
-    }
-  }
-  static #showNext() {
-    if (!Toast.#stack.length) {
-      Toast.#isShowing = false;
-      return;
-    }
-    Toast.#isShowing = true;
-    Toast.#timeout && clearTimeout(Toast.#timeout);
-    Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
-    const [msg, status, options] = Toast.#stack.shift();
-    if (options.html) {
-      Toast.#$msg.innerHTML = msg;
-    } else {
-      Toast.#$msg.textContent = msg;
-    }
-    if (status) {
-      Toast.#$status.classList.remove("bx-gone");
-      Toast.#$status.textContent = status;
-    } else {
-      Toast.#$status.classList.add("bx-gone");
-    }
-    const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-offscreen", "bx-hide");
-    classList.add("bx-show");
-  }
-  static #hide() {
-    Toast.#timeout = null;
-    const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-show");
-    classList.add("bx-hide");
-  }
-  static setup() {
-    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" }));
-    Toast.#$wrapper.addEventListener("transitionend", (e) => {
-      const classList = Toast.#$wrapper.classList;
-      if (classList.contains("bx-hide")) {
-        classList.remove("bx-offscreen", "bx-hide");
-        classList.add("bx-offscreen");
-        Toast.#showNext();
-      }
-    });
-    document.documentElement.appendChild(Toast.#$wrapper);
   }
 }
 
@@ -6505,323 +6546,6 @@ class MkbRemapper {
   }
 }
 
-// src/modules/screenshot.ts
-function takeScreenshot(callback) {
-  const currentStream = STATES.currentStream;
-  const $video = currentStream.$video;
-  const $canvas = currentStream.$screenshotCanvas;
-  if (!$video || !$canvas) {
-    return;
-  }
-  const $canvasContext = $canvas.getContext("2d", {
-    alpha: false,
-    willReadFrequently: false
-  });
-  $canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
-  if (AppInterface) {
-    const data = $canvas.toDataURL("image/png").split(";base64,")[1];
-    AppInterface.saveScreenshot(currentStream.titleId, data);
-    $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-    callback && callback();
-    return;
-  }
-  $canvas && $canvas.toBlob((blob) => {
-    const now = +new Date;
-    const $anchor = CE("a", {
-      download: `${currentStream.titleId}-${now}.png`,
-      href: URL.createObjectURL(blob)
-    });
-    $anchor.click();
-    URL.revokeObjectURL($anchor.href);
-    $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-    callback && callback();
-  }, "image/png");
-}
-function setupScreenshotButton() {
-  const currentStream = STATES.currentStream;
-  currentStream.$screenshotCanvas = CE("canvas", { class: "bx-screenshot-canvas" });
-  document.documentElement.appendChild(currentStream.$screenshotCanvas);
-  const delay = 2000;
-  const $btn = CE("div", { class: "bx-screenshot-button", "data-showing": false });
-  let timeout;
-  const detectDbClick = (e) => {
-    if (!currentStream.$video) {
-      timeout = null;
-      $btn.style.display = "none";
-      return;
-    }
-    if (timeout) {
-      clearTimeout(timeout);
-      timeout = null;
-      $btn.setAttribute("data-capturing", "true");
-      takeScreenshot(() => {
-        $btn.setAttribute("data-showing", "false");
-        window.setTimeout(() => {
-          if (!timeout) {
-            $btn.setAttribute("data-capturing", "false");
-          }
-        }, 100);
-      });
-      return;
-    }
-    const isShowing = $btn.getAttribute("data-showing") === "true";
-    if (!isShowing) {
-      $btn.setAttribute("data-showing", "true");
-      $btn.setAttribute("data-capturing", "false");
-      timeout && clearTimeout(timeout);
-      timeout = window.setTimeout(() => {
-        timeout = null;
-        $btn.setAttribute("data-showing", "false");
-        $btn.setAttribute("data-capturing", "false");
-      }, delay);
-    }
-  };
-  $btn.addEventListener("mousedown", detectDbClick);
-  document.documentElement.appendChild($btn);
-}
-
-// src/modules/touch-controller.ts
-var LOG_TAG2 = "TouchController";
-
-class TouchController {
-  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
-    data: '{"content":"{\\"layoutId\\":\\"\\"}","target":"/streaming/touchcontrols/showlayoutv2","type":"Message"}',
-    origin: "better-xcloud"
-  });
-  static #$bar;
-  static #$style;
-  static #enable = false;
-  static #showing = false;
-  static #dataChannel;
-  static #customLayouts = {};
-  static #baseCustomLayouts = {};
-  static #currentLayoutId;
-  static enable() {
-    TouchController.#enable = true;
-  }
-  static disable() {
-    TouchController.#enable = false;
-  }
-  static isEnabled() {
-    return TouchController.#enable;
-  }
-  static #showDefault() {
-    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
-    TouchController.#showing = true;
-  }
-  static #show() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
-    TouchController.#showing = true;
-  }
-  static #hide() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
-    TouchController.#showing = false;
-  }
-  static #toggleVisibility() {
-    if (!TouchController.#dataChannel) {
-      return;
-    }
-    TouchController.#showing ? TouchController.#hide() : TouchController.#show();
-  }
-  static #toggleBar(value) {
-    TouchController.#$bar && TouchController.#$bar.setAttribute("data-showing", value.toString());
-  }
-  static reset() {
-    TouchController.#enable = false;
-    TouchController.#showing = false;
-    TouchController.#dataChannel = null;
-    TouchController.#$bar && TouchController.#$bar.removeAttribute("data-showing");
-    TouchController.#$style && (TouchController.#$style.textContent = "");
-  }
-  static #dispatchMessage(msg) {
-    TouchController.#dataChannel && window.setTimeout(() => {
-      TouchController.#dataChannel.dispatchEvent(msg);
-    }, 10);
-  }
-  static #dispatchLayouts(data) {
-    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-      data
-    });
-  }
-  static async getCustomLayouts(xboxTitleId, retries = 1) {
-    if (xboxTitleId in TouchController.#customLayouts) {
-      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
-      return;
-    }
-    retries = retries || 1;
-    if (retries > 2) {
-      TouchController.#customLayouts[xboxTitleId] = null;
-      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
-      return;
-    }
-    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
-    const url = `${baseUrl}/${xboxTitleId}.json`;
-    try {
-      const resp = await NATIVE_FETCH(url);
-      const json = await resp.json();
-      const layouts = {};
-      json.layouts.forEach(async (layoutName) => {
-        let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts) {
-          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        } else {
-          try {
-            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
-            const resp2 = await NATIVE_FETCH(layoutUrl);
-            const json2 = await resp2.json();
-            baseLayouts = json2.layouts;
-            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
-          } catch (e) {
-          }
-        }
-        Object.assign(layouts, baseLayouts);
-      });
-      json.layouts = layouts;
-      TouchController.#customLayouts[xboxTitleId] = json;
-      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
-    } catch (e) {
-      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
-    }
-  }
-  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
-    if (!window.BX_EXPOSED.touchLayoutManager) {
-      return;
-    }
-    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
-    TouchController.#currentLayoutId = layoutId;
-    const layoutData = TouchController.#customLayouts[xboxTitleId];
-    if (!xboxTitleId || !layoutId || !layoutData) {
-      TouchController.#enable && TouchController.#showDefault();
-      return;
-    }
-    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout) {
-      return;
-    }
-    let msg;
-    let html13 = false;
-    if (layout.author) {
-      const author = `<b>${escapeHtml(layout.author)}</b>`;
-      msg = t("touch-control-layout-by", { name: author });
-      html13 = true;
-    } else {
-      msg = t("touch-control-layout");
-    }
-    layoutChanged && Toast.show(msg, layout.name, { html: html13 });
-    window.setTimeout(() => {
-      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "System",
-          layoutFile: layout
-        }
-      });
-    }, delay);
-  }
-  static updateCustomList() {
-    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
-      window.localStorage.setItem("better_xcloud_custom_touch_layouts", JSON.stringify(json));
-    });
-  }
-  static getCustomList() {
-    return JSON.parse(window.localStorage.getItem("better_xcloud_custom_touch_layouts") || "[]");
-  }
-  static setup() {
-    window.testTouchLayout = (layout) => {
-      const { touchLayoutManager } = window.BX_EXPOSED;
-      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: "" + STATES.currentStream?.xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "Custom",
-          layoutFile: layout
-        }
-      });
-    };
-    const $fragment = document.createDocumentFragment();
-    const $style = document.createElement("style");
-    $fragment.appendChild($style);
-    const $bar = CE("div", { id: "bx-touch-controller-bar" });
-    $fragment.appendChild($bar);
-    document.documentElement.appendChild($fragment);
-    let clickTimeout;
-    $bar.addEventListener("mousedown", (e) => {
-      clickTimeout && clearTimeout(clickTimeout);
-      if (clickTimeout) {
-        clickTimeout = null;
-        TouchController.#toggleVisibility();
-        return;
-      }
-      clickTimeout = window.setTimeout(() => {
-        clickTimeout = null;
-      }, 400);
-    });
-    TouchController.#$bar = $bar;
-    TouchController.#$style = $style;
-    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
-    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message") {
-        return;
-      }
-      let filter = "";
-      if (TouchController.#enable) {
-        if (PREF_STYLE_STANDARD === "white") {
-          filter = "grayscale(1) brightness(2)";
-        } else if (PREF_STYLE_STANDARD === "muted") {
-          filter = "sepia(0.5)";
-        }
-      } else if (PREF_STYLE_CUSTOM === "muted") {
-        filter = "sepia(0.5)";
-      }
-      if (filter) {
-        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      } else {
-        $style.textContent = "";
-      }
-      TouchController.#dataChannel = dataChannel;
-      dataChannel.addEventListener("open", () => {
-        window.setTimeout(TouchController.#show, 1000);
-      });
-      let focused = false;
-      dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
-          return;
-        }
-        if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enable) {
-            if (focused) {
-              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
-            } else {
-              TouchController.#showDefault();
-            }
-          }
-          return;
-        }
-        try {
-          if (msg.data.includes("/titleinfo")) {
-            const json = JSON.parse(JSON.parse(msg.data).content);
-            TouchController.#toggleBar(json.focused);
-            focused = json.focused;
-            if (!json.focused) {
-              TouchController.#show();
-            }
-            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
-          }
-        } catch (e2) {
-          BxLogger.error(LOG_TAG2, "Load custom layout", e2);
-        }
-      });
-    });
-  }
-}
-
 // src/modules/vibration-manager.ts
 var VIBRATION_DATA_MAP = {
   gamepadIndex: 8,
@@ -7303,18 +7027,18 @@ div[data-testid="media-container"] {
   }
   $elm.textContent = css;
 }
-function setupBxUi() {
+function setupStreamUi() {
   if (!document.querySelector(".bx-quick-settings-bar")) {
     window.addEventListener("resize", updateVideoPlayerCss);
     setupQuickSettingsBar();
-    setupScreenshotButton();
     StreamStats.render();
+    GameBar.setup();
   }
   updateVideoPlayerCss();
 }
 
 // src/modules/remote-play.ts
-var LOG_TAG3 = "RemotePlay";
+var LOG_TAG2 = "RemotePlay";
 var RemotePlayConsoleState;
 (function(RemotePlayConsoleState2) {
   RemotePlayConsoleState2["ON"] = "On";
@@ -7380,7 +7104,7 @@ class RemotePlay {
     RemotePlay.#$content = CE("div", {}, t("getting-consoles-list"));
     RemotePlay.#getXhomeToken(() => {
       RemotePlay.#getConsolesList(() => {
-        BxLogger.info(LOG_TAG3, "Consoles", RemotePlay.#CONSOLES);
+        BxLogger.info(LOG_TAG2, "Consoles", RemotePlay.#CONSOLES);
         RemotePlay.#renderConsoles();
         BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
       });
@@ -7733,6 +7457,7 @@ function interceptHttpRequests() {
           const newCustomList = customList.map((item2) => ({ id: item2 }));
           obj.push(...newCustomList);
         } catch (e) {
+          console.log(e);
         }
       }
       response.json = () => Promise.resolve(obj);
@@ -7990,6 +7715,8 @@ class XcloudInterceptor {
     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
     overrides.inputConfiguration = overrides.inputConfiguration || {};
     overrides.inputConfiguration.enableVibration = true;
+    overrides.videoConfiguration = overrides.videoConfiguration || {};
+    overrides.videoConfiguration.setCodecPreferences = true;
     if (TouchController.isEnabled()) {
       overrides.inputConfiguration.enableTouchInput = true;
       overrides.inputConfiguration.maxTouchPoints = 10;
@@ -8019,6 +7746,415 @@ class XcloudInterceptor {
     return NATIVE_FETCH(request, init);
   }
 }
+
+// src/modules/touch-controller.ts
+var LOG_TAG3 = "TouchController";
+
+class TouchController {
+  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
+    data: JSON.stringify({
+      content: '{"layoutId":""}',
+      target: "/streaming/touchcontrols/showlayoutv2",
+      type: "Message"
+    }),
+    origin: "better-xcloud"
+  });
+  static #$style;
+  static #enable = false;
+  static #dataChannel;
+  static #customLayouts = {};
+  static #baseCustomLayouts = {};
+  static #currentLayoutId;
+  static #customList;
+  static enable() {
+    TouchController.#enable = true;
+  }
+  static disable() {
+    TouchController.#enable = false;
+  }
+  static isEnabled() {
+    return TouchController.#enable;
+  }
+  static #showDefault() {
+    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
+  }
+  static #show() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
+  }
+  static #hide() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
+  }
+  static toggleVisibility(status) {
+    if (!TouchController.#dataChannel) {
+      return;
+    }
+    status ? TouchController.#hide() : TouchController.#show();
+  }
+  static reset() {
+    TouchController.#enable = false;
+    TouchController.#dataChannel = null;
+    TouchController.#$style && (TouchController.#$style.textContent = "");
+  }
+  static #dispatchMessage(msg) {
+    TouchController.#dataChannel && window.setTimeout(() => {
+      TouchController.#dataChannel.dispatchEvent(msg);
+    }, 10);
+  }
+  static #dispatchLayouts(data) {
+    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+      data
+    });
+  }
+  static async getCustomLayouts(xboxTitleId, retries = 1) {
+    if (xboxTitleId in TouchController.#customLayouts) {
+      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
+      return;
+    }
+    retries = retries || 1;
+    if (retries > 2) {
+      TouchController.#customLayouts[xboxTitleId] = null;
+      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+      return;
+    }
+    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
+    const url = `${baseUrl}/${xboxTitleId}.json`;
+    try {
+      const resp = await NATIVE_FETCH(url);
+      const json = await resp.json();
+      const layouts = {};
+      json.layouts.forEach(async (layoutName) => {
+        let baseLayouts = {};
+        if (layoutName in TouchController.#baseCustomLayouts) {
+          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
+        } else {
+          try {
+            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
+            const resp2 = await NATIVE_FETCH(layoutUrl);
+            const json2 = await resp2.json();
+            baseLayouts = json2.layouts;
+            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
+          } catch (e) {
+          }
+        }
+        Object.assign(layouts, baseLayouts);
+      });
+      json.layouts = layouts;
+      TouchController.#customLayouts[xboxTitleId] = json;
+      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+    } catch (e) {
+      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
+    }
+  }
+  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
+    if (!window.BX_EXPOSED.touchLayoutManager) {
+      return;
+    }
+    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
+    TouchController.#currentLayoutId = layoutId;
+    const layoutData = TouchController.#customLayouts[xboxTitleId];
+    if (!xboxTitleId || !layoutId || !layoutData) {
+      TouchController.#enable && TouchController.#showDefault();
+      return;
+    }
+    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
+    if (!layout) {
+      return;
+    }
+    let msg;
+    let html15 = false;
+    if (layout.author) {
+      const author = `<b>${escapeHtml(layout.author)}</b>`;
+      msg = t("touch-control-layout-by", { name: author });
+      html15 = true;
+    } else {
+      msg = t("touch-control-layout");
+    }
+    layoutChanged && Toast.show(msg, layout.name, { html: html15 });
+    window.setTimeout(() => {
+      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "System",
+          layoutFile: layout
+        }
+      });
+    }, delay);
+  }
+  static updateCustomList() {
+    const key = "better_xcloud_custom_touch_layouts";
+    TouchController.#customList = JSON.parse(window.localStorage.getItem(key) || "[]");
+    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
+      TouchController.#customList = json;
+      window.localStorage.setItem(key, JSON.stringify(json));
+    });
+  }
+  static getCustomList() {
+    return TouchController.#customList;
+  }
+  static setup() {
+    window.testTouchLayout = (layout) => {
+      const { touchLayoutManager } = window.BX_EXPOSED;
+      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: "" + STATES.currentStream?.xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "Custom",
+          layoutFile: layout
+        }
+      });
+    };
+    const $style = document.createElement("style");
+    document.documentElement.appendChild($style);
+    TouchController.#$style = $style;
+    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
+    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+      const dataChannel = e.dataChannel;
+      if (!dataChannel || dataChannel.label !== "message") {
+        return;
+      }
+      let filter = "";
+      if (TouchController.#enable) {
+        if (PREF_STYLE_STANDARD === "white") {
+          filter = "grayscale(1) brightness(2)";
+        } else if (PREF_STYLE_STANDARD === "muted") {
+          filter = "sepia(0.5)";
+        }
+      } else if (PREF_STYLE_CUSTOM === "muted") {
+        filter = "sepia(0.5)";
+      }
+      if (filter) {
+        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+      } else {
+        $style.textContent = "";
+      }
+      TouchController.#dataChannel = dataChannel;
+      dataChannel.addEventListener("open", () => {
+        window.setTimeout(TouchController.#show, 1000);
+      });
+      let focused = false;
+      dataChannel.addEventListener("message", (msg) => {
+        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
+          return;
+        }
+        if (msg.data.includes("touchcontrols/showtitledefault")) {
+          if (TouchController.#enable) {
+            if (focused) {
+              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
+            } else {
+              TouchController.#showDefault();
+            }
+          }
+          return;
+        }
+        try {
+          if (msg.data.includes("/titleinfo")) {
+            const json = JSON.parse(JSON.parse(msg.data).content);
+            focused = json.focused;
+            if (!json.focused) {
+              TouchController.#show();
+            }
+            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
+          }
+        } catch (e2) {
+          BxLogger.error(LOG_TAG3, "Load custom layout", e2);
+        }
+      });
+    });
+  }
+}
+
+// src/modules/game-bar/action-touch-control.ts
+class TouchControlAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      const $parent = e.target.closest("div[data-enabled]");
+      let enabled = $parent.getAttribute("data-enabled", "true") === "true";
+      $parent.setAttribute("data-enabled", (!enabled).toString());
+      TouchController.toggleVisibility(enabled);
+    };
+    const $btnEnable = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.TOUCH_CONTROL_ENABLE,
+      title: t("show-touch-controller"),
+      onClick
+    });
+    const $btnDisable = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.TOUCH_CONTROL_DISABLE,
+      title: t("hide-touch-controller"),
+      onClick
+    });
+    this.$content = CE("div", { "data-enabled": "true" }, $btnEnable, $btnDisable);
+  }
+  render() {
+    return this.$content;
+  }
+  reset() {
+    this.$content.setAttribute("data-enabled", "true");
+  }
+}
+
+// src/modules/game-bar/game-bar.ts
+class GameBar {
+  static #VISIBLE_DURATION = 2000;
+  static #timeout;
+  static #$gameBar;
+  static #$container;
+  static #$actions = [];
+  static #beginHideTimeout() {
+    GameBar.#clearHideTimeout();
+    GameBar.#timeout = window.setTimeout(() => {
+      GameBar.#timeout = null;
+      GameBar.hideBar();
+    }, GameBar.#VISIBLE_DURATION);
+  }
+  static #clearHideTimeout() {
+    GameBar.#timeout && clearTimeout(GameBar.#timeout);
+    GameBar.#timeout = null;
+  }
+  static enable() {
+    GameBar.#$gameBar && GameBar.#$gameBar.classList.remove("bx-gone");
+  }
+  static disable() {
+    GameBar.#$gameBar && GameBar.#$gameBar.classList.add("bx-gone");
+    GameBar.hideBar();
+  }
+  static showBar() {
+    if (!GameBar.#$container) {
+      return;
+    }
+    GameBar.#$container.classList.remove("bx-offscreen", "bx-hide");
+    GameBar.#$container.classList.add("bx-show");
+    GameBar.#beginHideTimeout();
+  }
+  static hideBar() {
+    if (!GameBar.#$container) {
+      return;
+    }
+    GameBar.#$container.classList.remove("bx-show");
+    GameBar.#$container.classList.add("bx-hide");
+  }
+  static reset() {
+    for (const action of GameBar.#$actions) {
+      action.reset();
+    }
+  }
+  static setup() {
+    let $container;
+    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone" }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(BxIcon.CARET_RIGHT));
+    GameBar.#$actions = [
+      new ScreenshotAction,
+      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : []
+    ];
+    for (const action of GameBar.#$actions) {
+      $container.appendChild(action.render());
+    }
+    $gameBar.addEventListener("click", (e) => {
+      if (e.target === $gameBar) {
+        if ($container.classList.contains("bx-show")) {
+          GameBar.hideBar();
+        } else {
+          GameBar.showBar();
+        }
+      }
+    });
+    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, GameBar.hideBar);
+    $container.addEventListener("pointerover", GameBar.#clearHideTimeout);
+    $container.addEventListener("pointerout", GameBar.#beginHideTimeout);
+    $container.addEventListener("transitionend", (e) => {
+      const classList = $container.classList;
+      if (classList.contains("bx-hide")) {
+        classList.remove("bx-offscreen", "bx-hide");
+        classList.add("bx-offscreen");
+      }
+    });
+    document.documentElement.appendChild($gameBar);
+    GameBar.#$gameBar = $gameBar;
+    GameBar.#$container = $container;
+  }
+}
+
+// src/utils/bx-exposed.ts
+var InputType;
+(function(InputType2) {
+  InputType2["CONTROLLER"] = "Controller";
+  InputType2["MKB"] = "MKB";
+  InputType2["CUSTOM_TOUCH_OVERLAY"] = "CustomTouchOverlay";
+  InputType2["GENERIC_TOUCH"] = "GenericTouch";
+  InputType2["NATIVE_TOUCH"] = "NativeTouch";
+  InputType2["BATIVE_SENSOR"] = "NativeSensor";
+})(InputType || (InputType = {}));
+var BxExposed = {
+  onPollingModeChanged: (mode) => {
+    if (!STATES.isPlaying) {
+      GameBar.disable();
+      return;
+    }
+    mode !== "None" ? GameBar.disable() : GameBar.enable();
+  },
+  getTitleInfo: () => STATES.currentStream.titleInfo,
+  modifyTitleInfo: (titleInfo) => {
+    titleInfo = structuredClone(titleInfo);
+    if (STATES.hasTouchSupport) {
+      let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
+      let supportedInputTypes = titleInfo.details.supportedInputTypes;
+      if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+        const gamepads = window.navigator.getGamepads();
+        let gamepadFound = false;
+        for (let gamepad of gamepads) {
+          if (gamepad && gamepad.connected) {
+            gamepadFound = true;
+            break;
+          }
+        }
+        gamepadFound && (touchControllerAvailability = "off");
+      }
+      if (UserAgent.isMobile()) {
+        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
+      }
+      if (touchControllerAvailability === "off") {
+        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
+      }
+      titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
+      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+      if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
+        titleInfo.details.hasFakeTouchSupport = true;
+        supportedInputTypes.push(InputType.GENERIC_TOUCH);
+      }
+      titleInfo.details.supportedInputTypes = supportedInputTypes;
+    }
+    STATES.currentStream.titleInfo = titleInfo;
+    BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
+    return titleInfo;
+  },
+  setupGainNode: ($media, audioStream) => {
+    if ($media instanceof HTMLAudioElement) {
+      $media.muted = true;
+      $media.addEventListener("playing", (e) => {
+        $media.muted = true;
+        $media.pause();
+      });
+    } else {
+      $media.muted = true;
+      $media.addEventListener("playing", (e) => {
+        $media.muted = true;
+      });
+    }
+    const audioCtx = STATES.currentStream.audioContext;
+    const source = audioCtx.createMediaStreamSource(audioStream);
+    const gainNode = audioCtx.createGain();
+    source.connect(gainNode).connect(audioCtx.destination);
+  }
+};
 
 // src/utils/gamepad.ts
 function showGamepadToast(gamepad) {
@@ -8068,8 +8204,7 @@ function addCss() {
   --bx-stats-bar-z-index: 9001;
   --bx-stream-settings-z-index: 9000;
   --bx-mkb-pointer-lock-msg-z-index: 8999;
-  --bx-screenshot-z-index: 8888;
-  --bx-touch-controller-bar-z-index: 5555;
+  --bx-game-bar-z-index: 8888;
   --bx-wait-time-box-z-index: 100;
 }
 @font-face {
@@ -8707,44 +8842,72 @@ body[data-media-type=tv] .bx-stream-refresh-button {
 .bx-number-stepper button:disabled {
   display: none;
 }
-.bx-screenshot-button {
-  display: none;
-  opacity: 0;
+#bx-game-bar {
+  z-index: var(--bx-game-bar-z-index);
   position: fixed;
-  bottom: 0;
-  box-sizing: border-box;
-  width: 60px;
-  height: 90px;
-  padding: 16px 16px 46px 16px;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-origin: content-box;
-  filter: drop-shadow(0 0 2px rgba(0,0,0,0.69));
-  transition: opacity 0.1s ease-in-out 0s, padding 0.1s ease-in 0s;
-  z-index: var(--bx-screenshot-z-index);
-/* Credit: https://phosphoricons.com */
-  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=");
-}
-.bx-screenshot-button[data-showing=true] {
-  opacity: 0.9;
-}
-.bx-screenshot-button[data-capturing=true] {
-  padding: 8px 8px 38px 8px;
-}
-.bx-screenshot-canvas {
-  display: none;
-}
-#bx-touch-controller-bar {
-  display: none;
-  opacity: 0;
-  position: fixed;
-  bottom: 0;
   left: 0;
-  right: 0;
-  height: 6vh;
-  z-index: var(--bx-touch-controller-bar-z-index);
+  bottom: 0;
+  width: 40px;
+  height: 90px;
+  overflow: visible;
+  cursor: pointer;
 }
-#bx-touch-controller-bar[data-showing=true] {
+#bx-game-bar > svg {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  height: 28px;
+  margin-top: 16px;
+}
+@media (hover: hover) {
+  #bx-game-bar:hover > svg {
+    display: block;
+  }
+}
+#bx-game-bar .bx-game-bar-container {
+  opacity: 0;
+  position: absolute;
+  display: flex;
+  overflow: hidden;
+  background: rgba(26,27,30,0.91);
+  border-radius: 0 10px 10px 0;
+  box-shadow: 0px 0px 6px #1c1c1c;
+  transition: opacity 0.1s ease-in;
+/* Touch controller buttons */
+/* Show disable button */
+/* Show enable button */
+}
+#bx-game-bar .bx-game-bar-container.bx-show {
+  opacity: 1;
+}
+#bx-game-bar .bx-game-bar-container.bx-show + svg {
+  display: none !important;
+}
+#bx-game-bar .bx-game-bar-container.bx-hide {
+  opacity: 0;
+}
+#bx-game-bar .bx-game-bar-container button {
+  width: 60px;
+  height: 60px;
+}
+#bx-game-bar .bx-game-bar-container button svg {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.08s ease 0s;
+}
+#bx-game-bar .bx-game-bar-container button:hover {
+  border-radius: 0;
+}
+#bx-game-bar .bx-game-bar-container button:active svg {
+  transform: scale(0.75);
+}
+#bx-game-bar .bx-game-bar-container div[data-enabled] button {
+  display: none;
+}
+#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:last-of-type {
+  display: block;
+}
+#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:first-of-type {
   display: block;
 }
 .bx-badges {
@@ -10089,7 +10252,6 @@ var SETTINGS_UI = {
       PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
       PrefKey.AUDIO_MIC_ON_PLAYING,
       PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
-      PrefKey.SCREENSHOT_BUTTON_POSITION,
       PrefKey.SCREENSHOT_APPLY_FILTERS,
       PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
       PrefKey.STREAM_COMBINE_SOURCES
@@ -10431,7 +10593,7 @@ var main = function() {
   BX_FLAGS.CheckForUpdate && checkForUpdate();
   addCss();
   Toast.setup();
-  BX_FLAGS.PreloadUi && setupBxUi();
+  BX_FLAGS.PreloadUi && setupStreamUi();
   StreamBadges.setupEvents();
   StreamStats.setupEvents();
   MkbHandler.setupEvents();
@@ -10511,7 +10673,7 @@ window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
     STATES.currentStream.titleId = "remote-play";
     STATES.currentStream.productId = "";
   }
-  setupBxUi();
+  setupStreamUi();
 });
 getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && window.addEventListener(BxEvent.TITLE_INFO_READY, LoadingScreen.setup);
 window.addEventListener(BxEvent.STREAM_STARTING, (e) => {
@@ -10526,22 +10688,12 @@ window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
   STATES.currentStream.$video = $video;
   STATES.isPlaying = true;
   injectStreamMenuButtons();
-  const PREF_SCREENSHOT_BUTTON_POSITION = getPref(PrefKey.SCREENSHOT_BUTTON_POSITION);
+  GameBar.reset();
+  GameBar.enable();
+  GameBar.showBar();
   STATES.currentStream.$screenshotCanvas.width = $video.videoWidth;
   STATES.currentStream.$screenshotCanvas.height = $video.videoHeight;
   updateVideoPlayerCss();
-  if (PREF_SCREENSHOT_BUTTON_POSITION !== "none") {
-    const $btn = document.querySelector(".bx-screenshot-button");
-    $btn.classList.remove("bx-gone");
-    $btn.style.display = "block";
-    if (PREF_SCREENSHOT_BUTTON_POSITION === "bottom-right") {
-      $btn.style.right = "0";
-    } else {
-      $btn.style.left = "0";
-    }
-  }
-  const $touchControllerBar = document.getElementById("bx-touch-controller-bar");
-  $touchControllerBar && $touchControllerBar.classList.remove("bx-gone");
 });
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
@@ -10559,11 +10711,8 @@ window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
   STATES.currentStream.audioGainNode = null;
   STATES.currentStream.$video = null;
   StreamStats.onStoppedPlaying();
-  const $screenshotBtn = document.querySelector(".bx-screenshot-button");
-  if ($screenshotBtn) {
-    $screenshotBtn.removeAttribute("style");
-  }
   MouseCursorHider.stop();
   TouchController.reset();
+  GameBar.disable();
 });
 main();
