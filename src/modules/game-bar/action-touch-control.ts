@@ -1,15 +1,18 @@
 import { BxEvent } from "@/utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
+import { TouchController } from "@modules/touch-controller";
 
 export class ActionTouchControl {
     static setup() {
         const onClick = (e: Event) => {
+            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+
             const $parent = (e as any).target.closest('div[data-enabled]');
             let enabled = $parent.getAttribute('data-enabled', 'true') === 'true';
             $parent.setAttribute('data-enabled', (!enabled).toString());
 
-            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+            TouchController.toggleVisibility(enabled);
         };
 
         const $btnEnable = createButton({

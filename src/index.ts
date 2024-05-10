@@ -185,11 +185,6 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
     STATES.currentStream.$video = null;
     StreamStats.onStoppedPlaying();
 
-    const $screenshotBtn = document.querySelector('.bx-screenshot-button');
-    if ($screenshotBtn) {
-        $screenshotBtn.removeAttribute('style');
-    }
-
     MouseCursorHider.stop();
     TouchController.reset();
 });
