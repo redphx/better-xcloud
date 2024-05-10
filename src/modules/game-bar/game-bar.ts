@@ -15,12 +15,14 @@ export class GameBar {
         GameBar.#clearHideTimeout();
 
         GameBar.#timeout = window.setTimeout(() => {
-                GameBar.#$container.classList.add('bx-gone');
+                GameBar.#timeout = null;
+                GameBar.hideBar();
             }, GameBar.#VISIBLE_DURATION);
     }
 
     static #clearHideTimeout() {
         GameBar.#timeout && clearTimeout(GameBar.#timeout);
+        GameBar.#timeout = null;
     }
 
     static enable() {
@@ -29,6 +31,16 @@ export class GameBar {
 
     static disable() {
         GameBar.#$gameBar && GameBar.#$gameBar.classList.add('bx-gone');
+        GameBar.hideBar();
+    }
+
+    static showBar() {
+        GameBar.#$container && GameBar.#$container.classList.remove('bx-gone');
+        GameBar.#beginHideTimeout();
+    }
+
+    static hideBar() {
+        GameBar.#$container && GameBar.#$container.classList.add('bx-gone');
     }
 
     static setup() {
@@ -47,7 +59,12 @@ export class GameBar {
         }
 
         $gameBar.addEventListener('click', e => {
-            e.target === $gameBar && $container.classList.toggle('bx-gone');
+            if (e.target === $gameBar) {
+                $container.classList.toggle('bx-gone');
+                if (!$container.classList.contains('bx-gone')) {
+                    GameBar.#beginHideTimeout();
+                }
+            }
         });
 
         window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, e => {

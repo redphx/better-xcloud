@@ -27,6 +27,7 @@ import { patchAudioContext, patchCanvasContext, patchMeControl, patchRtcCodecs, 
 import { STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
+import { GameBar } from "./modules/game-bar/game-bar";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
@@ -148,11 +149,9 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
 
     STATES.isPlaying = true;
     injectStreamMenuButtons();
-    /*
-    if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
-        GamepadHandler.startPolling();
-    }
-    */
+
+    GameBar.enable();
+    GameBar.showBar();
 
     STATES.currentStream.$screenshotCanvas!.width = $video.videoWidth;
     STATES.currentStream.$screenshotCanvas!.height = $video.videoHeight;
@@ -187,6 +186,7 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
 
     MouseCursorHider.stop();
     TouchController.reset();
+    GameBar.disable();
 });
 
 
