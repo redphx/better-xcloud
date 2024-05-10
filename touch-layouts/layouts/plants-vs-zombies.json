@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "author": "redphx",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "directionalPad",
+              "scale": 1.5,
+              "interaction": {
+                "activationType": "exclusive"
+              }
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadA"
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            null,
+            {
+              "type": "button",
+              "action": "gamepadB"
+            },
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "gamepadX"
+            },
+            null,
+            {
+              "type": "button",
+              "action": "leftBumper"
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Plants vs. Zombies",
+  "product_id": "BR1D9CR82ZM8",
+  "default_layout": "custom",
+  "layouts": [
+    "plants-vs-zombies"
+  ]
+}
