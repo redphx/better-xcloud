@@ -1,7 +1,8 @@
-import { CE } from "@utils/html";
+import { CE, createSvgIcon } from "@utils/html";
 import { ActionScreenshot } from "./action-screenshot";
 import { ActionTouchControl } from "./action-touch-control";
 import { BxEvent } from "@/utils/bx-event";
+import { BxIcon } from "@/utils/bx-icon";
 
 
 export class GameBar {
@@ -35,18 +36,30 @@ export class GameBar {
     }
 
     static showBar() {
-        GameBar.#$container && GameBar.#$container.classList.remove('bx-gone');
+        if (!GameBar.#$container) {
+            return;
+        }
+
+        GameBar.#$container.classList.remove('bx-offscreen', 'bx-hide');
+        GameBar.#$container.classList.add('bx-show');
+
         GameBar.#beginHideTimeout();
     }
 
     static hideBar() {
-        GameBar.#$container && GameBar.#$container.classList.add('bx-gone');
+        if (!GameBar.#$container) {
+            return;
+        }
+
+        GameBar.#$container.classList.remove('bx-show');
+        GameBar.#$container.classList.add('bx-hide');
     }
 
     static setup() {
         let $container;
-        const $gameBar = CE('div', {id: 'bx-game-bar'},
-                $container = CE('div', {'class': 'bx-game-bar-container'})
+        const $gameBar = CE('div', {id: 'bx-game-bar', class: 'bx-gone'},
+                $container = CE('div', {class: 'bx-game-bar-container bx-offscreen'}),
+                createSvgIcon(BxIcon.CARET_RIGHT),
             );
 
         const actions = [
@@ -58,22 +71,31 @@ export class GameBar {
             $container.appendChild(action);
         }
 
+        // Toggle game bar when clicking on the game bar box
         $gameBar.addEventListener('click', e => {
             if (e.target === $gameBar) {
-                $container.classList.toggle('bx-gone');
-                if (!$container.classList.contains('bx-gone')) {
-                    GameBar.#beginHideTimeout();
+                if ($container.classList.contains('bx-show')) {
+                    GameBar.hideBar();
+                } else {
+                    GameBar.showBar();
                 }
             }
         });
 
-        window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, e => {
-            $container.classList.toggle('bx-gone');
-            GameBar.#clearHideTimeout();
-        });
+        // Hide game bar after clicking on an action
+        window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, GameBar.hideBar);
 
         $container.addEventListener('pointerover', GameBar.#clearHideTimeout);
         $container.addEventListener('pointerout', GameBar.#beginHideTimeout);
+
+        // Add animation when hiding game bar
+        $container.addEventListener('transitionend', e => {
+            const classList = $container.classList;
+            if (classList.contains('bx-hide')) {
+                classList.remove('bx-offscreen', 'bx-hide');
+                classList.add('bx-offscreen');
+            }
+        });
 
         document.documentElement.appendChild($gameBar);
         GameBar.#$gameBar = $gameBar;

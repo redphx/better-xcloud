@@ -11,7 +11,7 @@ import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { addCss } from "@utils/css";
 import { Toast } from "@utils/toast";
-import { setupBxUi, updateVideoPlayerCss } from "@modules/ui/ui";
+import { setupStreamUi, updateVideoPlayerCss } from "@modules/ui/ui";
 import { PrefKey, getPref } from "@utils/preferences";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
@@ -124,9 +124,7 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
     }
 
     // Setup UI
-    setupBxUi();
-
-
+    setupStreamUi();
 });
 
 // Setup loading screen
@@ -212,7 +210,7 @@ function main() {
     // Setup UI
     addCss();
     Toast.setup();
-    BX_FLAGS.PreloadUi && setupBxUi();
+    BX_FLAGS.PreloadUi && setupStreamUi();
 
     StreamBadges.setupEvents();
     StreamStats.setupEvents();

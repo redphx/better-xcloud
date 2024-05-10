@@ -573,7 +573,9 @@ export function interceptHttpRequests() {
 
                     const newCustomList = customList.map(item => ({ id: item }));
                     obj.push(...newCustomList);
-                } catch (e) {}
+                } catch (e) {
+                    console.log(e);
+                }
             }
 
             response.json = () => Promise.resolve(obj);

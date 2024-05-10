@@ -468,7 +468,7 @@ div[data-testid="media-container"] {
     $elm.textContent = css;
 }
 
-export function setupBxUi() {
+export function setupStreamUi() {
     // Prevent initializing multiple times
     if (!document.querySelector('.bx-quick-settings-bar')) {
         window.addEventListener('resize', updateVideoPlayerCss);
