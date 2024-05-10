@@ -4,6 +4,8 @@ import { TouchControlAction } from "./action-touch-control";
 import { BxEvent } from "@/utils/bx-event";
 import { BxIcon } from "@/utils/bx-icon";
 import type { BaseGameBarAction } from "./action-base";
+import { STATES } from "@/utils/global";
+import { PrefKey, getPref } from "@/utils/preferences";
 
 
 export class GameBar {
@@ -74,7 +76,7 @@ export class GameBar {
 
         GameBar.#$actions = [
             new ScreenshotAction(),
-            new TouchControlAction(),
+            ...(STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'off') ? [new TouchControlAction()] : []),
         ];
 
         for (const action of GameBar.#$actions) {
