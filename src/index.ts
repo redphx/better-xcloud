@@ -11,7 +11,7 @@ import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { addCss } from "@utils/css";
 import { Toast } from "@utils/toast";
-import { setupBxUi, updateVideoPlayerCss } from "@modules/ui/ui";
+import { setupStreamUi, updateVideoPlayerCss } from "@modules/ui/ui";
 import { PrefKey, getPref } from "@utils/preferences";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
@@ -27,6 +27,7 @@ import { patchAudioContext, patchCanvasContext, patchMeControl, patchRtcCodecs, 
 import { STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
+import { GameBar } from "./modules/game-bar/game-bar";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
@@ -123,9 +124,7 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
     }
 
     // Setup UI
-    setupBxUi();
-
-
+    setupStreamUi();
 });
 
 // Setup loading screen
@@ -148,32 +147,14 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
 
     STATES.isPlaying = true;
     injectStreamMenuButtons();
-    /*
-    if (getPref(Preferences.CONTROLLER_ENABLE_SHORTCUTS)) {
-        GamepadHandler.startPolling();
-    }
-    */
 
-    const PREF_SCREENSHOT_BUTTON_POSITION = getPref(PrefKey.SCREENSHOT_BUTTON_POSITION);
+    GameBar.reset();
+    GameBar.enable();
+    GameBar.showBar();
+
     STATES.currentStream.$screenshotCanvas!.width = $video.videoWidth;
     STATES.currentStream.$screenshotCanvas!.height = $video.videoHeight;
     updateVideoPlayerCss();
-
-    // Setup screenshot button
-    if (PREF_SCREENSHOT_BUTTON_POSITION !== 'none') {
-        const $btn = document.querySelector('.bx-screenshot-button')! as HTMLElement;
-        $btn.classList.remove('bx-gone');
-        $btn.style.display = 'block';
-
-        if (PREF_SCREENSHOT_BUTTON_POSITION === 'bottom-right') {
-            $btn.style.right = '0';
-        } else {
-            $btn.style.left = '0';
-        }
-    }
-
-    const $touchControllerBar = document.getElementById('bx-touch-controller-bar');
-    $touchControllerBar && $touchControllerBar.classList.remove('bx-gone');
 });
 
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
@@ -199,13 +180,9 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
     STATES.currentStream.$video = null;
     StreamStats.onStoppedPlaying();
 
-    const $screenshotBtn = document.querySelector('.bx-screenshot-button');
-    if ($screenshotBtn) {
-        $screenshotBtn.removeAttribute('style');
-    }
-
     MouseCursorHider.stop();
     TouchController.reset();
+    GameBar.disable();
 });
 
 
@@ -231,7 +208,7 @@ function main() {
     // Setup UI
     addCss();
     Toast.setup();
-    BX_FLAGS.PreloadUi && setupBxUi();
+    BX_FLAGS.PreloadUi && setupStreamUi();
 
     StreamBadges.setupEvents();
     StreamStats.setupEvents();

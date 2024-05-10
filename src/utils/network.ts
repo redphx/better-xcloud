@@ -438,6 +438,9 @@ class XcloudInterceptor {
         overrides.inputConfiguration = overrides.inputConfiguration || {};
         overrides.inputConfiguration.enableVibration = true;
 
+        overrides.videoConfiguration = overrides.videoConfiguration || {};
+        overrides.videoConfiguration.setCodecPreferences = true;
+
         // Enable touch controller
         if (TouchController.isEnabled()) {
             overrides.inputConfiguration.enableTouchInput = true;
@@ -570,7 +573,9 @@ export function interceptHttpRequests() {
 
                     const newCustomList = customList.map(item => ({ id: item }));
                     obj.push(...newCustomList);
-                } catch (e) {}
+                } catch (e) {
+                    console.log(e);
+                }
             }
 
             response.json = () => Promise.resolve(obj);

@@ -46,7 +46,6 @@ export enum PrefKey {
     MKB_ABSOLUTE_MOUSE = 'mkb_absolute_mouse',
     MKB_DEFAULT_PRESET_ID = 'mkb_default_preset_id',
 
-    SCREENSHOT_BUTTON_POSITION = 'screenshot_button_position',
     SCREENSHOT_APPLY_FILTERS = 'screenshot_apply_filters',
 
     BLOCK_TRACKING = 'block_tracking',
@@ -227,15 +226,6 @@ export class Preferences {
             default: false,
         },
 
-        [PrefKey.SCREENSHOT_BUTTON_POSITION]: {
-            label: t('screenshot-button-position'),
-            default: 'bottom-left',
-            options: {
-                'bottom-left': t('bottom-left'),
-                'bottom-right': t('bottom-right'),
-                'none': t('disable'),
-            },
-        },
         [PrefKey.SCREENSHOT_APPLY_FILTERS]: {
             label: t('screenshot-apply-filters'),
             default: false,
