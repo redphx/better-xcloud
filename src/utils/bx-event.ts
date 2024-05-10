@@ -27,6 +27,8 @@ export enum BxEvent {
     XCLOUD_SERVERS_READY = 'bx-servers-ready',
 
     DATA_CHANNEL_CREATED = 'bx-data-channel-created',
+
+    GAME_BAR_ACTION_ACTIVATED = 'bx-game-bar-action-activated',
 }
 
 export namespace BxEvent {

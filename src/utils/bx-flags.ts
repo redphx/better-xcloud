@@ -12,7 +12,7 @@ type BxFlags = {
 const DEFAULT_FLAGS: BxFlags = {
     CheckForUpdate: true,
     PreloadRemotePlay: true,
-    PreloadUi: false,
+    PreloadUi: true,
     EnableXcloudLogging: false,
     SafariWorkaround: true,
 

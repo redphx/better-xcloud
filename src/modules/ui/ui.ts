@@ -5,11 +5,11 @@ import { UserAgent } from "@utils/user-agent";
 import { BxEvent } from "@utils/bx-event";
 import { MkbRemapper } from "@modules/mkb/mkb-remapper";
 import { getPref, PrefKey, toPrefElement } from "@utils/preferences";
-import { setupScreenshotButton } from "@modules/screenshot";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { TouchController } from "@modules/touch-controller";
 import { t } from "@utils/translation";
 import { VibrationManager } from "@modules/vibration-manager";
+import { GameBar } from "../game-bar/game-bar";
 
 
 export function localRedirect(path: string) {
@@ -473,8 +473,9 @@ export function setupBxUi() {
     if (!document.querySelector('.bx-quick-settings-bar')) {
         window.addEventListener('resize', updateVideoPlayerCss);
         setupQuickSettingsBar();
-        setupScreenshotButton();
         StreamStats.render();
+
+        GameBar.setup();
     }
 
     updateVideoPlayerCss();

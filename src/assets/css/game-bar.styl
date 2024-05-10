@@ -1,3 +1,65 @@
+#bx-game-bar {
+    z-index: var(--bx-game-bar-z-index);
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 90px;
+    overflow: visible;
+    cursor: pointer;
+
+    .bx-game-bar-container {
+        position absolute;
+        display: flex;
+        overflow: hidden;
+        background: #1a1b1ee8;
+        border-radius: 0 10px 10px 0;
+        box-shadow: 0px 0px 2px #1c1c1c;
+
+        button {
+            width: 60px;
+            height: 60px;
+
+            svg {
+                width: 28px;
+                height: 28px;
+                transition: transform 0.08s ease 0s;
+            }
+
+            &:hover {
+                border-radius: 0;
+            }
+
+            &:active {
+                svg {
+                    transform: scale(0.75);
+                }
+            }
+        }
+
+        /* Touch controller buttons */
+        div[data-enabled] {
+            button {
+                display: none;
+            }
+        }
+
+        /* Show disable button */
+        div[data-enabled='true'] {
+            button:last-of-type {
+                display: block;
+            }
+        }
+
+        /* Show enable button */
+        div[data-enabled='false'] {
+            button:first-of-type {
+                display: block;
+            }
+        }
+    }
+}
+
 .bx-screenshot-button {
     display: none;
     opacity: 0;
@@ -12,7 +74,6 @@
     background-origin: content-box;
     filter: drop-shadow(0 0 2px #000000B0);
     transition: opacity 0.1s ease-in-out 0s, padding 0.1s ease-in 0s;
-    z-index: var(--bx-screenshot-z-index);
 
     /* Credit: https://phosphoricons.com */
     background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDMyIDMyIiBmaWxsPSIjZmZmIj48cGF0aCBkPSJNMjguMzA4IDUuMDM4aC00LjI2NWwtMi4wOTctMy4xNDVhMS4yMyAxLjIzIDAgMCAwLTEuMDIzLS41NDhoLTkuODQ2YTEuMjMgMS4yMyAwIDAgMC0xLjAyMy41NDhMNy45NTYgNS4wMzhIMy42OTJBMy43MSAzLjcxIDAgMCAwIDAgOC43MzF2MTcuMjMxYTMuNzEgMy43MSAwIDAgMCAzLjY5MiAzLjY5MmgyNC42MTVBMy43MSAzLjcxIDAgMCAwIDMyIDI1Ljk2MlY4LjczMWEzLjcxIDMuNzEgMCAwIDAtMy42OTItMy42OTJ6bS02Ljc2OSAxMS42OTJjMCAzLjAzOS0yLjUgNS41MzgtNS41MzggNS41MzhzLTUuNTM4LTIuNS01LjUzOC01LjUzOCAyLjUtNS41MzggNS41MzgtNS41MzggNS41MzggMi41IDUuNTM4IDUuNTM4eiIvPjwvc3ZnPgo=');
@@ -24,10 +85,6 @@
     &[data-capturing=true] {
         padding: 8px 8px 38px 8px;
     }
-}
-
-.bx-screenshot-canvas {
-    display: none;
 }
 
 #bx-touch-controller-bar {
