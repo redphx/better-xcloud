@@ -21,31 +21,33 @@
               "type": "button",
               "action": "rightTrigger"
             },
-            {
-              "type": "joystick",
-              "axis": [
-                {
-                  "input": "axisXY",
-                  "output": "leftJoystick"
-                }
-              ],
-              "action": "rightBumper",
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "sprint"
-                    },
-                    "stroke": {
-                      "type": "solid",
-                      "opacity": 0.1
+            [
+              {
+                "type": "joystick",
+                "axis": [
+                  {
+                    "input": "axisXY",
+                    "output": "leftJoystick"
+                  }
+                ],
+                "action": "rightBumper",
+                "styles": {
+                  "default": {
+                    "knob": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "sprint"
+                      },
+                      "stroke": {
+                        "type": "solid",
+                        "opacity": 0.1
+                      }
                     }
                   }
                 }
-              }
-            },
-            null,
+              },
+              null
+            ],
             {
               "type": "button",
               "action": "dPadRight",
@@ -70,31 +72,33 @@
                 }
               }
             },
-            null,
-            {
-              "type": "joystick",
-              "axis": [
-                {
-                  "input": "axisXY",
-                  "output": "leftJoystick"
-                }
-              ],
-              "action": "leftBumper",
-              "styles": {
-                "default": {
-                  "knob": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "crouch"
-                    },
-                    "stroke": {
-                      "type": "solid",
-                      "opacity": 0.1
+            [
+              {
+                "type": "joystick",
+                "axis": [
+                  {
+                    "input": "axisXY",
+                    "output": "leftJoystick"
+                  }
+                ],
+                "action": "leftBumper",
+                "styles": {
+                  "default": {
+                    "knob": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "crouch"
+                      },
+                      "stroke": {
+                        "type": "solid",
+                        "opacity": 0.1
+                      }
                     }
                   }
                 }
-              }
-            },
+              },
+              null
+            ],
             {
               "type": "button",
               "action": "leftTrigger"
