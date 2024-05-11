@@ -3,7 +3,7 @@ import { SUPPORTED_LANGUAGES, t } from "@utils/translation";
 import { SettingElement, SettingElementType } from "@utils/settings";
 import { UserAgentProfile } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
-import type { PreferenceSettings } from "@/types/preferences";
+import type { PreferenceSetting, PreferenceSettings } from "@/types/preferences";
 import { STATES } from "@utils/global";
 
 export enum PrefKey {
@@ -207,8 +207,7 @@ export class Preferences {
 
                 return options;
             })(),
-            ready: () => {
-                const setting = Preferences.SETTINGS[PrefKey.STREAM_CODEC_PROFILE]
+            ready: (setting: PreferenceSetting) => {
                 const options: any = setting.options;
                 const keys = Object.keys(options);
 
@@ -256,8 +255,7 @@ export class Preferences {
                 off: t('off'),
             },
             unsupported: !STATES.hasTouchSupport,
-            ready: () => {
-                const setting = Preferences.SETTINGS[PrefKey.STREAM_TOUCH_CONTROLLER];
+            ready: (setting: PreferenceSetting) => {
                 if (setting.unsupported) {
                     setting.default = 'default';
                 }
@@ -364,15 +362,13 @@ export class Preferences {
             label: t('enable-mkb'),
             default: false,
             unsupported: ((): string | boolean => {
-                    const userAgent = ((window.navigator as any).orgUserAgent || window.navigator.userAgent || '').toLowerCase();
-                    return userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
-                })(),
-            ready: () => {
-                const pref = Preferences.SETTINGS[PrefKey.MKB_ENABLED];
-
+                const userAgent = ((window.navigator as any).orgUserAgent || window.navigator.userAgent || '').toLowerCase();
+                return userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
+            })(),
+            ready: (setting: PreferenceSetting) => {
                 let note;
                 let url;
-                if (pref.unsupported) {
+                if (setting.unsupported) {
                     note = t('browser-unsupported-feature');
                     url = 'https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657';
                 } else {
@@ -380,7 +376,7 @@ export class Preferences {
                     url = 'https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer';
                 }
 
-                Preferences.SETTINGS[PrefKey.MKB_ENABLED].note = CE('a', {
+                setting.note = CE('a', {
                         href: url,
                         target: '_blank',
                     }, '⚠️ ' + note);
@@ -629,7 +625,7 @@ export class Preferences {
 
         for (let settingId in Preferences.SETTINGS) {
             const setting = Preferences.SETTINGS[settingId];
-            setting.ready && setting.ready.call(this);
+            setting.ready && setting.ready.call(this, setting);
 
             if (setting.migrate && settingId in savedPrefs) {
                 setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);

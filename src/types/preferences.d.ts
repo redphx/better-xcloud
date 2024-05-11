@@ -5,7 +5,7 @@ export type PreferenceSetting = {
     unsupported?: string | boolean;
     note?: string | HTMLElement;
     type?: SettingElementType;
-    ready?: () => void;
+    ready?: (setting: PreferenceSetting) => void;
     migrate?: (savedPrefs: any, value: any) => {};
     min?: number;
     max?: number;
