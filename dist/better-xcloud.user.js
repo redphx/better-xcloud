@@ -139,6 +139,8 @@ var BxEvent;
   BxEvent2["STREAM_MENU_HIDDEN"] = "bx-stream-menu-hidden";
   BxEvent2["STREAM_WEBRTC_CONNECTED"] = "bx-stream-webrtc-connected";
   BxEvent2["STREAM_WEBRTC_DISCONNECTED"] = "bx-stream-webrtc-disconnected";
+  BxEvent2["STREAM_EVENT_TARGET_READY"] = "bx-stream-event-target-ready";
+  BxEvent2["STREAM_SESSION_READY"] = "bx-stream-session-ready";
   BxEvent2["CUSTOM_TOUCH_LAYOUTS_LOADED"] = "bx-custom-touch-layouts-loaded";
   BxEvent2["REMOTE_PLAY_READY"] = "bx-remote-play-ready";
   BxEvent2["REMOTE_PLAY_FAILED"] = "bx-remote-play-failed";
@@ -146,6 +148,10 @@ var BxEvent;
   BxEvent2["DATA_CHANNEL_CREATED"] = "bx-data-channel-created";
   BxEvent2["GAME_BAR_ACTION_ACTIVATED"] = "bx-game-bar-action-activated";
 })(BxEvent || (BxEvent = {}));
+var XcloudEvent;
+(function(XcloudEvent2) {
+  XcloudEvent2["MICROPHONE_STATE_CHANGED"] = "microphoneStateChanged";
+})(XcloudEvent || (XcloudEvent = {}));
 (function(BxEvent) {
   function dispatch(target, eventName, data) {
     if (!eventName) {
@@ -307,6 +313,12 @@ var touch_control_enable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fi
 // src/assets/svg/touch-control-disable.svg
 var touch_control_disable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <g fill=\"none\" stroke=\"#fff\">\n        <path d=\"M6.021 5.021l20 22\" stroke-width=\"2\"/>\n        <path d=\"M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971\" stroke-miterlimit=\"1.5\" stroke-width=\"2.083\"/>\n    </g>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
 
+// src/assets/svg/microphone.svg
+var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662\"/>\n</svg>\n";
+
+// src/assets/svg/microphone-slash.svg
+var microphone_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662\"/>\n    <path d=\"M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562\"/>\n</svg>\n";
+
 // src/utils/bx-icon.ts
 var BxIcon = {
   STREAM_SETTINGS: stream_settings_default,
@@ -325,7 +337,9 @@ var BxIcon = {
   CARET_RIGHT: caret_right_default,
   SCREENSHOT: camera_default,
   TOUCH_CONTROL_ENABLE: touch_control_enable_default,
-  TOUCH_CONTROL_DISABLE: touch_control_disable_default
+  TOUCH_CONTROL_DISABLE: touch_control_disable_default,
+  MICROPHONE: microphone_default,
+  MICROPHONE_MUTED: microphone_slash_default
 };
 
 // src/modules/game-bar/action-base.ts
@@ -5661,7 +5675,10 @@ function injectStreamMenuButtons() {
           return;
         }
         let $elm = $node;
-        if ($elm.className.includes("PureErrorPage")) {
+        if ($elm instanceof SVGSVGElement) {
+          return;
+        }
+        if ($elm.className?.includes("PureErrorPage")) {
           BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
           return;
         }
@@ -5670,7 +5687,7 @@ function injectStreamMenuButtons() {
           $btnClose && $btnClose.click();
           return;
         }
-        if ($elm.className.startsWith("StreamMenu-module__container")) {
+        if ($elm.className?.startsWith("StreamMenu-module__container")) {
           BxEvent.dispatch(window, BxEvent.STREAM_MENU_SHOWN);
           const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
           if (!$btnCloseHud) {
@@ -5695,7 +5712,7 @@ function injectStreamMenuButtons() {
           hideQuickBarFunc();
           return;
         }
-        if ($elm.className.startsWith("Overlay-module_") || $elm.className.startsWith("InProgressScreen")) {
+        if ($elm.className?.startsWith("Overlay-module_") || $elm.className?.startsWith("InProgressScreen")) {
           $elm = $elm.querySelector("#StreamHud");
         }
         if (!$elm || ($elm.id || "") !== "StreamHud") {
@@ -7099,7 +7116,6 @@ function setupStreamUi() {
     setupQuickSettingsBar();
     StreamStats.render();
     Screenshot.setup();
-    getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
   }
   updateVideoPlayerCss();
 }
@@ -8052,7 +8068,8 @@ class TouchControlAction extends BaseGameBarAction {
       style: ButtonStyle.GHOST,
       icon: BxIcon.TOUCH_CONTROL_ENABLE,
       title: t("show-touch-controller"),
-      onClick
+      onClick,
+      classes: ["bx-activated"]
     });
     const $btnDisable = createButton({
       style: ButtonStyle.GHOST,
@@ -8060,13 +8077,75 @@ class TouchControlAction extends BaseGameBarAction {
       title: t("hide-touch-controller"),
       onClick
     });
-    this.$content = CE("div", { "data-enabled": "true" }, $btnEnable, $btnDisable);
+    this.$content = CE("div", {}, $btnEnable, $btnDisable);
+    this.reset();
   }
   render() {
     return this.$content;
   }
   reset() {
     this.$content.setAttribute("data-enabled", "true");
+  }
+}
+
+// src/modules/game-bar/action-microphone.ts
+var MicrophoneState;
+(function(MicrophoneState2) {
+  MicrophoneState2["REQUESTED"] = "Requested";
+  MicrophoneState2["ENABLED"] = "Enabled";
+  MicrophoneState2["MUTED"] = "Muted";
+  MicrophoneState2["NOT_ALLOWED"] = "NotAllowed";
+  MicrophoneState2["NOT_FOUND"] = "NotFound";
+})(MicrophoneState || (MicrophoneState = {}));
+
+class MicrophoneAction extends BaseGameBarAction {
+  $content;
+  visible = false;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      const state = this.$content.getAttribute("data-enabled");
+      const enableMic = state === "true" ? false : true;
+      try {
+        window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic);
+        this.$content.setAttribute("data-enabled", enableMic.toString());
+      } catch (e2) {
+        console.log(e2);
+      }
+    };
+    const $btnDefault = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.MICROPHONE,
+      title: t("show-touch-controller"),
+      onClick,
+      classes: ["bx-activated"]
+    });
+    const $btnMuted = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.MICROPHONE_MUTED,
+      title: t("hide-touch-controller"),
+      onClick
+    });
+    this.$content = CE("div", {}, $btnDefault, $btnMuted);
+    this.reset();
+    window.addEventListener(BxEvent.STREAM_EVENT_TARGET_READY, (e) => {
+      const eventTarget = window.BX_EXPOSED.eventTarget;
+      eventTarget.addEventListener(XcloudEvent.MICROPHONE_STATE_CHANGED, (e2) => {
+        const state = window.BX_EXPOSED.streamSession.microphoneState;
+        const enabled = state === MicrophoneState.ENABLED;
+        this.$content.setAttribute("data-enabled", enabled.toString());
+        this.$content.classList.remove("bx-gone");
+      });
+    });
+  }
+  render() {
+    return this.$content;
+  }
+  reset() {
+    this.visible = false;
+    this.$content.classList.add("bx-gone");
+    this.$content.setAttribute("data-enabled", "false");
   }
 }
 
@@ -8089,7 +8168,8 @@ class GameBar {
     const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone" }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(BxIcon.CARET_RIGHT));
     this.actions = [
       new ScreenshotAction,
-      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : []
+      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
+      new MicrophoneAction
     ];
     for (const action of this.actions) {
       $container.appendChild(action.render());
@@ -8876,14 +8956,14 @@ body[data-media-type=tv] .bx-stream-refresh-button {
   top: calc(var(--gds-focus-borderSize) + 80px) !important;
 }
 div[data-testid=media-container].bx-taking-screenshot:before {
-  animation: bx-taking-screenshot 0.5s ease;
+  animation: bx-anim-taking-screenshot 0.5s ease;
   content: ' ';
   position: absolute;
   width: 100%;
   height: 100%;
   z-index: var(--bx-screenshot-animation-z-index);
 }
-@-moz-keyframes bx-taking-screenshot {
+@-moz-keyframes bx-anim-taking-screenshot {
   0% {
     border: 0px solid rgba(255,255,255,0.502);
   }
@@ -8894,7 +8974,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
     border: 0px solid rgba(255,255,255,0.502);
   }
 }
-@-webkit-keyframes bx-taking-screenshot {
+@-webkit-keyframes bx-anim-taking-screenshot {
   0% {
     border: 0px solid rgba(255,255,255,0.502);
   }
@@ -8905,7 +8985,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
     border: 0px solid rgba(255,255,255,0.502);
   }
 }
-@-o-keyframes bx-taking-screenshot {
+@-o-keyframes bx-anim-taking-screenshot {
   0% {
     border: 0px solid rgba(255,255,255,0.502);
   }
@@ -8916,7 +8996,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
     border: 0px solid rgba(255,255,255,0.502);
   }
 }
-@keyframes bx-taking-screenshot {
+@keyframes bx-anim-taking-screenshot {
   0% {
     border: 0px solid rgba(255,255,255,0.502);
   }
@@ -9003,7 +9083,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   box-shadow: 0px 0px 6px #1c1c1c;
   transition: opacity 0.1s ease-in;
 /* Touch controller buttons */
-/* Show disable button */
+/* Show enabled button */
 /* Show enable button */
 }
 #bx-game-bar .bx-game-bar-container.bx-show {
@@ -9019,6 +9099,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 #bx-game-bar .bx-game-bar-container button {
   width: 60px;
   height: 60px;
+  border-radius: 0;
 }
 #bx-game-bar .bx-game-bar-container button svg {
   width: 28px;
@@ -9031,13 +9112,19 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 #bx-game-bar .bx-game-bar-container button:active svg {
   transform: scale(0.75);
 }
+#bx-game-bar .bx-game-bar-container button.bx-activated {
+  background-color: #fff;
+}
+#bx-game-bar .bx-game-bar-container button.bx-activated svg {
+  filter: invert(1);
+}
 #bx-game-bar .bx-game-bar-container div[data-enabled] button {
   display: none;
 }
-#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:last-of-type {
+#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type {
   display: block;
 }
-#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:first-of-type {
+#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type {
   display: block;
 }
 .bx-badges {
@@ -9973,12 +10060,46 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
     const newCode = `opacityMultiplier: ${opacity}`;
     str2 = str2.replace(text, newCode);
     return str2;
+  },
+  exposeEventTarget(str2) {
+    const text = "this._eventTarget=new EventTarget";
+    if (!str2.includes(text)) {
+      return false;
+    }
+    const newCode = `
+window.BX_EXPOSED.eventTarget = ${text},
+window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
+`;
+    str2 = str2.replace(text, newCode);
+    return str2;
+  },
+  exposeStreamSession(str2) {
+    const text = ",this._connectionType=";
+    if (!str2.includes(text)) {
+      return false;
+    }
+    const newCode = `;
+
+window.BX_EXPOSED.streamSession = this;
+
+const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
+this.setMicrophoneState = (e) => {
+    console.log(e);
+    orgSetMicrophoneState(e);
+};
+
+window.dispatchEvent(new Event('${BxEvent.STREAM_SESSION_READY}'))
+
+true` + text;
+    str2 = str2.replace(text, newCode);
+    return str2;
   }
 };
 var PATCH_ORDERS = [
   "disableStreamGate",
   "overrideSettings",
   "broadcastPollingMode",
+  "exposeStreamSession",
   getPref(PrefKey.UI_LAYOUT) !== "default" && "websiteLayout",
   getPref(PrefKey.LOCAL_CO_OP_ENABLED) && "supportLocalCoOp",
   getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && "forceFortniteConsole",
@@ -10006,6 +10127,7 @@ var PLAYING_PATCH_ORDERS = [
   "disableGamepadDisconnectedScreen",
   "patchStreamHud",
   "playVibration",
+  "exposeEventTarget",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
@@ -10724,6 +10846,7 @@ var main = function() {
   BX_FLAGS.CheckForUpdate && checkForUpdate();
   addCss();
   Toast.setup();
+  getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
   BX_FLAGS.PreloadUi && setupStreamUi();
   StreamBadges.setupEvents();
   StreamStats.setupEvents();
