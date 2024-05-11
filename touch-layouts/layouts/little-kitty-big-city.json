@@ -9,10 +9,30 @@
           "inner": [
             {
               "type": "joystick",
-              "expand": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
+              },
+              "action": "rightBumper",
+              "actionThreshold": 2.5,
+              "expand": false,
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "walk"
+                    }
+                  }
+                },
+                "activated": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "run"
+                    }
+                  }
+                }
               }
             }
           ],
@@ -23,28 +43,8 @@
             },
             [
               {
-                "type": "joystick",
-                "axis": [
-                  {
-                    "input": "axisXY",
-                    "output": "leftJoystick"
-                  }
-                ],
-                "action": "rightBumper",
-                "styles": {
-                  "default": {
-                    "knob": {
-                      "faceImage": {
-                        "type": "icon",
-                        "value": "sprint"
-                      },
-                      "stroke": {
-                        "type": "solid",
-                        "opacity": 0.1
-                      }
-                    }
-                  }
-                }
+                "type": "button",
+                "action": "rightBumper"
               },
               null
             ],
@@ -87,7 +87,7 @@
                     "knob": {
                       "faceImage": {
                         "type": "icon",
-                        "value": "crouch"
+                        "value": "leftBumper"
                       },
                       "stroke": {
                         "type": "solid",
