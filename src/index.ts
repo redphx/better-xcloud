@@ -28,6 +28,7 @@ import { STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
+import { Screenshot } from "./utils/screenshot";
 
 
 // Handle login page
@@ -143,7 +144,7 @@ window.addEventListener(BxEvent.STREAM_STARTING, e => {
 });
 
 window.addEventListener(BxEvent.STREAM_PLAYING, e => {
-    const $video = (e as any).$video;
+    const $video = (e as any).$video as HTMLVideoElement;
     STATES.currentStream.$video = $video;
 
     STATES.isPlaying = true;
@@ -156,10 +157,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
         gameBar.showBar();
     }
 
-    if (STATES.currentStream.$screenshotCanvas) {
-        STATES.currentStream.$screenshotCanvas.width = $video.videoWidth;
-        STATES.currentStream.$screenshotCanvas.height = $video.videoHeight;
-    }
+    Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight);
 
     updateVideoPlayerCss();
 });

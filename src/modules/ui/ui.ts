@@ -10,6 +10,7 @@ import { TouchController } from "@modules/touch-controller";
 import { t } from "@utils/translation";
 import { VibrationManager } from "@modules/vibration-manager";
 import { GameBar } from "../game-bar/game-bar";
+import { Screenshot } from "@/utils/screenshot";
 
 
 export function localRedirect(path: string) {
@@ -427,8 +428,8 @@ export function updateVideoPlayerCss() {
     }
 
     // Apply video filters to screenshots
-    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS) && STATES.currentStream.$screenshotCanvas) {
-        STATES.currentStream.$screenshotCanvas.getContext('2d')!.filter = filters;
+    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
+        Screenshot.updateCanvasFilters(filters);
     }
 
     const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
@@ -475,6 +476,7 @@ export function setupStreamUi() {
         setupQuickSettingsBar();
         StreamStats.render();
 
+        Screenshot.setup();
         getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
     }
 
