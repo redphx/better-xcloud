@@ -9,7 +9,7 @@
           "inner": [
             {
               "type": "directionalPad",
-              "scale": 1.5,
+              "scale": 2,
               "interaction": {
                 "activationType": "exclusive"
               }
