@@ -3685,6 +3685,9 @@ class Screenshot {
   static updateCanvasFilters(filters) {
     Screenshot.#filters = filters;
   }
+  static onAnimationEnd(e) {
+    e.target.classList.remove("bx-taking-screenshot");
+  }
   static takeScreenshot(callback) {
     const currentStream = STATES.currentStream;
     const $video = currentStream.$video;
@@ -3692,6 +3695,8 @@ class Screenshot {
     if (!$video || !$canvas) {
       return;
     }
+    $video.parentElement?.addEventListener("animationend", this.onAnimationEnd);
+    $video.parentElement?.classList.add("bx-taking-screenshot");
     const canvasContext = $canvas.getContext("2d", {
       alpha: false,
       willReadFrequently: false
@@ -8276,6 +8281,7 @@ function addCss() {
   --bx-mkb-pointer-lock-msg-z-index: 8999;
   --bx-game-bar-z-index: 8888;
   --bx-wait-time-box-z-index: 100;
+  --bx-screenshot-animation-z-index: 1;
 }
 @font-face {
   font-family: 'promptfont';
@@ -8868,6 +8874,58 @@ body[data-media-type=default] .bx-stream-refresh-button {
 }
 body[data-media-type=tv] .bx-stream-refresh-button {
   top: calc(var(--gds-focus-borderSize) + 80px) !important;
+}
+div[data-testid=media-container].bx-taking-screenshot:before {
+  animation: bx-taking-screenshot 0.5s ease;
+  content: ' ';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: var(--bx-screenshot-animation-z-index);
+}
+@-moz-keyframes bx-taking-screenshot {
+  0% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
+  50% {
+    border: 8px solid rgba(255,255,255,0.502);
+  }
+  100% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
+}
+@-webkit-keyframes bx-taking-screenshot {
+  0% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
+  50% {
+    border: 8px solid rgba(255,255,255,0.502);
+  }
+  100% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
+}
+@-o-keyframes bx-taking-screenshot {
+  0% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
+  50% {
+    border: 8px solid rgba(255,255,255,0.502);
+  }
+  100% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
+}
+@keyframes bx-taking-screenshot {
+  0% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
+  50% {
+    border: 8px solid rgba(255,255,255,0.502);
+  }
+  100% {
+    border: 0px solid rgba(255,255,255,0.502);
+  }
 }
 .bx-number-stepper {
   text-align: center;
