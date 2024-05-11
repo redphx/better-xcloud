@@ -120,8 +120,13 @@ export function injectStreamMenuButtons() {
 
                 let $elm: HTMLElement | null = $node as HTMLElement;
 
+                // Ignore SVG elements
+                if ($elm instanceof SVGSVGElement) {
+                    return;
+                }
+
                 // Error Page: .PureErrorPage.ErrorScreen
-                if ($elm.className.includes('PureErrorPage')) {
+                if ($elm.className?.includes('PureErrorPage')) {
                     BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
                     return;
                 }
@@ -133,7 +138,7 @@ export function injectStreamMenuButtons() {
                 }
 
                 // Render badges
-                if ($elm.className.startsWith('StreamMenu-module__container')) {
+                if ($elm.className?.startsWith('StreamMenu-module__container')) {
                     BxEvent.dispatch(window, BxEvent.STREAM_MENU_SHOWN);
 
                     const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
@@ -175,7 +180,7 @@ export function injectStreamMenuButtons() {
                     return;
                 }
 
-                if ($elm.className.startsWith('Overlay-module_') || $elm.className.startsWith('InProgressScreen')) {
+                if ($elm.className?.startsWith('Overlay-module_') || $elm.className?.startsWith('InProgressScreen')) {
                     $elm = $elm.querySelector('#StreamHud');
                 }
 

@@ -6,6 +6,7 @@ import { BxIcon } from "@utils/bx-icon";
 import type { BaseGameBarAction } from "./action-base";
 import { STATES } from "@utils/global";
 import { PrefKey, getPref } from "@utils/preferences";
+import { MicrophoneAction } from "./action-microphone";
 
 
 export class GameBar {
@@ -38,6 +39,7 @@ export class GameBar {
         this.actions = [
             new ScreenshotAction(),
             ...(STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'off') ? [new TouchControlAction()] : []),
+            new MicrophoneAction(),
         ];
 
         // Render actions

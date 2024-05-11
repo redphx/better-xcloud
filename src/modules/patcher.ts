@@ -4,6 +4,7 @@ import { getPref, PrefKey } from "@utils/preferences";
 import { VibrationManager } from "@modules/vibration-manager";
 import { BxLogger } from "@utils/bx-logger";
 import { hashCode } from "@utils/utils";
+import { BxEvent } from "@/utils/bx-event";
 
 type PatchArray = (keyof typeof PATCHES)[];
 
@@ -496,12 +497,53 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
         str = str.replace(text, newCode);
         return str;
     },
+
+    exposeEventTarget(str: string) {
+        const text ='this._eventTarget=new EventTarget';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `
+window.BX_EXPOSED.eventTarget = ${text},
+window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
+`;
+
+        str = str.replace(text, newCode);
+        return str;
+    },
+
+    exposeStreamSession(str: string) {
+        const text =',this._connectionType=';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `;
+
+window.BX_EXPOSED.streamSession = this;
+
+const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
+this.setMicrophoneState = (e) => {
+    console.log(e);
+    orgSetMicrophoneState(e);
+};
+
+window.dispatchEvent(new Event('${BxEvent.STREAM_SESSION_READY}'))
+
+true` + text;
+
+        str = str.replace(text, newCode);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
     'disableStreamGate',
     'overrideSettings',
     'broadcastPollingMode',
+
+    'exposeStreamSession',
 
     getPref(PrefKey.UI_LAYOUT) !== 'default' && 'websiteLayout',
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
@@ -537,6 +579,8 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     'disableGamepadDisconnectedScreen',
     'patchStreamHud',
     'playVibration',
+
+    'exposeEventTarget',
 
     // Patch volume control for normal stream
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'patchAudioMediaStream',

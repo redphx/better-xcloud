@@ -9,7 +9,6 @@ import { StreamStats } from "@modules/stream/stream-stats";
 import { TouchController } from "@modules/touch-controller";
 import { t } from "@utils/translation";
 import { VibrationManager } from "@modules/vibration-manager";
-import { GameBar } from "../game-bar/game-bar";
 import { Screenshot } from "@/utils/screenshot";
 
 
@@ -477,7 +476,6 @@ export function setupStreamUi() {
         StreamStats.render();
 
         Screenshot.setup();
-        getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
     }
 
     updateVideoPlayerCss();

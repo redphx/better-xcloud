@@ -213,6 +213,7 @@ function main() {
     // Setup UI
     addCss();
     Toast.setup();
+    getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
     BX_FLAGS.PreloadUi && setupStreamUi();
 
     StreamBadges.setupEvents();
