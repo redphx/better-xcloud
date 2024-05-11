@@ -1,5 +1,4 @@
 import { STATES } from "@utils/global";
-import { UserAgent } from "@utils/user-agent";
 import { BxLogger } from "./bx-logger";
 import { TouchController } from "@modules/touch-controller";
 import { GamePassCloudGallery } from "./gamepass-gallery";
@@ -12,19 +11,14 @@ export function overridePreloadState() {
     Object.defineProperty(window, '__PRELOADED_STATE__', {
         configurable: true,
         get: () => {
-            // @ts-ignore
             return _state;
         },
         set: state => {
             // Override User-Agent
-            const userAgent = UserAgent.spoof();
-            if (userAgent) {
-                try {
-                    // @ts-ignore
-                    state.appContext.requestInfo.userAgent = userAgent;
-                } catch (e) {
-                    BxLogger.error(LOG_TAG, e);
-                }
+            try {
+                state.appContext.requestInfo.userAgent = window.navigator.userAgent;
+            } catch (e) {
+                BxLogger.error(LOG_TAG, e);
             }
 
             // Add list of games with custom layouts to the official list

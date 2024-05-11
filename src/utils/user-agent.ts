@@ -45,6 +45,8 @@ export class UserAgent {
         if (!UserAgent.#config.custom) {
             UserAgent.#config.custom = '';
         }
+
+        UserAgent.spoof();
     }
 
     static updateStorage(profile: UserAgentProfile, custom?: string) {
@@ -63,16 +65,22 @@ export class UserAgent {
     }
 
     static get(profile: UserAgentProfile): string {
-        const defaultUserAgent = UserAgent.getDefault();
-        if (profile === UserAgentProfile.CUSTOM) {
-            return UserAgent.#config.custom || '';
-        }
+        const defaultUserAgent = window.navigator.userAgent;
 
-        return (UserAgent.#USER_AGENTS as any)[profile] || defaultUserAgent;
+        switch (profile) {
+            case UserAgentProfile.DEFAULT:
+                return defaultUserAgent;
+
+            case UserAgentProfile.CUSTOM:
+                return UserAgent.#config.custom || defaultUserAgent;
+
+            default:
+                return UserAgent.#USER_AGENTS[profile] || defaultUserAgent;
+        }
     }
 
     static isSafari(mobile=false): boolean {
-        const userAgent = (UserAgent.getDefault() || '').toLowerCase();
+        const userAgent = UserAgent.getDefault().toLowerCase();
         let result = userAgent.includes('safari') && !userAgent.includes('chrom');
 
         if (result && mobile) {
@@ -83,21 +91,17 @@ export class UserAgent {
     }
 
     static isMobile(): boolean {
-        const userAgent = (UserAgent.getDefault() || '').toLowerCase();
+        const userAgent = UserAgent.getDefault().toLowerCase();
         return /iphone|ipad|android/.test(userAgent);
     }
 
     static spoof() {
-        let newUserAgent;
-
         const profile = UserAgent.#config.profile;
         if (profile === UserAgentProfile.DEFAULT) {
             return;
         }
 
-        if (!newUserAgent) {
-            newUserAgent = UserAgent.get(profile);
-        }
+        const newUserAgent = UserAgent.get(profile);
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
         (window.navigator as any).orgUserAgentData = (window.navigator as any).userAgentData;
@@ -108,7 +112,5 @@ export class UserAgent {
         Object.defineProperty(window.navigator, 'userAgent', {
             value: newUserAgent,
         });
-
-        return newUserAgent;
     }
 }
