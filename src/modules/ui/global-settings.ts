@@ -6,7 +6,6 @@ import { UserAgent, UserAgentProfile } from "@utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/preferences";
 import { t, refreshCurrentLocale } from "@utils/translation";
 import { PatcherCache } from "../patcher";
-import { profile } from "console";
 
 const SETTINGS_UI = {
     'Better xCloud': {
@@ -254,7 +253,7 @@ export function setupSettingsUi() {
                 $control = CE<HTMLSelectElement>('select', {id: `bx_setting_${settingId}`});
                 $control.name = $control.id;
 
-                $control.addEventListener('change', e => {
+                $control.addEventListener('change', (e: Event) => {
                     setPref(settingId, (e.target as HTMLSelectElement).value);
                     onChange(e);
                 });
