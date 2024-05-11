@@ -13,15 +13,112 @@
 // @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
 // ==/UserScript==
 'use strict';
+// src/utils/user-agent.ts
+var UserAgentProfile;
+(function(UserAgentProfile2) {
+  UserAgentProfile2["WINDOWS_EDGE"] = "windows-edge";
+  UserAgentProfile2["MACOS_SAFARI"] = "macos-safari";
+  UserAgentProfile2["SMARTTV_GENERIC"] = "smarttv-generic";
+  UserAgentProfile2["SMARTTV_TIZEN"] = "smarttv-tizen";
+  UserAgentProfile2["VR_OCULUS"] = "vr-oculus";
+  UserAgentProfile2["ANDROID_KIWI_V123"] = "android-kiwi-v123";
+  UserAgentProfile2["DEFAULT"] = "default";
+  UserAgentProfile2["CUSTOM"] = "custom";
+})(UserAgentProfile || (UserAgentProfile = {}));
+var CHROMIUM_VERSION = "123.0.0.0";
+if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
+  const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
+  if (match) {
+    CHROMIUM_VERSION = match[1];
+  }
+}
+
+class UserAgent {
+  static STORAGE_KEY = "better_xcloud_user_agent";
+  static #config;
+  static #USER_AGENTS = {
+    [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
+    [UserAgentProfile.MACOS_SAFARI]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
+    [UserAgentProfile.SMARTTV_GENERIC]: window.navigator.userAgent + " SmartTV",
+    [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
+    [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR",
+    [UserAgentProfile.ANDROID_KIWI_V123]: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36"
+  };
+  static init() {
+    UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY) || "{}");
+    if (!UserAgent.#config.profile) {
+      UserAgent.#config.profile = UserAgentProfile.DEFAULT;
+    }
+    if (!UserAgent.#config.custom) {
+      UserAgent.#config.custom = "";
+    }
+    UserAgent.spoof();
+  }
+  static updateStorage(profile, custom) {
+    const clonedConfig = structuredClone(UserAgent.#config);
+    clonedConfig.profile = profile;
+    if (typeof custom !== "undefined") {
+      clonedConfig.custom = custom;
+    }
+    window.localStorage.setItem(UserAgent.STORAGE_KEY, JSON.stringify(clonedConfig));
+  }
+  static getDefault() {
+    return window.navigator.orgUserAgent || window.navigator.userAgent;
+  }
+  static get(profile) {
+    const defaultUserAgent = window.navigator.userAgent;
+    switch (profile) {
+      case UserAgentProfile.DEFAULT:
+        return defaultUserAgent;
+      case UserAgentProfile.CUSTOM:
+        return UserAgent.#config.custom || defaultUserAgent;
+      default:
+        return UserAgent.#USER_AGENTS[profile] || defaultUserAgent;
+    }
+  }
+  static isSafari(mobile = false) {
+    const userAgent = UserAgent.getDefault().toLowerCase();
+    let result = userAgent.includes("safari") && !userAgent.includes("chrom");
+    if (result && mobile) {
+      result = userAgent.includes("mobile");
+    }
+    return result;
+  }
+  static isMobile() {
+    const userAgent = UserAgent.getDefault().toLowerCase();
+    return /iphone|ipad|android/.test(userAgent);
+  }
+  static spoof() {
+    const profile = UserAgent.#config.profile;
+    if (profile === UserAgentProfile.DEFAULT) {
+      return;
+    }
+    const newUserAgent = UserAgent.get(profile);
+    window.navigator.orgUserAgentData = window.navigator.userAgentData;
+    Object.defineProperty(window.navigator, "userAgentData", {});
+    window.navigator.orgUserAgent = window.navigator.userAgent;
+    Object.defineProperty(window.navigator, "userAgent", {
+      value: newUserAgent
+    });
+  }
+}
+
 // src/utils/global.ts
 var SCRIPT_VERSION = "4.2.0";
 var SCRIPT_HOME = "https://github.com/redphx/better-xcloud";
 var AppInterface = window.AppInterface;
+UserAgent.init();
+var userAgent = window.navigator.userAgent.toLowerCase();
+var isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent);
+var isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser");
+var browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+var hasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
 var STATES = {
   isPlaying: false,
   appContext: {},
   serverRegions: {},
-  hasTouchSupport: "ontouchstart" in window || navigator.maxTouchPoints > 0,
+  hasTouchSupport,
+  browserHasTouchSupport,
   currentStream: {},
   remotePlay: {}
 };
@@ -1143,6 +1240,23 @@ var Texts = {
     "Bật tính năng phím tắt cho bộ điều khiển",
     "启用手柄快捷方式"
   ],
+  "enable-game-bar": [
+    ,
+    ,
+    "Enable Game Bar feature",
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    "Kích hoạt tính năng Game Bar",
+    ,
+  ],
   "enable-local-co-op-support": [
     "Lokale Koop-Unterstützung aktivieren",
     "Nyalakan dukungan mode lokal co-op",
@@ -1458,7 +1572,7 @@ var Texts = {
     ,
     "タッチコントローラーを隠す",
     ,
-    ,
+    "Ukryj sterowanie dotykowe",
     ,
     "Скрыть сенсорный контроллер",
     ,
@@ -1769,7 +1883,7 @@ var Texts = {
     "Использование этой функции при игре онлайн может рассматриваться как читерство",
     "Bu özellik çevrimiçi oyunlarda sizi hile yapıyormuşsunuz gibi gösterebilir",
     "Використання цієї функції під час гри онлайн може розглядатися як шахрайство",
-    "Sử dụng chức năng này khi chơi trực tuyến có thể bị xem là gian lận",
+    "Sử dụng tính năng này khi chơi trực tuyến có thể bị xem là gian lận",
     "游玩在线游戏时，使用此功能可能被视为作弊。"
   ],
   "mouse-and-keyboard": [
@@ -2401,23 +2515,6 @@ var Texts = {
     "Áp dụng hiệu ứng video vào ảnh chụp màn hình",
     "为截图添加滤镜"
   ],
-  "screenshot-button-position": [
-    "Position des Screenshot-Buttons",
-    "Posisi tombol Screenshot",
-    "Screenshot button's position",
-    "Posición del botón de captura de pantalla",
-    "Position du bouton de capture d'écran",
-    "Posizione del pulsante screenshot",
-    "スクリーンショットボタンの位置",
-    "스크린샷 버튼 위치",
-    "Pozycja przycisku zrzutu ekranu",
-    "Posição do botão de captura de tela",
-    "Расположение кнопки скриншота",
-    "Ekran görüntüsü düğmesi konumu",
-    "Позиція кнопки знімка екрана",
-    "Vị trí của nút Chụp màn hình",
-    "截图按钮位置"
-  ],
   "separate-touch-controller": [
     "Trenne Touch-Controller & Controller #1",
     "Pisahkan Kontrol sentuh & Kontroler #1",
@@ -2563,7 +2660,7 @@ var Texts = {
     ,
     "タッチコントローラーを表示",
     ,
-    ,
+    "Pokaż sterowanie dotykowe",
     ,
     "Показать сенсорный контроллер",
     ,
@@ -2937,7 +3034,7 @@ var Texts = {
     ,
     "スクリーンショットを撮影",
     ,
-    ,
+    "Zrób zrzut ekranu",
     ,
     "Сделать снимок экрана",
     ,
@@ -3319,6 +3416,23 @@ var Texts = {
     "Sử dụng vị trí tuyệt đối của chuột",
     "使用鼠标的绝对位置"
   ],
+  "user-agent-note": [
+    ,
+    ,
+    "This feature may cause unexpected behavior",
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    "Tính năng này có thể gây ra các hành vi không mong muốn",
+    ,
+  ],
   "user-agent-profile": [
     "User-Agent Profil",
     "Profil User-Agent",
@@ -3552,44 +3666,42 @@ var t = Translations.get;
 var refreshCurrentLocale = Translations.refreshCurrentLocale;
 refreshCurrentLocale();
 
-// src/modules/game-bar/action-screenshot.ts
-class ScreenshotAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
+// src/utils/screenshot.ts
+class Screenshot {
+  static #filters = "";
+  static setup() {
     const currentStream = STATES.currentStream;
-    currentStream.$screenshotCanvas = CE("canvas", { class: "bx-gone" });
-    document.documentElement.appendChild(currentStream.$screenshotCanvas);
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      this.takeScreenshot();
-    };
-    this.$content = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.SCREENSHOT,
-      title: t("take-screenshot"),
-      onClick
-    });
+    if (!currentStream.$screenshotCanvas) {
+      currentStream.$screenshotCanvas = CE("canvas", { class: "bx-gone" });
+    }
   }
-  render() {
-    return this.$content;
+  static updateCanvasSize(width, height) {
+    const $canvas = STATES.currentStream.$screenshotCanvas;
+    if ($canvas) {
+      $canvas.width = width;
+      $canvas.height = height;
+    }
   }
-  takeScreenshot(callback) {
+  static updateCanvasFilters(filters) {
+    Screenshot.#filters = filters;
+  }
+  static takeScreenshot(callback) {
     const currentStream = STATES.currentStream;
     const $video = currentStream.$video;
     const $canvas = currentStream.$screenshotCanvas;
     if (!$video || !$canvas) {
       return;
     }
-    const $canvasContext = $canvas.getContext("2d", {
+    const canvasContext = $canvas.getContext("2d", {
       alpha: false,
       willReadFrequently: false
     });
-    $canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
+    canvasContext.filter = Screenshot.#filters;
+    canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
     if (AppInterface) {
       const data = $canvas.toDataURL("image/png").split(";base64,")[1];
       AppInterface.saveScreenshot(currentStream.titleId, data);
-      $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
       callback && callback();
       return;
     }
@@ -3601,9 +3713,30 @@ class ScreenshotAction extends BaseGameBarAction {
       });
       $anchor.click();
       URL.revokeObjectURL($anchor.href);
-      $canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
       callback && callback();
     }, "image/png");
+  }
+}
+
+// src/modules/game-bar/action-screenshot.ts
+class ScreenshotAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      Screenshot.takeScreenshot();
+    };
+    this.$content = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.SCREENSHOT,
+      title: t("take-screenshot"),
+      onClick
+    });
+  }
+  render() {
+    return this.$content;
   }
 }
 
@@ -3870,76 +4003,6 @@ class SettingElement {
       $control.name = $control.id;
     }
     return $control;
-  }
-}
-
-// src/utils/user-agent.ts
-var UserAgentProfile;
-(function(UserAgentProfile2) {
-  UserAgentProfile2["EDGE_WINDOWS"] = "edge-windows";
-  UserAgentProfile2["SAFARI_MACOS"] = "safari-macos";
-  UserAgentProfile2["SMARTTV"] = "smarttv";
-  UserAgentProfile2["SMARTTV_TIZEN"] = "smarttv-tizen";
-  UserAgentProfile2["VR_OCULUS"] = "vr-oculus";
-  UserAgentProfile2["KIWI_V123"] = "kiwi-v123";
-  UserAgentProfile2["DEFAULT"] = "default";
-  UserAgentProfile2["CUSTOM"] = "custom";
-})(UserAgentProfile || (UserAgentProfile = {}));
-var CHROMIUM_VERSION = "123.0.0.0";
-if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
-  const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
-  if (match) {
-    CHROMIUM_VERSION = match[1];
-  }
-}
-
-class UserAgent {
-  static #USER_AGENTS = {
-    [UserAgentProfile.EDGE_WINDOWS]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
-    [UserAgentProfile.SAFARI_MACOS]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
-    [UserAgentProfile.SMARTTV]: window.navigator.userAgent + " SmartTV",
-    [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
-    [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR",
-    [UserAgentProfile.KIWI_V123]: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36"
-  };
-  static getDefault() {
-    return window.navigator.orgUserAgent || window.navigator.userAgent;
-  }
-  static get(profile) {
-    const defaultUserAgent = UserAgent.getDefault();
-    if (profile === UserAgentProfile.CUSTOM) {
-      return getPref(PrefKey.USER_AGENT_CUSTOM);
-    }
-    return UserAgent.#USER_AGENTS[profile] || defaultUserAgent;
-  }
-  static isSafari(mobile = false) {
-    const userAgent = (UserAgent.getDefault() || "").toLowerCase();
-    let result = userAgent.includes("safari") && !userAgent.includes("chrom");
-    if (result && mobile) {
-      result = userAgent.includes("mobile");
-    }
-    return result;
-  }
-  static isMobile() {
-    const userAgent = (UserAgent.getDefault() || "").toLowerCase();
-    return /iphone|ipad|android/.test(userAgent);
-  }
-  static spoof() {
-    let newUserAgent;
-    const profile = getPref(PrefKey.USER_AGENT_PROFILE);
-    if (profile === UserAgentProfile.DEFAULT) {
-      return;
-    }
-    if (!newUserAgent) {
-      newUserAgent = UserAgent.get(profile);
-    }
-    window.navigator.orgUserAgentData = window.navigator.userAgentData;
-    Object.defineProperty(window.navigator, "userAgentData", {});
-    window.navigator.orgUserAgent = window.navigator.userAgent;
-    Object.defineProperty(window.navigator, "userAgent", {
-      value: newUserAgent
-    });
-    return newUserAgent;
   }
 }
 
@@ -4408,7 +4471,6 @@ var PrefKey;
   PrefKey2["STREAM_PREFERRED_LOCALE"] = "stream_preferred_locale";
   PrefKey2["STREAM_CODEC_PROFILE"] = "stream_codec_profile";
   PrefKey2["USER_AGENT_PROFILE"] = "user_agent_profile";
-  PrefKey2["USER_AGENT_CUSTOM"] = "user_agent_custom";
   PrefKey2["STREAM_SIMPLIFY_MENU"] = "stream_simplify_menu";
   PrefKey2["STREAM_COMBINE_SOURCES"] = "stream_combine_sources";
   PrefKey2["STREAM_TOUCH_CONTROLLER"] = "stream_touch_controller";
@@ -4417,6 +4479,7 @@ var PrefKey;
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_STANDARD"] = "stream_touch_controller_style_standard";
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM"] = "stream_touch_controller_style_custom";
   PrefKey2["STREAM_DISABLE_FEEDBACK_DIALOG"] = "stream_disable_feedback_dialog";
+  PrefKey2["GAME_BAR_ENABLED"] = "game_bar_enabled";
   PrefKey2["LOCAL_CO_OP_ENABLED"] = "local_co_op_enabled";
   PrefKey2["CONTROLLER_ENABLE_SHORTCUTS"] = "controller_enable_shortcuts";
   PrefKey2["CONTROLLER_ENABLE_VIBRATION"] = "controller_enable_vibration";
@@ -4571,8 +4634,7 @@ class Preferences {
         }
         return options;
       })(),
-      ready: () => {
-        const setting = Preferences.SETTINGS[PrefKey.STREAM_CODEC_PROFILE];
+      ready: (setting) => {
         const options = setting.options;
         const keys = Object.keys(options);
         if (keys.length <= 1) {
@@ -4613,8 +4675,7 @@ class Preferences {
         off: t("off")
       },
       unsupported: !STATES.hasTouchSupport,
-      ready: () => {
-        const setting = Preferences.SETTINGS[PrefKey.STREAM_TOUCH_CONTROLLER];
+      ready: (setting) => {
         if (setting.unsupported) {
           setting.default = "default";
         }
@@ -4670,6 +4731,10 @@ class Preferences {
       label: t("disable-post-stream-feedback-dialog"),
       default: false
     },
+    [PrefKey.GAME_BAR_ENABLED]: {
+      label: t("enable-game-bar"),
+      default: true
+    },
     [PrefKey.LOCAL_CO_OP_ENABLED]: {
       label: t("enable-local-co-op-support"),
       default: false,
@@ -4707,21 +4772,20 @@ class Preferences {
       label: t("enable-mkb"),
       default: false,
       unsupported: (() => {
-        const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
-        return userAgent.match(/(android|iphone|ipad)/) ? t("browser-unsupported-feature") : false;
+        const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
+        return userAgent2.match(/(android|iphone|ipad)/) ? t("browser-unsupported-feature") : false;
       })(),
-      ready: () => {
-        const pref = Preferences.SETTINGS[PrefKey.MKB_ENABLED];
+      ready: (setting) => {
         let note;
         let url;
-        if (pref.unsupported) {
+        if (setting.unsupported) {
           note = t("browser-unsupported-feature");
           url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
         } else {
           note = t("mkb-disclaimer");
           url = "https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer";
         }
-        Preferences.SETTINGS[PrefKey.MKB_ENABLED].note = CE("a", {
+        setting.note = CE("a", {
           href: url,
           target: "_blank"
         }, "⚠️ " + note);
@@ -4777,20 +4841,18 @@ class Preferences {
     },
     [PrefKey.USER_AGENT_PROFILE]: {
       label: t("user-agent-profile"),
+      note: "⚠️ " + t("user-agent-note"),
       default: "default",
       options: {
         [UserAgentProfile.DEFAULT]: t("default"),
-        [UserAgentProfile.EDGE_WINDOWS]: "Edge + Windows",
-        [UserAgentProfile.SAFARI_MACOS]: "Safari + macOS",
-        [UserAgentProfile.SMARTTV]: "Smart TV",
+        [UserAgentProfile.WINDOWS_EDGE]: "Edge + Windows",
+        [UserAgentProfile.MACOS_SAFARI]: "Safari + macOS",
+        [UserAgentProfile.SMARTTV_GENERIC]: "Smart TV",
         [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV",
         [UserAgentProfile.VR_OCULUS]: "Meta Quest VR",
-        [UserAgentProfile.KIWI_V123]: "Kiwi Browser v123",
+        [UserAgentProfile.ANDROID_KIWI_V123]: "Kiwi Browser v123",
         [UserAgentProfile.CUSTOM]: t("custom")
       }
-    },
-    [PrefKey.USER_AGENT_CUSTOM]: {
-      default: ""
     },
     [PrefKey.VIDEO_CLARITY]: {
       type: SettingElementType.NUMBER_STEPPER,
@@ -4941,7 +5003,7 @@ class Preferences {
     const savedPrefs = JSON.parse(savedPrefsStr);
     for (let settingId in Preferences.SETTINGS) {
       const setting = Preferences.SETTINGS[settingId];
-      setting.ready && setting.ready.call(this);
+      setting.ready && setting.ready.call(this, setting);
       if (setting.migrate && settingId in savedPrefs) {
         setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
       }
@@ -5016,7 +5078,6 @@ class Preferences {
   toElement(key, onChange, overrideParams = {}) {
     const setting = Preferences.SETTINGS[key];
     let currentValue = this.get(key);
-    let $control;
     let type;
     if ("type" in setting) {
       type = setting.type;
@@ -5033,7 +5094,7 @@ class Preferences {
     if (params.disabled) {
       currentValue = Preferences.SETTINGS[key].default;
     }
-    $control = SettingElement.render(type, key, setting, currentValue, (e, value) => {
+    const $control = SettingElement.render(type, key, setting, currentValue, (e, value) => {
       this.set(key, value);
       onChange && onChange(e, value);
     }, params);
@@ -5530,7 +5591,7 @@ var cloneStreamHudButton = function($orgButton, label, svgIcon) {
       }, 100);
     }
   };
-  if (STATES.hasTouchSupport) {
+  if (STATES.browserHasTouchSupport) {
     $container.addEventListener("transitionstart", onTransitionStart);
     $container.addEventListener("transitionend", onTransitionEnd);
   }
@@ -6992,7 +7053,7 @@ function updateVideoPlayerCss() {
     videoCss += `filter: ${filters} !important;`;
   }
   if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
-    STATES.currentStream.$screenshotCanvas.getContext("2d").filter = filters;
+    Screenshot.updateCanvasFilters(filters);
   }
   const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
   if (PREF_RATIO && PREF_RATIO !== "16:9") {
@@ -7032,7 +7093,8 @@ function setupStreamUi() {
     window.addEventListener("resize", updateVideoPlayerCss);
     setupQuickSettingsBar();
     StreamStats.render();
-    GameBar.setup();
+    Screenshot.setup();
+    getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
   }
   updateVideoPlayerCss();
 }
@@ -7526,12 +7588,12 @@ class XhomeInterceptor {
     const xboxTitleId = JSON.parse(opts.body).titleIds[0];
     STATES.currentStream.xboxTitleId = xboxTitleId;
     const inputConfigs = obj[0];
-    let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
-    if (!hasTouchSupport) {
+    let hasTouchSupport2 = inputConfigs.supportedTabs.length > 0;
+    if (!hasTouchSupport2) {
       const supportedInputTypes = inputConfigs.supportedInputTypes;
-      hasTouchSupport = supportedInputTypes.includes("NativeTouch");
+      hasTouchSupport2 = supportedInputTypes.includes("NativeTouch");
     }
-    if (hasTouchSupport) {
+    if (hasTouchSupport2) {
       TouchController.disable();
       BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
         data: null
@@ -7861,15 +7923,15 @@ class TouchController {
       return;
     }
     let msg;
-    let html15 = false;
+    let html16 = false;
     if (layout.author) {
       const author = `<b>${escapeHtml(layout.author)}</b>`;
       msg = t("touch-control-layout-by", { name: author });
-      html15 = true;
+      html16 = true;
     } else {
       msg = t("touch-control-layout");
     }
-    layoutChanged && Toast.show(msg, layout.name, { html: html15 });
+    layoutChanged && Toast.show(msg, layout.name, { html: html16 });
     window.setTimeout(() => {
       window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
         type: "showLayout",
@@ -8005,71 +8067,37 @@ class TouchControlAction extends BaseGameBarAction {
 
 // src/modules/game-bar/game-bar.ts
 class GameBar {
-  static #VISIBLE_DURATION = 2000;
-  static #timeout;
-  static #$gameBar;
-  static #$container;
-  static #$actions = [];
-  static #beginHideTimeout() {
-    GameBar.#clearHideTimeout();
-    GameBar.#timeout = window.setTimeout(() => {
-      GameBar.#timeout = null;
-      GameBar.hideBar();
-    }, GameBar.#VISIBLE_DURATION);
-  }
-  static #clearHideTimeout() {
-    GameBar.#timeout && clearTimeout(GameBar.#timeout);
-    GameBar.#timeout = null;
-  }
-  static enable() {
-    GameBar.#$gameBar && GameBar.#$gameBar.classList.remove("bx-gone");
-  }
-  static disable() {
-    GameBar.#$gameBar && GameBar.#$gameBar.classList.add("bx-gone");
-    GameBar.hideBar();
-  }
-  static showBar() {
-    if (!GameBar.#$container) {
-      return;
+  static instance;
+  static getInstance() {
+    if (!GameBar.instance) {
+      GameBar.instance = new GameBar;
     }
-    GameBar.#$container.classList.remove("bx-offscreen", "bx-hide");
-    GameBar.#$container.classList.add("bx-show");
-    GameBar.#beginHideTimeout();
+    return GameBar.instance;
   }
-  static hideBar() {
-    if (!GameBar.#$container) {
-      return;
-    }
-    GameBar.#$container.classList.remove("bx-show");
-    GameBar.#$container.classList.add("bx-hide");
-  }
-  static reset() {
-    for (const action of GameBar.#$actions) {
-      action.reset();
-    }
-  }
-  static setup() {
+  static VISIBLE_DURATION = 2000;
+  $gameBar;
+  $container;
+  timeout = null;
+  actions = [];
+  constructor() {
     let $container;
     const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone" }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(BxIcon.CARET_RIGHT));
-    GameBar.#$actions = [
+    this.actions = [
       new ScreenshotAction,
       ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : []
     ];
-    for (const action of GameBar.#$actions) {
+    for (const action of this.actions) {
       $container.appendChild(action.render());
     }
     $gameBar.addEventListener("click", (e) => {
-      if (e.target === $gameBar) {
-        if ($container.classList.contains("bx-show")) {
-          GameBar.hideBar();
-        } else {
-          GameBar.showBar();
-        }
+      if (e.target !== $gameBar) {
+        return;
       }
+      $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
     });
-    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, GameBar.hideBar);
-    $container.addEventListener("pointerover", GameBar.#clearHideTimeout);
-    $container.addEventListener("pointerout", GameBar.#beginHideTimeout);
+    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this));
+    $container.addEventListener("pointerover", this.clearHideTimeout.bind(this));
+    $container.addEventListener("pointerout", this.beginHideTimeout.bind(this));
     $container.addEventListener("transitionend", (e) => {
       const classList = $container.classList;
       if (classList.contains("bx-hide")) {
@@ -8078,8 +8106,46 @@ class GameBar {
       }
     });
     document.documentElement.appendChild($gameBar);
-    GameBar.#$gameBar = $gameBar;
-    GameBar.#$container = $container;
+    this.$gameBar = $gameBar;
+    this.$container = $container;
+  }
+  beginHideTimeout() {
+    this.clearHideTimeout();
+    this.timeout = window.setTimeout(() => {
+      this.timeout = null;
+      this.hideBar();
+    }, GameBar.VISIBLE_DURATION);
+  }
+  clearHideTimeout() {
+    this.timeout && clearTimeout(this.timeout);
+    this.timeout = null;
+  }
+  enable() {
+    this.$gameBar && this.$gameBar.classList.remove("bx-gone");
+  }
+  disable() {
+    this.hideBar();
+    this.$gameBar && this.$gameBar.classList.add("bx-gone");
+  }
+  showBar() {
+    if (!this.$container) {
+      return;
+    }
+    this.$container.classList.remove("bx-offscreen", "bx-hide");
+    this.$container.classList.add("bx-show");
+    this.beginHideTimeout();
+  }
+  hideBar() {
+    if (!this.$container) {
+      return;
+    }
+    this.$container.classList.remove("bx-show");
+    this.$container.classList.add("bx-hide");
+  }
+  reset() {
+    for (const action of this.actions) {
+      action.reset();
+    }
   }
 }
 
@@ -8095,11 +8161,15 @@ var InputType;
 })(InputType || (InputType = {}));
 var BxExposed = {
   onPollingModeChanged: (mode) => {
-    if (!STATES.isPlaying) {
-      GameBar.disable();
+    if (!getPref(PrefKey.GAME_BAR_ENABLED)) {
       return;
     }
-    mode !== "None" ? GameBar.disable() : GameBar.enable();
+    const gameBar = GameBar.getInstance();
+    if (!STATES.isPlaying) {
+      gameBar.disable();
+      return;
+    }
+    mode !== "None" ? gameBar.disable() : gameBar.enable();
   },
   getTitleInfo: () => STATES.currentStream.titleInfo,
   modifyTitleInfo: (titleInfo) => {
@@ -8627,6 +8697,7 @@ a.bx-button.bx-full-width {
 }
 .bx-toast.bx-hide {
   opacity: 0;
+  pointer-events: none;
 }
 .bx-toast-msg {
   font-size: 14px;
@@ -8885,6 +8956,7 @@ body[data-media-type=tv] .bx-stream-refresh-button {
 }
 #bx-game-bar .bx-game-bar-container.bx-hide {
   opacity: 0;
+  pointer-events: none;
 }
 #bx-game-bar .bx-game-bar-container button {
   width: 60px;
@@ -9445,8 +9517,8 @@ function checkForUpdate() {
   });
 }
 function disablePwa() {
-  const userAgent = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
-  if (!userAgent) {
+  const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
+  if (!userAgent2) {
     return;
   }
   if (UserAgent.isSafari(true)) {
@@ -10077,8 +10149,8 @@ function setupSettingsUi() {
     $updateAvailable.classList.remove("bx-gone");
   }
   if (!AppInterface) {
-    const userAgent = UserAgent.getDefault().toLowerCase();
-    if (userAgent.includes("android")) {
+    const userAgent2 = UserAgent.getDefault().toLowerCase();
+    if (userAgent2.includes("android")) {
       const $btn = createButton({
         label: "🔥 " + t("install-android"),
         style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
@@ -10140,14 +10212,17 @@ function setupSettingsUi() {
           class: "bx-settings-custom-user-agent"
         });
         $inpCustomUserAgent.addEventListener("change", (e) => {
-          setPref(PrefKey.USER_AGENT_CUSTOM, e.target.value.trim());
+          const profile = $control.value;
+          const custom = e.target.value.trim();
+          UserAgent.updateStorage(profile, custom);
           onChange(e);
         });
         $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e) => {
           const value = e.target.value;
           let isCustom = value === UserAgentProfile.CUSTOM;
-          let userAgent = UserAgent.get(value);
-          $inpCustomUserAgent.value = userAgent;
+          let userAgent2 = UserAgent.get(value);
+          UserAgent.updateStorage(value);
+          $inpCustomUserAgent.value = userAgent2;
           $inpCustomUserAgent.readOnly = !isCustom;
           $inpCustomUserAgent.disabled = !isCustom;
           onChange(e);
@@ -10249,10 +10324,11 @@ var SETTINGS_UI = {
     items: [
       PrefKey.STREAM_TARGET_RESOLUTION,
       PrefKey.STREAM_CODEC_PROFILE,
-      PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
+      PrefKey.GAME_BAR_ENABLED,
       PrefKey.AUDIO_MIC_ON_PLAYING,
       PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
       PrefKey.SCREENSHOT_APPLY_FILTERS,
+      PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
       PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
       PrefKey.STREAM_COMBINE_SOURCES
     ]
@@ -10402,13 +10478,10 @@ function overridePreloadState() {
       return _state;
     },
     set: (state) => {
-      const userAgent = UserAgent.spoof();
-      if (userAgent) {
-        try {
-          state.appContext.requestInfo.userAgent = userAgent;
-        } catch (e) {
-          BxLogger.error(LOG_TAG5, e);
-        }
+      try {
+        state.appContext.requestInfo.userAgent = window.navigator.userAgent;
+      } catch (e) {
+        BxLogger.error(LOG_TAG5, e);
       }
       if (STATES.hasTouchSupport) {
         try {
@@ -10688,11 +10761,13 @@ window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
   STATES.currentStream.$video = $video;
   STATES.isPlaying = true;
   injectStreamMenuButtons();
-  GameBar.reset();
-  GameBar.enable();
-  GameBar.showBar();
-  STATES.currentStream.$screenshotCanvas.width = $video.videoWidth;
-  STATES.currentStream.$screenshotCanvas.height = $video.videoHeight;
+  if (getPref(PrefKey.GAME_BAR_ENABLED)) {
+    const gameBar = GameBar.getInstance();
+    gameBar.reset();
+    gameBar.enable();
+    gameBar.showBar();
+  }
+  Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight);
   updateVideoPlayerCss();
 });
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
@@ -10713,6 +10788,6 @@ window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
   StreamStats.onStoppedPlaying();
   MouseCursorHider.stop();
   TouchController.reset();
-  GameBar.disable();
+  GameBar.getInstance().disable();
 });
 main();
