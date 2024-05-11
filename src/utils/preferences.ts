@@ -20,7 +20,6 @@ export enum PrefKey {
     STREAM_CODEC_PROFILE = 'stream_codec_profile',
 
     USER_AGENT_PROFILE = 'user_agent_profile',
-    USER_AGENT_CUSTOM = 'user_agent_custom',
     STREAM_SIMPLIFY_MENU = 'stream_simplify_menu',
 
     STREAM_COMBINE_SOURCES = 'stream_combine_sources',
@@ -450,9 +449,6 @@ export class Preferences {
                 [UserAgentProfile.CUSTOM]: t('custom'),
             },
         },
-        [PrefKey.USER_AGENT_CUSTOM]: {
-            default: '',
-        },
         [PrefKey.VIDEO_CLARITY]: {
             type: SettingElementType.NUMBER_STEPPER,
             default: 0,
@@ -722,7 +718,6 @@ export class Preferences {
         const setting = Preferences.SETTINGS[key];
         let currentValue = this.get(key);
 
-        let $control;
         let type;
         if ('type' in setting) {
             type = setting.type;
@@ -741,7 +736,7 @@ export class Preferences {
             currentValue = Preferences.SETTINGS[key].default;
         }
 
-        $control = SettingElement.render(type!, key as string, setting, currentValue, (e: any, value: any) => {
+        const $control = SettingElement.render(type!, key as string, setting, currentValue, (e: any, value: any) => {
                 this.set(key, value);
                 onChange && onChange(e, value);
             }, params);

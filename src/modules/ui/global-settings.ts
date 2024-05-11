@@ -6,6 +6,7 @@ import { UserAgent, UserAgentProfile } from "@utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/preferences";
 import { t, refreshCurrentLocale } from "@utils/translation";
 import { PatcherCache } from "../patcher";
+import { profile } from "console";
 
 const SETTINGS_UI = {
     'Better xCloud': {
@@ -215,7 +216,7 @@ export function setupSettingsUi() {
                 }
             }
 
-            let $control;
+            let $control: any;
             let $inpCustomUserAgent: HTMLInputElement;
             let labelAttrs = {};
 
@@ -227,14 +228,19 @@ export function setupSettingsUi() {
                     'class': 'bx-settings-custom-user-agent',
                 });
                 $inpCustomUserAgent.addEventListener('change', e => {
-                    setPref(PrefKey.USER_AGENT_CUSTOM, (e.target as HTMLInputElement).value.trim());
+                    const profile = $control.value;
+                    const custom = (e.target as HTMLInputElement).value.trim();
+
+                    UserAgent.updateStorage(profile, custom);
                     onChange(e);
                 });
 
                 $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e: Event) => {
-                    const value = (e.target as HTMLInputElement).value;
+                    const value = (e.target as HTMLInputElement).value as UserAgentProfile;
                     let isCustom = value === UserAgentProfile.CUSTOM;
                     let userAgent = UserAgent.get(value as UserAgentProfile);
+
+                    UserAgent.updateStorage(value);
 
                     $inpCustomUserAgent.value = userAgent;
                     $inpCustomUserAgent.readOnly = !isCustom;

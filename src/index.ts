@@ -28,6 +28,7 @@ import { STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
+import { UserAgent } from "./utils/user-agent";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
@@ -187,6 +188,8 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
 
 
 function main() {
+    UserAgent.init();
+
     // Monkey patches
     patchRtcPeerConnection();
     patchRtcCodecs();

@@ -1,4 +1,7 @@
-import { PrefKey, getPref } from "@utils/preferences";
+type UserAgentConfig = {
+    profile: UserAgentProfile,
+    custom?: string,
+};
 
 export enum UserAgentProfile {
     EDGE_WINDOWS = 'edge-windows',
@@ -21,6 +24,9 @@ if (!!(window as any).chrome || window.navigator.userAgent.includes('Chrome')) {
 }
 
 export class UserAgent {
+    static readonly STORAGE_KEY = 'better_xcloud_user_agent';
+    static #config: UserAgentConfig;
+
     static #USER_AGENTS: PartialRecord<UserAgentProfile, string> = {
         [UserAgentProfile.EDGE_WINDOWS]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
         [UserAgentProfile.SAFARI_MACOS]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
@@ -30,6 +36,28 @@ export class UserAgent {
         [UserAgentProfile.KIWI_V123]: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36',
     }
 
+    static init() {
+        UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY)  || '{}') as UserAgentConfig;
+        if (!UserAgent.#config.profile) {
+            UserAgent.#config.profile = UserAgentProfile.DEFAULT;
+        }
+
+        if (!UserAgent.#config.custom) {
+            UserAgent.#config.custom = '';
+        }
+    }
+
+    static updateStorage(profile: UserAgentProfile, custom?: string) {
+        const clonedConfig = structuredClone(UserAgent.#config);
+        clonedConfig.profile = profile;
+
+        if (typeof custom !== 'undefined') {
+            clonedConfig.custom = custom;
+        }
+
+        window.localStorage.setItem(UserAgent.STORAGE_KEY, JSON.stringify(clonedConfig));
+    }
+
     static getDefault(): string {
         return (window.navigator as any).orgUserAgent || window.navigator.userAgent;
     }
@@ -37,7 +65,7 @@ export class UserAgent {
     static get(profile: UserAgentProfile): string {
         const defaultUserAgent = UserAgent.getDefault();
         if (profile === UserAgentProfile.CUSTOM) {
-            return getPref(PrefKey.USER_AGENT_CUSTOM);
+            return UserAgent.#config.custom || '';
         }
 
         return (UserAgent.#USER_AGENTS as any)[profile] || defaultUserAgent;
@@ -62,7 +90,7 @@ export class UserAgent {
     static spoof() {
         let newUserAgent;
 
-        const profile = getPref(PrefKey.USER_AGENT_PROFILE);
+        const profile = UserAgent.#config.profile;
         if (profile === UserAgentProfile.DEFAULT) {
             return;
         }
