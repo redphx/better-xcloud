@@ -150,9 +150,10 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     injectStreamMenuButtons();
 
     if (getPref(PrefKey.GAME_BAR_ENABLED)) {
-        GameBar.reset();
-        GameBar.enable();
-        GameBar.showBar();
+        const gameBar = GameBar.getInstance();
+        gameBar.reset();
+        gameBar.enable();
+        gameBar.showBar();
     }
 
     if (STATES.currentStream.$screenshotCanvas) {
@@ -188,7 +189,7 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
 
     MouseCursorHider.stop();
     TouchController.reset();
-    GameBar.disable();
+    GameBar.getInstance().disable();
 });
 
 

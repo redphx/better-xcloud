@@ -9,96 +9,56 @@ import { PrefKey, getPref } from "@utils/preferences";
 
 
 export class GameBar {
-    static readonly #VISIBLE_DURATION = 2000;
-    static #timeout: number | null;
+    private static instance: GameBar;
 
-    static #$gameBar: HTMLElement;
-    static #$container: HTMLElement;
-
-    static #$actions: BaseGameBarAction[] = [];
-
-    static #beginHideTimeout() {
-        GameBar.#clearHideTimeout();
-
-        GameBar.#timeout = window.setTimeout(() => {
-                GameBar.#timeout = null;
-                GameBar.hideBar();
-            }, GameBar.#VISIBLE_DURATION);
-    }
-
-    static #clearHideTimeout() {
-        GameBar.#timeout && clearTimeout(GameBar.#timeout);
-        GameBar.#timeout = null;
-    }
-
-    static enable() {
-        GameBar.#$gameBar && GameBar.#$gameBar.classList.remove('bx-gone');
-    }
-
-    static disable() {
-        GameBar.#$gameBar && GameBar.#$gameBar.classList.add('bx-gone');
-        GameBar.hideBar();
-    }
-
-    static showBar() {
-        if (!GameBar.#$container) {
-            return;
+    public static getInstance(): GameBar {
+        if (!GameBar.instance) {
+            GameBar.instance = new GameBar();
         }
 
-        GameBar.#$container.classList.remove('bx-offscreen', 'bx-hide');
-        GameBar.#$container.classList.add('bx-show');
-
-        GameBar.#beginHideTimeout();
+        return GameBar.instance;
     }
 
-    static hideBar() {
-        if (!GameBar.#$container) {
-            return;
-        }
+    private static readonly VISIBLE_DURATION = 2000;
 
-        GameBar.#$container.classList.remove('bx-show');
-        GameBar.#$container.classList.add('bx-hide');
-    }
+    private $gameBar: HTMLElement;
+    private $container: HTMLElement;
 
-    // Reset all states
-    static reset() {
-        for (const action of GameBar.#$actions) {
-            action.reset();
-        }
-    }
+    private timeout: number | null = null;
 
-    static setup() {
+    private actions: BaseGameBarAction[] = [];
+
+    private constructor() {
         let $container;
         const $gameBar = CE('div', {id: 'bx-game-bar', class: 'bx-gone'},
                 $container = CE('div', {class: 'bx-game-bar-container bx-offscreen'}),
                 createSvgIcon(BxIcon.CARET_RIGHT),
             );
 
-        GameBar.#$actions = [
+        this.actions = [
             new ScreenshotAction(),
             ...(STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'off') ? [new TouchControlAction()] : []),
         ];
 
-        for (const action of GameBar.#$actions) {
+        // Render actions
+        for (const action of this.actions) {
             $container.appendChild(action.render());
         }
 
         // Toggle game bar when clicking on the game bar box
         $gameBar.addEventListener('click', e => {
-            if (e.target === $gameBar) {
-                if ($container.classList.contains('bx-show')) {
-                    GameBar.hideBar();
-                } else {
-                    GameBar.showBar();
-                }
+            if (e.target !== $gameBar) {
+                return;
             }
+
+            $container.classList.contains('bx-show') ? this.hideBar() : this.showBar();
         });
 
         // Hide game bar after clicking on an action
-        window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, GameBar.hideBar);
+        window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this));
 
-        $container.addEventListener('pointerover', GameBar.#clearHideTimeout);
-        $container.addEventListener('pointerout', GameBar.#beginHideTimeout);
+        $container.addEventListener('pointerover', this.clearHideTimeout.bind(this));
+        $container.addEventListener('pointerout', this.beginHideTimeout.bind(this));
 
         // Add animation when hiding game bar
         $container.addEventListener('transitionend', e => {
@@ -110,7 +70,57 @@ export class GameBar {
         });
 
         document.documentElement.appendChild($gameBar);
-        GameBar.#$gameBar = $gameBar;
-        GameBar.#$container = $container;
+        this.$gameBar = $gameBar;
+        this.$container = $container;
+    }
+
+    private beginHideTimeout() {
+        this.clearHideTimeout();
+
+        this.timeout = window.setTimeout(() => {
+                this.timeout = null;
+                this.hideBar();
+            }, GameBar.VISIBLE_DURATION);
+    }
+
+    private clearHideTimeout() {
+        this.timeout && clearTimeout(this.timeout);
+        this.timeout = null;
+    }
+
+    enable() {
+        this.$gameBar && this.$gameBar.classList.remove('bx-gone');
+    }
+
+    disable() {
+        this.hideBar();
+        this.$gameBar && this.$gameBar.classList.add('bx-gone');
+    }
+
+    showBar() {
+        if (!this.$container) {
+            return;
+        }
+
+        this.$container.classList.remove('bx-offscreen', 'bx-hide');
+        this.$container.classList.add('bx-show');
+
+        this.beginHideTimeout();
+    }
+
+    hideBar() {
+        if (!this.$container) {
+            return;
+        }
+
+        this.$container.classList.remove('bx-show');
+        this.$container.classList.add('bx-hide');
+    }
+
+    // Reset all states
+    reset() {
+        for (const action of this.actions) {
+            action.reset();
+        }
     }
 }

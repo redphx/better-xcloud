@@ -475,7 +475,7 @@ export function setupStreamUi() {
         setupQuickSettingsBar();
         StreamStats.render();
 
-        getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.setup();
+        getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
     }
 
     updateVideoPlayerCss();

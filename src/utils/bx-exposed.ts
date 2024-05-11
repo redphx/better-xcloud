@@ -20,13 +20,15 @@ export const BxExposed = {
             return;
         }
 
+        const gameBar = GameBar.getInstance();
+
         if (!STATES.isPlaying) {
-            GameBar.disable();
+            gameBar.disable();
             return;
         }
 
         // Toggle Game bar
-        mode !== 'None' ? GameBar.disable() : GameBar.enable();
+        mode !== 'None' ? gameBar.disable() : gameBar.enable();
     },
 
     getTitleInfo: () => STATES.currentStream.titleInfo,
