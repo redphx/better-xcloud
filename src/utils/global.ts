@@ -6,12 +6,17 @@ export const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 export const AppInterface = window.AppInterface;
 
 UserAgent.init();
+const userAgent = window.navigator.userAgent.toLowerCase();
+
+const isTv = userAgent.includes('smart-tv') || userAgent.includes('smarttv') || /\baft.*\b/.test(userAgent);
+const isVr = window.navigator.userAgent.includes('VR') && window.navigator.userAgent.includes('OculusBrowser');
+const hasTouchSupport = !isTv && !isVr && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
 export const STATES: BxStates = {
     isPlaying: false,
     appContext: {},
     serverRegions: {},
-    hasTouchSupport: ('ontouchstart' in window || navigator.maxTouchPoints > 0),
+    hasTouchSupport: hasTouchSupport,
 
     currentStream: {},
     remotePlay: {},
