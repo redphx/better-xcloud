@@ -16,6 +16,9 @@ import iconTrash from "@assets/svg/trash.svg" with { type: "text" };
 import iconTouchControlEnable from "@assets/svg/touch-control-enable.svg" with { type: "text" };
 import iconTouchControlDisable from "@assets/svg/touch-control-disable.svg" with { type: "text" };
 
+import iconMicrophone from "@assets/svg/microphone.svg" with { type: "text" };
+import iconMicrophoneMuted from "@assets/svg/microphone-slash.svg" with { type: "text" };
+
 export const BxIcon = {
     STREAM_SETTINGS: iconStreamSettings,
     STREAM_STATS: iconStreamStats,
@@ -37,5 +40,6 @@ export const BxIcon = {
     TOUCH_CONTROL_ENABLE: iconTouchControlEnable,
     TOUCH_CONTROL_DISABLE: iconTouchControlDisable,
 
-    // HAND_TAP = '<path d="M6.537 8.906c0-4.216 3.469-7.685 7.685-7.685s7.685 3.469 7.685 7.685M7.719 30.778l-4.333-7.389C3.133 22.944 3 22.44 3 21.928a2.97 2.97 0 0 1 2.956-2.956 2.96 2.96 0 0 1 2.55 1.461l2.761 4.433V8.906a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v8.276a2.97 2.97 0 0 1 2.956-2.956 2.97 2.97 0 0 1 2.956 2.956v2.365a2.97 2.97 0 0 1 2.956-2.956A2.97 2.97 0 0 1 29 19.547v5.32c0 3.547-1.182 5.911-1.182 5.911"/>',
+    MICROPHONE: iconMicrophone,
+    MICROPHONE_MUTED: iconMicrophoneMuted,
 } as const;
