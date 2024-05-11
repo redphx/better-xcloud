@@ -25,6 +25,10 @@ export class Screenshot {
         Screenshot.#filters = filters;
     }
 
+    private static onAnimationEnd(e: Event) {
+        (e.target as any).classList.remove('bx-taking-screenshot');
+    }
+
     static takeScreenshot(callback?: any) {
         const currentStream = STATES.currentStream;
         const $video = currentStream.$video;
@@ -32,6 +36,9 @@ export class Screenshot {
         if (!$video || !$canvas) {
             return;
         }
+
+        $video.parentElement?.addEventListener('animationend', this.onAnimationEnd);
+        $video.parentElement?.classList.add('bx-taking-screenshot');
 
         const canvasContext = $canvas.getContext('2d', {
                 alpha: false,
