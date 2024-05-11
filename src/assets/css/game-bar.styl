@@ -50,6 +50,7 @@
         button {
             width: 60px;
             height: 60px;
+            border-radius: 0;
 
             svg {
                 width: 28px;
@@ -66,6 +67,14 @@
                     transform: scale(0.75);
                 }
             }
+
+            &.bx-activated {
+                background-color: white;
+
+                svg {
+                    filter: invert(1);
+                }
+            }
         }
 
         /* Touch controller buttons */
@@ -75,16 +84,16 @@
             }
         }
 
-        /* Show disable button */
+        /* Show enabled button */
         div[data-enabled='true'] {
-            button:last-of-type {
+            button:first-of-type {
                 display: block;
             }
         }
 
         /* Show enable button */
         div[data-enabled='false'] {
-            button:first-of-type {
+            button:last-of-type {
                 display: block;
             }
         }

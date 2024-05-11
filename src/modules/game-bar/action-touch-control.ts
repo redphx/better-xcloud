@@ -26,6 +26,7 @@ export class TouchControlAction extends BaseGameBarAction {
             icon: BxIcon.TOUCH_CONTROL_ENABLE,
             title: t('show-touch-controller'),
             onClick: onClick,
+            classes: ['bx-activated'],
         });
 
         const $btnDisable = createButton({
@@ -35,10 +36,12 @@ export class TouchControlAction extends BaseGameBarAction {
             onClick: onClick,
         });
 
-        this.$content = CE('div', {'data-enabled': 'true'},
+        this.$content = CE('div', {},
             $btnEnable,
             $btnDisable,
         );
+
+        this.reset();
     }
 
     render(): HTMLElement {
