@@ -4,12 +4,12 @@ type UserAgentConfig = {
 };
 
 export enum UserAgentProfile {
-    EDGE_WINDOWS = 'edge-windows',
-    SAFARI_MACOS = 'safari-macos',
-    SMARTTV = 'smarttv',
+    WINDOWS_EDGE = 'windows-edge',
+    MACOS_SAFARI = 'macos-safari',
+    SMARTTV_GENERIC = 'smarttv-generic',
     SMARTTV_TIZEN = 'smarttv-tizen',
     VR_OCULUS = 'vr-oculus',
-    KIWI_V123 = 'kiwi-v123',
+    ANDROID_KIWI_V123 = 'android-kiwi-v123',
     DEFAULT = 'default',
     CUSTOM = 'custom',
 }
@@ -28,12 +28,12 @@ export class UserAgent {
     static #config: UserAgentConfig;
 
     static #USER_AGENTS: PartialRecord<UserAgentProfile, string> = {
-        [UserAgentProfile.EDGE_WINDOWS]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
-        [UserAgentProfile.SAFARI_MACOS]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
-        [UserAgentProfile.SMARTTV]: window.navigator.userAgent + ' SmartTV',
+        [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
+        [UserAgentProfile.MACOS_SAFARI]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
+        [UserAgentProfile.SMARTTV_GENERIC]: window.navigator.userAgent + ' SmartTV',
         [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
         [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + ' OculusBrowser VR',
-        [UserAgentProfile.KIWI_V123]: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36',
+        [UserAgentProfile.ANDROID_KIWI_V123]: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36',
     }
 
     static init() {
