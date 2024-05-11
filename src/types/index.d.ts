@@ -27,7 +27,9 @@ type BxStates = {
     isPlaying: boolean;
     appContext: any | null;
     serverRegions: any;
+
     hasTouchSupport: boolean;
+    browserHasTouchSupport: boolean;
 
     currentStream: Partial<{
         titleId: string;

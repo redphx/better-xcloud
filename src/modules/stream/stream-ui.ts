@@ -35,7 +35,7 @@ function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: t
         }
     };
 
-    if (STATES.hasTouchSupport) {
+    if (STATES.browserHasTouchSupport) {
         $container.addEventListener('transitionstart', onTransitionStart);
         $container.addEventListener('transitionend', onTransitionEnd);
     }
