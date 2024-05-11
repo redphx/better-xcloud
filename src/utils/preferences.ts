@@ -32,6 +32,8 @@ export enum PrefKey {
 
     STREAM_DISABLE_FEEDBACK_DIALOG = 'stream_disable_feedback_dialog',
 
+    GAME_BAR_ENABLED = 'game_bar_enabled',
+
     LOCAL_CO_OP_ENABLED = 'local_co_op_enabled',
     // LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER = 'local_co_op_separate_touch_controller',
 
@@ -312,6 +314,11 @@ export class Preferences {
             default: false,
         },
 
+        [PrefKey.GAME_BAR_ENABLED]: {
+            label: t('enable-game-bar'),
+            default: true,
+        },
+
         [PrefKey.LOCAL_CO_OP_ENABLED]: {
             label: t('enable-local-co-op-support'),
             default: false,
@@ -437,6 +444,7 @@ export class Preferences {
         },
         [PrefKey.USER_AGENT_PROFILE]: {
             label: t('user-agent-profile'),
+            note: '⚠️ ' + t('user-agent-note'),
             default: 'default',
             options: {
                 [UserAgentProfile.DEFAULT]: t('default'),

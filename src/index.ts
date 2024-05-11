@@ -149,12 +149,17 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     STATES.isPlaying = true;
     injectStreamMenuButtons();
 
-    GameBar.reset();
-    GameBar.enable();
-    GameBar.showBar();
+    if (getPref(PrefKey.GAME_BAR_ENABLED)) {
+        GameBar.reset();
+        GameBar.enable();
+        GameBar.showBar();
+    }
 
-    STATES.currentStream.$screenshotCanvas!.width = $video.videoWidth;
-    STATES.currentStream.$screenshotCanvas!.height = $video.videoHeight;
+    if (STATES.currentStream.$screenshotCanvas) {
+        STATES.currentStream.$screenshotCanvas.width = $video.videoWidth;
+        STATES.currentStream.$screenshotCanvas.height = $video.videoHeight;
+    }
+
     updateVideoPlayerCss();
 });
 

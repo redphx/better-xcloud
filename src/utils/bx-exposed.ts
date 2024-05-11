@@ -14,7 +14,12 @@ enum InputType {
 }
 
 export const BxExposed = {
+    // Enable/disable Game Bar when playing/pausing
     onPollingModeChanged: (mode: 'All' | 'None') => {
+        if (!getPref(PrefKey.GAME_BAR_ENABLED)) {
+            return;
+        }
+
         if (!STATES.isPlaying) {
             GameBar.disable();
             return;

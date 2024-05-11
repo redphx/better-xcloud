@@ -427,8 +427,8 @@ export function updateVideoPlayerCss() {
     }
 
     // Apply video filters to screenshots
-    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
-        STATES.currentStream.$screenshotCanvas!.getContext('2d')!.filter = filters;
+    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS) && STATES.currentStream.$screenshotCanvas) {
+        STATES.currentStream.$screenshotCanvas.getContext('2d')!.filter = filters;
     }
 
     const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
@@ -475,7 +475,7 @@ export function setupStreamUi() {
         setupQuickSettingsBar();
         StreamStats.render();
 
-        GameBar.setup();
+        getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.setup();
     }
 
     updateVideoPlayerCss();

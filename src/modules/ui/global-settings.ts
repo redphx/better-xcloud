@@ -27,11 +27,15 @@ const SETTINGS_UI = {
         items: [
             PrefKey.STREAM_TARGET_RESOLUTION,
             PrefKey.STREAM_CODEC_PROFILE,
-            PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
+
+            PrefKey.GAME_BAR_ENABLED,
+
             PrefKey.AUDIO_MIC_ON_PLAYING,
             PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
 
             PrefKey.SCREENSHOT_APPLY_FILTERS,
+
+            PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
 
             PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
             PrefKey.STREAM_COMBINE_SOURCES,
