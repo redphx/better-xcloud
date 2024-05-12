@@ -4778,7 +4778,7 @@ class Preferences {
         customTextValue: (value) => {
           value = parseInt(value);
           if (value === 0) {
-            return t("default");
+            return t("unlimited");
           }
           return null;
         }
