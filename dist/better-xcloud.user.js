@@ -142,6 +142,7 @@ var BxEvent;
   BxEvent2["STREAM_EVENT_TARGET_READY"] = "bx-stream-event-target-ready";
   BxEvent2["STREAM_SESSION_READY"] = "bx-stream-session-ready";
   BxEvent2["CUSTOM_TOUCH_LAYOUTS_LOADED"] = "bx-custom-touch-layouts-loaded";
+  BxEvent2["TOUCH_LAYOUT_MANAGER_READY"] = "bx-touch-layout-manager-ready";
   BxEvent2["REMOTE_PLAY_READY"] = "bx-remote-play-ready";
   BxEvent2["REMOTE_PLAY_FAILED"] = "bx-remote-play-failed";
   BxEvent2["XCLOUD_SERVERS_READY"] = "bx-servers-ready";
@@ -4936,8 +4937,7 @@ class Preferences {
     },
     [PrefKey.AUDIO_ENABLE_VOLUME_CONTROL]: {
       label: t("enable-volume-control"),
-      default: false,
-      experimental: true
+      default: false
     },
     [PrefKey.AUDIO_VOLUME]: {
       type: SettingElementType.NUMBER_STEPPER,
@@ -7937,6 +7937,13 @@ class TouchController {
   }
   static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
     if (!window.BX_EXPOSED.touchLayoutManager) {
+      const listener = (e) => {
+        window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+        if (TouchController.#enable) {
+          TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
+        }
+      };
+      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
       return;
     }
     const layoutChanged = TouchController.#currentLayoutId !== layoutId;
@@ -8180,6 +8187,9 @@ class GameBar {
       ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
       new MicrophoneAction
     ];
+    if (position === "bottom-right") {
+      this.actions.reverse();
+    }
     for (const action of this.actions) {
       $container.appendChild(action.render());
     }
@@ -9094,7 +9104,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 /* Show enable button */
 }
 #bx-game-bar .bx-game-bar-container.bx-show {
-  opacity: 1;
+  opacity: 0.9;
 }
 #bx-game-bar .bx-game-bar-container.bx-show + svg {
   display: none !important;
@@ -9146,6 +9156,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   direction: rtl;
 }
 #bx-game-bar[data-position="bottom-right"] .bx-game-bar-container {
+  direction: ltr;
   border-radius: 10px 0 0 10px;
 }
 .bx-badges {
@@ -9912,7 +9923,12 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
     if (!str2.includes(text)) {
       return false;
     }
-    str2 = str2.replace(text, 'window.BX_EXPOSED["touchLayoutManager"] = this,' + text);
+    const newCode = `
+true;
+window.BX_EXPOSED["touchLayoutManager"] = this;
+window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
+`;
+    str2 = str2.replace(text, newCode + text);
     return str2;
   },
   supportLocalCoOp(str2) {
