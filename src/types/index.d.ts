@@ -39,6 +39,7 @@ type BxStates = {
 
         $video: HTMLVideoElement | null;
         $screenshotCanvas: HTMLCanvasElement | null;
+        screenshotCanvasContext: CanvasRenderingContext2D | null;
 
         peerConnection: RTCPeerConnection;
         audioContext: AudioContext | null;

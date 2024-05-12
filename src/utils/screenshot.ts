@@ -3,12 +3,15 @@ import { CE } from "./html";
 
 
 export class Screenshot {
-    static #filters: string = '';
-
     static setup() {
         const currentStream = STATES.currentStream;
         if (!currentStream.$screenshotCanvas) {
             currentStream.$screenshotCanvas = CE<HTMLCanvasElement>('canvas', {'class': 'bx-gone'});
+
+            currentStream.screenshotCanvasContext = currentStream.$screenshotCanvas.getContext('2d', {
+                alpha: false,
+                willReadFrequently: false,
+            });
         }
         // document.documentElement.appendChild(currentStream.$screenshotCanvas!);
     }
@@ -22,7 +25,7 @@ export class Screenshot {
     }
 
     static updateCanvasFilters(filters: string) {
-        Screenshot.#filters = filters;
+        STATES.currentStream.screenshotCanvasContext && (STATES.currentStream.screenshotCanvasContext.filter = filters);
     }
 
     private static onAnimationEnd(e: Event) {
@@ -40,12 +43,7 @@ export class Screenshot {
         $video.parentElement?.addEventListener('animationend', this.onAnimationEnd);
         $video.parentElement?.classList.add('bx-taking-screenshot');
 
-        const canvasContext = $canvas.getContext('2d', {
-                alpha: false,
-                willReadFrequently: false,
-            })!;
-
-        canvasContext.filter = Screenshot.#filters;
+        const canvasContext = currentStream.screenshotCanvasContext!;
         canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
 
         // Get data URL and pass to parent app

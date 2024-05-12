@@ -172,6 +172,7 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
     }
 
     STATES.isPlaying = false;
+    STATES.currentStream = {};
 
     // Stop MKB listeners
     getPref(PrefKey.MKB_ENABLED) && MkbHandler.INSTANCE.destroy();
