@@ -498,6 +498,18 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
         return str;
     },
 
+    patchShowSensorControls(str: string) {
+        const text = '{shouldShowSensorControls:';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `{shouldShowSensorControls: (window.BX_EXPOSED && window.BX_EXPOSED.shouldShowSensorControls) ||`;
+
+        str = str.replace(text, newCode);
+        return str;
+    },
+
     exposeEventTarget(str: string) {
         const text ='this._eventTarget=new EventTarget';
         if (!str.includes(text)) {
@@ -513,6 +525,7 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
         return str;
     },
 
+    // Class with: connectAsync(), doConnectAsync(), setPlayClient()
     exposeStreamSession(str: string) {
         const text =',this._connectionType=';
         if (!str.includes(text)) {
@@ -520,7 +533,6 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
         }
 
         const newCode = `;
-
 window.BX_EXPOSED.streamSession = this;
 
 const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
@@ -588,6 +600,7 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'patchCombinedAudioVideoMediaStream',
 
 
+    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'patchShowSensorControls',
     STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
     STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',
     STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && 'patchTouchControlDefaultOpacity',

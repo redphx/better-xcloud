@@ -176,6 +176,9 @@ export class TouchController {
         layoutChanged && Toast.show(msg, layout.name, {html: html});
 
         window.setTimeout(() => {
+            // Show gyroscope control in the "More options" dialog if this layout has gyroscope
+            window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes('gyroscope');
+
             window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
                 type: 'showLayout',
                 scope: xboxTitleId,
