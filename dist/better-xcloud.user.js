@@ -139,7 +139,6 @@ var BxEvent;
   BxEvent2["STREAM_MENU_HIDDEN"] = "bx-stream-menu-hidden";
   BxEvent2["STREAM_WEBRTC_CONNECTED"] = "bx-stream-webrtc-connected";
   BxEvent2["STREAM_WEBRTC_DISCONNECTED"] = "bx-stream-webrtc-disconnected";
-  BxEvent2["STREAM_EVENT_TARGET_READY"] = "bx-stream-event-target-ready";
   BxEvent2["STREAM_SESSION_READY"] = "bx-stream-session-ready";
   BxEvent2["CUSTOM_TOUCH_LAYOUTS_LOADED"] = "bx-custom-touch-layouts-loaded";
   BxEvent2["TOUCH_LAYOUT_MANAGER_READY"] = "bx-touch-layout-manager-ready";
@@ -148,6 +147,7 @@ var BxEvent;
   BxEvent2["XCLOUD_SERVERS_READY"] = "bx-servers-ready";
   BxEvent2["DATA_CHANNEL_CREATED"] = "bx-data-channel-created";
   BxEvent2["GAME_BAR_ACTION_ACTIVATED"] = "bx-game-bar-action-activated";
+  BxEvent2["MICROPHONE_STATE_CHANGED"] = "bx-microphone-state-changed";
 })(BxEvent || (BxEvent = {}));
 var XcloudEvent;
 (function(XcloudEvent2) {
@@ -8144,14 +8144,11 @@ class MicrophoneAction extends BaseGameBarAction {
     });
     this.$content = CE("div", {}, $btnDefault, $btnMuted);
     this.reset();
-    window.addEventListener(BxEvent.STREAM_EVENT_TARGET_READY, (e) => {
-      const eventTarget = window.BX_EXPOSED.eventTarget;
-      eventTarget.addEventListener(XcloudEvent.MICROPHONE_STATE_CHANGED, (e2) => {
-        const state = window.BX_EXPOSED.streamSession.microphoneState;
-        const enabled = state === MicrophoneState.ENABLED;
-        this.$content.setAttribute("data-enabled", enabled.toString());
-        this.$content.classList.remove("bx-gone");
-      });
+    window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
+      const microphoneState = e.microphoneState;
+      const enabled = microphoneState === MicrophoneState.ENABLED;
+      this.$content.setAttribute("data-enabled", enabled.toString());
+      this.$content.classList.remove("bx-gone");
     });
   }
   render() {
@@ -10107,18 +10104,6 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
     str2 = str2.replace(text, newCode);
     return str2;
   },
-  exposeEventTarget(str2) {
-    const text = "this._eventTarget=new EventTarget";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    const newCode = `
-window.BX_EXPOSED.eventTarget = ${text},
-window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
-`;
-    str2 = str2.replace(text, newCode);
-    return str2;
-  },
   exposeStreamSession(str2) {
     const text = ",this._connectionType=";
     if (!str2.includes(text)) {
@@ -10128,9 +10113,13 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
 window.BX_EXPOSED.streamSession = this;
 
 const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
-this.setMicrophoneState = (e) => {
-    console.log(e);
-    orgSetMicrophoneState(e);
+this.setMicrophoneState = state => {
+    orgSetMicrophoneState(state);
+
+    const evt = new Event('${BxEvent.MICROPHONE_STATE_CHANGED}');
+    evt.microphoneState = state;
+
+    window.dispatchEvent(evt);
 };
 
 window.dispatchEvent(new Event('${BxEvent.STREAM_SESSION_READY}'))
@@ -10172,7 +10161,6 @@ var PLAYING_PATCH_ORDERS = [
   "disableGamepadDisconnectedScreen",
   "patchStreamHud",
   "playVibration",
-  "exposeEventTarget",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "patchShowSensorControls",
