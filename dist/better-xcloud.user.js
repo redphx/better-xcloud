@@ -612,6 +612,38 @@ var Texts = {
     "Hình",
     "视频"
   ],
+  "bitrate-audio-maximum": [
+    ,
+    ,
+    "Maximum audio bitrate",
+    ,
+    ,
+    ,
+    "最大音声ビットレート",
+    ,
+    "Maksymalny bitrate dźwięku",
+    ,
+    ,
+    ,
+    "Максимальна швидкість потоку аудіо",
+    "Bitrate tối đa của âm thanh"
+  ],
+  "bitrate-video-maximum": [
+    ,
+    ,
+    "Maximum video bitrate",
+    ,
+    ,
+    ,
+    "最大映像ビットレート",
+    ,
+    "Maksymalny bitrate wideo",
+    ,
+    ,
+    ,
+    "Максимальна швидкість потоку відео",
+    "Bitrate tối đa của hình ảnh"
+  ],
   "bottom-left": [
     "Unten links",
     "Kiri bawah",
@@ -1259,23 +1291,6 @@ var Texts = {
     "Bật tính năng phím tắt cho bộ điều khiển",
     "启用手柄快捷方式"
   ],
-  "enable-game-bar": [
-    "\"Game Bar\" aktivieren",
-    ,
-    "Enable Game Bar feature",
-    ,
-    ,
-    ,
-    "Game Barを有効化",
-    ,
-    ,
-    ,
-    ,
-    ,
-    "Увімкнути функцію Game Bar",
-    "Kích hoạt tính năng Game Bar",
-    "启用Game Bar"
-  ],
   "enable-local-co-op-support": [
     "Lokale Koop-Unterstützung aktivieren",
     "Nyalakan dukungan mode lokal co-op",
@@ -1589,7 +1604,7 @@ var Texts = {
   ],
   "hide-touch-controller": [
     "Touch-Controller ausblenden",
-    ,
+    "Sembunyikan kontrol sentuh",
     "Hide touch controller",
     "Ocultar controles táctiles",
     ,
@@ -1601,7 +1616,8 @@ var Texts = {
     "Скрыть сенсорный контроллер",
     ,
     "Приховати сенсорний контролер",
-    "Ẩn bộ điều khiển cảm ứng"
+    "Ẩn bộ điều khiển cảm ứng",
+    "隐藏虚拟按键"
   ],
   "horizontal-sensitivity": [
     "Horizontale Empfindlichkeit",
@@ -2676,7 +2692,7 @@ var Texts = {
   ],
   "show-touch-controller": [
     "Touch-Controller anzeigen",
-    ,
+    "Tampilkan kontrol sentuh",
     "Show touch controller",
     "Mostrar controles táctiles",
     ,
@@ -2688,7 +2704,8 @@ var Texts = {
     "Показать сенсорный контроллер",
     ,
     "Показати сенсорний контролер",
-    "Hiện bộ điều khiển cảm ứng"
+    "Hiện bộ điều khiển cảm ứng",
+    "显示虚拟按键"
   ],
   "show-wait-time": [
     "Geschätzte Wartezeit anzeigen",
@@ -3049,7 +3066,7 @@ var Texts = {
   ],
   "take-screenshot": [
     "Screenshot aufnehmen",
-    ,
+    "Ambil tangkapan layar",
     "Take screenshot",
     "Capturar pantalla",
     ,
@@ -3061,7 +3078,8 @@ var Texts = {
     "Сделать снимок экрана",
     ,
     "Зробити знімок екрану",
-    "Lưu ảnh màn hình"
+    "Lưu ảnh màn hình",
+    "截图"
   ],
   "target-resolution": [
     "Festgelegte Auflösung",
@@ -3315,7 +3333,8 @@ var Texts = {
     (e) => `Сенсорная раскладка по ${e.name}`,
     (e) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
     (e) => `Розташування сенсорного керування від ${e.name}`,
-    (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`
+    (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
+    (e) => `由 ${e.name} 提供的虚拟按键样式`
   ],
   "touch-controller": [
     "Touch-Controller",
@@ -3366,6 +3385,23 @@ var Texts = {
     "Kullanıcı arayüzü",
     "Інтерфейс користувача",
     "Giao diện"
+  ],
+  "unexpected-behavior": [
+    "Könnte unerwartetes Verhalten verursachen",
+    "Dapat menyebabkan masalah yang tidak diinginkan",
+    "May cause unexpected behavior",
+    "Puede causar un comportamiento inesperado",
+    ,
+    ,
+    "予期せぬ動作を引き起こす可能性があります",
+    ,
+    "Może spowodować nieoczekiwane zachowanie",
+    ,
+    ,
+    ,
+    "Може викликати неочікувану поведінку",
+    "Có thể gây ra các hành vi không mong muốn",
+    "可能导致意外行为"
   ],
   unknown: [
     "Unbekannt",
@@ -3434,22 +3470,6 @@ var Texts = {
     "Використовувати абсолютне положення миші",
     "Sử dụng vị trí tuyệt đối của chuột",
     "使用鼠标的绝对位置"
-  ],
-  "user-agent-note": [
-    "Könnte unerwartetes Verhalten verursachen",
-    ,
-    "May cause unexpected behavior",
-    "Puede causar un comportamiento inesperado",
-    ,
-    ,
-    "予期せぬ動作を引き起こす可能性があります",
-    ,
-    ,
-    ,
-    ,
-    ,
-    "Може викликати неочікувану поведінку",
-    "Có thể gây ra các hành vi không mong muốn"
   ],
   "user-agent-profile": [
     "User-Agent Profil",
@@ -4768,9 +4788,10 @@ class Preferences {
     [PrefKey.BITRATE_VIDEO_MAX]: {
       type: SettingElementType.NUMBER_STEPPER,
       label: "Maximum video bitrate",
+      note: "⚠️ " + t("unexpected-behavior"),
       default: 0,
       min: 0,
-      max: 15,
+      max: 14,
       steps: 1,
       params: {
         suffix: " Mb/s",
@@ -4899,7 +4920,7 @@ class Preferences {
     },
     [PrefKey.USER_AGENT_PROFILE]: {
       label: t("user-agent-profile"),
-      note: "⚠️ " + t("user-agent-note"),
+      note: "⚠️ " + t("unexpected-behavior"),
       default: "default",
       options: {
         [UserAgentProfile.DEFAULT]: t("default"),
