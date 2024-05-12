@@ -516,6 +516,7 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
         return str;
     },
 
+    /*
     exposeEventTarget(str: string) {
         const text ='this._eventTarget=new EventTarget';
         if (!str.includes(text)) {
@@ -530,6 +531,7 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
         str = str.replace(text, newCode);
         return str;
     },
+    //*/
 
     // Class with: connectAsync(), doConnectAsync(), setPlayClient()
     exposeStreamSession(str: string) {
@@ -542,9 +544,13 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
 window.BX_EXPOSED.streamSession = this;
 
 const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
-this.setMicrophoneState = (e) => {
-    console.log(e);
-    orgSetMicrophoneState(e);
+this.setMicrophoneState = state => {
+    orgSetMicrophoneState(state);
+
+    const evt = new Event('${BxEvent.MICROPHONE_STATE_CHANGED}');
+    evt.microphoneState = state;
+
+    window.dispatchEvent(evt);
 };
 
 window.dispatchEvent(new Event('${BxEvent.STREAM_SESSION_READY}'))
@@ -598,7 +604,7 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     'patchStreamHud',
     'playVibration',
 
-    'exposeEventTarget',
+    // 'exposeEventTarget',
 
     // Patch volume control for normal stream
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'patchAudioMediaStream',

@@ -55,17 +55,14 @@ export class MicrophoneAction extends BaseGameBarAction {
 
         this.reset();
 
-        window.addEventListener(BxEvent.STREAM_EVENT_TARGET_READY, e => {
-            const eventTarget = window.BX_EXPOSED.eventTarget as EventTarget;
-            eventTarget.addEventListener(XcloudEvent.MICROPHONE_STATE_CHANGED, e => {
-                const state = window.BX_EXPOSED.streamSession.microphoneState as MicrophoneState;
-                const enabled = state === MicrophoneState.ENABLED;
+        window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, e => {
+            const microphoneState = (e as any).microphoneState;
+            const enabled = microphoneState === MicrophoneState.ENABLED;
 
-                this.$content.setAttribute('data-enabled', enabled.toString());
+            this.$content.setAttribute('data-enabled', enabled.toString());
 
-                // Show the button in Game Bar if the mic is enabled
-                this.$content.classList.remove('bx-gone');
-            });
+            // Show the button in Game Bar if the mic is enabled
+            this.$content.classList.remove('bx-gone');
         });
     }
 
