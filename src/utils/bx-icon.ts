@@ -1,5 +1,3 @@
-import iconCadetRight from "@assets/svg/caret-right.svg" with { type: "text" };
-import iconCamera from "@assets/svg/camera.svg" with { type: "text" };
 import iconController from "@assets/svg/controller.svg" with { type: "text" };
 import iconCopy from "@assets/svg/copy.svg" with { type: "text" };
 import iconCursorText from "@assets/svg/cursor-text.svg" with { type: "text" };
@@ -16,6 +14,10 @@ import iconTrash from "@assets/svg/trash.svg" with { type: "text" };
 import iconTouchControlEnable from "@assets/svg/touch-control-enable.svg" with { type: "text" };
 import iconTouchControlDisable from "@assets/svg/touch-control-disable.svg" with { type: "text" };
 
+// Game Bar
+import iconCaretLeft from "@assets/svg/caret-left.svg" with { type: "text" };
+import iconCaretRight from "@assets/svg/caret-right.svg" with { type: "text" };
+import iconCamera from "@assets/svg/camera.svg" with { type: "text" };
 import iconMicrophone from "@assets/svg/microphone.svg" with { type: "text" };
 import iconMicrophoneMuted from "@assets/svg/microphone-slash.svg" with { type: "text" };
 
@@ -35,7 +37,9 @@ export const BxIcon = {
 
     REMOTE_PLAY: iconRemotePlay,
 
-    CARET_RIGHT: iconCadetRight,
+    // Game Bar
+    CARET_LEFT: iconCaretLeft,
+    CARET_RIGHT: iconCaretRight,
     SCREENSHOT: iconCamera,
     TOUCH_CONTROL_ENABLE: iconTouchControlEnable,
     TOUCH_CONTROL_DISABLE: iconTouchControlDisable,

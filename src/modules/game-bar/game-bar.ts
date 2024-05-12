@@ -36,7 +36,7 @@ export class GameBar {
 
         const $gameBar = CE('div', {id: 'bx-game-bar', class: 'bx-gone', 'data-position': position},
                 $container = CE('div', {class: 'bx-game-bar-container bx-offscreen'}),
-                createSvgIcon(BxIcon.CARET_RIGHT),
+                createSvgIcon(position === 'bottom-left' ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT),
             );
 
         this.actions = [
