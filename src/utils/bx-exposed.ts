@@ -37,9 +37,11 @@ export const BxExposed = {
         // Clone the object since the original is read-only
         titleInfo = structuredClone(titleInfo);
 
+        let supportedInputTypes = titleInfo.details.supportedInputTypes;
+        titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
+
         if (STATES.hasTouchSupport) {
             let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
-            let supportedInputTypes = titleInfo.details.supportedInputTypes;
 
             // Disable touch control when gamepad found
             if (touchControllerAvailability !== 'off' && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
@@ -67,7 +69,6 @@ export const BxExposed = {
             }
 
             // Pre-check supported input types
-            titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
             titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) ||
                     supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) ||
                     supportedInputTypes.includes(InputType.GENERIC_TOUCH);
