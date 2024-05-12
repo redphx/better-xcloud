@@ -1143,18 +1143,6 @@ const Texts = {
         ,
         ,
         "Game Bar",
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
-        ,
     ],
     "getting-consoles-list": [
         "Rufe Liste der Konsolen ab...",
@@ -1256,7 +1244,6 @@ const Texts = {
         ,
         "Приховати сенсорний контролер",
         "Ẩn bộ điều khiển cảm ứng",
-        ,
     ],
     "horizontal-sensitivity": [
         "Horizontale Empfindlichkeit",
@@ -2344,7 +2331,6 @@ const Texts = {
         ,
         "Показати сенсорний контролер",
         "Hiện bộ điều khiển cảm ứng",
-        ,
     ],
     "show-wait-time": [
         "Geschätzte Wartezeit anzeigen",
@@ -2718,7 +2704,6 @@ const Texts = {
         ,
         "Зробити знімок екрану",
         "Lưu ảnh màn hình",
-        ,
     ],
     "target-resolution": [
         "Festgelegte Auflösung",
@@ -2973,7 +2958,6 @@ const Texts = {
         (e: any) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
         (e: any) => `Розташування сенсорного керування від ${e.name}`,
         (e: any) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
-        ,
     ],
     "touch-controller": [
         "Touch-Controller",
@@ -3024,7 +3008,6 @@ const Texts = {
         "Kullanıcı arayüzü",
         "Інтерфейс користувача",
         "Giao diện",
-        ,
     ],
     "unknown": [
         "Unbekannt",
@@ -3109,7 +3092,6 @@ const Texts = {
         ,
         "Може викликати неочікувану поведінку",
         "Có thể gây ra các hành vi không mong muốn",
-        ,
     ],
     "user-agent-profile": [
         "User-Agent Profil",
