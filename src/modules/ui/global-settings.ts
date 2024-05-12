@@ -28,8 +28,6 @@ const SETTINGS_UI = {
             PrefKey.STREAM_TARGET_RESOLUTION,
             PrefKey.STREAM_CODEC_PROFILE,
 
-            PrefKey.GAME_BAR_ENABLED,
-
             PrefKey.AUDIO_MIC_ON_PLAYING,
             PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
 
@@ -39,6 +37,12 @@ const SETTINGS_UI = {
 
             PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
             PrefKey.STREAM_COMBINE_SOURCES,
+        ],
+    },
+
+    [t('game-bar')]: {
+        items: [
+            PrefKey.GAME_BAR_POSITION,
         ],
     },
 

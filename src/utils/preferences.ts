@@ -32,7 +32,7 @@ export enum PrefKey {
 
     STREAM_DISABLE_FEEDBACK_DIALOG = 'stream_disable_feedback_dialog',
 
-    GAME_BAR_ENABLED = 'game_bar_enabled',
+    GAME_BAR_POSITION = 'game_bar_position',
 
     LOCAL_CO_OP_ENABLED = 'local_co_op_enabled',
     // LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER = 'local_co_op_separate_touch_controller',
@@ -314,9 +314,14 @@ export class Preferences {
             default: false,
         },
 
-        [PrefKey.GAME_BAR_ENABLED]: {
-            label: t('enable-game-bar'),
-            default: true,
+        [PrefKey.GAME_BAR_POSITION]: {
+            label: t('position'),
+            default: 'bottom-left',
+            options: {
+                'bottom-left': t('bottom-left'),
+                'bottom-right': t('bottom-right'),
+                'off': t('off'),
+            },
         },
 
         [PrefKey.LOCAL_CO_OP_ENABLED]: {

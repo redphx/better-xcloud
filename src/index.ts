@@ -150,7 +150,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     STATES.isPlaying = true;
     injectStreamMenuButtons();
 
-    if (getPref(PrefKey.GAME_BAR_ENABLED)) {
+    if (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') {
         const gameBar = GameBar.getInstance();
         gameBar.reset();
         gameBar.enable();
@@ -213,7 +213,7 @@ function main() {
     // Setup UI
     addCss();
     Toast.setup();
-    getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
+    (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance();
     BX_FLAGS.PreloadUi && setupStreamUi();
 
     StreamBadges.setupEvents();
