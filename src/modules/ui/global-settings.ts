@@ -27,6 +27,9 @@ const SETTINGS_UI = {
         items: [
             PrefKey.STREAM_TARGET_RESOLUTION,
             PrefKey.STREAM_CODEC_PROFILE,
+
+            PrefKey.BITRATE_VIDEO_MAX,
+
             PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
             PrefKey.AUDIO_MIC_ON_PLAYING,
             PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,

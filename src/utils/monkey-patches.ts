@@ -2,6 +2,7 @@ import { BxEvent } from "@utils/bx-event";
 import { getPref, PrefKey } from "@utils/preferences";
 import { STATES } from "@utils/global";
 import { BxLogger } from "@utils/bx-logger";
+import { patchSdpBitrate } from "./sdp";
 
 export function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);
@@ -95,6 +96,22 @@ export function patchRtcPeerConnection() {
 
         return dataChannel;
     }
+
+    const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
+    RTCPeerConnection.prototype.setLocalDescription = function(description?: RTCLocalSessionDescriptionInit): Promise<void> {
+        // set maximum bitrate
+        try {
+            const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
+            if (maxVideoBitrate > 0) {
+                arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, maxVideoBitrate * 1000);
+            }
+        } catch (e) {
+            BxLogger.error('setLocalDescription', e);
+        }
+
+        // @ts-ignore
+        return nativeSetLocalDescription.apply(this, arguments);
+    };
 
     const OrgRTCPeerConnection = window.RTCPeerConnection;
     // @ts-ignore

@@ -12,6 +12,8 @@ type NumberStepperParams = {
 
     ticks?: number;
     exactTicks?: number;
+
+    customTextValue?: (value: any) => string | null;
 }
 
 export enum SettingElementType {
@@ -131,9 +133,24 @@ export class SettingElement {
         const MAX = setting.max!;
         const STEPS = Math.max(setting.steps || 1, 1);
 
+        const renderTextValue = (value: any) => {
+            value = parseInt(value as string);
+
+            let textContent = null;
+            if (options.customTextValue) {
+                textContent = options.customTextValue(value);
+            }
+
+            if (textContent === null) {
+                textContent = value.toString() + options.suffix;
+            }
+
+            return textContent;
+        };
+
         const $wrapper = CE('div', {'class': 'bx-number-stepper'},
                             $decBtn = CE('button', {'data-type': 'dec'}, '-') as HTMLButtonElement,
-                            $text = CE('span', {}, value + options.suffix) as HTMLSpanElement,
+                            $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
                             $incBtn = CE('button', {'data-type': 'inc'}, '+') as HTMLButtonElement,
                            );
 
@@ -141,8 +158,7 @@ export class SettingElement {
             $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS}) as HTMLInputElement;
             $range.addEventListener('input', e => {
                 value = parseInt((e.target as HTMLInputElement).value);
-
-                $text.textContent = value + options.suffix;
+                $text.textContent = renderTextValue(value);
                 onChange && onChange(e, value);
             });
             $wrapper.appendChild($range);
@@ -204,7 +220,7 @@ export class SettingElement {
                 value = Math.min(MAX, value + STEPS);
             }
 
-            $text.textContent = value.toString() + options.suffix;
+            $text.textContent = renderTextValue(value);
             $range && ($range.value = value.toString());
 
             isHolding = false;
@@ -237,7 +253,7 @@ export class SettingElement {
 
         // Custom method
         ($wrapper as any).setValue = (value: any) => {
-            $text.textContent = value + options.suffix;
+            $text.textContent = renderTextValue(value);
             $range && ($range.value = value);
         };
 

@@ -32,6 +32,8 @@ export enum PrefKey {
 
     STREAM_DISABLE_FEEDBACK_DIALOG = 'stream_disable_feedback_dialog',
 
+    BITRATE_VIDEO_MAX = 'bitrate_video_max',
+
     GAME_BAR_POSITION = 'game_bar_position',
 
     LOCAL_CO_OP_ENABLED = 'local_co_op_enabled',
@@ -312,6 +314,28 @@ export class Preferences {
         [PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG]: {
             label: t('disable-post-stream-feedback-dialog'),
             default: false,
+        },
+
+        [PrefKey.BITRATE_VIDEO_MAX]: {
+            type: SettingElementType.NUMBER_STEPPER,
+            label: 'Maximum video bitrate',
+            default: 0,
+            min: 0,
+            max: 15,
+            steps: 1,
+            params: {
+                suffix: ' Mb/s',
+                exactTicks: 5,
+                customTextValue: (value: any) => {
+                    value = parseInt(value);
+
+                    if (value === 0) {
+                        return t('default');
+                    }
+
+                    return null;
+                },
+            },
         },
 
         [PrefKey.GAME_BAR_POSITION]: {
