@@ -3918,12 +3918,23 @@ class SettingElement {
     const MIN = setting.min;
     const MAX = setting.max;
     const STEPS = Math.max(setting.steps || 1, 1);
-    const $wrapper = CE("div", { class: "bx-number-stepper" }, $decBtn = CE("button", { "data-type": "dec" }, "-"), $text = CE("span", {}, value + options.suffix), $incBtn = CE("button", { "data-type": "inc" }, "+"));
+    const renderTextValue = (value2) => {
+      value2 = parseInt(value2);
+      let textContent = null;
+      if (options.customTextValue) {
+        textContent = options.customTextValue(value2);
+      }
+      if (textContent === null) {
+        textContent = value2.toString() + options.suffix;
+      }
+      return textContent;
+    };
+    const $wrapper = CE("div", { class: "bx-number-stepper" }, $decBtn = CE("button", { "data-type": "dec" }, "-"), $text = CE("span", {}, renderTextValue(value)), $incBtn = CE("button", { "data-type": "inc" }, "+"));
     if (!options.disabled && !options.hideSlider) {
       $range = CE("input", { type: "range", min: MIN, max: MAX, value, step: STEPS });
       $range.addEventListener("input", (e) => {
         value = parseInt(e.target.value);
-        $text.textContent = value + options.suffix;
+        $text.textContent = renderTextValue(value);
         onChange && onChange(e, value);
       });
       $wrapper.appendChild($range);
@@ -3974,7 +3985,7 @@ class SettingElement {
       } else {
         value2 = Math.min(MAX, value2 + STEPS);
       }
-      $text.textContent = value2.toString() + options.suffix;
+      $text.textContent = renderTextValue(value2);
       $range && ($range.value = value2.toString());
       isHolding = false;
       onChange && onChange(e, value2);
@@ -3997,7 +4008,7 @@ class SettingElement {
     };
     const onContextMenu = (e) => e.preventDefault();
     $wrapper.setValue = (value2) => {
-      $text.textContent = value2 + options.suffix;
+      $text.textContent = renderTextValue(value2);
       $range && ($range.value = value2);
     };
     $decBtn.addEventListener("click", onClick);
@@ -4501,6 +4512,7 @@ var PrefKey;
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_STANDARD"] = "stream_touch_controller_style_standard";
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM"] = "stream_touch_controller_style_custom";
   PrefKey2["STREAM_DISABLE_FEEDBACK_DIALOG"] = "stream_disable_feedback_dialog";
+  PrefKey2["BITRATE_VIDEO_MAX"] = "bitrate_video_max";
   PrefKey2["GAME_BAR_POSITION"] = "game_bar_position";
   PrefKey2["LOCAL_CO_OP_ENABLED"] = "local_co_op_enabled";
   PrefKey2["CONTROLLER_ENABLE_SHORTCUTS"] = "controller_enable_shortcuts";
@@ -4752,6 +4764,25 @@ class Preferences {
     [PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG]: {
       label: t("disable-post-stream-feedback-dialog"),
       default: false
+    },
+    [PrefKey.BITRATE_VIDEO_MAX]: {
+      type: SettingElementType.NUMBER_STEPPER,
+      label: "Maximum video bitrate",
+      default: 0,
+      min: 0,
+      max: 15,
+      steps: 1,
+      params: {
+        suffix: " Mb/s",
+        exactTicks: 5,
+        customTextValue: (value) => {
+          value = parseInt(value);
+          if (value === 0) {
+            return t("default");
+          }
+          return null;
+        }
+      }
     },
     [PrefKey.GAME_BAR_POSITION]: {
       label: t("position"),
@@ -9028,7 +9059,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 }
 .bx-number-stepper span {
   display: inline-block;
-  width: 40px;
+  min-width: 40px;
   font-family: var(--bx-monospaced-font);
   font-size: 14px;
 }
@@ -10538,6 +10569,7 @@ var SETTINGS_UI = {
     items: [
       PrefKey.STREAM_TARGET_RESOLUTION,
       PrefKey.STREAM_CODEC_PROFILE,
+      PrefKey.BITRATE_VIDEO_MAX,
       PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
       PrefKey.AUDIO_MIC_ON_PLAYING,
       PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
@@ -10721,6 +10753,51 @@ function overridePreloadState() {
 }
 var LOG_TAG5 = "PreloadState";
 
+// src/utils/sdp.ts
+function patchSdpBitrate(sdp, video, audio) {
+  const lines = sdp.split("\n");
+  const mediaSet = new Set;
+  !!video && mediaSet.add("video");
+  !!audio && mediaSet.add("audio");
+  const bitrate = {
+    video,
+    audio
+  };
+  for (let lineNumber = 0;lineNumber < lines.length; lineNumber++) {
+    let media = "";
+    let line = lines[lineNumber];
+    if (!line.startsWith("m=")) {
+      continue;
+    }
+    for (const m of mediaSet) {
+      if (line.startsWith(`m=${m}`)) {
+        media = m;
+        mediaSet.delete(media);
+        break;
+      }
+    }
+    if (!media) {
+      continue;
+    }
+    const bLine = `b=AS:${bitrate[media]}`;
+    while (lineNumber++, lineNumber < lines.length) {
+      line = lines[lineNumber];
+      if (line.startsWith("i=") || line.startsWith("c=")) {
+        continue;
+      }
+      if (line.startsWith("b=AS:")) {
+        lines[lineNumber] = bLine;
+        break;
+      }
+      if (line.startsWith("m=")) {
+        lines.splice(lineNumber, 0, bLine);
+        break;
+      }
+    }
+  }
+  return lines.join("\n");
+}
+
 // src/utils/monkey-patches.ts
 function patchVideoApi() {
   const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);
@@ -10790,6 +10867,18 @@ function patchRtcPeerConnection() {
       dataChannel
     });
     return dataChannel;
+  };
+  const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
+  RTCPeerConnection.prototype.setLocalDescription = function(description) {
+    try {
+      const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
+      if (maxVideoBitrate > 0) {
+        arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, maxVideoBitrate * 1000);
+      }
+    } catch (e) {
+      BxLogger.error("setLocalDescription", e);
+    }
+    return nativeSetLocalDescription.apply(this, arguments);
   };
   const OrgRTCPeerConnection = window.RTCPeerConnection;
   window.RTCPeerConnection = function() {
