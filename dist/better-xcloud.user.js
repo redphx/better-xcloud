@@ -3685,11 +3685,14 @@ refreshCurrentLocale();
 
 // src/utils/screenshot.ts
 class Screenshot {
-  static #filters = "";
   static setup() {
     const currentStream = STATES.currentStream;
     if (!currentStream.$screenshotCanvas) {
       currentStream.$screenshotCanvas = CE("canvas", { class: "bx-gone" });
+      currentStream.screenshotCanvasContext = currentStream.$screenshotCanvas.getContext("2d", {
+        alpha: false,
+        willReadFrequently: false
+      });
     }
   }
   static updateCanvasSize(width, height) {
@@ -3700,7 +3703,7 @@ class Screenshot {
     }
   }
   static updateCanvasFilters(filters) {
-    Screenshot.#filters = filters;
+    STATES.currentStream.screenshotCanvasContext && (STATES.currentStream.screenshotCanvasContext.filter = filters);
   }
   static onAnimationEnd(e) {
     e.target.classList.remove("bx-taking-screenshot");
@@ -3714,11 +3717,7 @@ class Screenshot {
     }
     $video.parentElement?.addEventListener("animationend", this.onAnimationEnd);
     $video.parentElement?.classList.add("bx-taking-screenshot");
-    const canvasContext = $canvas.getContext("2d", {
-      alpha: false,
-      willReadFrequently: false
-    });
-    canvasContext.filter = Screenshot.#filters;
+    const canvasContext = currentStream.screenshotCanvasContext;
     canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
     if (AppInterface) {
       const data = $canvas.toDataURL("image/png").split(";base64,")[1];
@@ -7962,6 +7961,7 @@ class TouchController {
     }
     layoutChanged && Toast.show(msg, layout.name, { html: html16 });
     window.setTimeout(() => {
+      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope");
       window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
         type: "showLayout",
         scope: xboxTitleId,
@@ -10082,6 +10082,15 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
     str2 = str2.replace(text, newCode);
     return str2;
   },
+  patchShowSensorControls(str2) {
+    const text = "{shouldShowSensorControls:";
+    if (!str2.includes(text)) {
+      return false;
+    }
+    const newCode = `{shouldShowSensorControls: (window.BX_EXPOSED && window.BX_EXPOSED.shouldShowSensorControls) ||`;
+    str2 = str2.replace(text, newCode);
+    return str2;
+  },
   exposeEventTarget(str2) {
     const text = "this._eventTarget=new EventTarget";
     if (!str2.includes(text)) {
@@ -10100,7 +10109,6 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
       return false;
     }
     const newCode = `;
-
 window.BX_EXPOSED.streamSession = this;
 
 const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
@@ -10151,6 +10159,7 @@ var PLAYING_PATCH_ORDERS = [
   "exposeEventTarget",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
+  STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "patchShowSensorControls",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
   STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && "patchTouchControlDefaultOpacity",
@@ -10984,6 +10993,8 @@ window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
     return;
   }
   STATES.isPlaying = false;
+  STATES.currentStream = {};
+  window.BX_EXPOSED.shouldShowSensorControls = false;
   getPref(PrefKey.MKB_ENABLED) && MkbHandler.INSTANCE.destroy();
   const $quickBar = document.querySelector(".bx-quick-settings-bar");
   if ($quickBar) {
