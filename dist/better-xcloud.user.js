@@ -262,12 +262,6 @@ var createButton = (options) => {
 var CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
 
-// src/assets/svg/caret-right.svg
-var caret_right_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 13 23\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <g transform=\"matrix(.399603 0 0 .709528 0 0)\">\n        <path d=\"M1.601 2.727l23.255 13.097L1.601 28.922c-.977.55-.977 1.443 0 1.993s2.563.55 3.539 0l25.025-14.094c.977-.55.977-1.443 0-1.993L5.14.734c-.977-.55-2.563-.55-3.539 0s-.977 1.443 0 1.993z\"/>\n    </g>\n</svg>\n";
-
-// src/assets/svg/camera.svg
-var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform=\"matrix(.150985 0 0 .150985 -3.32603 -2.72209)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\">\n        <path d=\"M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z\"/>\n        <circle cx=\"128\" cy=\"132\" r=\"36\"/>\n    </g>\n</svg>\n";
-
 // src/assets/svg/controller.svg
 var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
 
@@ -313,6 +307,15 @@ var touch_control_enable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fi
 // src/assets/svg/touch-control-disable.svg
 var touch_control_disable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <g fill=\"none\" stroke=\"#fff\">\n        <path d=\"M6.021 5.021l20 22\" stroke-width=\"2\"/>\n        <path d=\"M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971\" stroke-miterlimit=\"1.5\" stroke-width=\"2.083\"/>\n    </g>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
 
+// src/assets/svg/caret-left.svg
+var caret_left_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z\"/>\n</svg>\n";
+
+// src/assets/svg/caret-right.svg
+var caret_right_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M2.685 1.924l6 13.649c.119.27.119.578 0 .849l-6 13.649c-.234.533-.857.775-1.389.541s-.775-.857-.541-1.389l5.813-13.225L.755 2.773c-.234-.533.008-1.155.541-1.389s1.155.008 1.389.541z\"/>\n</svg>\n";
+
+// src/assets/svg/camera.svg
+var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform=\"matrix(.150985 0 0 .150985 -3.32603 -2.72209)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\">\n        <path d=\"M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z\"/>\n        <circle cx=\"128\" cy=\"132\" r=\"36\"/>\n    </g>\n</svg>\n";
+
 // src/assets/svg/microphone.svg
 var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662\"/>\n</svg>\n";
 
@@ -334,6 +337,7 @@ var BxIcon = {
   QUESTION: question_default,
   REFRESH: refresh_default,
   REMOTE_PLAY: remote_play_default,
+  CARET_LEFT: caret_left_default,
   CARET_RIGHT: caret_right_default,
   SCREENSHOT: camera_default,
   TOUCH_CONTROL_ENABLE: touch_control_enable_default,
@@ -8170,7 +8174,7 @@ class GameBar {
   constructor() {
     let $container;
     const position = getPref(PrefKey.GAME_BAR_POSITION);
-    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(BxIcon.CARET_RIGHT));
+    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
     this.actions = [
       new ScreenshotAction,
       ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
