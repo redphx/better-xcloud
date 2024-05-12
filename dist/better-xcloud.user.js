@@ -455,12 +455,12 @@ var Texts = {
     "应用"
   ],
   audio: [
+    ,
+    ,
     "Audio",
-    "Audio",
-    "Audio",
-    "Audio",
-    "Audio",
-    "Audio",
+    ,
+    ,
+    ,
     "音声",
     "오디오",
     "Dźwięk",
@@ -475,8 +475,8 @@ var Texts = {
     "Automatisch",
     "Otomatis",
     "Auto",
-    "Auto",
-    "Auto",
+    ,
+    ,
     "Automatico",
     "自動",
     "자동",
@@ -489,12 +489,12 @@ var Texts = {
     "自动"
   ],
   "badge-audio": [
+    ,
+    ,
     "Audio",
-    "Audio",
-    "Audio",
-    "Audio",
-    "Audio",
-    "Audio",
+    ,
+    ,
+    ,
     "音声",
     "오디오",
     "Dźwięk",
@@ -574,12 +574,12 @@ var Texts = {
     "游玩时间"
   ],
   "badge-server": [
-    "Server",
-    "Server",
+    ,
+    ,
     "Server",
     "Servidor",
     "Serveur",
-    "Server",
+    ,
     "サーバー",
     "서버",
     "Serwer",
@@ -591,12 +591,12 @@ var Texts = {
     "服务器"
   ],
   "badge-video": [
+    ,
+    ,
     "Video",
-    "Video",
-    "Video",
-    "Video",
+    ,
     "Vidéo",
-    "Video",
+    ,
     "映像",
     "비디오",
     "Obraz",
@@ -774,7 +774,7 @@ var Texts = {
     "Очистить",
     "Temizle",
     "Очистити",
-    "Xóa",
+    "Xóa",
     "清空"
   ],
   close: [
@@ -932,12 +932,12 @@ var Texts = {
     "对比度"
   ],
   controller: [
-    "Controller",
+    ,
     "Kontroler",
     "Controller",
     "Joystick",
     "Contrôle",
-    "Controller",
+    ,
     "コントローラー",
     "컨트롤러",
     "Kontroler",
@@ -1222,7 +1222,7 @@ var Texts = {
   ],
   edit: [
     "Bearbeiten",
-    "Edit",
+    ,
     "Edit",
     "Editar",
     ,
@@ -1255,21 +1255,21 @@ var Texts = {
     "启用手柄快捷方式"
   ],
   "enable-game-bar": [
-    ,
+    "\"Game Bar\" aktivieren",
     ,
     "Enable Game Bar feature",
     ,
     ,
     ,
+    "Game Barを有効化",
     ,
     ,
     ,
     ,
     ,
-    ,
-    ,
+    "Увімкнути функцію Game Bar",
     "Kích hoạt tính năng Game Bar",
-    ,
+    "启用Game Bar"
   ],
   "enable-local-co-op-support": [
     "Lokale Koop-Unterstützung aktivieren",
@@ -1411,13 +1411,13 @@ var Texts = {
     "Experimentell",
     "Eksperimental",
     "Experimental",
-    "Experimental",
+    ,
     ,
     "Sperimentale",
     "実験的機能",
     ,
     "Eksperymentalne",
-    "Experimental",
+    ,
     "Экспериментально",
     "Deneme aşamasında",
     "Експериментальне",
@@ -1491,6 +1491,11 @@ var Texts = {
     "Fortnite: примусова консольна версія",
     "Fortnite: bắt buộc phiên bản console",
     "Fortnite: 强制使用主机版客户端"
+  ],
+  "game-bar": [
+    ,
+    ,
+    "Game Bar"
   ],
   "getting-consoles-list": [
     "Rufe Liste der Konsolen ab...",
@@ -1591,8 +1596,7 @@ var Texts = {
     "Скрыть сенсорный контроллер",
     ,
     "Приховати сенсорний контролер",
-    "Ẩn bộ điều khiển cảm ứng",
-    ,
+    "Ẩn bộ điều khiển cảm ứng"
   ],
   "horizontal-sensitivity": [
     "Horizontale Empfindlichkeit",
@@ -1697,16 +1701,16 @@ var Texts = {
     "大"
   ],
   layout: [
-    "Layout",
+    ,
     "Tata letak",
     "Layout",
     "Diseño",
     ,
-    "Layout",
+    ,
     "レイアウト",
     "레이아웃",
     "Układ",
-    "Layout",
+    ,
     "Расположение",
     "Arayüz Görünümü",
     "Розмітка",
@@ -1837,7 +1841,7 @@ var Texts = {
     "Mikrofon",
     "Microphone",
     "Micrófono",
-    "Microphone",
+    ,
     "Microfono",
     "マイク",
     "마이크",
@@ -1902,7 +1906,7 @@ var Texts = {
   ],
   "mouse-and-keyboard": [
     "Maus & Tastatur",
-    "Mouse & Keyboard",
+    ,
     "Mouse & Keyboard",
     "Ratón y teclado",
     ,
@@ -1935,7 +1939,7 @@ var Texts = {
     "静音"
   ],
   name: [
-    "Name",
+    ,
     "Nama",
     "Name",
     "Nombre",
@@ -1986,18 +1990,18 @@ var Texts = {
     "未找到主机"
   ],
   normal: [
+    ,
+    ,
     "Normal",
-    "Normal",
-    "Normal",
-    "Normal",
-    "Normal",
+    ,
+    ,
     "Normale",
     "標準",
     "보통",
     "Normalny",
-    "Normal",
+    ,
     "Средний",
-    "Normal",
+    ,
     "Нормальний",
     "Thường",
     "中"
@@ -2008,7 +2012,7 @@ var Texts = {
     "Off",
     "Apagado",
     "Désactivé",
-    "Off",
+    ,
     "オフ",
     "꺼짐",
     "Wyłączone",
@@ -2105,11 +2109,11 @@ var Texts = {
     "游戏中"
   ],
   position: [
-    "Position",
+    ,
     "Posisi",
     "Position",
     "Posición",
-    "Position",
+    ,
     "Posizione",
     "位置",
     "위치",
@@ -2191,7 +2195,7 @@ var Texts = {
   ],
   preset: [
     "Voreinstellung",
-    "Preset",
+    ,
     "Preset",
     "Preajuste",
     ,
@@ -2279,7 +2283,7 @@ var Texts = {
     "Rasio",
     "Ratio",
     "Relación de aspecto",
-    "Ratio",
+    ,
     "Rapporto",
     "比率",
     "화면 비율",
@@ -2309,7 +2313,7 @@ var Texts = {
     "减少UI动画"
   ],
   region: [
-    "Region",
+    ,
     "Wilayah",
     "Region",
     "Región",
@@ -2317,7 +2321,7 @@ var Texts = {
     "Regione",
     "地域",
     "지역",
-    "Region",
+    ,
     "Região",
     "Регион",
     "Bölge",
@@ -2326,8 +2330,8 @@ var Texts = {
     "地区"
   ],
   "remote-play": [
-    "Remote Play",
-    "Remote Play",
+    ,
+    ,
     "Remote Play",
     "Reproducción remota",
     ,
@@ -2483,7 +2487,7 @@ var Texts = {
     "Saturasi",
     "Saturation",
     "Saturación",
-    "Saturation",
+    ,
     "Saturazione",
     "彩度",
     "채도",
@@ -2564,12 +2568,12 @@ var Texts = {
     "虚拟摇杆为玩家1，手柄#1为玩家2"
   ],
   server: [
-    "Server",
-    "Server",
+    ,
+    ,
     "Server",
     "Servidor",
     "Serveur",
-    "Server",
+    ,
     "サーバー",
     "서버",
     "Serwer",
@@ -2679,8 +2683,7 @@ var Texts = {
     "Показать сенсорный контроллер",
     ,
     "Показати сенсорний контролер",
-    "Hiện bộ điều khiển cảm ứng",
-    ,
+    "Hiện bộ điều khiển cảm ứng"
   ],
   "show-wait-time": [
     "Geschätzte Wartezeit anzeigen",
@@ -2768,19 +2771,19 @@ var Texts = {
     "小"
   ],
   "smart-tv": [
-    "Smart TV",
-    "Smart TV",
-    "Smart TV",
-    "Smart TV",
+    ,
     ,
     "Smart TV",
+    ,
+    ,
+    ,
     "スマートTV",
     "스마트 TV",
-    "Smart TV",
-    "Smart TV",
-    "Smart TV",
+    ,
+    ,
+    ,
     "Akıllı TV",
-    "Smart TV",
+    ,
     "TV thông minh",
     "智能电视"
   ],
@@ -2802,7 +2805,7 @@ var Texts = {
     "声音"
   ],
   standby: [
-    "Standby",
+    ,
     "Siaga",
     "Standby",
     "Modo de espera",
@@ -2819,20 +2822,20 @@ var Texts = {
     "待机"
   ],
   "stat-bitrate": [
-    "Bitrate",
-    "Bitrate",
+    ,
+    ,
     "Bitrate",
     "Tasa de bits",
-    "Bitrate",
-    "Bitrate",
+    ,
+    ,
     "ビットレート",
     "비트레이트",
-    "Bitrate",
-    "Bitrate",
+    ,
+    ,
     "Скорость соединения",
     "Bit hızı",
     "Бітрейт",
-    "Bitrate",
+    ,
     "码率"
   ],
   "stat-decode-time": [
@@ -2854,19 +2857,19 @@ var Texts = {
   ],
   "stat-fps": [
     "Framerate",
+    ,
     "FPS",
-    "FPS",
-    "FPS",
-    "FPS",
-    "FPS",
-    "FPS",
-    "FPS",
-    "FPS",
-    "FPS",
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
     "Кадр/сек",
-    "FPS",
+    ,
     "Кадрів на секунду",
-    "FPS",
+    ,
     "帧率"
   ],
   "stat-frames-lost": [
@@ -2904,20 +2907,20 @@ var Texts = {
     "丢包"
   ],
   "stat-ping": [
-    "Ping",
-    "Ping",
+    ,
+    ,
     "Ping",
     "Latencia",
-    "Ping",
-    "Ping",
-    "Ping",
+    ,
+    ,
+    ,
     "지연 시간",
-    "Ping",
-    "Ping",
+    ,
+    ,
     "Задержка соединения",
     "Gecikme",
     "Затримка",
-    "Ping",
+    ,
     "延迟"
   ],
   stats: [
@@ -2925,7 +2928,7 @@ var Texts = {
     "Statistik",
     "Stats",
     "Estadísticas",
-    "Stats",
+    ,
     "Statistiche",
     "統計情報",
     "통계",
@@ -2972,20 +2975,20 @@ var Texts = {
     "摇杆回中强度"
   ],
   stream: [
+    ,
+    ,
     "Stream",
-    "Stream",
-    "Stream",
-    "Stream",
-    "Stream",
-    "Stream",
+    ,
+    ,
+    ,
     "ストリーミング",
     "스트리밍",
-    "Stream",
+    ,
     "Transmissão",
     "Видеопоток",
     "Yayın",
     "Трансляція",
-    "Stream",
+    ,
     "串流"
   ],
   stretch: [
@@ -3053,8 +3056,7 @@ var Texts = {
     "Сделать снимок экрана",
     ,
     "Зробити знімок екрану",
-    "Lưu ảnh màn hình",
-    ,
+    "Lưu ảnh màn hình"
   ],
   "target-resolution": [
     "Festgelegte Auflösung",
@@ -3308,8 +3310,7 @@ var Texts = {
     (e) => `Сенсорная раскладка по ${e.name}`,
     (e) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
     (e) => `Розташування сенсорного керування від ${e.name}`,
-    (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
-    ,
+    (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`
   ],
   "touch-controller": [
     "Touch-Controller",
@@ -3352,15 +3353,14 @@ var Texts = {
     "Interfaz de usuario",
     "Interface utilisateur",
     "Interfaccia",
-    "UI",
-    "UI",
+    ,
+    ,
     "Interfejs",
     "Interface",
     "Интерфейс",
     "Kullanıcı arayüzü",
     "Інтерфейс користувача",
-    "Giao diện",
-    "UI"
+    "Giao diện"
   ],
   unknown: [
     "Unbekannt",
@@ -3431,21 +3431,20 @@ var Texts = {
     "使用鼠标的绝对位置"
   ],
   "user-agent-note": [
+    "Könnte unerwartetes Verhalten verursachen",
+    ,
+    "May cause unexpected behavior",
+    "Puede causar un comportamiento inesperado",
     ,
     ,
-    "This feature may cause unexpected behavior",
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
+    "予期せぬ動作を引き起こす可能性があります",
     ,
     ,
     ,
-    "Tính năng này có thể gây ra các hành vi không mong muốn",
     ,
+    ,
+    "Може викликати неочікувану поведінку",
+    "Có thể gây ra các hành vi không mong muốn"
   ],
   "user-agent-profile": [
     "User-Agent Profil",
@@ -3499,7 +3498,7 @@ var Texts = {
     "振动强度"
   ],
   "vibration-status": [
-    "Vibration",
+    ,
     "Getaran",
     "Vibration",
     "Vibración",
@@ -3516,12 +3515,12 @@ var Texts = {
     "手柄震动"
   ],
   video: [
+    ,
+    ,
     "Video",
-    "Video",
-    "Video",
-    "Video",
+    ,
     "Vidéo",
-    "Video",
+    ,
     "映像",
     "비디오",
     "Obraz",
@@ -3585,32 +3584,32 @@ var Texts = {
   ],
   "visual-quality-normal": [
     "Mittel",
+    ,
     "Normal",
-    "Normal",
-    "Normal",
-    "Normal",
+    ,
+    ,
     "Normale",
     "中",
     "보통",
     "Normalna",
-    "Normal",
+    ,
     "Среднее",
-    "Normal",
+    ,
     "Нормальний",
     "Thường",
     "中"
   ],
   volume: [
     "Lautstärke",
-    "Volume",
+    ,
     "Volume",
     "Volumen",
-    "Volume",
-    "Volume",
+    ,
+    ,
     "音量",
     "음량",
     "Głośność",
-    "Volume",
+    ,
     "Громкость",
     "Ses düzeyi",
     "Гучність",
@@ -3618,12 +3617,12 @@ var Texts = {
     "音量"
   ],
   "wait-time-countdown": [
-    "Countdown",
+    ,
     "Hitung mundur",
     "Countdown",
     "Cuenta Regresiva",
     "Compte à rebours",
-    "Countdown",
+    ,
     "カウントダウン",
     "카운트다운",
     "Pozostały czas oczekiwania",
@@ -4498,7 +4497,7 @@ var PrefKey;
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_STANDARD"] = "stream_touch_controller_style_standard";
   PrefKey2["STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM"] = "stream_touch_controller_style_custom";
   PrefKey2["STREAM_DISABLE_FEEDBACK_DIALOG"] = "stream_disable_feedback_dialog";
-  PrefKey2["GAME_BAR_ENABLED"] = "game_bar_enabled";
+  PrefKey2["GAME_BAR_POSITION"] = "game_bar_position";
   PrefKey2["LOCAL_CO_OP_ENABLED"] = "local_co_op_enabled";
   PrefKey2["CONTROLLER_ENABLE_SHORTCUTS"] = "controller_enable_shortcuts";
   PrefKey2["CONTROLLER_ENABLE_VIBRATION"] = "controller_enable_vibration";
@@ -4750,9 +4749,14 @@ class Preferences {
       label: t("disable-post-stream-feedback-dialog"),
       default: false
     },
-    [PrefKey.GAME_BAR_ENABLED]: {
-      label: t("enable-game-bar"),
-      default: true
+    [PrefKey.GAME_BAR_POSITION]: {
+      label: t("position"),
+      default: "bottom-left",
+      options: {
+        "bottom-left": t("bottom-left"),
+        "bottom-right": t("bottom-right"),
+        off: t("off")
+      }
     },
     [PrefKey.LOCAL_CO_OP_ENABLED]: {
       label: t("enable-local-co-op-support"),
@@ -8165,7 +8169,8 @@ class GameBar {
   actions = [];
   constructor() {
     let $container;
-    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone" }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(BxIcon.CARET_RIGHT));
+    const position = getPref(PrefKey.GAME_BAR_POSITION);
+    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(BxIcon.CARET_RIGHT));
     this.actions = [
       new ScreenshotAction,
       ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
@@ -8246,7 +8251,7 @@ var InputType;
 })(InputType || (InputType = {}));
 var BxExposed = {
   onPollingModeChanged: (mode) => {
-    if (!getPref(PrefKey.GAME_BAR_ENABLED)) {
+    if (getPref(PrefKey.GAME_BAR_POSITION) === "off") {
       return;
     }
     const gameBar = GameBar.getInstance();
@@ -8259,9 +8264,10 @@ var BxExposed = {
   getTitleInfo: () => STATES.currentStream.titleInfo,
   modifyTitleInfo: (titleInfo) => {
     titleInfo = structuredClone(titleInfo);
+    let supportedInputTypes = titleInfo.details.supportedInputTypes;
+    titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
     if (STATES.hasTouchSupport) {
       let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
-      let supportedInputTypes = titleInfo.details.supportedInputTypes;
       if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
         const gamepads = window.navigator.getGamepads();
         let gamepadFound = false;
@@ -8279,7 +8285,6 @@ var BxExposed = {
       if (touchControllerAvailability === "off") {
         supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
       }
-      titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
       titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
       if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
         titleInfo.details.hasFakeTouchSupport = true;
@@ -9054,7 +9059,6 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 #bx-game-bar {
   z-index: var(--bx-game-bar-z-index);
   position: fixed;
-  left: 0;
   bottom: 0;
   width: 40px;
   height: 90px;
@@ -9079,7 +9083,6 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   display: flex;
   overflow: hidden;
   background: rgba(26,27,30,0.91);
-  border-radius: 0 10px 10px 0;
   box-shadow: 0px 0px 6px #1c1c1c;
   transition: opacity 0.1s ease-in;
 /* Touch controller buttons */
@@ -9126,6 +9129,20 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 }
 #bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type {
   display: block;
+}
+#bx-game-bar[data-position="bottom-left"] {
+  left: 0;
+  direction: ltr;
+}
+#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container {
+  border-radius: 0 10px 10px 0;
+}
+#bx-game-bar[data-position="bottom-right"] {
+  right: 0;
+  direction: rtl;
+}
+#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container {
+  border-radius: 10px 0 0 10px;
 }
 .bx-badges {
   position: absolute;
@@ -10504,13 +10521,17 @@ var SETTINGS_UI = {
     items: [
       PrefKey.STREAM_TARGET_RESOLUTION,
       PrefKey.STREAM_CODEC_PROFILE,
-      PrefKey.GAME_BAR_ENABLED,
       PrefKey.AUDIO_MIC_ON_PLAYING,
       PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG,
       PrefKey.SCREENSHOT_APPLY_FILTERS,
       PrefKey.GAME_FORTNITE_FORCE_CONSOLE,
       PrefKey.AUDIO_ENABLE_VOLUME_CONTROL,
       PrefKey.STREAM_COMBINE_SOURCES
+    ]
+  },
+  [t("game-bar")]: {
+    items: [
+      PrefKey.GAME_BAR_POSITION
     ]
   },
   [t("local-co-op")]: {
@@ -10846,7 +10867,7 @@ var main = function() {
   BX_FLAGS.CheckForUpdate && checkForUpdate();
   addCss();
   Toast.setup();
-  getPref(PrefKey.GAME_BAR_ENABLED) && GameBar.getInstance();
+  getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance();
   BX_FLAGS.PreloadUi && setupStreamUi();
   StreamBadges.setupEvents();
   StreamStats.setupEvents();
@@ -10942,7 +10963,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
   STATES.currentStream.$video = $video;
   STATES.isPlaying = true;
   injectStreamMenuButtons();
-  if (getPref(PrefKey.GAME_BAR_ENABLED)) {
+  if (getPref(PrefKey.GAME_BAR_POSITION) !== "off") {
     const gameBar = GameBar.getInstance();
     gameBar.reset();
     gameBar.enable();
