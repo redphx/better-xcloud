@@ -522,7 +522,6 @@ export class Preferences {
         [PrefKey.AUDIO_ENABLE_VOLUME_CONTROL]: {
             label: t('enable-volume-control'),
             default: false,
-            experimental: true,
         },
         [PrefKey.AUDIO_VOLUME]: {
             type: SettingElementType.NUMBER_STEPPER,
