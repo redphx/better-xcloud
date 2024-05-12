@@ -286,7 +286,13 @@ if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
             return false;
         }
 
-        str = str.replace(text, 'window.BX_EXPOSED["touchLayoutManager"] = this,' + text);
+        const newCode = `
+true;
+window.BX_EXPOSED["touchLayoutManager"] = this;
+window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
+`;
+
+        str = str.replace(text, newCode + text);
         return str;
     },
 

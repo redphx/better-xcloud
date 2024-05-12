@@ -143,7 +143,16 @@ export class TouchController {
     }
 
     static loadCustomLayout(xboxTitleId: string, layoutId: string, delay: number=0) {
+        // TODO: fix this
         if (!window.BX_EXPOSED.touchLayoutManager) {
+            const listener = (e: Event) => {
+                window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+                if (TouchController.#enable) {
+                    TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
+                }
+            };
+            window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+
             return;
         }
 

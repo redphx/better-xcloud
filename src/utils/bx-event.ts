@@ -23,6 +23,7 @@ export enum BxEvent {
     STREAM_SESSION_READY = 'bx-stream-session-ready',
 
     CUSTOM_TOUCH_LAYOUTS_LOADED = 'bx-custom-touch-layouts-loaded',
+    TOUCH_LAYOUT_MANAGER_READY = 'bx-touch-layout-manager-ready',
 
     REMOTE_PLAY_READY = 'bx-remote-play-ready',
     REMOTE_PLAY_FAILED = 'bx-remote-play-failed',
