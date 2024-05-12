@@ -45,6 +45,11 @@ export class GameBar {
             new MicrophoneAction(),
         ];
 
+        // Reverse the action list if Game Bar's position is on the right side
+        if (position === 'bottom-right') {
+            this.actions.reverse();
+        }
+
         // Render actions
         for (const action of this.actions) {
             $container.appendChild(action.render());
