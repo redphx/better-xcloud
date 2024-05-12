@@ -319,6 +319,7 @@ export class Preferences {
         [PrefKey.BITRATE_VIDEO_MAX]: {
             type: SettingElementType.NUMBER_STEPPER,
             label: 'Maximum video bitrate',
+            note: '⚠️ ' + t('unexpected-behavior'),
             default: 0,
             min: 0,
             max: 15,
@@ -473,7 +474,7 @@ export class Preferences {
         },
         [PrefKey.USER_AGENT_PROFILE]: {
             label: t('user-agent-profile'),
-            note: '⚠️ ' + t('user-agent-note'),
+            note: '⚠️ ' + t('unexpected-behavior'),
             default: 'default',
             options: {
                 [UserAgentProfile.DEFAULT]: t('default'),
