@@ -322,7 +322,7 @@ export class Preferences {
             note: '⚠️ ' + t('unexpected-behavior'),
             default: 0,
             min: 0,
-            max: 15,
+            max: 14,
             steps: 1,
             params: {
                 suffix: ' Mb/s',
