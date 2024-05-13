@@ -9,7 +9,8 @@ body:
       value: |
         Please fill out the following information to help us resolve the issue.
         > [!warning]
-        > Only use English. Any other languages will be deleted.
+        > - Only use English. Any other languages will be deleted.  
+        > - Search first before making a report.  
   - type: dropdown
     id: device_type
     attributes:
