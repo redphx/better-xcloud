@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "author": "redphx",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              }
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "interact"
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            null,
+            {
+              "type": "button",
+              "action": "gamepadB"
+            },
+            null,
+            null,
+            [
+              {
+                "type": "joystick",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick"
+                }
+              }
+            ],
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "inventory"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadY",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "notebook"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "rightBumper",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "ability3"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
