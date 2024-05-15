@@ -15,6 +15,22 @@
               },
               "expand": false
             }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            {
+              "type": "button",
+              "action": "leftBumper"
+            }
           ]
         },
         "right": {
