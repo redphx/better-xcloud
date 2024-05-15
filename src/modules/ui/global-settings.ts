@@ -148,8 +148,20 @@ export function setupSettingsUi() {
         $updateAvailable.classList.remove('bx-gone');
     }
 
-    // Show link to Android app
-    if (!AppInterface) {
+    if (AppInterface) {
+        // Show Android app settings button
+        const $btn = createButton({
+            label: t('android-app-settings'),
+            icon: BxIcon.STREAM_SETTINGS,
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            onClick: e => {
+                AppInterface.openAppSettings && AppInterface.openAppSettings();
+            },
+        });
+
+        $wrapper.appendChild($btn);
+    } else {
+        // Show link to Android app
         const userAgent = UserAgent.getDefault().toLowerCase();
         if (userAgent.includes('android')) {
             const $btn = createButton({
