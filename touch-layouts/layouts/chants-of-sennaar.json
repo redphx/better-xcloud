@@ -21,12 +21,18 @@
               "type": "button",
               "action": "rightBumper"
             },
+            {
+              "type": "button",
+              "action": "rightTrigger"
+            },
             null,
             null,
             null,
             null,
-            null,
-            null,
+            {
+              "type": "button",
+              "action": "leftTrigger"
+            },
             {
               "type": "button",
               "action": "leftBumper"
