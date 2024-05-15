@@ -39,7 +39,10 @@
               "action": "gamepadB"
             },
             null,
-            null,
+            {
+              "type": "button",
+              "action": "rightThumb"
+            },
             [
               {
                 "type": "joystick",
