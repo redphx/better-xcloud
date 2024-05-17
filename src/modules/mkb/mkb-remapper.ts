@@ -426,6 +426,7 @@ export class MkbRemapper {
             const $fragment = document.createDocumentFragment();
             for (let i = 0; i < keysPerButton; i++) {
                 $elm = CE('button', {
+                        type: 'button',
                         'data-prompt': buttonPrompt,
                         'data-button-index': buttonIndex,
                         'data-key-slot': i,

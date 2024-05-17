@@ -77,7 +77,7 @@ export const createButton = <T=HTMLButtonElement>(options: BxButton): T => {
         $btn.href = options.url;
         $btn.target = '_blank';
     } else {
-        $btn = CE('button', {'class': 'bx-button'}) as HTMLButtonElement;
+        $btn = CE('button', {'class': 'bx-button', type: 'button'}) as HTMLButtonElement;
     }
 
     const style = (options.style || 0) as number;

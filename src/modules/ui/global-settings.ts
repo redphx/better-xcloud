@@ -250,8 +250,9 @@ export function setupSettingsUi() {
             if (settingId === PrefKey.USER_AGENT_PROFILE) {
                 let defaultUserAgent = (window.navigator as any).orgUserAgent || window.navigator.userAgent;
                 $inpCustomUserAgent = CE('input', {
-                    'type': 'text',
-                    'placeholder': defaultUserAgent,
+                    id: `bx_setting_inp_${settingId}`,
+                    type: 'text',
+                    placeholder: defaultUserAgent,
                     'class': 'bx-settings-custom-user-agent',
                 });
                 $inpCustomUserAgent.addEventListener('change', e => {
@@ -278,7 +279,11 @@ export function setupSettingsUi() {
             } else if (settingId === PrefKey.SERVER_REGION) {
                 let selectedValue;
 
-                $control = CE<HTMLSelectElement>('select', {id: `bx_setting_${settingId}`, tabindex: 0});
+                $control = CE<HTMLSelectElement>('select', {
+                        id: `bx_setting_${settingId}`,
+                        title: settingLabel,
+                        tabindex: 0,
+                    });
                 $control.name = $control.id;
 
                 $control.addEventListener('change', (e: Event) => {
@@ -324,7 +329,12 @@ export function setupSettingsUi() {
                 } else {
                     $control = toPrefElement(settingId, onChange);
                 }
+            }
+
+            if (!!$control.id) {
                 labelAttrs['for'] = $control.id;
+            } else {
+                labelAttrs['for'] = `bx_setting_${settingId}`;
             }
 
             // Disable unsupported settings

@@ -26,7 +26,10 @@ export enum SettingElementType {
 
 export class SettingElement {
     static #renderOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any) {
-        const $control = CE<HTMLSelectElement>('select', {tabindex: 0}) as HTMLSelectElement;
+        const $control = CE<HTMLSelectElement>('select', {
+                title: setting.label,
+                tabindex: 0,
+            }) as HTMLSelectElement;
         for (let value in setting.options) {
             const label = setting.options[value];
 
@@ -50,7 +53,11 @@ export class SettingElement {
     }
 
     static #renderMultipleOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any, params: MultipleOptionsParams={}) {
-        const $control = CE<HTMLSelectElement>('select', {multiple: true, tabindex: 0});
+        const $control = CE<HTMLSelectElement>('select', {
+                title: setting.label,
+                multiple: true,
+                tabindex: 0,
+            });
         if (params && params.size) {
             $control.setAttribute('size', params.size.toString());
         }
@@ -149,13 +156,22 @@ export class SettingElement {
         };
 
         const $wrapper = CE('div', {'class': 'bx-number-stepper'},
-                $decBtn = CE('button', {'data-type': 'dec', tabindex: -1}, '-') as HTMLButtonElement,
+                $decBtn = CE('button', {
+                        'data-type': 'dec',
+                        type: 'button',
+                        tabindex: -1,
+                    }, '-') as HTMLButtonElement,
                 $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
-                $incBtn = CE('button', {'data-type': 'inc', tabindex: -1}, '+') as HTMLButtonElement,
+                $incBtn = CE('button', {
+                        'data-type': 'inc',
+                        type: 'button',
+                        tabindex: -1,
+                    }, '+') as HTMLButtonElement,
             );
 
         if (!options.disabled && !options.hideSlider) {
             $range = CE('input', {
+                    id: `bx_setting_${key}`,
                     type: 'range',
                     min: MIN,
                     max: MAX,
@@ -290,7 +306,10 @@ export class SettingElement {
         const method = SettingElement.#METHOD_MAP[type];
         // @ts-ignore
         const $control = method(...Array.from(arguments).slice(1)) as HTMLElement;
-        $control.id = `bx_setting_${key}`;
+
+        if (type !== SettingElementType.NUMBER_STEPPER) {
+            $control.id = `bx_setting_${key}`;
+        }
 
         // Add "name" property to "select" elements
         if (type === SettingElementType.OPTIONS || type === SettingElementType.MULTIPLE_OPTIONS) {

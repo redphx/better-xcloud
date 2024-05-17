@@ -55,7 +55,7 @@ export class Dialog {
                             }),
                     ),
                 this.$content = CE('div', {'class': 'bx-dialog-content'}, content),
-                !hideCloseButton && ($close = CE('button', {}, t('close'))),
+                !hideCloseButton && ($close = CE('button', {type: 'button'}, t('close'))),
             );
 
         $close && $close.addEventListener('click', e => {
