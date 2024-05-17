@@ -115,7 +115,7 @@ export function setupSettingsUi() {
     const PREF_PREFERRED_REGION = getPreferredServerRegion();
     const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
 
-    let $reloadBtnWrapper: HTMLButtonElement;
+    let $btnReload: HTMLButtonElement;
 
     // Setup Settings UI
     const $container = CE<HTMLElement>('div', {
@@ -180,22 +180,21 @@ export function setupSettingsUi() {
     }
 
     const onChange = (e: Event) => {
-        if (!$reloadBtnWrapper) {
-            return;
-        }
-
-        $reloadBtnWrapper.classList.remove('bx-gone');
-
         // Clear PatcherCache;
         PatcherCache.clear();
+
+        $btnReload.classList.add('bx-danger');
+
+        // Highlight the Settings button in the Header to remind user to reload the page
+        const $btnHeaderSettings = document.querySelector('.bx-header-settings-button');
+        $btnHeaderSettings && $btnHeaderSettings.classList.add('bx-danger');
 
         if ((e.target as HTMLElement).id === 'bx_setting_' + PrefKey.BETTER_XCLOUD_LOCALE) {
             // Update locale
             refreshCurrentLocale();
 
-            const $btn = $reloadBtnWrapper.firstElementChild! as HTMLButtonElement;
-            $btn.textContent = t('settings-reloading');
-            $btn.click();
+            $btnReload.textContent = t('settings-reloading');
+            $btnReload.click();
         }
     };
 
@@ -274,7 +273,7 @@ export function setupSettingsUi() {
                     $inpCustomUserAgent.readOnly = !isCustom;
                     $inpCustomUserAgent.disabled = !isCustom;
 
-                    onChange(e);
+                    !(e.target as HTMLInputElement).disabled && onChange(e);
                 });
             } else if (settingId === PrefKey.SERVER_REGION) {
                 let selectedValue;
@@ -362,25 +361,27 @@ export function setupSettingsUi() {
             if (settingId === PrefKey.USER_AGENT_PROFILE) {
                 $wrapper.appendChild($inpCustomUserAgent!);
                 // Trigger 'change' event
+                $control.disabled = true;
                 $control.dispatchEvent(new Event('change'));
+                $control.disabled = false;
             }
         }
     }
 
     // Setup Reload button
-    const $reloadBtn = createButton({
+    $btnReload = createButton({
         label: t('settings-reload'),
-        style: ButtonStyle.DANGER | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+        classes: ['bx-settings-reload-button'],
+        style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
         onClick: e => {
             window.location.reload();
-            $reloadBtn.disabled = true;
-            $reloadBtn.textContent = t('settings-reloading');
+            $btnReload.disabled = true;
+            $btnReload.textContent = t('settings-reloading');
         },
     });
-    $reloadBtn.setAttribute('tabindex', '0');
+    $btnReload.setAttribute('tabindex', '0');
 
-    $reloadBtnWrapper = CE<HTMLButtonElement>('div', {'class': 'bx-settings-reload-button-wrapper bx-gone'}, $reloadBtn);
-    $wrapper.appendChild($reloadBtnWrapper);
+    $wrapper.appendChild($btnReload);
 
     // Donation link
     const $donationLink = CE('a', {
