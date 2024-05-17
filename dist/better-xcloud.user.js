@@ -246,7 +246,7 @@ var createButton = (options) => {
     $btn.href = options.url;
     $btn.target = "_blank";
   } else {
-    $btn = CE("button", { class: "bx-button" });
+    $btn = CE("button", { class: "bx-button", type: "button" });
   }
   const style = options.style || 0;
   style && ButtonStyleIndices.forEach((index) => {
@@ -443,19 +443,19 @@ var Texts = {
     "高级选项"
   ],
   "android-app-settings": [
-    ,
-    ,
+    "Android App Einstellungen",
+    "Pengaturan aplikasi",
     "Android app settings",
     "Ajustes de la aplicación para Android",
-    ,
-    ,
+    "Paramètres de l’application Android",
+    "Impostazioni App Android",
     "Androidアプリ設定",
+    "안드로이드 앱 설정",
     ,
-    ,
-    ,
-    ,
-    ,
-    ,
+    "Configurações do aplicativo Android",
+    "Настройки приложения Android",
+    "Android uygulama ayarları",
+    "Налаштування програми Android",
     "Thiết lập ứng dụng Android"
   ],
   apply: [
@@ -684,7 +684,7 @@ var Texts = {
     "Kanan bawah",
     "Bottom-right",
     "Inferior derecha",
-    "Bas-droit",
+    "En bas à droite",
     "In basso a destra",
     "右下",
     "우측 하단",
@@ -721,7 +721,7 @@ var Texts = {
     "Votre navigateur ne supporte pas cette fonctionnalité",
     "Il tuo browser non supporta questa funzione",
     "お使いのブラウザはこの機能をサポートしていません。",
-    "브라우저에서 이 기능을 지원하지 않습니다.",
+    "이 브라우저에서 이 기능을 지원하지 않습니다.",
     "Twoja przeglądarka nie obsługuje tej funkcji",
     "Seu navegador não suporta este recurso",
     "Ваш браузер не поддерживает эту функцию",
@@ -800,7 +800,7 @@ var Texts = {
   ],
   "clarity-boost-warning": [
     "Diese Einstellungen funktionieren nicht, wenn \"Clarity Boost\" aktiviert ist",
-    "Pengaturan ini tidak bekerja ketika mode \"Kejernihan\" aktif",
+    "Pengaturan ini tidak bekerja ketika mode \"Kejernihan Extra \" aktif",
     "These settings don't work when the Clarity Boost mode is ON",
     "Estos ajustes no funcionan cuando el modo Clarity Boost está activado",
     "Ces paramètres ne fonctionnent pas lorsque le mode Clarity Boost est activé",
@@ -885,7 +885,7 @@ var Texts = {
   ],
   "conditional-formatting": [
     "Zustandsabhängige Textfarbe",
-    "Format teks kondisional",
+    "Pewarnaan Format teks kondisional",
     "Conditional formatting text color",
     "Color condicional de formato de texto",
     "Couleur du texte de mise en forme conditionnelle",
@@ -991,7 +991,7 @@ var Texts = {
     "Kontroler",
     "Controller",
     "Joystick",
-    "Contrôle",
+    "Manette",
     ,
     "コントローラー",
     "컨트롤러",
@@ -1124,13 +1124,13 @@ var Texts = {
   ],
   "device-unsupported-touch": [
     "Dein Gerät hat keine Touch-Unterstützung",
-    "Perangkat anda tidak mendukung layar sentuh",
+    "Perangkat anda tidak mendukung sentuhan Layar",
     "Your device doesn't have touch support",
     "Tu dispositivo no tiene soporte táctil",
     "Votre appareil n'a pas de support tactile",
     "Il tuo dispositivo non supporta i comandi su schermo",
     "お使いのデバイスはタッチ機能をサポートしていません。",
-    "브라우저에서 터치를 지원하지 않습니다.",
+    "이 장치에서 터치 기능을 지원하지 않습니다.",
     "Twoje urządzenie nie obsługuję tej funkcji",
     "Seu dispositivo não possui suporte de toque",
     "Ваше устройство не поддерживает сенсорное управление",
@@ -1175,7 +1175,7 @@ var Texts = {
   ],
   disable: [
     "Deaktiviert",
-    "Mati",
+    "Menonaktifkan",
     "Disable",
     "Deshabilitar",
     "Désactiver",
@@ -1190,15 +1190,31 @@ var Texts = {
     "Vô hiệu hóa",
     "禁用"
   ],
+  "disable-native-mkb": [
+    "Native Maus- & Tastaturunterstützung deaktivieren",
+    "Matikan Mouse & Keyboard bawaan",
+    "Disable native Mouse & Keyboard feature",
+    "Desactivar función nativa de ratón y teclado",
+    "Désactiver la fonction native Souris et Clavier",
+    "Disabilita il supporto nativo per Mouse e Tastiera",
+    "ネイティブ版マウス＆キーボードの機能を無効化",
+    "마우스 및 키보드 공식지원 기능 비활성화",
+    ,
+    "Desabilitar recurso nativo do Mouse e Teclado",
+    ,
+    "Yerleşik klavye ve fare özelliğini kapat",
+    "Вимкнути функцію рідної миші та клавіатури",
+    "Tắt tính năng Chuột và Bàn phím chính thức"
+  ],
   "disable-post-stream-feedback-dialog": [
     "Feedback-Dialog beim Beenden deaktivieren",
-    "Matikan umpan balik dialog stream",
+    "Matikan umpan balik dialog pasca-stream",
     "Disable post-stream feedback dialog",
     "Desactivar diálogo de retroalimentación post-stream",
     "Désactiver la boîte de dialogue de commentaires post-stream",
     "Disabilita la finestra di feedback al termine dello stream",
     "ストリーミング終了後のフィードバック画面を非表示",
-    "스트림 후 피드백 다이얼 비활성화",
+    "스트림 후 품질 조사요청 비활성화",
     "Wyłącz okno opinii po zakończeniu transmisji",
     "Desativar o diálogo de comentários pós-transmissão",
     "Отключить диалог обратной связи после стрима",
@@ -1297,10 +1313,10 @@ var Texts = {
     "Nyalakan pintas kontroler",
     "Enable controller shortcuts",
     "Habilitar accesos directos del Joystick",
-    "Activer les raccourcis du contrôle",
+    "Activer les raccourcis de la manette",
     "Consenti scorciatoie da controller",
     "コントローラーショートカットを有効化",
-    "컨트롤러 숏컷 활성화",
+    "컨트롤러 단축키 활성화",
     "Włącz skróty kontrolera",
     "Ativar atalhos do controle",
     "Включить быстрые клавиши контроллера",
@@ -1365,7 +1381,7 @@ var Texts = {
     "Tirukan kontroler menggunakan Mouse & Keyboard",
     "Emulate controller with Mouse & Keyboard",
     "Emular mandos con teclado y ratón",
-    "Émuler le contrôleur avec la souris et le clavier",
+    "Émuler la manette avec la souris et le clavier",
     "Abilita il supporto per mouse e tastiera",
     "マウス＆キーボード操作をコントローラー化",
     "마우스 및 키보드를 컨트롤러로 에뮬레이트",
@@ -1533,7 +1549,12 @@ var Texts = {
   "game-bar": [
     ,
     ,
-    "Game Bar"
+    "Game Bar",
+    ,
+    ,
+    ,
+    ,
+    "게임 바"
   ],
   "getting-consoles-list": [
     "Rufe Liste der Konsolen ab...",
@@ -1744,7 +1765,7 @@ var Texts = {
     "Tata letak",
     "Layout",
     "Diseño",
-    "Mise en page",
+    "Disposition",
     ,
     "レイアウト",
     "레이아웃",
@@ -1843,7 +1864,7 @@ var Texts = {
   ],
   "menu-stream-settings": [
     "Stream Einstellungen",
-    "Pengaturan stream",
+    "Pengaturan streaming",
     "Stream settings",
     "Ajustes del stream",
     "Réglages Stream",
@@ -2183,7 +2204,7 @@ var Texts = {
   ],
   "powered-on": [
     "Eingeschaltet",
-    "Menyala",
+    "Dihidupkan",
     "Powered on",
     "Activado",
     "Démarrer",
@@ -2291,7 +2312,7 @@ var Texts = {
     "Appuyez sur une touche ou faites un clic de souris pour associer...",
     "Premi un tasto o fai un clic del mouse per associare...",
     "キーを押すかマウスをクリックして割り当て...",
-    "정지하려면 아무키나 마우스를 클릭해주세요...",
+    "키를 누르거나 마우스를 클릭하여 할당하기",
     "Naciśnij klawisz lub kliknij myszą, aby przypisać...",
     "Pressione uma tecla ou clique do mouse para vincular...",
     "Нажмите клавишу или щелкните мышкой, чтобы связать...",
@@ -2342,7 +2363,7 @@ var Texts = {
     "Réduire les animations dans l’interface",
     "Animazioni ridottte",
     "UIアニメーションを減らす",
-    "애니메이션 감소",
+    "인터페이스 애니메이션 감소",
     "Ogranicz animacje interfejsu",
     "Reduzir animações da interface",
     "Убрать анимации интерфейса",
@@ -2747,10 +2768,10 @@ var Texts = {
     "Sederhanakan menu Stream",
     "Simplify Stream's menu",
     "Simplificar el menú del stream",
-    "Simplifier le menu Stream",
+    "Simplifier le menu de Stream",
     "Semplifica il menu della trasmissione",
     "ストリーミングメニューのラベルを非表示",
-    "메뉴 간단히 보기",
+    "스트리밍 메뉴 간단히 보기",
     "Uprość menu strumienia",
     "Simplificar menu de transmissão",
     "Упростить меню потока",
@@ -2767,7 +2788,7 @@ var Texts = {
     "Ignorer la vidéo de démarrage Xbox",
     "Salta il logo Xbox iniziale",
     "Xboxの起動画面をスキップ",
-    "Xbox 스플래시 건너뛰기",
+    "Xbox 스플래시 영상 건너뛰기",
     "Pomiń wstępne intro Xbox",
     "Pular introdução do Xbox",
     "Пропустить видео с заставкой Xbox",
@@ -3039,7 +3060,7 @@ var Texts = {
     "Étirer",
     "Riempi",
     "引き伸ばし",
-    "채우기",
+    "늘이기",
     "Rozciągnij",
     "Esticar",
     "Растянуть",
@@ -3047,6 +3068,22 @@ var Texts = {
     "Розтягнути",
     "Kéo giãn",
     "拉伸"
+  ],
+  "stretch-note": [
+    ,
+    ,
+    "Don't use with native touch games",
+    "No usar con juegos nativos táctiles",
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    "Không dùng với các game cảm ứng trực tiếp"
   ],
   "support-better-xcloud": [
     '"Better xCloud" unterstützen',
@@ -3220,7 +3257,7 @@ var Texts = {
   ],
   "tc-muted-colors": [
     "Matte Farben",
-    "Warna redup",
+    "Warna Semu",
     "Muted colors",
     "Colores apagados",
     "Couleurs adoucies",
@@ -3240,7 +3277,7 @@ var Texts = {
     "Gaya tata letak tombol standar",
     "Standard layout's button style",
     "Estilo de botones de diseño estándar",
-    "Style standard des boutons",
+    "Disposition standard des boutons",
     "Layout dei tasti standard",
     "標準レイアウト",
     "표준 레이아웃의 버튼 스타일",
@@ -3291,7 +3328,7 @@ var Texts = {
     "Kiri atas",
     "Top-left",
     "Superior izquierdo",
-    "Haut-gauche",
+    "En haut à gauche",
     "In alto a sinistra",
     "左上",
     "좌측 상단",
@@ -3345,7 +3382,7 @@ var Texts = {
     (e) => `Disposition du contrôleur tactile par ${e.name}`,
     (e) => `Configurazione dei comandi su schermo creata da ${e.name}`,
     (e) => `タッチ操作レイアウト作成者: ${e.name}`,
-    (e) => `터치 컨트롤 레이아웃: ${e.name}`,
+    (e) => `${e.name} 제작, 터치 컨트롤 레이아웃`,
     (e) => `Układ sterowania dotykowego stworzony przez ${e.name}`,
     (e) => `Disposição de controle por toque feito por ${e.name}`,
     (e) => `Сенсорная раскладка по ${e.name}`,
@@ -3678,7 +3715,7 @@ var Texts = {
   ],
   "wait-time-estimated": [
     "Geschätzte Endzeit",
-    "Perkiraan waktu",
+    "Perkiraan waktu Selesai ",
     "Estimated finish time",
     "Tiempo estimado de finalización",
     "Temps estimé avant la fin",
@@ -3876,7 +3913,10 @@ var SettingElementType;
 
 class SettingElement {
   static #renderOptions(key, setting, currentValue, onChange) {
-    const $control = CE("select");
+    const $control = CE("select", {
+      title: setting.label,
+      tabindex: 0
+    });
     for (let value in setting.options) {
       const label = setting.options[value];
       const $option = CE("option", { value }, label);
@@ -3894,7 +3934,11 @@ class SettingElement {
     return $control;
   }
   static #renderMultipleOptions(key, setting, currentValue, onChange, params = {}) {
-    const $control = CE("select", { multiple: true });
+    const $control = CE("select", {
+      title: setting.label,
+      multiple: true,
+      tabindex: 0
+    });
     if (params && params.size) {
       $control.setAttribute("size", params.size.toString());
     }
@@ -3926,7 +3970,7 @@ class SettingElement {
     return $control;
   }
   static #renderNumber(key, setting, currentValue, onChange) {
-    const $control = CE("input", { type: "number", min: setting.min, max: setting.max });
+    const $control = CE("input", { tabindex: 0, type: "number", min: setting.min, max: setting.max });
     $control.value = currentValue;
     onChange && $control.addEventListener("change", (e) => {
       const target = e.target;
@@ -3937,7 +3981,7 @@ class SettingElement {
     return $control;
   }
   static #renderCheckbox(key, setting, currentValue, onChange) {
-    const $control = CE("input", { type: "checkbox" });
+    const $control = CE("input", { type: "checkbox", tabindex: 0 });
     $control.checked = currentValue;
     onChange && $control.addEventListener("change", (e) => {
       onChange(e, e.target.checked);
@@ -3967,9 +4011,25 @@ class SettingElement {
       }
       return textContent;
     };
-    const $wrapper = CE("div", { class: "bx-number-stepper" }, $decBtn = CE("button", { "data-type": "dec" }, "-"), $text = CE("span", {}, renderTextValue(value)), $incBtn = CE("button", { "data-type": "inc" }, "+"));
+    const $wrapper = CE("div", { class: "bx-number-stepper" }, $decBtn = CE("button", {
+      "data-type": "dec",
+      type: "button",
+      tabindex: -1
+    }, "-"), $text = CE("span", {}, renderTextValue(value)), $incBtn = CE("button", {
+      "data-type": "inc",
+      type: "button",
+      tabindex: -1
+    }, "+"));
     if (!options.disabled && !options.hideSlider) {
-      $range = CE("input", { type: "range", min: MIN, max: MAX, value, step: STEPS });
+      $range = CE("input", {
+        id: `bx_setting_${key}`,
+        type: "range",
+        min: MIN,
+        max: MAX,
+        value,
+        step: STEPS,
+        tabindex: 0
+      });
       $range.addEventListener("input", (e) => {
         value = parseInt(e.target.value);
         $text.textContent = renderTextValue(value);
@@ -4069,7 +4129,9 @@ class SettingElement {
   static render(type, key, setting, currentValue, onChange, options) {
     const method = SettingElement.#METHOD_MAP[type];
     const $control = method(...Array.from(arguments).slice(1));
-    $control.id = `bx_setting_${key}`;
+    if (type !== SettingElementType.NUMBER_STEPPER) {
+      $control.id = `bx_setting_${key}`;
+    }
     if (type === SettingElementType.OPTIONS || type === SettingElementType.MULTIPLE_OPTIONS) {
       $control.name = $control.id;
     }
@@ -4557,6 +4619,7 @@ var PrefKey;
   PrefKey2["CONTROLLER_ENABLE_VIBRATION"] = "controller_enable_vibration";
   PrefKey2["CONTROLLER_DEVICE_VIBRATION"] = "controller_device_vibration";
   PrefKey2["CONTROLLER_VIBRATION_INTENSITY"] = "controller_vibration_intensity";
+  PrefKey2["NATIVE_MKB_DISABLED"] = "native_mkb_disabled";
   PrefKey2["MKB_ENABLED"] = "mkb_enabled";
   PrefKey2["MKB_HIDE_IDLE_CURSOR"] = "mkb_hide_idle_cursor";
   PrefKey2["MKB_ABSOLUTE_MOUSE"] = "mkb_absolute_mouse";
@@ -4887,6 +4950,10 @@ class Preferences {
           target: "_blank"
         }, "⚠️ " + note);
       }
+    },
+    [PrefKey.NATIVE_MKB_DISABLED]: {
+      label: t("disable-native-mkb"),
+      default: false
     },
     [PrefKey.MKB_DEFAULT_PRESET_ID]: {
       default: 0
@@ -5482,7 +5549,7 @@ class Dialog {
       style: ButtonStyle.GHOST,
       title: t("help"),
       url: helpUrl
-    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", {}, t("close"))));
+    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close"))));
     $close && $close.addEventListener("click", (e) => {
       this.hide(e);
     });
@@ -6639,6 +6706,7 @@ class MkbRemapper {
       const $fragment = document.createDocumentFragment();
       for (let i = 0;i < keysPerButton; i++) {
         $elm = CE("button", {
+          type: "button",
           "data-prompt": buttonPrompt,
           "data-button-index": buttonIndex,
           "data-key-slot": i
@@ -8346,6 +8414,9 @@ var BxExposed = {
   modifyTitleInfo: (titleInfo) => {
     titleInfo = structuredClone(titleInfo);
     let supportedInputTypes = titleInfo.details.supportedInputTypes;
+    if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
+      supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
+    }
     titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
     if (STATES.hasTouchSupport) {
       let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
@@ -8360,9 +8431,6 @@ var BxExposed = {
         }
         gamepadFound && (touchControllerAvailability = "off");
       }
-      if (UserAgent.isMobile()) {
-        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
-      }
       if (touchControllerAvailability === "off") {
         supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
       }
@@ -8371,8 +8439,8 @@ var BxExposed = {
         titleInfo.details.hasFakeTouchSupport = true;
         supportedInputTypes.push(InputType.GENERIC_TOUCH);
       }
-      titleInfo.details.supportedInputTypes = supportedInputTypes;
     }
+    titleInfo.details.supportedInputTypes = supportedInputTypes;
     STATES.currentStream.titleInfo = titleInfo;
     BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
     return titleInfo;
@@ -8438,7 +8506,6 @@ function addCss() {
   --bx-danger-button-hover-color: #e61d1d;
   --bx-danger-button-disabled-color: #a26c6c;
   --bx-toast-z-index: 9999;
-  --bx-reload-button-z-index: 9200;
   --bx-dialog-z-index: 9101;
   --bx-dialog-overlay-z-index: 9100;
   --bx-remote-play-popup-z-index: 9090;
@@ -8620,19 +8687,9 @@ a.bx-button.bx-full-width {
   display: inline-block;
   margin-left: 4px;
 }
-.bx-settings-reload-button-wrapper {
-  z-index: var(--bx-reload-button-z-index);
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  text-align: center;
-  background: rgba(0,0,0,0.812);
-  padding: 10px;
-}
-.bx-settings-reload-button-wrapper button {
-  max-width: 450px;
-  margin: 0 !important;
+.bx-settings-reload-button {
+  margin-top: 10px;
+  height: calc(var(--bx-button-height) * 1.5);
 }
 .bx-settings-container {
   background-color: #151515;
@@ -8706,23 +8763,24 @@ a.bx-button.bx-full-width {
 }
 .bx-settings-row {
   display: flex;
-  margin-bottom: 8px;
-  padding: 2px 4px;
+  padding: 6px 12px;
+  position: relative;
 }
 .bx-settings-row label {
   flex: 1;
   align-self: center;
   margin-bottom: 0;
-  padding-left: 10px;
 }
-@media (hover: none) {
-  .bx-settings-row:focus-within {
-    background-color: #242424;
-  }
+.bx-settings-row:hover,
+.bx-settings-row:focus-within {
+  background-color: #242424;
 }
 .bx-settings-row input {
   align-self: center;
   accent-color: var(--bx-primary-button-color);
+}
+.bx-settings-row input:focus {
+  accent-color: var(--bx-danger-button-color);
 }
 .bx-settings-row select:disabled {
   -webkit-appearance: none;
@@ -8730,6 +8788,20 @@ a.bx-button.bx-full-width {
   text-align-last: right;
   border: none;
   color: #fff;
+}
+.bx-settings-row input[type=checkbox]:focus,
+.bx-settings-row select:focus {
+  filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
+}
+.bx-settings-row:has(input:focus)::before,
+.bx-settings-row:has(select:focus)::before {
+  content: ' ';
+  border-radius: 4px;
+  border: 2px solid #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
 }
 .bx-settings-group-label b,
 .bx-settings-row label b {
@@ -8760,6 +8832,9 @@ a.bx-button.bx-full-width {
 }
 .bx-donation-link:hover {
   color: #6dd72b;
+}
+.bx-donation-link:focus {
+  text-decoration: underline;
 }
 .bx-settings-custom-user-agent {
   display: block;
@@ -10412,7 +10487,7 @@ function setupSettingsUi() {
   }
   const PREF_PREFERRED_REGION = getPreferredServerRegion();
   const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
-  let $reloadBtnWrapper;
+  let $btnReload;
   const $container = CE("div", {
     class: "bx-settings-container bx-gone"
   });
@@ -10421,7 +10496,12 @@ function setupSettingsUi() {
     class: "bx-settings-title",
     href: SCRIPT_HOME,
     target: "_blank"
-  }, "Better xCloud " + SCRIPT_VERSION), createButton({ icon: BxIcon.QUESTION, label: t("help"), url: "https://better-xcloud.github.io/features/" })));
+  }, "Better xCloud " + SCRIPT_VERSION), createButton({
+    icon: BxIcon.QUESTION,
+    style: ButtonStyle.FOCUSABLE,
+    label: t("help"),
+    url: "https://better-xcloud.github.io/features/"
+  })));
   $updateAvailable = CE("a", {
     class: "bx-settings-update bx-gone",
     href: "https://github.com/redphx/better-xcloud/releases",
@@ -10454,16 +10534,14 @@ function setupSettingsUi() {
     }
   }
   const onChange = (e) => {
-    if (!$reloadBtnWrapper) {
-      return;
-    }
-    $reloadBtnWrapper.classList.remove("bx-gone");
     PatcherCache.clear();
+    $btnReload.classList.add("bx-danger");
+    const $btnHeaderSettings = document.querySelector(".bx-header-settings-button");
+    $btnHeaderSettings && $btnHeaderSettings.classList.add("bx-danger");
     if (e.target.id === "bx_setting_" + PrefKey.BETTER_XCLOUD_LOCALE) {
       refreshCurrentLocale();
-      const $btn = $reloadBtnWrapper.firstElementChild;
-      $btn.textContent = t("settings-reloading");
-      $btn.click();
+      $btnReload.textContent = t("settings-reloading");
+      $btnReload.click();
     }
   };
   for (let groupLabel in SETTINGS_UI) {
@@ -10497,10 +10575,13 @@ function setupSettingsUi() {
       }
       let $control;
       let $inpCustomUserAgent;
-      let labelAttrs = {};
+      let labelAttrs = {
+        tabindex: "-1"
+      };
       if (settingId === PrefKey.USER_AGENT_PROFILE) {
         let defaultUserAgent = window.navigator.orgUserAgent || window.navigator.userAgent;
         $inpCustomUserAgent = CE("input", {
+          id: `bx_setting_inp_${settingId}`,
           type: "text",
           placeholder: defaultUserAgent,
           class: "bx-settings-custom-user-agent"
@@ -10519,11 +10600,15 @@ function setupSettingsUi() {
           $inpCustomUserAgent.value = userAgent2;
           $inpCustomUserAgent.readOnly = !isCustom;
           $inpCustomUserAgent.disabled = !isCustom;
-          onChange(e);
+          !e.target.disabled && onChange(e);
         });
       } else if (settingId === PrefKey.SERVER_REGION) {
         let selectedValue;
-        $control = CE("select", { id: `bx_setting_${settingId}` });
+        $control = CE("select", {
+          id: `bx_setting_${settingId}`,
+          title: settingLabel,
+          tabindex: 0
+        });
         $control.name = $control.id;
         $control.addEventListener("change", (e) => {
           setPref(settingId, e.target.value);
@@ -10559,10 +10644,17 @@ function setupSettingsUi() {
         } else {
           $control = toPrefElement(settingId, onChange);
         }
-        labelAttrs = { for: $control.id, tabindex: 0 };
+      }
+      if (!!$control.id) {
+        labelAttrs["for"] = $control.id;
+      } else {
+        labelAttrs["for"] = `bx_setting_${settingId}`;
       }
       if (setting.unsupported) {
         $control.disabled = true;
+      }
+      if ($control.disabled && !!$control.getAttribute("tabindex")) {
+        $control.setAttribute("tabindex", -1);
       }
       const $label = CE("label", labelAttrs, settingLabel);
       if (settingNote) {
@@ -10572,23 +10664,30 @@ function setupSettingsUi() {
       $wrapper.appendChild($elm);
       if (settingId === PrefKey.USER_AGENT_PROFILE) {
         $wrapper.appendChild($inpCustomUserAgent);
+        $control.disabled = true;
         $control.dispatchEvent(new Event("change"));
+        $control.disabled = false;
       }
     }
   }
-  const $reloadBtn = createButton({
+  $btnReload = createButton({
     label: t("settings-reload"),
-    style: ButtonStyle.DANGER | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+    classes: ["bx-settings-reload-button"],
+    style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
     onClick: (e) => {
       window.location.reload();
-      $reloadBtn.disabled = true;
-      $reloadBtn.textContent = t("settings-reloading");
+      $btnReload.disabled = true;
+      $btnReload.textContent = t("settings-reloading");
     }
   });
-  $reloadBtn.setAttribute("tabindex", "0");
-  $reloadBtnWrapper = CE("div", { class: "bx-settings-reload-button-wrapper bx-gone" }, $reloadBtn);
-  $wrapper.appendChild($reloadBtnWrapper);
-  const $donationLink = CE("a", { class: "bx-donation-link", href: "https://ko-fi.com/redphx", target: "_blank" }, `❤️ ${t("support-better-xcloud")}`);
+  $btnReload.setAttribute("tabindex", "0");
+  $wrapper.appendChild($btnReload);
+  const $donationLink = CE("a", {
+    class: "bx-donation-link",
+    href: "https://ko-fi.com/redphx",
+    target: "_blank",
+    tabindex: 0
+  }, `❤️ ${t("support-better-xcloud")}`);
   $wrapper.appendChild($donationLink);
   try {
     const appVersion = document.querySelector("meta[name=gamepass-app-version]").content;
@@ -10639,6 +10738,7 @@ var SETTINGS_UI = {
   },
   [t("mouse-and-keyboard")]: {
     items: [
+      PrefKey.NATIVE_MKB_DISABLED,
       PrefKey.MKB_ENABLED,
       PrefKey.MKB_HIDE_IDLE_CURSOR
     ]
