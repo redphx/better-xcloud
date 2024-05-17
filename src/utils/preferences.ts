@@ -44,6 +44,7 @@ export enum PrefKey {
     CONTROLLER_DEVICE_VIBRATION = 'controller_device_vibration',
     CONTROLLER_VIBRATION_INTENSITY = 'controller_vibration_intensity',
 
+    NATIVE_MKB_DISABLED = 'native_mkb_disabled',
     MKB_ENABLED = 'mkb_enabled',
     MKB_HIDE_IDLE_CURSOR = 'mkb_hide_idle_cursor',
     MKB_ABSOLUTE_MOUSE = 'mkb_absolute_mouse',
@@ -417,6 +418,11 @@ export class Preferences {
                         target: '_blank',
                     }, '⚠️ ' + note);
             },
+        },
+
+        [PrefKey.NATIVE_MKB_DISABLED]: {
+            label: t('disable-native-mkb'),
+            default: false,
         },
 
         [PrefKey.MKB_DEFAULT_PRESET_ID]: {

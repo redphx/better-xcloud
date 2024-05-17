@@ -38,6 +38,12 @@ export const BxExposed = {
         titleInfo = structuredClone(titleInfo);
 
         let supportedInputTypes = titleInfo.details.supportedInputTypes;
+
+        // Remove native MKB support on mobile browsers or by user's choice
+        if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
+            supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.MKB);
+        }
+
         titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
 
         if (STATES.hasTouchSupport) {
@@ -58,10 +64,7 @@ export const BxExposed = {
                 gamepadFound && (touchControllerAvailability = 'off');
             }
 
-            // Remove MKB support on mobile browsers
-            if (UserAgent.isMobile()) {
-                supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.MKB);
-            }
+
 
             if (touchControllerAvailability === 'off') {
                 // Disable touch on all games (not native touch)
@@ -78,9 +81,9 @@ export const BxExposed = {
                 titleInfo.details.hasFakeTouchSupport = true;
                 supportedInputTypes.push(InputType.GENERIC_TOUCH);
             }
-
-            titleInfo.details.supportedInputTypes = supportedInputTypes;
         }
+
+        titleInfo.details.supportedInputTypes = supportedInputTypes;
 
         // Save this info in STATES
         STATES.currentStream.titleInfo = titleInfo;

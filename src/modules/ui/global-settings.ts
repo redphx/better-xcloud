@@ -55,6 +55,7 @@ const SETTINGS_UI = {
 
     [t('mouse-and-keyboard')]: {
         items: [
+            PrefKey.NATIVE_MKB_DISABLED,
             PrefKey.MKB_ENABLED,
             PrefKey.MKB_HIDE_IDLE_CURSOR,
         ],
