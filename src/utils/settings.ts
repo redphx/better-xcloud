@@ -26,7 +26,7 @@ export enum SettingElementType {
 
 export class SettingElement {
     static #renderOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any) {
-        const $control = CE<HTMLSelectElement>('select') as HTMLSelectElement;
+        const $control = CE<HTMLSelectElement>('select', {tabindex: 0}) as HTMLSelectElement;
         for (let value in setting.options) {
             const label = setting.options[value];
 
@@ -50,7 +50,7 @@ export class SettingElement {
     }
 
     static #renderMultipleOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any, params: MultipleOptionsParams={}) {
-        const $control = CE<HTMLSelectElement>('select', {'multiple': true});
+        const $control = CE<HTMLSelectElement>('select', {multiple: true, tabindex: 0});
         if (params && params.size) {
             $control.setAttribute('size', params.size.toString());
         }
@@ -93,7 +93,7 @@ export class SettingElement {
     }
 
     static #renderNumber(key: string, setting: PreferenceSetting, currentValue: any, onChange: any) {
-        const $control = CE('input', {'type': 'number', 'min': setting.min, 'max': setting.max}) as HTMLInputElement;
+        const $control = CE('input', {'tabindex': 0, 'type': 'number', 'min': setting.min, 'max': setting.max}) as HTMLInputElement;
         $control.value = currentValue;
         onChange && $control.addEventListener('change', (e: Event) => {
             const target = e.target as HTMLInputElement;
@@ -108,7 +108,7 @@ export class SettingElement {
     }
 
     static #renderCheckbox(key: string, setting: PreferenceSetting, currentValue: any, onChange: any) {
-        const $control = CE('input', {'type': 'checkbox'}) as HTMLInputElement;
+        const $control = CE('input', {'type': 'checkbox', 'tabindex': 0}) as HTMLInputElement;
         $control.checked = currentValue;
 
         onChange && $control.addEventListener('change', e => {
@@ -149,13 +149,21 @@ export class SettingElement {
         };
 
         const $wrapper = CE('div', {'class': 'bx-number-stepper'},
-                            $decBtn = CE('button', {'data-type': 'dec'}, '-') as HTMLButtonElement,
-                            $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
-                            $incBtn = CE('button', {'data-type': 'inc'}, '+') as HTMLButtonElement,
-                           );
+                $decBtn = CE('button', {'data-type': 'dec', tabindex: -1}, '-') as HTMLButtonElement,
+                $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
+                $incBtn = CE('button', {'data-type': 'inc', tabindex: -1}, '+') as HTMLButtonElement,
+            );
 
         if (!options.disabled && !options.hideSlider) {
-            $range = CE('input', {'type': 'range', 'min': MIN, 'max': MAX, 'value': value, 'step': STEPS}) as HTMLInputElement;
+            $range = CE('input', {
+                    type: 'range',
+                    min: MIN,
+                    max: MAX,
+                    value: value,
+                    step: STEPS,
+                    tabindex: 0,
+                }) as HTMLInputElement;
+
             $range.addEventListener('input', e => {
                 value = parseInt((e.target as HTMLInputElement).value);
                 $text.textContent = renderTextValue(value);

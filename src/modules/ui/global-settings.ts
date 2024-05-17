@@ -131,7 +131,12 @@ export function setupSettingsUi() {
                     'href': SCRIPT_HOME,
                     'target': '_blank',
                 }, 'Better xCloud ' + SCRIPT_VERSION),
-                createButton({icon: BxIcon.QUESTION, label: t('help'), url: 'https://better-xcloud.github.io/features/'}),
+                createButton({
+                    icon: BxIcon.QUESTION,
+                    style: ButtonStyle.FOCUSABLE,
+                    label: t('help'),
+                    url: 'https://better-xcloud.github.io/features/',
+                }),
             )
         );
     $updateAvailable = CE('a', {
@@ -238,7 +243,9 @@ export function setupSettingsUi() {
 
             let $control: any;
             let $inpCustomUserAgent: HTMLInputElement;
-            let labelAttrs = {};
+            let labelAttrs: any = {
+                tabindex: '-1',
+            };
 
             if (settingId === PrefKey.USER_AGENT_PROFILE) {
                 let defaultUserAgent = (window.navigator as any).orgUserAgent || window.navigator.userAgent;
@@ -271,7 +278,7 @@ export function setupSettingsUi() {
             } else if (settingId === PrefKey.SERVER_REGION) {
                 let selectedValue;
 
-                $control = CE<HTMLSelectElement>('select', {id: `bx_setting_${settingId}`});
+                $control = CE<HTMLSelectElement>('select', {id: `bx_setting_${settingId}`, tabindex: 0});
                 $control.name = $control.id;
 
                 $control.addEventListener('change', (e: Event) => {
@@ -317,7 +324,7 @@ export function setupSettingsUi() {
                 } else {
                     $control = toPrefElement(settingId, onChange);
                 }
-                labelAttrs = {'for': $control.id, 'tabindex': 0};
+                labelAttrs['for'] = $control.id;
             }
 
             // Disable unsupported settings
@@ -325,14 +332,19 @@ export function setupSettingsUi() {
                 ($control as HTMLInputElement).disabled = true;
             }
 
+            // Make disabled control elements un-focusable
+            if ($control.disabled && !!$control.getAttribute('tabindex')) {
+                $control.setAttribute('tabindex', -1);
+            }
+
             const $label = CE('label', labelAttrs, settingLabel);
             if (settingNote) {
                 $label.appendChild(CE('b', {}, settingNote));
             }
             const $elm = CE<HTMLElement>('div', {'class': 'bx-settings-row'},
-                            $label,
-                            $control
-                           );
+                    $label,
+                    $control,
+                );
 
             $wrapper.appendChild($elm);
 
@@ -361,7 +373,12 @@ export function setupSettingsUi() {
     $wrapper.appendChild($reloadBtnWrapper);
 
     // Donation link
-    const $donationLink = CE('a', {'class': 'bx-donation-link', href: 'https://ko-fi.com/redphx', target: '_blank'}, `❤️ ${t('support-better-xcloud')}`);
+    const $donationLink = CE('a', {
+            'class': 'bx-donation-link',
+            href: 'https://ko-fi.com/redphx',
+            target: '_blank',
+            tabindex: 0,
+        }, `❤️ ${t('support-better-xcloud')}`);
     $wrapper.appendChild($donationLink);
 
     // Show Game Pass app version
