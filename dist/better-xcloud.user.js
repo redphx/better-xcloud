@@ -6384,8 +6384,8 @@ class MkbPreset {
       [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
       [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
       [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
-      [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 18,
-      [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 6
+      [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 100,
+      [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 10
     }
   };
   static convert(preset) {
@@ -8645,9 +8645,10 @@ div[class*=NotFocusedDialog] {
 }
 .bx-button span {
   display: inline-block;
-  height: calc(var(--bx-button-height) - 2px);
+  height: var(--bx-button-height);
   line-height: var(--bx-button-height);
   vertical-align: middle;
+  vertical-align: -webkit-baseline-middle;
   color: #fff;
   overflow: hidden;
   white-space: nowrap;
