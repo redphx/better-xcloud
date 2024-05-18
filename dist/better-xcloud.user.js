@@ -6138,7 +6138,7 @@ class MkbHandler {
     }
     this.#allowStickDecaying = false;
     this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
-    this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 100);
+    this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 10);
     const deltaX = e.movementX;
     const deltaY = e.movementY;
     const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT];
