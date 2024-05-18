@@ -9,6 +9,7 @@ import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
 import { GamePassCloudGallery } from "./gamepass-gallery";
 import { InputType } from "./bx-exposed";
+import { UserAgent } from "./user-agent";
 
 export const NATIVE_FETCH = window.fetch;
 
@@ -438,6 +439,14 @@ class XcloudInterceptor {
 
         overrides.inputConfiguration = overrides.inputConfiguration || {};
         overrides.inputConfiguration.enableVibration = true;
+
+        if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
+            overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
+                    enableMouseInput: false,
+                    enableAbsoluteMouse: false,
+                    enableKeyboardInput: false,
+                });
+        }
 
         overrides.videoConfiguration = overrides.videoConfiguration || {};
         overrides.videoConfiguration.setCodecPreferences = true;
