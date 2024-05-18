@@ -4868,7 +4868,7 @@ class Preferences {
     },
     [PrefKey.BITRATE_VIDEO_MAX]: {
       type: SettingElementType.NUMBER_STEPPER,
-      label: "Maximum video bitrate",
+      label: t("bitrate-video-maximum"),
       note: "⚠️ " + t("unexpected-behavior"),
       default: 0,
       min: 0,
@@ -7757,7 +7757,7 @@ class XhomeInterceptor {
     let hasTouchSupport2 = inputConfigs.supportedTabs.length > 0;
     if (!hasTouchSupport2) {
       const supportedInputTypes = inputConfigs.supportedInputTypes;
-      hasTouchSupport2 = supportedInputTypes.includes("NativeTouch");
+      hasTouchSupport2 = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
     }
     if (hasTouchSupport2) {
       TouchController.disable();
@@ -7943,6 +7943,13 @@ class XcloudInterceptor {
     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
     overrides.inputConfiguration = overrides.inputConfiguration || {};
     overrides.inputConfiguration.enableVibration = true;
+    if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
+      overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
+        enableMouseInput: false,
+        enableAbsoluteMouse: false,
+        enableKeyboardInput: false
+      });
+    }
     overrides.videoConfiguration = overrides.videoConfiguration || {};
     overrides.videoConfiguration.setCodecPreferences = true;
     if (TouchController.isEnabled()) {
