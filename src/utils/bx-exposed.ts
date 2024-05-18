@@ -4,7 +4,7 @@ import { STATES } from "@utils/global";
 import { getPref, PrefKey } from "@utils/preferences";
 import { UserAgent } from "@utils/user-agent";
 
-enum InputType {
+export enum InputType {
     CONTROLLER = 'Controller',
     MKB = 'MKB',
     CUSTOM_TOUCH_OVERLAY = 'CustomTouchOverlay',

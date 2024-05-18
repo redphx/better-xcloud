@@ -8,6 +8,7 @@ import { TouchController } from "@modules/touch-controller";
 import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
 import { GamePassCloudGallery } from "./gamepass-gallery";
+import { InputType } from "./bx-exposed";
 
 export const NATIVE_FETCH = window.fetch;
 
@@ -188,7 +189,7 @@ class XhomeInterceptor {
         let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
         if (!hasTouchSupport) {
             const supportedInputTypes = inputConfigs.supportedInputTypes;
-            hasTouchSupport = supportedInputTypes.includes('NativeTouch');
+            hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
         }
 
         if (hasTouchSupport) {

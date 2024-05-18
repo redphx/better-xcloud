@@ -319,7 +319,7 @@ export class Preferences {
 
         [PrefKey.BITRATE_VIDEO_MAX]: {
             type: SettingElementType.NUMBER_STEPPER,
-            label: 'Maximum video bitrate',
+            label: t('bitrate-video-maximum'),
             note: '⚠️ ' + t('unexpected-behavior'),
             default: 0,
             min: 0,
