@@ -127,8 +127,8 @@ export class MkbPreset {
             [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
             [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
             [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
-            [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 18,
-            [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 6,
+            [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 100,
+            [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 10,
         },
     };
 
