@@ -9903,7 +9903,7 @@ function disablePwa() {
   if (!userAgent2) {
     return;
   }
-  if (UserAgent.isSafari(true)) {
+  if (!!AppInterface || UserAgent.isSafari(true)) {
     Object.defineProperty(window.navigator, "standalone", {
       value: true
     });
