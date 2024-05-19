@@ -456,7 +456,8 @@ var Texts = {
     "Настройки приложения Android",
     "Android uygulama ayarları",
     "Налаштування програми Android",
-    "Thiết lập ứng dụng Android"
+    "Thiết lập ứng dụng Android",
+    "安卓应用设置"
   ],
   apply: [
     "Anwenden",
@@ -1196,15 +1197,16 @@ var Texts = {
     "Disable context menu in Home page",
     ,
     ,
+    "Disabilita il menu contestuale nella Home page",
+    "ホームページでコンテキストメニューを無効化",
+    "홈페이지에서 상황별 팝업메뉴 비활성화",
     ,
     ,
     ,
     ,
-    ,
-    ,
-    ,
-    ,
-    "Tắt menu ngữ cảnh trên Trang chủ"
+    "Вимкнути контекстне меню на Домашній сторінці",
+    "Tắt menu ngữ cảnh trên Trang chủ",
+    "在主页禁用快捷菜单"
   ],
   "disable-native-mkb": [
     "Native Maus- & Tastaturunterstützung deaktivieren",
@@ -1220,7 +1222,8 @@ var Texts = {
     ,
     "Yerleşik klavye ve fare özelliğini kapat",
     "Вимкнути функцію рідної миші та клавіатури",
-    "Tắt tính năng Chuột và Bàn phím chính thức"
+    "Tắt tính năng Chuột và Bàn phím chính thức",
+    "禁用原生键鼠支持"
   ],
   "disable-post-stream-feedback-dialog": [
     "Feedback-Dialog beim Beenden deaktivieren",
@@ -3099,7 +3102,8 @@ var Texts = {
     ,
     ,
     "Не використовуйте в іграх з рідним сенсором",
-    "Không dùng với các game cảm ứng trực tiếp"
+    "Không dùng với các game cảm ứng trực tiếp",
+    "不要在支持原生触控的游戏中启用"
   ],
   "support-better-xcloud": [
     '"Better xCloud" unterstützen',
