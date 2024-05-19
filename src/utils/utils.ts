@@ -1,5 +1,5 @@
 import { PrefKey, getPref, setPref } from "@utils/preferences";
-import { SCRIPT_VERSION } from "@utils/global";
+import { AppInterface, SCRIPT_VERSION } from "@utils/global";
 import { UserAgent } from "@utils/user-agent";
 
 /**
@@ -38,7 +38,7 @@ export function disablePwa() {
     }
 
     // Check if it's Safari on mobile
-    if (UserAgent.isSafari(true)) {
+    if (!!AppInterface || UserAgent.isSafari(true)) {
         // Disable the PWA prompt
         Object.defineProperty(window.navigator, 'standalone', {
             value: true,
