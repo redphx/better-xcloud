@@ -1190,6 +1190,22 @@ var Texts = {
     "Vô hiệu hóa",
     "禁用"
   ],
+  "disable-home-context-menu": [
+    ,
+    ,
+    "Disable context menu in Home page",
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    "Tắt menu ngữ cảnh trên Trang chủ"
+  ],
   "disable-native-mkb": [
     "Native Maus- & Tastaturunterstützung deaktivieren",
     "Matikan Mouse & Keyboard bawaan",
@@ -1199,7 +1215,7 @@ var Texts = {
     "Disabilita il supporto nativo per Mouse e Tastiera",
     "ネイティブ版マウス＆キーボードの機能を無効化",
     "마우스 및 키보드 공식지원 기능 비활성화",
-    ,
+    "Wyłącz funkcję natywnej obsługi myszki i klawiatury",
     "Desabilitar recurso nativo do Mouse e Teclado",
     ,
     "Yerleşik klavye ve fare özelliğini kapat",
@@ -2072,7 +2088,7 @@ var Texts = {
     "Off",
     "Apagado",
     "Désactivé",
-    ,
+    "Disattivato",
     "オフ",
     "꺼짐",
     "Wyłączone",
@@ -3070,19 +3086,19 @@ var Texts = {
     "拉伸"
   ],
   "stretch-note": [
-    ,
+    "Nicht verwenden bei Spielen mit nativer Touch-Unterstützung",
     ,
     "Don't use with native touch games",
     "No usar con juegos nativos táctiles",
+    "Ne pas utiliser avec les jeux tactiles natifs",
+    "Non usare nei giochi con supporto touch nativo",
+    ,
+    "터치 공식지원 게임에는 사용하지 마세요",
+    "Nie używaj dla gier wspierających natywne funkcje dotykowe",
     ,
     ,
     ,
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
+    "Не використовуйте в іграх з рідним сенсором",
     "Không dùng với các game cảm ứng trực tiếp"
   ],
   "support-better-xcloud": [
@@ -4635,6 +4651,7 @@ var PrefKey;
   PrefKey2["UI_LOADING_SCREEN_ROCKET"] = "ui_loading_screen_rocket";
   PrefKey2["UI_LAYOUT"] = "ui_layout";
   PrefKey2["UI_SCROLLBAR_HIDE"] = "ui_scrollbar_hide";
+  PrefKey2["UI_HOME_CONTEXT_MENU_DISABLED"] = "ui_home_context_menu_disabled";
   PrefKey2["VIDEO_CLARITY"] = "video_clarity";
   PrefKey2["VIDEO_RATIO"] = "video_ratio";
   PrefKey2["VIDEO_BRIGHTNESS"] = "video_brightness";
@@ -4993,6 +5010,10 @@ class Preferences {
     },
     [PrefKey.UI_SCROLLBAR_HIDE]: {
       label: t("hide-scrollbar"),
+      default: false
+    },
+    [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
+      label: t("disable-home-context-menu"),
       default: false
     },
     [PrefKey.BLOCK_SOCIAL_FEATURES]: {
@@ -7670,6 +7691,23 @@ function interceptHttpRequests() {
     }
     if (url.endsWith("/configuration")) {
       BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+    }
+    if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation")) {
+      try {
+        const response = await NATIVE_FETCH(request, init);
+        const json = await response.json();
+        const overrideTreatments = {};
+        if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
+          overrideTreatments["EnableHomeContextMenu"] = false;
+        }
+        for (const key in overrideTreatments) {
+          json.exp.treatments[key] = overrideTreatments[key];
+        }
+        response.json = () => Promise.resolve(json);
+        return response;
+      } catch (e) {
+        console.log(e);
+      }
     }
     if (STATES.hasTouchSupport && url.includes("catalog.gamepass.com/sigls/")) {
       const response = await NATIVE_FETCH(request, init);
@@ -10772,6 +10810,7 @@ var SETTINGS_UI = {
   [t("ui")]: {
     items: [
       PrefKey.UI_LAYOUT,
+      PrefKey.UI_HOME_CONTEXT_MENU_DISABLED,
       PrefKey.STREAM_SIMPLIFY_MENU,
       PrefKey.SKIP_SPLASH_VIDEO,
       !AppInterface && PrefKey.UI_SCROLLBAR_HIDE,
@@ -10899,6 +10938,13 @@ function overridePreloadState() {
             customList = customList.filter((id2) => allGames.includes(id2));
             sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
           }
+        } catch (e) {
+          BxLogger.error(LOG_TAG5, e);
+        }
+      }
+      if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
+        try {
+          state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = false;
         } catch (e) {
           BxLogger.error(LOG_TAG5, e);
         }
