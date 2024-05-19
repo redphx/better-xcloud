@@ -65,6 +65,8 @@ export enum PrefKey {
     UI_LAYOUT = 'ui_layout',
     UI_SCROLLBAR_HIDE = 'ui_scrollbar_hide',
 
+    UI_HOME_CONTEXT_MENU_DISABLED = 'ui_home_context_menu_disabled',
+
     VIDEO_CLARITY = 'video_clarity',
     VIDEO_RATIO = 'video_ratio',
     VIDEO_BRIGHTNESS = 'video_brightness',
@@ -467,6 +469,11 @@ export class Preferences {
 
         [PrefKey.UI_SCROLLBAR_HIDE]: {
             label: t('hide-scrollbar'),
+            default: false,
+        },
+
+        [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
+            label: t('disable-home-context-menu'),
             default: false,
         },
 

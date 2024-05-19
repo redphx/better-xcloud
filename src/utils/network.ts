@@ -565,6 +565,29 @@ export function interceptHttpRequests() {
             BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
         }
 
+        // Override experimentals
+        if (url.startsWith('https://emerald.xboxservices.com/xboxcomfd/experimentation')) {
+            try {
+                const response = await NATIVE_FETCH(request, init);
+                const json = await response.json();
+
+                const overrideTreatments: {[key: string]: boolean} = {};
+
+                if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
+                    overrideTreatments['EnableHomeContextMenu'] = false;
+                }
+
+                for (const key in overrideTreatments) {
+                    json.exp.treatments[key] = overrideTreatments[key]
+                }
+
+                response.json = () => Promise.resolve(json);
+                return response;
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
         // Add list of games with custom layouts to the official list
         if (STATES.hasTouchSupport && url.includes('catalog.gamepass.com/sigls/')) {
             const response = await NATIVE_FETCH(request, init);
