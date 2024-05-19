@@ -34,11 +34,22 @@ body[data-media-type=tv] .bx-stream-refresh-button {
     }
 }
 
-div[data-testid=media-container].bx-taking-screenshot:before {
-    animation: bx-anim-taking-screenshot 0.5s ease;
-    content: ' ';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: var(--bx-screenshot-animation-z-index);
+div[data-testid=media-container] {
+    display: flex;
+
+    &.bx-taking-screenshot:before {
+        animation: bx-anim-taking-screenshot 0.5s ease;
+        content: ' ';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: var(--bx-screenshot-animation-z-index);
+    }
+}
+
+
+#game-stream video {
+    margin: auto;
+    align-self: center;
+    background: #000;
 }

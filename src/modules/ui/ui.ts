@@ -431,42 +431,64 @@ export function updateVideoPlayerCss() {
         Screenshot.updateCanvasFilters(filters);
     }
 
-    const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
-    if (PREF_RATIO && PREF_RATIO !== '16:9') {
-        if (PREF_RATIO.includes(':')) {
-            videoCss += `aspect-ratio: ${PREF_RATIO.replace(':', '/')}; object-fit: unset !important;`;
-
-            const tmp = PREF_RATIO.split(':');
-            const ratio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
-            const maxRatio = window.innerWidth / window.innerHeight;
-            if (ratio < maxRatio) {
-                videoCss += 'width: fit-content !important;'
-            } else {
-                videoCss += 'height: fit-content !important;'
-            }
-        } else {
-            videoCss += `object-fit: ${PREF_RATIO} !important;`;
-        }
-    }
-
     let css = '';
     if (videoCss) {
         css = `
-div[data-testid="media-container"] {
-    display: flex;
-}
-
 #game-stream video {
-    margin: 0 auto;
-    align-self: center;
-    background: #000;
     ${videoCss}
 }
 `;
     }
 
     $elm.textContent = css;
+
+    resizeVideoPlayer();
 }
+
+function resizeVideoPlayer() {
+    const $video = STATES.currentStream.$video;
+    if (!$video || !$video.parentElement) {
+        return;
+    }
+
+    const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
+    if (PREF_RATIO.includes(':')) {
+        const tmp = PREF_RATIO.split(':');
+
+        // Get preferred ratio
+        const videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
+
+        let width = 0;
+        let height = 0;
+
+        // Get parent's ratio
+        const parentRect = $video.parentElement.getBoundingClientRect();
+        const parentRatio = parentRect.width / parentRect.height;
+
+        // Get target width & height
+        if (parentRatio > videoRatio) {
+            height = parentRect.height;
+            width = height * videoRatio;
+        } else {
+            width = parentRect.width;
+            height = width / videoRatio;
+        }
+
+        // Prevent floating points
+        width = Math.floor(width);
+        height = Math.floor(height);
+
+        // Update size
+        $video.style.width = `${width}px`;
+        $video.style.height = `${height}px`;
+        $video.style.objectFit = 'fill';
+    } else {
+        $video.style.width = '100%';
+        $video.style.height = '100%';
+        $video.style.objectFit = PREF_RATIO;
+    }
+}
+
 
 export function setupStreamUi() {
     // Prevent initializing multiple times
