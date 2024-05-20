@@ -65,15 +65,8 @@
               "type": "button",
               "action": "rightThumb"
             },
-            [
-              {
-                "type": "joystick",
-                "axis": {
-                  "input": "axisXY",
-                  "output": "rightJoystick"
-                }
-              }
-            ],
+            null,
+            null,
             {
               "type": "button",
               "action": "gamepadX",
