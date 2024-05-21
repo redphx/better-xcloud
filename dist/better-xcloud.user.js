@@ -148,6 +148,7 @@ var BxEvent;
   BxEvent2["DATA_CHANNEL_CREATED"] = "bx-data-channel-created";
   BxEvent2["GAME_BAR_ACTION_ACTIVATED"] = "bx-game-bar-action-activated";
   BxEvent2["MICROPHONE_STATE_CHANGED"] = "bx-microphone-state-changed";
+  BxEvent2["CAPTURE_SCREENSHOT"] = "bx-capture-screenshot";
 })(BxEvent || (BxEvent = {}));
 var XcloudEvent;
 (function(XcloudEvent2) {
@@ -10033,14 +10034,30 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     }
     return str2.replace(text, "this.shouldCollectStats=!1");
   },
-  blockGamepadStatsCollector(str2) {
-    const text = "this.inputPollingIntervalStats.addValue";
-    if (!str2.includes(text)) {
+  patchPollGamepads(str2) {
+    const index = str2.indexOf("},this.pollGamepads=()=>{");
+    if (index === -1) {
       return false;
     }
-    str2 = str2.replace("this.inputPollingIntervalStats.addValue", "");
-    str2 = str2.replace("this.inputPollingDurationStats.addValue", "");
-    return str2;
+    const nextIndex = str2.indexOf("setTimeout(this.pollGamepads", index);
+    if (nextIndex === -1) {
+      return false;
+    }
+    let codeBlock = str2.substring(index, nextIndex);
+    if (getPref(PrefKey.BLOCK_TRACKING)) {
+      codeBlock = codeBlock.replaceAll("this.inputPollingIntervalStats.addValue", "");
+    }
+    const match = codeBlock.match(/this\.gamepadTimestamps\.set\((\w+)\.index/);
+    if (match) {
+      const gamepadVar = match[1];
+      const newCode = `
+if (${gamepadVar}.buttons[17] && ${gamepadVar}.buttons[17].value === 1) {
+    window.dispatchEvent(new Event('${BxEvent.CAPTURE_SCREENSHOT}'));
+}
+`;
+      codeBlock = codeBlock.replace("this.gamepadTimestamps.set", newCode + "this.gamepadTimestamps.set");
+    }
+    return str2.substring(0, index) + codeBlock + str2.substring(nextIndex);
   },
   enableXcloudLogger(str2) {
     const text = "this.telemetryProvider=e}log(e,t,i){";
@@ -10380,7 +10397,7 @@ var PLAYING_PATCH_ORDERS = [
   STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && "patchTouchControlDefaultOpacity",
   BX_FLAGS.EnableXcloudLogging && "enableConsoleLogging",
-  getPref(PrefKey.BLOCK_TRACKING) && "blockGamepadStatsCollector",
+  "patchPollGamepads",
   getPref(PrefKey.STREAM_COMBINE_SOURCES) && "streamCombineSources",
   ...getPref(PrefKey.REMOTE_PLAY_ENABLED) ? [
     "patchRemotePlayMkb",
@@ -11323,5 +11340,8 @@ window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
   MouseCursorHider.stop();
   TouchController.reset();
   GameBar.getInstance().disable();
+});
+window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
+  Screenshot.takeScreenshot();
 });
 main();
