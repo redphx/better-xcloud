@@ -34,6 +34,8 @@ export enum BxEvent {
 
     GAME_BAR_ACTION_ACTIVATED = 'bx-game-bar-action-activated',
     MICROPHONE_STATE_CHANGED = 'bx-microphone-state-changed',
+
+    CAPTURE_SCREENSHOT = 'bx-capture-screenshot',
 }
 
 export enum XcloudEvent {

@@ -192,6 +192,10 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
     GameBar.getInstance().disable();
 });
 
+window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, e => {
+    Screenshot.takeScreenshot();
+});
+
 
 function main() {
     // Monkey patches

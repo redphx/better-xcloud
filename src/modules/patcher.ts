@@ -155,15 +155,37 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
         return str.replace(text, 'this.shouldCollectStats=!1');
     },
 
-    blockGamepadStatsCollector(str: string) {
-        const text = 'this.inputPollingIntervalStats.addValue';
-        if (!str.includes(text)) {
+    patchPollGamepads(str: string) {
+        const index = str.indexOf('},this.pollGamepads=()=>{');
+        if (index === -1) {
             return false;
         }
 
-        str = str.replace('this.inputPollingIntervalStats.addValue', '');
-        str = str.replace('this.inputPollingDurationStats.addValue', '');
-        return str;
+        const nextIndex = str.indexOf('setTimeout(this.pollGamepads', index);
+        if (nextIndex === -1) {
+            return false;
+        }
+
+        let codeBlock = str.substring(index, nextIndex);
+
+        // Block gamepad stats collecting
+        if (getPref(PrefKey.BLOCK_TRACKING)) {
+            codeBlock = codeBlock.replaceAll('this.inputPollingIntervalStats.addValue', '');
+        }
+
+        // Map the Share button on Xbox Series controller with the capturing screenshot feature
+        const match = codeBlock.match(/this\.gamepadTimestamps\.set\((\w+)\.index/);
+        if (match) {
+            const gamepadVar = match[1];
+            const newCode = `
+if (${gamepadVar}.buttons[17] && ${gamepadVar}.buttons[17].value === 1) {
+    window.dispatchEvent(new Event('${BxEvent.CAPTURE_SCREENSHOT}'));
+}
+`;
+            codeBlock = codeBlock.replace('this.gamepadTimestamps.set', newCode + 'this.gamepadTimestamps.set');
+        }
+
+        return str.substring(0, index) + codeBlock + str.substring(nextIndex);
     },
 
     enableXcloudLogger(str: string) {
@@ -619,7 +641,7 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
 
     BX_FLAGS.EnableXcloudLogging && 'enableConsoleLogging',
 
-    getPref(PrefKey.BLOCK_TRACKING) && 'blockGamepadStatsCollector',
+    'patchPollGamepads',
 
     getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'streamCombineSources',
 
