@@ -1,4 +1,4 @@
-import { NATIVE_FETCH } from "./global";
+import { NATIVE_FETCH } from "./bx-flags";
 
 export const SUPPORTED_LANGUAGES = {
     'en-US': 'English (United States)',
@@ -364,4 +364,4 @@ export class Translations {
 
 export const t = Translations.get;
 
-await Translations.init();
+Translations.init();

@@ -1,8 +1,8 @@
-import { NATIVE_FETCH, STATES } from "@utils/global";
+import { STATES } from "@utils/global";
 import { escapeHtml } from "@utils/html";
 import { Toast } from "@utils/toast";
 import { BxEvent } from "@utils/bx-event";
-import { BX_FLAGS } from "@utils/bx-flags";
+import { BX_FLAGS, NATIVE_FETCH } from "@utils/bx-flags";
 import { getPref, PrefKey } from "@utils/preferences";
 import { t } from "@utils/translation";
 import { BxLogger } from "@utils/bx-logger";

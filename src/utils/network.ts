@@ -1,11 +1,11 @@
 import { BxEvent } from "@utils/bx-event";
-import { BX_FLAGS } from "@utils/bx-flags";
+import { BX_FLAGS, NATIVE_FETCH } from "@utils/bx-flags";
 import { LoadingScreen } from "@modules/loading-screen";
 import { PrefKey, getPref } from "@utils/preferences";
 import { RemotePlay } from "@modules/remote-play";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { TouchController } from "@modules/touch-controller";
-import { NATIVE_FETCH, STATES } from "@utils/global";
+import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
 import { GamePassCloudGallery } from "./gamepass-gallery";
 import { InputType } from "./bx-exposed";

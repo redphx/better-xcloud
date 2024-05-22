@@ -23,3 +23,5 @@ export const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {
     delete window.BX_FLAGS;
 } catch (e) {}
+
+export const NATIVE_FETCH = window.fetch;
