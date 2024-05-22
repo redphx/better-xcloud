@@ -73,5 +73,6 @@ type XcloudTitleInfo = {
     };
 };
 
-declare module "*.svg";
-declare module "*.styl";
+declare module '*.js';
+declare module '*.svg';
+declare module '*.styl';

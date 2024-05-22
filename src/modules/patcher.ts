@@ -6,6 +6,11 @@ import { BxLogger } from "@utils/bx-logger";
 import { hashCode } from "@utils/utils";
 import { BxEvent } from "@/utils/bx-event";
 
+import codeLocalCoOpEnable from "./patches/local-co-op-enable.js" with { type: "text" };
+import codeRemotePlayEnable from "./patches/remote-play-enable.js" with { type: "text" };
+import codeRemotePlayKeepAlive from "./patches/remote-play-keep-alive.js" with { type: "text" };
+import codeVibrationAdjust from "./patches/vibration-adjust.js" with { type: "text" };
+
 type PatchArray = (keyof typeof PATCHES)[];
 
 const ENDING_CHUNKS_PATCH_NAME = 'loadingEndingChunks';
@@ -92,31 +97,24 @@ const PATCHES = {
     },
 
     remotePlayKeepAlive(str: string) {
-        if (!str.includes('onServerDisconnectMessage(e){')) {
+        const text = 'onServerDisconnectMessage(e){';
+        if (!str.includes(text)) {
             return false;
         }
 
-        str = str.replace('onServerDisconnectMessage(e){', `onServerDisconnectMessage(e) {
-            const msg = JSON.parse(e);
-            if (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {
-                try {
-                    this.sendKeepAlive();
-                    return;
-                } catch (ex) { console.log(ex); }
-            }
-        `);
+        str = str.replace(text, text + codeRemotePlayKeepAlive);
 
         return str;
     },
 
     // Enable Remote Play feature
     remotePlayConnectMode(str: string) {
-        const text = 'connectMode:"cloud-connect"';
+        const text = 'connectMode:"cloud-connect",';
         if (!str.includes(text)) {
             return false;
         }
 
-        return str.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
+        return str.replace(text, codeRemotePlayEnable);
     },
 
     // Disable achievement toast in Remote Play
@@ -215,20 +213,8 @@ if (${gamepadVar}.buttons[17] && ${gamepadVar}.buttons[17].value === 1) {
             return false;
         }
 
-        const newCode = `
-if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {
-    return void(0);
-}
-if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
-    e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
-    e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
-    e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
-    e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
-}
-`;
-
         VibrationManager.updateGlobalVars();
-        str = str.replaceAll(text, text + newCode);
+        str = str.replaceAll(text, text + codeVibrationAdjust);
         return str;
     },
 
@@ -324,27 +310,7 @@ window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
             return false;
         }
 
-        let patchstr = `
-let match;
-let onGamepadChangedStr = this.onGamepadChanged.toString();
-
-onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
-eval(\`this.onGamepadChanged = function \${onGamepadChangedStr}\`);
-
-let onGamepadInputStr = this.onGamepadInput.toString();
-
-match = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);
-if (match) {
-    const gamepadIndexVar = match[0];
-    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar},\`);
-    eval(\`this.onGamepadInput = function \${onGamepadInputStr}\`);
-    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');
-} else {
-    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');
-}
-`;
-
-        const newCode = `true; ${patchstr}; true,`;
+        const newCode = `true; ${codeLocalCoOpEnable}; true,`;
 
         str = str.replace(text, text + newCode);
         return str;
