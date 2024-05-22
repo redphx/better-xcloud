@@ -317,7 +317,9 @@ export class Translations {
 
         try {
             Translations.#foreignTranslations = JSON.parse(window.localStorage.getItem(Translations.#KEY_TRANSLATIONS)!);
-        } catch(e) {
+        } catch(e) {}
+
+        if (!Translations.#foreignTranslations) {
             await this.downloadTranslations(Translations.#selectedLocale);
         }
     }
