@@ -61,3 +61,5 @@ export namespace BxEvent {
         target.dispatchEvent(event);
     }
 }
+
+(window as any).BxEvent = BxEvent;

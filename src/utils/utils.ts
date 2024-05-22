@@ -65,3 +65,15 @@ export function hashCode(str: string): number {
 
     return hash;
 }
+
+
+export function renderString(str: string, obj: any){
+    return str.replace(/\$\{.+?\}/g, match => {
+        const key = match.substring(2, match.length - 1);
+        if (key in obj) {
+            return obj[key];
+        }
+
+        return match;
+    });
+}

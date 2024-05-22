@@ -3,9 +3,10 @@ import { BX_FLAGS } from "@utils/bx-flags";
 import { getPref, PrefKey } from "@utils/preferences";
 import { VibrationManager } from "@modules/vibration-manager";
 import { BxLogger } from "@utils/bx-logger";
-import { hashCode } from "@utils/utils";
+import { hashCode, renderString } from "@utils/utils";
 import { BxEvent } from "@/utils/bx-event";
 
+import codeControllerShortcuts from "./patches/controller-shortcuts.js" with { type: "text" };
 import codeLocalCoOpEnable from "./patches/local-co-op-enable.js" with { type: "text" };
 import codeRemotePlayEnable from "./patches/remote-play-enable.js" with { type: "text" };
 import codeRemotePlayKeepAlive from "./patches/remote-play-keep-alive.js" with { type: "text" };
@@ -175,11 +176,10 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
         const match = codeBlock.match(/this\.gamepadTimestamps\.set\((\w+)\.index/);
         if (match) {
             const gamepadVar = match[1];
-            const newCode = `
-if (${gamepadVar}.buttons[17] && ${gamepadVar}.buttons[17].value === 1) {
-    window.dispatchEvent(new Event('${BxEvent.CAPTURE_SCREENSHOT}'));
-}
-`;
+            const newCode = renderString(codeControllerShortcuts, {
+                    gamepadVar,
+                });
+
             codeBlock = codeBlock.replace('this.gamepadTimestamps.set', newCode + 'this.gamepadTimestamps.set');
         }
 
