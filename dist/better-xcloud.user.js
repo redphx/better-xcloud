@@ -107,7 +107,6 @@ class UserAgent {
 var SCRIPT_VERSION = "4.4.0";
 var SCRIPT_HOME = "https://github.com/redphx/better-xcloud";
 var AppInterface = window.AppInterface;
-var NATIVE_FETCH = window.fetch;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase();
 var isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent);
@@ -190,6 +189,7 @@ try {
   delete window.BX_FLAGS;
 } catch (e) {
 }
+var NATIVE_FETCH = window.fetch;
 
 // src/utils/html.ts
 var createElement = function(elmName, props = {}, ..._) {
@@ -694,7 +694,7 @@ class Translations {
   }
 }
 var t = Translations.get;
-await Translations.init();
+Translations.init();
 
 // src/utils/screenshot.ts
 class Screenshot {
