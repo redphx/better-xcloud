@@ -5,6 +5,8 @@ export const SCRIPT_HOME = 'https://github.com/redphx/better-xcloud';
 
 export const AppInterface = window.AppInterface;
 
+export const NATIVE_FETCH = window.fetch;
+
 UserAgent.init();
 const userAgent = window.navigator.userAgent.toLowerCase();
 

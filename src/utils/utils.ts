@@ -1,6 +1,7 @@
 import { PrefKey, getPref, setPref } from "@utils/preferences";
 import { AppInterface, SCRIPT_VERSION } from "@utils/global";
 import { UserAgent } from "@utils/user-agent";
+import { Translations } from "./translation";
 
 /**
  * Check for update
@@ -25,6 +26,9 @@ export function checkForUpdate() {
             setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1));
             setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
         });
+
+    // Update translations
+    Translations.updateTranslations(true);
 }
 
 

@@ -4,7 +4,7 @@ import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
 import { UserAgent, UserAgentProfile } from "@utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/preferences";
-import { t, refreshCurrentLocale } from "@utils/translation";
+import { t, Translations } from "@utils/translation";
 import { PatcherCache } from "../patcher";
 
 const SETTINGS_UI = {
@@ -181,7 +181,7 @@ export function setupSettingsUi() {
         }
     }
 
-    const onChange = (e: Event) => {
+    const onChange = async (e: Event) => {
         // Clear PatcherCache;
         PatcherCache.clear();
 
@@ -193,7 +193,8 @@ export function setupSettingsUi() {
 
         if ((e.target as HTMLElement).id === 'bx_setting_' + PrefKey.BETTER_XCLOUD_LOCALE) {
             // Update locale
-            refreshCurrentLocale();
+            Translations.refreshCurrentLocale();
+            await Translations.updateTranslations();
 
             $btnReload.textContent = t('settings-reloading');
             $btnReload.click();

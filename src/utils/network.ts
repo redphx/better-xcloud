@@ -5,13 +5,11 @@ import { PrefKey, getPref } from "@utils/preferences";
 import { RemotePlay } from "@modules/remote-play";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { TouchController } from "@modules/touch-controller";
-import { STATES } from "@utils/global";
+import { NATIVE_FETCH, STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
 import { GamePassCloudGallery } from "./gamepass-gallery";
 import { InputType } from "./bx-exposed";
 import { UserAgent } from "./user-agent";
-
-export const NATIVE_FETCH = window.fetch;
 
 enum RequestType {
     XCLOUD = 'xcloud',
