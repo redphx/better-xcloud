@@ -1,3 +1,4 @@
+import { ControllerShortcut } from "@/modules/controller-shortcut";
 import { GameBar } from "@modules/game-bar/game-bar";
 import { BxEvent } from "@utils/bx-event";
 import { STATES } from "@utils/global";
@@ -111,5 +112,8 @@ export const BxExposed = {
 
         const gainNode = audioCtx.createGain();  // call monkey-patched createGain() in BxAudioContext
         source.connect(gainNode).connect(audioCtx.destination);
-    }
+    },
+
+    handleControllerShortcut: ControllerShortcut.handle,
+    resetControllerShortcut: ControllerShortcut.reset,
 };

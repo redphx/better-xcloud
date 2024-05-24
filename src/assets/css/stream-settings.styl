@@ -124,3 +124,29 @@
     font-style: italic;
     padding-top: 16px;
 }
+
+.bx-quick-settings-tab-contents {
+    div[data-group="shortcuts"] {
+        .bx-shortcut-profile {
+            width: 100%;
+            height: 36px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .bx-shortcut-row {
+            display: flex;
+            margin-bottom: 10px;
+
+            label.bx-prompt {
+                flex: 1;
+                font-family: var(--bx-promptfont-font);
+                font-size: 26px;
+            }
+
+            select {
+                flex: 2;
+            }
+        }
+    }
+}

@@ -3,21 +3,24 @@ import { CE } from "./html";
 
 
 export class Screenshot {
-    static setup() {
-        const currentStream = STATES.currentStream;
-        if (!currentStream.$screenshotCanvas) {
-            currentStream.$screenshotCanvas = CE<HTMLCanvasElement>('canvas', {'class': 'bx-gone'});
+    static #$canvas: HTMLCanvasElement;
+    static #canvasContext: CanvasRenderingContext2D;
 
-            currentStream.screenshotCanvasContext = currentStream.$screenshotCanvas.getContext('2d', {
-                alpha: false,
-                willReadFrequently: false,
-            });
+    static setup() {
+        if (Screenshot.#$canvas) {
+            return;
         }
-        // document.documentElement.appendChild(currentStream.$screenshotCanvas!);
+
+        Screenshot.#$canvas = CE<HTMLCanvasElement>('canvas', {'class': 'bx-gone'});
+
+        Screenshot.#canvasContext = Screenshot.#$canvas.getContext('2d', {
+            alpha: false,
+            willReadFrequently: false,
+        })!;
     }
 
     static updateCanvasSize(width: number, height: number) {
-        const $canvas = STATES.currentStream.$screenshotCanvas;
+        const $canvas = Screenshot.#$canvas;
         if ($canvas) {
             $canvas.width = width;
             $canvas.height = height;
@@ -25,7 +28,7 @@ export class Screenshot {
     }
 
     static updateCanvasFilters(filters: string) {
-        STATES.currentStream.screenshotCanvasContext && (STATES.currentStream.screenshotCanvasContext.filter = filters);
+        Screenshot.#canvasContext.filter = filters;
     }
 
     private static onAnimationEnd(e: Event) {
@@ -35,7 +38,7 @@ export class Screenshot {
     static takeScreenshot(callback?: any) {
         const currentStream = STATES.currentStream;
         const $video = currentStream.$video;
-        const $canvas = currentStream.$screenshotCanvas;
+        const $canvas = Screenshot.#$canvas;
         if (!$video || !$canvas) {
             return;
         }
@@ -43,7 +46,7 @@ export class Screenshot {
         $video.parentElement?.addEventListener('animationend', this.onAnimationEnd);
         $video.parentElement?.classList.add('bx-taking-screenshot');
 
-        const canvasContext = currentStream.screenshotCanvasContext!;
+        const canvasContext = Screenshot.#canvasContext;
         canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
 
         // Get data URL and pass to parent app

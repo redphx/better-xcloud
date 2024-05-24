@@ -384,13 +384,19 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
             return false;
         }
 
-        // Restore the "..." button
-        str = str.replace(text, 'e.guideUI = null;' + text);
+        let newCode = `
+// Expose onShowStreamMenu
+window.BX_EXPOSED.showStreamMenu = e.onShowStreamMenu;
+// Restore the "..." button
+e.guideUI = null;
+`;
 
         // Remove the TAK Edit button when the touch controller is disabled
         if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off') {
-            str = str.replace(text, 'e.canShowTakHUD = false;' + text);
+            newCode += 'e.canShowTakHUD = false;';
         }
+
+        str = str.replace(text, newCode + text);
         return str;
     },
 

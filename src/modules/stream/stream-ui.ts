@@ -210,7 +210,7 @@ export function injectStreamMenuButtons() {
 
                 // Create Stream Settings button
                 if (!$btnStreamSettings) {
-                    $btnStreamSettings = cloneStreamHudButton($orgButton, t('menu-stream-settings'), BxIcon.STREAM_SETTINGS);
+                    $btnStreamSettings = cloneStreamHudButton($orgButton, t('stream-settings'), BxIcon.STREAM_SETTINGS);
                     $btnStreamSettings.addEventListener('click', e => {
                         hideGripHandle();
                         e.preventDefault();
@@ -228,7 +228,7 @@ export function injectStreamMenuButtons() {
 
                 // Create Stream Stats button
                 if (!$btnStreamStats) {
-                    $btnStreamStats = cloneStreamHudButton($orgButton, t('menu-stream-stats'), BxIcon.STREAM_STATS);
+                    $btnStreamStats = cloneStreamHudButton($orgButton, t('stream-stats'), BxIcon.STREAM_STATS);
                     $btnStreamStats.addEventListener('click', e => {
                         hideGripHandle();
                         e.preventDefault();

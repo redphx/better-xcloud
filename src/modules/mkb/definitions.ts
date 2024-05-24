@@ -1,4 +1,5 @@
 import type { GamepadKeyNameType } from "@/types/mkb";
+import { PrompFont } from "@/utils/prompt-font";
 
 export enum GamepadKey {
     A = 0,
@@ -18,6 +19,7 @@ export enum GamepadKey {
     LEFT = 14,
     RIGHT = 15,
     HOME = 16,
+    SHARE = 17,
 
     LS_UP = 100,
     LS_DOWN = 101,
@@ -32,36 +34,36 @@ export enum GamepadKey {
 
 
 export const GamepadKeyName: GamepadKeyNameType = {
-    [GamepadKey.A]: ['A', '⇓'],
-    [GamepadKey.B]: ['B', '⇒'],
-    [GamepadKey.X]: ['X', '⇐'],
-    [GamepadKey.Y]: ['Y', '⇑'],
+    [GamepadKey.A]: ['A', PrompFont.A],
+    [GamepadKey.B]: ['B', PrompFont.B],
+    [GamepadKey.X]: ['X', PrompFont.X],
+    [GamepadKey.Y]: ['Y', PrompFont.Y],
 
-    [GamepadKey.LB]: ['LB', '↘'],
-    [GamepadKey.RB]: ['RB', '↙'],
-    [GamepadKey.LT]: ['LT', '↖'],
-    [GamepadKey.RT]: ['RT', '↗'],
+    [GamepadKey.LB]: ['LB', PrompFont.LB],
+    [GamepadKey.RB]: ['RB', PrompFont.RB],
+    [GamepadKey.LT]: ['LT', PrompFont.LT],
+    [GamepadKey.RT]: ['RT', PrompFont.RT],
 
-    [GamepadKey.SELECT]: ['Select', '⇺'],
-    [GamepadKey.START]: ['Start', '⇻'],
-    [GamepadKey.HOME]: ['Home', ''],
+    [GamepadKey.SELECT]: ['Select', PrompFont.SELECT],
+    [GamepadKey.START]: ['Start', PrompFont.START],
+    [GamepadKey.HOME]: ['Home', PrompFont.HOME],
 
-    [GamepadKey.UP]: ['D-Pad Up', '≻'],
-    [GamepadKey.DOWN]: ['D-Pad Down', '≽'],
-    [GamepadKey.LEFT]: ['D-Pad Left', '≺'],
-    [GamepadKey.RIGHT]: ['D-Pad Right', '≼'],
+    [GamepadKey.UP]: ['D-Pad Up', PrompFont.UP],
+    [GamepadKey.DOWN]: ['D-Pad Down', PrompFont.DOWN],
+    [GamepadKey.LEFT]: ['D-Pad Left', PrompFont.LEFT],
+    [GamepadKey.RIGHT]: ['D-Pad Right', PrompFont.RIGHT],
 
-    [GamepadKey.L3]: ['L3', '↺'],
-    [GamepadKey.LS_UP]: ['Left Stick Up', '↾'],
-    [GamepadKey.LS_DOWN]: ['Left Stick Down', '⇂'],
-    [GamepadKey.LS_LEFT]: ['Left Stick Left', '↼'],
-    [GamepadKey.LS_RIGHT]: ['Left Stick Right', '⇀'],
+    [GamepadKey.L3]: ['L3', PrompFont.L3],
+    [GamepadKey.LS_UP]: ['Left Stick Up', PrompFont.LS_UP],
+    [GamepadKey.LS_DOWN]: ['Left Stick Down', PrompFont.LS_DOWN],
+    [GamepadKey.LS_LEFT]: ['Left Stick Left', PrompFont.LS_LEFT],
+    [GamepadKey.LS_RIGHT]: ['Left Stick Right', PrompFont.LS_RIGHT],
 
-    [GamepadKey.R3]: ['R3', '↻'],
-    [GamepadKey.RS_UP]: ['Right Stick Up', '↿'],
-    [GamepadKey.RS_DOWN]: ['Right Stick Down', '⇃'],
-    [GamepadKey.RS_LEFT]: ['Right Stick Left', '↽'],
-    [GamepadKey.RS_RIGHT]: ['Right Stick Right', '⇁'],
+    [GamepadKey.R3]: ['R3', PrompFont.R3],
+    [GamepadKey.RS_UP]: ['Right Stick Up', PrompFont.RS_UP],
+    [GamepadKey.RS_DOWN]: ['Right Stick Down', PrompFont.RS_DOWN],
+    [GamepadKey.RS_LEFT]: ['Right Stick Left', PrompFont.RS_LEFT],
+    [GamepadKey.RS_RIGHT]: ['Right Stick Right', PrompFont.RS_RIGHT],
 };
 
 

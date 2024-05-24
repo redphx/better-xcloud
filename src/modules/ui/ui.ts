@@ -10,6 +10,7 @@ import { TouchController } from "@modules/touch-controller";
 import { t } from "@utils/translation";
 import { VibrationManager } from "@modules/vibration-manager";
 import { Screenshot } from "@/utils/screenshot";
+import { ControllerShortcut } from "../controller-shortcut";
 
 
 export function localRedirect(path: string) {
@@ -240,12 +241,24 @@ function setupQuickSettingsBar() {
         },
 
         {
+            icon: BxIcon.COMMAND,
+            group: 'shortcuts',
+            items: [
+                {
+                    group: 'shortcuts_controller',
+                    label: t('controller-shortcuts'),
+                    content: ControllerShortcut.renderSettings(),
+                },
+            ],
+        },
+
+        {
             icon: BxIcon.STREAM_STATS,
             group: 'stats',
             items: [
                 {
                     group: 'stats',
-                    label: t('menu-stream-stats'),
+                    label: t('stream-stats'),
                     help_url: 'https://better-xcloud.github.io/stream-stats/',
                     items: [
                         {
@@ -490,9 +503,24 @@ function resizeVideoPlayer() {
 }
 
 
+function preloadFonts() {
+    const $link = CE<HTMLLinkElement>('link', {
+            rel: 'preload',
+            href: 'https://redphx.github.io/better-xcloud/fonts/promptfont.otf',
+            as: 'font',
+            type: 'font/otf',
+            crossorigin: '',
+        });
+
+    document.querySelector('head')?.appendChild($link);
+}
+
+
 export function setupStreamUi() {
     // Prevent initializing multiple times
     if (!document.querySelector('.bx-quick-settings-bar')) {
+        preloadFonts();
+
         window.addEventListener('resize', updateVideoPlayerCss);
         setupQuickSettingsBar();
         StreamStats.render();

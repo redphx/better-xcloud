@@ -3,6 +3,7 @@ import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { t } from "@utils/translation";
 import { BaseGameBarAction } from "./action-base";
+import { MicrophoneShortcut } from "../shortcuts/shortcut-microphone";
 
 enum MicrophoneState {
     REQUESTED = 'Requested',
@@ -22,15 +23,9 @@ export class MicrophoneAction extends BaseGameBarAction {
 
         const onClick = (e: Event) => {
                 BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-                const state = this.$content.getAttribute('data-enabled');
-                const enableMic = state === 'true' ? false : true;
 
-                try {
-                    window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic);
-                    this.$content.setAttribute('data-enabled', enableMic.toString());
-                } catch (e) {
-                    console.log(e);
-                }
+                const enabled = MicrophoneShortcut.toggle(false);
+                this.$content.setAttribute('data-enabled', enabled.toString());
             };
 
         const $btnDefault = createButton({

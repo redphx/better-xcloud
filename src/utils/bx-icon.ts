@@ -1,3 +1,4 @@
+import iconCommand from "@assets/svg/command.svg" with { type: "text" };
 import iconController from "@assets/svg/controller.svg" with { type: "text" };
 import iconCopy from "@assets/svg/copy.svg" with { type: "text" };
 import iconCursorText from "@assets/svg/cursor-text.svg" with { type: "text" };
@@ -24,6 +25,7 @@ import iconMicrophoneMuted from "@assets/svg/microphone-slash.svg" with { type: 
 export const BxIcon = {
     STREAM_SETTINGS: iconStreamSettings,
     STREAM_STATS: iconStreamStats,
+    COMMAND: iconCommand,
     CONTROLLER: iconController,
     DISPLAY: iconDisplay,
     MOUSE: iconMouse,
