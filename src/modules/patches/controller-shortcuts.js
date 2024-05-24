@@ -48,7 +48,7 @@ if (btnHome) {
 
         if (info.shortcutPressed === 0) {
             const fakeGamepadMappings = [{
-                    GamepadIndex: 0,
+                    GamepadIndex: currentGamepad.index,
                     A: 0,
                     B: 0,
                     X: 0,
