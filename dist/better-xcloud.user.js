@@ -171,6 +171,7 @@ var XcloudEvent;
   }
   BxEvent.dispatch = dispatch;
 })(BxEvent || (BxEvent = {}));
+window.BxEvent = BxEvent;
 
 // src/utils/bx-flags.ts
 
@@ -179,7 +180,7 @@ var XcloudEvent;
 var DEFAULT_FLAGS = {
   CheckForUpdate: true,
   PreloadRemotePlay: true,
-  PreloadUi: false,
+  PreloadUi: true,
   EnableXcloudLogging: false,
   SafariWorkaround: true,
   UseDevTouchLayout: false
@@ -265,97 +266,185 @@ var createButton = (options) => {
 var CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
 
-// src/assets/svg/controller.svg
-var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
-
-// src/assets/svg/copy.svg
-var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
-
-// src/assets/svg/cursor-text.svg
-var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
-
-// src/assets/svg/display.svg
-var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
-
-// src/assets/svg/mouse-settings.svg
-var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
-
-// src/assets/svg/mouse.svg
-var mouse_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z'/><path d='M16 13.721V6.883'/>\n</svg>\n";
-
-// src/assets/svg/new.svg
-var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
-
-// src/assets/svg/question.svg
-var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
-
-// src/assets/svg/refresh.svg
-var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M23.247 12.377h7.247V5.13\"/><path d=\"M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772\"/>\n</svg>\n";
-
-// src/assets/svg/remote-play.svg
-var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
-
-// src/assets/svg/stream-settings.svg
-var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
-
-// src/assets/svg/stream-stats.svg
-var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
-
-// src/assets/svg/trash.svg
-var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
-
-// src/assets/svg/touch-control-enable.svg
-var touch_control_enable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M30.021 9.448a.89.89 0 0 0-.889-.889H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h26.223a.89.89 0 0 0 .889-.888V9.448z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.083\"/>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
-
-// src/assets/svg/touch-control-disable.svg
-var touch_control_disable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <g fill=\"none\" stroke=\"#fff\">\n        <path d=\"M6.021 5.021l20 22\" stroke-width=\"2\"/>\n        <path d=\"M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971\" stroke-miterlimit=\"1.5\" stroke-width=\"2.083\"/>\n    </g>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
-
-// src/assets/svg/caret-left.svg
-var caret_left_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z\"/>\n</svg>\n";
-
-// src/assets/svg/caret-right.svg
-var caret_right_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M2.685 1.924l6 13.649c.119.27.119.578 0 .849l-6 13.649c-.234.533-.857.775-1.389.541s-.775-.857-.541-1.389l5.813-13.225L.755 2.773c-.234-.533.008-1.155.541-1.389s1.155.008 1.389.541z\"/>\n</svg>\n";
-
-// src/assets/svg/camera.svg
-var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform=\"matrix(.150985 0 0 .150985 -3.32603 -2.72209)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\">\n        <path d=\"M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z\"/>\n        <circle cx=\"128\" cy=\"132\" r=\"36\"/>\n    </g>\n</svg>\n";
-
-// src/assets/svg/microphone.svg
-var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662\"/>\n</svg>\n";
-
-// src/assets/svg/microphone-slash.svg
-var microphone_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662\"/>\n    <path d=\"M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562\"/>\n</svg>\n";
-
-// src/utils/bx-icon.ts
-var BxIcon = {
-  STREAM_SETTINGS: stream_settings_default,
-  STREAM_STATS: stream_stats_default,
-  CONTROLLER: controller_default,
-  DISPLAY: display_default,
-  MOUSE: mouse_default,
-  MOUSE_SETTINGS: mouse_settings_default,
-  NEW: new_default,
-  COPY: copy_default,
-  TRASH: trash_default,
-  CURSOR_TEXT: cursor_text_default,
-  QUESTION: question_default,
-  REFRESH: refresh_default,
-  REMOTE_PLAY: remote_play_default,
-  CARET_LEFT: caret_left_default,
-  CARET_RIGHT: caret_right_default,
-  SCREENSHOT: camera_default,
-  TOUCH_CONTROL_ENABLE: touch_control_enable_default,
-  TOUCH_CONTROL_DISABLE: touch_control_disable_default,
-  MICROPHONE: microphone_default,
-  MICROPHONE_MUTED: microphone_slash_default
-};
-
-// src/modules/game-bar/action-base.ts
-class BaseGameBarAction {
-  constructor() {
+// src/utils/screenshot.ts
+class Screenshot {
+  static #$canvas;
+  static #canvasContext;
+  static setup() {
+    if (Screenshot.#$canvas) {
+      return;
+    }
+    Screenshot.#$canvas = CE("canvas", { class: "bx-gone" });
+    Screenshot.#canvasContext = Screenshot.#$canvas.getContext("2d", {
+      alpha: false,
+      willReadFrequently: false
+    });
   }
-  reset() {
+  static updateCanvasSize(width, height) {
+    const $canvas = Screenshot.#$canvas;
+    if ($canvas) {
+      $canvas.width = width;
+      $canvas.height = height;
+    }
+  }
+  static updateCanvasFilters(filters) {
+    Screenshot.#canvasContext.filter = filters;
+  }
+  static onAnimationEnd(e) {
+    e.target.classList.remove("bx-taking-screenshot");
+  }
+  static takeScreenshot(callback) {
+    const currentStream = STATES.currentStream;
+    const $video = currentStream.$video;
+    const $canvas = Screenshot.#$canvas;
+    if (!$video || !$canvas) {
+      return;
+    }
+    $video.parentElement?.addEventListener("animationend", this.onAnimationEnd);
+    $video.parentElement?.classList.add("bx-taking-screenshot");
+    const canvasContext = Screenshot.#canvasContext;
+    canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
+    if (AppInterface) {
+      const data = $canvas.toDataURL("image/png").split(";base64,")[1];
+      AppInterface.saveScreenshot(currentStream.titleId, data);
+      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      callback && callback();
+      return;
+    }
+    $canvas && $canvas.toBlob((blob) => {
+      const now = +new Date;
+      const $anchor = CE("a", {
+        download: `${currentStream.titleId}-${now}.png`,
+        href: URL.createObjectURL(blob)
+      });
+      $anchor.click();
+      URL.revokeObjectURL($anchor.href);
+      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      callback && callback();
+    }, "image/png");
   }
 }
+
+// src/utils/prompt-font.ts
+var PrompFont;
+(function(PrompFont2) {
+  PrompFont2["A"] = "⇓";
+  PrompFont2["B"] = "⇒";
+  PrompFont2["X"] = "⇐";
+  PrompFont2["Y"] = "⇑";
+  PrompFont2["LB"] = "↘";
+  PrompFont2["RB"] = "↙";
+  PrompFont2["LT"] = "↖";
+  PrompFont2["RT"] = "↗";
+  PrompFont2["SELECT"] = "⇺";
+  PrompFont2["START"] = "⇻";
+  PrompFont2["HOME"] = "";
+  PrompFont2["UP"] = "≻";
+  PrompFont2["DOWN"] = "≽";
+  PrompFont2["LEFT"] = "≺";
+  PrompFont2["RIGHT"] = "≼";
+  PrompFont2["L3"] = "↺";
+  PrompFont2["LS_UP"] = "↾";
+  PrompFont2["LS_DOWN"] = "⇂";
+  PrompFont2["LS_LEFT"] = "↼";
+  PrompFont2["LS_RIGHT"] = "⇀";
+  PrompFont2["R3"] = "↻";
+  PrompFont2["RS_UP"] = "↿";
+  PrompFont2["RS_DOWN"] = "⇃";
+  PrompFont2["RS_LEFT"] = "↽";
+  PrompFont2["RS_RIGHT"] = "⇁";
+})(PrompFont || (PrompFont = {}));
+
+// src/modules/mkb/definitions.ts
+var GamepadKey;
+(function(GamepadKey2) {
+  GamepadKey2[GamepadKey2["A"] = 0] = "A";
+  GamepadKey2[GamepadKey2["B"] = 1] = "B";
+  GamepadKey2[GamepadKey2["X"] = 2] = "X";
+  GamepadKey2[GamepadKey2["Y"] = 3] = "Y";
+  GamepadKey2[GamepadKey2["LB"] = 4] = "LB";
+  GamepadKey2[GamepadKey2["RB"] = 5] = "RB";
+  GamepadKey2[GamepadKey2["LT"] = 6] = "LT";
+  GamepadKey2[GamepadKey2["RT"] = 7] = "RT";
+  GamepadKey2[GamepadKey2["SELECT"] = 8] = "SELECT";
+  GamepadKey2[GamepadKey2["START"] = 9] = "START";
+  GamepadKey2[GamepadKey2["L3"] = 10] = "L3";
+  GamepadKey2[GamepadKey2["R3"] = 11] = "R3";
+  GamepadKey2[GamepadKey2["UP"] = 12] = "UP";
+  GamepadKey2[GamepadKey2["DOWN"] = 13] = "DOWN";
+  GamepadKey2[GamepadKey2["LEFT"] = 14] = "LEFT";
+  GamepadKey2[GamepadKey2["RIGHT"] = 15] = "RIGHT";
+  GamepadKey2[GamepadKey2["HOME"] = 16] = "HOME";
+  GamepadKey2[GamepadKey2["SHARE"] = 17] = "SHARE";
+  GamepadKey2[GamepadKey2["LS_UP"] = 100] = "LS_UP";
+  GamepadKey2[GamepadKey2["LS_DOWN"] = 101] = "LS_DOWN";
+  GamepadKey2[GamepadKey2["LS_LEFT"] = 102] = "LS_LEFT";
+  GamepadKey2[GamepadKey2["LS_RIGHT"] = 103] = "LS_RIGHT";
+  GamepadKey2[GamepadKey2["RS_UP"] = 200] = "RS_UP";
+  GamepadKey2[GamepadKey2["RS_DOWN"] = 201] = "RS_DOWN";
+  GamepadKey2[GamepadKey2["RS_LEFT"] = 202] = "RS_LEFT";
+  GamepadKey2[GamepadKey2["RS_RIGHT"] = 203] = "RS_RIGHT";
+})(GamepadKey || (GamepadKey = {}));
+var GamepadKeyName = {
+  [GamepadKey.A]: ["A", PrompFont.A],
+  [GamepadKey.B]: ["B", PrompFont.B],
+  [GamepadKey.X]: ["X", PrompFont.X],
+  [GamepadKey.Y]: ["Y", PrompFont.Y],
+  [GamepadKey.LB]: ["LB", PrompFont.LB],
+  [GamepadKey.RB]: ["RB", PrompFont.RB],
+  [GamepadKey.LT]: ["LT", PrompFont.LT],
+  [GamepadKey.RT]: ["RT", PrompFont.RT],
+  [GamepadKey.SELECT]: ["Select", PrompFont.SELECT],
+  [GamepadKey.START]: ["Start", PrompFont.START],
+  [GamepadKey.HOME]: ["Home", PrompFont.HOME],
+  [GamepadKey.UP]: ["D-Pad Up", PrompFont.UP],
+  [GamepadKey.DOWN]: ["D-Pad Down", PrompFont.DOWN],
+  [GamepadKey.LEFT]: ["D-Pad Left", PrompFont.LEFT],
+  [GamepadKey.RIGHT]: ["D-Pad Right", PrompFont.RIGHT],
+  [GamepadKey.L3]: ["L3", PrompFont.L3],
+  [GamepadKey.LS_UP]: ["Left Stick Up", PrompFont.LS_UP],
+  [GamepadKey.LS_DOWN]: ["Left Stick Down", PrompFont.LS_DOWN],
+  [GamepadKey.LS_LEFT]: ["Left Stick Left", PrompFont.LS_LEFT],
+  [GamepadKey.LS_RIGHT]: ["Left Stick Right", PrompFont.LS_RIGHT],
+  [GamepadKey.R3]: ["R3", PrompFont.R3],
+  [GamepadKey.RS_UP]: ["Right Stick Up", PrompFont.RS_UP],
+  [GamepadKey.RS_DOWN]: ["Right Stick Down", PrompFont.RS_DOWN],
+  [GamepadKey.RS_LEFT]: ["Right Stick Left", PrompFont.RS_LEFT],
+  [GamepadKey.RS_RIGHT]: ["Right Stick Right", PrompFont.RS_RIGHT]
+};
+var GamepadStick;
+(function(GamepadStick2) {
+  GamepadStick2[GamepadStick2["LEFT"] = 0] = "LEFT";
+  GamepadStick2[GamepadStick2["RIGHT"] = 1] = "RIGHT";
+})(GamepadStick || (GamepadStick = {}));
+var MouseButtonCode;
+(function(MouseButtonCode2) {
+  MouseButtonCode2["LEFT_CLICK"] = "Mouse0";
+  MouseButtonCode2["RIGHT_CLICK"] = "Mouse2";
+  MouseButtonCode2["MIDDLE_CLICK"] = "Mouse1";
+})(MouseButtonCode || (MouseButtonCode = {}));
+var MouseMapTo;
+(function(MouseMapTo2) {
+  MouseMapTo2[MouseMapTo2["OFF"] = 0] = "OFF";
+  MouseMapTo2[MouseMapTo2["LS"] = 1] = "LS";
+  MouseMapTo2[MouseMapTo2["RS"] = 2] = "RS";
+})(MouseMapTo || (MouseMapTo = {}));
+var WheelCode;
+(function(WheelCode2) {
+  WheelCode2["SCROLL_UP"] = "ScrollUp";
+  WheelCode2["SCROLL_DOWN"] = "ScrollDown";
+  WheelCode2["SCROLL_LEFT"] = "ScrollLeft";
+  WheelCode2["SCROLL_RIGHT"] = "ScrollRight";
+})(WheelCode || (WheelCode = {}));
+var MkbPresetKey;
+(function(MkbPresetKey2) {
+  MkbPresetKey2["MOUSE_MAP_TO"] = "map_to";
+  MkbPresetKey2["MOUSE_SENSITIVITY_X"] = "sensitivity_x";
+  MkbPresetKey2["MOUSE_SENSITIVITY_Y"] = "sensitivity_y";
+  MkbPresetKey2["MOUSE_DEADZONE_COUNTERWEIGHT"] = "deadzone_counterweight";
+  MkbPresetKey2["MOUSE_STICK_DECAY_STRENGTH"] = "stick_decay_strength";
+  MkbPresetKey2["MOUSE_STICK_DECAY_MIN"] = "stick_decay_min";
+})(MkbPresetKey || (MkbPresetKey = {}));
 
 // src/utils/translation.ts
 var SUPPORTED_LANGUAGES = {
@@ -370,6 +459,7 @@ var SUPPORTED_LANGUAGES = {
   "pl-PL": "polski",
   "pt-BR": "português (Brasil)",
   "ru-RU": "русский",
+  "th-TH": "ภาษาไทย",
   "tr-TR": "Türkçe",
   "uk-UA": "українська",
   "vi-VN": "Tiếng Việt",
@@ -418,8 +508,10 @@ var Texts = {
   copy: "Copy",
   custom: "Custom",
   "deadzone-counterweight": "Deadzone counterweight",
+  decrease: "Decrease",
   default: "Default",
   delete: "Delete",
+  device: "Device",
   "device-unsupported-touch": "Your device doesn't have touch support",
   "device-vibration": "Device vibration",
   "device-vibration-not-using-gamepad": "On when not using gamepad",
@@ -449,12 +541,14 @@ var Texts = {
   "game-bar": "Game Bar",
   "getting-consoles-list": "Getting the list of consoles...",
   help: "Help",
+  hide: "Hide",
   "hide-idle-cursor": "Hide mouse cursor on idle",
   "hide-scrollbar": "Hide web page's scrollbar",
   "hide-system-menu-icon": "Hide System menu's icon",
   "hide-touch-controller": "Hide touch controller",
   "horizontal-sensitivity": "Horizontal sensitivity",
   import: "Import",
+  increase: "Increase",
   "install-android": "Install Better xCloud app for Android",
   "keyboard-shortcuts": "Keyboard shortcuts",
   language: "Language",
@@ -465,13 +559,13 @@ var Texts = {
   "local-co-op": "Local co-op",
   "map-mouse-to": "Map mouse to",
   "may-not-work-properly": "May not work properly!",
-  "menu-stream-settings": "Stream settings",
-  "menu-stream-stats": "Stream stats",
+  menu: "Menu",
   microphone: "Microphone",
   "mkb-adjust-ingame-settings": "You may also need to adjust the in-game sensitivity & deadzone settings",
   "mkb-click-to-activate": "Click to activate",
   "mkb-disclaimer": "Using this feature when playing online could be viewed as cheating",
   "mouse-and-keyboard": "Mouse & Keyboard",
+  "mute-unmute-sound": "Mute/unmute sound",
   muted: "Muted",
   name: "Name",
   new: "New",
@@ -502,6 +596,7 @@ var Texts = {
     (e) => `Naciśnij ${e.key}, aby przełączyć funkcję myszy i klawiatury`,
     (e) => `Pressione ${e.key} para ativar/desativar a função de Mouse e Teclado`,
     (e) => `Нажмите ${e.key} для переключения функции мыши и клавиатуры`,
+    ,
     (e) => `Klavye ve fare özelliğini açmak için ${e.key} tuşuna basın`,
     (e) => `Натисніть ${e.key}, щоб увімкнути або вимкнути функцію миші та клавіатури`,
     (e) => `Nhấn ${e.key} để bật/tắt tính năng Chuột và Bàn phím`,
@@ -523,6 +618,7 @@ var Texts = {
   "safari-failed-message": "Failed to run Better xCloud. Retrying, please wait...",
   saturation: "Saturation",
   save: "Save",
+  screen: "Screen",
   "screenshot-apply-filters": "Applies video filters to screenshots",
   "separate-touch-controller": "Separate Touch controller & Controller #1",
   "separate-touch-controller-note": "Touch controller is Player 1, Controller #1 is Player 2",
@@ -530,7 +626,9 @@ var Texts = {
   "settings-reload": "Reload page to reflect changes",
   "settings-reloading": "Reloading...",
   "shortcut-keys": "Shortcut keys",
+  show: "Show",
   "show-game-art": "Show game art",
+  "show-hide": "Show/hide",
   "show-stats-on-startup": "Show stats when starting the game",
   "show-touch-controller": "Show touch controller",
   "show-wait-time": "Show the estimated wait time",
@@ -551,6 +649,8 @@ var Texts = {
   "stick-decay-minimum": "Stick decay minimum",
   "stick-decay-strength": "Stick decay strength",
   stream: "Stream",
+  "stream-settings": "Stream settings",
+  "stream-stats": "Stream stats",
   stretch: "Stretch",
   "stretch-note": "Don't use with native touch games",
   "support-better-xcloud": "Support Better xCloud",
@@ -566,6 +666,9 @@ var Texts = {
   "tc-muted-colors": "Muted colors",
   "tc-standard-layout-style": "Standard layout's button style",
   "text-size": "Text size",
+  toggle: "Toggle",
+  "toggle-microphone": "Toggle microphone",
+  "toggle-stream-stats": "Toggle stream stats",
   "top-center": "Top-center",
   "top-left": "Top-left",
   "top-right": "Top-right",
@@ -582,6 +685,7 @@ var Texts = {
     (e) => `Układ sterowania dotykowego stworzony przez ${e.name}`,
     (e) => `Disposição de controle por toque feito por ${e.name}`,
     (e) => `Сенсорная раскладка по ${e.name}`,
+    ,
     (e) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
     (e) => `Розташування сенсорного керування від ${e.name}`,
     (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
@@ -638,7 +742,7 @@ class Translations {
   }
   static get(key, values) {
     let text = null;
-    if (Translations.#selectedLocale !== Translations.#EN_US) {
+    if (Translations.#foreignTranslations && Translations.#selectedLocale !== Translations.#EN_US) {
       text = Translations.#foreignTranslations[key];
     }
     if (!text) {
@@ -695,148 +799,6 @@ class Translations {
 }
 var t = Translations.get;
 Translations.init();
-
-// src/utils/screenshot.ts
-class Screenshot {
-  static setup() {
-    const currentStream = STATES.currentStream;
-    if (!currentStream.$screenshotCanvas) {
-      currentStream.$screenshotCanvas = CE("canvas", { class: "bx-gone" });
-      currentStream.screenshotCanvasContext = currentStream.$screenshotCanvas.getContext("2d", {
-        alpha: false,
-        willReadFrequently: false
-      });
-    }
-  }
-  static updateCanvasSize(width, height) {
-    const $canvas = STATES.currentStream.$screenshotCanvas;
-    if ($canvas) {
-      $canvas.width = width;
-      $canvas.height = height;
-    }
-  }
-  static updateCanvasFilters(filters) {
-    STATES.currentStream.screenshotCanvasContext && (STATES.currentStream.screenshotCanvasContext.filter = filters);
-  }
-  static onAnimationEnd(e) {
-    e.target.classList.remove("bx-taking-screenshot");
-  }
-  static takeScreenshot(callback) {
-    const currentStream = STATES.currentStream;
-    const $video = currentStream.$video;
-    const $canvas = currentStream.$screenshotCanvas;
-    if (!$video || !$canvas) {
-      return;
-    }
-    $video.parentElement?.addEventListener("animationend", this.onAnimationEnd);
-    $video.parentElement?.classList.add("bx-taking-screenshot");
-    const canvasContext = currentStream.screenshotCanvasContext;
-    canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
-    if (AppInterface) {
-      const data = $canvas.toDataURL("image/png").split(";base64,")[1];
-      AppInterface.saveScreenshot(currentStream.titleId, data);
-      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-      callback && callback();
-      return;
-    }
-    $canvas && $canvas.toBlob((blob) => {
-      const now = +new Date;
-      const $anchor = CE("a", {
-        download: `${currentStream.titleId}-${now}.png`,
-        href: URL.createObjectURL(blob)
-      });
-      $anchor.click();
-      URL.revokeObjectURL($anchor.href);
-      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-      callback && callback();
-    }, "image/png");
-  }
-}
-
-// src/modules/game-bar/action-screenshot.ts
-class ScreenshotAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      Screenshot.takeScreenshot();
-    };
-    this.$content = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.SCREENSHOT,
-      title: t("take-screenshot"),
-      onClick
-    });
-  }
-  render() {
-    return this.$content;
-  }
-}
-
-// src/utils/toast.ts
-class Toast {
-  static #$wrapper;
-  static #$msg;
-  static #$status;
-  static #stack = [];
-  static #isShowing = false;
-  static #timeout;
-  static #DURATION = 3000;
-  static show(msg, status, options = {}) {
-    options = options || {};
-    const args = Array.from(arguments);
-    if (options.instant) {
-      Toast.#stack = [args];
-      Toast.#showNext();
-    } else {
-      Toast.#stack.push(args);
-      !Toast.#isShowing && Toast.#showNext();
-    }
-  }
-  static #showNext() {
-    if (!Toast.#stack.length) {
-      Toast.#isShowing = false;
-      return;
-    }
-    Toast.#isShowing = true;
-    Toast.#timeout && clearTimeout(Toast.#timeout);
-    Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
-    const [msg, status, options] = Toast.#stack.shift();
-    if (options.html) {
-      Toast.#$msg.innerHTML = msg;
-    } else {
-      Toast.#$msg.textContent = msg;
-    }
-    if (status) {
-      Toast.#$status.classList.remove("bx-gone");
-      Toast.#$status.textContent = status;
-    } else {
-      Toast.#$status.classList.add("bx-gone");
-    }
-    const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-offscreen", "bx-hide");
-    classList.add("bx-show");
-  }
-  static #hide() {
-    Toast.#timeout = null;
-    const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-show");
-    classList.add("bx-hide");
-  }
-  static setup() {
-    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" }));
-    Toast.#$wrapper.addEventListener("transitionend", (e) => {
-      const classList = Toast.#$wrapper.classList;
-      if (classList.contains("bx-hide")) {
-        classList.remove("bx-offscreen", "bx-hide");
-        classList.add("bx-offscreen");
-        Toast.#showNext();
-      }
-    });
-    document.documentElement.appendChild(Toast.#$wrapper);
-  }
-}
 
 // src/utils/settings.ts
 var SettingElementType;
@@ -1073,6 +1035,138 @@ class SettingElement {
       $control.name = $control.id;
     }
     return $control;
+  }
+}
+
+// src/modules/mkb/mkb-preset.ts
+class MkbPreset {
+  static MOUSE_SETTINGS = {
+    [MkbPresetKey.MOUSE_MAP_TO]: {
+      label: t("map-mouse-to"),
+      type: SettingElementType.OPTIONS,
+      default: MouseMapTo[MouseMapTo.RS],
+      options: {
+        [MouseMapTo[MouseMapTo.RS]]: t("right-stick"),
+        [MouseMapTo[MouseMapTo.LS]]: t("left-stick"),
+        [MouseMapTo[MouseMapTo.OFF]]: t("off")
+      }
+    },
+    [MkbPresetKey.MOUSE_SENSITIVITY_Y]: {
+      label: t("horizontal-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 50,
+      min: 1,
+      max: 200,
+      params: {
+        suffix: "%",
+        exactTicks: 20
+      }
+    },
+    [MkbPresetKey.MOUSE_SENSITIVITY_X]: {
+      label: t("vertical-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 50,
+      min: 1,
+      max: 200,
+      params: {
+        suffix: "%",
+        exactTicks: 20
+      }
+    },
+    [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: {
+      label: t("deadzone-counterweight"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 20,
+      min: 1,
+      max: 100,
+      params: {
+        suffix: "%",
+        exactTicks: 10
+      }
+    },
+    [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: {
+      label: t("stick-decay-strength"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 100,
+      min: 10,
+      max: 100,
+      params: {
+        suffix: "%",
+        exactTicks: 10
+      }
+    },
+    [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: {
+      label: t("stick-decay-minimum"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 10,
+      min: 1,
+      max: 10,
+      params: {
+        suffix: "%"
+      }
+    }
+  };
+  static DEFAULT_PRESET = {
+    mapping: {
+      [GamepadKey.UP]: ["ArrowUp"],
+      [GamepadKey.DOWN]: ["ArrowDown"],
+      [GamepadKey.LEFT]: ["ArrowLeft"],
+      [GamepadKey.RIGHT]: ["ArrowRight"],
+      [GamepadKey.LS_UP]: ["KeyW"],
+      [GamepadKey.LS_DOWN]: ["KeyS"],
+      [GamepadKey.LS_LEFT]: ["KeyA"],
+      [GamepadKey.LS_RIGHT]: ["KeyD"],
+      [GamepadKey.RS_UP]: ["KeyI"],
+      [GamepadKey.RS_DOWN]: ["KeyK"],
+      [GamepadKey.RS_LEFT]: ["KeyJ"],
+      [GamepadKey.RS_RIGHT]: ["KeyL"],
+      [GamepadKey.A]: ["Space", "KeyE"],
+      [GamepadKey.X]: ["KeyR"],
+      [GamepadKey.B]: ["ControlLeft", "Backspace"],
+      [GamepadKey.Y]: ["KeyV"],
+      [GamepadKey.START]: ["Enter"],
+      [GamepadKey.SELECT]: ["Tab"],
+      [GamepadKey.LB]: ["KeyC", "KeyG"],
+      [GamepadKey.RB]: ["KeyQ"],
+      [GamepadKey.HOME]: ["Backquote"],
+      [GamepadKey.RT]: [MouseButtonCode.LEFT_CLICK],
+      [GamepadKey.LT]: [MouseButtonCode.RIGHT_CLICK],
+      [GamepadKey.L3]: ["ShiftLeft"],
+      [GamepadKey.R3]: ["KeyF"]
+    },
+    mouse: {
+      [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
+      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
+      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
+      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
+      [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 100,
+      [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 10
+    }
+  };
+  static convert(preset) {
+    const obj = {
+      mapping: {},
+      mouse: Object.assign({}, preset.mouse)
+    };
+    for (const buttonIndex in preset.mapping) {
+      for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
+        obj.mapping[keyName] = parseInt(buttonIndex);
+      }
+    }
+    const mouse = obj.mouse;
+    mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+    mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
+    mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+    mouse[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
+    mouse[MkbPresetKey.MOUSE_STICK_DECAY_MIN] *= 0.01;
+    const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
+    if (typeof mouseMapTo !== "undefined") {
+      mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
+    } else {
+      mouse[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
+    }
+    console.log(obj);
+    return obj;
   }
 }
 
@@ -2217,838 +2311,67 @@ var getPref = prefs.get.bind(prefs);
 var setPref = prefs.set.bind(prefs);
 var toPrefElement = prefs.toElement.bind(prefs);
 
-// src/modules/touch-controller.ts
-var LOG_TAG = "TouchController";
-
-class TouchController {
-  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
-    data: JSON.stringify({
-      content: '{"layoutId":""}',
-      target: "/streaming/touchcontrols/showlayoutv2",
-      type: "Message"
-    }),
-    origin: "better-xcloud"
-  });
-  static #$style;
-  static #enable = false;
-  static #dataChannel;
-  static #customLayouts = {};
-  static #baseCustomLayouts = {};
-  static #currentLayoutId;
-  static #customList;
-  static enable() {
-    TouchController.#enable = true;
+// src/utils/toast.ts
+class Toast {
+  static #$wrapper;
+  static #$msg;
+  static #$status;
+  static #stack = [];
+  static #isShowing = false;
+  static #timeout;
+  static #DURATION = 3000;
+  static show(msg, status, options = {}) {
+    options = options || {};
+    const args = Array.from(arguments);
+    if (options.instant) {
+      Toast.#stack = [args];
+      Toast.#showNext();
+    } else {
+      Toast.#stack.push(args);
+      !Toast.#isShowing && Toast.#showNext();
+    }
   }
-  static disable() {
-    TouchController.#enable = false;
-  }
-  static isEnabled() {
-    return TouchController.#enable;
-  }
-  static #showDefault() {
-    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
-  }
-  static #show() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
+  static #showNext() {
+    if (!Toast.#stack.length) {
+      Toast.#isShowing = false;
+      return;
+    }
+    Toast.#isShowing = true;
+    Toast.#timeout && clearTimeout(Toast.#timeout);
+    Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
+    const [msg, status, options] = Toast.#stack.shift();
+    if (options.html) {
+      Toast.#$msg.innerHTML = msg;
+    } else {
+      Toast.#$msg.textContent = msg;
+    }
+    if (status) {
+      Toast.#$status.classList.remove("bx-gone");
+      Toast.#$status.textContent = status;
+    } else {
+      Toast.#$status.classList.add("bx-gone");
+    }
+    const classList = Toast.#$wrapper.classList;
+    classList.remove("bx-offscreen", "bx-hide");
+    classList.add("bx-show");
   }
   static #hide() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
-  }
-  static toggleVisibility(status) {
-    if (!TouchController.#dataChannel) {
-      return;
-    }
-    status ? TouchController.#hide() : TouchController.#show();
-  }
-  static reset() {
-    TouchController.#enable = false;
-    TouchController.#dataChannel = null;
-    TouchController.#$style && (TouchController.#$style.textContent = "");
-  }
-  static #dispatchMessage(msg) {
-    TouchController.#dataChannel && window.setTimeout(() => {
-      TouchController.#dataChannel.dispatchEvent(msg);
-    }, 10);
-  }
-  static #dispatchLayouts(data) {
-    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-      data
-    });
-  }
-  static async getCustomLayouts(xboxTitleId, retries = 1) {
-    if (xboxTitleId in TouchController.#customLayouts) {
-      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
-      return;
-    }
-    retries = retries || 1;
-    if (retries > 2) {
-      TouchController.#customLayouts[xboxTitleId] = null;
-      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
-      return;
-    }
-    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
-    const url = `${baseUrl}/${xboxTitleId}.json`;
-    try {
-      const resp = await NATIVE_FETCH(url);
-      const json = await resp.json();
-      const layouts = {};
-      json.layouts.forEach(async (layoutName) => {
-        let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts) {
-          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        } else {
-          try {
-            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
-            const resp2 = await NATIVE_FETCH(layoutUrl);
-            const json2 = await resp2.json();
-            baseLayouts = json2.layouts;
-            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
-          } catch (e) {
-          }
-        }
-        Object.assign(layouts, baseLayouts);
-      });
-      json.layouts = layouts;
-      TouchController.#customLayouts[xboxTitleId] = json;
-      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
-    } catch (e) {
-      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
-    }
-  }
-  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
-    if (!window.BX_EXPOSED.touchLayoutManager) {
-      const listener = (e) => {
-        window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-        if (TouchController.#enable) {
-          TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
-        }
-      };
-      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-      return;
-    }
-    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
-    TouchController.#currentLayoutId = layoutId;
-    const layoutData = TouchController.#customLayouts[xboxTitleId];
-    if (!xboxTitleId || !layoutId || !layoutData) {
-      TouchController.#enable && TouchController.#showDefault();
-      return;
-    }
-    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout) {
-      return;
-    }
-    let msg;
-    let html9 = false;
-    if (layout.author) {
-      const author = `<b>${escapeHtml(layout.author)}</b>`;
-      msg = t("touch-control-layout-by", { name: author });
-      html9 = true;
-    } else {
-      msg = t("touch-control-layout");
-    }
-    layoutChanged && Toast.show(msg, layout.name, { html: html9 });
-    window.setTimeout(() => {
-      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope");
-      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "System",
-          layoutFile: layout
-        }
-      });
-    }, delay);
-  }
-  static updateCustomList() {
-    const key = "better_xcloud_custom_touch_layouts";
-    TouchController.#customList = JSON.parse(window.localStorage.getItem(key) || "[]");
-    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
-      TouchController.#customList = json;
-      window.localStorage.setItem(key, JSON.stringify(json));
-    });
-  }
-  static getCustomList() {
-    return TouchController.#customList;
+    Toast.#timeout = null;
+    const classList = Toast.#$wrapper.classList;
+    classList.remove("bx-show");
+    classList.add("bx-hide");
   }
   static setup() {
-    window.testTouchLayout = (layout) => {
-      const { touchLayoutManager } = window.BX_EXPOSED;
-      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: "" + STATES.currentStream?.xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "Custom",
-          layoutFile: layout
-        }
-      });
-    };
-    const $style = document.createElement("style");
-    document.documentElement.appendChild($style);
-    TouchController.#$style = $style;
-    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
-    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message") {
-        return;
-      }
-      let filter = "";
-      if (TouchController.#enable) {
-        if (PREF_STYLE_STANDARD === "white") {
-          filter = "grayscale(1) brightness(2)";
-        } else if (PREF_STYLE_STANDARD === "muted") {
-          filter = "sepia(0.5)";
-        }
-      } else if (PREF_STYLE_CUSTOM === "muted") {
-        filter = "sepia(0.5)";
-      }
-      if (filter) {
-        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      } else {
-        $style.textContent = "";
-      }
-      TouchController.#dataChannel = dataChannel;
-      dataChannel.addEventListener("open", () => {
-        window.setTimeout(TouchController.#show, 1000);
-      });
-      let focused = false;
-      dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
-          return;
-        }
-        if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enable) {
-            if (focused) {
-              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
-            } else {
-              TouchController.#showDefault();
-            }
-          }
-          return;
-        }
-        try {
-          if (msg.data.includes("/titleinfo")) {
-            const json = JSON.parse(JSON.parse(msg.data).content);
-            focused = json.focused;
-            if (!json.focused) {
-              TouchController.#show();
-            }
-            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
-          }
-        } catch (e2) {
-          BxLogger.error(LOG_TAG, "Load custom layout", e2);
-        }
-      });
-    });
-  }
-}
-
-// src/modules/game-bar/action-touch-control.ts
-class TouchControlAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const $parent = e.target.closest("div[data-enabled]");
-      let enabled = $parent.getAttribute("data-enabled", "true") === "true";
-      $parent.setAttribute("data-enabled", (!enabled).toString());
-      TouchController.toggleVisibility(enabled);
-    };
-    const $btnEnable = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.TOUCH_CONTROL_ENABLE,
-      title: t("show-touch-controller"),
-      onClick,
-      classes: ["bx-activated"]
-    });
-    const $btnDisable = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.TOUCH_CONTROL_DISABLE,
-      title: t("hide-touch-controller"),
-      onClick
-    });
-    this.$content = CE("div", {}, $btnEnable, $btnDisable);
-    this.reset();
-  }
-  render() {
-    return this.$content;
-  }
-  reset() {
-    this.$content.setAttribute("data-enabled", "true");
-  }
-}
-
-// src/modules/game-bar/action-microphone.ts
-var MicrophoneState;
-(function(MicrophoneState2) {
-  MicrophoneState2["REQUESTED"] = "Requested";
-  MicrophoneState2["ENABLED"] = "Enabled";
-  MicrophoneState2["MUTED"] = "Muted";
-  MicrophoneState2["NOT_ALLOWED"] = "NotAllowed";
-  MicrophoneState2["NOT_FOUND"] = "NotFound";
-})(MicrophoneState || (MicrophoneState = {}));
-
-class MicrophoneAction extends BaseGameBarAction {
-  $content;
-  visible = false;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const state = this.$content.getAttribute("data-enabled");
-      const enableMic = state === "true" ? false : true;
-      try {
-        window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic);
-        this.$content.setAttribute("data-enabled", enableMic.toString());
-      } catch (e2) {
-        console.log(e2);
-      }
-    };
-    const $btnDefault = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.MICROPHONE,
-      title: t("show-touch-controller"),
-      onClick,
-      classes: ["bx-activated"]
-    });
-    const $btnMuted = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.MICROPHONE_MUTED,
-      title: t("hide-touch-controller"),
-      onClick
-    });
-    this.$content = CE("div", {}, $btnDefault, $btnMuted);
-    this.reset();
-    window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
-      const microphoneState = e.microphoneState;
-      const enabled = microphoneState === MicrophoneState.ENABLED;
-      this.$content.setAttribute("data-enabled", enabled.toString());
-      this.$content.classList.remove("bx-gone");
-    });
-  }
-  render() {
-    return this.$content;
-  }
-  reset() {
-    this.visible = false;
-    this.$content.classList.add("bx-gone");
-    this.$content.setAttribute("data-enabled", "false");
-  }
-}
-
-// src/modules/game-bar/game-bar.ts
-class GameBar {
-  static instance;
-  static getInstance() {
-    if (!GameBar.instance) {
-      GameBar.instance = new GameBar;
-    }
-    return GameBar.instance;
-  }
-  static VISIBLE_DURATION = 2000;
-  $gameBar;
-  $container;
-  timeout = null;
-  actions = [];
-  constructor() {
-    let $container;
-    const position = getPref(PrefKey.GAME_BAR_POSITION);
-    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
-    this.actions = [
-      new ScreenshotAction,
-      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
-      new MicrophoneAction
-    ];
-    if (position === "bottom-right") {
-      this.actions.reverse();
-    }
-    for (const action of this.actions) {
-      $container.appendChild(action.render());
-    }
-    $gameBar.addEventListener("click", (e) => {
-      if (e.target !== $gameBar) {
-        return;
-      }
-      $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
-    });
-    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this));
-    $container.addEventListener("pointerover", this.clearHideTimeout.bind(this));
-    $container.addEventListener("pointerout", this.beginHideTimeout.bind(this));
-    $container.addEventListener("transitionend", (e) => {
-      const classList = $container.classList;
+    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" }));
+    Toast.#$wrapper.addEventListener("transitionend", (e) => {
+      const classList = Toast.#$wrapper.classList;
       if (classList.contains("bx-hide")) {
         classList.remove("bx-offscreen", "bx-hide");
         classList.add("bx-offscreen");
+        Toast.#showNext();
       }
     });
-    document.documentElement.appendChild($gameBar);
-    this.$gameBar = $gameBar;
-    this.$container = $container;
-  }
-  beginHideTimeout() {
-    this.clearHideTimeout();
-    this.timeout = window.setTimeout(() => {
-      this.timeout = null;
-      this.hideBar();
-    }, GameBar.VISIBLE_DURATION);
-  }
-  clearHideTimeout() {
-    this.timeout && clearTimeout(this.timeout);
-    this.timeout = null;
-  }
-  enable() {
-    this.$gameBar && this.$gameBar.classList.remove("bx-gone");
-  }
-  disable() {
-    this.hideBar();
-    this.$gameBar && this.$gameBar.classList.add("bx-gone");
-  }
-  showBar() {
-    if (!this.$container) {
-      return;
-    }
-    this.$container.classList.remove("bx-offscreen", "bx-hide");
-    this.$container.classList.add("bx-show");
-    this.beginHideTimeout();
-  }
-  hideBar() {
-    if (!this.$container) {
-      return;
-    }
-    this.$container.classList.remove("bx-show");
-    this.$container.classList.add("bx-hide");
-  }
-  reset() {
-    for (const action of this.actions) {
-      action.reset();
-    }
-  }
-}
-
-// src/utils/bx-exposed.ts
-var InputType;
-(function(InputType2) {
-  InputType2["CONTROLLER"] = "Controller";
-  InputType2["MKB"] = "MKB";
-  InputType2["CUSTOM_TOUCH_OVERLAY"] = "CustomTouchOverlay";
-  InputType2["GENERIC_TOUCH"] = "GenericTouch";
-  InputType2["NATIVE_TOUCH"] = "NativeTouch";
-  InputType2["BATIVE_SENSOR"] = "NativeSensor";
-})(InputType || (InputType = {}));
-var BxExposed = {
-  onPollingModeChanged: (mode) => {
-    if (getPref(PrefKey.GAME_BAR_POSITION) === "off") {
-      return;
-    }
-    const gameBar = GameBar.getInstance();
-    if (!STATES.isPlaying) {
-      gameBar.disable();
-      return;
-    }
-    mode !== "None" ? gameBar.disable() : gameBar.enable();
-  },
-  getTitleInfo: () => STATES.currentStream.titleInfo,
-  modifyTitleInfo: (titleInfo) => {
-    titleInfo = structuredClone(titleInfo);
-    let supportedInputTypes = titleInfo.details.supportedInputTypes;
-    if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
-      supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
-    }
-    titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-    if (STATES.hasTouchSupport) {
-      let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
-      if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
-        const gamepads = window.navigator.getGamepads();
-        let gamepadFound = false;
-        for (let gamepad of gamepads) {
-          if (gamepad && gamepad.connected) {
-            gamepadFound = true;
-            break;
-          }
-        }
-        gamepadFound && (touchControllerAvailability = "off");
-      }
-      if (touchControllerAvailability === "off") {
-        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
-      }
-      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
-      if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
-        titleInfo.details.hasFakeTouchSupport = true;
-        supportedInputTypes.push(InputType.GENERIC_TOUCH);
-      }
-    }
-    titleInfo.details.supportedInputTypes = supportedInputTypes;
-    STATES.currentStream.titleInfo = titleInfo;
-    BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
-    return titleInfo;
-  },
-  setupGainNode: ($media, audioStream) => {
-    if ($media instanceof HTMLAudioElement) {
-      $media.muted = true;
-      $media.addEventListener("playing", (e) => {
-        $media.muted = true;
-        $media.pause();
-      });
-    } else {
-      $media.muted = true;
-      $media.addEventListener("playing", (e) => {
-        $media.muted = true;
-      });
-    }
-    const audioCtx = STATES.currentStream.audioContext;
-    const source = audioCtx.createMediaStreamSource(audioStream);
-    const gainNode = audioCtx.createGain();
-    source.connect(gainNode).connect(audioCtx.destination);
-  }
-};
-
-// src/utils/region.ts
-function getPreferredServerRegion(shortName = false) {
-  let preferredRegion = getPref(PrefKey.SERVER_REGION);
-  if (preferredRegion in STATES.serverRegions) {
-    if (shortName && STATES.serverRegions[preferredRegion].shortName) {
-      return STATES.serverRegions[preferredRegion].shortName;
-    } else {
-      return preferredRegion;
-    }
-  }
-  for (let regionName in STATES.serverRegions) {
-    const region = STATES.serverRegions[regionName];
-    if (!region.isDefault) {
-      continue;
-    }
-    if (shortName && region.shortName) {
-      return region.shortName;
-    } else {
-      return regionName;
-    }
-  }
-  return "???";
-}
-
-// src/modules/loading-screen.ts
-class LoadingScreen {
-  static #$bgStyle;
-  static #$waitTimeBox;
-  static #waitTimeInterval = null;
-  static #orgWebTitle;
-  static #secondsToString(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    const mDisplay = m > 0 ? `${m}m` : "";
-    const sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
-    return mDisplay + sDisplay;
-  }
-  static setup() {
-    const titleInfo = STATES.currentStream.titleInfo;
-    if (!titleInfo) {
-      return;
-    }
-    if (!LoadingScreen.#$bgStyle) {
-      const $bgStyle = CE("style");
-      document.documentElement.appendChild($bgStyle);
-      LoadingScreen.#$bgStyle = $bgStyle;
-    }
-    LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl);
-    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide") {
-      LoadingScreen.#hideRocket();
-    }
-  }
-  static #hideRocket() {
-    let $bgStyle = LoadingScreen.#$bgStyle;
-    const css = `
-#game-stream div[class*=RocketAnimation-module__container] > svg {
-    display: none;
-}
-`;
-    $bgStyle.textContent += css;
-  }
-  static #setBackground(imageUrl) {
-    let $bgStyle = LoadingScreen.#$bgStyle;
-    imageUrl = imageUrl + "?w=1920";
-    const css = `
-#game-stream {
-    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
-    background-color: transparent !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-}
-
-#game-stream rect[width="800"] {
-    transition: opacity 0.3s ease-in-out !important;
-}
-`;
-    $bgStyle.textContent += css;
-    const bg = new Image;
-    bg.onload = (e) => {
-      $bgStyle.textContent += `
-#game-stream rect[width="800"] {
-    opacity: 0 !important;
-}
-`;
-    };
-    bg.src = imageUrl;
-  }
-  static setupWaitTime(waitTime) {
-    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue") {
-      LoadingScreen.#hideRocket();
-    }
-    let secondsLeft = waitTime;
-    let $countDown;
-    let $estimated;
-    LoadingScreen.#orgWebTitle = document.title;
-    const endDate = new Date;
-    const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
-    endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
-    let endDateStr = endDate.toISOString().slice(0, 19);
-    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19);
-    endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
-    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-    if (!$waitTimeBox) {
-      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {}));
-      document.documentElement.appendChild($waitTimeBox);
-      LoadingScreen.#$waitTimeBox = $waitTimeBox;
-    } else {
-      $waitTimeBox.classList.remove("bx-gone");
-      $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated");
-      $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
-    }
-    $estimated.textContent = endDateStr;
-    $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-    document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-    LoadingScreen.#waitTimeInterval = window.setInterval(() => {
-      secondsLeft--;
-      $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-      document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-      if (secondsLeft <= 0) {
-        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-        LoadingScreen.#waitTimeInterval = null;
-      }
-    }, 1000);
-  }
-  static hide() {
-    LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
-    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
-    if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
-      const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
-      $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
-        LoadingScreen.#$bgStyle.textContent += `
-#game-stream {
-    background: #000 !important;
-}
-`;
-      });
-      LoadingScreen.#$bgStyle.textContent += `
-#game-stream rect[width="800"] {
-    opacity: 1 !important;
-}
-`;
-    }
-    LoadingScreen.reset();
-  }
-  static reset() {
-    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
-    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
-    LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-    LoadingScreen.#waitTimeInterval = null;
-  }
-}
-
-// src/modules/mkb/definitions.ts
-var GamepadKey;
-(function(GamepadKey2) {
-  GamepadKey2[GamepadKey2["A"] = 0] = "A";
-  GamepadKey2[GamepadKey2["B"] = 1] = "B";
-  GamepadKey2[GamepadKey2["X"] = 2] = "X";
-  GamepadKey2[GamepadKey2["Y"] = 3] = "Y";
-  GamepadKey2[GamepadKey2["LB"] = 4] = "LB";
-  GamepadKey2[GamepadKey2["RB"] = 5] = "RB";
-  GamepadKey2[GamepadKey2["LT"] = 6] = "LT";
-  GamepadKey2[GamepadKey2["RT"] = 7] = "RT";
-  GamepadKey2[GamepadKey2["SELECT"] = 8] = "SELECT";
-  GamepadKey2[GamepadKey2["START"] = 9] = "START";
-  GamepadKey2[GamepadKey2["L3"] = 10] = "L3";
-  GamepadKey2[GamepadKey2["R3"] = 11] = "R3";
-  GamepadKey2[GamepadKey2["UP"] = 12] = "UP";
-  GamepadKey2[GamepadKey2["DOWN"] = 13] = "DOWN";
-  GamepadKey2[GamepadKey2["LEFT"] = 14] = "LEFT";
-  GamepadKey2[GamepadKey2["RIGHT"] = 15] = "RIGHT";
-  GamepadKey2[GamepadKey2["HOME"] = 16] = "HOME";
-  GamepadKey2[GamepadKey2["LS_UP"] = 100] = "LS_UP";
-  GamepadKey2[GamepadKey2["LS_DOWN"] = 101] = "LS_DOWN";
-  GamepadKey2[GamepadKey2["LS_LEFT"] = 102] = "LS_LEFT";
-  GamepadKey2[GamepadKey2["LS_RIGHT"] = 103] = "LS_RIGHT";
-  GamepadKey2[GamepadKey2["RS_UP"] = 200] = "RS_UP";
-  GamepadKey2[GamepadKey2["RS_DOWN"] = 201] = "RS_DOWN";
-  GamepadKey2[GamepadKey2["RS_LEFT"] = 202] = "RS_LEFT";
-  GamepadKey2[GamepadKey2["RS_RIGHT"] = 203] = "RS_RIGHT";
-})(GamepadKey || (GamepadKey = {}));
-var GamepadKeyName = {
-  [GamepadKey.A]: ["A", "⇓"],
-  [GamepadKey.B]: ["B", "⇒"],
-  [GamepadKey.X]: ["X", "⇐"],
-  [GamepadKey.Y]: ["Y", "⇑"],
-  [GamepadKey.LB]: ["LB", "↘"],
-  [GamepadKey.RB]: ["RB", "↙"],
-  [GamepadKey.LT]: ["LT", "↖"],
-  [GamepadKey.RT]: ["RT", "↗"],
-  [GamepadKey.SELECT]: ["Select", "⇺"],
-  [GamepadKey.START]: ["Start", "⇻"],
-  [GamepadKey.HOME]: ["Home", ""],
-  [GamepadKey.UP]: ["D-Pad Up", "≻"],
-  [GamepadKey.DOWN]: ["D-Pad Down", "≽"],
-  [GamepadKey.LEFT]: ["D-Pad Left", "≺"],
-  [GamepadKey.RIGHT]: ["D-Pad Right", "≼"],
-  [GamepadKey.L3]: ["L3", "↺"],
-  [GamepadKey.LS_UP]: ["Left Stick Up", "↾"],
-  [GamepadKey.LS_DOWN]: ["Left Stick Down", "⇂"],
-  [GamepadKey.LS_LEFT]: ["Left Stick Left", "↼"],
-  [GamepadKey.LS_RIGHT]: ["Left Stick Right", "⇀"],
-  [GamepadKey.R3]: ["R3", "↻"],
-  [GamepadKey.RS_UP]: ["Right Stick Up", "↿"],
-  [GamepadKey.RS_DOWN]: ["Right Stick Down", "⇃"],
-  [GamepadKey.RS_LEFT]: ["Right Stick Left", "↽"],
-  [GamepadKey.RS_RIGHT]: ["Right Stick Right", "⇁"]
-};
-var GamepadStick;
-(function(GamepadStick2) {
-  GamepadStick2[GamepadStick2["LEFT"] = 0] = "LEFT";
-  GamepadStick2[GamepadStick2["RIGHT"] = 1] = "RIGHT";
-})(GamepadStick || (GamepadStick = {}));
-var MouseButtonCode;
-(function(MouseButtonCode2) {
-  MouseButtonCode2["LEFT_CLICK"] = "Mouse0";
-  MouseButtonCode2["RIGHT_CLICK"] = "Mouse2";
-  MouseButtonCode2["MIDDLE_CLICK"] = "Mouse1";
-})(MouseButtonCode || (MouseButtonCode = {}));
-var MouseMapTo;
-(function(MouseMapTo2) {
-  MouseMapTo2[MouseMapTo2["OFF"] = 0] = "OFF";
-  MouseMapTo2[MouseMapTo2["LS"] = 1] = "LS";
-  MouseMapTo2[MouseMapTo2["RS"] = 2] = "RS";
-})(MouseMapTo || (MouseMapTo = {}));
-var WheelCode;
-(function(WheelCode2) {
-  WheelCode2["SCROLL_UP"] = "ScrollUp";
-  WheelCode2["SCROLL_DOWN"] = "ScrollDown";
-  WheelCode2["SCROLL_LEFT"] = "ScrollLeft";
-  WheelCode2["SCROLL_RIGHT"] = "ScrollRight";
-})(WheelCode || (WheelCode = {}));
-var MkbPresetKey;
-(function(MkbPresetKey2) {
-  MkbPresetKey2["MOUSE_MAP_TO"] = "map_to";
-  MkbPresetKey2["MOUSE_SENSITIVITY_X"] = "sensitivity_x";
-  MkbPresetKey2["MOUSE_SENSITIVITY_Y"] = "sensitivity_y";
-  MkbPresetKey2["MOUSE_DEADZONE_COUNTERWEIGHT"] = "deadzone_counterweight";
-  MkbPresetKey2["MOUSE_STICK_DECAY_STRENGTH"] = "stick_decay_strength";
-  MkbPresetKey2["MOUSE_STICK_DECAY_MIN"] = "stick_decay_min";
-})(MkbPresetKey || (MkbPresetKey = {}));
-
-// src/modules/dialog.ts
-class Dialog {
-  $dialog;
-  $title;
-  $content;
-  $overlay;
-  onClose;
-  constructor(options) {
-    const {
-      title,
-      className,
-      content,
-      hideCloseButton,
-      onClose,
-      helpUrl
-    } = options;
-    const $overlay = document.querySelector(".bx-dialog-overlay");
-    if (!$overlay) {
-      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" });
-      this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault());
-      document.documentElement.appendChild(this.$overlay);
-    } else {
-      this.$overlay = $overlay;
-    }
-    let $close;
-    this.onClose = onClose;
-    this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
-      icon: BxIcon.QUESTION,
-      style: ButtonStyle.GHOST,
-      title: t("help"),
-      url: helpUrl
-    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close"))));
-    $close && $close.addEventListener("click", (e) => {
-      this.hide(e);
-    });
-    !title && this.$title.classList.add("bx-gone");
-    !content && this.$content.classList.add("bx-gone");
-    this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault());
-    document.documentElement.appendChild(this.$dialog);
-  }
-  show(newOptions) {
-    document.activeElement && document.activeElement.blur();
-    if (newOptions && newOptions.title) {
-      this.$title.querySelector("b").textContent = newOptions.title;
-      this.$title.classList.remove("bx-gone");
-    }
-    this.$dialog.classList.remove("bx-gone");
-    this.$overlay.classList.remove("bx-gone");
-    document.body.classList.add("bx-no-scroll");
-  }
-  hide(e) {
-    this.$dialog.classList.add("bx-gone");
-    this.$overlay.classList.add("bx-gone");
-    document.body.classList.remove("bx-no-scroll");
-    this.onClose && this.onClose(e);
-  }
-  toggle() {
-    this.$dialog.classList.toggle("bx-gone");
-    this.$overlay.classList.toggle("bx-gone");
-  }
-}
-
-// src/modules/mkb/key-helper.ts
-class KeyHelper {
-  static #NON_PRINTABLE_KEYS = {
-    Backquote: "`",
-    [MouseButtonCode.LEFT_CLICK]: "Left Click",
-    [MouseButtonCode.RIGHT_CLICK]: "Right Click",
-    [MouseButtonCode.MIDDLE_CLICK]: "Middle Click",
-    [WheelCode.SCROLL_UP]: "Scroll Up",
-    [WheelCode.SCROLL_DOWN]: "Scroll Down",
-    [WheelCode.SCROLL_LEFT]: "Scroll Left",
-    [WheelCode.SCROLL_RIGHT]: "Scroll Right"
-  };
-  static getKeyFromEvent(e) {
-    let code;
-    let name;
-    if (e instanceof KeyboardEvent) {
-      code = e.code;
-    } else if (e instanceof WheelEvent) {
-      if (e.deltaY < 0) {
-        code = WheelCode.SCROLL_UP;
-      } else if (e.deltaY > 0) {
-        code = WheelCode.SCROLL_DOWN;
-      } else if (e.deltaX < 0) {
-        code = WheelCode.SCROLL_LEFT;
-      } else {
-        code = WheelCode.SCROLL_RIGHT;
-      }
-    } else if (e instanceof MouseEvent) {
-      code = "Mouse" + e.button;
-    }
-    if (code) {
-      name = KeyHelper.codeToKeyName(code);
-    }
-    return code ? { code, name } : null;
-  }
-  static codeToKeyName(code) {
-    return KeyHelper.#NON_PRINTABLE_KEYS[code] || code.startsWith("Key") && code.substring(3) || code.startsWith("Digit") && code.substring(5) || code.startsWith("Numpad") && "Numpad " + code.substring(6) || code.startsWith("Arrow") && "Arrow " + code.substring(5) || code.endsWith("Lock") && code.replace("Lock", " Lock") || code.endsWith("Left") && "Left " + code.replace("Left", "") || code.endsWith("Right") && "Right " + code.replace("Right", "") || code;
+    document.documentElement.appendChild(Toast.#$wrapper);
   }
 }
 
@@ -3162,6 +2485,134 @@ class LocalDb {
     });
   }
 }
+
+// src/modules/mkb/key-helper.ts
+class KeyHelper {
+  static #NON_PRINTABLE_KEYS = {
+    Backquote: "`",
+    [MouseButtonCode.LEFT_CLICK]: "Left Click",
+    [MouseButtonCode.RIGHT_CLICK]: "Right Click",
+    [MouseButtonCode.MIDDLE_CLICK]: "Middle Click",
+    [WheelCode.SCROLL_UP]: "Scroll Up",
+    [WheelCode.SCROLL_DOWN]: "Scroll Down",
+    [WheelCode.SCROLL_LEFT]: "Scroll Left",
+    [WheelCode.SCROLL_RIGHT]: "Scroll Right"
+  };
+  static getKeyFromEvent(e) {
+    let code;
+    let name;
+    if (e instanceof KeyboardEvent) {
+      code = e.code;
+    } else if (e instanceof WheelEvent) {
+      if (e.deltaY < 0) {
+        code = WheelCode.SCROLL_UP;
+      } else if (e.deltaY > 0) {
+        code = WheelCode.SCROLL_DOWN;
+      } else if (e.deltaX < 0) {
+        code = WheelCode.SCROLL_LEFT;
+      } else {
+        code = WheelCode.SCROLL_RIGHT;
+      }
+    } else if (e instanceof MouseEvent) {
+      code = "Mouse" + e.button;
+    }
+    if (code) {
+      name = KeyHelper.codeToKeyName(code);
+    }
+    return code ? { code, name } : null;
+  }
+  static codeToKeyName(code) {
+    return KeyHelper.#NON_PRINTABLE_KEYS[code] || code.startsWith("Key") && code.substring(3) || code.startsWith("Digit") && code.substring(5) || code.startsWith("Numpad") && "Numpad " + code.substring(6) || code.startsWith("Arrow") && "Arrow " + code.substring(5) || code.endsWith("Lock") && code.replace("Lock", " Lock") || code.endsWith("Left") && "Left " + code.replace("Left", "") || code.endsWith("Right") && "Right " + code.replace("Right", "") || code;
+  }
+}
+
+// src/assets/svg/command.svg
+var command_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M25.425 1.5c2.784 0 5.075 2.291 5.075 5.075s-2.291 5.075-5.075 5.075H20.35V6.575c0-2.784 2.291-5.075 5.075-5.075zM11.65 11.65H6.575C3.791 11.65 1.5 9.359 1.5 6.575S3.791 1.5 6.575 1.5s5.075 2.291 5.075 5.075v5.075zm8.7 8.7h5.075c2.784 0 5.075 2.291 5.075 5.075S28.209 30.5 25.425 30.5s-5.075-2.291-5.075-5.075V20.35zM6.575 30.5c-2.784 0-5.075-2.291-5.075-5.075s2.291-5.075 5.075-5.075h5.075v5.075c0 2.784-2.291 5.075-5.075 5.075z\"/>\n    <path d=\"M11.65 11.65h8.7v8.7h-8.7z\"/>\n</svg>\n";
+
+// src/assets/svg/controller.svg
+var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
+
+// src/assets/svg/copy.svg
+var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
+
+// src/assets/svg/cursor-text.svg
+var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
+
+// src/assets/svg/display.svg
+var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
+
+// src/assets/svg/mouse-settings.svg
+var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
+
+// src/assets/svg/mouse.svg
+var mouse_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z'/><path d='M16 13.721V6.883'/>\n</svg>\n";
+
+// src/assets/svg/new.svg
+var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
+
+// src/assets/svg/question.svg
+var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
+
+// src/assets/svg/refresh.svg
+var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M23.247 12.377h7.247V5.13\"/><path d=\"M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772\"/>\n</svg>\n";
+
+// src/assets/svg/remote-play.svg
+var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
+
+// src/assets/svg/stream-settings.svg
+var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
+
+// src/assets/svg/stream-stats.svg
+var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
+
+// src/assets/svg/trash.svg
+var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
+
+// src/assets/svg/touch-control-enable.svg
+var touch_control_enable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M30.021 9.448a.89.89 0 0 0-.889-.889H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h26.223a.89.89 0 0 0 .889-.888V9.448z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.083\"/>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
+
+// src/assets/svg/touch-control-disable.svg
+var touch_control_disable_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"#fff\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <g fill=\"none\" stroke=\"#fff\">\n        <path d=\"M6.021 5.021l20 22\" stroke-width=\"2\"/>\n        <path d=\"M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971\" stroke-miterlimit=\"1.5\" stroke-width=\"2.083\"/>\n    </g>\n    <path d=\"M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <path d=\"M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z\"/>\n    <circle cx=\"25.345\" cy=\"18.582\" r=\"2.561\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.78\" transform=\"matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)\"/>\n</svg>\n";
+
+// src/assets/svg/caret-left.svg
+var caret_left_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z\"/>\n</svg>\n";
+
+// src/assets/svg/caret-right.svg
+var caret_right_default = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100%\" stroke=\"#fff\" fill=\"#fff\" height=\"100%\" viewBox=\"0 0 32 32\" fill-rule=\"evenodd\" stroke-linejoin=\"round\" stroke-miterlimit=\"2\">\n    <path d=\"M2.685 1.924l6 13.649c.119.27.119.578 0 .849l-6 13.649c-.234.533-.857.775-1.389.541s-.775-.857-.541-1.389l5.813-13.225L.755 2.773c-.234-.533.008-1.155.541-1.389s1.155.008 1.389.541z\"/>\n</svg>\n";
+
+// src/assets/svg/camera.svg
+var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform=\"matrix(.150985 0 0 .150985 -3.32603 -2.72209)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\">\n        <path d=\"M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z\"/>\n        <circle cx=\"128\" cy=\"132\" r=\"36\"/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/microphone.svg
+var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662\"/>\n</svg>\n";
+
+// src/assets/svg/microphone-slash.svg
+var microphone_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662\"/>\n    <path d=\"M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562\"/>\n</svg>\n";
+
+// src/utils/bx-icon.ts
+var BxIcon = {
+  STREAM_SETTINGS: stream_settings_default,
+  STREAM_STATS: stream_stats_default,
+  COMMAND: command_default,
+  CONTROLLER: controller_default,
+  DISPLAY: display_default,
+  MOUSE: mouse_default,
+  MOUSE_SETTINGS: mouse_settings_default,
+  NEW: new_default,
+  COPY: copy_default,
+  TRASH: trash_default,
+  CURSOR_TEXT: cursor_text_default,
+  QUESTION: question_default,
+  REFRESH: refresh_default,
+  REMOTE_PLAY: remote_play_default,
+  CARET_LEFT: caret_left_default,
+  CARET_RIGHT: caret_right_default,
+  SCREENSHOT: camera_default,
+  TOUCH_CONTROL_ENABLE: touch_control_enable_default,
+  TOUCH_CONTROL_DISABLE: touch_control_disable_default,
+  MICROPHONE: microphone_default,
+  MICROPHONE_MUTED: microphone_slash_default
+};
 
 // src/modules/stream/stream-ui.ts
 var cloneStreamHudButton = function($orgButton, label, svgIcon) {
@@ -3309,7 +2760,7 @@ function injectStreamMenuButtons() {
           return;
         }
         if (!$btnStreamSettings) {
-          $btnStreamSettings = cloneStreamHudButton($orgButton, t("menu-stream-settings"), BxIcon.STREAM_SETTINGS);
+          $btnStreamSettings = cloneStreamHudButton($orgButton, t("stream-settings"), BxIcon.STREAM_SETTINGS);
           $btnStreamSettings.addEventListener("click", (e) => {
             hideGripHandle();
             e.preventDefault();
@@ -3320,7 +2771,7 @@ function injectStreamMenuButtons() {
           });
         }
         if (!$btnStreamStats) {
-          $btnStreamStats = cloneStreamHudButton($orgButton, t("menu-stream-stats"), BxIcon.STREAM_STATS);
+          $btnStreamStats = cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS);
           $btnStreamStats.addEventListener("click", (e) => {
             hideGripHandle();
             e.preventDefault();
@@ -3370,7 +2821,7 @@ function showStreamSettings(tabId) {
 }
 
 // src/modules/mkb/mkb-handler.ts
-var LOG_TAG2 = "MkbHandler";
+var LOG_TAG = "MkbHandler";
 
 class MkbHandler {
   static #instance;
@@ -3708,142 +3159,983 @@ class MkbHandler {
   static setupEvents() {
     getPref(PrefKey.MKB_ENABLED) && !UserAgent.isMobile() && window.addEventListener(BxEvent.STREAM_PLAYING, () => {
       if (!STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-        BxLogger.info(LOG_TAG2, "Emulate MKB");
+        BxLogger.info(LOG_TAG, "Emulate MKB");
         MkbHandler.INSTANCE.init();
       }
     });
   }
 }
 
-// src/modules/mkb/mkb-preset.ts
-class MkbPreset {
-  static MOUSE_SETTINGS = {
-    [MkbPresetKey.MOUSE_MAP_TO]: {
-      label: t("map-mouse-to"),
-      type: SettingElementType.OPTIONS,
-      default: MouseMapTo[MouseMapTo.RS],
-      options: {
-        [MouseMapTo[MouseMapTo.RS]]: t("right-stick"),
-        [MouseMapTo[MouseMapTo.LS]]: t("left-stick"),
-        [MouseMapTo[MouseMapTo.OFF]]: t("off")
+// src/modules/shortcuts/shortcut-microphone.ts
+class MicrophoneShortcut {
+  static toggle(showToast = true) {
+    if (!window.BX_EXPOSED.streamSession) {
+      return false;
+    }
+    const state = window.BX_EXPOSED.streamSession._microphoneState;
+    const enableMic = state === "Enabled" ? false : true;
+    try {
+      window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic);
+      showToast && Toast.show(t("microphone"), t(enableMic ? "unmuted" : "muted"), { instant: true });
+      return enableMic;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
+  }
+}
+
+// src/modules/shortcuts/shortcut-stream-ui.ts
+class StreamUiShortcut {
+  static showHideStreamMenu() {
+    window.BX_EXPOSED.showStreamMenu && window.BX_EXPOSED.showStreamMenu();
+  }
+}
+
+// src/modules/controller-shortcut.ts
+var ShortcutAction;
+(function(ShortcutAction2) {
+  ShortcutAction2["STREAM_SCREENSHOT_CAPTURE"] = "stream-screenshot-capture";
+  ShortcutAction2["STREAM_MENU_TOGGLE"] = "stream-menu-toggle";
+  ShortcutAction2["STREAM_STATS_TOGGLE"] = "stream-stats-toggle";
+  ShortcutAction2["STREAM_SOUND_TOGGLE"] = "stream-sound-toggle";
+  ShortcutAction2["STREAM_MICROPHONE_TOGGLE"] = "stream-microphone-toggle";
+  ShortcutAction2["STREAM_VOLUME_INC"] = "stream-volume-inc";
+  ShortcutAction2["STREAM_VOLUME_DEC"] = "stream-volume-dec";
+  ShortcutAction2["DEVICE_VOLUME_INC"] = "device-volume-inc";
+  ShortcutAction2["DEVICE_VOLUME_DEC"] = "device-volume-dec";
+  ShortcutAction2["SCREEN_BRIGHTNESS_INC"] = "screen-brightness-inc";
+  ShortcutAction2["SCREEN_BRIGHTNESS_DEC"] = "screen-brightness-dec";
+})(ShortcutAction || (ShortcutAction = {}));
+
+class ControllerShortcut {
+  static #STORAGE_KEY = "better_xcloud_controller_shortcuts";
+  static #buttonsCache = {};
+  static #buttonsStatus = {};
+  static #$selectProfile;
+  static #$selectActions = {};
+  static #$remap;
+  static #ACTIONS = {};
+  static reset(index) {
+    ControllerShortcut.#buttonsCache[index] = [];
+    ControllerShortcut.#buttonsStatus[index] = [];
+  }
+  static handle(gamepad) {
+    const gamepadIndex = gamepad.index;
+    const actions = ControllerShortcut.#ACTIONS[gamepad.id];
+    if (!actions) {
+      return false;
+    }
+    ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0);
+    ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
+    const pressed = [];
+    let otherButtonPressed = false;
+    gamepad.buttons.forEach((button, index) => {
+      if (button.pressed && index !== GamepadKey.HOME) {
+        otherButtonPressed = true;
+        pressed[index] = true;
+        if (actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) {
+          ControllerShortcut.#runAction(actions[index]);
+        }
       }
-    },
-    [MkbPresetKey.MOUSE_SENSITIVITY_Y]: {
-      label: t("horizontal-sensitivity"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 50,
-      min: 1,
-      max: 200,
-      params: {
-        suffix: "%",
-        exactTicks: 20
+    });
+    ControllerShortcut.#buttonsStatus[gamepadIndex] = pressed;
+    return otherButtonPressed;
+  }
+  static #runAction(action) {
+    switch (action) {
+      case ShortcutAction.STREAM_SCREENSHOT_CAPTURE:
+        Screenshot.takeScreenshot();
+        break;
+      case ShortcutAction.STREAM_STATS_TOGGLE:
+        StreamStats.toggle();
+        break;
+      case ShortcutAction.STREAM_MICROPHONE_TOGGLE:
+        MicrophoneShortcut.toggle();
+        break;
+      case ShortcutAction.STREAM_MENU_TOGGLE:
+        StreamUiShortcut.showHideStreamMenu();
+        break;
+    }
+  }
+  static #updateAction(profile, button, action) {
+    if (!(profile in ControllerShortcut.#ACTIONS)) {
+      ControllerShortcut.#ACTIONS[profile] = [];
+    }
+    if (!action) {
+      action = null;
+    }
+    ControllerShortcut.#ACTIONS[profile][button] = action;
+    for (const key in ControllerShortcut.#ACTIONS) {
+      let empty = true;
+      for (const value of ControllerShortcut.#ACTIONS[key]) {
+        if (!!value) {
+          empty = false;
+          break;
+        }
       }
-    },
-    [MkbPresetKey.MOUSE_SENSITIVITY_X]: {
-      label: t("vertical-sensitivity"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 50,
-      min: 1,
-      max: 200,
-      params: {
-        suffix: "%",
-        exactTicks: 20
-      }
-    },
-    [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: {
-      label: t("deadzone-counterweight"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 20,
-      min: 1,
-      max: 100,
-      params: {
-        suffix: "%",
-        exactTicks: 10
-      }
-    },
-    [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: {
-      label: t("stick-decay-strength"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 100,
-      min: 10,
-      max: 100,
-      params: {
-        suffix: "%",
-        exactTicks: 10
-      }
-    },
-    [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: {
-      label: t("stick-decay-minimum"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 10,
-      min: 1,
-      max: 10,
-      params: {
-        suffix: "%"
+      if (empty) {
+        delete ControllerShortcut.#ACTIONS[key];
       }
     }
-  };
-  static DEFAULT_PRESET = {
-    mapping: {
-      [GamepadKey.UP]: ["ArrowUp"],
-      [GamepadKey.DOWN]: ["ArrowDown"],
-      [GamepadKey.LEFT]: ["ArrowLeft"],
-      [GamepadKey.RIGHT]: ["ArrowRight"],
-      [GamepadKey.LS_UP]: ["KeyW"],
-      [GamepadKey.LS_DOWN]: ["KeyS"],
-      [GamepadKey.LS_LEFT]: ["KeyA"],
-      [GamepadKey.LS_RIGHT]: ["KeyD"],
-      [GamepadKey.RS_UP]: ["KeyI"],
-      [GamepadKey.RS_DOWN]: ["KeyK"],
-      [GamepadKey.RS_LEFT]: ["KeyJ"],
-      [GamepadKey.RS_RIGHT]: ["KeyL"],
-      [GamepadKey.A]: ["Space", "KeyE"],
-      [GamepadKey.X]: ["KeyR"],
-      [GamepadKey.B]: ["ControlLeft", "Backspace"],
-      [GamepadKey.Y]: ["KeyV"],
-      [GamepadKey.START]: ["Enter"],
-      [GamepadKey.SELECT]: ["Tab"],
-      [GamepadKey.LB]: ["KeyC", "KeyG"],
-      [GamepadKey.RB]: ["KeyQ"],
-      [GamepadKey.HOME]: ["Backquote"],
-      [GamepadKey.RT]: [MouseButtonCode.LEFT_CLICK],
-      [GamepadKey.LT]: [MouseButtonCode.RIGHT_CLICK],
-      [GamepadKey.L3]: ["ShiftLeft"],
-      [GamepadKey.R3]: ["KeyF"]
-    },
-    mouse: {
-      [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
-      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
-      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
-      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
-      [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 100,
-      [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 10
+    window.localStorage.setItem(ControllerShortcut.#STORAGE_KEY, JSON.stringify(ControllerShortcut.#ACTIONS));
+    console.log(ControllerShortcut.#ACTIONS);
+  }
+  static #updateProfileList(e) {
+    const $select = ControllerShortcut.#$selectProfile;
+    const $remap = ControllerShortcut.#$remap;
+    const $fragment = document.createDocumentFragment();
+    while ($select.firstElementChild) {
+      $select.firstElementChild.remove();
     }
-  };
-  static convert(preset) {
-    const obj = {
-      mapping: {},
-      mouse: Object.assign({}, preset.mouse)
-    };
-    for (const buttonIndex in preset.mapping) {
-      for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
-        obj.mapping[keyName] = parseInt(buttonIndex);
+    const gamepads = navigator.getGamepads();
+    let hasGamepad = false;
+    for (const gamepad of gamepads) {
+      if (!gamepad || !gamepad.connected) {
+        continue;
       }
+      if (gamepad.id === MkbHandler.VIRTUAL_GAMEPAD_ID) {
+        continue;
+      }
+      hasGamepad = true;
+      const $option = CE("option", { value: gamepad.id }, gamepad.id);
+      $fragment.appendChild($option);
     }
-    const mouse2 = obj.mouse;
-    mouse2[MkbPresetKey.MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse2[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse2[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
-    mouse2[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
-    mouse2[MkbPresetKey.MOUSE_STICK_DECAY_MIN] *= 0.01;
-    const mouseMapTo = MouseMapTo[mouse2[MkbPresetKey.MOUSE_MAP_TO]];
-    if (typeof mouseMapTo !== "undefined") {
-      mouse2[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
+    if (hasGamepad) {
+      $select.appendChild($fragment);
+      $remap.classList.remove("bx-gone");
+      $select.disabled = false;
+      $select.selectedIndex = 0;
+      $select.dispatchEvent(new Event("change"));
     } else {
-      mouse2[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
+      $remap.classList.add("bx-gone");
+      $select.disabled = true;
+      const $option = CE("option", {}, "---");
+      $fragment.appendChild($option);
+      $select.appendChild($fragment);
     }
-    console.log(obj);
-    return obj;
+  }
+  static #switchProfile(profile) {
+    let actions = ControllerShortcut.#ACTIONS[profile];
+    if (!actions) {
+      actions = [];
+    }
+    let button;
+    for (button in ControllerShortcut.#$selectActions) {
+      const $select = ControllerShortcut.#$selectActions[button];
+      $select.value = actions[button] || "";
+    }
+  }
+  static renderSettings() {
+    ControllerShortcut.#ACTIONS = JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || "{}");
+    const buttons = {
+      [GamepadKey.A]: PrompFont.A,
+      [GamepadKey.B]: PrompFont.B,
+      [GamepadKey.X]: PrompFont.X,
+      [GamepadKey.Y]: PrompFont.Y,
+      [GamepadKey.LB]: PrompFont.LB,
+      [GamepadKey.RB]: PrompFont.RB,
+      [GamepadKey.LT]: PrompFont.LT,
+      [GamepadKey.RT]: PrompFont.RT,
+      [GamepadKey.SELECT]: PrompFont.SELECT,
+      [GamepadKey.START]: PrompFont.START,
+      [GamepadKey.UP]: PrompFont.UP,
+      [GamepadKey.DOWN]: PrompFont.DOWN,
+      [GamepadKey.LEFT]: PrompFont.LEFT,
+      [GamepadKey.RIGHT]: PrompFont.RIGHT
+    };
+    const actions = {
+      [t("stream")]: {
+        [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: [t("stream"), t("take-screenshot")],
+        [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stream"), t("stats"), t("show-hide")],
+        [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("stream"), t("microphone"), t("toggle")],
+        [ShortcutAction.STREAM_MENU_TOGGLE]: [t("stream"), t("menu"), t("show")]
+      }
+    };
+    const $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
+    for (const groupLabel in actions) {
+      const items = actions[groupLabel];
+      if (!items) {
+        continue;
+      }
+      const $optGroup = CE("optgroup", { label: groupLabel });
+      for (const action in items) {
+        let label = items[action];
+        if (!label) {
+          continue;
+        }
+        if (Array.isArray(label)) {
+          label = label.join(" > ");
+        }
+        const $option = CE("option", { value: action }, label);
+        $optGroup.appendChild($option);
+      }
+      $baseSelect.appendChild($optGroup);
+    }
+    const $container = CE("div", {});
+    const $profile = CE("select", { class: "bx-shortcut-profile", autocomplete: "off" });
+    $profile.addEventListener("change", (e) => {
+      ControllerShortcut.#switchProfile($profile.value);
+    });
+    $container.appendChild($profile);
+    const onActionChanged = (e) => {
+      const $target = e.target;
+      const profile = $profile.value;
+      const button2 = $target.dataset.button;
+      const action = $target.value;
+      ControllerShortcut.#updateAction(profile, button2, action);
+    };
+    const $remap = CE("div", { class: "bx-gone" });
+    let button;
+    for (button in buttons) {
+      const $row = CE("div", { class: "bx-shortcut-row" });
+      const prompt2 = buttons[button];
+      const $label = CE("label", { class: "bx-prompt" }, `${PrompFont.HOME} + ${prompt2}`);
+      const $select = $baseSelect.cloneNode(true);
+      $select.dataset.button = button.toString();
+      $select.addEventListener("change", onActionChanged);
+      ControllerShortcut.#$selectActions[button] = $select;
+      $row.appendChild($label);
+      $row.appendChild($select);
+      $remap.appendChild($row);
+    }
+    $container.appendChild($remap);
+    ControllerShortcut.#$selectProfile = $profile;
+    ControllerShortcut.#$remap = $remap;
+    window.addEventListener("gamepadconnected", ControllerShortcut.#updateProfileList);
+    window.addEventListener("gamepaddisconnected", ControllerShortcut.#updateProfileList);
+    ControllerShortcut.#updateProfileList();
+    return $container;
+  }
+}
+
+// src/modules/game-bar/action-base.ts
+class BaseGameBarAction {
+  constructor() {
+  }
+  reset() {
+  }
+}
+
+// src/modules/game-bar/action-screenshot.ts
+class ScreenshotAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      Screenshot.takeScreenshot();
+    };
+    this.$content = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.SCREENSHOT,
+      title: t("take-screenshot"),
+      onClick
+    });
+  }
+  render() {
+    return this.$content;
+  }
+}
+
+// src/modules/touch-controller.ts
+var LOG_TAG2 = "TouchController";
+
+class TouchController {
+  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
+    data: JSON.stringify({
+      content: '{"layoutId":""}',
+      target: "/streaming/touchcontrols/showlayoutv2",
+      type: "Message"
+    }),
+    origin: "better-xcloud"
+  });
+  static #$style;
+  static #enable = false;
+  static #dataChannel;
+  static #customLayouts = {};
+  static #baseCustomLayouts = {};
+  static #currentLayoutId;
+  static #customList;
+  static enable() {
+    TouchController.#enable = true;
+  }
+  static disable() {
+    TouchController.#enable = false;
+  }
+  static isEnabled() {
+    return TouchController.#enable;
+  }
+  static #showDefault() {
+    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
+  }
+  static #show() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
+  }
+  static #hide() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
+  }
+  static toggleVisibility(status) {
+    if (!TouchController.#dataChannel) {
+      return;
+    }
+    status ? TouchController.#hide() : TouchController.#show();
+  }
+  static reset() {
+    TouchController.#enable = false;
+    TouchController.#dataChannel = null;
+    TouchController.#$style && (TouchController.#$style.textContent = "");
+  }
+  static #dispatchMessage(msg) {
+    TouchController.#dataChannel && window.setTimeout(() => {
+      TouchController.#dataChannel.dispatchEvent(msg);
+    }, 10);
+  }
+  static #dispatchLayouts(data) {
+    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+      data
+    });
+  }
+  static async getCustomLayouts(xboxTitleId, retries = 1) {
+    if (xboxTitleId in TouchController.#customLayouts) {
+      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
+      return;
+    }
+    retries = retries || 1;
+    if (retries > 2) {
+      TouchController.#customLayouts[xboxTitleId] = null;
+      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+      return;
+    }
+    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
+    const url = `${baseUrl}/${xboxTitleId}.json`;
+    try {
+      const resp = await NATIVE_FETCH(url);
+      const json = await resp.json();
+      const layouts = {};
+      json.layouts.forEach(async (layoutName) => {
+        let baseLayouts = {};
+        if (layoutName in TouchController.#baseCustomLayouts) {
+          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
+        } else {
+          try {
+            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
+            const resp2 = await NATIVE_FETCH(layoutUrl);
+            const json2 = await resp2.json();
+            baseLayouts = json2.layouts;
+            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
+          } catch (e) {
+          }
+        }
+        Object.assign(layouts, baseLayouts);
+      });
+      json.layouts = layouts;
+      TouchController.#customLayouts[xboxTitleId] = json;
+      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+    } catch (e) {
+      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
+    }
+  }
+  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
+    if (!window.BX_EXPOSED.touchLayoutManager) {
+      const listener = (e) => {
+        window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+        if (TouchController.#enable) {
+          TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
+        }
+      };
+      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+      return;
+    }
+    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
+    TouchController.#currentLayoutId = layoutId;
+    const layoutData = TouchController.#customLayouts[xboxTitleId];
+    if (!xboxTitleId || !layoutId || !layoutData) {
+      TouchController.#enable && TouchController.#showDefault();
+      return;
+    }
+    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
+    if (!layout) {
+      return;
+    }
+    let msg;
+    let html12 = false;
+    if (layout.author) {
+      const author = `<b>${escapeHtml(layout.author)}</b>`;
+      msg = t("touch-control-layout-by", { name: author });
+      html12 = true;
+    } else {
+      msg = t("touch-control-layout");
+    }
+    layoutChanged && Toast.show(msg, layout.name, { html: html12 });
+    window.setTimeout(() => {
+      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope");
+      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "System",
+          layoutFile: layout
+        }
+      });
+    }, delay);
+  }
+  static updateCustomList() {
+    const key = "better_xcloud_custom_touch_layouts";
+    TouchController.#customList = JSON.parse(window.localStorage.getItem(key) || "[]");
+    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
+      TouchController.#customList = json;
+      window.localStorage.setItem(key, JSON.stringify(json));
+    });
+  }
+  static getCustomList() {
+    return TouchController.#customList;
+  }
+  static setup() {
+    window.testTouchLayout = (layout) => {
+      const { touchLayoutManager } = window.BX_EXPOSED;
+      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: "" + STATES.currentStream?.xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "Custom",
+          layoutFile: layout
+        }
+      });
+    };
+    const $style = document.createElement("style");
+    document.documentElement.appendChild($style);
+    TouchController.#$style = $style;
+    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
+    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+      const dataChannel = e.dataChannel;
+      if (!dataChannel || dataChannel.label !== "message") {
+        return;
+      }
+      let filter = "";
+      if (TouchController.#enable) {
+        if (PREF_STYLE_STANDARD === "white") {
+          filter = "grayscale(1) brightness(2)";
+        } else if (PREF_STYLE_STANDARD === "muted") {
+          filter = "sepia(0.5)";
+        }
+      } else if (PREF_STYLE_CUSTOM === "muted") {
+        filter = "sepia(0.5)";
+      }
+      if (filter) {
+        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+      } else {
+        $style.textContent = "";
+      }
+      TouchController.#dataChannel = dataChannel;
+      dataChannel.addEventListener("open", () => {
+        window.setTimeout(TouchController.#show, 1000);
+      });
+      let focused = false;
+      dataChannel.addEventListener("message", (msg) => {
+        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
+          return;
+        }
+        if (msg.data.includes("touchcontrols/showtitledefault")) {
+          if (TouchController.#enable) {
+            if (focused) {
+              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
+            } else {
+              TouchController.#showDefault();
+            }
+          }
+          return;
+        }
+        try {
+          if (msg.data.includes("/titleinfo")) {
+            const json = JSON.parse(JSON.parse(msg.data).content);
+            focused = json.focused;
+            if (!json.focused) {
+              TouchController.#show();
+            }
+            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
+          }
+        } catch (e2) {
+          BxLogger.error(LOG_TAG2, "Load custom layout", e2);
+        }
+      });
+    });
+  }
+}
+
+// src/modules/game-bar/action-touch-control.ts
+class TouchControlAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      const $parent = e.target.closest("div[data-enabled]");
+      let enabled = $parent.getAttribute("data-enabled", "true") === "true";
+      $parent.setAttribute("data-enabled", (!enabled).toString());
+      TouchController.toggleVisibility(enabled);
+    };
+    const $btnEnable = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.TOUCH_CONTROL_ENABLE,
+      title: t("show-touch-controller"),
+      onClick,
+      classes: ["bx-activated"]
+    });
+    const $btnDisable = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.TOUCH_CONTROL_DISABLE,
+      title: t("hide-touch-controller"),
+      onClick
+    });
+    this.$content = CE("div", {}, $btnEnable, $btnDisable);
+    this.reset();
+  }
+  render() {
+    return this.$content;
+  }
+  reset() {
+    this.$content.setAttribute("data-enabled", "true");
+  }
+}
+
+// src/modules/game-bar/action-microphone.ts
+var MicrophoneState;
+(function(MicrophoneState2) {
+  MicrophoneState2["REQUESTED"] = "Requested";
+  MicrophoneState2["ENABLED"] = "Enabled";
+  MicrophoneState2["MUTED"] = "Muted";
+  MicrophoneState2["NOT_ALLOWED"] = "NotAllowed";
+  MicrophoneState2["NOT_FOUND"] = "NotFound";
+})(MicrophoneState || (MicrophoneState = {}));
+
+class MicrophoneAction extends BaseGameBarAction {
+  $content;
+  visible = false;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      const enabled = MicrophoneShortcut.toggle(false);
+      this.$content.setAttribute("data-enabled", enabled.toString());
+    };
+    const $btnDefault = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.MICROPHONE,
+      title: t("show-touch-controller"),
+      onClick,
+      classes: ["bx-activated"]
+    });
+    const $btnMuted = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.MICROPHONE_MUTED,
+      title: t("hide-touch-controller"),
+      onClick
+    });
+    this.$content = CE("div", {}, $btnDefault, $btnMuted);
+    this.reset();
+    window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
+      const microphoneState = e.microphoneState;
+      const enabled = microphoneState === MicrophoneState.ENABLED;
+      this.$content.setAttribute("data-enabled", enabled.toString());
+      this.$content.classList.remove("bx-gone");
+    });
+  }
+  render() {
+    return this.$content;
+  }
+  reset() {
+    this.visible = false;
+    this.$content.classList.add("bx-gone");
+    this.$content.setAttribute("data-enabled", "false");
+  }
+}
+
+// src/modules/game-bar/game-bar.ts
+class GameBar {
+  static instance;
+  static getInstance() {
+    if (!GameBar.instance) {
+      GameBar.instance = new GameBar;
+    }
+    return GameBar.instance;
+  }
+  static VISIBLE_DURATION = 2000;
+  $gameBar;
+  $container;
+  timeout = null;
+  actions = [];
+  constructor() {
+    let $container;
+    const position = getPref(PrefKey.GAME_BAR_POSITION);
+    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
+    this.actions = [
+      new ScreenshotAction,
+      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
+      new MicrophoneAction
+    ];
+    if (position === "bottom-right") {
+      this.actions.reverse();
+    }
+    for (const action of this.actions) {
+      $container.appendChild(action.render());
+    }
+    $gameBar.addEventListener("click", (e) => {
+      if (e.target !== $gameBar) {
+        return;
+      }
+      $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
+    });
+    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this));
+    $container.addEventListener("pointerover", this.clearHideTimeout.bind(this));
+    $container.addEventListener("pointerout", this.beginHideTimeout.bind(this));
+    $container.addEventListener("transitionend", (e) => {
+      const classList = $container.classList;
+      if (classList.contains("bx-hide")) {
+        classList.remove("bx-offscreen", "bx-hide");
+        classList.add("bx-offscreen");
+      }
+    });
+    document.documentElement.appendChild($gameBar);
+    this.$gameBar = $gameBar;
+    this.$container = $container;
+  }
+  beginHideTimeout() {
+    this.clearHideTimeout();
+    this.timeout = window.setTimeout(() => {
+      this.timeout = null;
+      this.hideBar();
+    }, GameBar.VISIBLE_DURATION);
+  }
+  clearHideTimeout() {
+    this.timeout && clearTimeout(this.timeout);
+    this.timeout = null;
+  }
+  enable() {
+    this.$gameBar && this.$gameBar.classList.remove("bx-gone");
+  }
+  disable() {
+    this.hideBar();
+    this.$gameBar && this.$gameBar.classList.add("bx-gone");
+  }
+  showBar() {
+    if (!this.$container) {
+      return;
+    }
+    this.$container.classList.remove("bx-offscreen", "bx-hide");
+    this.$container.classList.add("bx-show");
+    this.beginHideTimeout();
+  }
+  hideBar() {
+    if (!this.$container) {
+      return;
+    }
+    this.$container.classList.remove("bx-show");
+    this.$container.classList.add("bx-hide");
+  }
+  reset() {
+    for (const action of this.actions) {
+      action.reset();
+    }
+  }
+}
+
+// src/utils/bx-exposed.ts
+var InputType;
+(function(InputType2) {
+  InputType2["CONTROLLER"] = "Controller";
+  InputType2["MKB"] = "MKB";
+  InputType2["CUSTOM_TOUCH_OVERLAY"] = "CustomTouchOverlay";
+  InputType2["GENERIC_TOUCH"] = "GenericTouch";
+  InputType2["NATIVE_TOUCH"] = "NativeTouch";
+  InputType2["BATIVE_SENSOR"] = "NativeSensor";
+})(InputType || (InputType = {}));
+var BxExposed = {
+  onPollingModeChanged: (mode) => {
+    if (getPref(PrefKey.GAME_BAR_POSITION) === "off") {
+      return;
+    }
+    const gameBar = GameBar.getInstance();
+    if (!STATES.isPlaying) {
+      gameBar.disable();
+      return;
+    }
+    mode !== "None" ? gameBar.disable() : gameBar.enable();
+  },
+  getTitleInfo: () => STATES.currentStream.titleInfo,
+  modifyTitleInfo: (titleInfo) => {
+    titleInfo = structuredClone(titleInfo);
+    let supportedInputTypes = titleInfo.details.supportedInputTypes;
+    if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
+      supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
+    }
+    titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
+    if (STATES.hasTouchSupport) {
+      let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
+      if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+        const gamepads = window.navigator.getGamepads();
+        let gamepadFound = false;
+        for (let gamepad of gamepads) {
+          if (gamepad && gamepad.connected) {
+            gamepadFound = true;
+            break;
+          }
+        }
+        gamepadFound && (touchControllerAvailability = "off");
+      }
+      if (touchControllerAvailability === "off") {
+        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
+      }
+      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+      if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
+        titleInfo.details.hasFakeTouchSupport = true;
+        supportedInputTypes.push(InputType.GENERIC_TOUCH);
+      }
+    }
+    titleInfo.details.supportedInputTypes = supportedInputTypes;
+    STATES.currentStream.titleInfo = titleInfo;
+    BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
+    return titleInfo;
+  },
+  setupGainNode: ($media, audioStream) => {
+    if ($media instanceof HTMLAudioElement) {
+      $media.muted = true;
+      $media.addEventListener("playing", (e) => {
+        $media.muted = true;
+        $media.pause();
+      });
+    } else {
+      $media.muted = true;
+      $media.addEventListener("playing", (e) => {
+        $media.muted = true;
+      });
+    }
+    const audioCtx = STATES.currentStream.audioContext;
+    const source = audioCtx.createMediaStreamSource(audioStream);
+    const gainNode = audioCtx.createGain();
+    source.connect(gainNode).connect(audioCtx.destination);
+  },
+  handleControllerShortcut: ControllerShortcut.handle,
+  resetControllerShortcut: ControllerShortcut.reset
+};
+
+// src/utils/region.ts
+function getPreferredServerRegion(shortName = false) {
+  let preferredRegion = getPref(PrefKey.SERVER_REGION);
+  if (preferredRegion in STATES.serverRegions) {
+    if (shortName && STATES.serverRegions[preferredRegion].shortName) {
+      return STATES.serverRegions[preferredRegion].shortName;
+    } else {
+      return preferredRegion;
+    }
+  }
+  for (let regionName in STATES.serverRegions) {
+    const region = STATES.serverRegions[regionName];
+    if (!region.isDefault) {
+      continue;
+    }
+    if (shortName && region.shortName) {
+      return region.shortName;
+    } else {
+      return regionName;
+    }
+  }
+  return "???";
+}
+
+// src/modules/loading-screen.ts
+class LoadingScreen {
+  static #$bgStyle;
+  static #$waitTimeBox;
+  static #waitTimeInterval = null;
+  static #orgWebTitle;
+  static #secondsToString(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    const mDisplay = m > 0 ? `${m}m` : "";
+    const sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
+    return mDisplay + sDisplay;
+  }
+  static setup() {
+    const titleInfo = STATES.currentStream.titleInfo;
+    if (!titleInfo) {
+      return;
+    }
+    if (!LoadingScreen.#$bgStyle) {
+      const $bgStyle = CE("style");
+      document.documentElement.appendChild($bgStyle);
+      LoadingScreen.#$bgStyle = $bgStyle;
+    }
+    LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl);
+    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide") {
+      LoadingScreen.#hideRocket();
+    }
+  }
+  static #hideRocket() {
+    let $bgStyle = LoadingScreen.#$bgStyle;
+    const css = `
+#game-stream div[class*=RocketAnimation-module__container] > svg {
+    display: none;
+}
+`;
+    $bgStyle.textContent += css;
+  }
+  static #setBackground(imageUrl) {
+    let $bgStyle = LoadingScreen.#$bgStyle;
+    imageUrl = imageUrl + "?w=1920";
+    const css = `
+#game-stream {
+    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
+    background-color: transparent !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+}
+
+#game-stream rect[width="800"] {
+    transition: opacity 0.3s ease-in-out !important;
+}
+`;
+    $bgStyle.textContent += css;
+    const bg = new Image;
+    bg.onload = (e) => {
+      $bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 0 !important;
+}
+`;
+    };
+    bg.src = imageUrl;
+  }
+  static setupWaitTime(waitTime) {
+    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue") {
+      LoadingScreen.#hideRocket();
+    }
+    let secondsLeft = waitTime;
+    let $countDown;
+    let $estimated;
+    LoadingScreen.#orgWebTitle = document.title;
+    const endDate = new Date;
+    const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
+    endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
+    let endDateStr = endDate.toISOString().slice(0, 19);
+    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19);
+    endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
+    if (!$waitTimeBox) {
+      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {}));
+      document.documentElement.appendChild($waitTimeBox);
+      LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    } else {
+      $waitTimeBox.classList.remove("bx-gone");
+      $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated");
+      $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
+    }
+    $estimated.textContent = endDateStr;
+    $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+    document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+    LoadingScreen.#waitTimeInterval = window.setInterval(() => {
+      secondsLeft--;
+      $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
+      document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+      if (secondsLeft <= 0) {
+        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+        LoadingScreen.#waitTimeInterval = null;
+      }
+    }, 1000);
+  }
+  static hide() {
+    LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
+    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
+    if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
+      const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
+      $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
+        LoadingScreen.#$bgStyle.textContent += `
+#game-stream {
+    background: #000 !important;
+}
+`;
+      });
+      LoadingScreen.#$bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 1 !important;
+}
+`;
+    }
+    LoadingScreen.reset();
+  }
+  static reset() {
+    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
+    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
+    LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
+    LoadingScreen.#waitTimeInterval = null;
+  }
+}
+
+// src/modules/dialog.ts
+class Dialog {
+  $dialog;
+  $title;
+  $content;
+  $overlay;
+  onClose;
+  constructor(options) {
+    const {
+      title,
+      className,
+      content,
+      hideCloseButton,
+      onClose,
+      helpUrl
+    } = options;
+    const $overlay = document.querySelector(".bx-dialog-overlay");
+    if (!$overlay) {
+      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" });
+      this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault());
+      document.documentElement.appendChild(this.$overlay);
+    } else {
+      this.$overlay = $overlay;
+    }
+    let $close;
+    this.onClose = onClose;
+    this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
+      icon: BxIcon.QUESTION,
+      style: ButtonStyle.GHOST,
+      title: t("help"),
+      url: helpUrl
+    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close"))));
+    $close && $close.addEventListener("click", (e) => {
+      this.hide(e);
+    });
+    !title && this.$title.classList.add("bx-gone");
+    !content && this.$content.classList.add("bx-gone");
+    this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.documentElement.appendChild(this.$dialog);
+  }
+  show(newOptions) {
+    document.activeElement && document.activeElement.blur();
+    if (newOptions && newOptions.title) {
+      this.$title.querySelector("b").textContent = newOptions.title;
+      this.$title.classList.remove("bx-gone");
+    }
+    this.$dialog.classList.remove("bx-gone");
+    this.$overlay.classList.remove("bx-gone");
+    document.body.classList.add("bx-no-scroll");
+  }
+  hide(e) {
+    this.$dialog.classList.add("bx-gone");
+    this.$overlay.classList.add("bx-gone");
+    document.body.classList.remove("bx-no-scroll");
+    this.onClose && this.onClose(e);
+  }
+  toggle() {
+    this.$dialog.classList.toggle("bx-gone");
+    this.$overlay.classList.toggle("bx-gone");
   }
 }
 
@@ -4511,12 +4803,23 @@ var setupQuickSettingsBar = function() {
       ]
     },
     {
+      icon: BxIcon.COMMAND,
+      group: "shortcuts",
+      items: [
+        {
+          group: "shortcuts_controller",
+          label: t("controller-shortcuts"),
+          content: ControllerShortcut.renderSettings()
+        }
+      ]
+    },
+    {
       icon: BxIcon.STREAM_STATS,
       group: "stats",
       items: [
         {
           group: "stats",
-          label: t("menu-stream-stats"),
+          label: t("stream-stats"),
           help_url: "https://better-xcloud.github.io/stream-stats/",
           items: [
             {
@@ -4696,8 +4999,19 @@ var resizeVideoPlayer = function() {
     $video.style.objectFit = PREF_RATIO;
   }
 };
+var preloadFonts = function() {
+  const $link = CE("link", {
+    rel: "preload",
+    href: "https://redphx.github.io/better-xcloud/fonts/promptfont.otf",
+    as: "font",
+    type: "font/otf",
+    crossorigin: ""
+  });
+  document.querySelector("head")?.appendChild($link);
+};
 function setupStreamUi() {
   if (!document.querySelector(".bx-quick-settings-bar")) {
+    preloadFonts();
     window.addEventListener("resize", updateVideoPlayerCss);
     setupQuickSettingsBar();
     StreamStats.render();
@@ -6517,6 +6831,24 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   font-style: italic;
   padding-top: 16px;
 }
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile {
+  width: 100%;
+  height: 36px;
+  display: block;
+  margin-bottom: 10px;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row {
+  display: flex;
+  margin-bottom: 10px;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt {
+  flex: 1;
+  font-family: var(--bx-promptfont-font);
+  font-size: 26px;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row select {
+  flex: 2;
+}
 .bx-mkb-settings {
   display: flex;
   flex-direction: column;
@@ -6839,6 +7171,30 @@ function hashCode(str2) {
   }
   return hash;
 }
+function renderString(str2, obj) {
+  return str2.replace(/\$\{.+?\}/g, (match) => {
+    const key = match.substring(2, match.length - 1);
+    if (key in obj) {
+      return obj[key];
+    }
+    return match;
+  });
+}
+
+// src/modules/patches/controller-shortcuts.js
+var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].value === 1) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    if (btnHome.pressed) {\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                    shortcutPressed: 0,\n                    timestamp: currentGamepad.timestamp,\n                };\n        }\n\n        // Listen to next button press\n        const intervalMs = 50;\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                    GamepadIndex: 0,\n                    A: 0,\n                    B: 0,\n                    X: 0,\n                    Y: 0,\n                    LeftShoulder: 0,\n                    RightShoulder: 0,\n                    LeftTrigger: 0,\n                    RightTrigger: 0,\n                    View: 0,\n                    Menu: 0,\n                    LeftThumb: 0,\n                    RightThumb: 0,\n                    DPadUp: 0,\n                    DPadDown: 0,\n                    DPadLeft: 0,\n                    DPadRight: 0,\n                    Nexus: 1,\n                    LeftThumbXAxis: 0,\n                    LeftThumbYAxis: 0,\n                    RightThumbXAxis: 0,\n                    RightThumbYAxis: 0,\n                    PhysicalPhysicality: 0,\n                    VirtualPhysicality: 0,\n                    Dirty: true,\n                    Virtual: false,\n                }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            const intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n            this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n            return;\n        }\n    }\n}\n";
+
+// src/modules/patches/local-co-op-enable.js
+var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
+
+// src/modules/patches/remote-play-enable.js
+var remote_play_enable_default = "connectMode: window.BX_REMOTE_PLAY_CONFIG ? \"xhome-connect\" : \"cloud-connect\",\nremotePlayServerId: (window.BX_REMOTE_PLAY_CONFIG && window.BX_REMOTE_PLAY_CONFIG.serverId) || '',\n";
+
+// src/modules/patches/remote-play-keep-alive.js
+var remote_play_keep_alive_default = "const msg = JSON.parse(e);\nif (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {\n    try {\n        this.sendKeepAlive();\n        return;\n    } catch (ex) { console.log(ex); }\n}\n";
+
+// src/modules/patches/vibration-adjust.js
+var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity && intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
 
 // src/modules/patcher.ts
 var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks";
@@ -6903,26 +7259,19 @@ var PATCHES = {
     return str2.replace(str2.substring(index - 9, index + 15), "https://www.xbox.com/play");
   },
   remotePlayKeepAlive(str2) {
-    if (!str2.includes("onServerDisconnectMessage(e){")) {
-      return false;
-    }
-    str2 = str2.replace("onServerDisconnectMessage(e){", `onServerDisconnectMessage(e) {
-            const msg = JSON.parse(e);
-            if (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {
-                try {
-                    this.sendKeepAlive();
-                    return;
-                } catch (ex) { console.log(ex); }
-            }
-        `);
-    return str2;
-  },
-  remotePlayConnectMode(str2) {
-    const text = 'connectMode:"cloud-connect"';
+    const text = "onServerDisconnectMessage(e){";
     if (!str2.includes(text)) {
       return false;
     }
-    return str2.replace(text, `connectMode:window.BX_REMOTE_PLAY_CONFIG?"xhome-connect":"cloud-connect",remotePlayServerId:(window.BX_REMOTE_PLAY_CONFIG&&window.BX_REMOTE_PLAY_CONFIG.serverId)||''`);
+    str2 = str2.replace(text, text + remote_play_keep_alive_default);
+    return str2;
+  },
+  remotePlayConnectMode(str2) {
+    const text = 'connectMode:"cloud-connect",';
+    if (!str2.includes(text)) {
+      return false;
+    }
+    return str2.replace(text, remote_play_enable_default);
   },
   remotePlayDisableAchievementToast(str2) {
     const text = ".AchievementUnlock:{";
@@ -6966,11 +7315,9 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     const match = codeBlock.match(/this\.gamepadTimestamps\.set\((\w+)\.index/);
     if (match) {
       const gamepadVar = match[1];
-      const newCode = `
-if (${gamepadVar}.buttons[17] && ${gamepadVar}.buttons[17].value === 1) {
-    window.dispatchEvent(new Event('${BxEvent.CAPTURE_SCREENSHOT}'));
-}
-`;
+      const newCode = renderString(controller_shortcuts_default, {
+        gamepadVar
+      });
       codeBlock = codeBlock.replace("this.gamepadTimestamps.set", newCode + "this.gamepadTimestamps.set");
     }
     return str2.substring(0, index) + codeBlock + str2.substring(nextIndex);
@@ -6996,19 +7343,8 @@ if (${gamepadVar}.buttons[17] && ${gamepadVar}.buttons[17].value === 1) {
     if (!str2.includes(text)) {
       return false;
     }
-    const newCode = `
-if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {
-    return void(0);
-}
-if (window.BX_VIBRATION_INTENSITY && window.BX_VIBRATION_INTENSITY < 1) {
-    e.leftMotorPercent = e.leftMotorPercent * window.BX_VIBRATION_INTENSITY;
-    e.rightMotorPercent = e.rightMotorPercent * window.BX_VIBRATION_INTENSITY;
-    e.leftTriggerMotorPercent = e.leftTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
-    e.rightTriggerMotorPercent = e.rightTriggerMotorPercent * window.BX_VIBRATION_INTENSITY;
-}
-`;
     VibrationManager.updateGlobalVars();
-    str2 = str2.replaceAll(text, text + newCode);
+    str2 = str2.replaceAll(text, text + vibration_adjust_default);
     return str2;
   },
   overrideSettings(str2) {
@@ -7078,26 +7414,7 @@ window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
     if (!str2.includes(text)) {
       return false;
     }
-    let patchstr = `
-let match;
-let onGamepadChangedStr = this.onGamepadChanged.toString();
-
-onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
-eval(\`this.onGamepadChanged = function \${onGamepadChangedStr}\`);
-
-let onGamepadInputStr = this.onGamepadInput.toString();
-
-match = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);
-if (match) {
-    const gamepadIndexVar = match[0];
-    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', \`this.gamepadStates.get(\${gamepadIndexVar},\`);
-    eval(\`this.onGamepadInput = function \${onGamepadInputStr}\`);
-    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');
-} else {
-    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');
-}
-`;
-    const newCode = `true; ${patchstr}; true,`;
+    const newCode = `true; ${local_co_op_enable_default}; true,`;
     str2 = str2.replace(text, text + newCode);
     return str2;
   },
@@ -7159,10 +7476,16 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     if (!str2.includes(text)) {
       return false;
     }
-    str2 = str2.replace(text, "e.guideUI = null;" + text);
+    let newCode = `
+// Expose onShowStreamMenu
+window.BX_EXPOSED.showStreamMenu = e.onShowStreamMenu;
+// Restore the "..." button
+e.guideUI = null;
+`;
     if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off") {
-      str2 = str2.replace(text, "e.canShowTakHUD = false;" + text);
+      newCode += "e.canShowTakHUD = false;";
     }
+    str2 = str2.replace(text, newCode + text);
     return str2;
   },
   broadcastPollingMode(str2) {
