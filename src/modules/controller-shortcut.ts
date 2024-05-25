@@ -23,6 +23,7 @@ enum ShortcutAction {
     STREAM_VOLUME_INC = 'stream-volume-inc',
     STREAM_VOLUME_DEC = 'stream-volume-dec',
 
+    DEVICE_SOUND_TOGGLE = 'device-sound-toggle',
     DEVICE_VOLUME_INC = 'device-volume-inc',
     DEVICE_VOLUME_DEC = 'device-volume-dec',
 
@@ -107,6 +108,14 @@ export class ControllerShortcut {
 
             case ShortcutAction.STREAM_VOLUME_DEC:
                 SoundShortcut.adjustGainNodeVolume(-10);
+                break;
+
+            case ShortcutAction.DEVICE_BRIGHTNESS_INC:
+            case ShortcutAction.DEVICE_BRIGHTNESS_DEC:
+            case ShortcutAction.DEVICE_SOUND_TOGGLE:
+            case ShortcutAction.DEVICE_VOLUME_INC:
+            case ShortcutAction.DEVICE_VOLUME_DEC:
+                AppInterface && AppInterface.runShortcut && AppInterface.runShortcut(action);
                 break;
         }
     }
@@ -228,6 +237,7 @@ export class ControllerShortcut {
 
         const actions: {[key: string]: Partial<{[key in ShortcutAction]: string | string[]}>} = {
             [t('device')]: AppInterface && {
+                [ShortcutAction.DEVICE_SOUND_TOGGLE]: [t('sound'), t('toggle')],
                 [ShortcutAction.DEVICE_VOLUME_INC]: [t('volume'), t('increase')],
                 [ShortcutAction.DEVICE_VOLUME_DEC]: [t('volume'), t('decrease')],
 
