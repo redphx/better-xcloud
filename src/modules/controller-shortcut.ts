@@ -255,7 +255,7 @@ export class ControllerShortcut {
                 }
 
                 if (Array.isArray(label)) {
-                    label = label.join(' > ');
+                    label = label.join(' ❯ ');
                 }
 
                 const $option = CE<HTMLOptionElement>('option', {value: action}, label);
