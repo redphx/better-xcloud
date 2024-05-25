@@ -3464,6 +3464,9 @@ class ControllerShortcut {
     for (button in ControllerShortcut.#$selectActions) {
       const $select = ControllerShortcut.#$selectActions[button];
       $select.value = actions[button] || "";
+      BxEvent.dispatch($select, "change", {
+        ignoreOnChange: true
+      });
     }
   }
   static renderSettings() {
@@ -3486,13 +3489,13 @@ class ControllerShortcut {
     };
     const actions = {
       [t("stream")]: {
-        [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: [t("stream"), t("take-screenshot")],
-        [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stream"), t("stats"), t("show-hide")],
-        [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("stream"), t("microphone"), t("toggle")],
-        [ShortcutAction.STREAM_MENU_TOGGLE]: [t("stream"), t("menu"), t("show")],
-        [ShortcutAction.STREAM_SOUND_TOGGLE]: [t("stream"), t("sound"), t("toggle")],
-        [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("stream"), t("volume"), t("increase")],
-        [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("stream"), t("volume"), t("decrease")]
+        [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: t("take-screenshot"),
+        [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stats"), t("show-hide")],
+        [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("microphone"), t("toggle")],
+        [ShortcutAction.STREAM_MENU_TOGGLE]: [t("menu"), t("show")],
+        [ShortcutAction.STREAM_SOUND_TOGGLE]: [t("sound"), t("toggle")],
+        [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("volume"), t("increase")],
+        [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("volume"), t("decrease")]
       }
     };
     const $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
@@ -3526,7 +3529,15 @@ class ControllerShortcut {
       const profile = $profile.value;
       const button2 = $target.dataset.button;
       const action = $target.value;
-      ControllerShortcut.#updateAction(profile, button2, action);
+      const $fakeSelect = $target.previousElementSibling;
+      let fakeText = "---";
+      if (action) {
+        const $selectedOption = $target.options[$target.selectedIndex];
+        const $optGroup = $selectedOption.parentElement;
+        fakeText = $optGroup.label + " ❯ " + $selectedOption.text;
+      }
+      $fakeSelect.firstElementChild.text = fakeText;
+      !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button2, action);
     };
     const $remap = CE("div", { class: "bx-gone" });
     let button;
@@ -3534,12 +3545,16 @@ class ControllerShortcut {
       const $row = CE("div", { class: "bx-shortcut-row" });
       const prompt2 = buttons[button];
       const $label = CE("label", { class: "bx-prompt" }, `${PrompFont.HOME} + ${prompt2}`);
+      const $div = CE("div", { class: "bx-shortcut-actions" });
+      const $fakeSelect = CE("select", { autocomplete: "off" }, CE("option", {}, "---"));
+      $div.appendChild($fakeSelect);
       const $select = $baseSelect.cloneNode(true);
       $select.dataset.button = button.toString();
       $select.addEventListener("change", onActionChanged);
       ControllerShortcut.#$selectActions[button] = $select;
+      $div.appendChild($select);
       $row.appendChild($label);
-      $row.appendChild($select);
+      $row.appendChild($div);
       $remap.appendChild($row);
     }
     $container.appendChild($remap);
@@ -6993,9 +7008,21 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   flex: 1;
   font-family: var(--bx-promptfont-font);
   font-size: 26px;
+  margin-bottom: 0;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row select {
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions {
   flex: 2;
+  position: relative;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select:last-of-type {
+  opacity: 0;
+  z-index: calc(var(--bx-stream-settings-z-index) + 1);
 }
 .bx-mkb-settings {
   display: flex;
