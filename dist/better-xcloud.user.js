@@ -4014,10 +4014,14 @@ var BxExposed = {
         $media.muted = true;
       });
     }
-    const audioCtx = STATES.currentStream.audioContext;
-    const source = audioCtx.createMediaStreamSource(audioStream);
-    const gainNode = audioCtx.createGain();
-    source.connect(gainNode).connect(audioCtx.destination);
+    try {
+      const audioCtx = STATES.currentStream.audioContext;
+      const source = audioCtx.createMediaStreamSource(audioStream);
+      const gainNode = audioCtx.createGain();
+      source.connect(gainNode).connect(audioCtx.destination);
+    } catch (e) {
+      BxLogger.error("setupGainNode", e);
+    }
   },
   handleControllerShortcut: ControllerShortcut.handle,
   resetControllerShortcut: ControllerShortcut.reset
