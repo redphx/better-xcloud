@@ -3256,13 +3256,7 @@ function floorToNearest(value, interval) {
 
 // src/modules/shortcuts/shortcut-sound.ts
 class SoundShortcut {
-  static increaseGainNodeVolume(amount) {
-    SoundShortcut.#adjustGainNodeVolume(amount);
-  }
-  static decreaseGainNodeVolume(amount) {
-    SoundShortcut.#adjustGainNodeVolume(-1 * Math.abs(amount));
-  }
-  static #adjustGainNodeVolume(amount) {
+  static adjustGainNodeVolume(amount) {
     if (!getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)) {
       return 0;
     }
@@ -3289,6 +3283,43 @@ class SoundShortcut {
   }
   static setGainNodeVolume(value) {
     STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
+  }
+  static muteUnmute() {
+    if (getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && STATES.currentStream.audioGainNode) {
+      const gainValue = STATES.currentStream.audioGainNode.gain.value;
+      const settingValue = getPref(PrefKey.AUDIO_VOLUME);
+      let targetValue;
+      if (settingValue === 0) {
+        targetValue = 100;
+        setPref(PrefKey.AUDIO_VOLUME, targetValue);
+        BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
+          volume: targetValue
+        });
+      } else if (gainValue === 0) {
+        targetValue = settingValue;
+      } else {
+        targetValue = 0;
+      }
+      let status;
+      if (targetValue === 0) {
+        status = t("muted");
+      } else {
+        status = targetValue + "%";
+      }
+      SoundShortcut.setGainNodeVolume(targetValue);
+      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: true });
+      return;
+    }
+    let $media;
+    $media = document.querySelector("div[data-testid=media-container] audio");
+    if (!$media) {
+      $media = document.querySelector("div[data-testid=media-container] video");
+    }
+    if ($media) {
+      $media.muted = !$media.muted;
+      const status = $media.muted ? t("muted") : t("unmuted");
+      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: true });
+    }
   }
 }
 
@@ -3356,11 +3387,14 @@ class ControllerShortcut {
       case ShortcutAction.STREAM_MENU_TOGGLE:
         StreamUiShortcut.showHideStreamMenu();
         break;
+      case ShortcutAction.STREAM_SOUND_TOGGLE:
+        SoundShortcut.muteUnmute();
+        break;
       case ShortcutAction.STREAM_VOLUME_INC:
-        SoundShortcut.increaseGainNodeVolume(10);
+        SoundShortcut.adjustGainNodeVolume(10);
         break;
       case ShortcutAction.STREAM_VOLUME_DEC:
-        SoundShortcut.decreaseGainNodeVolume(10);
+        SoundShortcut.adjustGainNodeVolume(-10);
         break;
     }
   }
@@ -3456,6 +3490,7 @@ class ControllerShortcut {
         [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stream"), t("stats"), t("show-hide")],
         [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("stream"), t("microphone"), t("toggle")],
         [ShortcutAction.STREAM_MENU_TOGGLE]: [t("stream"), t("menu"), t("show")],
+        [ShortcutAction.STREAM_SOUND_TOGGLE]: [t("stream"), t("sound"), t("toggle")],
         [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("stream"), t("volume"), t("increase")],
         [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("stream"), t("volume"), t("decrease")]
       }
@@ -4021,6 +4056,7 @@ var BxExposed = {
       source.connect(gainNode).connect(audioCtx.destination);
     } catch (e) {
       BxLogger.error("setupGainNode", e);
+      STATES.currentStream.audioGainNode = null;
     }
   },
   handleControllerShortcut: ControllerShortcut.handle,
