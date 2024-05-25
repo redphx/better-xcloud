@@ -149,6 +149,7 @@ var BxEvent;
   BxEvent2["GAME_BAR_ACTION_ACTIVATED"] = "bx-game-bar-action-activated";
   BxEvent2["MICROPHONE_STATE_CHANGED"] = "bx-microphone-state-changed";
   BxEvent2["CAPTURE_SCREENSHOT"] = "bx-capture-screenshot";
+  BxEvent2["GAINNODE_VOLUME_CHANGED"] = "bx-gainnode-volume-changed";
 })(BxEvent || (BxEvent = {}));
 var XcloudEvent;
 (function(XcloudEvent2) {
@@ -504,6 +505,8 @@ var Texts = {
   contrast: "Contrast",
   controller: "Controller",
   "controller-shortcuts": "Controller shortcuts",
+  "controller-shortcuts-connect-note": "Connect a controller to use this feature",
+  "controller-shortcuts-xbox-note": "The Xbox button is the one that opens the Guide menu",
   "controller-vibration": "Controller vibration",
   copy: "Copy",
   custom: "Custom",
@@ -565,7 +568,6 @@ var Texts = {
   "mkb-click-to-activate": "Click to activate",
   "mkb-disclaimer": "Using this feature when playing online could be viewed as cheating",
   "mouse-and-keyboard": "Mouse & Keyboard",
-  "mute-unmute-sound": "Mute/unmute sound",
   muted: "Muted",
   name: "Name",
   new: "New",
@@ -667,8 +669,6 @@ var Texts = {
   "tc-standard-layout-style": "Standard layout's button style",
   "text-size": "Text size",
   toggle: "Toggle",
-  "toggle-microphone": "Toggle microphone",
-  "toggle-stream-stats": "Toggle stream stats",
   "top-center": "Top-center",
   "top-left": "Top-left",
   "top-right": "Top-right",
@@ -932,7 +932,7 @@ class SettingElement {
       $range.addEventListener("input", (e) => {
         value = parseInt(e.target.value);
         $text.textContent = renderTextValue(value);
-        onChange && onChange(e, value);
+        !e.ignoreOnChange && onChange && onChange(e, value);
       });
       $wrapper.appendChild($range);
       if (options.ticks || options.exactTicks) {
@@ -2270,6 +2270,7 @@ class Preferences {
     value = this.#validateValue(key, value);
     this.#prefs[key] = value;
     this.#updateStorage();
+    return value;
   }
   #updateStorage() {
     this.#storage.setItem(this.#key, JSON.stringify(this.#prefs));
@@ -2340,7 +2341,7 @@ class Toast {
     Toast.#timeout && clearTimeout(Toast.#timeout);
     Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
     const [msg, status, options] = Toast.#stack.shift();
-    if (options.html) {
+    if (options && options.html) {
       Toast.#$msg.innerHTML = msg;
     } else {
       Toast.#$msg.textContent = msg;
@@ -3167,13 +3168,22 @@ class MkbHandler {
 }
 
 // src/modules/shortcuts/shortcut-microphone.ts
+var MicrophoneState;
+(function(MicrophoneState2) {
+  MicrophoneState2["REQUESTED"] = "Requested";
+  MicrophoneState2["ENABLED"] = "Enabled";
+  MicrophoneState2["MUTED"] = "Muted";
+  MicrophoneState2["NOT_ALLOWED"] = "NotAllowed";
+  MicrophoneState2["NOT_FOUND"] = "NotFound";
+})(MicrophoneState || (MicrophoneState = {}));
+
 class MicrophoneShortcut {
   static toggle(showToast = true) {
     if (!window.BX_EXPOSED.streamSession) {
       return false;
     }
     const state = window.BX_EXPOSED.streamSession._microphoneState;
-    const enableMic = state === "Enabled" ? false : true;
+    const enableMic = state === MicrophoneState.ENABLED ? false : true;
     try {
       window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic);
       showToast && Toast.show(t("microphone"), t(enableMic ? "unmuted" : "muted"), { instant: true });
@@ -3189,6 +3199,96 @@ class MicrophoneShortcut {
 class StreamUiShortcut {
   static showHideStreamMenu() {
     window.BX_EXPOSED.showStreamMenu && window.BX_EXPOSED.showStreamMenu();
+  }
+}
+
+// src/utils/utils.ts
+function checkForUpdate() {
+  const CHECK_INTERVAL_SECONDS = 7200;
+  const currentVersion = getPref(PrefKey.CURRENT_VERSION);
+  const lastCheck = getPref(PrefKey.LAST_UPDATE_CHECK);
+  const now = Math.round(+new Date / 1000);
+  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) {
+    return;
+  }
+  setPref(PrefKey.LAST_UPDATE_CHECK, now);
+  fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
+    setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1));
+    setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
+  });
+  Translations.updateTranslations(true);
+}
+function disablePwa() {
+  const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
+  if (!userAgent2) {
+    return;
+  }
+  if (!!AppInterface || UserAgent.isSafari(true)) {
+    Object.defineProperty(window.navigator, "standalone", {
+      value: true
+    });
+  }
+}
+function hashCode(str2) {
+  let hash = 0;
+  for (let i = 0, len = str2.length;i < len; i++) {
+    const chr = str2.charCodeAt(i);
+    hash = (hash << 5) - hash + chr;
+    hash |= 0;
+  }
+  return hash;
+}
+function renderString(str2, obj) {
+  return str2.replace(/\$\{.+?\}/g, (match) => {
+    const key = match.substring(2, match.length - 1);
+    if (key in obj) {
+      return obj[key];
+    }
+    return match;
+  });
+}
+function ceilToNearest(value, interval) {
+  return Math.ceil(value / interval) * interval;
+}
+function floorToNearest(value, interval) {
+  return Math.floor(value / interval) * interval;
+}
+
+// src/modules/shortcuts/shortcut-sound.ts
+class SoundShortcut {
+  static increaseGainNodeVolume(amount) {
+    SoundShortcut.#adjustGainNodeVolume(amount);
+  }
+  static decreaseGainNodeVolume(amount) {
+    SoundShortcut.#adjustGainNodeVolume(-1 * Math.abs(amount));
+  }
+  static #adjustGainNodeVolume(amount) {
+    if (!getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)) {
+      return 0;
+    }
+    const currentValue = getPref(PrefKey.AUDIO_VOLUME);
+    let nearestValue;
+    if (amount > 0) {
+      nearestValue = ceilToNearest(currentValue, amount);
+    } else {
+      nearestValue = floorToNearest(currentValue, -1 * amount);
+    }
+    let newValue;
+    if (currentValue !== nearestValue) {
+      newValue = nearestValue;
+    } else {
+      newValue = currentValue + amount;
+    }
+    newValue = setPref(PrefKey.AUDIO_VOLUME, newValue);
+    SoundShortcut.setGainNodeVolume(newValue);
+    Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: true });
+    BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
+      volume: newValue
+    });
+    return newValue;
+  }
+  static setGainNodeVolume(value) {
+    STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
   }
 }
 
@@ -3255,6 +3355,12 @@ class ControllerShortcut {
         break;
       case ShortcutAction.STREAM_MENU_TOGGLE:
         StreamUiShortcut.showHideStreamMenu();
+        break;
+      case ShortcutAction.STREAM_VOLUME_INC:
+        SoundShortcut.increaseGainNodeVolume(10);
+        break;
+      case ShortcutAction.STREAM_VOLUME_DEC:
+        SoundShortcut.decreaseGainNodeVolume(10);
         break;
     }
   }
@@ -3349,7 +3455,9 @@ class ControllerShortcut {
         [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: [t("stream"), t("take-screenshot")],
         [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stream"), t("stats"), t("show-hide")],
         [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("stream"), t("microphone"), t("toggle")],
-        [ShortcutAction.STREAM_MENU_TOGGLE]: [t("stream"), t("menu"), t("show")]
+        [ShortcutAction.STREAM_MENU_TOGGLE]: [t("stream"), t("menu"), t("show")],
+        [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("stream"), t("volume"), t("increase")],
+        [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("stream"), t("volume"), t("decrease")]
       }
     };
     const $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
@@ -3365,7 +3473,7 @@ class ControllerShortcut {
           continue;
         }
         if (Array.isArray(label)) {
-          label = label.join(" > ");
+          label = label.join(" ❯ ");
         }
         const $option = CE("option", { value: action }, label);
         $optGroup.appendChild($option);
@@ -3705,15 +3813,6 @@ class TouchControlAction extends BaseGameBarAction {
 }
 
 // src/modules/game-bar/action-microphone.ts
-var MicrophoneState;
-(function(MicrophoneState2) {
-  MicrophoneState2["REQUESTED"] = "Requested";
-  MicrophoneState2["ENABLED"] = "Enabled";
-  MicrophoneState2["MUTED"] = "Muted";
-  MicrophoneState2["NOT_ALLOWED"] = "NotAllowed";
-  MicrophoneState2["NOT_FOUND"] = "NotFound";
-})(MicrophoneState || (MicrophoneState = {}));
-
 class MicrophoneAction extends BaseGameBarAction {
   $content;
   visible = false;
@@ -4680,10 +4779,19 @@ var setupQuickSettingsBar = function() {
               pref: PrefKey.AUDIO_VOLUME,
               label: t("volume"),
               onChange: (e, value) => {
-                STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
+                SoundShortcut.setGainNodeVolume(value);
               },
               params: {
                 disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)
+              },
+              onMounted: ($elm) => {
+                const $range = $elm.querySelector("input[type=range");
+                window.addEventListener(BxEvent.GAINNODE_VOLUME_CHANGED, (e) => {
+                  $range.value = e.volume;
+                  BxEvent.dispatch($range, "input", {
+                    ignoreOnChange: true
+                  });
+                });
               }
             }
           ]
@@ -7133,52 +7241,6 @@ class MouseCursorHider {
     document.removeEventListener("mousemove", MouseCursorHider.onMouseMove);
     MouseCursorHider.show();
   }
-}
-
-// src/utils/utils.ts
-function checkForUpdate() {
-  const CHECK_INTERVAL_SECONDS = 7200;
-  const currentVersion = getPref(PrefKey.CURRENT_VERSION);
-  const lastCheck = getPref(PrefKey.LAST_UPDATE_CHECK);
-  const now = Math.round(+new Date / 1000);
-  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) {
-    return;
-  }
-  setPref(PrefKey.LAST_UPDATE_CHECK, now);
-  fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
-    setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1));
-    setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
-  });
-  Translations.updateTranslations(true);
-}
-function disablePwa() {
-  const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
-  if (!userAgent2) {
-    return;
-  }
-  if (!!AppInterface || UserAgent.isSafari(true)) {
-    Object.defineProperty(window.navigator, "standalone", {
-      value: true
-    });
-  }
-}
-function hashCode(str2) {
-  let hash = 0;
-  for (let i = 0, len = str2.length;i < len; i++) {
-    const chr = str2.charCodeAt(i);
-    hash = (hash << 5) - hash + chr;
-    hash |= 0;
-  }
-  return hash;
-}
-function renderString(str2, obj) {
-  return str2.replace(/\$\{.+?\}/g, (match) => {
-    const key = match.substring(2, match.length - 1);
-    if (key in obj) {
-      return obj[key];
-    }
-    return match;
-  });
 }
 
 // src/modules/patches/controller-shortcuts.js
