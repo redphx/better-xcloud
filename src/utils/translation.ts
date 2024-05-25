@@ -60,7 +60,7 @@ const Texts = {
     "controller": "Controller",
     "controller-shortcuts": "Controller shortcuts",
     "controller-shortcuts-connect-note": "Connect a controller to use this feature",
-    "controller-shortcuts-xbox-note": "The Xbox button is the one that opens the Guide menu",
+    "controller-shortcuts-xbox-note": "Button to open the Guide menu",
     "controller-vibration": "Controller vibration",
     "copy": "Copy",
     "custom": "Custom",

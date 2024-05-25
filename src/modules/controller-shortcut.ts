@@ -37,7 +37,7 @@ export class ControllerShortcut {
 
     static #$selectProfile: HTMLSelectElement;
     static #$selectActions: Partial<{[key in GamepadKey]: HTMLSelectElement}> = {};
-    static #$remap: HTMLElement;
+    static #$container: HTMLElement;
 
     static #ACTIONS: {[key: string]: (ShortcutAction | null)[]} = {};
 
@@ -144,7 +144,7 @@ export class ControllerShortcut {
 
     static #updateProfileList(e?: GamepadEvent) {
         const $select = ControllerShortcut.#$selectProfile;
-        const $remap = ControllerShortcut.#$remap;
+        const $container = ControllerShortcut.#$container;
 
         const $fragment = document.createDocumentFragment();
 
@@ -175,20 +175,11 @@ export class ControllerShortcut {
         if (hasGamepad) {
             $select.appendChild($fragment);
 
-            $remap.classList.remove('bx-gone');
-
-            $select.disabled = false;
             $select.selectedIndex = 0;
             $select.dispatchEvent(new Event('change'));
-        } else {
-            $remap.classList.add('bx-gone');
-
-            $select.disabled = true;
-            const $option = CE<HTMLOptionElement>('option', {}, '---');
-            $fragment.appendChild($option);
-
-            $select.appendChild($fragment);
         }
+
+        $container.dataset.hasGamepad = hasGamepad.toString();
     }
 
     static #switchProfile(profile: string) {
@@ -282,19 +273,31 @@ export class ControllerShortcut {
             $baseSelect.appendChild($optGroup);
         }
 
-        const $container = CE('div', {});
+        let $remap: HTMLElement;
+        let $selectProfile: HTMLSelectElement;
 
-        const $profile = CE<HTMLSelectElement>('select', {'class': 'bx-shortcut-profile', autocomplete: 'off'});
-        $profile.addEventListener('change', e => {
-            ControllerShortcut.#switchProfile($profile.value);
+        const $container = CE('div', {'data-has-gamepad': 'false'},
+            CE('div', {},
+                CE('p', {'class': 'bx-shortcut-note'}, t('controller-shortcuts-connect-note')),
+            ),
+
+            $remap = CE('div', {},
+                $selectProfile = CE('select', {'class': 'bx-shortcut-profile', autocomplete: 'off'}),
+                CE('p', {'class': 'bx-shortcut-note'},
+                    CE('span', {'class': 'bx-prompt'}, PrompFont.HOME),
+                    ': ' + t('controller-shortcuts-xbox-note'),
+                ),
+            ),
+        );
+
+        $selectProfile.addEventListener('change', e => {
+            ControllerShortcut.#switchProfile($selectProfile.value);
         });
-
-        $container.appendChild($profile);
 
         const onActionChanged = (e: Event) => {
             const $target = e.target as HTMLSelectElement;
 
-            const profile = $profile.value;
+            const profile = $selectProfile.value;
             const button: unknown = $target.dataset.button;
             const action = $target.value as ShortcutAction;
 
@@ -310,7 +313,6 @@ export class ControllerShortcut {
             !(e as any).ignoreOnChange && ControllerShortcut.#updateAction(profile, button as GamepadKey, action);
         };
 
-        const $remap = CE('div', {'class': 'bx-gone'});
         let button: keyof typeof buttons;
         // @ts-ignore
         for (button in buttons) {
@@ -342,8 +344,8 @@ export class ControllerShortcut {
 
         $container.appendChild($remap);
 
-        ControllerShortcut.#$selectProfile = $profile;
-        ControllerShortcut.#$remap = $remap;
+        ControllerShortcut.#$selectProfile = $selectProfile;
+        ControllerShortcut.#$container = $container;
 
         // Detect when gamepad connected/disconnect
         window.addEventListener('gamepadconnected', ControllerShortcut.#updateProfileList);
