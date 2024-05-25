@@ -4,6 +4,7 @@ import { BxEvent } from "@utils/bx-event";
 import { STATES } from "@utils/global";
 import { getPref, PrefKey } from "@utils/preferences";
 import { UserAgent } from "@utils/user-agent";
+import { BxLogger } from "./bx-logger";
 
 export enum InputType {
     CONTROLLER = 'Controller',
@@ -107,11 +108,15 @@ export const BxExposed = {
             });
         }
 
-        const audioCtx = STATES.currentStream.audioContext!;
-        const source = audioCtx.createMediaStreamSource(audioStream);
+        try {
+            const audioCtx = STATES.currentStream.audioContext!;
+            const source = audioCtx.createMediaStreamSource(audioStream);
 
-        const gainNode = audioCtx.createGain();  // call monkey-patched createGain() in BxAudioContext
-        source.connect(gainNode).connect(audioCtx.destination);
+            const gainNode = audioCtx.createGain();  // call monkey-patched createGain() in BxAudioContext
+            source.connect(gainNode).connect(audioCtx.destination);
+        } catch (e) {
+            BxLogger.error('setupGainNode', e);
+        }
     },
 
     handleControllerShortcut: ControllerShortcut.handle,
