@@ -95,12 +95,16 @@ export class ControllerShortcut {
                 StreamUiShortcut.showHideStreamMenu();
                 break;
 
+            case ShortcutAction.STREAM_SOUND_TOGGLE:
+                SoundShortcut.muteUnmute();
+                break;
+
             case ShortcutAction.STREAM_VOLUME_INC:
-                SoundShortcut.increaseGainNodeVolume(10);
+                SoundShortcut.adjustGainNodeVolume(10);
                 break;
 
             case ShortcutAction.STREAM_VOLUME_DEC:
-                SoundShortcut.decreaseGainNodeVolume(10);
+                SoundShortcut.adjustGainNodeVolume(-10);
                 break;
         }
     }
@@ -241,7 +245,7 @@ export class ControllerShortcut {
                 [ShortcutAction.STREAM_STATS_TOGGLE]: [t('stream'), t('stats'), t('show-hide')],
                 [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t('stream'), t('microphone'), t('toggle')],
                 [ShortcutAction.STREAM_MENU_TOGGLE]: [t('stream'), t('menu'), t('show')],
-                // [ShortcutAction.STREAM_SOUND_TOGGLE]: [t('stream'), t('sound'), t('toggle')],
+                [ShortcutAction.STREAM_SOUND_TOGGLE]: [t('stream'), t('sound'), t('toggle')],
                 [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('increase')],
                 [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('decrease')],
             }

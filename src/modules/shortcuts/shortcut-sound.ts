@@ -6,15 +6,7 @@ import { BxEvent } from "@/utils/bx-event";
 import { ceilToNearest, floorToNearest } from "@/utils/utils";
 
 export class SoundShortcut {
-    static increaseGainNodeVolume(amount: number) {
-        SoundShortcut.#adjustGainNodeVolume(amount);
-    }
-
-    static decreaseGainNodeVolume(amount: number) {
-        SoundShortcut.#adjustGainNodeVolume(-1 * Math.abs(amount));
-    }
-
-    static #adjustGainNodeVolume(amount: number): number {
+    static adjustGainNodeVolume(amount: number): number {
         if (!getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)) {
             return 0;
         }
@@ -49,5 +41,50 @@ export class SoundShortcut {
 
     static setGainNodeVolume(value: number) {
         STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
+    }
+
+    static muteUnmute() {
+        if (getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && STATES.currentStream.audioGainNode) {
+            const gainValue = STATES.currentStream.audioGainNode.gain.value;
+            const settingValue = getPref(PrefKey.AUDIO_VOLUME);
+
+            let targetValue: number;
+            if (settingValue === 0) {  // settingValue is 0 => set to 100
+                targetValue = 100;
+                setPref(PrefKey.AUDIO_VOLUME, targetValue);
+                BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
+                        volume: targetValue,
+                    });
+            } else if (gainValue === 0) {  // is being muted => set to settingValue
+                targetValue = settingValue;
+            } else {  // not being muted => mute
+                targetValue = 0;
+            }
+
+            let status: string;
+            if (targetValue === 0) {
+                status = t('muted');
+            } else {
+                status = targetValue + '%';
+            }
+
+            SoundShortcut.setGainNodeVolume(targetValue);
+            Toast.show(`${t('stream')} ❯ ${t('volume')}`, status, {instant: true});
+            return;
+        }
+
+        let $media: HTMLMediaElement;
+
+        $media = document.querySelector('div[data-testid=media-container] audio') as HTMLAudioElement;
+        if (!$media) {
+            $media = document.querySelector('div[data-testid=media-container] video') as HTMLAudioElement;
+        }
+
+        if ($media) {
+            $media.muted = !$media.muted;
+
+            const status = $media.muted ? t('muted') : t('unmuted');
+            Toast.show(`${t('stream')} ❯ ${t('volume')}`, status, {instant: true});
+        }
     }
 }
