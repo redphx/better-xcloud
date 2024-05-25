@@ -9,6 +9,7 @@ import { MicrophoneShortcut } from "./shortcuts/shortcut-microphone";
 import { StreamUiShortcut } from "./shortcuts/shortcut-stream-ui";
 import { PrefKey, getPref } from "@utils/preferences";
 import { SoundShortcut } from "./shortcuts/shortcut-sound";
+import { BxEvent } from "@/utils/bx-event";
 
 enum ShortcutAction {
     STREAM_SCREENSHOT_CAPTURE = 'stream-screenshot-capture',
@@ -201,6 +202,10 @@ export class ControllerShortcut {
         for (button in ControllerShortcut.#$selectActions) {
             const $select = ControllerShortcut.#$selectActions[button as GamepadKey]!;
             $select.value = actions[button] || '';
+
+            BxEvent.dispatch($select, 'change', {
+                    ignoreOnChange: true,
+                });
         }
     }
 
@@ -241,13 +246,13 @@ export class ControllerShortcut {
             */
 
             [t('stream')]: {
-                [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: [t('stream'), t('take-screenshot')],
-                [ShortcutAction.STREAM_STATS_TOGGLE]: [t('stream'), t('stats'), t('show-hide')],
-                [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t('stream'), t('microphone'), t('toggle')],
-                [ShortcutAction.STREAM_MENU_TOGGLE]: [t('stream'), t('menu'), t('show')],
-                [ShortcutAction.STREAM_SOUND_TOGGLE]: [t('stream'), t('sound'), t('toggle')],
-                [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('increase')],
-                [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('decrease')],
+                [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: t('take-screenshot'),
+                [ShortcutAction.STREAM_STATS_TOGGLE]: [t('stats'), t('show-hide')],
+                [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t('microphone'), t('toggle')],
+                [ShortcutAction.STREAM_MENU_TOGGLE]: [t('menu'), t('show')],
+                [ShortcutAction.STREAM_SOUND_TOGGLE]: [t('sound'), t('toggle')],
+                [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('volume'), t('increase')],
+                [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('volume'), t('decrease')],
             }
         };
 
@@ -293,7 +298,16 @@ export class ControllerShortcut {
             const button: unknown = $target.dataset.button;
             const action = $target.value as ShortcutAction;
 
-            ControllerShortcut.#updateAction(profile, button as GamepadKey, action);
+            const $fakeSelect = $target.previousElementSibling! as HTMLSelectElement;
+            let fakeText = '---';
+            if (action) {
+                const $selectedOption =  $target.options[$target.selectedIndex];
+                const $optGroup = $selectedOption.parentElement as HTMLOptGroupElement;
+                fakeText = $optGroup.label + ' ❯ ' + $selectedOption.text;
+            }
+            ($fakeSelect.firstElementChild as HTMLOptionElement).text = fakeText;
+
+            !(e as any).ignoreOnChange && ControllerShortcut.#updateAction(profile, button as GamepadKey, action);
         };
 
         const $remap = CE('div', {'class': 'bx-gone'});
@@ -305,14 +319,23 @@ export class ControllerShortcut {
             const prompt = buttons[button];
             const $label = CE('label', {'class': 'bx-prompt'}, `${PrompFont.HOME} + ${prompt}`);
 
+            const $div = CE('div', {'class': 'bx-shortcut-actions'});
+
+            const $fakeSelect = CE<HTMLSelectElement>('select', {autocomplete: 'off'},
+                CE('option', {}, '---'),
+            );
+            $div.appendChild($fakeSelect);
+
             const $select = $baseSelect.cloneNode(true) as HTMLSelectElement;
             $select.dataset.button = button.toString();
             $select.addEventListener('change', onActionChanged);
 
             ControllerShortcut.#$selectActions[button] = $select;
 
+            $div.appendChild($select);
+
             $row.appendChild($label);
-            $row.appendChild($select);
+            $row.appendChild($div);
 
             $remap.appendChild($row);
         }
