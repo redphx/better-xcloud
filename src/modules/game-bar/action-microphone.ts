@@ -3,15 +3,8 @@ import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { t } from "@utils/translation";
 import { BaseGameBarAction } from "./action-base";
-import { MicrophoneShortcut } from "../shortcuts/shortcut-microphone";
+import { MicrophoneShortcut, MicrophoneState } from "../shortcuts/shortcut-microphone";
 
-enum MicrophoneState {
-    REQUESTED = 'Requested',
-    ENABLED = 'Enabled',
-    MUTED = 'Muted',
-    NOT_ALLOWED = 'NotAllowed',
-    NOT_FOUND = 'NotFound',
-}
 
 export class MicrophoneAction extends BaseGameBarAction {
     $content: HTMLElement;
