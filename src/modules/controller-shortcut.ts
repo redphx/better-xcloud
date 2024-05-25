@@ -215,10 +215,18 @@ export class ControllerShortcut {
         ControllerShortcut.#ACTIONS = JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || '{}');
 
         const buttons = {
+            [GamepadKey.Y]: PrompFont.Y,
             [GamepadKey.A]: PrompFont.A,
             [GamepadKey.B]: PrompFont.B,
             [GamepadKey.X]: PrompFont.X,
-            [GamepadKey.Y]: PrompFont.Y,
+
+            [GamepadKey.UP]: PrompFont.UP,
+            [GamepadKey.DOWN]: PrompFont.DOWN,
+            [GamepadKey.LEFT]: PrompFont.LEFT,
+            [GamepadKey.RIGHT]: PrompFont.RIGHT,
+
+            [GamepadKey.SELECT]: PrompFont.SELECT,
+            [GamepadKey.START]: PrompFont.START,
 
             [GamepadKey.LB]: PrompFont.LB,
             [GamepadKey.RB]: PrompFont.RB,
@@ -226,13 +234,8 @@ export class ControllerShortcut {
             [GamepadKey.LT]: PrompFont.LT,
             [GamepadKey.RT]: PrompFont.RT,
 
-            [GamepadKey.SELECT]: PrompFont.SELECT,
-            [GamepadKey.START]: PrompFont.START,
-
-            [GamepadKey.UP]: PrompFont.UP,
-            [GamepadKey.DOWN]: PrompFont.DOWN,
-            [GamepadKey.LEFT]: PrompFont.LEFT,
-            [GamepadKey.RIGHT]: PrompFont.RIGHT,
+            [GamepadKey.L3]: PrompFont.L3,
+            [GamepadKey.R3]: PrompFont.R3,
         };
 
         const actions: {[key: string]: Partial<{[key in ShortcutAction]: string | string[]}>} = {
