@@ -11,6 +11,7 @@ import { t } from "@utils/translation";
 import { VibrationManager } from "@modules/vibration-manager";
 import { Screenshot } from "@/utils/screenshot";
 import { ControllerShortcut } from "../controller-shortcut";
+import { SoundShortcut } from "../shortcuts/shortcut-sound";
 
 
 export function localRedirect(path: string) {
@@ -97,10 +98,19 @@ function setupQuickSettingsBar() {
                             pref: PrefKey.AUDIO_VOLUME,
                             label: t('volume'),
                             onChange: (e: any, value: number) => {
-                                STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
+                                SoundShortcut.setGainNodeVolume(value);
                             },
                             params: {
                                 disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL),
+                            },
+                            onMounted: ($elm: HTMLElement) => {
+                                const $range = $elm.querySelector('input[type=range') as HTMLInputElement;
+                                window.addEventListener(BxEvent.GAINNODE_VOLUME_CHANGED, e => {
+                                    $range.value = (e as any).volume;
+                                    BxEvent.dispatch($range, 'input', {
+                                            ignoreOnChange: true,
+                                        });
+                                });
                             },
                         },
                     ],

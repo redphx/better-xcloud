@@ -15,7 +15,7 @@ export class Toast {
     static #timeout?: number | null;
     static #DURATION = 3000;
 
-    static show(msg: string, status?: string, options: Partial<ToastOptions>={}) {
+    static show(msg: string, status?: string, options: Partial<ToastOptions> = {}) {
         options = options || {};
 
         const args = Array.from(arguments) as [string, string, ToastOptions];
@@ -43,7 +43,7 @@ export class Toast {
         // Get values from item
         const [msg, status, options] = Toast.#stack.shift()!;
 
-        if (options.html) {
+        if (options && options.html) {
             Toast.#$msg.innerHTML = msg;
         } else {
             Toast.#$msg.textContent = msg;

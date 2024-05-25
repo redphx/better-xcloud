@@ -753,11 +753,13 @@ export class Preferences {
         return this.#prefs[key];
     }
 
-    set(key: PrefKey, value: any) {
+    set(key: PrefKey, value: any): any {
         value = this.#validateValue(key, value);
 
         this.#prefs[key] = value;
         this.#updateStorage();
+
+        return value;
     }
 
     #updateStorage() {

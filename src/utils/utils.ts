@@ -77,3 +77,16 @@ export function renderString(str: string, obj: any){
         return match;
     });
 }
+
+
+export function ceilToNearest(value: number, interval: number): number {
+    return Math.ceil(value / interval) * interval;
+}
+
+export function floorToNearest(value: number, interval: number): number {
+    return Math.floor(value / interval) * interval;
+}
+
+export function roundToNearest(value: number, interval: number): number {
+    return Math.round(value / interval) * interval;
+}

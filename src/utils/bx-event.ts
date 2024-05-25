@@ -36,6 +36,7 @@ export enum BxEvent {
     MICROPHONE_STATE_CHANGED = 'bx-microphone-state-changed',
 
     CAPTURE_SCREENSHOT = 'bx-capture-screenshot',
+    GAINNODE_VOLUME_CHANGED = 'bx-gainnode-volume-changed',
 }
 
 export enum XcloudEvent {

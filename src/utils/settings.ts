@@ -183,7 +183,7 @@ export class SettingElement {
             $range.addEventListener('input', e => {
                 value = parseInt((e.target as HTMLInputElement).value);
                 $text.textContent = renderTextValue(value);
-                onChange && onChange(e, value);
+                !(e as any).ignoreOnChange && onChange && onChange(e, value);
             });
             $wrapper.appendChild($range);
 

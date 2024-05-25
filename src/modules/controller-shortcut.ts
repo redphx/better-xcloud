@@ -7,6 +7,8 @@ import { MkbHandler } from "./mkb/mkb-handler";
 import { StreamStats } from "./stream/stream-stats";
 import { MicrophoneShortcut } from "./shortcuts/shortcut-microphone";
 import { StreamUiShortcut } from "./shortcuts/shortcut-stream-ui";
+import { PrefKey, getPref } from "@utils/preferences";
+import { SoundShortcut } from "./shortcuts/shortcut-sound";
 
 enum ShortcutAction {
     STREAM_SCREENSHOT_CAPTURE = 'stream-screenshot-capture',
@@ -91,6 +93,14 @@ export class ControllerShortcut {
 
             case ShortcutAction.STREAM_MENU_TOGGLE:
                 StreamUiShortcut.showHideStreamMenu();
+                break;
+
+            case ShortcutAction.STREAM_VOLUME_INC:
+                SoundShortcut.increaseGainNodeVolume(10);
+                break;
+
+            case ShortcutAction.STREAM_VOLUME_DEC:
+                SoundShortcut.decreaseGainNodeVolume(10);
                 break;
         }
     }
@@ -232,8 +242,8 @@ export class ControllerShortcut {
                 [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t('stream'), t('microphone'), t('toggle')],
                 [ShortcutAction.STREAM_MENU_TOGGLE]: [t('stream'), t('menu'), t('show')],
                 // [ShortcutAction.STREAM_SOUND_TOGGLE]: [t('stream'), t('sound'), t('toggle')],
-                // [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('increase')],
-                // [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('decrease')],
+                [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('increase')],
+                [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('stream'), t('volume'), t('decrease')],
             }
         };
 
