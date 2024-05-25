@@ -3,10 +3,8 @@ import { GamepadKey } from "./mkb/definitions";
 import { PrompFont } from "@utils/prompt-font";
 import { CE } from "@utils/html";
 import { t } from "@utils/translation";
-import { PrefKey, getPref } from "@/utils/preferences";
-import { AppInterface } from "@/utils/global";
 import { MkbHandler } from "./mkb/mkb-handler";
-import { StreamStat, StreamStats } from "./stream/stream-stats";
+import { StreamStats } from "./stream/stream-stats";
 import { MicrophoneShortcut } from "./shortcuts/shortcut-microphone";
 import { StreamUiShortcut } from "./shortcuts/shortcut-stream-ui";
 
