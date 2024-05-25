@@ -116,6 +116,7 @@ export const BxExposed = {
             source.connect(gainNode).connect(audioCtx.destination);
         } catch (e) {
             BxLogger.error('setupGainNode', e);
+            STATES.currentStream.audioGainNode = null;
         }
     },
 
