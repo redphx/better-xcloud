@@ -3327,16 +3327,17 @@ class SoundShortcut {
 var ShortcutAction;
 (function(ShortcutAction2) {
   ShortcutAction2["STREAM_SCREENSHOT_CAPTURE"] = "stream-screenshot-capture";
-  ShortcutAction2["STREAM_MENU_TOGGLE"] = "stream-menu-toggle";
+  ShortcutAction2["STREAM_MENU_SHOW"] = "stream-menu-show";
   ShortcutAction2["STREAM_STATS_TOGGLE"] = "stream-stats-toggle";
   ShortcutAction2["STREAM_SOUND_TOGGLE"] = "stream-sound-toggle";
   ShortcutAction2["STREAM_MICROPHONE_TOGGLE"] = "stream-microphone-toggle";
   ShortcutAction2["STREAM_VOLUME_INC"] = "stream-volume-inc";
   ShortcutAction2["STREAM_VOLUME_DEC"] = "stream-volume-dec";
+  ShortcutAction2["DEVICE_SOUND_TOGGLE"] = "device-sound-toggle";
   ShortcutAction2["DEVICE_VOLUME_INC"] = "device-volume-inc";
   ShortcutAction2["DEVICE_VOLUME_DEC"] = "device-volume-dec";
-  ShortcutAction2["SCREEN_BRIGHTNESS_INC"] = "screen-brightness-inc";
-  ShortcutAction2["SCREEN_BRIGHTNESS_DEC"] = "screen-brightness-dec";
+  ShortcutAction2["DEVICE_BRIGHTNESS_INC"] = "device-brightness-inc";
+  ShortcutAction2["DEVICE_BRIGHTNESS_DEC"] = "device-brightness-dec";
 })(ShortcutAction || (ShortcutAction = {}));
 
 class ControllerShortcut {
@@ -3384,7 +3385,7 @@ class ControllerShortcut {
       case ShortcutAction.STREAM_MICROPHONE_TOGGLE:
         MicrophoneShortcut.toggle();
         break;
-      case ShortcutAction.STREAM_MENU_TOGGLE:
+      case ShortcutAction.STREAM_MENU_SHOW:
         StreamUiShortcut.showHideStreamMenu();
         break;
       case ShortcutAction.STREAM_SOUND_TOGGLE:
@@ -3395,6 +3396,13 @@ class ControllerShortcut {
         break;
       case ShortcutAction.STREAM_VOLUME_DEC:
         SoundShortcut.adjustGainNodeVolume(-10);
+        break;
+      case ShortcutAction.DEVICE_BRIGHTNESS_INC:
+      case ShortcutAction.DEVICE_BRIGHTNESS_DEC:
+      case ShortcutAction.DEVICE_SOUND_TOGGLE:
+      case ShortcutAction.DEVICE_VOLUME_INC:
+      case ShortcutAction.DEVICE_VOLUME_DEC:
+        AppInterface && AppInterface.runShortcut && AppInterface.runShortcut(action);
         break;
     }
   }
@@ -3481,14 +3489,21 @@ class ControllerShortcut {
       [GamepadKey.RIGHT]: PrompFont.RIGHT
     };
     const actions = {
+      [t("device")]: AppInterface && {
+        [ShortcutAction.DEVICE_SOUND_TOGGLE]: [t("sound"), t("toggle")],
+        [ShortcutAction.DEVICE_VOLUME_INC]: [t("volume"), t("increase")],
+        [ShortcutAction.DEVICE_VOLUME_DEC]: [t("volume"), t("decrease")],
+        [ShortcutAction.DEVICE_BRIGHTNESS_INC]: [t("brightness"), t("increase")],
+        [ShortcutAction.DEVICE_BRIGHTNESS_DEC]: [t("brightness"), t("decrease")]
+      },
       [t("stream")]: {
         [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: t("take-screenshot"),
-        [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stats"), t("show-hide")],
-        [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("microphone"), t("toggle")],
-        [ShortcutAction.STREAM_MENU_TOGGLE]: [t("menu"), t("show")],
         [ShortcutAction.STREAM_SOUND_TOGGLE]: [t("sound"), t("toggle")],
         [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("volume"), t("increase")],
-        [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("volume"), t("decrease")]
+        [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t("volume"), t("decrease")],
+        [ShortcutAction.STREAM_MENU_SHOW]: [t("menu"), t("show")],
+        [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stats"), t("show-hide")],
+        [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("microphone"), t("toggle")]
       }
     };
     const $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
