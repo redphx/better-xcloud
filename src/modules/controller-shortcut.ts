@@ -10,11 +10,12 @@ import { StreamUiShortcut } from "./shortcuts/shortcut-stream-ui";
 import { PrefKey, getPref } from "@utils/preferences";
 import { SoundShortcut } from "./shortcuts/shortcut-sound";
 import { BxEvent } from "@/utils/bx-event";
+import { AppInterface } from "@/utils/global";
 
 enum ShortcutAction {
     STREAM_SCREENSHOT_CAPTURE = 'stream-screenshot-capture',
 
-    STREAM_MENU_TOGGLE = 'stream-menu-toggle',
+    STREAM_MENU_SHOW = 'stream-menu-show',
     STREAM_STATS_TOGGLE = 'stream-stats-toggle',
     STREAM_SOUND_TOGGLE = 'stream-sound-toggle',
     STREAM_MICROPHONE_TOGGLE = 'stream-microphone-toggle',
@@ -25,8 +26,8 @@ enum ShortcutAction {
     DEVICE_VOLUME_INC = 'device-volume-inc',
     DEVICE_VOLUME_DEC = 'device-volume-dec',
 
-    SCREEN_BRIGHTNESS_INC = 'screen-brightness-inc',
-    SCREEN_BRIGHTNESS_DEC = 'screen-brightness-dec',
+    DEVICE_BRIGHTNESS_INC = 'device-brightness-inc',
+    DEVICE_BRIGHTNESS_DEC = 'device-brightness-dec',
 }
 
 export class ControllerShortcut {
@@ -92,7 +93,7 @@ export class ControllerShortcut {
                 MicrophoneShortcut.toggle();
                 break;
 
-            case ShortcutAction.STREAM_MENU_TOGGLE:
+            case ShortcutAction.STREAM_MENU_SHOW:
                 StreamUiShortcut.showHideStreamMenu();
                 break;
 
@@ -226,24 +227,24 @@ export class ControllerShortcut {
         };
 
         const actions: {[key: string]: Partial<{[key in ShortcutAction]: string | string[]}>} = {
-            /*
             [t('device')]: AppInterface && {
-                [ShortcutAction.DEVICE_VOLUME_INC]: [t('device'), t('volume'), t('increase')],
-                [ShortcutAction.DEVICE_VOLUME_DEC]: [t('device'), t('volume'), t('decrease')],
+                [ShortcutAction.DEVICE_VOLUME_INC]: [t('volume'), t('increase')],
+                [ShortcutAction.DEVICE_VOLUME_DEC]: [t('volume'), t('decrease')],
 
-                [ShortcutAction.SCREEN_BRIGHTNESS_INC]: [t('screen'), t('brightness'), t('increase')],
-                [ShortcutAction.SCREEN_BRIGHTNESS_DEC]: [t('screen'), t('brightness'), t('decrease')],
+                [ShortcutAction.DEVICE_BRIGHTNESS_INC]: [t('brightness'), t('increase')],
+                [ShortcutAction.DEVICE_BRIGHTNESS_DEC]: [t('brightness'), t('decrease')],
             },
-            */
 
             [t('stream')]: {
                 [ShortcutAction.STREAM_SCREENSHOT_CAPTURE]: t('take-screenshot'),
-                [ShortcutAction.STREAM_STATS_TOGGLE]: [t('stats'), t('show-hide')],
-                [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t('microphone'), t('toggle')],
-                [ShortcutAction.STREAM_MENU_TOGGLE]: [t('menu'), t('show')],
+
                 [ShortcutAction.STREAM_SOUND_TOGGLE]: [t('sound'), t('toggle')],
                 [ShortcutAction.STREAM_VOLUME_INC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('volume'), t('increase')],
                 [ShortcutAction.STREAM_VOLUME_DEC]: getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && [t('volume'), t('decrease')],
+
+                [ShortcutAction.STREAM_MENU_SHOW]: [t('menu'), t('show')],
+                [ShortcutAction.STREAM_STATS_TOGGLE]: [t('stats'), t('show-hide')],
+                [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t('microphone'), t('toggle')],
             }
         };
 
