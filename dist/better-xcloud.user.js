@@ -506,7 +506,7 @@ var Texts = {
   controller: "Controller",
   "controller-shortcuts": "Controller shortcuts",
   "controller-shortcuts-connect-note": "Connect a controller to use this feature",
-  "controller-shortcuts-xbox-note": "The Xbox button is the one that opens the Guide menu",
+  "controller-shortcuts-xbox-note": "Button to open the Guide menu",
   "controller-vibration": "Controller vibration",
   copy: "Copy",
   custom: "Custom",
@@ -3345,7 +3345,7 @@ class ControllerShortcut {
   static #buttonsStatus = {};
   static #$selectProfile;
   static #$selectActions = {};
-  static #$remap;
+  static #$container;
   static #ACTIONS = {};
   static reset(index) {
     ControllerShortcut.#buttonsCache[index] = [];
@@ -3423,7 +3423,7 @@ class ControllerShortcut {
   }
   static #updateProfileList(e) {
     const $select = ControllerShortcut.#$selectProfile;
-    const $remap = ControllerShortcut.#$remap;
+    const $container = ControllerShortcut.#$container;
     const $fragment = document.createDocumentFragment();
     while ($select.firstElementChild) {
       $select.firstElementChild.remove();
@@ -3443,17 +3443,10 @@ class ControllerShortcut {
     }
     if (hasGamepad) {
       $select.appendChild($fragment);
-      $remap.classList.remove("bx-gone");
-      $select.disabled = false;
       $select.selectedIndex = 0;
       $select.dispatchEvent(new Event("change"));
-    } else {
-      $remap.classList.add("bx-gone");
-      $select.disabled = true;
-      const $option = CE("option", {}, "---");
-      $fragment.appendChild($option);
-      $select.appendChild($fragment);
     }
+    $container.dataset.hasGamepad = hasGamepad.toString();
   }
   static #switchProfile(profile) {
     let actions = ControllerShortcut.#ACTIONS[profile];
@@ -3518,15 +3511,15 @@ class ControllerShortcut {
       }
       $baseSelect.appendChild($optGroup);
     }
-    const $container = CE("div", {});
-    const $profile = CE("select", { class: "bx-shortcut-profile", autocomplete: "off" });
-    $profile.addEventListener("change", (e) => {
-      ControllerShortcut.#switchProfile($profile.value);
+    let $remap;
+    let $selectProfile;
+    const $container = CE("div", { "data-has-gamepad": "false" }, CE("div", {}, CE("p", { class: "bx-shortcut-note" }, t("controller-shortcuts-connect-note"))), $remap = CE("div", {}, $selectProfile = CE("select", { class: "bx-shortcut-profile", autocomplete: "off" }), CE("p", { class: "bx-shortcut-note" }, CE("span", { class: "bx-prompt" }, PrompFont.HOME), ": " + t("controller-shortcuts-xbox-note"))));
+    $selectProfile.addEventListener("change", (e) => {
+      ControllerShortcut.#switchProfile($selectProfile.value);
     });
-    $container.appendChild($profile);
     const onActionChanged = (e) => {
       const $target = e.target;
-      const profile = $profile.value;
+      const profile = $selectProfile.value;
       const button2 = $target.dataset.button;
       const action = $target.value;
       const $fakeSelect = $target.previousElementSibling;
@@ -3539,7 +3532,6 @@ class ControllerShortcut {
       $fakeSelect.firstElementChild.text = fakeText;
       !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button2, action);
     };
-    const $remap = CE("div", { class: "bx-gone" });
     let button;
     for (button in buttons) {
       const $row = CE("div", { class: "bx-shortcut-row" });
@@ -3558,8 +3550,8 @@ class ControllerShortcut {
       $remap.appendChild($row);
     }
     $container.appendChild($remap);
-    ControllerShortcut.#$selectProfile = $profile;
-    ControllerShortcut.#$remap = $remap;
+    ControllerShortcut.#$selectProfile = $selectProfile;
+    ControllerShortcut.#$container = $container;
     window.addEventListener("gamepadconnected", ControllerShortcut.#updateProfileList);
     window.addEventListener("gamepaddisconnected", ControllerShortcut.#updateProfileList);
     ControllerShortcut.#updateProfileList();
@@ -6010,6 +6002,9 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
 .bx-no-padding {
   padding: 0 !important;
 }
+.bx-prompt {
+  font-family: var(--bx-promptfont-font);
+}
 #headerArea,
 #uhfSkipToMain,
 .uhf-footer {
@@ -6994,11 +6989,26 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   font-style: italic;
   padding-top: 16px;
 }
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:first-of-type {
+  display: none;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:last-of-type {
+  display: block;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:first-of-type {
+  display: block;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:last-of-type {
+  display: none;
+}
 .bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile {
   width: 100%;
   height: 36px;
   display: block;
   margin-bottom: 10px;
+}
+.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-note {
+  font-size: 14px;
 }
 .bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row {
   display: flex;
@@ -7006,7 +7016,6 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 }
 .bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt {
   flex: 1;
-  font-family: var(--bx-promptfont-font);
   font-size: 26px;
   margin-bottom: 0;
 }
