@@ -3236,7 +3236,7 @@ function checkForUpdate() {
     setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1));
     setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
   });
-  Translations.updateTranslations(true);
+  Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
 }
 function disablePwa() {
   const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
