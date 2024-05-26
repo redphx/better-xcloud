@@ -1,7 +1,7 @@
 const currentGamepad = ${gamepadVar};
 
 // Share button on XS controller
-if (currentGamepad.buttons[17] && currentGamepad.buttons[17].value === 1) {
+if (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {
     window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));
 }
 
@@ -35,7 +35,7 @@ if (btnHome) {
         }
 
         // Listen to next button press
-        const intervalMs = 50;
+        const intervalMs = 16;
         this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);
 
         // Hijack this button

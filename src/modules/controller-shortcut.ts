@@ -69,9 +69,9 @@ export class ControllerShortcut {
                 otherButtonPressed = true;
                 pressed[index] = true;
 
-                // If this is newly pressed button > run action
+                // If this is newly pressed button -> run action
                 if (actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) {
-                    ControllerShortcut.#runAction(actions[index]!);
+                    setTimeout(() => ControllerShortcut.#runAction(actions[index]!), 0);
                 }
             }
         });
