@@ -381,8 +381,8 @@ function setupStreamSettingsDialog() {
                     $control = toPrefElement(pref, setting.onChange, setting.params);
                 }
 
-                const label = Preferences.SETTINGS[pref as PrefKey].label || setting.label;
-                const note = Preferences.SETTINGS[pref as PrefKey].note || setting.note;
+                const label = Preferences.SETTINGS[pref as PrefKey]?.label || setting.label;
+                const note = Preferences.SETTINGS[pref as PrefKey]?.note || setting.note;
 
                 const $content = CE('div', {'class': 'bx-stream-settings-row', 'data-type': settingGroup.group},
                     CE('label', {for: `bx_setting_${pref}`},
