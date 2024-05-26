@@ -373,10 +373,12 @@ export class Preferences {
         },
 
         [PrefKey.CONTROLLER_ENABLE_VIBRATION]: {
+            label: t('controller-vibration'),
             default: true,
         },
 
         [PrefKey.CONTROLLER_DEVICE_VIBRATION]: {
+            label: t('device-vibration'),
             default: 'off',
             options: {
                 on: t('on'),
@@ -386,6 +388,7 @@ export class Preferences {
         },
 
         [PrefKey.CONTROLLER_VIBRATION_INTENSITY]: {
+            label: t('vibration-intensity'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 100,
             min: 0,
@@ -501,6 +504,7 @@ export class Preferences {
             },
         },
         [PrefKey.VIDEO_CLARITY]: {
+            label: t('clarity'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 0,
             min: 0,
@@ -510,6 +514,8 @@ export class Preferences {
             },
         },
         [PrefKey.VIDEO_RATIO]: {
+            label: t('ratio'),
+            note: t('stretch-note'),
             default: '16:9',
             options: {
                 '16:9': '16:9',
@@ -523,6 +529,7 @@ export class Preferences {
             },
         },
         [PrefKey.VIDEO_SATURATION]: {
+            label: t('saturation'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 100,
             min: 50,
@@ -533,6 +540,7 @@ export class Preferences {
             },
         },
         [PrefKey.VIDEO_CONTRAST]: {
+            label: t('contrast'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 100,
             min: 50,
@@ -543,6 +551,7 @@ export class Preferences {
             },
         },
         [PrefKey.VIDEO_BRIGHTNESS]: {
+            label: t('brightness'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 100,
             min: 50,
@@ -562,6 +571,7 @@ export class Preferences {
             default: false,
         },
         [PrefKey.AUDIO_VOLUME]: {
+            label: t('volume'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 100,
             min: 0,
@@ -574,6 +584,7 @@ export class Preferences {
 
 
         [PrefKey.STATS_ITEMS]: {
+            label: t('stats'),
             default: [StreamStat.PING, StreamStat.FPS, StreamStat.BITRATE, StreamStat.DECODE_TIME, StreamStat.PACKETS_LOST, StreamStat.FRAMES_LOST],
             multipleOptions: {
                 [StreamStat.PING]: `${StreamStat.PING.toUpperCase()}: ${t('stat-ping')}`,
@@ -588,12 +599,15 @@ export class Preferences {
             },
         },
         [PrefKey.STATS_SHOW_WHEN_PLAYING]: {
+            label: t('show-stats-on-startup'),
             default: false,
         },
         [PrefKey.STATS_QUICK_GLANCE]: {
+            label: '👀 ' + t('enable-quick-glance-mode'),
             default: true,
         },
         [PrefKey.STATS_POSITION]: {
+            label: t('position'),
             default: 'top-right',
             options: {
                 'top-left': t('top-left'),
@@ -602,6 +616,7 @@ export class Preferences {
             },
         },
         [PrefKey.STATS_TEXT_SIZE]: {
+            label: t('text-size'),
             default: '0.9rem',
             options: {
                 '0.9rem': t('small'),
@@ -610,9 +625,11 @@ export class Preferences {
             },
         },
         [PrefKey.STATS_TRANSPARENT]: {
+            label: t('transparent-background'),
             default: false,
         },
         [PrefKey.STATS_OPACITY]: {
+            label: t('opacity'),
             type:  SettingElementType.NUMBER_STEPPER,
             default: 80,
             min: 50,
@@ -623,6 +640,7 @@ export class Preferences {
             },
         },
         [PrefKey.STATS_CONDITIONAL_FORMATTING]: {
+            label: t('conditional-formatting'),
             default: false,
         },
 

@@ -4,7 +4,7 @@ import { BxIcon } from "@utils/bx-icon";
 import { UserAgent } from "@utils/user-agent";
 import { BxEvent } from "@utils/bx-event";
 import { MkbRemapper } from "@modules/mkb/mkb-remapper";
-import { getPref, PrefKey, toPrefElement } from "@utils/preferences";
+import { getPref, Preferences, PrefKey, toPrefElement } from "@utils/preferences";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { TouchController } from "@modules/touch-controller";
 import { t } from "@utils/translation";
@@ -96,7 +96,6 @@ function setupQuickSettingsBar() {
                     items: [
                         {
                             pref: PrefKey.AUDIO_VOLUME,
-                            label: t('volume'),
                             onChange: (e: any, value: number) => {
                                 SoundShortcut.setGainNodeVolume(value);
                             },
@@ -123,32 +122,27 @@ function setupQuickSettingsBar() {
                     items: [
                         {
                             pref: PrefKey.VIDEO_RATIO,
-                            label: t('ratio'),
                             onChange: updateVideoPlayerCss,
                         },
 
                         {
                             pref: PrefKey.VIDEO_CLARITY,
-                            label: t('clarity'),
                             onChange: updateVideoPlayerCss,
                             unsupported: isSafari,
                         },
 
                         {
                             pref: PrefKey.VIDEO_SATURATION,
-                            label: t('saturation'),
                             onChange: updateVideoPlayerCss,
                         },
 
                         {
                             pref: PrefKey.VIDEO_CONTRAST,
-                            label: t('contrast'),
                             onChange: updateVideoPlayerCss,
                         },
 
                         {
                             pref: PrefKey.VIDEO_BRIGHTNESS,
-                            label: t('brightness'),
                             onChange: updateVideoPlayerCss,
                         },
                     ],
@@ -167,21 +161,18 @@ function setupQuickSettingsBar() {
                     items: [
                         {
                             pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
-                            label: t('controller-vibration'),
                             unsupported: !VibrationManager.supportControllerVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
 
                         {
                             pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
-                            label: t('device-vibration'),
                             unsupported: !VibrationManager.supportDeviceVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
 
                         (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
                             pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
-                            label: t('vibration-intensity'),
                             unsupported: !VibrationManager.supportDeviceVibration(),
                             onChange: VibrationManager.updateGlobalVars,
                         },
@@ -273,43 +264,35 @@ function setupQuickSettingsBar() {
                     items: [
                         {
                             pref: PrefKey.STATS_SHOW_WHEN_PLAYING,
-                            label: t('show-stats-on-startup'),
                         },
                         {
                             pref: PrefKey.STATS_QUICK_GLANCE,
-                            label: '👀 ' + t('enable-quick-glance-mode'),
                             onChange: (e: InputEvent) => {
                                 (e.target! as HTMLInputElement).checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
                             },
                         },
                         {
                             pref: PrefKey.STATS_ITEMS,
-                            label: t('stats'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: PrefKey.STATS_POSITION,
-                            label: t('position'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: PrefKey.STATS_TEXT_SIZE,
-                            label: t('text-size'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: PrefKey.STATS_OPACITY,
-                            label: t('opacity'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: PrefKey.STATS_TRANSPARENT,
-                            label: t('transparent-background'),
                             onChange: StreamStats.refreshStyles,
                         },
                         {
                             pref: PrefKey.STATS_CONDITIONAL_FORMATTING,
-                            label: t('conditional-formatting'),
                             onChange: StreamStats.refreshStyles,
                         },
                     ],
@@ -398,13 +381,17 @@ function setupQuickSettingsBar() {
                     $control = toPrefElement(pref, setting.onChange, setting.params);
                 }
 
-                const $content = CE<HTMLElement>('div', {'class': 'bx-quick-settings-row', 'data-type': settingGroup.group},
-                            CE('label', {for: `bx_setting_${pref}`},
-                            setting.label,
-                            setting.unsupported && CE<HTMLElement>('div', {'class': 'bx-quick-settings-bar-note'}, t('browser-unsupported-feature')),
-                        ),
-                        !setting.unsupported && $control,
-                    );
+                const label = Preferences.SETTINGS[pref as PrefKey].label || setting.label;
+                const note = Preferences.SETTINGS[pref as PrefKey].note || setting.note;
+
+                const $content = CE('div', {'class': 'bx-quick-settings-row', 'data-type': settingGroup.group},
+                    CE('label', {for: `bx_setting_${pref}`},
+                        label,
+                        note && CE('div', {'class': 'bx-quick-settings-bar-note'}, note),
+                        setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, t('browser-unsupported-feature')),
+                    ),
+                    !setting.unsupported && $control,
+                );
 
                 $group.appendChild($content);
 
