@@ -5097,8 +5097,8 @@ var setupStreamSettingsDialog = function() {
         } else if (!setting.unsupported) {
           $control = toPrefElement(pref, setting.onChange, setting.params);
         }
-        const label = Preferences.SETTINGS[pref].label || setting.label;
-        const note = Preferences.SETTINGS[pref].note || setting.note;
+        const label = Preferences.SETTINGS[pref]?.label || setting.label;
+        const note = Preferences.SETTINGS[pref]?.note || setting.note;
         const $content = CE("div", { class: "bx-stream-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, label, note && CE("div", { class: "bx-stream-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-stream-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
         $group.appendChild($content);
         setting.onMounted && setting.onMounted($control);
