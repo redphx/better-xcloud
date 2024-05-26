@@ -214,29 +214,28 @@ export class ControllerShortcut {
         // Read actions from localStorage
         ControllerShortcut.#ACTIONS = JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || '{}');
 
-        const buttons = {
-            [GamepadKey.Y]: PrompFont.Y,
-            [GamepadKey.A]: PrompFont.A,
-            [GamepadKey.B]: PrompFont.B,
-            [GamepadKey.X]: PrompFont.X,
+        const buttons: Map<GamepadKey, PrompFont> = new Map();
+        buttons.set(GamepadKey.Y, PrompFont.Y);
+        buttons.set(GamepadKey.A, PrompFont.A);
+        buttons.set(GamepadKey.B, PrompFont.B);
+        buttons.set(GamepadKey.X, PrompFont.X);
 
-            [GamepadKey.UP]: PrompFont.UP,
-            [GamepadKey.DOWN]: PrompFont.DOWN,
-            [GamepadKey.LEFT]: PrompFont.LEFT,
-            [GamepadKey.RIGHT]: PrompFont.RIGHT,
+        buttons.set(GamepadKey.UP, PrompFont.UP);
+        buttons.set(GamepadKey.DOWN, PrompFont.DOWN);
+        buttons.set(GamepadKey.LEFT, PrompFont.LEFT);
+        buttons.set(GamepadKey.RIGHT, PrompFont.RIGHT);
 
-            [GamepadKey.SELECT]: PrompFont.SELECT,
-            [GamepadKey.START]: PrompFont.START,
+        buttons.set(GamepadKey.SELECT, PrompFont.SELECT);
+        buttons.set(GamepadKey.START, PrompFont.START);
 
-            [GamepadKey.LB]: PrompFont.LB,
-            [GamepadKey.RB]: PrompFont.RB,
+        buttons.set(GamepadKey.LB, PrompFont.LB);
+        buttons.set(GamepadKey.RB, PrompFont.RB);
 
-            [GamepadKey.LT]: PrompFont.LT,
-            [GamepadKey.RT]: PrompFont.RT,
+        buttons.set(GamepadKey.LT, PrompFont.LT);
+        buttons.set(GamepadKey.RT, PrompFont.RT);
 
-            [GamepadKey.L3]: PrompFont.L3,
-            [GamepadKey.R3]: PrompFont.R3,
-        };
+        buttons.set(GamepadKey.L3, PrompFont.L3);
+        buttons.set(GamepadKey.R3, PrompFont.R3);
 
         const actions: {[key: string]: Partial<{[key in ShortcutAction]: string | string[]}>} = {
             [t('device')]: AppInterface && {
@@ -327,12 +326,10 @@ export class ControllerShortcut {
             !(e as any).ignoreOnChange && ControllerShortcut.#updateAction(profile, button as GamepadKey, action);
         };
 
-        let button: keyof typeof buttons;
         // @ts-ignore
-        for (button in buttons) {
+        for (const [button, prompt] of buttons) {
             const $row = CE('div', {'class': 'bx-shortcut-row'});
 
-            const prompt = buttons[button];
             const $label = CE('label', {'class': 'bx-prompt'}, `${PrompFont.HOME} + ${prompt}`);
 
             const $div = CE('div', {'class': 'bx-shortcut-actions'});
