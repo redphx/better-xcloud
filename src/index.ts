@@ -24,7 +24,7 @@ import { onHistoryChanged, patchHistoryMethod } from "@utils/history";
 import { VibrationManager } from "@modules/vibration-manager";
 import { overridePreloadState } from "@utils/preload-state";
 import { patchAudioContext, patchCanvasContext, patchMeControl, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
-import { STATES } from "@utils/global";
+import { AppInterface, STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
@@ -197,7 +197,47 @@ window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, e => {
 });
 
 
+function observeRootDialog($root: HTMLElement) {
+    let currentShown = false;
+
+    const observer = new MutationObserver(mutationList => {
+        for (const mutation of mutationList) {
+            if (mutation.type !== 'childList') {
+                continue;
+            }
+
+            const shown = ($root.firstElementChild && $root.firstElementChild.childElementCount > 0) || false;
+            if (shown !== currentShown) {
+                currentShown = shown;
+                BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
+            }
+        }
+    });
+    observer.observe($root, {subtree: true, childList: true});
+}
+
+function waitForRootDialog() {
+    const observer = new MutationObserver(mutationList => {
+        for (const mutation of mutationList) {
+            if (mutation.type !== 'childList') {
+                continue;
+            }
+
+            const $target = mutation.target as HTMLElement;
+            if ($target.id && $target.id === 'gamepass-dialog-root') {
+                observer.disconnect();
+                observeRootDialog($target);
+                break;
+            }
+        };
+    });
+    observer.observe(document.documentElement, {subtree: true, childList: true});
+}
+
+
 function main() {
+    waitForRootDialog();
+
     // Monkey patches
     patchRtcPeerConnection();
     patchRtcCodecs();

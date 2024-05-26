@@ -37,6 +37,10 @@ export enum BxEvent {
 
     CAPTURE_SCREENSHOT = 'bx-capture-screenshot',
     GAINNODE_VOLUME_CHANGED = 'bx-gainnode-volume-changed',
+
+    // xCloud Dialog events
+    XCLOUD_DIALOG_SHOWN = 'bx-xcloud-dialog-shown',
+    XCLOUD_DIALOG_DISMISSED = 'bx-xcloud-dialog-dismissed',
 }
 
 export enum XcloudEvent {
