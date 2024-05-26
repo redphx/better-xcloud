@@ -3367,7 +3367,7 @@ class ControllerShortcut {
         otherButtonPressed = true;
         pressed[index] = true;
         if (actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) {
-          ControllerShortcut.#runAction(actions[index]);
+          setTimeout(() => ControllerShortcut.#runAction(actions[index]), 0);
         }
       }
     });
@@ -3472,24 +3472,23 @@ class ControllerShortcut {
   }
   static renderSettings() {
     ControllerShortcut.#ACTIONS = JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || "{}");
-    const buttons = {
-      [GamepadKey.Y]: PrompFont.Y,
-      [GamepadKey.A]: PrompFont.A,
-      [GamepadKey.B]: PrompFont.B,
-      [GamepadKey.X]: PrompFont.X,
-      [GamepadKey.UP]: PrompFont.UP,
-      [GamepadKey.DOWN]: PrompFont.DOWN,
-      [GamepadKey.LEFT]: PrompFont.LEFT,
-      [GamepadKey.RIGHT]: PrompFont.RIGHT,
-      [GamepadKey.SELECT]: PrompFont.SELECT,
-      [GamepadKey.START]: PrompFont.START,
-      [GamepadKey.LB]: PrompFont.LB,
-      [GamepadKey.RB]: PrompFont.RB,
-      [GamepadKey.LT]: PrompFont.LT,
-      [GamepadKey.RT]: PrompFont.RT,
-      [GamepadKey.L3]: PrompFont.L3,
-      [GamepadKey.R3]: PrompFont.R3
-    };
+    const buttons = new Map;
+    buttons.set(GamepadKey.Y, PrompFont.Y);
+    buttons.set(GamepadKey.A, PrompFont.A);
+    buttons.set(GamepadKey.B, PrompFont.B);
+    buttons.set(GamepadKey.X, PrompFont.X);
+    buttons.set(GamepadKey.UP, PrompFont.UP);
+    buttons.set(GamepadKey.DOWN, PrompFont.DOWN);
+    buttons.set(GamepadKey.LEFT, PrompFont.LEFT);
+    buttons.set(GamepadKey.RIGHT, PrompFont.RIGHT);
+    buttons.set(GamepadKey.SELECT, PrompFont.SELECT);
+    buttons.set(GamepadKey.START, PrompFont.START);
+    buttons.set(GamepadKey.LB, PrompFont.LB);
+    buttons.set(GamepadKey.RB, PrompFont.RB);
+    buttons.set(GamepadKey.LT, PrompFont.LT);
+    buttons.set(GamepadKey.RT, PrompFont.RT);
+    buttons.set(GamepadKey.L3, PrompFont.L3);
+    buttons.set(GamepadKey.R3, PrompFont.R3);
     const actions = {
       [t("device")]: AppInterface && {
         [ShortcutAction.DEVICE_SOUND_TOGGLE]: [t("sound"), t("toggle")],
@@ -3537,7 +3536,7 @@ class ControllerShortcut {
     const onActionChanged = (e) => {
       const $target = e.target;
       const profile = $selectProfile.value;
-      const button2 = $target.dataset.button;
+      const button = $target.dataset.button;
       const action = $target.value;
       const $fakeSelect = $target.previousElementSibling;
       let fakeText = "---";
@@ -3547,12 +3546,10 @@ class ControllerShortcut {
         fakeText = $optGroup.label + " ❯ " + $selectedOption.text;
       }
       $fakeSelect.firstElementChild.text = fakeText;
-      !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button2, action);
+      !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button, action);
     };
-    let button;
-    for (button in buttons) {
+    for (const [button, prompt2] of buttons) {
       const $row = CE("div", { class: "bx-shortcut-row" });
-      const prompt2 = buttons[button];
       const $label = CE("label", { class: "bx-prompt" }, `${PrompFont.HOME} + ${prompt2}`);
       const $div = CE("div", { class: "bx-shortcut-actions" });
       const $fakeSelect = CE("select", { autocomplete: "off" }, CE("option", {}, "---"));
@@ -7337,7 +7334,7 @@ class MouseCursorHider {
 }
 
 // src/modules/patches/controller-shortcuts.js
-var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].value === 1) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    if (btnHome.pressed) {\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                    shortcutPressed: 0,\n                    timestamp: currentGamepad.timestamp,\n                };\n        }\n\n        // Listen to next button press\n        const intervalMs = 50;\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                    GamepadIndex: currentGamepad.index,\n                    A: 0,\n                    B: 0,\n                    X: 0,\n                    Y: 0,\n                    LeftShoulder: 0,\n                    RightShoulder: 0,\n                    LeftTrigger: 0,\n                    RightTrigger: 0,\n                    View: 0,\n                    Menu: 0,\n                    LeftThumb: 0,\n                    RightThumb: 0,\n                    DPadUp: 0,\n                    DPadDown: 0,\n                    DPadLeft: 0,\n                    DPadRight: 0,\n                    Nexus: 1,\n                    LeftThumbXAxis: 0,\n                    LeftThumbYAxis: 0,\n                    RightThumbXAxis: 0,\n                    RightThumbYAxis: 0,\n                    PhysicalPhysicality: 0,\n                    VirtualPhysicality: 0,\n                    Dirty: true,\n                    Virtual: false,\n                }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            const intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n            this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n            return;\n        }\n    }\n}\n";
+var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    if (btnHome.pressed) {\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                    shortcutPressed: 0,\n                    timestamp: currentGamepad.timestamp,\n                };\n        }\n\n        // Listen to next button press\n        const intervalMs = 16;\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                    GamepadIndex: currentGamepad.index,\n                    A: 0,\n                    B: 0,\n                    X: 0,\n                    Y: 0,\n                    LeftShoulder: 0,\n                    RightShoulder: 0,\n                    LeftTrigger: 0,\n                    RightTrigger: 0,\n                    View: 0,\n                    Menu: 0,\n                    LeftThumb: 0,\n                    RightThumb: 0,\n                    DPadUp: 0,\n                    DPadDown: 0,\n                    DPadLeft: 0,\n                    DPadRight: 0,\n                    Nexus: 1,\n                    LeftThumbXAxis: 0,\n                    LeftThumbYAxis: 0,\n                    RightThumbXAxis: 0,\n                    RightThumbYAxis: 0,\n                    PhysicalPhysicality: 0,\n                    VirtualPhysicality: 0,\n                    Dirty: true,\n                    Virtual: false,\n                }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            const intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n            this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n            return;\n        }\n    }\n}\n";
 
 // src/modules/patches/local-co-op-enable.js
 var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
