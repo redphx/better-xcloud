@@ -178,9 +178,9 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
     // Stop MKB listeners
     getPref(PrefKey.MKB_ENABLED) && MkbHandler.INSTANCE.destroy();
 
-    const $quickBar = document.querySelector('.bx-quick-settings-bar');
-    if ($quickBar) {
-        $quickBar.classList.add('bx-gone');
+    const $streamSettingsDialog = document.querySelector('.bx-stream-settings-dialog');
+    if ($streamSettingsDialog) {
+        $streamSettingsDialog.classList.add('bx-gone');
     }
 
     STATES.currentStream.audioGainNode = null;

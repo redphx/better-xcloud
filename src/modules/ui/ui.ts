@@ -68,7 +68,7 @@ function getVideoPlayerFilterStyle() {
     return filters.join(' ');
 }
 
-function setupQuickSettingsBar() {
+function setupStreamSettingsDialog() {
     const isSafari = UserAgent.isSafari();
 
     const SETTINGS_UI = [
@@ -304,9 +304,9 @@ function setupQuickSettingsBar() {
     let $tabs: HTMLElement;
     let $settings: HTMLElement;
 
-    const $wrapper = CE<HTMLElement>('div', {'class': 'bx-quick-settings-bar bx-gone'},
-            $tabs = CE<HTMLElement>('div', {'class': 'bx-quick-settings-tabs'}),
-            $settings = CE<HTMLElement>('div', {'class': 'bx-quick-settings-tab-contents'}),
+    const $wrapper = CE<HTMLElement>('div', {'class': 'bx-stream-settings-dialog bx-gone'},
+            $tabs = CE<HTMLElement>('div', {'class': 'bx-stream-settings-tabs'}),
+            $settings = CE<HTMLElement>('div', {'class': 'bx-stream-settings-tab-contents'}),
         );
 
     for (const settingTab of SETTINGS_UI) {
@@ -384,11 +384,11 @@ function setupQuickSettingsBar() {
                 const label = Preferences.SETTINGS[pref as PrefKey].label || setting.label;
                 const note = Preferences.SETTINGS[pref as PrefKey].note || setting.note;
 
-                const $content = CE('div', {'class': 'bx-quick-settings-row', 'data-type': settingGroup.group},
+                const $content = CE('div', {'class': 'bx-stream-settings-row', 'data-type': settingGroup.group},
                     CE('label', {for: `bx_setting_${pref}`},
                         label,
-                        note && CE('div', {'class': 'bx-quick-settings-bar-note'}, note),
-                        setting.unsupported && CE('div', {'class': 'bx-quick-settings-bar-note'}, t('browser-unsupported-feature')),
+                        note && CE('div', {'class': 'bx-stream-settings-dialog-note'}, note),
+                        setting.unsupported && CE('div', {'class': 'bx-stream-settings-dialog-note'}, t('browser-unsupported-feature')),
                     ),
                     !setting.unsupported && $control,
                 );
@@ -515,11 +515,11 @@ function preloadFonts() {
 
 export function setupStreamUi() {
     // Prevent initializing multiple times
-    if (!document.querySelector('.bx-quick-settings-bar')) {
+    if (!document.querySelector('.bx-stream-settings-dialog')) {
         preloadFonts();
 
         window.addEventListener('resize', updateVideoPlayerCss);
-        setupQuickSettingsBar();
+        setupStreamSettingsDialog();
         StreamStats.render();
 
         Screenshot.setup();

@@ -66,9 +66,9 @@ export function injectStreamMenuButtons() {
 
     ($screen as any).xObserving = true;
 
-    const $quickBar = document.querySelector('.bx-quick-settings-bar')!;
+    const $settingsDialog = document.querySelector('.bx-stream-settings-dialog')!;
     const $parent = $screen.parentElement;
-    const hideQuickBarFunc = (e?: MouseEvent | TouchEvent) => {
+    const hideSettingsFunc = (e?: MouseEvent | TouchEvent) => {
         if (e) {
             const $target = e.target as HTMLElement;
             e.stopPropagation();
@@ -76,15 +76,15 @@ export function injectStreamMenuButtons() {
                 return;
             }
             if ($target.id === 'MultiTouchSurface') {
-                $target.removeEventListener('touchstart', hideQuickBarFunc);
+                $target.removeEventListener('touchstart', hideSettingsFunc);
             }
         }
 
-        // Hide Quick settings bar
-        $quickBar.classList.add('bx-gone');
+        // Hide Stream settings dialog
+        $settingsDialog.classList.add('bx-gone');
 
-        $parent?.removeEventListener('click', hideQuickBarFunc);
-        // $parent.removeEventListener('touchstart', hideQuickBarFunc);
+        $parent?.removeEventListener('click', hideSettingsFunc);
+        // $parent.removeEventListener('touchstart', hideSettingsFunc);
     }
 
     let $btnStreamSettings: HTMLElement;
@@ -146,9 +146,9 @@ export function injectStreamMenuButtons() {
                         return;
                     }
 
-                    // Hide Quick bar when closing HUD
+                    // Hide Stream Settings dialog when closing HUD
                     $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
-                        $quickBar.classList.add('bx-gone');
+                        $settingsDialog.classList.add('bx-gone');
                     });
 
                     // Create Refresh button from the Close button
@@ -176,7 +176,7 @@ export function injectStreamMenuButtons() {
                     const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
                     $menu?.appendChild(await StreamBadges.render());
 
-                    hideQuickBarFunc();
+                    hideSettingsFunc();
                     return;
                 }
 
@@ -215,14 +215,14 @@ export function injectStreamMenuButtons() {
                         hideGripHandle();
                         e.preventDefault();
 
-                        // Show Quick settings bar
-                        $quickBar.classList.remove('bx-gone');
+                        // Show Stream Settings dialog
+                        $settingsDialog.classList.remove('bx-gone');
 
-                        $parent?.addEventListener('click', hideQuickBarFunc);
-                        //$parent.addEventListener('touchstart', hideQuickBarFunc);
+                        $parent?.addEventListener('click', hideSettingsFunc);
+                        //$parent.addEventListener('touchstart', hideSettingsFunc);
 
                         const $touchSurface = document.getElementById('MultiTouchSurface');
-                        $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideQuickBarFunc);
+                        $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideSettingsFunc);
                     });
                 }
 
@@ -263,14 +263,14 @@ export function injectStreamMenuButtons() {
 
 
 export function showStreamSettings(tabId: string) {
-    const $wrapper = document.querySelector('.bx-quick-settings-bar');
+    const $wrapper = document.querySelector('.bx-stream-settings-dialog');
     if (!$wrapper) {
         return;
     }
 
     // Select tab
     if (tabId) {
-        const $tab = $wrapper.querySelector(`.bx-quick-settings-tabs svg[data-group=${tabId}]`);
+        const $tab = $wrapper.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
         $tab && $tab.dispatchEvent(new Event('click'));
     }
 
