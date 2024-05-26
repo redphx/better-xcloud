@@ -28,7 +28,7 @@ export function checkForUpdate() {
         });
 
     // Update translations
-    Translations.updateTranslations(true);
+    Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
 }
 
 
