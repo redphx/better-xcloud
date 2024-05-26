@@ -150,6 +150,8 @@ var BxEvent;
   BxEvent2["MICROPHONE_STATE_CHANGED"] = "bx-microphone-state-changed";
   BxEvent2["CAPTURE_SCREENSHOT"] = "bx-capture-screenshot";
   BxEvent2["GAINNODE_VOLUME_CHANGED"] = "bx-gainnode-volume-changed";
+  BxEvent2["XCLOUD_DIALOG_SHOWN"] = "bx-xcloud-dialog-shown";
+  BxEvent2["XCLOUD_DIALOG_DISMISSED"] = "bx-xcloud-dialog-dismissed";
 })(BxEvent || (BxEvent = {}));
 var XcloudEvent;
 (function(XcloudEvent2) {
@@ -1939,9 +1941,11 @@ class Preferences {
       default: false
     },
     [PrefKey.CONTROLLER_ENABLE_VIBRATION]: {
+      label: t("controller-vibration"),
       default: true
     },
     [PrefKey.CONTROLLER_DEVICE_VIBRATION]: {
+      label: t("device-vibration"),
       default: "off",
       options: {
         on: t("on"),
@@ -1950,6 +1954,7 @@ class Preferences {
       }
     },
     [PrefKey.CONTROLLER_VIBRATION_INTENSITY]: {
+      label: t("vibration-intensity"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 100,
       min: 0,
@@ -2055,6 +2060,7 @@ class Preferences {
       }
     },
     [PrefKey.VIDEO_CLARITY]: {
+      label: t("clarity"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 0,
       min: 0,
@@ -2064,6 +2070,8 @@ class Preferences {
       }
     },
     [PrefKey.VIDEO_RATIO]: {
+      label: t("ratio"),
+      note: t("stretch-note"),
       default: "16:9",
       options: {
         "16:9": "16:9",
@@ -2075,6 +2083,7 @@ class Preferences {
       }
     },
     [PrefKey.VIDEO_SATURATION]: {
+      label: t("saturation"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 100,
       min: 50,
@@ -2085,6 +2094,7 @@ class Preferences {
       }
     },
     [PrefKey.VIDEO_CONTRAST]: {
+      label: t("contrast"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 100,
       min: 50,
@@ -2095,6 +2105,7 @@ class Preferences {
       }
     },
     [PrefKey.VIDEO_BRIGHTNESS]: {
+      label: t("brightness"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 100,
       min: 50,
@@ -2113,6 +2124,7 @@ class Preferences {
       default: false
     },
     [PrefKey.AUDIO_VOLUME]: {
+      label: t("volume"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 100,
       min: 0,
@@ -2123,6 +2135,7 @@ class Preferences {
       }
     },
     [PrefKey.STATS_ITEMS]: {
+      label: t("stats"),
       default: [StreamStat.PING, StreamStat.FPS, StreamStat.BITRATE, StreamStat.DECODE_TIME, StreamStat.PACKETS_LOST, StreamStat.FRAMES_LOST],
       multipleOptions: {
         [StreamStat.PING]: `${StreamStat.PING.toUpperCase()}: ${t("stat-ping")}`,
@@ -2137,12 +2150,15 @@ class Preferences {
       }
     },
     [PrefKey.STATS_SHOW_WHEN_PLAYING]: {
+      label: t("show-stats-on-startup"),
       default: false
     },
     [PrefKey.STATS_QUICK_GLANCE]: {
+      label: "👀 " + t("enable-quick-glance-mode"),
       default: true
     },
     [PrefKey.STATS_POSITION]: {
+      label: t("position"),
       default: "top-right",
       options: {
         "top-left": t("top-left"),
@@ -2151,6 +2167,7 @@ class Preferences {
       }
     },
     [PrefKey.STATS_TEXT_SIZE]: {
+      label: t("text-size"),
       default: "0.9rem",
       options: {
         "0.9rem": t("small"),
@@ -2159,9 +2176,11 @@ class Preferences {
       }
     },
     [PrefKey.STATS_TRANSPARENT]: {
+      label: t("transparent-background"),
       default: false
     },
     [PrefKey.STATS_OPACITY]: {
+      label: t("opacity"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 80,
       min: 50,
@@ -2172,6 +2191,7 @@ class Preferences {
       }
     },
     [PrefKey.STATS_CONDITIONAL_FORMATTING]: {
+      label: t("conditional-formatting"),
       default: false
     },
     [PrefKey.REMOTE_PLAY_ENABLED]: {
@@ -2661,9 +2681,9 @@ function injectStreamMenuButtons() {
     return;
   }
   $screen.xObserving = true;
-  const $quickBar = document.querySelector(".bx-quick-settings-bar");
+  const $settingsDialog = document.querySelector(".bx-stream-settings-dialog");
   const $parent = $screen.parentElement;
-  const hideQuickBarFunc = (e) => {
+  const hideSettingsFunc = (e) => {
     if (e) {
       const $target = e.target;
       e.stopPropagation();
@@ -2671,11 +2691,11 @@ function injectStreamMenuButtons() {
         return;
       }
       if ($target.id === "MultiTouchSurface") {
-        $target.removeEventListener("touchstart", hideQuickBarFunc);
+        $target.removeEventListener("touchstart", hideSettingsFunc);
       }
     }
-    $quickBar.classList.add("bx-gone");
-    $parent?.removeEventListener("click", hideQuickBarFunc);
+    $settingsDialog.classList.add("bx-gone");
+    $parent?.removeEventListener("click", hideSettingsFunc);
   };
   let $btnStreamSettings;
   let $btnStreamStats;
@@ -2722,7 +2742,7 @@ function injectStreamMenuButtons() {
             return;
           }
           $btnCloseHud && $btnCloseHud.addEventListener("click", (e) => {
-            $quickBar.classList.add("bx-gone");
+            $settingsDialog.classList.add("bx-gone");
           });
           const $btnRefresh = $btnCloseHud.cloneNode(true);
           const $svgRefresh = createSvgIcon(BxIcon.REFRESH);
@@ -2737,7 +2757,7 @@ function injectStreamMenuButtons() {
           $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh);
           const $menu = document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]");
           $menu?.appendChild(await StreamBadges.render());
-          hideQuickBarFunc();
+          hideSettingsFunc();
           return;
         }
         if ($elm.className?.startsWith("Overlay-module_") || $elm.className?.startsWith("InProgressScreen")) {
@@ -2765,10 +2785,10 @@ function injectStreamMenuButtons() {
           $btnStreamSettings.addEventListener("click", (e) => {
             hideGripHandle();
             e.preventDefault();
-            $quickBar.classList.remove("bx-gone");
-            $parent?.addEventListener("click", hideQuickBarFunc);
+            $settingsDialog.classList.remove("bx-gone");
+            $parent?.addEventListener("click", hideSettingsFunc);
             const $touchSurface = document.getElementById("MultiTouchSurface");
-            $touchSurface && $touchSurface.style.display != "none" && $touchSurface.addEventListener("touchstart", hideQuickBarFunc);
+            $touchSurface && $touchSurface.style.display != "none" && $touchSurface.addEventListener("touchstart", hideSettingsFunc);
           });
         }
         if (!$btnStreamStats) {
@@ -2796,12 +2816,12 @@ function injectStreamMenuButtons() {
   observer.observe($screen, { subtree: true, childList: true });
 }
 function showStreamSettings(tabId) {
-  const $wrapper = document.querySelector(".bx-quick-settings-bar");
+  const $wrapper = document.querySelector(".bx-stream-settings-dialog");
   if (!$wrapper) {
     return;
   }
   if (tabId) {
-    const $tab = $wrapper.querySelector(`.bx-quick-settings-tabs svg[data-group=${tabId}]`);
+    const $tab = $wrapper.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
     $tab && $tab.dispatchEvent(new Event("click"));
   }
   $wrapper.classList.remove("bx-gone");
@@ -4612,7 +4632,7 @@ class MkbRemapper {
       const onChange = (e, value2) => {
         this.#STATE.editingPresetData.mouse[key] = value2;
       };
-      const $row = CE("div", { class: "bx-quick-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
+      const $row = CE("div", { class: "bx-stream-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
       $mouseSettings.appendChild($row);
       this.#$.allMouseElements[key] = $elm;
     }
@@ -4812,7 +4832,7 @@ var getVideoPlayerFilterStyle = function() {
   }
   return filters.join(" ");
 };
-var setupQuickSettingsBar = function() {
+var setupStreamSettingsDialog = function() {
   const isSafari = UserAgent.isSafari();
   const SETTINGS_UI = [
     getPref(PrefKey.MKB_ENABLED) && {
@@ -4838,7 +4858,6 @@ var setupQuickSettingsBar = function() {
           items: [
             {
               pref: PrefKey.AUDIO_VOLUME,
-              label: t("volume"),
               onChange: (e, value) => {
                 SoundShortcut.setGainNodeVolume(value);
               },
@@ -4864,28 +4883,23 @@ var setupQuickSettingsBar = function() {
           items: [
             {
               pref: PrefKey.VIDEO_RATIO,
-              label: t("ratio"),
               onChange: updateVideoPlayerCss
             },
             {
               pref: PrefKey.VIDEO_CLARITY,
-              label: t("clarity"),
               onChange: updateVideoPlayerCss,
               unsupported: isSafari
             },
             {
               pref: PrefKey.VIDEO_SATURATION,
-              label: t("saturation"),
               onChange: updateVideoPlayerCss
             },
             {
               pref: PrefKey.VIDEO_CONTRAST,
-              label: t("contrast"),
               onChange: updateVideoPlayerCss
             },
             {
               pref: PrefKey.VIDEO_BRIGHTNESS,
-              label: t("brightness"),
               onChange: updateVideoPlayerCss
             }
           ]
@@ -4903,19 +4917,16 @@ var setupQuickSettingsBar = function() {
           items: [
             {
               pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
-              label: t("controller-vibration"),
               unsupported: !VibrationManager.supportControllerVibration(),
               onChange: VibrationManager.updateGlobalVars
             },
             {
               pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
-              label: t("device-vibration"),
               unsupported: !VibrationManager.supportDeviceVibration(),
               onChange: VibrationManager.updateGlobalVars
             },
             (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
               pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
-              label: t("vibration-intensity"),
               unsupported: !VibrationManager.supportDeviceVibration(),
               onChange: VibrationManager.updateGlobalVars
             }
@@ -4992,44 +5003,36 @@ var setupQuickSettingsBar = function() {
           help_url: "https://better-xcloud.github.io/stream-stats/",
           items: [
             {
-              pref: PrefKey.STATS_SHOW_WHEN_PLAYING,
-              label: t("show-stats-on-startup")
+              pref: PrefKey.STATS_SHOW_WHEN_PLAYING
             },
             {
               pref: PrefKey.STATS_QUICK_GLANCE,
-              label: "👀 " + t("enable-quick-glance-mode"),
               onChange: (e) => {
                 e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
               }
             },
             {
               pref: PrefKey.STATS_ITEMS,
-              label: t("stats"),
               onChange: StreamStats.refreshStyles
             },
             {
               pref: PrefKey.STATS_POSITION,
-              label: t("position"),
               onChange: StreamStats.refreshStyles
             },
             {
               pref: PrefKey.STATS_TEXT_SIZE,
-              label: t("text-size"),
               onChange: StreamStats.refreshStyles
             },
             {
               pref: PrefKey.STATS_OPACITY,
-              label: t("opacity"),
               onChange: StreamStats.refreshStyles
             },
             {
               pref: PrefKey.STATS_TRANSPARENT,
-              label: t("transparent-background"),
               onChange: StreamStats.refreshStyles
             },
             {
               pref: PrefKey.STATS_CONDITIONAL_FORMATTING,
-              label: t("conditional-formatting"),
               onChange: StreamStats.refreshStyles
             }
           ]
@@ -5039,7 +5042,7 @@ var setupQuickSettingsBar = function() {
   ];
   let $tabs;
   let $settings;
-  const $wrapper = CE("div", { class: "bx-quick-settings-bar bx-gone" }, $tabs = CE("div", { class: "bx-quick-settings-tabs" }), $settings = CE("div", { class: "bx-quick-settings-tab-contents" }));
+  const $wrapper = CE("div", { class: "bx-stream-settings-dialog bx-gone" }, $tabs = CE("div", { class: "bx-stream-settings-tabs" }), $settings = CE("div", { class: "bx-stream-settings-tab-contents" }));
   for (const settingTab of SETTINGS_UI) {
     if (!settingTab) {
       continue;
@@ -5094,7 +5097,9 @@ var setupQuickSettingsBar = function() {
         } else if (!setting.unsupported) {
           $control = toPrefElement(pref, setting.onChange, setting.params);
         }
-        const $content = CE("div", { class: "bx-quick-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, setting.label, setting.unsupported && CE("div", { class: "bx-quick-settings-bar-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
+        const label = Preferences.SETTINGS[pref].label || setting.label;
+        const note = Preferences.SETTINGS[pref].note || setting.note;
+        const $content = CE("div", { class: "bx-stream-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, label, note && CE("div", { class: "bx-stream-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-stream-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
         $group.appendChild($content);
         setting.onMounted && setting.onMounted($control);
       }
@@ -5179,10 +5184,10 @@ var preloadFonts = function() {
   document.querySelector("head")?.appendChild($link);
 };
 function setupStreamUi() {
-  if (!document.querySelector(".bx-quick-settings-bar")) {
+  if (!document.querySelector(".bx-stream-settings-dialog")) {
     preloadFonts();
     window.addEventListener("resize", updateVideoPlayerCss);
-    setupQuickSettingsBar();
+    setupStreamSettingsDialog();
     StreamStats.render();
     Screenshot.setup();
   }
@@ -6893,7 +6898,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 .bx-stats-bar span:first-of-type {
   min-width: 22px;
 }
-.bx-quick-settings-bar {
+.bx-stream-settings-dialog {
   display: flex;
   position: fixed;
   z-index: var(--bx-stream-settings-z-index);
@@ -6901,7 +6906,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   user-select: none;
   -webkit-user-select: none;
 }
-.bx-quick-settings-tabs {
+.bx-stream-settings-tabs {
   position: fixed;
   top: 0;
   right: 420px;
@@ -6911,7 +6916,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   box-shadow: 0px 0px 6px #000;
   overflow: clip;
 }
-.bx-quick-settings-tabs svg {
+.bx-stream-settings-tabs svg {
   width: 32px;
   height: 32px;
   padding: 10px;
@@ -6920,15 +6925,15 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   cursor: pointer;
   border-left: 4px solid #1e1e1e;
 }
-.bx-quick-settings-tabs svg.bx-active {
+.bx-stream-settings-tabs svg.bx-active {
   background: #222;
   border-color: #008746;
 }
-.bx-quick-settings-tabs svg:not(.bx-active):hover {
+.bx-stream-settings-tabs svg:not(.bx-active):hover {
   background: #2f2f2f;
   border-color: #484848;
 }
-.bx-quick-settings-tab-contents {
+.bx-stream-settings-tab-contents {
   flex-direction: column;
   position: fixed;
   right: 0;
@@ -6945,21 +6950,21 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   box-shadow: 0px 0px 6px #000;
   overflow: overlay;
 }
-.bx-quick-settings-tab-contents > div[data-group=mkb] {
+.bx-stream-settings-tab-contents > div[data-group=mkb] {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
 }
-.bx-quick-settings-tab-contents *:focus {
+.bx-stream-settings-tab-contents *:focus {
   outline: none !important;
 }
-.bx-quick-settings-tab-contents h2 {
+.bx-stream-settings-tab-contents h2 {
   margin-bottom: 8px;
   display: flex;
   align-item: center;
 }
-.bx-quick-settings-tab-contents h2 span {
+.bx-stream-settings-tab-contents h2 span {
   display: inline-block;
   font-size: 24px;
   font-weight: bold;
@@ -6972,13 +6977,13 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   overflow: hidden;
   white-space: nowrap;
 }
-.bx-quick-settings-row {
+.bx-stream-settings-row {
   display: flex;
   border-bottom: 1px solid rgba(64,64,64,0.502);
   margin-bottom: 16px;
   padding-bottom: 16px;
 }
-.bx-quick-settings-row label {
+.bx-stream-settings-row label {
   font-size: 16px;
   display: block;
   text-align: left;
@@ -6986,64 +6991,62 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   align-self: center;
   margin-bottom: 0 !important;
 }
-.bx-quick-settings-row input {
+.bx-stream-settings-row input {
   accent-color: var(--bx-primary-button-color);
 }
-.bx-quick-settings-row select:disabled {
+.bx-stream-settings-row select:disabled {
   -webkit-appearance: none;
   background: transparent;
   text-align-last: right;
   border: none;
 }
-.bx-quick-settings-bar-note {
+.bx-stream-settings-dialog-note {
   display: block;
-  text-align: center;
   font-size: 12px;
   font-weight: lighter;
   font-style: italic;
-  padding-top: 16px;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:first-of-type {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:first-of-type {
   display: none;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:last-of-type {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:last-of-type {
   display: block;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:first-of-type {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:first-of-type {
   display: block;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:last-of-type {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:last-of-type {
   display: none;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile {
   width: 100%;
   height: 36px;
   display: block;
   margin-bottom: 10px;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-note {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-note {
   font-size: 14px;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row {
   display: flex;
   margin-bottom: 10px;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt {
   flex: 1;
   font-size: 26px;
   margin-bottom: 0;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions {
   flex: 2;
   position: relative;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select {
   position: absolute;
   width: 100%;
   height: 100%;
   display: block;
 }
-.bx-quick-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select:last-of-type {
+.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select:last-of-type {
   opacity: 0;
   z-index: calc(var(--bx-stream-settings-z-index) + 1);
 }
@@ -7334,7 +7337,7 @@ class MouseCursorHider {
 }
 
 // src/modules/patches/controller-shortcuts.js
-var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    if (btnHome.pressed) {\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                    shortcutPressed: 0,\n                    timestamp: currentGamepad.timestamp,\n                };\n        }\n\n        // Listen to next button press\n        const intervalMs = 16;\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                    GamepadIndex: currentGamepad.index,\n                    A: 0,\n                    B: 0,\n                    X: 0,\n                    Y: 0,\n                    LeftShoulder: 0,\n                    RightShoulder: 0,\n                    LeftTrigger: 0,\n                    RightTrigger: 0,\n                    View: 0,\n                    Menu: 0,\n                    LeftThumb: 0,\n                    RightThumb: 0,\n                    DPadUp: 0,\n                    DPadDown: 0,\n                    DPadLeft: 0,\n                    DPadRight: 0,\n                    Nexus: 1,\n                    LeftThumbXAxis: 0,\n                    LeftThumbYAxis: 0,\n                    RightThumbXAxis: 0,\n                    RightThumbYAxis: 0,\n                    PhysicalPhysicality: 0,\n                    VirtualPhysicality: 0,\n                    Dirty: true,\n                    Virtual: false,\n                }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            const intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n            this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n            return;\n        }\n    }\n}\n";
+var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    if (btnHome.pressed) {\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                shortcutPressed: 0,\n                timestamp: currentGamepad.timestamp,\n            };\n        }\n\n        // Listen to next button press\n        const intervalMs = 16;\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                GamepadIndex: currentGamepad.index,\n                A: 0,\n                B: 0,\n                X: 0,\n                Y: 0,\n                LeftShoulder: 0,\n                RightShoulder: 0,\n                LeftTrigger: 0,\n                RightTrigger: 0,\n                View: 0,\n                Menu: 0,\n                LeftThumb: 0,\n                RightThumb: 0,\n                DPadUp: 0,\n                DPadDown: 0,\n                DPadLeft: 0,\n                DPadRight: 0,\n                Nexus: 1,\n                LeftThumbXAxis: 0,\n                LeftThumbYAxis: 0,\n                RightThumbXAxis: 0,\n                RightThumbYAxis: 0,\n                PhysicalPhysicality: 0,\n                VirtualPhysicality: 0,\n                Dirty: true,\n                Virtual: false,\n            }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            const intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n            this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n            return;\n        }\n    }\n}\n";
 
 // src/modules/patches/local-co-op-enable.js
 var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
@@ -8592,7 +8595,40 @@ function patchCanvasContext() {
 }
 
 // src/index.ts
+var observeRootDialog = function($root) {
+  let currentShown = false;
+  const observer = new MutationObserver((mutationList) => {
+    for (const mutation of mutationList) {
+      if (mutation.type !== "childList") {
+        continue;
+      }
+      const shown = $root.firstElementChild && $root.firstElementChild.childElementCount > 0 || false;
+      if (shown !== currentShown) {
+        currentShown = shown;
+        BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
+      }
+    }
+  });
+  observer.observe($root, { subtree: true, childList: true });
+};
+var waitForRootDialog = function() {
+  const observer = new MutationObserver((mutationList) => {
+    for (const mutation of mutationList) {
+      if (mutation.type !== "childList") {
+        continue;
+      }
+      const $target = mutation.target;
+      if ($target.id && $target.id === "gamepass-dialog-root") {
+        observer.disconnect();
+        observeRootDialog($target);
+        break;
+      }
+    }
+  });
+  observer.observe(document.documentElement, { subtree: true, childList: true });
+};
 var main = function() {
+  waitForRootDialog();
   patchRtcPeerConnection();
   patchRtcCodecs();
   interceptHttpRequests();
@@ -8722,9 +8758,9 @@ window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
   STATES.currentStream = {};
   window.BX_EXPOSED.shouldShowSensorControls = false;
   getPref(PrefKey.MKB_ENABLED) && MkbHandler.INSTANCE.destroy();
-  const $quickBar = document.querySelector(".bx-quick-settings-bar");
-  if ($quickBar) {
-    $quickBar.classList.add("bx-gone");
+  const $streamSettingsDialog = document.querySelector(".bx-stream-settings-dialog");
+  if ($streamSettingsDialog) {
+    $streamSettingsDialog.classList.add("bx-gone");
   }
   STATES.currentStream.audioGainNode = null;
   STATES.currentStream.$video = null;
