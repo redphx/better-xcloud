@@ -445,8 +445,6 @@ var MkbPresetKey;
   MkbPresetKey2["MOUSE_SENSITIVITY_X"] = "sensitivity_x";
   MkbPresetKey2["MOUSE_SENSITIVITY_Y"] = "sensitivity_y";
   MkbPresetKey2["MOUSE_DEADZONE_COUNTERWEIGHT"] = "deadzone_counterweight";
-  MkbPresetKey2["MOUSE_STICK_DECAY_STRENGTH"] = "stick_decay_strength";
-  MkbPresetKey2["MOUSE_STICK_DECAY_MIN"] = "stick_decay_min";
 })(MkbPresetKey || (MkbPresetKey = {}));
 
 // src/utils/translation.ts
@@ -1085,27 +1083,6 @@ class MkbPreset {
         suffix: "%",
         exactTicks: 10
       }
-    },
-    [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: {
-      label: t("stick-decay-strength"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 100,
-      min: 10,
-      max: 100,
-      params: {
-        suffix: "%",
-        exactTicks: 10
-      }
-    },
-    [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: {
-      label: t("stick-decay-minimum"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 10,
-      min: 1,
-      max: 10,
-      params: {
-        suffix: "%"
-      }
     }
   };
   static DEFAULT_PRESET = {
@@ -1138,11 +1115,9 @@ class MkbPreset {
     },
     mouse: {
       [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
-      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
-      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
-      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
-      [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 100,
-      [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 10
+      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 100,
+      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 100,
+      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20
     }
   };
   static convert(preset) {
@@ -1159,8 +1134,6 @@ class MkbPreset {
     mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
     mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
     mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
-    mouse[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
-    mouse[MkbPresetKey.MOUSE_STICK_DECAY_MIN] *= 0.01;
     const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
     if (typeof mouseMapTo !== "undefined") {
       mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
@@ -1970,7 +1943,7 @@ class Preferences {
       default: false,
       unsupported: (() => {
         const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
-        return userAgent2.match(/(android|iphone|ipad)/) ? t("browser-unsupported-feature") : false;
+        return !AppInterface && userAgent2.match(/(android|iphone|ipad)/) ? t("browser-unsupported-feature") : false;
       })(),
       ready: (setting) => {
         let note;
@@ -2531,7 +2504,7 @@ class KeyHelper {
         code = WheelCode.SCROLL_DOWN;
       } else if (e.deltaX < 0) {
         code = WheelCode.SCROLL_LEFT;
-      } else {
+      } else if (e.deltaX > 0) {
         code = WheelCode.SCROLL_RIGHT;
       }
     } else if (e instanceof MouseEvent) {
@@ -2841,8 +2814,217 @@ function showStreamSettings(tabId) {
   }
 }
 
+// src/modules/mkb/pointer-client.ts
+var LOG_TAG = "PointerClient";
+var PointerAction;
+(function(PointerAction2) {
+  PointerAction2[PointerAction2["MOVE"] = 1] = "MOVE";
+  PointerAction2[PointerAction2["BUTTON_PRESS"] = 2] = "BUTTON_PRESS";
+  PointerAction2[PointerAction2["BUTTON_RELEASE"] = 3] = "BUTTON_RELEASE";
+  PointerAction2[PointerAction2["SCROLL"] = 4] = "SCROLL";
+})(PointerAction || (PointerAction = {}));
+var FixedMouseIndex = {
+  1: 0,
+  2: 2,
+  4: 1
+};
+
+class PointerClient {
+  static #PORT = 9269;
+  static instance;
+  static getInstance() {
+    if (!PointerClient.instance) {
+      PointerClient.instance = new PointerClient;
+    }
+    return PointerClient.instance;
+  }
+  #socket;
+  #mkbHandler;
+  start(mkbHandler) {
+    this.#mkbHandler = mkbHandler;
+    this.#socket = new WebSocket(`ws://localhost:${PointerClient.#PORT}`);
+    this.#socket.binaryType = "arraybuffer";
+    this.#socket.addEventListener("open", (event) => {
+      BxLogger.info(LOG_TAG, "connected");
+    });
+    this.#socket.addEventListener("message", (event) => {
+      const dataView = new DataView(event.data);
+      let messageType = dataView.getInt8(0);
+      let offset = Int8Array.BYTES_PER_ELEMENT;
+      switch (messageType) {
+        case PointerAction.MOVE:
+          this.onMove(dataView, offset);
+          break;
+        case PointerAction.BUTTON_PRESS:
+        case PointerAction.BUTTON_RELEASE:
+          this.onPress(messageType, dataView, offset);
+          break;
+        case PointerAction.SCROLL:
+          this.onScroll(dataView, offset);
+          break;
+      }
+    });
+  }
+  onMove(dataView, offset) {
+    const x = dataView.getInt16(offset);
+    offset += Int16Array.BYTES_PER_ELEMENT;
+    const y = dataView.getInt16(offset);
+    this.#mkbHandler?.handleMouseMove({
+      movementX: x,
+      movementY: y
+    });
+  }
+  onPress(messageType, dataView, offset) {
+    const buttonIndex = dataView.getInt8(offset);
+    const fixedIndex = FixedMouseIndex[buttonIndex];
+    const keyCode = "Mouse" + fixedIndex;
+    this.#mkbHandler?.handleMouseClick({
+      key: {
+        code: keyCode,
+        name: KeyHelper.codeToKeyName(keyCode)
+      },
+      pressed: messageType === PointerAction.BUTTON_PRESS
+    });
+  }
+  onScroll(dataView, offset) {
+    const vScroll = dataView.getInt8(offset);
+    offset += Int8Array.BYTES_PER_ELEMENT;
+    const hScroll = dataView.getInt8(offset);
+    let code = "";
+    if (vScroll < 0) {
+      code = WheelCode.SCROLL_UP;
+    } else if (vScroll > 0) {
+      code = WheelCode.SCROLL_DOWN;
+    } else if (hScroll < 0) {
+      code = WheelCode.SCROLL_LEFT;
+    } else if (hScroll > 0) {
+      code = WheelCode.SCROLL_RIGHT;
+    }
+    code && this.#mkbHandler?.handleMouseWheel({
+      key: {
+        code,
+        name: KeyHelper.codeToKeyName(code)
+      }
+    });
+  }
+  stop() {
+    try {
+      this.#socket?.close();
+    } catch (e) {
+    }
+  }
+}
+
 // src/modules/mkb/mkb-handler.ts
-var LOG_TAG = "MkbHandler";
+var LOG_TAG2 = "MkbHandler";
+
+class MouseDataProvider {
+  mkbHandler;
+  constructor(handler) {
+    this.mkbHandler = handler;
+  }
+}
+
+class WebSocketMouseDataProvider extends MouseDataProvider {
+  constructor() {
+    super(...arguments);
+  }
+  #pointerClient;
+  init() {
+    AppInterface.startPointerServer();
+    this.#pointerClient = PointerClient.getInstance();
+    this.#pointerClient.start(this.mkbHandler);
+  }
+  start() {
+    AppInterface.requestPointerCapture();
+  }
+  stop() {
+    AppInterface.releasePointerCapture();
+  }
+  destroy() {
+    this.#pointerClient?.stop();
+    AppInterface.stopPointerServer();
+  }
+  toggle(enabled) {
+    enabled ? this.mkbHandler.start() : this.mkbHandler.stop();
+    this.mkbHandler.waitForMouseData(!enabled);
+  }
+}
+
+class PointerLockMouseDataProvider extends MouseDataProvider {
+  constructor() {
+    super(...arguments);
+  }
+  init() {
+    document.addEventListener("pointerlockchange", this.#onPointerLockChange);
+    document.addEventListener("pointerlockerror", this.#onPointerLockError);
+  }
+  start() {
+    if (!document.pointerLockElement) {
+      document.body.requestPointerLock();
+    }
+    window.addEventListener("mousemove", this.#onMouseMoveEvent);
+    window.addEventListener("mousedown", this.#onMouseEvent);
+    window.addEventListener("mouseup", this.#onMouseEvent);
+    window.addEventListener("wheel", this.#onWheelEvent);
+    window.addEventListener("contextmenu", this.#disableContextMenu);
+  }
+  stop() {
+    window.removeEventListener("mousemove", this.#onMouseMoveEvent);
+    window.removeEventListener("mousedown", this.#onMouseEvent);
+    window.removeEventListener("mouseup", this.#onMouseEvent);
+    window.removeEventListener("wheel", this.#onWheelEvent);
+    window.removeEventListener("contextmenu", this.#disableContextMenu);
+  }
+  destroy() {
+    document.removeEventListener("pointerlockchange", this.#onPointerLockChange);
+    document.removeEventListener("pointerlockerror", this.#onPointerLockError);
+  }
+  toggle(enabled) {
+    enabled ? document.pointerLockElement && this.mkbHandler.start() : this.mkbHandler.stop();
+    if (enabled) {
+      !document.pointerLockElement && this.mkbHandler.waitForMouseData(true);
+    } else {
+      this.mkbHandler.waitForMouseData(false);
+      document.pointerLockElement && document.exitPointerLock();
+    }
+  }
+  #onPointerLockChange = () => {
+    if (this.mkbHandler.isEnabled() && !document.pointerLockElement) {
+      this.mkbHandler.stop();
+    }
+  };
+  #onPointerLockError = (e) => {
+    console.log(e);
+    this.stop();
+  };
+  #onMouseMoveEvent = (e) => {
+    this.mkbHandler.handleMouseMove({
+      movementX: e.movementX,
+      movementY: e.movementY
+    });
+  };
+  #onMouseEvent = (e) => {
+    e.preventDefault();
+    const isMouseDown = e.type === "mousedown";
+    const key = KeyHelper.getKeyFromEvent(e);
+    const data = {
+      key,
+      pressed: isMouseDown
+    };
+    this.mkbHandler.handleMouseClick(data);
+  };
+  #onWheelEvent = (e) => {
+    const key = KeyHelper.getKeyFromEvent(e);
+    if (!key) {
+      return;
+    }
+    if (this.mkbHandler.handleMouseWheel({ key })) {
+      e.preventDefault();
+    }
+  };
+  #disableContextMenu = (e) => e.preventDefault();
+}
 
 class MkbHandler {
   static #instance;
@@ -2854,7 +3036,6 @@ class MkbHandler {
   }
   #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
   static DEFAULT_PANNING_SENSITIVITY = 0.001;
-  static DEFAULT_STICK_SENSITIVITY = 0.0006;
   static DEFAULT_DEADZONE_COUNTERWEIGHT = 0.01;
   static MAXIMUM_STICK_RANGE = 1.1;
   static VIRTUAL_GAMEPAD_ID = "Xbox 360 Controller";
@@ -2871,11 +3052,11 @@ class MkbHandler {
   };
   #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
   #enabled = false;
+  #mouseDataProvider;
   #isPolling = false;
   #prevWheelCode = null;
   #wheelStoppedTimeout;
   #detectMouseStoppedTimeout;
-  #allowStickDecaying = false;
   #$message;
   #STICK_MAP;
   #LEFT_STICK_X = [];
@@ -2894,6 +3075,7 @@ class MkbHandler {
       [GamepadKey.RS_DOWN]: [this.#RIGHT_STICK_Y, 3, 1]
     };
   }
+  isEnabled = () => this.#enabled;
   #patchedGetGamepads = () => {
     const gamepads = this.#nativeGetGamepads() || [];
     gamepads[this.#VIRTUAL_GAMEPAD.index] = this.#VIRTUAL_GAMEPAD;
@@ -2906,15 +3088,7 @@ class MkbHandler {
     virtualGamepad.axes[stick * 2 + 1] = y;
     virtualGamepad.timestamp = performance.now();
   }
-  #getStickAxes(stick) {
-    const virtualGamepad = this.#getVirtualGamepad();
-    return {
-      x: virtualGamepad.axes[stick * 2],
-      y: virtualGamepad.axes[stick * 2 + 1]
-    };
-  }
   #vectorLength = (x, y) => Math.sqrt(x ** 2 + y ** 2);
-  #disableContextMenu = (e) => e.preventDefault();
   #resetGamepad = () => {
     const gamepad = this.#getVirtualGamepad();
     gamepad.axes = [0, 0, 0, 0];
@@ -2956,6 +3130,10 @@ class MkbHandler {
         e.preventDefault();
         this.toggle();
         return;
+      } else if (e.code === "Escape") {
+        e.preventDefault();
+        this.#enabled && this.stop();
+        return;
       }
       if (!this.#isPolling) {
         return;
@@ -2971,83 +3149,32 @@ class MkbHandler {
     e.preventDefault();
     this.#pressButton(buttonIndex, isKeyDown);
   };
-  #onMouseEvent = (e) => {
-    const isMouseDown = e.type === "mousedown";
-    const key = KeyHelper.getKeyFromEvent(e);
-    if (!key) {
-      return;
-    }
-    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined") {
-      return;
-    }
-    e.preventDefault();
-    this.#pressButton(buttonIndex, isMouseDown);
-  };
-  #onWheelEvent = (e) => {
-    const key = KeyHelper.getKeyFromEvent(e);
-    if (!key) {
-      return;
-    }
-    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined") {
-      return;
-    }
-    e.preventDefault();
-    if (this.#prevWheelCode === null || this.#prevWheelCode === key.code) {
-      this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout);
-      this.#pressButton(buttonIndex, true);
-    }
-    this.#wheelStoppedTimeout = window.setTimeout(() => {
-      this.#prevWheelCode = null;
-      this.#pressButton(buttonIndex, false);
-    }, 20);
-  };
-  #decayStick = () => {
-    if (!this.#allowStickDecaying) {
-      return;
-    }
-    const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_MAP_TO];
-    if (mouseMapTo === MouseMapTo.OFF) {
-      return;
-    }
-    const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
-    let { x, y } = this.#getStickAxes(analog);
-    const length = this.#vectorLength(x, y);
-    const clampedLength = Math.min(1, length);
-    const decayStrength = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH];
-    const decay = 1 - clampedLength * clampedLength * decayStrength;
-    const minDecay = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_STICK_DECAY_MIN];
-    const clampedDecay = Math.min(1 - minDecay, decay);
-    x *= clampedDecay;
-    y *= clampedDecay;
-    const deadzoneCounterweight = 20 * MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
-    if (Math.abs(x) <= deadzoneCounterweight && Math.abs(y) <= deadzoneCounterweight) {
-      x = 0;
-      y = 0;
-    }
-    if (this.#allowStickDecaying) {
-      this.#updateStick(analog, x, y);
-      (x !== 0 || y !== 0) && requestAnimationFrame(this.#decayStick);
-    }
-  };
   #onMouseStopped = () => {
-    this.#allowStickDecaying = true;
-    requestAnimationFrame(this.#decayStick);
+    this.#detectMouseStoppedTimeout = null;
+    const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_MAP_TO];
+    const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
+    this.#updateStick(analog, 0, 0);
   };
-  #onMouseMoveEvent = (e) => {
+  handleMouseClick = (data) => {
+    if (!data || !data.key) {
+      return;
+    }
+    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[data.key.code];
+    if (typeof buttonIndex === "undefined") {
+      return;
+    }
+    this.#pressButton(buttonIndex, data.pressed);
+  };
+  handleMouseMove = (data) => {
     const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_MAP_TO];
     if (mouseMapTo === MouseMapTo.OFF) {
       return;
     }
-    this.#allowStickDecaying = false;
     this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
-    this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 10);
-    const deltaX = e.movementX;
-    const deltaY = e.movementY;
+    this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 50);
     const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT];
-    let x = deltaX * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_X];
-    let y = deltaY * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y];
+    let x = data.movementX * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_X];
+    let y = data.movementY * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y];
     let length = this.#vectorLength(x, y);
     if (length !== 0 && length < deadzoneCounterweight) {
       x *= deadzoneCounterweight / length;
@@ -3059,16 +3186,28 @@ class MkbHandler {
     const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
     this.#updateStick(analog, x, y);
   };
+  handleMouseWheel = (data) => {
+    if (!data || !data.key) {
+      return false;
+    }
+    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[data.key.code];
+    if (typeof buttonIndex === "undefined") {
+      return false;
+    }
+    if (this.#prevWheelCode === null || this.#prevWheelCode === data.key.code) {
+      this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout);
+      this.#pressButton(buttonIndex, true);
+    }
+    this.#wheelStoppedTimeout = window.setTimeout(() => {
+      this.#prevWheelCode = null;
+      this.#pressButton(buttonIndex, false);
+    }, 20);
+    return true;
+  };
   toggle = () => {
     this.#enabled = !this.#enabled;
-    this.#enabled ? document.pointerLockElement && this.start() : this.stop();
     Toast.show(t("mouse-and-keyboard"), t(this.#enabled ? "enabled" : "disabled"), { instant: true });
-    if (this.#enabled) {
-      !document.pointerLockElement && this.#waitForPointerLock(true);
-    } else {
-      this.#waitForPointerLock(false);
-      document.pointerLockElement && document.exitPointerLock();
-    }
+    this.#mouseDataProvider?.toggle(this.#enabled);
   };
   #getCurrentPreset = () => {
     return new Promise((resolve) => {
@@ -3084,38 +3223,25 @@ class MkbHandler {
       this.#resetGamepad();
     });
   };
-  #onPointerLockChange = () => {
-    if (this.#enabled && !document.pointerLockElement) {
-      this.stop();
-      this.#waitForPointerLock(true);
-    }
-  };
-  #onPointerLockError = (e) => {
-    console.log(e);
-    this.stop();
-  };
-  #onActivatePointerLock = () => {
-    if (!document.pointerLockElement) {
-      document.body.requestPointerLock();
-    }
-    this.#waitForPointerLock(false);
-    this.start();
-  };
-  #waitForPointerLock = (wait) => {
+  waitForMouseData = (wait) => {
     this.#$message && this.#$message.classList.toggle("bx-gone", !wait);
   };
   #onStreamMenuShown = () => {
-    this.#enabled && this.#waitForPointerLock(false);
+    this.#enabled && this.waitForMouseData(false);
   };
   #onStreamMenuHidden = () => {
-    this.#enabled && this.#waitForPointerLock(true);
+    this.#enabled && this.waitForMouseData(true);
   };
   init = () => {
     this.refreshPresetData();
     this.#enabled = true;
+    if (AppInterface) {
+      this.#mouseDataProvider = new WebSocketMouseDataProvider(this);
+    } else {
+      this.#mouseDataProvider = new PointerLockMouseDataProvider(this);
+    }
+    this.#mouseDataProvider.init();
     window.addEventListener("keydown", this.#onKeyboardEvent);
-    document.addEventListener("pointerlockchange", this.#onPointerLockChange);
-    document.addEventListener("pointerlockerror", this.#onPointerLockError);
     this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, createButton({
       icon: BxIcon.MOUSE_SETTINGS,
       style: ButtonStyle.PRIMARY,
@@ -3125,34 +3251,34 @@ class MkbHandler {
         showStreamSettings("mkb");
       }
     }), CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))));
-    this.#$message.addEventListener("click", this.#onActivatePointerLock);
+    this.#$message.addEventListener("click", this.start.bind(this));
     document.documentElement.appendChild(this.#$message);
     window.addEventListener(BxEvent.STREAM_MENU_SHOWN, this.#onStreamMenuShown);
     window.addEventListener(BxEvent.STREAM_MENU_HIDDEN, this.#onStreamMenuHidden);
-    this.#waitForPointerLock(true);
+    this.waitForMouseData(true);
   };
   destroy = () => {
     this.#isPolling = false;
     this.#enabled = false;
     this.stop();
-    this.#waitForPointerLock(false);
+    this.waitForMouseData(false);
     document.pointerLockElement && document.exitPointerLock();
     window.removeEventListener("keydown", this.#onKeyboardEvent);
-    document.removeEventListener("pointerlockchange", this.#onPointerLockChange);
-    document.removeEventListener("pointerlockerror", this.#onPointerLockError);
+    this.#mouseDataProvider?.destroy();
     window.removeEventListener(BxEvent.STREAM_MENU_SHOWN, this.#onStreamMenuShown);
     window.removeEventListener(BxEvent.STREAM_MENU_HIDDEN, this.#onStreamMenuHidden);
   };
   start = () => {
+    if (!this.#enabled) {
+      this.#enabled = true;
+      Toast.show(t("mouse-and-keyboard"), t("enabled"), { instant: true });
+    }
     this.#isPolling = true;
-    window.navigator.getGamepads = this.#patchedGetGamepads;
     this.#resetGamepad();
+    window.navigator.getGamepads = this.#patchedGetGamepads;
+    this.waitForMouseData(false);
     window.addEventListener("keyup", this.#onKeyboardEvent);
-    window.addEventListener("mousemove", this.#onMouseMoveEvent);
-    window.addEventListener("mousedown", this.#onMouseEvent);
-    window.addEventListener("mouseup", this.#onMouseEvent);
-    window.addEventListener("wheel", this.#onWheelEvent);
-    window.addEventListener("contextmenu", this.#disableContextMenu);
+    this.#mouseDataProvider?.start();
     const virtualGamepad = this.#getVirtualGamepad();
     virtualGamepad.connected = true;
     virtualGamepad.timestamp = performance.now();
@@ -3162,6 +3288,7 @@ class MkbHandler {
   };
   stop = () => {
     this.#isPolling = false;
+    this.#resetGamepad();
     const virtualGamepad = this.#getVirtualGamepad();
     virtualGamepad.connected = false;
     virtualGamepad.timestamp = performance.now();
@@ -3169,18 +3296,14 @@ class MkbHandler {
       gamepad: virtualGamepad
     });
     window.navigator.getGamepads = this.#nativeGetGamepads;
-    this.#resetGamepad();
     window.removeEventListener("keyup", this.#onKeyboardEvent);
-    window.removeEventListener("mousemove", this.#onMouseMoveEvent);
-    window.removeEventListener("mousedown", this.#onMouseEvent);
-    window.removeEventListener("mouseup", this.#onMouseEvent);
-    window.removeEventListener("wheel", this.#onWheelEvent);
-    window.removeEventListener("contextmenu", this.#disableContextMenu);
+    this.waitForMouseData(true);
+    this.#mouseDataProvider?.stop();
   };
   static setupEvents() {
-    getPref(PrefKey.MKB_ENABLED) && !UserAgent.isMobile() && window.addEventListener(BxEvent.STREAM_PLAYING, () => {
+    getPref(PrefKey.MKB_ENABLED) && (AppInterface || !UserAgent.isMobile()) && window.addEventListener(BxEvent.STREAM_PLAYING, () => {
       if (!STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-        BxLogger.info(LOG_TAG, "Emulate MKB");
+        BxLogger.info(LOG_TAG2, "Emulate MKB");
         MkbHandler.INSTANCE.init();
       }
     });
@@ -3623,7 +3746,7 @@ class ScreenshotAction extends BaseGameBarAction {
 }
 
 // src/modules/touch-controller.ts
-var LOG_TAG2 = "TouchController";
+var LOG_TAG3 = "TouchController";
 
 class TouchController {
   static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
@@ -3845,7 +3968,7 @@ class TouchController {
             STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
           }
         } catch (e2) {
-          BxLogger.error(LOG_TAG2, "Load custom layout", e2);
+          BxLogger.error(LOG_TAG3, "Load custom layout", e2);
         }
       });
     });
@@ -5195,7 +5318,7 @@ function setupStreamUi() {
 }
 
 // src/modules/remote-play.ts
-var LOG_TAG3 = "RemotePlay";
+var LOG_TAG4 = "RemotePlay";
 var RemotePlayConsoleState;
 (function(RemotePlayConsoleState2) {
   RemotePlayConsoleState2["ON"] = "On";
@@ -5261,7 +5384,7 @@ class RemotePlay {
     RemotePlay.#$content = CE("div", {}, t("getting-consoles-list"));
     RemotePlay.#getXhomeToken(() => {
       RemotePlay.#getConsolesList(() => {
-        BxLogger.info(LOG_TAG3, "Consoles", RemotePlay.#CONSOLES);
+        BxLogger.info(LOG_TAG4, "Consoles", RemotePlay.#CONSOLES);
         RemotePlay.#renderConsoles();
         BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
       });
@@ -7353,7 +7476,7 @@ var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n 
 
 // src/modules/patcher.ts
 var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks";
-var LOG_TAG4 = "Patcher";
+var LOG_TAG5 = "Patcher";
 var PATCHES = {
   disableAiTrack(str2) {
     const text = ".track=function(";
@@ -7538,7 +7661,7 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     if (!str2.includes(text)) {
       return false;
     }
-    BxLogger.info(LOG_TAG4, "Remaining patches:", PATCH_ORDERS);
+    BxLogger.info(LOG_TAG5, "Remaining patches:", PATCH_ORDERS);
     PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
     return str2;
   },
@@ -7815,7 +7938,7 @@ class Patcher {
       }
       PatcherCache.init();
       if (typeof arguments[1] === "function") {
-        BxLogger.info(LOG_TAG4, "Restored Function.prototype.bind()");
+        BxLogger.info(LOG_TAG5, "Restored Function.prototype.bind()");
         Function.prototype.bind = nativeBind;
       }
       const orgFunc = this;
@@ -7859,7 +7982,7 @@ class Patcher {
         }
         modified = true;
         str = patchedStr;
-        BxLogger.info(LOG_TAG4, `✅ ${patchName}`);
+        BxLogger.info(LOG_TAG5, `✅ ${patchName}`);
         appliedPatches.push(patchName);
         patchesToCheck.splice(patchIndex, 1);
         patchIndex--;
@@ -7901,11 +8024,11 @@ class PatcherCache {
     const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0;
     const currentSig = PatcherCache.#getSignature();
     if (currentSig !== parseInt(storedSig)) {
-      BxLogger.warning(LOG_TAG4, "Signature changed");
+      BxLogger.warning(LOG_TAG5, "Signature changed");
       window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
       PatcherCache.clear();
     } else {
-      BxLogger.info(LOG_TAG4, "Signature unchanged");
+      BxLogger.info(LOG_TAG5, "Signature unchanged");
     }
   }
   static #cleanupPatches(patches) {
@@ -7945,7 +8068,7 @@ class PatcherCache {
     PatcherCache.#isInitialized = true;
     PatcherCache.checkSignature();
     PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}");
-    BxLogger.info(LOG_TAG4, PatcherCache.#CACHE);
+    BxLogger.info(LOG_TAG5, PatcherCache.#CACHE);
     if (window.location.pathname.includes("/play/")) {
       PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
     } else {
@@ -7953,8 +8076,8 @@ class PatcherCache {
     }
     PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS);
     PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS);
-    BxLogger.info(LOG_TAG4, PATCH_ORDERS.slice(0));
-    BxLogger.info(LOG_TAG4, PLAYING_PATCH_ORDERS.slice(0));
+    BxLogger.info(LOG_TAG5, PATCH_ORDERS.slice(0));
+    BxLogger.info(LOG_TAG5, PLAYING_PATCH_ORDERS.slice(0));
   }
 }
 
@@ -8360,7 +8483,7 @@ function overridePreloadState() {
       try {
         state.appContext.requestInfo.userAgent = window.navigator.userAgent;
       } catch (e) {
-        BxLogger.error(LOG_TAG5, e);
+        BxLogger.error(LOG_TAG6, e);
       }
       if (STATES.hasTouchSupport) {
         try {
@@ -8372,14 +8495,14 @@ function overridePreloadState() {
             sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
           }
         } catch (e) {
-          BxLogger.error(LOG_TAG5, e);
+          BxLogger.error(LOG_TAG6, e);
         }
       }
       if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
         try {
           state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = false;
         } catch (e) {
-          BxLogger.error(LOG_TAG5, e);
+          BxLogger.error(LOG_TAG6, e);
         }
       }
       _state = state;
@@ -8387,7 +8510,7 @@ function overridePreloadState() {
     }
   });
 }
-var LOG_TAG5 = "PreloadState";
+var LOG_TAG6 = "PreloadState";
 
 // src/utils/sdp.ts
 function patchSdpBitrate(sdp, video, audio) {
