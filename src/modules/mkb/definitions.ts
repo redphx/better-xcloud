@@ -99,7 +99,4 @@ export enum MkbPresetKey {
     MOUSE_SENSITIVITY_Y = 'sensitivity_y',
 
     MOUSE_DEADZONE_COUNTERWEIGHT = 'deadzone_counterweight',
-
-    MOUSE_STICK_DECAY_STRENGTH = 'stick_decay_strength',
-    MOUSE_STICK_DECAY_MIN = 'stick_decay_min',
 }

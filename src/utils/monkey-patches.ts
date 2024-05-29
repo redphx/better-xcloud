@@ -103,7 +103,7 @@ export function patchRtcPeerConnection() {
         try {
             const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
             if (maxVideoBitrate > 0) {
-                arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, maxVideoBitrate * 1000);
+                arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
             }
         } catch (e) {
             BxLogger.error('setLocalDescription', e);

@@ -16,23 +16,6 @@ export enum InputType {
 }
 
 export const BxExposed = {
-    // Enable/disable Game Bar when playing/pausing
-    onPollingModeChanged: (mode: 'All' | 'None') => {
-        if (getPref(PrefKey.GAME_BAR_POSITION) === 'off') {
-            return;
-        }
-
-        const gameBar = GameBar.getInstance();
-
-        if (!STATES.isPlaying) {
-            gameBar.disable();
-            return;
-        }
-
-        // Toggle Game bar
-        mode !== 'None' ? gameBar.disable() : gameBar.enable();
-    },
-
     getTitleInfo: () => STATES.currentStream.titleInfo,
 
     modifyTitleInfo: (titleInfo: XcloudTitleInfo): XcloudTitleInfo => {

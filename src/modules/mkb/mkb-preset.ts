@@ -24,11 +24,11 @@ export class MkbPreset {
             type: SettingElementType.NUMBER_STEPPER,
             default: 50,
             min: 1,
-            max: 200,
+            max: 300,
 
             params: {
                 suffix: '%',
-                exactTicks: 20,
+                exactTicks: 50,
             },
         },
 
@@ -37,11 +37,11 @@ export class MkbPreset {
             type: SettingElementType.NUMBER_STEPPER,
             default: 50,
             min: 1,
-            max: 200,
+            max: 300,
 
             params: {
                 suffix: '%',
-                exactTicks: 20,
+                exactTicks: 50,
             },
         },
 
@@ -50,36 +50,11 @@ export class MkbPreset {
             type: SettingElementType.NUMBER_STEPPER,
             default: 20,
             min: 1,
-            max: 100,
+            max: 50,
 
             params: {
                 suffix: '%',
                 exactTicks: 10,
-            },
-        },
-
-        [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: {
-            label: t('stick-decay-strength'),
-            type: SettingElementType.NUMBER_STEPPER,
-            default: 100,
-            min: 10,
-            max: 100,
-
-            params: {
-                suffix: '%',
-                exactTicks: 10,
-            },
-        },
-
-        [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: {
-            label: t('stick-decay-minimum'),
-            type: SettingElementType.NUMBER_STEPPER,
-            default: 10,
-            min: 1,
-            max: 10,
-
-            params: {
-                suffix: '%',
             },
         },
     };
@@ -124,11 +99,9 @@ export class MkbPreset {
 
         'mouse': {
             [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
-            [MkbPresetKey.MOUSE_SENSITIVITY_X]: 50,
-            [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 50,
+            [MkbPresetKey.MOUSE_SENSITIVITY_X]: 100,
+            [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 100,
             [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20,
-            [MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH]: 100,
-            [MkbPresetKey.MOUSE_STICK_DECAY_MIN]: 10,
         },
     };
 
@@ -149,8 +122,6 @@ export class MkbPreset {
         mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
         mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
         mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
-        mouse[MkbPresetKey.MOUSE_STICK_DECAY_STRENGTH] *= 0.01;
-        mouse[MkbPresetKey.MOUSE_STICK_DECAY_MIN] *= 0.01;
 
         const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]!];
         if (typeof mouseMapTo !== 'undefined') {

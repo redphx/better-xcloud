@@ -82,6 +82,18 @@ export class GameBar {
         document.documentElement.appendChild($gameBar);
         this.$gameBar = $gameBar;
         this.$container = $container;
+
+        // Enable/disable Game Bar when playing/pausing
+        getPref(PrefKey.GAME_BAR_POSITION) !== 'off' && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e: Event) => {
+            if (!STATES.isPlaying) {
+                this.disable();
+                return;
+            }
+
+            // Toggle Game bar
+            const mode = (e as any).mode;
+            mode !== 'None' ? this.disable() : this.enable();
+        }).bind(this));
     }
 
     private beginHideTimeout() {

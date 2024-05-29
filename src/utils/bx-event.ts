@@ -13,9 +13,6 @@ export enum BxEvent {
     STREAM_STOPPED = 'bx-stream-stopped',
     STREAM_ERROR_PAGE = 'bx-stream-error-page',
 
-    STREAM_MENU_SHOWN = 'bx-stream-menu-shown',
-    STREAM_MENU_HIDDEN = 'bx-stream-menu-hidden',
-
     STREAM_WEBRTC_CONNECTED = 'bx-stream-webrtc-connected',
     STREAM_WEBRTC_DISCONNECTED = 'bx-stream-webrtc-disconnected',
 
@@ -41,6 +38,8 @@ export enum BxEvent {
     // xCloud Dialog events
     XCLOUD_DIALOG_SHOWN = 'bx-xcloud-dialog-shown',
     XCLOUD_DIALOG_DISMISSED = 'bx-xcloud-dialog-dismissed',
+
+    XCLOUD_POLLING_MODE_CHANGED = 'bx-xcloud-polling-mode-changed',
 }
 
 export enum XcloudEvent {

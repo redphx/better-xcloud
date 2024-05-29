@@ -105,12 +105,6 @@ export function injectStreamMenuButtons() {
                 if (!($node as HTMLElement).className || !($node as HTMLElement).className.startsWith) {
                     return;
                 }
-
-                if (($node as HTMLElement).className.startsWith('StreamMenu')) {
-                    if (!document.querySelector('div[class^=PureInStreamConfirmationModal]')) {
-                        BxEvent.dispatch(window, BxEvent.STREAM_MENU_HIDDEN);
-                    }
-                }
             });
 
             item.addedNodes.forEach(async $node => {
@@ -139,8 +133,6 @@ export function injectStreamMenuButtons() {
 
                 // Render badges
                 if ($elm.className?.startsWith('StreamMenu-module__container')) {
-                    BxEvent.dispatch(window, BxEvent.STREAM_MENU_SHOWN);
-
                     const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
                     if (!$btnCloseHud) {
                         return;

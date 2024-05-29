@@ -282,6 +282,9 @@ function main() {
     if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all') {
         TouchController.setup();
     }
+
+    // Start PointerProviderServer
+    (getPref(PrefKey.MKB_ENABLED)) && AppInterface && AppInterface.startPointerServer();
 }
 
 main();

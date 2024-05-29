@@ -407,7 +407,7 @@ e.guideUI = null;
         }
 
         const newCode = `
-window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged(e);
+BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
 `;
         str = str.replace(text, text + newCode);
         return str;

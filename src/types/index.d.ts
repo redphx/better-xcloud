@@ -74,3 +74,23 @@ type XcloudTitleInfo = {
 declare module '*.js';
 declare module '*.svg';
 declare module '*.styl';
+
+type MkbMouseMove = {
+    movementX: number;
+    movementY: number;
+}
+
+type MkbMouseClick = {
+    key: {
+        code: string;
+        name: string;
+    } | null;
+    pressed: boolean;
+}
+
+type MkbMouseWheel = {
+    key: {
+        code: string;
+        name: string;
+    } | null;
+}

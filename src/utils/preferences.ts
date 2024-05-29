@@ -4,7 +4,7 @@ import { SettingElement, SettingElementType } from "@utils/settings";
 import { UserAgentProfile } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
 import type { PreferenceSetting, PreferenceSettings } from "@/types/preferences";
-import { STATES } from "@utils/global";
+import { AppInterface, STATES } from "@utils/global";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',
@@ -325,20 +325,32 @@ export class Preferences {
             note: '⚠️ ' + t('unexpected-behavior'),
             default: 0,
             min: 0,
-            max: 14,
-            steps: 1,
+            max: 14 * 1024 * 1000,
+            steps: 100 * 1024,
             params: {
-                suffix: ' Mb/s',
-                exactTicks: 5,
+                exactTicks:  5 * 1024 * 1000,
                 customTextValue: (value: any) => {
                     value = parseInt(value);
 
                     if (value === 0) {
                         return t('unlimited');
+                    } else {
+                        return (value / (1024 * 1000)).toFixed(1) + ' Mb/s';
                     }
 
                     return null;
                 },
+            },
+            migrate: function(savedPrefs: any, value: any) {
+                try {
+                    value = parseInt(value);
+                    if (value < 100) {
+                        value *= 1024 * 1000;
+                    }
+
+                    this.set(PrefKey.BITRATE_VIDEO_MAX, value);
+                    savedPrefs[PrefKey.BITRATE_VIDEO_MAX] = value;
+                } catch (e) {}
             },
         },
 
@@ -405,7 +417,7 @@ export class Preferences {
             default: false,
             unsupported: ((): string | boolean => {
                 const userAgent = ((window.navigator as any).orgUserAgent || window.navigator.userAgent || '').toLowerCase();
-                return userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
+                return !AppInterface && userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
             })(),
             ready: (setting: PreferenceSetting) => {
                 let note;
