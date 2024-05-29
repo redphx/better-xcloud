@@ -3780,6 +3780,7 @@ var BxExposed = {
       }
       if (touchControllerAvailability === "off") {
         supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
+        titleInfo.details.supportedTabs = [];
       }
       titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
       if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
