@@ -5112,7 +5112,7 @@ var resizeVideoPlayer = function() {
     height = Math.floor(height);
     $video.style.width = `${width}px`;
     $video.style.height = `${height}px`;
-    $video.style.objectFit = "fill";
+    $video.style.objectFit = "scale-down";
   } else {
     $video.style.width = "100%";
     $video.style.height = "100%";
