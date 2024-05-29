@@ -135,8 +135,6 @@ var BxEvent;
   BxEvent2["STREAM_PLAYING"] = "bx-stream-playing";
   BxEvent2["STREAM_STOPPED"] = "bx-stream-stopped";
   BxEvent2["STREAM_ERROR_PAGE"] = "bx-stream-error-page";
-  BxEvent2["STREAM_MENU_SHOWN"] = "bx-stream-menu-shown";
-  BxEvent2["STREAM_MENU_HIDDEN"] = "bx-stream-menu-hidden";
   BxEvent2["STREAM_WEBRTC_CONNECTED"] = "bx-stream-webrtc-connected";
   BxEvent2["STREAM_WEBRTC_DISCONNECTED"] = "bx-stream-webrtc-disconnected";
   BxEvent2["STREAM_SESSION_READY"] = "bx-stream-session-ready";
@@ -152,6 +150,7 @@ var BxEvent;
   BxEvent2["GAINNODE_VOLUME_CHANGED"] = "bx-gainnode-volume-changed";
   BxEvent2["XCLOUD_DIALOG_SHOWN"] = "bx-xcloud-dialog-shown";
   BxEvent2["XCLOUD_DIALOG_DISMISSED"] = "bx-xcloud-dialog-dismissed";
+  BxEvent2["XCLOUD_POLLING_MODE_CHANGED"] = "bx-xcloud-polling-mode-changed";
 })(BxEvent || (BxEvent = {}));
 var XcloudEvent;
 (function(XcloudEvent2) {
@@ -1056,10 +1055,10 @@ class MkbPreset {
       type: SettingElementType.NUMBER_STEPPER,
       default: 50,
       min: 1,
-      max: 200,
+      max: 300,
       params: {
         suffix: "%",
-        exactTicks: 20
+        exactTicks: 50
       }
     },
     [MkbPresetKey.MOUSE_SENSITIVITY_X]: {
@@ -1067,10 +1066,10 @@ class MkbPreset {
       type: SettingElementType.NUMBER_STEPPER,
       default: 50,
       min: 1,
-      max: 200,
+      max: 300,
       params: {
         suffix: "%",
-        exactTicks: 20
+        exactTicks: 50
       }
     },
     [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: {
@@ -1078,7 +1077,7 @@ class MkbPreset {
       type: SettingElementType.NUMBER_STEPPER,
       default: 20,
       min: 1,
-      max: 100,
+      max: 50,
       params: {
         suffix: "%",
         exactTicks: 10
@@ -1879,17 +1878,29 @@ class Preferences {
       note: "⚠️ " + t("unexpected-behavior"),
       default: 0,
       min: 0,
-      max: 14,
-      steps: 1,
+      max: 14336000,
+      steps: 102400,
       params: {
-        suffix: " Mb/s",
-        exactTicks: 5,
+        exactTicks: 5120000,
         customTextValue: (value) => {
           value = parseInt(value);
           if (value === 0) {
             return t("unlimited");
+          } else {
+            return (value / 1024000).toFixed(1) + " Mb/s";
           }
           return null;
+        }
+      },
+      migrate: function(savedPrefs, value) {
+        try {
+          value = parseInt(value);
+          if (value < 100) {
+            value *= 1024000;
+          }
+          this.set(PrefKey.BITRATE_VIDEO_MAX, value);
+          savedPrefs[PrefKey.BITRATE_VIDEO_MAX] = value;
+        } catch (e) {
         }
       }
     },
@@ -2496,7 +2507,7 @@ class KeyHelper {
     let code;
     let name;
     if (e instanceof KeyboardEvent) {
-      code = e.code;
+      code = e.code || e.key;
     } else if (e instanceof WheelEvent) {
       if (e.deltaY < 0) {
         code = WheelCode.SCROLL_UP;
@@ -2685,11 +2696,6 @@ function injectStreamMenuButtons() {
         if (!$node.className || !$node.className.startsWith) {
           return;
         }
-        if ($node.className.startsWith("StreamMenu")) {
-          if (!document.querySelector("div[class^=PureInStreamConfirmationModal]")) {
-            BxEvent.dispatch(window, BxEvent.STREAM_MENU_HIDDEN);
-          }
-        }
       });
       item2.addedNodes.forEach(async ($node) => {
         if (!$node || $node.nodeType !== Node.ELEMENT_NODE) {
@@ -2709,7 +2715,6 @@ function injectStreamMenuButtons() {
           return;
         }
         if ($elm.className?.startsWith("StreamMenu-module__container")) {
-          BxEvent.dispatch(window, BxEvent.STREAM_MENU_SHOWN);
           const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
           if (!$btnCloseHud) {
             return;
@@ -2822,6 +2827,7 @@ var PointerAction;
   PointerAction2[PointerAction2["BUTTON_PRESS"] = 2] = "BUTTON_PRESS";
   PointerAction2[PointerAction2["BUTTON_RELEASE"] = 3] = "BUTTON_RELEASE";
   PointerAction2[PointerAction2["SCROLL"] = 4] = "SCROLL";
+  PointerAction2[PointerAction2["POINTER_CAPTURE_CHANGED"] = 5] = "POINTER_CAPTURE_CHANGED";
 })(PointerAction || (PointerAction = {}));
 var FixedMouseIndex = {
   1: 0,
@@ -2847,6 +2853,13 @@ class PointerClient {
     this.#socket.addEventListener("open", (event) => {
       BxLogger.info(LOG_TAG, "connected");
     });
+    this.#socket.addEventListener("error", (event) => {
+      BxLogger.error(LOG_TAG, event);
+      Toast.show("Cannot setup mouse");
+    });
+    this.#socket.addEventListener("close", (event) => {
+      this.#socket = null;
+    });
     this.#socket.addEventListener("message", (event) => {
       const dataView = new DataView(event.data);
       let messageType = dataView.getInt8(0);
@@ -2862,6 +2875,8 @@ class PointerClient {
         case PointerAction.SCROLL:
           this.onScroll(dataView, offset);
           break;
+        case PointerAction.POINTER_CAPTURE_CHANGED:
+          this.onPointerCaptureChanged(dataView, offset);
       }
     });
   }
@@ -2907,6 +2922,10 @@ class PointerClient {
       }
     });
   }
+  onPointerCaptureChanged(dataView, offset) {
+    const hasCapture = dataView.getInt8(offset) === 1;
+    !hasCapture && this.#mkbHandler?.stop();
+  }
   stop() {
     try {
       this.#socket?.close();
@@ -2930,22 +2949,30 @@ class WebSocketMouseDataProvider extends MouseDataProvider {
     super(...arguments);
   }
   #pointerClient;
+  #connected = false;
   init() {
-    AppInterface.startPointerServer();
     this.#pointerClient = PointerClient.getInstance();
-    this.#pointerClient.start(this.mkbHandler);
+    this.#connected = false;
+    try {
+      this.#pointerClient.start(this.mkbHandler);
+      this.#connected = true;
+    } catch (e) {
+      Toast.show("Cannot enable Mouse & Keyboard feature");
+    }
   }
   start() {
-    AppInterface.requestPointerCapture();
+    this.#connected && AppInterface.requestPointerCapture();
   }
   stop() {
-    AppInterface.releasePointerCapture();
+    this.#connected && AppInterface.releasePointerCapture();
   }
   destroy() {
-    this.#pointerClient?.stop();
-    AppInterface.stopPointerServer();
+    this.#connected && this.#pointerClient?.stop();
   }
   toggle(enabled) {
+    if (!this.#connected) {
+      enabled = false;
+    }
     enabled ? this.mkbHandler.start() : this.mkbHandler.stop();
     this.mkbHandler.waitForMouseData(!enabled);
   }
@@ -3139,7 +3166,7 @@ class MkbHandler {
         return;
       }
     }
-    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code];
+    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code || e.key];
     if (typeof buttonIndex === "undefined") {
       return;
     }
@@ -3226,11 +3253,16 @@ class MkbHandler {
   waitForMouseData = (wait) => {
     this.#$message && this.#$message.classList.toggle("bx-gone", !wait);
   };
-  #onStreamMenuShown = () => {
-    this.#enabled && this.waitForMouseData(false);
-  };
-  #onStreamMenuHidden = () => {
-    this.#enabled && this.waitForMouseData(true);
+  #onPollingModeChanged = (e) => {
+    if (!this.#$message) {
+      return;
+    }
+    const mode = e.mode;
+    if (mode === "None") {
+      this.#$message.classList.remove("bx-offscreen");
+    } else {
+      this.#$message.classList.add("bx-offscreen");
+    }
   };
   init = () => {
     this.refreshPresetData();
@@ -3253,8 +3285,7 @@ class MkbHandler {
     }), CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))));
     this.#$message.addEventListener("click", this.start.bind(this));
     document.documentElement.appendChild(this.#$message);
-    window.addEventListener(BxEvent.STREAM_MENU_SHOWN, this.#onStreamMenuShown);
-    window.addEventListener(BxEvent.STREAM_MENU_HIDDEN, this.#onStreamMenuHidden);
+    window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
     this.waitForMouseData(true);
   };
   destroy = () => {
@@ -3265,8 +3296,7 @@ class MkbHandler {
     document.pointerLockElement && document.exitPointerLock();
     window.removeEventListener("keydown", this.#onKeyboardEvent);
     this.#mouseDataProvider?.destroy();
-    window.removeEventListener(BxEvent.STREAM_MENU_SHOWN, this.#onStreamMenuShown);
-    window.removeEventListener(BxEvent.STREAM_MENU_HIDDEN, this.#onStreamMenuHidden);
+    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
   };
   start = () => {
     if (!this.#enabled) {
@@ -3716,433 +3746,6 @@ class ControllerShortcut {
   }
 }
 
-// src/modules/game-bar/action-base.ts
-class BaseGameBarAction {
-  constructor() {
-  }
-  reset() {
-  }
-}
-
-// src/modules/game-bar/action-screenshot.ts
-class ScreenshotAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      Screenshot.takeScreenshot();
-    };
-    this.$content = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.SCREENSHOT,
-      title: t("take-screenshot"),
-      onClick
-    });
-  }
-  render() {
-    return this.$content;
-  }
-}
-
-// src/modules/touch-controller.ts
-var LOG_TAG3 = "TouchController";
-
-class TouchController {
-  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
-    data: JSON.stringify({
-      content: '{"layoutId":""}',
-      target: "/streaming/touchcontrols/showlayoutv2",
-      type: "Message"
-    }),
-    origin: "better-xcloud"
-  });
-  static #$style;
-  static #enable = false;
-  static #dataChannel;
-  static #customLayouts = {};
-  static #baseCustomLayouts = {};
-  static #currentLayoutId;
-  static #customList;
-  static enable() {
-    TouchController.#enable = true;
-  }
-  static disable() {
-    TouchController.#enable = false;
-  }
-  static isEnabled() {
-    return TouchController.#enable;
-  }
-  static #showDefault() {
-    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
-  }
-  static #show() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
-  }
-  static #hide() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
-  }
-  static toggleVisibility(status) {
-    if (!TouchController.#dataChannel) {
-      return;
-    }
-    status ? TouchController.#hide() : TouchController.#show();
-  }
-  static reset() {
-    TouchController.#enable = false;
-    TouchController.#dataChannel = null;
-    TouchController.#$style && (TouchController.#$style.textContent = "");
-  }
-  static #dispatchMessage(msg) {
-    TouchController.#dataChannel && window.setTimeout(() => {
-      TouchController.#dataChannel.dispatchEvent(msg);
-    }, 10);
-  }
-  static #dispatchLayouts(data) {
-    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-      data
-    });
-  }
-  static async getCustomLayouts(xboxTitleId, retries = 1) {
-    if (xboxTitleId in TouchController.#customLayouts) {
-      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
-      return;
-    }
-    retries = retries || 1;
-    if (retries > 2) {
-      TouchController.#customLayouts[xboxTitleId] = null;
-      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
-      return;
-    }
-    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
-    const url = `${baseUrl}/${xboxTitleId}.json`;
-    try {
-      const resp = await NATIVE_FETCH(url);
-      const json = await resp.json();
-      const layouts = {};
-      json.layouts.forEach(async (layoutName) => {
-        let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts) {
-          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        } else {
-          try {
-            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
-            const resp2 = await NATIVE_FETCH(layoutUrl);
-            const json2 = await resp2.json();
-            baseLayouts = json2.layouts;
-            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
-          } catch (e) {
-          }
-        }
-        Object.assign(layouts, baseLayouts);
-      });
-      json.layouts = layouts;
-      TouchController.#customLayouts[xboxTitleId] = json;
-      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
-    } catch (e) {
-      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
-    }
-  }
-  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
-    if (!window.BX_EXPOSED.touchLayoutManager) {
-      const listener = (e) => {
-        window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-        if (TouchController.#enable) {
-          TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
-        }
-      };
-      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-      return;
-    }
-    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
-    TouchController.#currentLayoutId = layoutId;
-    const layoutData = TouchController.#customLayouts[xboxTitleId];
-    if (!xboxTitleId || !layoutId || !layoutData) {
-      TouchController.#enable && TouchController.#showDefault();
-      return;
-    }
-    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout) {
-      return;
-    }
-    let msg;
-    let html12 = false;
-    if (layout.author) {
-      const author = `<b>${escapeHtml(layout.author)}</b>`;
-      msg = t("touch-control-layout-by", { name: author });
-      html12 = true;
-    } else {
-      msg = t("touch-control-layout");
-    }
-    layoutChanged && Toast.show(msg, layout.name, { html: html12 });
-    window.setTimeout(() => {
-      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope");
-      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "System",
-          layoutFile: layout
-        }
-      });
-    }, delay);
-  }
-  static updateCustomList() {
-    const key = "better_xcloud_custom_touch_layouts";
-    TouchController.#customList = JSON.parse(window.localStorage.getItem(key) || "[]");
-    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
-      TouchController.#customList = json;
-      window.localStorage.setItem(key, JSON.stringify(json));
-    });
-  }
-  static getCustomList() {
-    return TouchController.#customList;
-  }
-  static setup() {
-    window.testTouchLayout = (layout) => {
-      const { touchLayoutManager } = window.BX_EXPOSED;
-      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: "" + STATES.currentStream?.xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "Custom",
-          layoutFile: layout
-        }
-      });
-    };
-    const $style = document.createElement("style");
-    document.documentElement.appendChild($style);
-    TouchController.#$style = $style;
-    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
-    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message") {
-        return;
-      }
-      let filter = "";
-      if (TouchController.#enable) {
-        if (PREF_STYLE_STANDARD === "white") {
-          filter = "grayscale(1) brightness(2)";
-        } else if (PREF_STYLE_STANDARD === "muted") {
-          filter = "sepia(0.5)";
-        }
-      } else if (PREF_STYLE_CUSTOM === "muted") {
-        filter = "sepia(0.5)";
-      }
-      if (filter) {
-        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      } else {
-        $style.textContent = "";
-      }
-      TouchController.#dataChannel = dataChannel;
-      dataChannel.addEventListener("open", () => {
-        window.setTimeout(TouchController.#show, 1000);
-      });
-      let focused = false;
-      dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
-          return;
-        }
-        if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enable) {
-            if (focused) {
-              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
-            } else {
-              TouchController.#showDefault();
-            }
-          }
-          return;
-        }
-        try {
-          if (msg.data.includes("/titleinfo")) {
-            const json = JSON.parse(JSON.parse(msg.data).content);
-            focused = json.focused;
-            if (!json.focused) {
-              TouchController.#show();
-            }
-            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
-          }
-        } catch (e2) {
-          BxLogger.error(LOG_TAG3, "Load custom layout", e2);
-        }
-      });
-    });
-  }
-}
-
-// src/modules/game-bar/action-touch-control.ts
-class TouchControlAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const $parent = e.target.closest("div[data-enabled]");
-      let enabled = $parent.getAttribute("data-enabled", "true") === "true";
-      $parent.setAttribute("data-enabled", (!enabled).toString());
-      TouchController.toggleVisibility(enabled);
-    };
-    const $btnEnable = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.TOUCH_CONTROL_ENABLE,
-      title: t("show-touch-controller"),
-      onClick,
-      classes: ["bx-activated"]
-    });
-    const $btnDisable = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.TOUCH_CONTROL_DISABLE,
-      title: t("hide-touch-controller"),
-      onClick
-    });
-    this.$content = CE("div", {}, $btnEnable, $btnDisable);
-    this.reset();
-  }
-  render() {
-    return this.$content;
-  }
-  reset() {
-    this.$content.setAttribute("data-enabled", "true");
-  }
-}
-
-// src/modules/game-bar/action-microphone.ts
-class MicrophoneAction extends BaseGameBarAction {
-  $content;
-  visible = false;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const enabled = MicrophoneShortcut.toggle(false);
-      this.$content.setAttribute("data-enabled", enabled.toString());
-    };
-    const $btnDefault = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.MICROPHONE,
-      title: t("show-touch-controller"),
-      onClick,
-      classes: ["bx-activated"]
-    });
-    const $btnMuted = createButton({
-      style: ButtonStyle.GHOST,
-      icon: BxIcon.MICROPHONE_MUTED,
-      title: t("hide-touch-controller"),
-      onClick
-    });
-    this.$content = CE("div", {}, $btnDefault, $btnMuted);
-    this.reset();
-    window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
-      const microphoneState = e.microphoneState;
-      const enabled = microphoneState === MicrophoneState.ENABLED;
-      this.$content.setAttribute("data-enabled", enabled.toString());
-      this.$content.classList.remove("bx-gone");
-    });
-  }
-  render() {
-    return this.$content;
-  }
-  reset() {
-    this.visible = false;
-    this.$content.classList.add("bx-gone");
-    this.$content.setAttribute("data-enabled", "false");
-  }
-}
-
-// src/modules/game-bar/game-bar.ts
-class GameBar {
-  static instance;
-  static getInstance() {
-    if (!GameBar.instance) {
-      GameBar.instance = new GameBar;
-    }
-    return GameBar.instance;
-  }
-  static VISIBLE_DURATION = 2000;
-  $gameBar;
-  $container;
-  timeout = null;
-  actions = [];
-  constructor() {
-    let $container;
-    const position = getPref(PrefKey.GAME_BAR_POSITION);
-    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
-    this.actions = [
-      new ScreenshotAction,
-      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
-      new MicrophoneAction
-    ];
-    if (position === "bottom-right") {
-      this.actions.reverse();
-    }
-    for (const action of this.actions) {
-      $container.appendChild(action.render());
-    }
-    $gameBar.addEventListener("click", (e) => {
-      if (e.target !== $gameBar) {
-        return;
-      }
-      $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
-    });
-    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this));
-    $container.addEventListener("pointerover", this.clearHideTimeout.bind(this));
-    $container.addEventListener("pointerout", this.beginHideTimeout.bind(this));
-    $container.addEventListener("transitionend", (e) => {
-      const classList = $container.classList;
-      if (classList.contains("bx-hide")) {
-        classList.remove("bx-offscreen", "bx-hide");
-        classList.add("bx-offscreen");
-      }
-    });
-    document.documentElement.appendChild($gameBar);
-    this.$gameBar = $gameBar;
-    this.$container = $container;
-  }
-  beginHideTimeout() {
-    this.clearHideTimeout();
-    this.timeout = window.setTimeout(() => {
-      this.timeout = null;
-      this.hideBar();
-    }, GameBar.VISIBLE_DURATION);
-  }
-  clearHideTimeout() {
-    this.timeout && clearTimeout(this.timeout);
-    this.timeout = null;
-  }
-  enable() {
-    this.$gameBar && this.$gameBar.classList.remove("bx-gone");
-  }
-  disable() {
-    this.hideBar();
-    this.$gameBar && this.$gameBar.classList.add("bx-gone");
-  }
-  showBar() {
-    if (!this.$container) {
-      return;
-    }
-    this.$container.classList.remove("bx-offscreen", "bx-hide");
-    this.$container.classList.add("bx-show");
-    this.beginHideTimeout();
-  }
-  hideBar() {
-    if (!this.$container) {
-      return;
-    }
-    this.$container.classList.remove("bx-show");
-    this.$container.classList.add("bx-hide");
-  }
-  reset() {
-    for (const action of this.actions) {
-      action.reset();
-    }
-  }
-}
-
 // src/utils/bx-exposed.ts
 var InputType;
 (function(InputType2) {
@@ -4154,17 +3757,6 @@ var InputType;
   InputType2["BATIVE_SENSOR"] = "NativeSensor";
 })(InputType || (InputType = {}));
 var BxExposed = {
-  onPollingModeChanged: (mode) => {
-    if (getPref(PrefKey.GAME_BAR_POSITION) === "off") {
-      return;
-    }
-    const gameBar = GameBar.getInstance();
-    if (!STATES.isPlaying) {
-      gameBar.disable();
-      return;
-    }
-    mode !== "None" ? gameBar.disable() : gameBar.enable();
-  },
   getTitleInfo: () => STATES.currentStream.titleInfo,
   modifyTitleInfo: (titleInfo) => {
     titleInfo = structuredClone(titleInfo);
@@ -4798,6 +4390,236 @@ class MkbRemapper {
     this.#toggleEditing(false);
     this.#refresh();
     return this.#$.wrapper;
+  }
+}
+
+// src/modules/touch-controller.ts
+var LOG_TAG3 = "TouchController";
+
+class TouchController {
+  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
+    data: JSON.stringify({
+      content: '{"layoutId":""}',
+      target: "/streaming/touchcontrols/showlayoutv2",
+      type: "Message"
+    }),
+    origin: "better-xcloud"
+  });
+  static #$style;
+  static #enable = false;
+  static #dataChannel;
+  static #customLayouts = {};
+  static #baseCustomLayouts = {};
+  static #currentLayoutId;
+  static #customList;
+  static enable() {
+    TouchController.#enable = true;
+  }
+  static disable() {
+    TouchController.#enable = false;
+  }
+  static isEnabled() {
+    return TouchController.#enable;
+  }
+  static #showDefault() {
+    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
+  }
+  static #show() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
+  }
+  static #hide() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
+  }
+  static toggleVisibility(status) {
+    if (!TouchController.#dataChannel) {
+      return;
+    }
+    status ? TouchController.#hide() : TouchController.#show();
+  }
+  static reset() {
+    TouchController.#enable = false;
+    TouchController.#dataChannel = null;
+    TouchController.#$style && (TouchController.#$style.textContent = "");
+  }
+  static #dispatchMessage(msg) {
+    TouchController.#dataChannel && window.setTimeout(() => {
+      TouchController.#dataChannel.dispatchEvent(msg);
+    }, 10);
+  }
+  static #dispatchLayouts(data) {
+    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+      data
+    });
+  }
+  static async getCustomLayouts(xboxTitleId, retries = 1) {
+    if (xboxTitleId in TouchController.#customLayouts) {
+      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
+      return;
+    }
+    retries = retries || 1;
+    if (retries > 2) {
+      TouchController.#customLayouts[xboxTitleId] = null;
+      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+      return;
+    }
+    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
+    const url = `${baseUrl}/${xboxTitleId}.json`;
+    try {
+      const resp = await NATIVE_FETCH(url);
+      const json = await resp.json();
+      const layouts = {};
+      json.layouts.forEach(async (layoutName) => {
+        let baseLayouts = {};
+        if (layoutName in TouchController.#baseCustomLayouts) {
+          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
+        } else {
+          try {
+            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
+            const resp2 = await NATIVE_FETCH(layoutUrl);
+            const json2 = await resp2.json();
+            baseLayouts = json2.layouts;
+            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
+          } catch (e) {
+          }
+        }
+        Object.assign(layouts, baseLayouts);
+      });
+      json.layouts = layouts;
+      TouchController.#customLayouts[xboxTitleId] = json;
+      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+    } catch (e) {
+      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
+    }
+  }
+  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
+    if (!window.BX_EXPOSED.touchLayoutManager) {
+      const listener = (e) => {
+        window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+        if (TouchController.#enable) {
+          TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
+        }
+      };
+      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+      return;
+    }
+    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
+    TouchController.#currentLayoutId = layoutId;
+    const layoutData = TouchController.#customLayouts[xboxTitleId];
+    if (!xboxTitleId || !layoutId || !layoutData) {
+      TouchController.#enable && TouchController.#showDefault();
+      return;
+    }
+    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
+    if (!layout) {
+      return;
+    }
+    let msg;
+    let html14 = false;
+    if (layout.author) {
+      const author = `<b>${escapeHtml(layout.author)}</b>`;
+      msg = t("touch-control-layout-by", { name: author });
+      html14 = true;
+    } else {
+      msg = t("touch-control-layout");
+    }
+    layoutChanged && Toast.show(msg, layout.name, { html: html14 });
+    window.setTimeout(() => {
+      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope");
+      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "System",
+          layoutFile: layout
+        }
+      });
+    }, delay);
+  }
+  static updateCustomList() {
+    const key = "better_xcloud_custom_touch_layouts";
+    TouchController.#customList = JSON.parse(window.localStorage.getItem(key) || "[]");
+    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
+      TouchController.#customList = json;
+      window.localStorage.setItem(key, JSON.stringify(json));
+    });
+  }
+  static getCustomList() {
+    return TouchController.#customList;
+  }
+  static setup() {
+    window.testTouchLayout = (layout) => {
+      const { touchLayoutManager } = window.BX_EXPOSED;
+      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: "" + STATES.currentStream?.xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "Custom",
+          layoutFile: layout
+        }
+      });
+    };
+    const $style = document.createElement("style");
+    document.documentElement.appendChild($style);
+    TouchController.#$style = $style;
+    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
+    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+      const dataChannel = e.dataChannel;
+      if (!dataChannel || dataChannel.label !== "message") {
+        return;
+      }
+      let filter = "";
+      if (TouchController.#enable) {
+        if (PREF_STYLE_STANDARD === "white") {
+          filter = "grayscale(1) brightness(2)";
+        } else if (PREF_STYLE_STANDARD === "muted") {
+          filter = "sepia(0.5)";
+        }
+      } else if (PREF_STYLE_CUSTOM === "muted") {
+        filter = "sepia(0.5)";
+      }
+      if (filter) {
+        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+      } else {
+        $style.textContent = "";
+      }
+      TouchController.#dataChannel = dataChannel;
+      dataChannel.addEventListener("open", () => {
+        window.setTimeout(TouchController.#show, 1000);
+      });
+      let focused = false;
+      dataChannel.addEventListener("message", (msg) => {
+        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
+          return;
+        }
+        if (msg.data.includes("touchcontrols/showtitledefault")) {
+          if (TouchController.#enable) {
+            if (focused) {
+              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
+            } else {
+              TouchController.#showDefault();
+            }
+          }
+          return;
+        }
+        try {
+          if (msg.data.includes("/titleinfo")) {
+            const json = JSON.parse(JSON.parse(msg.data).content);
+            focused = json.focused;
+            if (!json.focused) {
+              TouchController.#show();
+            }
+            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
+          }
+        } catch (e2) {
+          BxLogger.error(LOG_TAG3, "Load custom layout", e2);
+        }
+      });
+    });
   }
 }
 
@@ -7198,7 +7020,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   top: 50%;
   transform: translateX(-50%) translateY(-50%);
   margin: auto;
-  background: rgba(0,0,0,0.898);
+  background: rgba(0,0,0,0.702);
   z-index: var(--bx-mkb-pointer-lock-msg-z-index);
   color: #fff;
   text-align: center;
@@ -7772,7 +7594,7 @@ e.guideUI = null;
       return false;
     }
     const newCode = `
-window.BX_EXPOSED.onPollingModeChanged && window.BX_EXPOSED.onPollingModeChanged(e);
+BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
 `;
     str2 = str2.replace(text, text + newCode);
     return str2;
@@ -8632,7 +8454,7 @@ function patchRtcPeerConnection() {
     try {
       const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
       if (maxVideoBitrate > 0) {
-        arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, maxVideoBitrate * 1000);
+        arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
       }
     } catch (e) {
       BxLogger.error("setLocalDescription", e);
@@ -8717,6 +8539,211 @@ function patchCanvasContext() {
   };
 }
 
+// src/modules/game-bar/action-base.ts
+class BaseGameBarAction {
+  constructor() {
+  }
+  reset() {
+  }
+}
+
+// src/modules/game-bar/action-screenshot.ts
+class ScreenshotAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      Screenshot.takeScreenshot();
+    };
+    this.$content = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.SCREENSHOT,
+      title: t("take-screenshot"),
+      onClick
+    });
+  }
+  render() {
+    return this.$content;
+  }
+}
+
+// src/modules/game-bar/action-touch-control.ts
+class TouchControlAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      const $parent = e.target.closest("div[data-enabled]");
+      let enabled = $parent.getAttribute("data-enabled", "true") === "true";
+      $parent.setAttribute("data-enabled", (!enabled).toString());
+      TouchController.toggleVisibility(enabled);
+    };
+    const $btnEnable = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.TOUCH_CONTROL_ENABLE,
+      title: t("show-touch-controller"),
+      onClick,
+      classes: ["bx-activated"]
+    });
+    const $btnDisable = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.TOUCH_CONTROL_DISABLE,
+      title: t("hide-touch-controller"),
+      onClick
+    });
+    this.$content = CE("div", {}, $btnEnable, $btnDisable);
+    this.reset();
+  }
+  render() {
+    return this.$content;
+  }
+  reset() {
+    this.$content.setAttribute("data-enabled", "true");
+  }
+}
+
+// src/modules/game-bar/action-microphone.ts
+class MicrophoneAction extends BaseGameBarAction {
+  $content;
+  visible = false;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+      const enabled = MicrophoneShortcut.toggle(false);
+      this.$content.setAttribute("data-enabled", enabled.toString());
+    };
+    const $btnDefault = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.MICROPHONE,
+      title: t("show-touch-controller"),
+      onClick,
+      classes: ["bx-activated"]
+    });
+    const $btnMuted = createButton({
+      style: ButtonStyle.GHOST,
+      icon: BxIcon.MICROPHONE_MUTED,
+      title: t("hide-touch-controller"),
+      onClick
+    });
+    this.$content = CE("div", {}, $btnDefault, $btnMuted);
+    this.reset();
+    window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
+      const microphoneState = e.microphoneState;
+      const enabled = microphoneState === MicrophoneState.ENABLED;
+      this.$content.setAttribute("data-enabled", enabled.toString());
+      this.$content.classList.remove("bx-gone");
+    });
+  }
+  render() {
+    return this.$content;
+  }
+  reset() {
+    this.visible = false;
+    this.$content.classList.add("bx-gone");
+    this.$content.setAttribute("data-enabled", "false");
+  }
+}
+
+// src/modules/game-bar/game-bar.ts
+class GameBar {
+  static instance;
+  static getInstance() {
+    if (!GameBar.instance) {
+      GameBar.instance = new GameBar;
+    }
+    return GameBar.instance;
+  }
+  static VISIBLE_DURATION = 2000;
+  $gameBar;
+  $container;
+  timeout = null;
+  actions = [];
+  constructor() {
+    let $container;
+    const position = getPref(PrefKey.GAME_BAR_POSITION);
+    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
+    this.actions = [
+      new ScreenshotAction,
+      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
+      new MicrophoneAction
+    ];
+    if (position === "bottom-right") {
+      this.actions.reverse();
+    }
+    for (const action of this.actions) {
+      $container.appendChild(action.render());
+    }
+    $gameBar.addEventListener("click", (e) => {
+      if (e.target !== $gameBar) {
+        return;
+      }
+      $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
+    });
+    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this));
+    $container.addEventListener("pointerover", this.clearHideTimeout.bind(this));
+    $container.addEventListener("pointerout", this.beginHideTimeout.bind(this));
+    $container.addEventListener("transitionend", (e) => {
+      const classList = $container.classList;
+      if (classList.contains("bx-hide")) {
+        classList.remove("bx-offscreen", "bx-hide");
+        classList.add("bx-offscreen");
+      }
+    });
+    document.documentElement.appendChild($gameBar);
+    this.$gameBar = $gameBar;
+    this.$container = $container;
+    getPref(PrefKey.GAME_BAR_POSITION) !== "off" && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e) => {
+      if (!STATES.isPlaying) {
+        this.disable();
+        return;
+      }
+      const mode = e.mode;
+      mode !== "None" ? this.disable() : this.enable();
+    }).bind(this));
+  }
+  beginHideTimeout() {
+    this.clearHideTimeout();
+    this.timeout = window.setTimeout(() => {
+      this.timeout = null;
+      this.hideBar();
+    }, GameBar.VISIBLE_DURATION);
+  }
+  clearHideTimeout() {
+    this.timeout && clearTimeout(this.timeout);
+    this.timeout = null;
+  }
+  enable() {
+    this.$gameBar && this.$gameBar.classList.remove("bx-gone");
+  }
+  disable() {
+    this.hideBar();
+    this.$gameBar && this.$gameBar.classList.add("bx-gone");
+  }
+  showBar() {
+    if (!this.$container) {
+      return;
+    }
+    this.$container.classList.remove("bx-offscreen", "bx-hide");
+    this.$container.classList.add("bx-show");
+    this.beginHideTimeout();
+  }
+  hideBar() {
+    if (!this.$container) {
+      return;
+    }
+    this.$container.classList.remove("bx-show");
+    this.$container.classList.add("bx-hide");
+  }
+  reset() {
+    for (const action of this.actions) {
+      action.reset();
+    }
+  }
+}
+
 // src/index.ts
 var observeRootDialog = function($root) {
   let currentShown = false;
@@ -8780,6 +8807,7 @@ var main = function() {
   if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
     TouchController.setup();
   }
+  getPref(PrefKey.MKB_ENABLED) && AppInterface && AppInterface.startPointerServer();
 };
 if (window.location.pathname.includes("/auth/msa")) {
   window.addEventListener("load", (e) => {
