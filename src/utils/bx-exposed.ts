@@ -49,11 +49,11 @@ export const BxExposed = {
                 gamepadFound && (touchControllerAvailability = 'off');
             }
 
-
-
             if (touchControllerAvailability === 'off') {
                 // Disable touch on all games (not native touch)
                 supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
+                // Empty TABs
+                titleInfo.details.supportedTabs = [];
             }
 
             // Pre-check supported input types

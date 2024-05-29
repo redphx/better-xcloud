@@ -59,6 +59,7 @@ type XcloudTitleInfo = {
     details: {
         productId: string;
         supportedInputTypes: InputType[];
+        supportedTabs: any[];
         hasTouchSupport: boolean;
         hasFakeTouchSupport: boolean;
         hasMkbSupport: boolean;
