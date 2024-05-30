@@ -163,11 +163,11 @@ export class LoadingScreen {
 `;
         }
 
-        LoadingScreen.reset();
+        setTimeout(LoadingScreen.reset, 2000);
     }
 
     static reset() {
-        LoadingScreen.#$bgStyle && setTimeout(() => LoadingScreen.#$bgStyle.textContent = '', 2000);
+        LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
 
         LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
         LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
