@@ -3878,6 +3878,10 @@ class LoadingScreen {
 #game-stream div[class*=RocketAnimation-module__container] > svg {
     display: none;
 }
+
+#game-stream video[class*=RocketAnimationVideo-module__video] {
+    display: none;
+}
 `;
     $bgStyle.textContent += css;
   }
@@ -3966,8 +3970,8 @@ class LoadingScreen {
     LoadingScreen.reset();
   }
   static reset() {
+    LoadingScreen.#$bgStyle && setTimeout(() => LoadingScreen.#$bgStyle.textContent = "", 2000);
     LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
-    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
     LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
     LoadingScreen.#waitTimeInterval = null;
   }
@@ -5108,11 +5112,11 @@ var resizeVideoPlayer = function() {
       width = parentRect.width;
       height = width / videoRatio;
     }
-    width = Math.floor(width);
-    height = Math.floor(height);
+    width = Math.min(parentRect.width, Math.ceil(width));
+    height = Math.min(parentRect.height, Math.ceil(height));
     $video.style.width = `${width}px`;
     $video.style.height = `${height}px`;
-    $video.style.objectFit = "scale-down";
+    $video.style.objectFit = "fill";
   } else {
     $video.style.width = "100%";
     $video.style.height = "100%";
