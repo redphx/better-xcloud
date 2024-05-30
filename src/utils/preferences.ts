@@ -703,7 +703,6 @@ export class Preferences {
 
             if (setting.migrate && settingId in savedPrefs) {
                 setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
-                delete setting.migrate;
             }
 
             setting.ready && setting.ready.call(this, setting);
@@ -717,7 +716,7 @@ export class Preferences {
                 continue;
             }
 
-            // Ignore deprecated settings
+            // Ignore deprecated/migrated settings
             if (setting.migrate) {
                 continue;
             }
