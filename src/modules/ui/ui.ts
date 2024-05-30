@@ -485,13 +485,13 @@ function resizeVideoPlayer() {
         }
 
         // Prevent floating points
-        width = Math.floor(width);
-        height = Math.floor(height);
+        width = Math.min(parentRect.width, Math.ceil(width));
+        height = Math.min(parentRect.height, Math.ceil(height));
 
         // Update size
         $video.style.width = `${width}px`;
         $video.style.height = `${height}px`;
-        $video.style.objectFit = 'scale-down';
+        $video.style.objectFit = 'fill';
     } else {
         $video.style.width = '100%';
         $video.style.height = '100%';
