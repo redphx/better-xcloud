@@ -2208,7 +2208,6 @@ class Preferences {
       const setting = Preferences.SETTINGS[settingId];
       if (setting.migrate && settingId in savedPrefs) {
         setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
-        delete setting.migrate;
       }
       setting.ready && setting.ready.call(this, setting);
     }
