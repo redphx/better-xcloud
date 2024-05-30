@@ -37,6 +37,8 @@
   "contrast": "대비",
   "controller": "컨트롤러",
   "controller-shortcuts": "컨트롤러 단축키",
+  "controller-shortcuts-connect-note": "이 기능을 사용하려면 컨트롤러를 연결하세요",
+  "controller-shortcuts-xbox-note": "가이드 메뉴를 여는 버튼",
   "controller-vibration": "컨트롤러 진동",
   "copy": "복사",
   "custom": "사용자 지정",
