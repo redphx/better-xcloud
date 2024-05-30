@@ -46,6 +46,10 @@ export class LoadingScreen {
 #game-stream div[class*=RocketAnimation-module__container] > svg {
     display: none;
 }
+
+#game-stream video[class*=RocketAnimationVideo-module__video] {
+    display: none;
+}
 `;
         $bgStyle.textContent += css;
     }
@@ -163,9 +167,9 @@ export class LoadingScreen {
     }
 
     static reset() {
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
-        LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
+        LoadingScreen.#$bgStyle && setTimeout(() => LoadingScreen.#$bgStyle.textContent = '', 2000);
 
+        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
         LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
         LoadingScreen.#waitTimeInterval = null;
     }
