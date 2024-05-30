@@ -3274,15 +3274,23 @@ class MkbHandler {
     }
     this.#mouseDataProvider.init();
     window.addEventListener("keydown", this.#onKeyboardEvent);
-    this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, createButton({
+    this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", {}, createButton({
       icon: BxIcon.MOUSE_SETTINGS,
+      label: t("edit"),
       style: ButtonStyle.PRIMARY,
       onClick: (e) => {
         e.preventDefault();
         e.stopPropagation();
         showStreamSettings("mkb");
       }
-    }), CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))));
+    }), createButton({
+      label: t("disable"),
+      onClick: (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggle();
+      }
+    })));
     this.#$message.addEventListener("click", this.start.bind(this));
     document.documentElement.appendChild(this.#$message);
     window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
@@ -6056,7 +6064,7 @@ div[class*=NotFocusedDialog] {
   height: var(--bx-button-height);
   line-height: var(--bx-button-height);
   vertical-align: middle;
-  vertical-align: -webkit-baseline-middle;
+/* vertical-align: -webkit-baseline-middle; */
   color: #fff;
   overflow: hidden;
   white-space: nowrap;
@@ -7016,7 +7024,6 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   color: #fff;
 }
 .bx-mkb-pointer-lock-msg {
-  display: flex;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
@@ -7040,14 +7047,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 .bx-mkb-pointer-lock-msg:hover {
   background: #151515;
 }
-.bx-mkb-pointer-lock-msg button {
-  margin-right: 12px;
-  height: 60px;
-}
-.bx-mkb-pointer-lock-msg svg {
-  width: 32px;
-}
-.bx-mkb-pointer-lock-msg div {
+.bx-mkb-pointer-lock-msg > div:first-of-type {
   display: flex;
   flex-direction: column;
   text-align: left;
@@ -7062,6 +7062,21 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 .bx-mkb-pointer-lock-msg p:last-child {
   font-size: 14px;
   font-style: italic;
+}
+.bx-mkb-pointer-lock-msg > div:last-of-type {
+  display: flex;
+  flex-flow: row;
+  margin-top: 10px;
+button
+}
+.bx-mkb-pointer-lock-msg > div:last-of-type button {
+  flex: 1;
+}
+.bx-mkb-pointer-lock-msg > div:last-of-type button:first-of-type {
+  margin-right: 5px;
+}
+.bx-mkb-pointer-lock-msg > div:last-of-type button:last-of-type {
+  margin-left: 5px;
 }
 .bx-mkb-preset-tools {
   display: flex;
