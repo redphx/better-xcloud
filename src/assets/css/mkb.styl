@@ -16,7 +16,6 @@
 }
 
 .bx-mkb-pointer-lock-msg {
-    display: flex;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
@@ -41,16 +40,7 @@
         background: #151515;
     }
 
-    button {
-        margin-right: 12px;
-        height: 60px;
-    }
-
-    svg {
-        width: 32px;
-    }
-
-    div {
+    > div:first-of-type {
         display: flex;
         flex-direction: column;
         text-align: left;
@@ -68,6 +58,26 @@
             font-size: 14px;
             font-style: italic;
         }
+    }
+
+    > div:last-of-type {
+        display: flex;
+        flex-flow: row;
+        margin-top: 10px;
+
+        button {
+            flex: 1;
+
+            &:first-of-type {
+                margin-right: 5px;
+            }
+
+            &:last-of-type {
+                margin-left: 5px;
+            }
+        }
+
+        button
     }
 }
 

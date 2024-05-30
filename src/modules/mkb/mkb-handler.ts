@@ -464,19 +464,33 @@ export class MkbHandler {
         window.addEventListener('keydown', this.#onKeyboardEvent);
 
         this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
-                createButton({
-                    icon: BxIcon.MOUSE_SETTINGS,
-                    style: ButtonStyle.PRIMARY,
-                    onClick: e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        showStreamSettings('mkb');
-                    },
-                }),
                 CE('div', {},
                     CE('p', {}, t('mkb-click-to-activate')),
                     CE('p', {}, t('press-key-to-toggle-mkb', {key: 'F8'})),
+                ),
+
+                CE('div', {},
+                    createButton({
+                        icon: BxIcon.MOUSE_SETTINGS,
+                        label: t('edit'),
+                        style: ButtonStyle.PRIMARY,
+                        onClick: e => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            showStreamSettings('mkb');
+                        },
+                    }),
+
+                    createButton({
+                        label: t('disable'),
+                        onClick: e => {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            this.toggle();
+                        },
+                    }),
                 ),
             );
 
