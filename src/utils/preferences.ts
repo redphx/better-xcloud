@@ -344,11 +344,10 @@ export class Preferences {
             migrate: function(savedPrefs: any, value: any) {
                 try {
                     value = parseInt(value);
-                    if (value < 100) {
+                    if (value !== 0 && value < 100) {
                         value *= 1024 * 1000;
                     }
-
-                    this.set(PrefKey.BITRATE_VIDEO_MAX, value);
+                    this.set(PrefKey.BITRATE_VIDEO_MAX, value, true);
                     savedPrefs[PrefKey.BITRATE_VIDEO_MAX] = value;
                 } catch (e) {}
             },
@@ -701,11 +700,13 @@ export class Preferences {
 
         for (let settingId in Preferences.SETTINGS) {
             const setting = Preferences.SETTINGS[settingId];
-            setting.ready && setting.ready.call(this, setting);
 
             if (setting.migrate && settingId in savedPrefs) {
                 setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
+                delete setting.migrate;
             }
+
+            setting.ready && setting.ready.call(this, setting);
         }
 
         for (let settingId in Preferences.SETTINGS) {
@@ -783,11 +784,11 @@ export class Preferences {
         return this.#prefs[key];
     }
 
-    set(key: PrefKey, value: any): any {
+    set(key: PrefKey, value: any, skipSave?: boolean): any {
         value = this.#validateValue(key, value);
 
         this.#prefs[key] = value;
-        this.#updateStorage();
+        !skipSave && this.#updateStorage();
 
         return value;
     }

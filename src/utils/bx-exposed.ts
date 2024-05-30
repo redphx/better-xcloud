@@ -1,5 +1,4 @@
 import { ControllerShortcut } from "@/modules/controller-shortcut";
-import { GameBar } from "@modules/game-bar/game-bar";
 import { BxEvent } from "@utils/bx-event";
 import { STATES } from "@utils/global";
 import { getPref, PrefKey } from "@utils/preferences";
