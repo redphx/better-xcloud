@@ -150,12 +150,17 @@ var BxEvent;
   BxEvent2["GAINNODE_VOLUME_CHANGED"] = "bx-gainnode-volume-changed";
   BxEvent2["XCLOUD_DIALOG_SHOWN"] = "bx-xcloud-dialog-shown";
   BxEvent2["XCLOUD_DIALOG_DISMISSED"] = "bx-xcloud-dialog-dismissed";
+  BxEvent2["XCLOUD_GUIDE_SHOWN"] = "bx-xcloud-guide-shown";
   BxEvent2["XCLOUD_POLLING_MODE_CHANGED"] = "bx-xcloud-polling-mode-changed";
 })(BxEvent || (BxEvent = {}));
 var XcloudEvent;
 (function(XcloudEvent2) {
   XcloudEvent2["MICROPHONE_STATE_CHANGED"] = "microphoneStateChanged";
 })(XcloudEvent || (XcloudEvent = {}));
+var XcloudGuideWhere;
+(function(XcloudGuideWhere2) {
+  XcloudGuideWhere2[XcloudGuideWhere2["HOME"] = 0] = "HOME";
+})(XcloudGuideWhere || (XcloudGuideWhere = {}));
 (function(BxEvent) {
   function dispatch(target, eventName, data) {
     if (!eventName) {
@@ -1144,221 +1149,6 @@ class MkbPreset {
   }
 }
 
-// src/modules/stream/stream-badges.ts
-var StreamBadge;
-(function(StreamBadge2) {
-  StreamBadge2["PLAYTIME"] = "playtime";
-  StreamBadge2["BATTERY"] = "battery";
-  StreamBadge2["IN"] = "in";
-  StreamBadge2["OUT"] = "out";
-  StreamBadge2["SERVER"] = "server";
-  StreamBadge2["VIDEO"] = "video";
-  StreamBadge2["AUDIO"] = "audio";
-  StreamBadge2["BREAK"] = "break";
-})(StreamBadge || (StreamBadge = {}));
-
-class StreamBadges {
-  static ipv6 = false;
-  static resolution = null;
-  static video = null;
-  static audio = null;
-  static fps = 0;
-  static region = "";
-  static startBatteryLevel = 100;
-  static startTimestamp = 0;
-  static #cachedDoms = {};
-  static #interval;
-  static #REFRESH_INTERVAL = 3000;
-  static #renderBadge(name, value, color) {
-    if (name === StreamBadge.BREAK) {
-      return CE("div", { style: "display: block" });
-    }
-    let $badge;
-    if (StreamBadges.#cachedDoms[name]) {
-      $badge = StreamBadges.#cachedDoms[name];
-      $badge.lastElementChild.textContent = value;
-      return $badge;
-    }
-    $badge = CE("div", { class: "bx-badge" }, CE("span", { class: "bx-badge-name" }, t(`badge-${name}`)), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value));
-    if (name === StreamBadge.BATTERY) {
-      $badge.classList.add("bx-badge-battery");
-    }
-    StreamBadges.#cachedDoms[name] = $badge;
-    return $badge;
-  }
-  static async#updateBadges(forceUpdate) {
-    if (!forceUpdate && !document.querySelector(".bx-badges")) {
-      StreamBadges.#stop();
-      return;
-    }
-    let now = +new Date;
-    const diffSeconds = Math.ceil((now - StreamBadges.startTimestamp) / 1000);
-    const playtime = StreamBadges.#secondsToHm(diffSeconds);
-    let batteryLevel = "100%";
-    let batteryLevelInt = 100;
-    let isCharging = false;
-    if ("getBattery" in navigator) {
-      try {
-        const bm = await navigator.getBattery();
-        isCharging = bm.charging;
-        batteryLevelInt = Math.round(bm.level * 100);
-        batteryLevel = `${batteryLevelInt}%`;
-        if (batteryLevelInt != StreamBadges.startBatteryLevel) {
-          const diffLevel = Math.round(batteryLevelInt - StreamBadges.startBatteryLevel);
-          const sign = diffLevel > 0 ? "+" : "";
-          batteryLevel += ` (${sign}${diffLevel}%)`;
-        }
-      } catch (e) {
-      }
-    }
-    const stats = await STATES.currentStream.peerConnection?.getStats();
-    let totalIn = 0;
-    let totalOut = 0;
-    stats.forEach((stat) => {
-      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
-        totalIn += stat.bytesReceived;
-        totalOut += stat.bytesSent;
-      }
-    });
-    const badges = {
-      [StreamBadge.IN]: totalIn ? StreamBadges.#humanFileSize(totalIn) : null,
-      [StreamBadge.OUT]: totalOut ? StreamBadges.#humanFileSize(totalOut) : null,
-      [StreamBadge.PLAYTIME]: playtime,
-      [StreamBadge.BATTERY]: batteryLevel
-    };
-    let name;
-    for (name in badges) {
-      const value = badges[name];
-      if (value === null) {
-        continue;
-      }
-      const $elm = StreamBadges.#cachedDoms[name];
-      $elm && ($elm.lastElementChild.textContent = value);
-      if (name === StreamBadge.BATTERY) {
-        $elm.setAttribute("data-charging", isCharging.toString());
-        if (StreamBadges.startBatteryLevel === 100 && batteryLevelInt === 100) {
-          $elm.style.display = "none";
-        } else {
-          $elm.removeAttribute("style");
-        }
-      }
-    }
-  }
-  static #stop() {
-    StreamBadges.#interval && clearInterval(StreamBadges.#interval);
-    StreamBadges.#interval = null;
-  }
-  static #secondsToHm(seconds) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor(seconds % 3600 / 60) + 1;
-    const hDisplay = h > 0 ? `${h}h` : "";
-    const mDisplay = m > 0 ? `${m}m` : "";
-    return hDisplay + mDisplay;
-  }
-  static #humanFileSize(size) {
-    const units = ["B", "kB", "MB", "GB", "TB"];
-    let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-    return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
-  }
-  static async render() {
-    let video = "";
-    if (StreamBadges.resolution) {
-      video = `${StreamBadges.resolution.height}p`;
-    }
-    if (StreamBadges.video) {
-      video && (video += "/");
-      video += StreamBadges.video.codec;
-      if (StreamBadges.video.profile) {
-        const profile = StreamBadges.video.profile;
-        let quality = profile;
-        if (profile.startsWith("4d")) {
-          quality = t("visual-quality-high");
-        } else if (profile.startsWith("42e")) {
-          quality = t("visual-quality-normal");
-        } else if (profile.startsWith("420")) {
-          quality = t("visual-quality-low");
-        }
-        video += ` (${quality})`;
-      }
-    }
-    let audio;
-    if (StreamBadges.audio) {
-      audio = StreamBadges.audio.codec;
-      const bitrate = StreamBadges.audio.bitrate / 1000;
-      audio += ` (${bitrate} kHz)`;
-    }
-    let batteryLevel = "";
-    if ("getBattery" in navigator) {
-      batteryLevel = "100%";
-    }
-    let server = StreamBadges.region;
-    server += "@" + (StreamBadges.ipv6 ? "IPv6" : "IPv4");
-    const BADGES = [
-      [StreamBadge.PLAYTIME, "1m", "#ff004d"],
-      [StreamBadge.BATTERY, batteryLevel, "#00b543"],
-      [StreamBadge.IN, StreamBadges.#humanFileSize(0), "#29adff"],
-      [StreamBadge.OUT, StreamBadges.#humanFileSize(0), "#ff77a8"],
-      [StreamBadge.BREAK],
-      [StreamBadge.SERVER, server, "#ff6c24"],
-      video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
-      audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
-    ];
-    const $wrapper = CE("div", { class: "bx-badges" });
-    BADGES.forEach((item2) => {
-      if (!item2) {
-        return;
-      }
-      const $badge = StreamBadges.#renderBadge(...item2);
-      $wrapper.appendChild($badge);
-    });
-    await StreamBadges.#updateBadges(true);
-    StreamBadges.#stop();
-    StreamBadges.#interval = window.setInterval(StreamBadges.#updateBadges, StreamBadges.#REFRESH_INTERVAL);
-    return $wrapper;
-  }
-  static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-      const $video = e.$video;
-      StreamBadges.resolution = {
-        width: $video.videoWidth,
-        height: $video.videoHeight
-      };
-      StreamBadges.startTimestamp = +new Date;
-      try {
-        "getBattery" in navigator && navigator.getBattery().then((bm) => {
-          StreamBadges.startBatteryLevel = Math.round(bm.level * 100);
-        });
-      } catch (e2) {
-      }
-    });
-  }
-}
-
-// src/utils/bx-logger.ts
-var TextColor;
-(function(TextColor2) {
-  TextColor2["INFO"] = "#008746";
-  TextColor2["WARNING"] = "#c1a404";
-  TextColor2["ERROR"] = "#c10404";
-})(TextColor || (TextColor = {}));
-
-class BxLogger {
-  static #PREFIX = "[BxC]";
-  static info(tag, ...args) {
-    BxLogger.#log(TextColor.INFO, tag, ...args);
-  }
-  static warning(tag, ...args) {
-    BxLogger.#log(TextColor.WARNING, tag, ...args);
-  }
-  static error(tag, ...args) {
-    BxLogger.#log(TextColor.ERROR, tag, ...args);
-  }
-  static #log(color, tag, ...args) {
-    console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, "//", ...args);
-  }
-}
-window.BxLogger = BxLogger;
-
 // src/modules/stream/stream-stats.ts
 var StreamStat;
 (function(StreamStat2) {
@@ -1371,228 +1161,198 @@ var StreamStat;
 })(StreamStat || (StreamStat = {}));
 
 class StreamStats {
-  static #interval;
-  static #updateInterval = 1000;
-  static #$container;
-  static #$fps;
-  static #$ping;
-  static #$dt;
-  static #$pl;
-  static #$fl;
-  static #$br;
-  static #lastStat;
-  static #quickGlanceObserver;
-  static start(glancing = false) {
-    if (!StreamStats.isHidden() || glancing && StreamStats.isGlancing()) {
+  static instance;
+  static getInstance() {
+    if (!StreamStats.instance) {
+      StreamStats.instance = new StreamStats;
+    }
+    return StreamStats.instance;
+  }
+  #timeoutId;
+  #updateInterval = 1000;
+  #$container;
+  #$fps;
+  #$ping;
+  #$dt;
+  #$pl;
+  #$fl;
+  #$br;
+  #lastVideoStat;
+  #quickGlanceObserver;
+  start(glancing = false) {
+    if (!this.isHidden() || glancing && this.isGlancing()) {
       return;
     }
-    StreamStats.#$container.classList.remove("bx-gone");
-    StreamStats.#$container.setAttribute("data-display", glancing ? "glancing" : "fixed");
-    StreamStats.#interval = window.setInterval(StreamStats.update, StreamStats.#updateInterval);
+    if (this.#$container) {
+      this.#$container.classList.remove("bx-gone");
+      this.#$container.dataset.display = glancing ? "glancing" : "fixed";
+    }
+    this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval);
   }
-  static stop(glancing = false) {
-    if (glancing && !StreamStats.isGlancing()) {
+  stop(glancing = false) {
+    if (glancing && !this.isGlancing()) {
       return;
     }
-    StreamStats.#interval && clearInterval(StreamStats.#interval);
-    StreamStats.#interval = null;
-    StreamStats.#lastStat = null;
-    if (StreamStats.#$container) {
-      StreamStats.#$container.removeAttribute("data-display");
-      StreamStats.#$container.classList.add("bx-gone");
+    this.#timeoutId && clearTimeout(this.#timeoutId);
+    this.#timeoutId = null;
+    this.#lastVideoStat = null;
+    if (this.#$container) {
+      this.#$container.removeAttribute("data-display");
+      this.#$container.classList.add("bx-gone");
     }
   }
-  static toggle() {
-    if (StreamStats.isGlancing()) {
-      StreamStats.#$container.setAttribute("data-display", "fixed");
+  toggle() {
+    if (this.isGlancing()) {
+      this.#$container && (this.#$container.dataset.display = "fixed");
     } else {
-      StreamStats.isHidden() ? StreamStats.start() : StreamStats.stop();
+      this.isHidden() ? this.start() : this.stop();
     }
   }
-  static onStoppedPlaying() {
-    StreamStats.stop();
-    StreamStats.quickGlanceStop();
-    StreamStats.hideSettingsUi();
+  onStoppedPlaying() {
+    this.stop();
+    this.quickGlanceStop();
+    this.hideSettingsUi();
   }
-  static isHidden = () => StreamStats.#$container && StreamStats.#$container.classList.contains("bx-gone");
-  static isGlancing = () => StreamStats.#$container && StreamStats.#$container.getAttribute("data-display") === "glancing";
-  static quickGlanceSetup() {
-    if (StreamStats.#quickGlanceObserver) {
+  isHidden = () => this.#$container && this.#$container.classList.contains("bx-gone");
+  isGlancing = () => this.#$container && this.#$container.dataset.display === "glancing";
+  quickGlanceSetup() {
+    if (this.#quickGlanceObserver) {
       return;
     }
     const $uiContainer = document.querySelector("div[data-testid=ui-container]");
-    StreamStats.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
+    this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
       for (let record of mutationList) {
         if (record.attributeName && record.attributeName === "aria-expanded") {
           const expanded = record.target.ariaExpanded;
           if (expanded === "true") {
-            StreamStats.isHidden() && StreamStats.start(true);
+            this.isHidden() && this.start(true);
           } else {
-            StreamStats.stop(true);
+            this.stop(true);
           }
         }
       }
     });
-    StreamStats.#quickGlanceObserver.observe($uiContainer, {
+    this.#quickGlanceObserver.observe($uiContainer, {
       attributes: true,
       attributeFilter: ["aria-expanded"],
       subtree: true
     });
   }
-  static quickGlanceStop() {
-    StreamStats.#quickGlanceObserver && StreamStats.#quickGlanceObserver.disconnect();
-    StreamStats.#quickGlanceObserver = null;
+  quickGlanceStop() {
+    this.#quickGlanceObserver && this.#quickGlanceObserver.disconnect();
+    this.#quickGlanceObserver = null;
   }
-  static update() {
-    if (StreamStats.isHidden() || !STATES.currentStream.peerConnection) {
-      StreamStats.onStoppedPlaying();
+  async#update() {
+    if (this.isHidden() || !STATES.currentStream.peerConnection) {
+      this.onStoppedPlaying();
       return;
     }
+    this.#timeoutId = null;
+    const startTime = performance.now();
     const PREF_STATS_CONDITIONAL_FORMATTING = getPref(PrefKey.STATS_CONDITIONAL_FORMATTING);
-    STATES.currentStream.peerConnection.getStats().then((stats) => {
-      stats.forEach((stat) => {
-        let grade = "";
-        if (stat.type === "inbound-rtp" && stat.kind === "video") {
-          StreamStats.#$fps.textContent = stat.framesPerSecond || 0;
-          const packetsLost = stat.packetsLost;
-          const packetsReceived = stat.packetsReceived;
-          const packetsLostPercentage = (packetsLost * 100 / (packetsLost + packetsReceived || 1)).toFixed(2);
-          StreamStats.#$pl.textContent = packetsLostPercentage === "0.00" ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
-          const framesDropped = stat.framesDropped;
-          const framesReceived = stat.framesReceived;
-          const framesDroppedPercentage = (framesDropped * 100 / (framesDropped + framesReceived || 1)).toFixed(2);
-          StreamStats.#$fl.textContent = framesDroppedPercentage === "0.00" ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`;
-          if (StreamStats.#lastStat) {
-            const lastStat = StreamStats.#lastStat;
-            const timeDiff = stat.timestamp - lastStat.timestamp;
-            const bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
-            StreamStats.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
-            const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
-            const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
-            const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
-            StreamStats.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
-            if (PREF_STATS_CONDITIONAL_FORMATTING) {
-              grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "";
-            }
-            StreamStats.#$dt.setAttribute("data-grade", grade);
-          }
-          StreamStats.#lastStat = stat;
-        } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
-          const roundTripTime = typeof stat.currentRoundTripTime !== "undefined" ? stat.currentRoundTripTime * 1000 : -1;
-          StreamStats.#$ping.textContent = roundTripTime === -1 ? "???" : roundTripTime.toString();
-          if (PREF_STATS_CONDITIONAL_FORMATTING) {
-            grade = roundTripTime > 100 ? "bad" : roundTripTime > 75 ? "ok" : roundTripTime > 40 ? "good" : "";
-          }
-          StreamStats.#$ping.setAttribute("data-grade", grade);
+    const stats = await STATES.currentStream.peerConnection.getStats();
+    let grade = "";
+    stats.forEach((stat) => {
+      if (stat.type === "inbound-rtp" && stat.kind === "video") {
+        this.#$fps.textContent = stat.framesPerSecond || 0;
+        const packetsLost = stat.packetsLost;
+        const packetsReceived = stat.packetsReceived;
+        const packetsLostPercentage = (packetsLost * 100 / (packetsLost + packetsReceived || 1)).toFixed(2);
+        this.#$pl.textContent = packetsLostPercentage === "0.00" ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
+        const framesDropped = stat.framesDropped;
+        const framesReceived = stat.framesReceived;
+        const framesDroppedPercentage = (framesDropped * 100 / (framesDropped + framesReceived || 1)).toFixed(2);
+        this.#$fl.textContent = framesDroppedPercentage === "0.00" ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`;
+        if (!this.#lastVideoStat) {
+          this.#lastVideoStat = stat;
+          return;
         }
-      });
+        const lastStat = this.#lastVideoStat;
+        const timeDiff = stat.timestamp - lastStat.timestamp;
+        const bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
+        this.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
+        const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
+        const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
+        const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
+        this.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+        if (PREF_STATS_CONDITIONAL_FORMATTING) {
+          grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "";
+          this.#$dt.dataset.grade = grade;
+        }
+        this.#lastVideoStat = stat;
+      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
+        const roundTripTime = stat.currentRoundTripTime ? stat.currentRoundTripTime * 1000 : -1;
+        this.#$ping.textContent = roundTripTime === -1 ? "???" : roundTripTime.toString();
+        if (PREF_STATS_CONDITIONAL_FORMATTING) {
+          grade = roundTripTime > 100 ? "bad" : roundTripTime > 75 ? "ok" : roundTripTime > 40 ? "good" : "";
+          this.#$ping.dataset.grade = grade;
+        }
+      }
     });
+    const lapsedTime = performance.now() - startTime;
+    this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval - lapsedTime);
   }
-  static refreshStyles() {
+  refreshStyles() {
     const PREF_ITEMS = getPref(PrefKey.STATS_ITEMS);
     const PREF_POSITION = getPref(PrefKey.STATS_POSITION);
     const PREF_TRANSPARENT = getPref(PrefKey.STATS_TRANSPARENT);
     const PREF_OPACITY = getPref(PrefKey.STATS_OPACITY);
     const PREF_TEXT_SIZE = getPref(PrefKey.STATS_TEXT_SIZE);
-    const $container = StreamStats.#$container;
-    $container.setAttribute("data-stats", "[" + PREF_ITEMS.join("][") + "]");
-    $container.setAttribute("data-position", PREF_POSITION);
-    $container.setAttribute("data-transparent", PREF_TRANSPARENT);
+    const $container = this.#$container;
+    $container.dataset.stats = "[" + PREF_ITEMS.join("][") + "]";
+    $container.dataset.position = PREF_POSITION;
+    $container.dataset.transparent = PREF_TRANSPARENT;
     $container.style.opacity = PREF_OPACITY + "%";
     $container.style.fontSize = PREF_TEXT_SIZE;
   }
-  static hideSettingsUi() {
-    if (StreamStats.isGlancing() && !getPref(PrefKey.STATS_QUICK_GLANCE)) {
-      StreamStats.stop();
+  hideSettingsUi() {
+    if (this.isGlancing() && !getPref(PrefKey.STATS_QUICK_GLANCE)) {
+      this.stop();
     }
   }
-  static render() {
-    if (StreamStats.#$container) {
+  #render() {
+    if (this.#$container) {
       return;
     }
-    const STATS = {
-      [StreamStat.PING]: [t("stat-ping"), StreamStats.#$ping = CE("span", {}, "0")],
-      [StreamStat.FPS]: [t("stat-fps"), StreamStats.#$fps = CE("span", {}, "0")],
-      [StreamStat.BITRATE]: [t("stat-bitrate"), StreamStats.#$br = CE("span", {}, "0 Mbps")],
-      [StreamStat.DECODE_TIME]: [t("stat-decode-time"), StreamStats.#$dt = CE("span", {}, "0ms")],
-      [StreamStat.PACKETS_LOST]: [t("stat-packets-lost"), StreamStats.#$pl = CE("span", {}, "0")],
-      [StreamStat.FRAMES_LOST]: [t("stat-frames-lost"), StreamStats.#$fl = CE("span", {}, "0")]
+    const stats = {
+      [StreamStat.PING]: [t("stat-ping"), this.#$ping = CE("span", {}, "0")],
+      [StreamStat.FPS]: [t("stat-fps"), this.#$fps = CE("span", {}, "0")],
+      [StreamStat.BITRATE]: [t("stat-bitrate"), this.#$br = CE("span", {}, "0 Mbps")],
+      [StreamStat.DECODE_TIME]: [t("stat-decode-time"), this.#$dt = CE("span", {}, "0ms")],
+      [StreamStat.PACKETS_LOST]: [t("stat-packets-lost"), this.#$pl = CE("span", {}, "0")],
+      [StreamStat.FRAMES_LOST]: [t("stat-frames-lost"), this.#$fl = CE("span", {}, "0")]
     };
     const $barFragment = document.createDocumentFragment();
     let statKey;
-    for (statKey in STATS) {
-      const $div = CE("div", { class: `bx-stat-${statKey}`, title: STATS[statKey][0] }, CE("label", {}, statKey.toUpperCase()), STATS[statKey][1]);
+    for (statKey in stats) {
+      const $div = CE("div", {
+        class: `bx-stat-${statKey}`,
+        title: stats[statKey][0]
+      }, CE("label", {}, statKey.toUpperCase()), stats[statKey][1]);
       $barFragment.appendChild($div);
     }
-    StreamStats.#$container = CE("div", { class: "bx-stats-bar bx-gone" }, $barFragment);
-    document.documentElement.appendChild(StreamStats.#$container);
-    StreamStats.refreshStyles();
-  }
-  static getServerStats() {
-    STATES.currentStream.peerConnection && STATES.currentStream.peerConnection.getStats().then((stats) => {
-      const allVideoCodecs = {};
-      let videoCodecId;
-      const allAudioCodecs = {};
-      let audioCodecId;
-      const allCandidates = {};
-      let candidateId;
-      stats.forEach((stat) => {
-        if (stat.type === "codec") {
-          const mimeType = stat.mimeType.split("/");
-          if (mimeType[0] === "video") {
-            allVideoCodecs[stat.id] = stat;
-          } else if (mimeType[0] === "audio") {
-            allAudioCodecs[stat.id] = stat;
-          }
-        } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
-          if (stat.kind === "video") {
-            videoCodecId = stat.codecId;
-          } else if (stat.kind === "audio") {
-            audioCodecId = stat.codecId;
-          }
-        } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
-          candidateId = stat.remoteCandidateId;
-        } else if (stat.type === "remote-candidate") {
-          allCandidates[stat.id] = stat.address;
-        }
-      });
-      if (videoCodecId) {
-        const videoStat = allVideoCodecs[videoCodecId];
-        const video = {
-          codec: videoStat.mimeType.substring(6)
-        };
-        if (video.codec === "H264") {
-          const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-          video.profile = match ? match[1] : null;
-        }
-        StreamBadges.video = video;
-      }
-      if (audioCodecId) {
-        const audioStat = allAudioCodecs[audioCodecId];
-        StreamBadges.audio = {
-          codec: audioStat.mimeType.substring(6),
-          bitrate: audioStat.clockRate
-        };
-      }
-      if (candidateId) {
-        BxLogger.info("candidate", candidateId, allCandidates);
-        StreamBadges.ipv6 = allCandidates[candidateId].includes(":");
-      }
-      if (getPref(PrefKey.STATS_SHOW_WHEN_PLAYING)) {
-        StreamStats.start();
-      }
-    });
+    this.#$container = CE("div", { class: "bx-stats-bar bx-gone" }, $barFragment);
+    this.refreshStyles();
+    document.documentElement.appendChild(this.#$container);
   }
   static setupEvents() {
+    window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
+      StreamStats.getInstance().#render();
+    });
     window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
       const PREF_STATS_QUICK_GLANCE = getPref(PrefKey.STATS_QUICK_GLANCE);
       const PREF_STATS_SHOW_WHEN_PLAYING = getPref(PrefKey.STATS_SHOW_WHEN_PLAYING);
-      StreamStats.getServerStats();
-      if (PREF_STATS_QUICK_GLANCE) {
-        StreamStats.quickGlanceSetup();
-        !PREF_STATS_SHOW_WHEN_PLAYING && StreamStats.start(true);
+      const streamStats = StreamStats.getInstance();
+      if (PREF_STATS_SHOW_WHEN_PLAYING) {
+        streamStats.start();
+      } else if (PREF_STATS_QUICK_GLANCE) {
+        streamStats.quickGlanceSetup();
+        !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(true);
       }
     });
+  }
+  static refreshStyles() {
+    StreamStats.getInstance().refreshStyles();
   }
 }
 
@@ -2594,6 +2354,24 @@ var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' st
 // src/assets/svg/microphone-slash.svg
 var microphone_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662\"/>\n    <path d=\"M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562\"/>\n</svg>\n";
 
+// src/assets/svg/battery-full.svg
+var battery_full_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke-miterlimit='2' viewBox='0 0 32 32'>\n    <path d=\"M24.774 6.71H3.097C1.398 6.71 0 8.108 0 9.806v12.387c0 1.699 1.398 3.097 3.097 3.097h21.677c1.699 0 3.097-1.398 3.097-3.097V9.806c0-1.699-1.398-3.097-3.097-3.097zm1.032 15.484a1.04 1.04 0 0 1-1.032 1.032H3.097a1.04 1.04 0 0 1-1.032-1.032V9.806a1.04 1.04 0 0 1 1.032-1.032h21.677a1.04 1.04 0 0 1 1.032 1.032v12.387zm-2.065-10.323v8.258a1.04 1.04 0 0 1-1.032 1.032H5.161a1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032H22.71a1.04 1.04 0 0 1 1.032 1.032zm8.258 0v8.258a1.04 1.04 0 0 1-1.032 1.032 1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032A1.04 1.04 0 0 1 32 11.871z\" fill-rule=\"nonzero\"/>\n</svg>\n";
+
+// src/assets/svg/clock.svg
+var clock_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform=\"matrix(.150026 0 0 .150026 -3.20332 -3.20332)\" fill=\"none\" stroke=\"#fff\" stroke-width=\"16\">\n        <circle cx=\"128\" cy=\"128\" r=\"96\"/>\n        <path d=\"M128 72v56h56\"/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/cloud.svg
+var cloud_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M9.773 16c0-5.694 4.685-10.379 10.379-10.379S30.53 10.306 30.53 16s-4.685 10.379-10.379 10.379H8.735c-3.982-.005-7.256-3.283-7.256-7.265s3.28-7.265 7.265-7.265c.606 0 1.21.076 1.797.226\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2.076\"/>\n</svg>\n";
+
+// src/assets/svg/download.svg
+var download_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M16 19.955V1.5m14.5 18.455v9.227c0 .723-.595 1.318-1.318 1.318H2.818c-.723 0-1.318-.595-1.318-1.318v-9.227\"/>\n    <path d=\"M22.591 13.364L16 19.955l-6.591-6.591\"/>\n</svg>\n";
+
+// src/assets/svg/speaker-high.svg
+var speaker_high_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M8.964 21.417h-6.5a1.09 1.09 0 0 1-1.083-1.083v-8.667a1.09 1.09 0 0 1 1.083-1.083h6.5L18.714 3v26l-9.75-7.583z\"/>\n    <path d=\"M8.964 10.583v10.833m15.167-8.28a4.35 4.35 0 0 1 0 5.728M28.149 9.5a9.79 9.79 0 0 1 0 13\"/>\n</svg>\n";
+
+// src/assets/svg/upload.svg
+var upload_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d=\"M16 19.905V1.682m14.318 18.223v9.112a1.31 1.31 0 0 1-1.302 1.302H2.983a1.31 1.31 0 0 1-1.302-1.302v-9.112\"/>\n    <path d=\"M9.492 8.19L16 1.682l6.508 6.508\"/>\n</svg>\n";
+
 // src/utils/bx-icon.ts
 var BxIcon = {
   STREAM_SETTINGS: stream_settings_default,
@@ -2616,8 +2394,302 @@ var BxIcon = {
   TOUCH_CONTROL_ENABLE: touch_control_enable_default,
   TOUCH_CONTROL_DISABLE: touch_control_disable_default,
   MICROPHONE: microphone_default,
-  MICROPHONE_MUTED: microphone_slash_default
+  MICROPHONE_MUTED: microphone_slash_default,
+  BATTERY: battery_full_default,
+  PLAYTIME: clock_default,
+  SERVER: cloud_default,
+  DOWNLOAD: download_default,
+  UPLOAD: upload_default,
+  AUDIO: speaker_high_default
 };
+
+// src/utils/bx-logger.ts
+var TextColor;
+(function(TextColor2) {
+  TextColor2["INFO"] = "#008746";
+  TextColor2["WARNING"] = "#c1a404";
+  TextColor2["ERROR"] = "#c10404";
+})(TextColor || (TextColor = {}));
+
+class BxLogger {
+  static #PREFIX = "[BxC]";
+  static info(tag, ...args) {
+    BxLogger.#log(TextColor.INFO, tag, ...args);
+  }
+  static warning(tag, ...args) {
+    BxLogger.#log(TextColor.WARNING, tag, ...args);
+  }
+  static error(tag, ...args) {
+    BxLogger.#log(TextColor.ERROR, tag, ...args);
+  }
+  static #log(color, tag, ...args) {
+    console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, "//", ...args);
+  }
+}
+window.BxLogger = BxLogger;
+
+// src/modules/stream/stream-badges.ts
+var StreamBadge;
+(function(StreamBadge2) {
+  StreamBadge2["PLAYTIME"] = "playtime";
+  StreamBadge2["BATTERY"] = "battery";
+  StreamBadge2["IN"] = "in";
+  StreamBadge2["OUT"] = "out";
+  StreamBadge2["SERVER"] = "server";
+  StreamBadge2["VIDEO"] = "video";
+  StreamBadge2["AUDIO"] = "audio";
+  StreamBadge2["BREAK"] = "break";
+})(StreamBadge || (StreamBadge = {}));
+var StreamBadgeIcon = {
+  [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
+  [StreamBadge.VIDEO]: BxIcon.DISPLAY,
+  [StreamBadge.BATTERY]: BxIcon.BATTERY,
+  [StreamBadge.IN]: BxIcon.DOWNLOAD,
+  [StreamBadge.OUT]: BxIcon.UPLOAD,
+  [StreamBadge.SERVER]: BxIcon.SERVER,
+  [StreamBadge.AUDIO]: BxIcon.AUDIO
+};
+
+class StreamBadges {
+  static instance;
+  static getInstance() {
+    if (!StreamBadges.instance) {
+      StreamBadges.instance = new StreamBadges;
+    }
+    return StreamBadges.instance;
+  }
+  #ipv6 = false;
+  #resolution = null;
+  #video = null;
+  #audio = null;
+  #region = "";
+  startBatteryLevel = 100;
+  startTimestamp = 0;
+  #cachedDoms = {};
+  #interval;
+  #REFRESH_INTERVAL = 3000;
+  setRegion(region) {
+    this.#region = region;
+  }
+  #renderBadge(name, value, color) {
+    if (name === StreamBadge.BREAK) {
+      return CE("div", { style: "display: block" });
+    }
+    let $badge;
+    if (this.#cachedDoms[name]) {
+      $badge = this.#cachedDoms[name];
+      $badge.lastElementChild.textContent = value;
+      return $badge;
+    }
+    $badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value));
+    if (name === StreamBadge.BATTERY) {
+      $badge.classList.add("bx-badge-battery");
+    }
+    this.#cachedDoms[name] = $badge;
+    return $badge;
+  }
+  async#updateBadges(forceUpdate) {
+    if (!forceUpdate && !document.querySelector(".bx-badges")) {
+      this.#stop();
+      return;
+    }
+    let now = +new Date;
+    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000);
+    const playtime = this.#secondsToHm(diffSeconds);
+    let batteryLevel = "100%";
+    let batteryLevelInt = 100;
+    let isCharging = false;
+    if ("getBattery" in navigator) {
+      try {
+        const bm = await navigator.getBattery();
+        isCharging = bm.charging;
+        batteryLevelInt = Math.round(bm.level * 100);
+        batteryLevel = `${batteryLevelInt}%`;
+        if (batteryLevelInt != this.startBatteryLevel) {
+          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel);
+          const sign = diffLevel > 0 ? "+" : "";
+          batteryLevel += ` (${sign}${diffLevel}%)`;
+        }
+      } catch (e) {
+      }
+    }
+    const stats = await STATES.currentStream.peerConnection?.getStats();
+    let totalIn = 0;
+    let totalOut = 0;
+    stats.forEach((stat) => {
+      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
+        totalIn += stat.bytesReceived;
+        totalOut += stat.bytesSent;
+      }
+    });
+    const badges = {
+      [StreamBadge.IN]: totalIn ? this.#humanFileSize(totalIn) : null,
+      [StreamBadge.OUT]: totalOut ? this.#humanFileSize(totalOut) : null,
+      [StreamBadge.PLAYTIME]: playtime,
+      [StreamBadge.BATTERY]: batteryLevel
+    };
+    let name;
+    for (name in badges) {
+      const value = badges[name];
+      if (value === null) {
+        continue;
+      }
+      const $elm = this.#cachedDoms[name];
+      $elm && ($elm.lastElementChild.textContent = value);
+      if (name === StreamBadge.BATTERY) {
+        $elm.setAttribute("data-charging", isCharging.toString());
+        if (this.startBatteryLevel === 100 && batteryLevelInt === 100) {
+          $elm.style.display = "none";
+        } else {
+          $elm.removeAttribute("style");
+        }
+      }
+    }
+  }
+  #stop() {
+    this.#interval && clearInterval(this.#interval);
+    this.#interval = null;
+  }
+  #secondsToHm(seconds) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor(seconds % 3600 / 60) + 1;
+    const hDisplay = h > 0 ? `${h}h` : "";
+    const mDisplay = m > 0 ? `${m}m` : "";
+    return hDisplay + mDisplay;
+  }
+  #humanFileSize(size) {
+    const units = ["B", "kB", "MB", "GB", "TB"];
+    let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+    return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
+  }
+  async render() {
+    if (!this.#video) {
+      await this.#getServerStats();
+    }
+    let video = "";
+    if (this.#resolution) {
+      video = `${this.#resolution.height}p`;
+    }
+    if (this.#video) {
+      video && (video += "/");
+      video += this.#video.codec;
+      if (this.#video.profile) {
+        const profile = this.#video.profile;
+        let quality = profile;
+        if (profile.startsWith("4d")) {
+          quality = t("visual-quality-high");
+        } else if (profile.startsWith("42e")) {
+          quality = t("visual-quality-normal");
+        } else if (profile.startsWith("420")) {
+          quality = t("visual-quality-low");
+        }
+        video += ` (${quality})`;
+      }
+    }
+    let audio;
+    if (this.#audio) {
+      audio = this.#audio.codec;
+      const bitrate = this.#audio.bitrate / 1000;
+      audio += ` (${bitrate} kHz)`;
+    }
+    let batteryLevel = "";
+    if ("getBattery" in navigator) {
+      batteryLevel = "100%";
+    }
+    let server = this.#region;
+    server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
+    const BADGES = [
+      [StreamBadge.PLAYTIME, "1m", "#ff004d"],
+      [StreamBadge.BATTERY, batteryLevel, "#00b543"],
+      [StreamBadge.IN, this.#humanFileSize(0), "#29adff"],
+      [StreamBadge.OUT, this.#humanFileSize(0), "#ff77a8"],
+      [StreamBadge.BREAK],
+      [StreamBadge.SERVER, server, "#ff6c24"],
+      video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
+      audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
+    ];
+    const $wrapper = CE("div", { class: "bx-badges" });
+    BADGES.forEach((item2) => {
+      if (!item2) {
+        return;
+      }
+      const $badge = this.#renderBadge(...item2);
+      $wrapper.appendChild($badge);
+    });
+    await this.#updateBadges(true);
+    this.#stop();
+    this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
+    return $wrapper;
+  }
+  async#getServerStats() {
+    const stats = await STATES.currentStream.peerConnection.getStats();
+    const allVideoCodecs = {};
+    let videoCodecId;
+    const allAudioCodecs = {};
+    let audioCodecId;
+    const allCandidates = {};
+    let candidateId;
+    stats.forEach((stat) => {
+      if (stat.type === "codec") {
+        const mimeType = stat.mimeType.split("/");
+        if (mimeType[0] === "video") {
+          allVideoCodecs[stat.id] = stat;
+        } else if (mimeType[0] === "audio") {
+          allAudioCodecs[stat.id] = stat;
+        }
+      } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
+        if (stat.kind === "video") {
+          videoCodecId = stat.codecId;
+        } else if (stat.kind === "audio") {
+          audioCodecId = stat.codecId;
+        }
+      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
+        candidateId = stat.remoteCandidateId;
+      } else if (stat.type === "remote-candidate") {
+        allCandidates[stat.id] = stat.address;
+      }
+    });
+    if (videoCodecId) {
+      const videoStat = allVideoCodecs[videoCodecId];
+      const video = {
+        codec: videoStat.mimeType.substring(6)
+      };
+      if (video.codec === "H264") {
+        const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+        video.profile = match ? match[1] : null;
+      }
+      this.#video = video;
+    }
+    if (audioCodecId) {
+      const audioStat = allAudioCodecs[audioCodecId];
+      this.#audio = {
+        codec: audioStat.mimeType.substring(6),
+        bitrate: audioStat.clockRate
+      };
+    }
+    if (candidateId) {
+      BxLogger.info("candidate", candidateId, allCandidates);
+      this.#ipv6 = allCandidates[candidateId].includes(":");
+    }
+  }
+  static setupEvents() {
+    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+      const $video = e.$video;
+      const streamBadges = StreamBadges.getInstance();
+      streamBadges.#resolution = {
+        width: $video.videoWidth,
+        height: $video.videoHeight
+      };
+      streamBadges.startTimestamp = +new Date;
+      try {
+        "getBattery" in navigator && navigator.getBattery().then((bm) => {
+          streamBadges.startBatteryLevel = Math.round(bm.level * 100);
+        });
+      } catch (e2) {
+      }
+    });
+  }
+}
 
 // src/modules/stream/stream-ui.ts
 var cloneStreamHudButton = function($orgButton, label, svgIcon) {
@@ -2683,6 +2755,7 @@ function injectStreamMenuButtons() {
   };
   let $btnStreamSettings;
   let $btnStreamStats;
+  const streamStats = StreamStats.getInstance();
   const observer = new MutationObserver((mutationList) => {
     mutationList.forEach((item2) => {
       if (item2.type !== "childList") {
@@ -2728,7 +2801,7 @@ function injectStreamMenuButtons() {
           });
           $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh);
           const $menu = document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]");
-          $menu?.appendChild(await StreamBadges.render());
+          $menu?.appendChild(await StreamBadges.getInstance().render());
           hideSettingsFunc();
           return;
         }
@@ -2768,12 +2841,12 @@ function injectStreamMenuButtons() {
           $btnStreamStats.addEventListener("click", (e) => {
             hideGripHandle();
             e.preventDefault();
-            StreamStats.toggle();
-            const btnStreamStatsOn2 = !StreamStats.isHidden() && !StreamStats.isGlancing();
+            streamStats.toggle();
+            const btnStreamStatsOn2 = !streamStats.isHidden() && !streamStats.isGlancing();
             $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn2);
           });
         }
-        const btnStreamStatsOn = !StreamStats.isHidden() && !StreamStats.isGlancing();
+        const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();
         $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn);
         if ($orgButton) {
           const $btnParent = $orgButton.parentElement;
@@ -3555,7 +3628,7 @@ class ControllerShortcut {
         Screenshot.takeScreenshot();
         break;
       case ShortcutAction.STREAM_STATS_TOGGLE:
-        StreamStats.toggle();
+        StreamStats.getInstance().toggle();
         break;
       case ShortcutAction.STREAM_MICROPHONE_TOGGLE:
         MicrophoneShortcut.toggle();
@@ -4960,7 +5033,8 @@ var setupStreamSettingsDialog = function() {
             {
               pref: PrefKey.STATS_QUICK_GLANCE,
               onChange: (e) => {
-                e.target.checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+                const streamStats = StreamStats.getInstance();
+                e.target.checked ? streamStats.quickGlanceSetup() : streamStats.quickGlanceStop();
               }
             },
             {
@@ -5140,7 +5214,6 @@ function setupStreamUi() {
     preloadFonts();
     window.addEventListener("resize", updateVideoPlayerCss);
     setupStreamSettingsDialog();
-    StreamStats.render();
     Screenshot.setup();
   }
   updateVideoPlayerCss();
@@ -5787,14 +5860,15 @@ class XcloudInterceptor {
     const PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE);
     const url = typeof request === "string" ? request : request.url;
     const parsedUrl = new URL(url);
-    StreamBadges.region = parsedUrl.host.split(".", 1)[0];
+    let badgeRegion = parsedUrl.host.split(".", 1)[0];
     for (let regionName in STATES.serverRegions) {
       const region3 = STATES.serverRegions[regionName];
       if (parsedUrl.origin == region3.baseUri) {
-        StreamBadges.region = regionName;
+        badgeRegion = regionName;
         break;
       }
     }
+    StreamBadges.getInstance().setRegion(badgeRegion);
     const clone = request.clone();
     const body = await clone.json();
     if (PREF_STREAM_TARGET_RESOLUTION !== "auto") {
@@ -6744,6 +6818,10 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   margin: 0 8px 8px 0;
   box-shadow: 0px 0px 6px #000;
   border-radius: 4px;
+}
+.bx-badge svg {
+  width: 18px;
+  height: 18px;
 }
 .bx-badge-name {
   background-color: #2d3036;
@@ -8775,6 +8853,26 @@ var observeRootDialog = function($root) {
       if (mutation.type !== "childList") {
         continue;
       }
+      if (mutation.addedNodes.length === 1) {
+        const $addedElm = mutation.addedNodes[0];
+        if ($addedElm instanceof HTMLElement && $addedElm.className) {
+          if ($addedElm.className.startsWith("NavigationAnimation") || $addedElm.className.startsWith("DialogRoutes") || $addedElm.className.startsWith("Dialog-module__container")) {
+            const $selectedTab = $addedElm.querySelector("div[class^=NavigationMenu] button[aria-selected=true");
+            if ($selectedTab) {
+              let $elm = $selectedTab;
+              let index;
+              for (index = 0;$elm = $elm?.previousElementSibling; index++)
+                ;
+              if (index === 0) {
+                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_SHOWN, { where: XcloudGuideWhere.HOME });
+                console.log("quit", $addedElm.querySelector("a[class*=QuitGameButton]"));
+              }
+            }
+          }
+        }
+      }
+      console.log("added", mutation.addedNodes);
+      console.log("removed", mutation.removedNodes);
       const shown = $root.firstElementChild && $root.firstElementChild.childElementCount > 0 || false;
       if (shown !== currentShown) {
         currentShown = shown;
@@ -8938,12 +9036,16 @@ window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
   }
   STATES.currentStream.audioGainNode = null;
   STATES.currentStream.$video = null;
-  StreamStats.onStoppedPlaying();
+  StreamStats.getInstance().onStoppedPlaying();
   MouseCursorHider.stop();
   TouchController.reset();
   GameBar.getInstance().disable();
 });
 window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
   Screenshot.takeScreenshot();
+});
+window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, (e) => {
+  const where = e.where;
+  console.log("where", where);
 });
 main();
