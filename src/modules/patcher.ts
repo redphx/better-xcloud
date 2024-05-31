@@ -554,6 +554,16 @@ true` + text;
         str = str.replace(text, newCode);
         return str;
     },
+
+    skipFeedbackDialog(str: string) {
+        const text = '&&this.shouldTransitionToFeedback(';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        str = str.replace(text, '&& false ' + text);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -604,6 +614,9 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'patchAudioMediaStream',
     // Patch volume control for combined audio+video stream
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && 'patchCombinedAudioVideoMediaStream',
+
+    // Skip feedback dialog
+    getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && 'skipFeedbackDialog',
 
 
     STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'patchShowSensorControls',

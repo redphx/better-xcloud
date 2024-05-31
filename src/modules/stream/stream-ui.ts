@@ -90,7 +90,6 @@ export function injectStreamMenuButtons() {
     let $btnStreamSettings: HTMLElement;
     let $btnStreamStats: HTMLElement;
 
-    const PREF_DISABLE_FEEDBACK_DIALOG = getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG);
     const observer = new MutationObserver(mutationList => {
         mutationList.forEach(item => {
             if (item.type !== 'childList') {
@@ -122,12 +121,6 @@ export function injectStreamMenuButtons() {
                 // Error Page: .PureErrorPage.ErrorScreen
                 if ($elm.className?.includes('PureErrorPage')) {
                     BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
-                    return;
-                }
-
-                if (PREF_DISABLE_FEEDBACK_DIALOG && $elm.className.startsWith('PostStreamFeedbackScreen')) {
-                    const $btnClose = $elm.querySelector('button');
-                    $btnClose && $btnClose.click();
                     return;
                 }
 
