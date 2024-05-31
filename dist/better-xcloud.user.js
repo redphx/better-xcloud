@@ -2683,7 +2683,6 @@ function injectStreamMenuButtons() {
   };
   let $btnStreamSettings;
   let $btnStreamStats;
-  const PREF_DISABLE_FEEDBACK_DIALOG = getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG);
   const observer = new MutationObserver((mutationList) => {
     mutationList.forEach((item2) => {
       if (item2.type !== "childList") {
@@ -2707,11 +2706,6 @@ function injectStreamMenuButtons() {
         }
         if ($elm.className?.includes("PureErrorPage")) {
           BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
-          return;
-        }
-        if (PREF_DISABLE_FEEDBACK_DIALOG && $elm.className.startsWith("PostStreamFeedbackScreen")) {
-          const $btnClose = $elm.querySelector("button");
-          $btnClose && $btnClose.click();
           return;
         }
         if ($elm.className?.startsWith("StreamMenu-module__container")) {
@@ -3975,10 +3969,10 @@ class LoadingScreen {
 }
 `;
     }
-    LoadingScreen.reset();
+    setTimeout(LoadingScreen.reset, 2000);
   }
   static reset() {
-    LoadingScreen.#$bgStyle && setTimeout(() => LoadingScreen.#$bgStyle.textContent = "", 2000);
+    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
     LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
     LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
     LoadingScreen.#waitTimeInterval = null;
@@ -7715,6 +7709,14 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_SESSION_READY}'))
 true` + text;
     str2 = str2.replace(text, newCode);
     return str2;
+  },
+  skipFeedbackDialog(str2) {
+    const text = "&&this.shouldTransitionToFeedback(";
+    if (!str2.includes(text)) {
+      return false;
+    }
+    str2 = str2.replace(text, "&& false " + text);
+    return str2;
   }
 };
 var PATCH_ORDERS = [
@@ -7751,6 +7753,7 @@ var PLAYING_PATCH_ORDERS = [
   "playVibration",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
+  getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && "skipFeedbackDialog",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "patchShowSensorControls",
   STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
   STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
