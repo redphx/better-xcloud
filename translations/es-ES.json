@@ -133,6 +133,7 @@
   "separate-touch-controller": "Separar controlador táctil y controlador #1",
   "separate-touch-controller-note": "El controlador táctil es Jugador 1, Controlador #1 es Jugador 2",
   "server": "Servidor",
+  "settings": "Configuraciones",
   "settings-reload": "Actualice la página para aplicar los cambios",
   "settings-reloading": "Recargando...",
   "shortcut-keys": "Teclas de atajo",
