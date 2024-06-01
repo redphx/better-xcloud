@@ -303,5 +303,9 @@ export function setupStreamUiEvents() {
 
         $btnQuit.insertAdjacentElement('afterend', $btnReload);
         $btnReload.insertAdjacentElement('afterend', $btnHome);
+
+        // Hide xCloud's Home button
+        const $btnXcloudHome = document.querySelector('#gamepass-dialog-root div[class^=HomeButtonWithDivider]') as HTMLElement;
+        $btnXcloudHome && ($btnXcloudHome.style.display = 'none');
     });
 }
