@@ -454,6 +454,7 @@ var MkbPresetKey;
 // src/utils/translation.ts
 var SUPPORTED_LANGUAGES = {
   "en-US": "English (United States)",
+  "ca-CA": "Català",
   "en-ID": "Bahasa Indonesia",
   "de-DE": "Deutsch",
   "es-ES": "español (España)",
@@ -479,6 +480,8 @@ var Texts = {
   apply: "Apply",
   audio: "Audio",
   auto: "Auto",
+  "back-to-home": "Back to home",
+  "back-to-home-confirm": "Do you want to go back to the home page (without disconnecting)?",
   "badge-audio": "Audio",
   "badge-battery": "Battery",
   "badge-in": "In",
@@ -592,6 +595,7 @@ var Texts = {
   "press-esc-to-cancel": "Press Esc to cancel",
   "press-key-to-toggle-mkb": [
     (e) => `Press ${e.key} to toggle the Mouse and Keyboard feature`,
+    (e) => `Premeu ${e.key} per alternar la funció de teclat i ratolí`,
     (e) => `${e.key}: Maus- und Tastaturunterstützung an-/ausschalten`,
     (e) => `Tekan ${e.key} untuk mengaktifkan fitur Mouse dan Keyboard`,
     (e) => `Pulsa ${e.key} para activar la función de ratón y teclado`,
@@ -613,6 +617,7 @@ var Texts = {
   ratio: "Ratio",
   "reduce-animations": "Reduce UI animations",
   region: "Region",
+  "reload-stream": "Reload stream",
   "remote-play": "Remote Play",
   rename: "Rename",
   "right-click-to-unbind": "Right-click on a key to unbind it",
@@ -629,6 +634,7 @@ var Texts = {
   "separate-touch-controller": "Separate Touch controller & Controller #1",
   "separate-touch-controller-note": "Touch controller is Player 1, Controller #1 is Player 2",
   server: "Server",
+  settings: "Settings",
   "settings-reload": "Reload page to reflect changes",
   "settings-reloading": "Reloading...",
   "shortcut-keys": "Shortcut keys",
@@ -679,6 +685,7 @@ var Texts = {
   "touch-control-layout": "Touch control layout",
   "touch-control-layout-by": [
     (e) => `Touch control layout by ${e.name}`,
+    (e) => `Format del control tàctil per ${e.name}`,
     (e) => `Touch-Steuerungslayout von ${e.name}`,
     (e) => `Tata letak Sentuhan layar oleh ${e.name}`,
     (e) => `Disposición del control táctil por ${e.nombre}`,
