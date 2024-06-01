@@ -22,6 +22,15 @@ import iconCamera from "@assets/svg/camera.svg" with { type: "text" };
 import iconMicrophone from "@assets/svg/microphone.svg" with { type: "text" };
 import iconMicrophoneMuted from "@assets/svg/microphone-slash.svg" with { type: "text" };
 
+// Stream Badge
+import iconBatteryFull from "@assets/svg/battery-full.svg" with { type: "text" };
+import iconClock from "@assets/svg/clock.svg" with { type: "text" };
+import iconCloud from "@assets/svg/cloud.svg" with { type: "text" };
+import iconDownload from "@assets/svg/download.svg" with { type: "text" };
+import iconSpeakerHigh from "@assets/svg/speaker-high.svg" with { type: "text" };
+import iconUpload from "@assets/svg/upload.svg" with { type: "text" };
+
+
 export const BxIcon = {
     STREAM_SETTINGS: iconStreamSettings,
     STREAM_STATS: iconStreamStats,
@@ -48,4 +57,12 @@ export const BxIcon = {
 
     MICROPHONE: iconMicrophone,
     MICROPHONE_MUTED: iconMicrophoneMuted,
+
+    // Stream Badge
+    BATTERY: iconBatteryFull,
+    PLAYTIME: iconClock,
+    SERVER: iconCloud,
+    DOWNLOAD: iconDownload,
+    UPLOAD: iconUpload,
+    AUDIO: iconSpeakerHigh,
 } as const;

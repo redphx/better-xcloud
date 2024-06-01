@@ -366,14 +366,15 @@ class XcloudInterceptor {
         const url = (typeof request === 'string') ? request : (request as Request).url;
         const parsedUrl = new URL(url);
 
-        StreamBadges.region = parsedUrl.host.split('.', 1)[0];
+        let badgeRegion: string = parsedUrl.host.split('.', 1)[0];
         for (let regionName in STATES.serverRegions) {
             const region = STATES.serverRegions[regionName];
             if (parsedUrl.origin == region.baseUri) {
-                StreamBadges.region = regionName;
+                badgeRegion = regionName;
                 break;
             }
         }
+        StreamBadges.getInstance().setRegion(badgeRegion);
 
         const clone = (request as Request).clone();
         const body = await clone.json();

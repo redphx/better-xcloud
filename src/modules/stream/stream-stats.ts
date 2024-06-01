@@ -1,11 +1,9 @@
 import { PrefKey } from "@utils/preferences"
 import { BxEvent } from "@utils/bx-event"
 import { getPref } from "@utils/preferences"
-import { StreamBadges } from "./stream-badges"
 import { CE } from "@utils/html"
 import { t } from "@utils/translation"
 import { STATES } from "@utils/global"
-import { BxLogger } from "@utils/bx-logger"
 
 export enum StreamStat {
     PING = 'ping',
@@ -17,286 +15,254 @@ export enum StreamStat {
 };
 
 export class StreamStats {
-    static #interval?: number | null;
-    static #updateInterval = 1000;
+    private static instance: StreamStats;
+    public static getInstance(): StreamStats {
+        if (!StreamStats.instance) {
+            StreamStats.instance = new StreamStats();
+        }
 
-    static #$container: HTMLElement;
-    static #$fps: HTMLElement;
-    static #$ping: HTMLElement;
-    static #$dt: HTMLElement;
-    static #$pl: HTMLElement;
-    static #$fl: HTMLElement;
-    static #$br: HTMLElement;
+        return StreamStats.instance;
+    }
 
-    static #lastStat?: RTCBasicStat | null;
+    #timeoutId?: number | null;
+    readonly #updateInterval = 1000;
 
-    static #quickGlanceObserver?: MutationObserver | null;
+    #$container: HTMLElement | undefined;
+    #$fps: HTMLElement | undefined;
+    #$ping: HTMLElement | undefined;
+    #$dt: HTMLElement | undefined;
+    #$pl: HTMLElement | undefined;
+    #$fl: HTMLElement | undefined;
+    #$br: HTMLElement | undefined;
 
-    static start(glancing=false) {
-        if (!StreamStats.isHidden() || (glancing && StreamStats.isGlancing())) {
+    #lastVideoStat?: RTCBasicStat | null;
+
+    #quickGlanceObserver?: MutationObserver | null;
+
+    start(glancing=false) {
+        if (!this.isHidden() || (glancing && this.isGlancing())) {
             return;
         }
 
-        StreamStats.#$container.classList.remove('bx-gone');
-        StreamStats.#$container.setAttribute('data-display', glancing ? 'glancing' : 'fixed');
+        if (this.#$container) {
+            this.#$container.classList.remove('bx-gone');
+            this.#$container.dataset.display = glancing ? 'glancing' : 'fixed';
+        }
 
-        StreamStats.#interval = window.setInterval(StreamStats.update, StreamStats.#updateInterval);
+        this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval);
     }
 
-    static stop(glancing=false) {
-        if (glancing && !StreamStats.isGlancing()) {
+    stop(glancing=false) {
+        if (glancing && !this.isGlancing()) {
             return;
         }
 
-        StreamStats.#interval && clearInterval(StreamStats.#interval);
-        StreamStats.#interval = null;
-        StreamStats.#lastStat = null;
+        this.#timeoutId && clearTimeout(this.#timeoutId);
+        this.#timeoutId = null;
+        this.#lastVideoStat = null;
 
-        if (StreamStats.#$container) {
-            StreamStats.#$container.removeAttribute('data-display');
-            StreamStats.#$container.classList.add('bx-gone');
+        if (this.#$container) {
+            this.#$container.removeAttribute('data-display');
+            this.#$container.classList.add('bx-gone');
         }
     }
 
-    static toggle() {
-        if (StreamStats.isGlancing()) {
-            StreamStats.#$container.setAttribute('data-display', 'fixed');
+    toggle() {
+        if (this.isGlancing()) {
+            this.#$container && (this.#$container.dataset.display = 'fixed');
         } else {
-            StreamStats.isHidden() ? StreamStats.start() : StreamStats.stop();
+            this.isHidden() ? this.start() : this.stop();
         }
     }
 
-    static onStoppedPlaying() {
-        StreamStats.stop();
-        StreamStats.quickGlanceStop();
-        StreamStats.hideSettingsUi();
+    onStoppedPlaying() {
+        this.stop();
+        this.quickGlanceStop();
+        this.hideSettingsUi();
     }
 
-    static isHidden = () => StreamStats.#$container && StreamStats.#$container.classList.contains('bx-gone');
-    static isGlancing = () => StreamStats.#$container && StreamStats.#$container.getAttribute('data-display') === 'glancing';
+    isHidden = () => this.#$container && this.#$container.classList.contains('bx-gone');
+    isGlancing = () => this.#$container && this.#$container.dataset.display === 'glancing';
 
-    static quickGlanceSetup() {
-        if (StreamStats.#quickGlanceObserver) {
+    quickGlanceSetup() {
+        if (this.#quickGlanceObserver) {
             return;
         }
 
         const $uiContainer = document.querySelector('div[data-testid=ui-container]')!;
-        StreamStats.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
+        this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
             for (let record of mutationList) {
                 if (record.attributeName && record.attributeName === 'aria-expanded') {
                     const expanded = (record.target as HTMLElement).ariaExpanded;
                     if (expanded === 'true') {
-                        StreamStats.isHidden() && StreamStats.start(true);
+                        this.isHidden() && this.start(true);
                     } else {
-                        StreamStats.stop(true);
+                        this.stop(true);
                     }
                 }
             }
         });
 
-        StreamStats.#quickGlanceObserver.observe($uiContainer, {
+        this.#quickGlanceObserver.observe($uiContainer, {
             attributes: true,
             attributeFilter: ['aria-expanded'],
             subtree: true,
         });
     }
 
-    static quickGlanceStop() {
-        StreamStats.#quickGlanceObserver && StreamStats.#quickGlanceObserver.disconnect();
-        StreamStats.#quickGlanceObserver = null;
+    quickGlanceStop() {
+        this.#quickGlanceObserver && this.#quickGlanceObserver.disconnect();
+        this.#quickGlanceObserver = null;
     }
 
-    static update() {
-        if (StreamStats.isHidden() || !STATES.currentStream.peerConnection) {
-            StreamStats.onStoppedPlaying();
+    async #update() {
+        if (this.isHidden() || !STATES.currentStream.peerConnection) {
+            this.onStoppedPlaying();
             return;
         }
 
+        this.#timeoutId = null;
+        const startTime = performance.now();
+
         const PREF_STATS_CONDITIONAL_FORMATTING = getPref(PrefKey.STATS_CONDITIONAL_FORMATTING);
-        STATES.currentStream.peerConnection.getStats().then(stats => {
-            stats.forEach(stat => {
-                let grade = '';
-                if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
-                    // FPS
-                    StreamStats.#$fps.textContent = stat.framesPerSecond || 0;
 
-                    // Packets Lost
-                    const packetsLost = stat.packetsLost;
-                    const packetsReceived = stat.packetsReceived;
-                    const packetsLostPercentage = (packetsLost * 100 / ((packetsLost + packetsReceived) || 1)).toFixed(2);
-                    StreamStats.#$pl.textContent = packetsLostPercentage === '0.00' ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
+        const stats = await STATES.currentStream.peerConnection.getStats();
+        let grade = '';
 
-                    // Frames Dropped
-                    const framesDropped = stat.framesDropped;
-                    const framesReceived = stat.framesReceived;
-                    const framesDroppedPercentage = (framesDropped * 100 / ((framesDropped + framesReceived) || 1)).toFixed(2);
-                    StreamStats.#$fl.textContent = framesDroppedPercentage === '0.00' ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`;
+        stats.forEach(stat => {
+            if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
+                // FPS
+                this.#$fps!.textContent = stat.framesPerSecond || 0;
 
-                    if (StreamStats.#lastStat) {
-                        const lastStat = StreamStats.#lastStat;
-                        // Bitrate
-                        const timeDiff = stat.timestamp - lastStat.timestamp;
-                        const bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
-                        StreamStats.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
+                // Packets Lost
+                const packetsLost = stat.packetsLost;
+                const packetsReceived = stat.packetsReceived;
+                const packetsLostPercentage = (packetsLost * 100 / ((packetsLost + packetsReceived) || 1)).toFixed(2);
+                this.#$pl!.textContent = packetsLostPercentage === '0.00' ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
 
-                        // Decode time
-                        const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
-                        const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
-                        const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
-                        StreamStats.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+                // Frames dropped
+                const framesDropped = stat.framesDropped;
+                const framesReceived = stat.framesReceived;
+                const framesDroppedPercentage = (framesDropped * 100 / ((framesDropped + framesReceived) || 1)).toFixed(2);
+                this.#$fl!.textContent = framesDroppedPercentage === '0.00' ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`;
 
-                        if (PREF_STATS_CONDITIONAL_FORMATTING) {
-                            grade = (currentDecodeTime > 12) ? 'bad' : (currentDecodeTime > 9) ? 'ok' : (currentDecodeTime > 6) ? 'good' : '';
-                        }
-                        StreamStats.#$dt.setAttribute('data-grade', grade);
-                    }
-
-                    StreamStats.#lastStat = stat;
-                } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
-                    // Round Trip Time
-                    const roundTripTime = typeof stat.currentRoundTripTime !== 'undefined' ? stat.currentRoundTripTime * 1000 : -1;
-                    StreamStats.#$ping.textContent = roundTripTime === -1 ? '???' : roundTripTime.toString();
-
-                    if (PREF_STATS_CONDITIONAL_FORMATTING) {
-                        grade = (roundTripTime > 100) ? 'bad' : (roundTripTime > 75) ? 'ok' : (roundTripTime > 40) ? 'good' : '';
-                    }
-                    StreamStats.#$ping.setAttribute('data-grade', grade);
+                if (!this.#lastVideoStat) {
+                    this.#lastVideoStat = stat;
+                    return;
                 }
-            });
+
+                const lastStat = this.#lastVideoStat;
+                // Bitrate
+                const timeDiff = stat.timestamp - lastStat.timestamp;
+                const bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
+                this.#$br!.textContent = `${bitrate.toFixed(2)} Mbps`;
+
+                // Decode time
+                const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
+                const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
+                const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
+                this.#$dt!.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+
+                if (PREF_STATS_CONDITIONAL_FORMATTING) {
+                    grade = (currentDecodeTime > 12) ? 'bad' : (currentDecodeTime > 9) ? 'ok' : (currentDecodeTime > 6) ? 'good' : '';
+                    this.#$dt!.dataset.grade = grade;
+                }
+
+                this.#lastVideoStat = stat;
+            } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
+                // Round Trip Time
+                const roundTripTime = !!stat.currentRoundTripTime ? stat.currentRoundTripTime * 1000 : -1;
+                this.#$ping!.textContent = roundTripTime === -1 ? '???' : roundTripTime.toString();
+
+                if (PREF_STATS_CONDITIONAL_FORMATTING) {
+                    grade = (roundTripTime > 100) ? 'bad' : (roundTripTime > 75) ? 'ok' : (roundTripTime > 40) ? 'good' : '';
+                    this.#$ping!.dataset.grade = grade;
+                }
+            }
         });
+
+        const lapsedTime = performance.now() - startTime;
+        this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval - lapsedTime);
     }
 
-    static refreshStyles() {
+    refreshStyles() {
         const PREF_ITEMS = getPref(PrefKey.STATS_ITEMS);
         const PREF_POSITION = getPref(PrefKey.STATS_POSITION);
         const PREF_TRANSPARENT = getPref(PrefKey.STATS_TRANSPARENT);
         const PREF_OPACITY = getPref(PrefKey.STATS_OPACITY);
         const PREF_TEXT_SIZE = getPref(PrefKey.STATS_TEXT_SIZE);
 
-        const $container = StreamStats.#$container;
-        $container.setAttribute('data-stats', '[' + PREF_ITEMS.join('][') + ']');
-        $container.setAttribute('data-position', PREF_POSITION);
-        $container.setAttribute('data-transparent', PREF_TRANSPARENT);
+        const $container = this.#$container!;
+        $container.dataset.stats = '[' + PREF_ITEMS.join('][') + ']';
+        $container.dataset.position = PREF_POSITION;
+        $container.dataset.transparent = PREF_TRANSPARENT;
         $container.style.opacity = PREF_OPACITY + '%';
         $container.style.fontSize = PREF_TEXT_SIZE;
     }
 
-    static hideSettingsUi() {
-        if (StreamStats.isGlancing() && !getPref(PrefKey.STATS_QUICK_GLANCE)) {
-            StreamStats.stop();
+    hideSettingsUi() {
+        if (this.isGlancing() && !getPref(PrefKey.STATS_QUICK_GLANCE)) {
+            this.stop();
         }
     }
 
-    static render() {
-        if (StreamStats.#$container) {
+    #render() {
+        if (this.#$container) {
             return;
         }
 
-        const STATS = {
-            [StreamStat.PING]: [t('stat-ping'), StreamStats.#$ping = CE('span', {}, '0')],
-            [StreamStat.FPS]: [t('stat-fps'), StreamStats.#$fps = CE('span', {}, '0')],
-            [StreamStat.BITRATE]: [t('stat-bitrate'), StreamStats.#$br = CE('span', {}, '0 Mbps')],
-            [StreamStat.DECODE_TIME]: [t('stat-decode-time'), StreamStats.#$dt = CE('span', {}, '0ms')],
-            [StreamStat.PACKETS_LOST]: [t('stat-packets-lost'), StreamStats.#$pl = CE('span', {}, '0')],
-            [StreamStat.FRAMES_LOST]: [t('stat-frames-lost'), StreamStats.#$fl = CE('span', {}, '0')],
+        const stats = {
+            [StreamStat.PING]: [t('stat-ping'), this.#$ping = CE('span', {}, '0')],
+            [StreamStat.FPS]: [t('stat-fps'), this.#$fps = CE('span', {}, '0')],
+            [StreamStat.BITRATE]: [t('stat-bitrate'), this.#$br = CE('span', {}, '0 Mbps')],
+            [StreamStat.DECODE_TIME]: [t('stat-decode-time'), this.#$dt = CE('span', {}, '0ms')],
+            [StreamStat.PACKETS_LOST]: [t('stat-packets-lost'), this.#$pl = CE('span', {}, '0')],
+            [StreamStat.FRAMES_LOST]: [t('stat-frames-lost'), this.#$fl = CE('span', {}, '0')],
         };
 
         const $barFragment = document.createDocumentFragment();
-        let statKey: keyof typeof STATS
-        for (statKey in STATS) {
-            const $div = CE('div', {'class': `bx-stat-${statKey}`, title: STATS[statKey][0]}, CE('label', {}, statKey.toUpperCase()), STATS[statKey][1]);
+        let statKey: keyof typeof stats;
+        for (statKey in stats) {
+            const $div = CE('div', {
+                    'class': `bx-stat-${statKey}`,
+                    title: stats[statKey][0]
+                },
+                CE('label', {}, statKey.toUpperCase()),
+                stats[statKey][1],
+            );
+
             $barFragment.appendChild($div);
         }
 
-        StreamStats.#$container = CE('div', {'class': 'bx-stats-bar bx-gone'}, $barFragment);
-        document.documentElement.appendChild(StreamStats.#$container);
+        this.#$container = CE('div', {'class': 'bx-stats-bar bx-gone'}, $barFragment);
+        this.refreshStyles();
 
-        StreamStats.refreshStyles();
-    }
-
-    static getServerStats() {
-        STATES.currentStream.peerConnection && STATES.currentStream.peerConnection.getStats().then(stats => {
-            const allVideoCodecs: {[index: string]: RTCBasicStat} = {};
-            let videoCodecId;
-
-            const allAudioCodecs: {[index: string]: RTCBasicStat} = {};
-            let audioCodecId;
-
-            const allCandidates: {[index: string]: string} = {};
-            let candidateId;
-
-            stats.forEach((stat: RTCBasicStat) => {
-                if (stat.type === 'codec') {
-                    const mimeType = stat.mimeType.split('/');
-                    if (mimeType[0] === 'video') {
-                        // Store all video stats
-                        allVideoCodecs[stat.id] = stat;
-                    } else if (mimeType[0] === 'audio') {
-                        // Store all audio stats
-                        allAudioCodecs[stat.id] = stat;
-                    }
-                } else if (stat.type === 'inbound-rtp' && stat.packetsReceived > 0) {
-                    // Get the codecId of the video/audio track currently being used
-                    if (stat.kind === 'video') {
-                        videoCodecId = stat.codecId;
-                    } else if (stat.kind === 'audio') {
-                        audioCodecId = stat.codecId;
-                    }
-                } else if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
-                    candidateId = stat.remoteCandidateId;
-                } else if (stat.type === 'remote-candidate') {
-                    allCandidates[stat.id] = stat.address;
-                }
-            });
-
-            // Get video codec from codecId
-            if (videoCodecId) {
-                const videoStat = allVideoCodecs[videoCodecId];
-                const video: typeof StreamBadges.video = {
-                    codec: videoStat.mimeType.substring(6),
-                };
-
-                if (video.codec === 'H264') {
-                    const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-                    video.profile = match ? match[1] : null;
-                }
-
-                StreamBadges.video = video;
-            }
-
-            // Get audio codec from codecId
-            if (audioCodecId) {
-                const audioStat = allAudioCodecs[audioCodecId];
-                StreamBadges.audio = {
-                    codec: audioStat.mimeType.substring(6),
-                    bitrate: audioStat.clockRate,
-                }
-            }
-
-            // Get server type
-            if (candidateId) {
-                BxLogger.info('candidate', candidateId, allCandidates);
-                StreamBadges.ipv6 = allCandidates[candidateId].includes(':');
-            }
-
-            if (getPref(PrefKey.STATS_SHOW_WHEN_PLAYING)) {
-                StreamStats.start();
-            }
-        });
+        document.documentElement.appendChild(this.#$container!);
     }
 
     static setupEvents() {
+        window.addEventListener(BxEvent.STREAM_LOADING, e => {
+            StreamStats.getInstance().#render();
+        });
+
         window.addEventListener(BxEvent.STREAM_PLAYING, e => {
             const PREF_STATS_QUICK_GLANCE = getPref(PrefKey.STATS_QUICK_GLANCE);
             const PREF_STATS_SHOW_WHEN_PLAYING = getPref(PrefKey.STATS_SHOW_WHEN_PLAYING);
 
-            StreamStats.getServerStats();
+            const streamStats = StreamStats.getInstance();
             // Setup Stat's Quick Glance mode
-            if (PREF_STATS_QUICK_GLANCE) {
-                StreamStats.quickGlanceSetup();
+
+            if (PREF_STATS_SHOW_WHEN_PLAYING) {
+                streamStats.start();
+            } else if (PREF_STATS_QUICK_GLANCE) {
+                streamStats.quickGlanceSetup();
                 // Show stats bar
-                !PREF_STATS_SHOW_WHEN_PLAYING && StreamStats.start(true);
+                !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(true);
             }
         });
+    }
+
+    static refreshStyles() {
+        StreamStats.getInstance().refreshStyles();
     }
 }

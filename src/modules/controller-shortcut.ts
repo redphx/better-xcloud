@@ -87,7 +87,7 @@ export class ControllerShortcut {
                 break;
 
             case ShortcutAction.STREAM_STATS_TOGGLE:
-                StreamStats.toggle();
+                StreamStats.getInstance().toggle();
                 break;
 
             case ShortcutAction.STREAM_MICROPHONE_TOGGLE:

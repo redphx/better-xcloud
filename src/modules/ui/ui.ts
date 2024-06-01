@@ -268,7 +268,8 @@ function setupStreamSettingsDialog() {
                         {
                             pref: PrefKey.STATS_QUICK_GLANCE,
                             onChange: (e: InputEvent) => {
-                                (e.target! as HTMLInputElement).checked ? StreamStats.quickGlanceSetup() : StreamStats.quickGlanceStop();
+                                const streamStats = StreamStats.getInstance();
+                                (e.target! as HTMLInputElement).checked ? streamStats.quickGlanceSetup() : streamStats.quickGlanceStop();
                             },
                         },
                         {
@@ -520,7 +521,6 @@ export function setupStreamUi() {
 
         window.addEventListener('resize', updateVideoPlayerCss);
         setupStreamSettingsDialog();
-        StreamStats.render();
 
         Screenshot.setup();
     }

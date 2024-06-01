@@ -39,11 +39,17 @@ export enum BxEvent {
     XCLOUD_DIALOG_SHOWN = 'bx-xcloud-dialog-shown',
     XCLOUD_DIALOG_DISMISSED = 'bx-xcloud-dialog-dismissed',
 
+    XCLOUD_GUIDE_SHOWN = 'bx-xcloud-guide-shown',
+
     XCLOUD_POLLING_MODE_CHANGED = 'bx-xcloud-polling-mode-changed',
 }
 
 export enum XcloudEvent {
     MICROPHONE_STATE_CHANGED = 'microphoneStateChanged',
+}
+
+export enum XcloudGuideWhere {
+    HOME,
 }
 
 export namespace BxEvent {

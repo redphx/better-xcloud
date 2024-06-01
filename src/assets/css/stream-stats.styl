@@ -1,6 +1,5 @@
 /* STATS BADGE */
 .bx-badges {
-    position: absolute;
     margin-left: 0px;
     user-select: none;
     -webkit-user-select: none;
@@ -17,26 +16,59 @@
     margin: 0 8px 8px 0;
     box-shadow: 0px 0px 6px #000;
     border-radius: 4px;
+    height: 30px;
 }
 
 .bx-badge-name {
     background-color: #2d3036;
-    display: inline-block;
-    padding: 2px 8px;
     border-radius: 4px 0 0 4px;
-    text-transform: uppercase;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
 }
 
 .bx-badge-value {
     background-color: grey;
-    display: inline-block;
-    padding: 2px 8px;
     border-radius: 0 4px 4px 0;
+}
+
+.bx-badge-name, .bx-badge-value {
+    display: inline-block;
+    padding: 0 8px;
+    height: 30px;
+    line-height: 30px;
+    vertical-align: bottom;
 }
 
 .bx-badge-battery[data-charging=true] span:first-of-type::after {
     content: ' ⚡️';
 }
+
+div[class^=StreamMenu-module__container] .bx-badges {
+    position: absolute;
+    max-width: 500px;
+}
+
+#gamepass-dialog-root .bx-badges {
+    position: fixed;
+    top: 140px;
+    left: 460px;
+    max-width: 500px;
+
+    @media (min-width: 568px) and (max-height: 480px) {
+        position: unset;
+        top: unset;
+        left: unset;
+        margin: 8px 0;
+    }
+
+    @media (min-width: 480px) and (min-height: calc(481px)) {
+
+    }
+}
+
 
 /* STATS BAR */
 .bx-stats-bar {

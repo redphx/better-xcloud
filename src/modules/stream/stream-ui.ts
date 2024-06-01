@@ -2,7 +2,6 @@ import { STATES } from "@utils/global.ts";
 import { createSvgIcon } from "@utils/html.ts";
 import { BxIcon } from "@utils/bx-icon";
 import { BxEvent } from "@utils/bx-event.ts";
-import { PrefKey, getPref } from "@utils/preferences.ts";
 import { t } from "@utils/translation.ts";
 import { StreamBadges } from "./stream-badges.ts";
 import { StreamStats } from "./stream-stats.ts";
@@ -13,7 +12,7 @@ function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: t
     let timeout: number | null;
 
     const onTransitionStart = (e: TransitionEvent) => {
-        if ( e.propertyName !== 'opacity') {
+        if (e.propertyName !== 'opacity') {
             return;
         }
 
@@ -22,7 +21,7 @@ function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: t
     };
 
     const onTransitionEnd = (e: TransitionEvent) => {
-        if ( e.propertyName !== 'opacity') {
+        if (e.propertyName !== 'opacity') {
             return;
         }
 
@@ -89,22 +88,13 @@ export function injectStreamMenuButtons() {
 
     let $btnStreamSettings: HTMLElement;
     let $btnStreamStats: HTMLElement;
+    const streamStats = StreamStats.getInstance();
 
     const observer = new MutationObserver(mutationList => {
         mutationList.forEach(item => {
             if (item.type !== 'childList') {
                 return;
             }
-
-            item.removedNodes.forEach($node => {
-                if (!$node || $node.nodeType !== Node.ELEMENT_NODE) {
-                    return;
-                }
-
-                if (!($node as HTMLElement).className || !($node as HTMLElement).className.startsWith) {
-                    return;
-                }
-            });
 
             item.addedNodes.forEach(async $node => {
                 if (!$node || $node.nodeType !== Node.ELEMENT_NODE) {
@@ -159,7 +149,7 @@ export function injectStreamMenuButtons() {
 
                     // Render stream badges
                     const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
-                    $menu?.appendChild(await StreamBadges.render());
+                    $menu?.appendChild(await StreamBadges.getInstance().render());
 
                     hideSettingsFunc();
                     return;
@@ -219,14 +209,14 @@ export function injectStreamMenuButtons() {
                         e.preventDefault();
 
                         // Toggle Stream Stats
-                        StreamStats.toggle();
+                        streamStats.toggle();
 
-                        const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
+                        const btnStreamStatsOn = (!streamStats.isHidden() && !streamStats.isGlancing());
                         $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
                     });
                 }
 
-                const btnStreamStatsOn = (!StreamStats.isHidden() && !StreamStats.isGlancing());
+                const btnStreamStatsOn = (!streamStats.isHidden() && !streamStats.isGlancing());
                 $btnStreamStats.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
 
                 if ($orgButton) {
