@@ -3,6 +3,7 @@ import iconController from "@assets/svg/controller.svg" with { type: "text" };
 import iconCopy from "@assets/svg/copy.svg" with { type: "text" };
 import iconCursorText from "@assets/svg/cursor-text.svg" with { type: "text" };
 import iconDisplay from "@assets/svg/display.svg" with { type: "text" };
+import iconHome from "@assets/svg/home.svg" with { type: "text" };
 import iconMouseSettings from "@assets/svg/mouse-settings.svg" with { type: "text" };
 import iconMouse from "@assets/svg/mouse.svg" with { type: "text" };
 import iconNew from "@assets/svg/new.svg" with { type: "text" };
@@ -37,6 +38,7 @@ export const BxIcon = {
     COMMAND: iconCommand,
     CONTROLLER: iconController,
     DISPLAY: iconDisplay,
+    HOME: iconHome,
     MOUSE: iconMouse,
     MOUSE_SETTINGS: iconMouseSettings,
     NEW: iconNew,

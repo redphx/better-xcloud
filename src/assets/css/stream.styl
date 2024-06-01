@@ -20,6 +20,18 @@ body[data-media-type=tv] .bx-stream-refresh-button {
     top: calc(var(--gds-focus-borderSize) + 80px) !important;
 }
 
+.bx-stream-home-button {
+    top: calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important;
+}
+
+body[data-media-type=default] .bx-stream-home-button {
+    left: calc(env(safe-area-inset-left, 0px) + 12px) !important;
+}
+
+body[data-media-type=tv] .bx-stream-home-button {
+    top: calc(var(--gds-focus-borderSize) + 80px * 2) !important;
+}
+
 @keyframes bx-anim-taking-screenshot {
     0% {
         border: 0px solid #ffffff80;

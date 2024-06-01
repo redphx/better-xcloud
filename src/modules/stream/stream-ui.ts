@@ -53,6 +53,28 @@ function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: t
 }
 
 
+function cloneCloseButton($$btnOrg: HTMLElement, icon: typeof BxIcon, className: string, onChange: any) {
+    // Create button from the Close button
+    const $btn = $$btnOrg.cloneNode(true) as HTMLElement;
+
+    // Refresh SVG
+    const $svg = createSvgIcon(icon);
+    // Copy classes
+    $svg.setAttribute('class', $btn.firstElementChild!.getAttribute('class') || '');
+    $svg.style.fill = 'none';
+
+    $btn.classList.add(className);
+    // Remove icon
+    $btn.removeChild($btn.firstElementChild!);
+    // Add icon
+    $btn.appendChild($svg);
+    // Add "click" event listener
+    $btn.addEventListener('click', onChange);
+
+    return $btn;
+}
+
+
 export function injectStreamMenuButtons() {
     const $screen = document.querySelector('#PageContent section[class*=PureScreens]');
     if (!$screen) {
@@ -116,36 +138,28 @@ export function injectStreamMenuButtons() {
 
                 // Render badges
                 if ($elm.className?.startsWith('StreamMenu-module__container')) {
-                    const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]');
+                    const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]') as HTMLElement;
                     if (!$btnCloseHud) {
                         return;
                     }
 
                     // Hide Stream Settings dialog when closing HUD
-                    $btnCloseHud && $btnCloseHud.addEventListener('click', e => {
+                    $btnCloseHud.addEventListener('click', e => {
                         $settingsDialog.classList.add('bx-gone');
                     });
 
                     // Create Refresh button from the Close button
-                    const $btnRefresh = $btnCloseHud.cloneNode(true) as HTMLElement;
-
-                    // Refresh SVG
-                    const $svgRefresh = createSvgIcon(BxIcon.REFRESH);
-                    // Copy classes
-                    $svgRefresh.setAttribute('class', $btnRefresh.firstElementChild!.getAttribute('class') || '');
-                    $svgRefresh.style.fill = 'none';
-
-                    $btnRefresh.classList.add('bx-stream-refresh-button');
-                    // Remove icon
-                    $btnRefresh.removeChild($btnRefresh.firstElementChild!);
-                    // Add Refresh icon
-                    $btnRefresh.appendChild($svgRefresh);
-                    // Add "click" event listener
-                    $btnRefresh.addEventListener('click', e => {
+                    const $btnRefresh = cloneCloseButton($btnCloseHud, BxIcon.REFRESH, 'bx-stream-refresh-button', () => {
                         confirm(t('confirm-reload-stream')) && window.location.reload();
                     });
+
+                    const $btnHome = cloneCloseButton($btnCloseHud, BxIcon.HOME, 'bx-stream-home-button', () => {
+                        confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
+                    });
+
                     // Add to website
                     $btnCloseHud.insertAdjacentElement('afterend', $btnRefresh);
+                    $btnRefresh.insertAdjacentElement('afterend', $btnHome);
 
                     // Render stream badges
                     const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
