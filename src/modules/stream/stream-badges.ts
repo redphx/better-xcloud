@@ -337,6 +337,9 @@ export class StreamBadges {
             } catch(e) {}
         });
 
+        /*
+        Don't do this until xCloud remove the Stream Menu page
+
         window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, async e => {
             const where = (e as any).where as XcloudGuideWhere;
 
@@ -352,5 +355,6 @@ export class StreamBadges {
             // Add badges
             $btnQuit.insertAdjacentElement('beforebegin', await StreamBadges.getInstance().render());
         });
+        */
     }
 }
