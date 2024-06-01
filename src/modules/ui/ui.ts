@@ -492,7 +492,7 @@ function resizeVideoPlayer() {
         // Update size
         $video.style.width = `${width}px`;
         $video.style.height = `${height}px`;
-        $video.style.objectFit = 'fill';
+        $video.style.objectFit = 'contain';
     } else {
         $video.style.width = '100%';
         $video.style.height = '100%';
