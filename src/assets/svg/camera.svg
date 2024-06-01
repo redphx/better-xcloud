@@ -1,6 +1,6 @@
 <svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>
-    <g transform="matrix(.150985 0 0 .150985 -3.32603 -2.72209)" fill="none" stroke="#fff" stroke-width="16">
-        <path d="M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z"/>
-        <circle cx="128" cy="132" r="36"/>
+    <g transform='matrix(.150985 0 0 .150985 -3.32603 -2.72209)' fill='none' stroke='#fff' stroke-width='16'>
+        <path d='M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z'/>
+        <circle cx='128' cy='132' r='36'/>
     </g>
 </svg>
