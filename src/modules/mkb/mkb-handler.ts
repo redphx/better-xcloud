@@ -411,8 +411,13 @@ export class MkbHandler {
         return true;
     }
 
-    toggle = () => {
-        this.#enabled = !this.#enabled;
+    toggle = (force?: boolean) => {
+        if (typeof force !== 'undefined') {
+            this.#enabled = force;
+        } else {
+            this.#enabled = !this.#enabled;
+        }
+
         Toast.show(t('mouse-and-keyboard'), t(this.#enabled ? 'enabled' : 'disabled'), {instant: true});
         this.#mouseDataProvider?.toggle(this.#enabled);
     }
@@ -463,7 +468,8 @@ export class MkbHandler {
 
         window.addEventListener('keydown', this.#onKeyboardEvent);
 
-        this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg bx-gone'},
+        if (!this.#$message) {
+            this.#$message = CE('div', {'class': 'bx-mkb-pointer-lock-msg'},
                 CE('div', {},
                     CE('p', {}, t('mkb-click-to-activate')),
                     CE('p', {}, t('press-key-to-toggle-mkb', {key: 'F8'})),
@@ -488,17 +494,20 @@ export class MkbHandler {
                             e.preventDefault();
                             e.stopPropagation();
 
-                            this.toggle();
+                            this.toggle(false);
+                            this.waitForMouseData(false);
                         },
                     }),
                 ),
             );
 
-        this.#$message.addEventListener('click', this.start.bind(this));
-        document.documentElement.appendChild(this.#$message);
+            this.#$message.addEventListener('click', this.start.bind(this));
+            document.documentElement.appendChild(this.#$message);
+        }
 
         window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
 
+        this.#$message.classList.add('bx-gone');
         this.waitForMouseData(true);
     }
 
