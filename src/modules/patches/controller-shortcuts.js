@@ -11,7 +11,12 @@ if (btnHome) {
         this.bxHomeStates = {};
     }
 
+    let intervalMs = 0;
+    let hijack = false;
+
     if (btnHome.pressed) {
+        hijack = true;
+        intervalMs = 16;
         this.gamepadIsIdle.set(currentGamepad.index, false);
 
         if (this.bxHomeStates[currentGamepad.index]) {
@@ -33,14 +38,8 @@ if (btnHome) {
                 timestamp: currentGamepad.timestamp,
             };
         }
-
-        // Listen to next button press
-        const intervalMs = 16;
-        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);
-
-        // Hijack this button
-        return;
     } else if (this.bxHomeStates[currentGamepad.index]) {
+        hijack = true;
         const info = structuredClone(this.bxHomeStates[currentGamepad.index]);
 
         // Home button released
@@ -77,11 +76,19 @@ if (btnHome) {
             }];
 
             const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;
-            const intervalMs = isLongPress ? 500 : 100;
+            intervalMs = isLongPress ? 500 : 100;
 
             this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);
-            this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);
-            return;
+        } else {
+            intervalMs = 4;
         }
+    }
+
+    if (hijack && intervalMs) {
+        // Listen to next button press
+        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);
+
+        // Hijack this button
+        return;
     }
 }
