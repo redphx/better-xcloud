@@ -25,7 +25,7 @@ import { VibrationManager } from "@modules/vibration-manager";
 import { overridePreloadState } from "@utils/preload-state";
 import { patchAudioContext, patchCanvasContext, patchMeControl, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
 import { AppInterface, STATES } from "@utils/global";
-import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
+import { injectStreamMenuButtons, setupStreamUiEvents } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
 import { Screenshot } from "./utils/screenshot";
@@ -281,6 +281,7 @@ function main() {
     (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance();
     BX_FLAGS.PreloadUi && setupStreamUi();
 
+    setupStreamUiEvents();
     StreamBadges.setupEvents();
     StreamStats.setupEvents();
     MkbHandler.setupEvents();

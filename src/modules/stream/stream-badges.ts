@@ -340,15 +340,17 @@ export class StreamBadges {
         window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, async e => {
             const where = (e as any).where as XcloudGuideWhere;
 
-            if (where === XcloudGuideWhere.HOME && STATES.isPlaying) {
-                const $btnQuit = document.querySelector('#gamepass-dialog-root a[class*=QuitGameButton]');
-                if (!$btnQuit) {
-                    return;
-                }
-
-                // Add badges
-                $btnQuit.insertAdjacentElement('beforebegin', await StreamBadges.getInstance().render());
+            if (where !== XcloudGuideWhere.HOME || !STATES.isPlaying) {
+                return;
             }
+
+            const $btnQuit = document.querySelector('#gamepass-dialog-root a[class*=QuitGameButton]');
+            if (!$btnQuit) {
+                return;
+            }
+
+            // Add badges
+            $btnQuit.insertAdjacentElement('beforebegin', await StreamBadges.getInstance().render());
         });
     }
 }

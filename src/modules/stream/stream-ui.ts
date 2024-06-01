@@ -1,7 +1,7 @@
 import { STATES } from "@utils/global.ts";
-import { createSvgIcon } from "@utils/html.ts";
+import { ButtonStyle, createButton, createSvgIcon } from "@utils/html.ts";
 import { BxIcon } from "@utils/bx-icon";
-import { BxEvent } from "@utils/bx-event.ts";
+import { BxEvent, XcloudGuideWhere } from "@utils/bx-event.ts";
 import { t } from "@utils/translation.ts";
 import { StreamBadges } from "./stream-badges.ts";
 import { StreamStats } from "./stream-stats.ts";
@@ -268,4 +268,40 @@ export function showStreamSettings(tabId: string) {
 
         $parent.addEventListener('click', onClick);
     }
+}
+
+
+export function setupStreamUiEvents() {
+    window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, async e => {
+        const where = (e as any).where as XcloudGuideWhere;
+
+        if (where !== XcloudGuideWhere.HOME || !STATES.isPlaying) {
+            return;
+        }
+
+        const $btnQuit = document.querySelector('#gamepass-dialog-root a[class*=QuitGameButton]');
+        if (!$btnQuit) {
+            return;
+        }
+
+        // Add buttons
+        const $btnReload = createButton({
+            label: t('reload-stream'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            onClick: e => {
+                confirm(t('confirm-reload-stream')) && window.location.reload();
+            },
+        });
+
+        const $btnHome = createButton({
+            label: t('back-to-home'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            onClick: e => {
+                confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
+            },
+        });
+
+        $btnQuit.insertAdjacentElement('afterend', $btnReload);
+        $btnReload.insertAdjacentElement('afterend', $btnHome);
+    });
 }
