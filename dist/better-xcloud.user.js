@@ -7471,7 +7471,7 @@ var remote_play_enable_default = "connectMode: window.BX_REMOTE_PLAY_CONFIG ? \"
 var remote_play_keep_alive_default = "const msg = JSON.parse(e);\nif (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {\n    try {\n        this.sendKeepAlive();\n        return;\n    } catch (ex) { console.log(ex); }\n}\n";
 
 // src/modules/patches/vibration-adjust.js
-var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
+var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity === 0) {\n    return void(0);\n}\n\nif (intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
 
 // src/modules/patcher.ts
 var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks";
