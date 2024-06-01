@@ -2433,19 +2433,18 @@ var StreamBadge;
 (function(StreamBadge2) {
   StreamBadge2["PLAYTIME"] = "playtime";
   StreamBadge2["BATTERY"] = "battery";
-  StreamBadge2["IN"] = "in";
-  StreamBadge2["OUT"] = "out";
+  StreamBadge2["DOWNLOAD"] = "in";
+  StreamBadge2["UPLOAD"] = "out";
   StreamBadge2["SERVER"] = "server";
   StreamBadge2["VIDEO"] = "video";
   StreamBadge2["AUDIO"] = "audio";
-  StreamBadge2["BREAK"] = "break";
 })(StreamBadge || (StreamBadge = {}));
 var StreamBadgeIcon = {
   [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
   [StreamBadge.VIDEO]: BxIcon.DISPLAY,
   [StreamBadge.BATTERY]: BxIcon.BATTERY,
-  [StreamBadge.IN]: BxIcon.DOWNLOAD,
-  [StreamBadge.OUT]: BxIcon.UPLOAD,
+  [StreamBadge.DOWNLOAD]: BxIcon.DOWNLOAD,
+  [StreamBadge.UPLOAD]: BxIcon.UPLOAD,
   [StreamBadge.SERVER]: BxIcon.SERVER,
   [StreamBadge.AUDIO]: BxIcon.AUDIO
 };
@@ -2465,6 +2464,7 @@ class StreamBadges {
   #region = "";
   startBatteryLevel = 100;
   startTimestamp = 0;
+  #$container;
   #cachedDoms = {};
   #interval;
   #REFRESH_INTERVAL = 3000;
@@ -2472,9 +2472,6 @@ class StreamBadges {
     this.#region = region;
   }
   #renderBadge(name, value, color) {
-    if (name === StreamBadge.BREAK) {
-      return CE("div", { style: "display: block" });
-    }
     let $badge;
     if (this.#cachedDoms[name]) {
       $badge = this.#cachedDoms[name];
@@ -2488,8 +2485,8 @@ class StreamBadges {
     this.#cachedDoms[name] = $badge;
     return $badge;
   }
-  async#updateBadges(forceUpdate) {
-    if (!forceUpdate && !document.querySelector(".bx-badges")) {
+  async#updateBadges(forceUpdate = false) {
+    if (!this.#$container || !forceUpdate && !this.#$container.isConnected) {
       this.#stop();
       return;
     }
@@ -2523,8 +2520,8 @@ class StreamBadges {
       }
     });
     const badges = {
-      [StreamBadge.IN]: totalIn ? this.#humanFileSize(totalIn) : null,
-      [StreamBadge.OUT]: totalOut ? this.#humanFileSize(totalOut) : null,
+      [StreamBadge.DOWNLOAD]: totalIn ? this.#humanFileSize(totalIn) : null,
+      [StreamBadge.UPLOAD]: totalOut ? this.#humanFileSize(totalOut) : null,
       [StreamBadge.PLAYTIME]: playtime,
       [StreamBadge.BATTERY]: batteryLevel
     };
@@ -2537,14 +2534,19 @@ class StreamBadges {
       const $elm = this.#cachedDoms[name];
       $elm && ($elm.lastElementChild.textContent = value);
       if (name === StreamBadge.BATTERY) {
-        $elm.setAttribute("data-charging", isCharging.toString());
         if (this.startBatteryLevel === 100 && batteryLevelInt === 100) {
-          $elm.style.display = "none";
+          $elm.classList.add("bx-gone");
         } else {
-          $elm.removeAttribute("style");
+          $elm.dataset.charging = isCharging.toString();
+          $elm.classList.remove("bx-gone");
         }
       }
     }
+  }
+  async#start() {
+    await this.#updateBadges(true);
+    this.#stop();
+    this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
   }
   #stop() {
     this.#interval && clearInterval(this.#interval);
@@ -2558,14 +2560,16 @@ class StreamBadges {
     return hDisplay + mDisplay;
   }
   #humanFileSize(size) {
-    const units = ["B", "kB", "MB", "GB", "TB"];
+    const units = ["B", "KB", "MB", "GB", "TB"];
     let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
     return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
   }
   async render() {
-    if (!this.#video) {
-      await this.#getServerStats();
+    if (this.#$container) {
+      this.#start();
+      return this.#$container;
     }
+    await this.#getServerStats();
     let video = "";
     if (this.#resolution) {
       video = `${this.#resolution.height}p`;
@@ -2601,25 +2605,23 @@ class StreamBadges {
     const BADGES = [
       [StreamBadge.PLAYTIME, "1m", "#ff004d"],
       [StreamBadge.BATTERY, batteryLevel, "#00b543"],
-      [StreamBadge.IN, this.#humanFileSize(0), "#29adff"],
-      [StreamBadge.OUT, this.#humanFileSize(0), "#ff77a8"],
-      [StreamBadge.BREAK],
+      [StreamBadge.DOWNLOAD, this.#humanFileSize(0), "#29adff"],
+      [StreamBadge.UPLOAD, this.#humanFileSize(0), "#ff77a8"],
       [StreamBadge.SERVER, server, "#ff6c24"],
       video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
       audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
     ];
-    const $wrapper = CE("div", { class: "bx-badges" });
+    const $container = CE("div", { class: "bx-badges" });
     BADGES.forEach((item2) => {
       if (!item2) {
         return;
       }
       const $badge = this.#renderBadge(...item2);
-      $wrapper.appendChild($badge);
+      $container.appendChild($badge);
     });
-    await this.#updateBadges(true);
-    this.#stop();
-    this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
-    return $wrapper;
+    this.#$container = $container;
+    await this.#start();
+    return $container;
   }
   async#getServerStats() {
     const stats = await STATES.currentStream.peerConnection.getStats();
@@ -2631,10 +2633,10 @@ class StreamBadges {
     let candidateId;
     stats.forEach((stat) => {
       if (stat.type === "codec") {
-        const mimeType = stat.mimeType.split("/");
-        if (mimeType[0] === "video") {
+        const mimeType = stat.mimeType.split("/")[0];
+        if (mimeType === "video") {
           allVideoCodecs[stat.id] = stat;
-        } else if (mimeType[0] === "audio") {
+        } else if (mimeType === "audio") {
           allAudioCodecs[stat.id] = stat;
         }
       } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
@@ -2686,6 +2688,16 @@ class StreamBadges {
           streamBadges.startBatteryLevel = Math.round(bm.level * 100);
         });
       } catch (e2) {
+      }
+    });
+    window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, async (e) => {
+      const where = e.where;
+      if (where === XcloudGuideWhere.HOME && STATES.isPlaying) {
+        const $btnQuit = document.querySelector("#gamepass-dialog-root a[class*=QuitGameButton]");
+        if (!$btnQuit) {
+          return;
+        }
+        $btnQuit.insertAdjacentElement("beforebegin", await StreamBadges.getInstance().render());
       }
     });
   }
@@ -2761,14 +2773,6 @@ function injectStreamMenuButtons() {
       if (item2.type !== "childList") {
         return;
       }
-      item2.removedNodes.forEach(($node) => {
-        if (!$node || $node.nodeType !== Node.ELEMENT_NODE) {
-          return;
-        }
-        if (!$node.className || !$node.className.startsWith) {
-          return;
-        }
-      });
       item2.addedNodes.forEach(async ($node) => {
         if (!$node || $node.nodeType !== Node.ELEMENT_NODE) {
           return;
@@ -5192,7 +5196,7 @@ var resizeVideoPlayer = function() {
     height = Math.min(parentRect.height, Math.ceil(height));
     $video.style.width = `${width}px`;
     $video.style.height = `${height}px`;
-    $video.style.objectFit = "fill";
+    $video.style.objectFit = "contain";
   } else {
     $video.style.width = "100%";
     $video.style.height = "100%";
@@ -6802,7 +6806,6 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   border-radius: 10px 0 0 10px;
 }
 .bx-badges {
-  position: absolute;
   margin-left: 0px;
   user-select: none;
   -webkit-user-select: none;
@@ -6818,26 +6821,48 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   margin: 0 8px 8px 0;
   box-shadow: 0px 0px 6px #000;
   border-radius: 4px;
-}
-.bx-badge svg {
-  width: 18px;
-  height: 18px;
+  height: 30px;
 }
 .bx-badge-name {
   background-color: #2d3036;
-  display: inline-block;
-  padding: 2px 8px;
   border-radius: 4px 0 0 4px;
-  text-transform: uppercase;
+}
+.bx-badge-name svg {
+  width: 16px;
+  height: 16px;
 }
 .bx-badge-value {
   background-color: #808080;
-  display: inline-block;
-  padding: 2px 8px;
   border-radius: 0 4px 4px 0;
+}
+.bx-badge-name,
+.bx-badge-value {
+  display: inline-block;
+  padding: 0 8px;
+  height: 30px;
+  line-height: 30px;
+  vertical-align: bottom;
 }
 .bx-badge-battery[data-charging=true] span:first-of-type::after {
   content: ' ⚡️';
+}
+div[class^=StreamMenu-module__container] .bx-badges {
+  position: absolute;
+  max-width: 500px;
+}
+#gamepass-dialog-root .bx-badges {
+  position: fixed;
+  top: 140px;
+  left: 460px;
+  max-width: 500px;
+}
+@media (min-width: 568px) and (max-height: 480px) {
+  #gamepass-dialog-root .bx-badges {
+    position: unset;
+    top: unset;
+    left: unset;
+    margin: 8px 0;
+  }
 }
 .bx-stats-bar {
   display: block;
@@ -7374,7 +7399,7 @@ class MouseCursorHider {
 }
 
 // src/modules/patches/controller-shortcuts.js
-var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    if (btnHome.pressed) {\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                shortcutPressed: 0,\n                timestamp: currentGamepad.timestamp,\n            };\n        }\n\n        // Listen to next button press\n        const intervalMs = 16;\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                GamepadIndex: currentGamepad.index,\n                A: 0,\n                B: 0,\n                X: 0,\n                Y: 0,\n                LeftShoulder: 0,\n                RightShoulder: 0,\n                LeftTrigger: 0,\n                RightTrigger: 0,\n                View: 0,\n                Menu: 0,\n                LeftThumb: 0,\n                RightThumb: 0,\n                DPadUp: 0,\n                DPadDown: 0,\n                DPadLeft: 0,\n                DPadRight: 0,\n                Nexus: 1,\n                LeftThumbXAxis: 0,\n                LeftThumbYAxis: 0,\n                RightThumbXAxis: 0,\n                RightThumbYAxis: 0,\n                PhysicalPhysicality: 0,\n                VirtualPhysicality: 0,\n                Dirty: true,\n                Virtual: false,\n            }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            const intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n            this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n            return;\n        }\n    }\n}\n";
+var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    let intervalMs = 0;\n    let hijack = false;\n\n    if (btnHome.pressed) {\n        hijack = true;\n        intervalMs = 16;\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                shortcutPressed: 0,\n                timestamp: currentGamepad.timestamp,\n            };\n        }\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        hijack = true;\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                GamepadIndex: currentGamepad.index,\n                A: 0,\n                B: 0,\n                X: 0,\n                Y: 0,\n                LeftShoulder: 0,\n                RightShoulder: 0,\n                LeftTrigger: 0,\n                RightTrigger: 0,\n                View: 0,\n                Menu: 0,\n                LeftThumb: 0,\n                RightThumb: 0,\n                DPadUp: 0,\n                DPadDown: 0,\n                DPadLeft: 0,\n                DPadRight: 0,\n                Nexus: 1,\n                LeftThumbXAxis: 0,\n                LeftThumbYAxis: 0,\n                RightThumbXAxis: 0,\n                RightThumbYAxis: 0,\n                PhysicalPhysicality: 0,\n                VirtualPhysicality: 0,\n                Dirty: true,\n                Virtual: false,\n            }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n        } else {\n            intervalMs = 4;\n        }\n    }\n\n    if (hijack && intervalMs) {\n        // Listen to next button press\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    }\n}\n";
 
 // src/modules/patches/local-co-op-enable.js
 var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
@@ -8865,14 +8890,11 @@ var observeRootDialog = function($root) {
                 ;
               if (index === 0) {
                 BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_SHOWN, { where: XcloudGuideWhere.HOME });
-                console.log("quit", $addedElm.querySelector("a[class*=QuitGameButton]"));
               }
             }
           }
         }
       }
-      console.log("added", mutation.addedNodes);
-      console.log("removed", mutation.removedNodes);
       const shown = $root.firstElementChild && $root.firstElementChild.childElementCount > 0 || false;
       if (shown !== currentShown) {
         currentShown = shown;
@@ -9043,9 +9065,5 @@ window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
 });
 window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
   Screenshot.takeScreenshot();
-});
-window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, (e) => {
-  const where = e.where;
-  console.log("where", where);
 });
 main();
