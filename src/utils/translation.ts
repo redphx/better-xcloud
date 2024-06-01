@@ -3,6 +3,7 @@ import { NATIVE_FETCH } from "./bx-flags";
 export const SUPPORTED_LANGUAGES = {
     'en-US': 'English (United States)',
 
+    'ca-CA': 'Català',
     'en-ID': 'Bahasa Indonesia',
     'de-DE': 'Deutsch',
     'es-ES': 'español (España)',
