@@ -2314,7 +2314,7 @@ var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' s
 var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
 
 // src/assets/svg/home.svg
-var home_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#000' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M12.217 30.503V20.414h7.567v10.089h10.089V15.37a1.26 1.26 0 0 0-.369-.892L16.892 1.867a1.26 1.26 0 0 0-1.784 0L2.497 14.478a1.26 1.26 0 0 0-.369.892v15.133h10.089z'/>\n</svg>\n";
+var home_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M12.217 30.503V20.414h7.567v10.089h10.089V15.37a1.26 1.26 0 0 0-.369-.892L16.892 1.867a1.26 1.26 0 0 0-1.784 0L2.497 14.478a1.26 1.26 0 0 0-.369.892v15.133h10.089z'/>\n</svg>\n";
 
 // src/assets/svg/mouse-settings.svg
 var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
@@ -2700,17 +2700,6 @@ class StreamBadges {
         });
       } catch (e2) {
       }
-    });
-    window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, async (e) => {
-      const where = e.where;
-      if (where !== XcloudGuideWhere.HOME || !STATES.isPlaying) {
-        return;
-      }
-      const $btnQuit = document.querySelector("#gamepass-dialog-root a[class*=QuitGameButton]");
-      if (!$btnQuit) {
-        return;
-      }
-      $btnQuit.insertAdjacentElement("beforebegin", await StreamBadges.getInstance().render());
     });
   }
 }
@@ -3352,8 +3341,12 @@ class MkbHandler {
     }, 20);
     return true;
   };
-  toggle = () => {
-    this.#enabled = !this.#enabled;
+  toggle = (force) => {
+    if (typeof force !== "undefined") {
+      this.#enabled = force;
+    } else {
+      this.#enabled = !this.#enabled;
+    }
     Toast.show(t("mouse-and-keyboard"), t(this.#enabled ? "enabled" : "disabled"), { instant: true });
     this.#mouseDataProvider?.toggle(this.#enabled);
   };
@@ -3395,26 +3388,30 @@ class MkbHandler {
     }
     this.#mouseDataProvider.init();
     window.addEventListener("keydown", this.#onKeyboardEvent);
-    this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", {}, createButton({
-      icon: BxIcon.MOUSE_SETTINGS,
-      label: t("edit"),
-      style: ButtonStyle.PRIMARY,
-      onClick: (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        showStreamSettings("mkb");
-      }
-    }), createButton({
-      label: t("disable"),
-      onClick: (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.toggle();
-      }
-    })));
-    this.#$message.addEventListener("click", this.start.bind(this));
-    document.documentElement.appendChild(this.#$message);
+    if (!this.#$message) {
+      this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg" }, CE("div", {}, CE("p", {}, t("mkb-click-to-activate")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", {}, createButton({
+        icon: BxIcon.MOUSE_SETTINGS,
+        label: t("edit"),
+        style: ButtonStyle.PRIMARY,
+        onClick: (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          showStreamSettings("mkb");
+        }
+      }), createButton({
+        label: t("disable"),
+        onClick: (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          this.toggle(false);
+          this.waitForMouseData(false);
+        }
+      })));
+      this.#$message.addEventListener("click", this.start.bind(this));
+      document.documentElement.appendChild(this.#$message);
+    }
     window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
+    this.#$message.classList.add("bx-gone");
     this.waitForMouseData(true);
   };
   destroy = () => {
@@ -6183,7 +6180,7 @@ div[class*=NotFocusedDialog] {
 }
 .bx-button span {
   display: inline-block;
-  height: var(--bx-button-height);
+/* height: var(--bx-button-height); */
   line-height: var(--bx-button-height);
   vertical-align: middle;
 /* vertical-align: -webkit-baseline-middle; */
@@ -6902,7 +6899,7 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 .bx-badge-value {
   display: inline-block;
   padding: 0 8px;
-  height: 30px;
+/* height: 30px; */
   line-height: 30px;
   vertical-align: bottom;
 }
@@ -7474,7 +7471,7 @@ var remote_play_enable_default = "connectMode: window.BX_REMOTE_PLAY_CONFIG ? \"
 var remote_play_keep_alive_default = "const msg = JSON.parse(e);\nif (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {\n    try {\n        this.sendKeepAlive();\n        return;\n    } catch (ex) { console.log(ex); }\n}\n";
 
 // src/modules/patches/vibration-adjust.js
-var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity && intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
+var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
 
 // src/modules/patcher.ts
 var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks";
