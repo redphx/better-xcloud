@@ -11,12 +11,21 @@ body:
       options:
         - label: I will only use English in my report.
           required: true
-        - label: "The bug doesn't happen when I disable Better xCloud script."
-          required: true
         - label: I have used the search function for [**open and closed issues**](https://github.com/redphx/better-xcloud/issues?q=is%3Aissue) to see if someone else has already submitted the same bug report.
           required: true
         - label: I will describe the problem with as much detail as possible.
           required: true
+  - type: checkboxes
+    id: questions
+    attributes:
+      label: Questions
+      options:
+        - label: xCloud officially supports my country/region.
+          required: false
+        - label: "The bug doesn't happen when I disable Better xCloud script."
+          required: false
+        - label: "The bug didn't happen in previous Better xCloud version (name which one)."
+          required: false
   - type: dropdown
     id: device_type
     attributes:
@@ -50,9 +59,9 @@ body:
   - type: input
     id: browser_version
     attributes:
-      label: "Browser Version"
-      description: "What is the name and version of the browser?"
-      placeholder: "e.g., Chrome 124.0"
+      label: "Android app/Browser Version"
+      description: "What is the name and version of the browser/Android app?"
+      placeholder: "e.g., Chrome 124.0, Android app 0.15.0"
     validations:
       required: true
   - type: input
