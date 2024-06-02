@@ -6,11 +6,14 @@ import { renderStylus } from "@macros/build" with {type: "macro"};
 export function addCss() {
     let css = renderStylus();
 
-    // Hide "Play with friends" section
     if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
         css += `
+/* Hide "Play with friends" section */
 div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
-button[class*=SocialEmptyCard] {
+button[class*=SocialEmptyCard],
+/* Hide "Start a party" button in the Guide menu */
+#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button],
+{
     display: none;
 }
 `;
@@ -54,12 +57,13 @@ div[class*=StreamHUD-module__buttonsContainer] {
 `;
     }
 
-    // Simplify Stream's menu
     css += `
 div[class*=StreamMenu-module__menu] {
     min-width: 100vw !important;
 }
 `;
+
+    // Simplify Stream's menu
     if (getPref(PrefKey.STREAM_SIMPLIFY_MENU)) {
         css += `
 div[class*=Menu-module__scrollable] {
