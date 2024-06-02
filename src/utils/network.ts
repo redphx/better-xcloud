@@ -439,12 +439,20 @@ class XcloudInterceptor {
         overrides.inputConfiguration = overrides.inputConfiguration || {};
         overrides.inputConfiguration.enableVibration = true;
 
+        let overrideMkb: boolean | null = null;
+
         if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
+            overrideMkb = false;
+        } else if (BX_FLAGS.ForceNativeMkbTitles.includes(STATES.currentStream.titleInfo!.details.productId)) {
+            overrideMkb = true;
+        }
+
+        if (overrideMkb !== null) {
             overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
-                    enableMouseInput: false,
-                    enableAbsoluteMouse: false,
-                    enableKeyboardInput: false,
-                });
+                enableMouseInput: overrideMkb,
+                enableAbsoluteMouse: overrideMkb,
+                enableKeyboardInput: overrideMkb,
+            });
         }
 
         overrides.videoConfiguration = overrides.videoConfiguration || {};
@@ -608,6 +616,21 @@ export function interceptHttpRequests() {
                 } catch (e) {
                     console.log(e);
                 }
+            }
+
+            response.json = () => Promise.resolve(obj);
+            return response;
+        }
+
+        if (BX_FLAGS.ForceNativeMkbTitles && url.includes('catalog.gamepass.com/sigls/') && url.includes(GamePassCloudGallery.NATIVE_MKB)) {
+            const response = await NATIVE_FETCH(request, init);
+            const obj = await response.clone().json();
+
+            try {
+                const newCustomList = BX_FLAGS.ForceNativeMkbTitles.map((item: string) => ({ id: item }));
+                obj.push(...newCustomList);
+            } catch (e) {
+                console.log(e);
             }
 
             response.json = () => Promise.resolve(obj);

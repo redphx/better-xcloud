@@ -3,6 +3,7 @@ import { BxLogger } from "./bx-logger";
 import { TouchController } from "@modules/touch-controller";
 import { GamePassCloudGallery } from "./gamepass-gallery";
 import { getPref, PrefKey } from "./preferences";
+import { BX_FLAGS } from "./bx-flags";
 
 const LOG_TAG = 'PreloadState';
 
@@ -37,6 +38,12 @@ export function overridePreloadState() {
                         // Add to the official list
                         sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
                     }
+
+                    if (BX_FLAGS.ForceNativeMkbTitles && GamePassCloudGallery.NATIVE_MKB in sigls) {
+                        // Add to the official list
+                        sigls[GamePassCloudGallery.NATIVE_MKB]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
+                    }
+
                 } catch (e) {
                     BxLogger.error(LOG_TAG, e);
                 }

@@ -4,6 +4,7 @@ import { STATES } from "@utils/global";
 import { getPref, PrefKey } from "@utils/preferences";
 import { UserAgent } from "@utils/user-agent";
 import { BxLogger } from "./bx-logger";
+import { BX_FLAGS } from "./bx-flags";
 
 export enum InputType {
     CONTROLLER = 'Controller',
@@ -26,6 +27,8 @@ export const BxExposed = {
         // Remove native MKB support on mobile browsers or by user's choice
         if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
             supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.MKB);
+        } else if (BX_FLAGS.ForceNativeMkbTitles.includes(titleInfo.details.productId)) {
+            supportedInputTypes.push(InputType.MKB);
         }
 
         titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);

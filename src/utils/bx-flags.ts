@@ -1,12 +1,14 @@
-type BxFlags = {
-    CheckForUpdate?: boolean;
-    PreloadRemotePlay?: boolean;
-    PreloadUi?: boolean;
-    EnableXcloudLogging?: boolean;
-    SafariWorkaround?: boolean;
+type BxFlags = Partial<{
+    CheckForUpdate: boolean;
+    PreloadRemotePlay: boolean;
+    PreloadUi: boolean;
+    EnableXcloudLogging: boolean;
+    SafariWorkaround: boolean;
 
-    UseDevTouchLayout?: boolean;
-}
+    UseDevTouchLayout: boolean;
+
+    ForceNativeMkbTitles: string[];
+}>
 
 // Setup flags
 const DEFAULT_FLAGS: BxFlags = {
@@ -17,6 +19,8 @@ const DEFAULT_FLAGS: BxFlags = {
     SafariWorkaround: true,
 
     UseDevTouchLayout: false,
+
+    ForceNativeMkbTitles: [],
 }
 
 export const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
