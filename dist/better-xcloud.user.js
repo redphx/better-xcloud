@@ -190,7 +190,8 @@ var DEFAULT_FLAGS = {
   PreloadUi: false,
   EnableXcloudLogging: false,
   SafariWorkaround: true,
-  UseDevTouchLayout: false
+  UseDevTouchLayout: false,
+  ForceNativeMkbTitles: []
 };
 var BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {
@@ -3889,6 +3890,8 @@ var BxExposed = {
     let supportedInputTypes = titleInfo.details.supportedInputTypes;
     if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
       supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
+    } else if (BX_FLAGS.ForceNativeMkbTitles.includes(titleInfo.details.productId)) {
+      supportedInputTypes.push(InputType.MKB);
     }
     titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
     if (STATES.hasTouchSupport) {
@@ -5533,8 +5536,9 @@ class RemotePlay {
 // src/utils/gamepass-gallery.ts
 var GamePassCloudGallery;
 (function(GamePassCloudGallery2) {
-  GamePassCloudGallery2["TOUCH"] = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
   GamePassCloudGallery2["ALL"] = "29a81209-df6f-41fd-a528-2ae6b91f719c";
+  GamePassCloudGallery2["NATIVE_MKB"] = "8fa264dd-124f-4af3-97e8-596fcdf4b486";
+  GamePassCloudGallery2["TOUCH"] = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
 })(GamePassCloudGallery || (GamePassCloudGallery = {}));
 
 // src/utils/network.ts
@@ -5709,6 +5713,18 @@ function interceptHttpRequests() {
         } catch (e) {
           console.log(e);
         }
+      }
+      response.json = () => Promise.resolve(obj);
+      return response;
+    }
+    if (BX_FLAGS.ForceNativeMkbTitles && url.includes("catalog.gamepass.com/sigls/") && url.includes(GamePassCloudGallery.NATIVE_MKB)) {
+      const response = await NATIVE_FETCH(request, init);
+      const obj = await response.clone().json();
+      try {
+        const newCustomList = BX_FLAGS.ForceNativeMkbTitles.map((item2) => ({ id: item2 }));
+        obj.push(...newCustomList);
+      } catch (e) {
+        console.log(e);
       }
       response.json = () => Promise.resolve(obj);
       return response;
@@ -5965,11 +5981,17 @@ class XcloudInterceptor {
     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
     overrides.inputConfiguration = overrides.inputConfiguration || {};
     overrides.inputConfiguration.enableVibration = true;
+    let overrideMkb = null;
     if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
+      overrideMkb = false;
+    } else if (BX_FLAGS.ForceNativeMkbTitles.includes(STATES.currentStream.titleInfo.details.productId)) {
+      overrideMkb = true;
+    }
+    if (overrideMkb !== null) {
       overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
-        enableMouseInput: false,
-        enableAbsoluteMouse: false,
-        enableKeyboardInput: false
+        enableMouseInput: overrideMkb,
+        enableAbsoluteMouse: overrideMkb,
+        enableKeyboardInput: overrideMkb
       });
     }
     overrides.videoConfiguration = overrides.videoConfiguration || {};
@@ -7311,8 +7333,20 @@ button
 `;
   if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
     css += `
+/* Hide "Play with friends" section */
 div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
-button[class*=SocialEmptyCard] {
+button[class*=SocialEmptyCard],
+/* Hide "Start a party" button in the Guide menu */
+#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]
+{
+    display: none;
+}
+`;
+  }
+  if (getPref(PrefKey.BLOCK_TRACKING)) {
+    css += `
+/* Remove Feedback button in the Guide menu */
+#gamepass-dialog-root #Home-panel button[class*=FeedbackButton] {
     display: none;
 }
 `;
@@ -8501,6 +8535,9 @@ function overridePreloadState() {
             const allGames = sigls[GamePassCloudGallery.ALL].data.products;
             customList = customList.filter((id2) => allGames.includes(id2));
             sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
+          }
+          if (BX_FLAGS.ForceNativeMkbTitles && GamePassCloudGallery.NATIVE_MKB in sigls) {
+            sigls[GamePassCloudGallery.NATIVE_MKB]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
           }
         } catch (e) {
           BxLogger.error(LOG_TAG6, e);
