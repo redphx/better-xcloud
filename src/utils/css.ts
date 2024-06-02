@@ -12,8 +12,17 @@ export function addCss() {
 div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
 button[class*=SocialEmptyCard],
 /* Hide "Start a party" button in the Guide menu */
-#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button],
+#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]
 {
+    display: none;
+}
+`;
+    }
+
+    if (getPref(PrefKey.BLOCK_TRACKING)) {
+        css += `
+/* Remove Feedback button in the Guide menu */
+#gamepass-dialog-root #Home-panel button[class*=FeedbackButton] {
     display: none;
 }
 `;
