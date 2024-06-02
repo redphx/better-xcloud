@@ -25,8 +25,10 @@ const enabled = true;
 
 enabled && (window.BX_FLAGS = {
     /*
-        Add titleId of the game(s) you want to add here
-        For example:
+        Add titleId of the game(s) you want to add here.
+        Keep in mind: this method only works with some games.
+
+        Example:
             - Flight Simulator has this link: /play/games/microsoft-flight-simulator-standard-40th-anniversa/9PMQDM08SNK9
             - That means its titleId is "9PMQDM08SNK9"
             - So it becomes:
