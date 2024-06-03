@@ -5246,7 +5246,7 @@ var resizeVideoPlayer = function() {
     height = Math.min(parentRect.height, Math.ceil(height));
     $video.style.width = `${width}px`;
     $video.style.height = `${height}px`;
-    $video.style.objectFit = "contain";
+    $video.style.objectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
   } else {
     $video.style.width = "100%";
     $video.style.height = "100%";
