@@ -3041,6 +3041,7 @@ class PointerClient {
       this.#socket?.close();
     } catch (e) {
     }
+    this.#socket = null;
   }
 }
 
@@ -3062,7 +3063,6 @@ class NativeMkbHandler extends MkbHandler {
   }
   static instance;
   #pointerClient;
-  #connected = false;
   #enabled = false;
   #currentButtons = 0;
   #inputSink;
@@ -3126,22 +3126,39 @@ class NativeMkbHandler extends MkbHandler {
       document.documentElement.appendChild(this.#$message);
     }
   }
+  handleEvent(event) {
+    switch (event.type) {
+      case "keyup":
+        this.#onKeyboardEvent(event);
+        break;
+      case BxEvent.XCLOUD_DIALOG_SHOWN:
+        this.#onDialogShown();
+        break;
+      case BxEvent.POINTER_LOCK_REQUESTED:
+        this.#onPointerLockRequested(event);
+        break;
+      case BxEvent.POINTER_LOCK_EXITED:
+        this.#onPointerLockExited(event);
+        break;
+      case BxEvent.XCLOUD_POLLING_MODE_CHANGED:
+        this.#onPollingModeChanged(event);
+        break;
+    }
+  }
   init() {
     this.#pointerClient = PointerClient.getInstance();
-    this.#connected = false;
     this.#inputSink = window.BX_EXPOSED.inputSink;
     this.#updateInputConfigurationAsync(false);
     try {
       this.#pointerClient.start(this);
-      this.#connected = true;
     } catch (e) {
       Toast.show("Cannot enable Mouse & Keyboard feature");
     }
-    window.addEventListener("keyup", this.#onKeyboardEvent.bind(this));
-    window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown.bind(this));
-    window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this.#onPointerLockRequested.bind(this));
-    window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this.#onPointerLockExited.bind(this));
-    window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
+    window.addEventListener("keyup", this);
+    window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this);
+    window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
+    window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this);
     this.#initMessage();
     if (AppInterface) {
       Toast.show(t("press-key-to-toggle-mkb", { key: `<b>F8</b>` }), t("native-mkb"), { html: true });
@@ -3167,6 +3184,7 @@ class NativeMkbHandler extends MkbHandler {
     window.BX_EXPOSED.streamSession.updateInputConfigurationAsync({
       enableKeyboardInput: enabled,
       enableMouseInput: enabled,
+      enableAbsoluteMouse: false,
       enableTouchInput: false
     });
   }
@@ -3185,13 +3203,13 @@ class NativeMkbHandler extends MkbHandler {
     this.#$message?.classList.remove("bx-gone");
   }
   destroy() {
-    window.removeEventListener("keyup", this.#onKeyboardEvent);
-    window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this.#onPointerLockRequested);
-    window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this.#onPointerLockExited);
-    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
-    window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown);
+    this.#pointerClient?.stop();
+    window.removeEventListener("keyup", this);
+    window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this);
+    window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
+    window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this);
     this.#$message?.classList.add("bx-gone");
-    this.#connected && this.#pointerClient?.stop();
   }
   handleMouseMove(data) {
     this.#sendMouseInput({
@@ -3639,6 +3657,16 @@ class EmulatedMkbHandler extends MkbHandler {
   #onPointerLockExited = () => {
     this.#mouseDataProvider?.stop();
   };
+  handleEvent(event) {
+    switch (event.type) {
+      case BxEvent.POINTER_LOCK_REQUESTED:
+        this.#onPointerLockRequested();
+        break;
+      case BxEvent.POINTER_LOCK_EXITED:
+        this.#onPointerLockExited();
+        break;
+    }
+  }
   init = () => {
     this.refreshPresetData();
     this.#enabled = false;
@@ -3653,8 +3681,8 @@ class EmulatedMkbHandler extends MkbHandler {
     window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
     window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown);
     if (AppInterface) {
-      window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this.#onPointerLockRequested.bind(this));
-      window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this.#onPointerLockExited.bind(this));
+      window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
+      window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
     } else {
       document.addEventListener("pointerlockchange", this.#onPointerLockChange);
       document.addEventListener("pointerlockerror", this.#onPointerLockError);
@@ -3677,8 +3705,8 @@ class EmulatedMkbHandler extends MkbHandler {
     window.removeEventListener("keydown", this.#onKeyboardEvent);
     window.removeEventListener("keyup", this.#onKeyboardEvent);
     if (AppInterface) {
-      window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this.#onPointerLockRequested.bind(this));
-      window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this.#onPointerLockExited.bind(this));
+      window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
+      window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
     } else {
       document.removeEventListener("pointerlockchange", this.#onPointerLockChange);
       document.removeEventListener("pointerlockerror", this.#onPointerLockError);
@@ -8012,7 +8040,7 @@ window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
     const newCode = `
 if (window.BX_EXPOSED.stopTakRendering) {
     try {
-        document.getElementById('BabylonCanvasContainer-main')?.parentElement.remove();
+        document.getElementById('BabylonCanvasContainer-main')?.parentElement.classList.add('bx-offscreen');
 
         ${rendererVar}.current.dispose();
     } catch (e) {}
@@ -9124,17 +9152,13 @@ function patchPointerLockApi() {
       return pointerLockElement;
     }
   });
-  const nativeRequestPointerLock = HTMLElement.prototype.requestPointerLock;
   HTMLElement.prototype.requestPointerLock = function() {
     pointerLockElement = document.documentElement;
     window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_REQUESTED));
-    nativeRequestPointerLock.apply(this, arguments);
   };
-  const nativeExitPointerLock = Document.prototype.exitPointerLock;
   Document.prototype.exitPointerLock = function() {
     pointerLockElement = null;
     window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_EXITED));
-    nativeExitPointerLock.apply(this);
   };
 }
 
@@ -9344,6 +9368,27 @@ class GameBar {
 }
 
 // src/index.ts
+var unload = function() {
+  if (!STATES.isPlaying) {
+    return;
+  }
+  STATES.isPlaying = false;
+  STATES.currentStream = {};
+  window.BX_EXPOSED.shouldShowSensorControls = false;
+  window.BX_EXPOSED.stopTakRendering = false;
+  EmulatedMkbHandler.INSTANCE.destroy();
+  NativeMkbHandler.getInstance().destroy();
+  const $streamSettingsDialog = document.querySelector(".bx-stream-settings-dialog");
+  if ($streamSettingsDialog) {
+    $streamSettingsDialog.classList.add("bx-gone");
+  }
+  STATES.currentStream.audioGainNode = null;
+  STATES.currentStream.$video = null;
+  StreamStats.getInstance().onStoppedPlaying();
+  MouseCursorHider.stop();
+  TouchController.reset();
+  GameBar.getInstance().disable();
+};
 var observeRootDialog = function($root) {
   let currentShown = false;
   const observer = new MutationObserver((mutationList) => {
@@ -9519,27 +9564,8 @@ window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
-window.addEventListener(BxEvent.STREAM_STOPPED, (e) => {
-  if (!STATES.isPlaying) {
-    return;
-  }
-  STATES.isPlaying = false;
-  STATES.currentStream = {};
-  window.BX_EXPOSED.shouldShowSensorControls = false;
-  window.BX_EXPOSED.stopTakRendering = false;
-  EmulatedMkbHandler.INSTANCE.destroy();
-  NativeMkbHandler.getInstance().destroy();
-  const $streamSettingsDialog = document.querySelector(".bx-stream-settings-dialog");
-  if ($streamSettingsDialog) {
-    $streamSettingsDialog.classList.add("bx-gone");
-  }
-  STATES.currentStream.audioGainNode = null;
-  STATES.currentStream.$video = null;
-  StreamStats.getInstance().onStoppedPlaying();
-  MouseCursorHider.stop();
-  TouchController.reset();
-  GameBar.getInstance().disable();
-});
+window.addEventListener(BxEvent.STREAM_STOPPED, unload);
+window.addEventListener("beforeunload", unload);
 window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
   Screenshot.takeScreenshot();
 });
