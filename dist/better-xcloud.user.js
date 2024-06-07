@@ -506,6 +506,7 @@ var Texts = {
   "clarity-boost-warning": "These settings don't work when the Clarity Boost mode is ON",
   clear: "Clear",
   close: "Close",
+  "close-ap": "Close app",
   "combine-audio-video-streams": "Combine audio & video streams",
   "combine-audio-video-streams-summary": "May fix the laggy audio problem",
   "conditional-formatting": "Conditional formatting text color",
@@ -559,6 +560,7 @@ var Texts = {
   "hide-scrollbar": "Hide web page's scrollbar",
   "hide-system-menu-icon": "Hide System menu's icon",
   "hide-touch-controller": "Hide touch controller",
+  "horizontal-scroll-sensitivity": "Horizontal scroll sensitivity",
   "horizontal-sensitivity": "Horizontal sensitivity",
   ignore: "Ignore",
   import: "Import",
@@ -579,6 +581,7 @@ var Texts = {
   "mkb-click-to-activate": "Click to activate",
   "mkb-disclaimer": "Using this feature when playing online could be viewed as cheating",
   "mouse-and-keyboard": "Mouse & Keyboard",
+  "mouse-wheel": "Mouse wheel",
   muted: "Muted",
   name: "Name",
   "native-mkb": "Native Mouse & Keyboard",
@@ -601,11 +604,11 @@ var Texts = {
   "press-key-to-toggle-mkb": [
     (e) => `Press ${e.key} to toggle this feature`,
     ,
+    (e) => `${e.key}: Funktion an-/ausschalten`,
     ,
     ,
     ,
-    ,
-    ,
+    (e) => `Premi ${e.key} per attivare questa funzionalità`,
     (e) => `${e.key} でこの機能を切替`,
     ,
     ,
@@ -613,7 +616,7 @@ var Texts = {
     ,
     ,
     (e) => `Etkinleştirmek için ${e.key} tuşuna basın`,
-    ,
+    (e) => `Натисніть ${e.key} щоб перемкнути цю функцію`,
     (e) => `Nhấn ${e.key} để bật/tắt tính năng này`,
     ,
   ],
@@ -716,6 +719,7 @@ var Texts = {
   unmuted: "Unmuted",
   "use-mouse-absolute-position": "Use mouse's absolute position",
   "user-agent-profile": "User-Agent profile",
+  "vertical-scroll-sensitivity": "Vertical scroll sensitivity",
   "vertical-sensitivity": "Vertical sensitivity",
   "vibration-intensity": "Vibration intensity",
   "vibration-status": "Vibration",
@@ -1398,6 +1402,8 @@ var PrefKey;
   PrefKey2["CONTROLLER_DEVICE_VIBRATION"] = "controller_device_vibration";
   PrefKey2["CONTROLLER_VIBRATION_INTENSITY"] = "controller_vibration_intensity";
   PrefKey2["NATIVE_MKB_ENABLED"] = "native_mkb_enabled";
+  PrefKey2["NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY"] = "native_mkb_scroll_x_sensitivity";
+  PrefKey2["NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY"] = "native_mkb_scroll_y_sensitivity";
   PrefKey2["MKB_ENABLED"] = "mkb_enabled";
   PrefKey2["MKB_HIDE_IDLE_CURSOR"] = "mkb_hide_idle_cursor";
   PrefKey2["MKB_ABSOLUTE_MOUSE"] = "mkb_absolute_mouse";
@@ -1662,7 +1668,6 @@ class Preferences {
           } else {
             return (value / 1024000).toFixed(1) + " Mb/s";
           }
-          return null;
         }
       },
       migrate: function(savedPrefs, value) {
@@ -1762,6 +1767,40 @@ class Preferences {
           delete setting.options["on"];
         } else {
           delete setting.options["on"];
+        }
+      }
+    },
+    [PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY]: {
+      label: t("horizontal-scroll-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 0,
+      min: 0,
+      max: 1e4,
+      steps: 10,
+      params: {
+        exactTicks: 2000,
+        customTextValue: (value) => {
+          if (!value) {
+            return t("default");
+          }
+          return (value / 100).toFixed(1) + "x";
+        }
+      }
+    },
+    [PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY]: {
+      label: t("vertical-scroll-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 0,
+      min: 0,
+      max: 1e4,
+      steps: 10,
+      params: {
+        exactTicks: 2000,
+        customTextValue: (value) => {
+          if (!value) {
+            return t("default");
+          }
+          return (value / 100).toFixed(1) + "x";
         }
       }
     },
@@ -2338,11 +2377,8 @@ var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' strok
 // src/assets/svg/home.svg
 var home_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M12.217 30.503V20.414h7.567v10.089h10.089V15.37a1.26 1.26 0 0 0-.369-.892L16.892 1.867a1.26 1.26 0 0 0-1.784 0L2.497 14.478a1.26 1.26 0 0 0-.369.892v15.133h10.089z'/>\n</svg>\n";
 
-// src/assets/svg/mouse-settings.svg
-var mouse_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(1.10403 0 0 1.10403 -4.17656 -.560429)' fill='none' stroke='#fff'><g stroke-width='1.755'><path d='M24.49 16.255l.01-8.612A6.15 6.15 0 0 0 18.357 1.5h-5.714A6.15 6.15 0 0 0 6.5 7.643v13.715a6.15 6.15 0 0 0 6.143 6.143h5.714'/><path d='M15.5 12.501v-6'/></g><circle cx='48' cy='48' r='15' stroke-width='7.02' transform='matrix(.142357 0 0 .142357 17.667421 16.541885)'/><path d='M24.61 27.545h-.214l-1.711.955c-.666-.224-1.284-.572-1.821-1.025l-.006-1.922-.107-.182-1.701-.969c-.134-.678-.134-1.375 0-2.053l1.7-.966.107-.182.009-1.922c.537-.454 1.154-.803 1.82-1.029l1.708.955h.214l1.708-.955c.666.224 1.284.572 1.821 1.025l.006 1.922.107.182 1.7.968c.134.678.134 1.375 0 2.053l-1.7.966-.107.182-.009 1.922c-.536.455-1.154.804-1.819 1.029l-1.706-.955z' stroke-width='.999'/></g>\n</svg>\n";
-
-// src/assets/svg/mouse.svg
-var mouse_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M26.256 8.185c0-3.863-3.137-7-7-7h-6.512c-3.863 0-7 3.137-7 7v15.629c0 3.863 3.137 7 7 7h6.512c3.863 0 7-3.137 7-7V8.185z'/><path d='M16 13.721V6.883'/>\n</svg>\n";
+// src/assets/svg/native-mkb.svg
+var native_mkb_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g stroke-width=\"2.1\">\n        <path d=\"m15.817 6h-10.604c-2.215 0-4.013 1.798-4.013 4.013v12.213c0 2.215 1.798 4.013 4.013 4.013h11.21\"/>\n        <path d=\"m5.698 20.617h1.124m-1.124-4.517h7.9m-7.881-4.5h7.9m-2.3 9h2.2\"/>\n    </g>\n    <g stroke-width=\"2.13\">\n        <path d=\"m30.805 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.4c0 3.919 3.182 7.1 7.1 7.1s7.1-3.181 7.1-7.1z\"/>\n        <path d=\"m23.705 14.715v-4.753\"/>\n    </g>\n</svg>\n";
 
 // src/assets/svg/new.svg
 var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
@@ -2370,6 +2406,9 @@ var touch_control_enable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill
 
 // src/assets/svg/touch-control-disable.svg
 var touch_control_disable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <g fill='none' stroke='#fff'>\n        <path d='M6.021 5.021l20 22' stroke-width='2'/>\n        <path d='M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971' stroke-miterlimit='1.5' stroke-width='2.083'/>\n    </g>\n    <path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/>\n    <path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/>\n    <circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/>\n</svg>\n";
+
+// src/assets/svg/virtual-controller.svg
+var virtual_controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g stroke-width=\"2.06\">\n        <path d=\"M8.417 13.218h4.124\"/>\n        <path d=\"M10.479 11.155v4.125\"/>\n        <path d=\"M12.787 19.404L7.36 25.565a3.61 3.61 0 0 1-2.551 1.056A3.63 3.63 0 0 1 1.2 23.013c0-.21.018-.42.055-.626l2.108-10.845C3.923 8.356 6.714 6.007 9.949 6h5.192\"/>\n    </g>\n    <g stroke-width=\"2.11\">\n        <path d=\"M30.8 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.421c0 3.919 3.181 7.1 7.1 7.1s7.1-3.181 7.1-7.1V13.1z\"/>\n        <path d=\"M23.7 14.724V9.966\"/>\n    </g>\n</svg>\n";
 
 // src/assets/svg/caret-left.svg
 var caret_left_default = "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <path d='M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z'/>\n</svg>\n";
@@ -2412,14 +2451,14 @@ var BxIcon = {
   CONTROLLER: controller_default,
   DISPLAY: display_default,
   HOME: home_default,
-  MOUSE: mouse_default,
-  MOUSE_SETTINGS: mouse_settings_default,
+  NATIVE_MKB: native_mkb_default,
   NEW: new_default,
   COPY: copy_default,
   TRASH: trash_default,
   CURSOR_TEXT: cursor_text_default,
   QUESTION: question_default,
   REFRESH: refresh_default,
+  VIRTUAL_CONTROLLER: virtual_controller_default,
   REMOTE_PLAY: remote_play_default,
   CARET_LEFT: caret_left_default,
   CARET_RIGHT: caret_right_default,
@@ -3067,6 +3106,8 @@ class NativeMkbHandler extends MkbHandler {
   #mouseButtonsPressed = 0;
   #mouseWheelX = 0;
   #mouseWheelY = 0;
+  #mouseVerticalMultiply = 0;
+  #mouseHorizontalMultiply = 0;
   #inputSink;
   #$message;
   static getInstance() {
@@ -3156,6 +3197,8 @@ class NativeMkbHandler extends MkbHandler {
     } catch (e) {
       Toast.show("Cannot enable Mouse & Keyboard feature");
     }
+    this.#mouseVerticalMultiply = getPref(PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY);
+    this.#mouseHorizontalMultiply = getPref(PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY);
     window.addEventListener("keyup", this);
     window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this);
     window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
@@ -3240,8 +3283,14 @@ class NativeMkbHandler extends MkbHandler {
   }
   handleMouseWheel(data) {
     const { vertical, horizontal } = data;
-    this.#mouseWheelX = horizontal * 50;
-    this.#mouseWheelY = vertical * 50;
+    this.#mouseWheelX = horizontal;
+    if (this.#mouseHorizontalMultiply && this.#mouseHorizontalMultiply !== 1) {
+      this.#mouseWheelX *= this.#mouseHorizontalMultiply;
+    }
+    this.#mouseWheelY = vertical;
+    if (this.#mouseVerticalMultiply && this.#mouseVerticalMultiply !== 1) {
+      this.#mouseWheelY *= this.#mouseVerticalMultiply;
+    }
     this.#sendMouseInput({
       X: 0,
       Y: 0,
@@ -3250,6 +3299,12 @@ class NativeMkbHandler extends MkbHandler {
       WheelY: this.#mouseWheelY
     });
     return true;
+  }
+  setVerticalScrollMultiplier(vertical) {
+    this.#mouseVerticalMultiply = vertical;
+  }
+  setHorizontalScrollMultiplier(horizontal) {
+    this.#mouseHorizontalMultiply = horizontal;
   }
   waitForMouseData(enabled) {
   }
@@ -3365,7 +3420,7 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
 
 class EmulatedMkbHandler extends MkbHandler {
   static #instance;
-  static get INSTANCE() {
+  static getInstance() {
     if (!EmulatedMkbHandler.#instance) {
       EmulatedMkbHandler.#instance = new EmulatedMkbHandler;
     }
@@ -3640,7 +3695,6 @@ class EmulatedMkbHandler extends MkbHandler {
           this.waitForMouseData(false);
         }
       }), createButton({
-        icon: BxIcon.MOUSE_SETTINGS,
         label: t("edit"),
         onClick: (e) => {
           e.preventDefault();
@@ -3774,7 +3828,7 @@ class EmulatedMkbHandler extends MkbHandler {
         }
       } else if (getPref(PrefKey.MKB_ENABLED) && (AppInterface || !UserAgent.isMobile())) {
         BxLogger.info(LOG_TAG2, "Emulate MKB");
-        EmulatedMkbHandler.INSTANCE.init();
+        EmulatedMkbHandler.getInstance().init();
       }
     });
   }
@@ -4653,7 +4707,7 @@ class MkbRemapper {
         this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
         defaultPresetId = this.#STATE.currentPresetId;
         setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId);
-        EmulatedMkbHandler.INSTANCE.refreshPresetData();
+        EmulatedMkbHandler.getInstance().refreshPresetData();
       } else {
         defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
       }
@@ -4809,7 +4863,7 @@ class MkbRemapper {
       style: ButtonStyle.PRIMARY,
       onClick: (e) => {
         setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
-        EmulatedMkbHandler.INSTANCE.refreshPresetData();
+        EmulatedMkbHandler.getInstance().refreshPresetData();
         this.#refresh();
       }
     })), CE("div", {}, createButton({
@@ -4827,7 +4881,7 @@ class MkbRemapper {
         updatedPreset.data = this.#STATE.editingPresetData;
         LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
           if (id2 === getPref(PrefKey.MKB_DEFAULT_PRESET_ID)) {
-            EmulatedMkbHandler.INSTANCE.refreshPresetData();
+            EmulatedMkbHandler.getInstance().refreshPresetData();
           }
           this.#toggleEditing(false);
           this.#refresh();
@@ -5228,18 +5282,6 @@ var getVideoPlayerFilterStyle = function() {
 var setupStreamSettingsDialog = function() {
   const isSafari = UserAgent.isSafari();
   const SETTINGS_UI = [
-    getPref(PrefKey.MKB_ENABLED) && {
-      icon: BxIcon.MOUSE,
-      group: "mkb",
-      items: [
-        {
-          group: "mkb",
-          label: t("virtual-controller"),
-          help_url: "https://better-xcloud.github.io/mouse-and-keyboard/",
-          content: MkbRemapper.INSTANCE.render()
-        }
-      ]
-    },
     {
       icon: BxIcon.DISPLAY,
       group: "stream",
@@ -5369,6 +5411,42 @@ var setupStreamSettingsDialog = function() {
                   $elm.value = data.default_layout;
                   $elm.dispatchEvent(new Event("change"));
                 });
+              }
+            }
+          ]
+        }
+      ]
+    },
+    getPref(PrefKey.MKB_ENABLED) && {
+      icon: BxIcon.VIRTUAL_CONTROLLER,
+      group: "mkb",
+      items: [
+        {
+          group: "mkb",
+          label: t("virtual-controller"),
+          help_url: "https://better-xcloud.github.io/mouse-and-keyboard/",
+          content: MkbRemapper.INSTANCE.render()
+        }
+      ]
+    },
+    AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" && {
+      icon: BxIcon.NATIVE_MKB,
+      group: "native-mkb",
+      items: [
+        {
+          group: "native-mkb",
+          label: t("native-mkb"),
+          items: [
+            {
+              pref: PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY,
+              onChange: (e, value) => {
+                NativeMkbHandler.getInstance().setVerticalScrollMultiplier(value / 100);
+              }
+            },
+            {
+              pref: PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY,
+              onChange: (e, value) => {
+                NativeMkbHandler.getInstance().setHorizontalScrollMultiplier(value / 100);
               }
             }
           ]
@@ -9385,12 +9463,12 @@ var unload = function() {
   if (!STATES.isPlaying) {
     return;
   }
+  EmulatedMkbHandler.getInstance().destroy();
+  NativeMkbHandler.getInstance().destroy();
   STATES.isPlaying = false;
   STATES.currentStream = {};
   window.BX_EXPOSED.shouldShowSensorControls = false;
   window.BX_EXPOSED.stopTakRendering = false;
-  EmulatedMkbHandler.INSTANCE.destroy();
-  NativeMkbHandler.getInstance().destroy();
   const $streamSettingsDialog = document.querySelector(".bx-stream-settings-dialog");
   if ($streamSettingsDialog) {
     $streamSettingsDialog.classList.add("bx-gone");
@@ -9578,7 +9656,9 @@ window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
 window.addEventListener(BxEvent.STREAM_STOPPED, unload);
-window.addEventListener("beforeunload", unload);
+window.addEventListener("pagehide", (e) => {
+  BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+});
 window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
   Screenshot.takeScreenshot();
 });
