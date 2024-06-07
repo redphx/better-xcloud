@@ -459,8 +459,8 @@ var MkbPresetKey;
 var SUPPORTED_LANGUAGES = {
   "en-US": "English (United States)",
   "ca-CA": "Català",
-  "en-ID": "Bahasa Indonesia",
   "de-DE": "Deutsch",
+  "en-ID": "Bahasa Indonesia",
   "es-ES": "español (España)",
   "fr-FR": "français",
   "it-IT": "italiano",
@@ -3064,7 +3064,7 @@ class NativeMkbHandler extends MkbHandler {
   static instance;
   #pointerClient;
   #enabled = false;
-  #currentButtons = 0;
+  #mouseButtonsPressed = 0;
   #inputSink;
   #$message;
   static getInstance() {
@@ -3215,7 +3215,7 @@ class NativeMkbHandler extends MkbHandler {
     this.#sendMouseInput({
       X: data.movementX,
       Y: data.movementY,
-      Buttons: 0,
+      Buttons: this.#mouseButtonsPressed,
       WheelX: 0,
       WheelY: 0,
       Type: 0
@@ -3224,14 +3224,14 @@ class NativeMkbHandler extends MkbHandler {
   handleMouseClick(data) {
     const { pointerButton, pressed } = data;
     if (pressed) {
-      this.#currentButtons |= pointerButton;
+      this.#mouseButtonsPressed |= pointerButton;
     } else {
-      this.#currentButtons ^= pointerButton;
+      this.#mouseButtonsPressed ^= pointerButton;
     }
     this.#sendMouseInput({
       X: 0,
       Y: 0,
-      Buttons: this.#currentButtons,
+      Buttons: this.#mouseButtonsPressed,
       WheelX: 0,
       WheelY: 0,
       Type: 0
@@ -3246,10 +3246,11 @@ class NativeMkbHandler extends MkbHandler {
     return this.#enabled;
   }
   #sendMouseInput(data) {
+    data.Buttons = Math.max(0, data.Buttons);
     this.#inputSink?.onMouseInput(data);
   }
   #resetMouseInput() {
-    this.#currentButtons = 0;
+    this.#mouseButtonsPressed = 0;
     this.#sendMouseInput({
       X: 0,
       Y: 0,
