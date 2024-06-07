@@ -3065,6 +3065,8 @@ class NativeMkbHandler extends MkbHandler {
   #pointerClient;
   #enabled = false;
   #mouseButtonsPressed = 0;
+  #mouseWheelX = 0;
+  #mouseWheelY = 0;
   #inputSink;
   #$message;
   static getInstance() {
@@ -3216,9 +3218,8 @@ class NativeMkbHandler extends MkbHandler {
       X: data.movementX,
       Y: data.movementY,
       Buttons: this.#mouseButtonsPressed,
-      WheelX: 0,
-      WheelY: 0,
-      Type: 0
+      WheelX: this.#mouseWheelX,
+      WheelY: this.#mouseWheelY
     });
   }
   handleMouseClick(data) {
@@ -3228,17 +3229,27 @@ class NativeMkbHandler extends MkbHandler {
     } else {
       this.#mouseButtonsPressed ^= pointerButton;
     }
+    this.#mouseButtonsPressed = Math.max(0, this.#mouseButtonsPressed);
     this.#sendMouseInput({
       X: 0,
       Y: 0,
       Buttons: this.#mouseButtonsPressed,
-      WheelX: 0,
-      WheelY: 0,
-      Type: 0
+      WheelX: this.#mouseWheelX,
+      WheelY: this.#mouseWheelY
     });
   }
   handleMouseWheel(data) {
-    return false;
+    const { vertical, horizontal } = data;
+    this.#mouseWheelX = horizontal * 50;
+    this.#mouseWheelY = vertical * 50;
+    this.#sendMouseInput({
+      X: 0,
+      Y: 0,
+      Buttons: this.#mouseButtonsPressed,
+      WheelX: this.#mouseWheelX,
+      WheelY: this.#mouseWheelY
+    });
+    return true;
   }
   waitForMouseData(enabled) {
   }
@@ -3246,18 +3257,19 @@ class NativeMkbHandler extends MkbHandler {
     return this.#enabled;
   }
   #sendMouseInput(data) {
-    data.Buttons = Math.max(0, data.Buttons);
+    data.Type = 0;
     this.#inputSink?.onMouseInput(data);
   }
   #resetMouseInput() {
     this.#mouseButtonsPressed = 0;
+    this.#mouseWheelX = 0;
+    this.#mouseWheelY = 0;
     this.#sendMouseInput({
       X: 0,
       Y: 0,
       Buttons: 0,
       WheelX: 0,
-      WheelY: 0,
-      Type: 0
+      WheelY: 0
     });
   }
 }
