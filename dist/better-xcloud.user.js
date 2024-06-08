@@ -152,17 +152,13 @@ var BxEvent;
   BxEvent2["POINTER_LOCK_EXITED"] = "bx-pointer-lock-exited";
   BxEvent2["XCLOUD_DIALOG_SHOWN"] = "bx-xcloud-dialog-shown";
   BxEvent2["XCLOUD_DIALOG_DISMISSED"] = "bx-xcloud-dialog-dismissed";
-  BxEvent2["XCLOUD_GUIDE_SHOWN"] = "bx-xcloud-guide-shown";
+  BxEvent2["XCLOUD_GUIDE_MENU_SHOWN"] = "bx-xcloud-guide-menu-shown";
   BxEvent2["XCLOUD_POLLING_MODE_CHANGED"] = "bx-xcloud-polling-mode-changed";
 })(BxEvent || (BxEvent = {}));
 var XcloudEvent;
 (function(XcloudEvent2) {
   XcloudEvent2["MICROPHONE_STATE_CHANGED"] = "microphoneStateChanged";
 })(XcloudEvent || (XcloudEvent = {}));
-var XcloudGuideWhere;
-(function(XcloudGuideWhere2) {
-  XcloudGuideWhere2[XcloudGuideWhere2["HOME"] = 0] = "HOME";
-})(XcloudGuideWhere || (XcloudGuideWhere = {}));
 (function(BxEvent) {
   function dispatch(target, eventName, data) {
     if (!eventName) {
@@ -506,7 +502,7 @@ var Texts = {
   "clarity-boost-warning": "These settings don't work when the Clarity Boost mode is ON",
   clear: "Clear",
   close: "Close",
-  "close-ap": "Close app",
+  "close-app": "Close app",
   "combine-audio-video-streams": "Combine audio & video streams",
   "combine-audio-video-streams-summary": "May fix the laggy audio problem",
   "conditional-formatting": "Conditional formatting text color",
@@ -607,7 +603,7 @@ var Texts = {
     (e) => `${e.key}: Funktion an-/ausschalten`,
     ,
     ,
-    ,
+    (e) => `Appuyez sur ${e.key} pour activer cette fonctionnalité`,
     (e) => `Premi ${e.key} per attivare questa funzionalità`,
     (e) => `${e.key} でこの機能を切替`,
     ,
@@ -2958,36 +2954,6 @@ function showStreamSettings(tabId) {
     };
     $parent.addEventListener("click", onClick);
   }
-}
-function setupStreamUiEvents() {
-  window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, async (e) => {
-    const where = e.where;
-    if (where !== XcloudGuideWhere.HOME || !STATES.isPlaying) {
-      return;
-    }
-    const $btnQuit = document.querySelector("#gamepass-dialog-root a[class*=QuitGameButton]");
-    if (!$btnQuit) {
-      return;
-    }
-    const $btnReload = createButton({
-      label: t("reload-stream"),
-      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-      onClick: (e2) => {
-        confirm(t("confirm-reload-stream")) && window.location.reload();
-      }
-    });
-    const $btnHome = createButton({
-      label: t("back-to-home"),
-      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-      onClick: (e2) => {
-        confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
-      }
-    });
-    $btnQuit.insertAdjacentElement("afterend", $btnReload);
-    $btnReload.insertAdjacentElement("afterend", $btnHome);
-    const $btnXcloudHome = document.querySelector("#gamepass-dialog-root div[class^=HomeButtonWithDivider]");
-    $btnXcloudHome && ($btnXcloudHome.style.display = "none");
-  });
 }
 
 // src/modules/mkb/pointer-client.ts
@@ -7744,14 +7710,6 @@ button[class*=SocialEmptyCard],
 }
 `;
   }
-  if (getPref(PrefKey.BLOCK_TRACKING)) {
-    css += `
-/* Remove Feedback button in the Guide menu */
-#gamepass-dialog-root #Home-panel button[class*=FeedbackButton] {
-    display: none;
-}
-`;
-  }
   if (getPref(PrefKey.REDUCE_ANIMATIONS)) {
     css += `
 div[class*=GameCard-module__gameTitleInnerWrapper],
@@ -9458,6 +9416,70 @@ class GameBar {
   }
 }
 
+// src/modules/ui/guide-menu.ts
+var GuideMenuTab;
+(function(GuideMenuTab2) {
+  GuideMenuTab2[GuideMenuTab2["HOME"] = 0] = "HOME";
+})(GuideMenuTab || (GuideMenuTab = {}));
+
+class GuideMenu {
+  static #injectHome($root) {
+    const $dividers = $root.querySelectorAll("div[class*=Divider-module__divider]");
+    if (!$dividers) {
+      return;
+    }
+    const $lastDivider = $dividers[$dividers.length - 1];
+    if (AppInterface) {
+      const $btnQuit = createButton({
+        label: t("close-app"),
+        style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
+        onClick: (e) => {
+          AppInterface.closeApp();
+        }
+      });
+      $lastDivider.insertAdjacentElement("afterend", $btnQuit);
+    }
+  }
+  static #injectHomePlaying($root) {
+    const $btnQuit = $root.querySelector("a[class*=QuitGameButton]");
+    if (!$btnQuit) {
+      return;
+    }
+    const $btnReload = createButton({
+      label: t("reload-stream"),
+      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      onClick: (e) => {
+        confirm(t("confirm-reload-stream")) && window.location.reload();
+      }
+    });
+    const $btnHome = createButton({
+      label: t("back-to-home"),
+      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      onClick: (e) => {
+        confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
+      }
+    });
+    $btnQuit.insertAdjacentElement("afterend", $btnReload);
+    $btnReload.insertAdjacentElement("afterend", $btnHome);
+    const $btnXcloudHome = $root.querySelector("div[class^=HomeButtonWithDivider]");
+    $btnXcloudHome && ($btnXcloudHome.style.display = "none");
+  }
+  static async#onShown(e) {
+    const where = e.where;
+    if (where === GuideMenuTab.HOME) {
+      const $root = document.querySelector("#gamepass-dialog-root div[role=dialog]");
+      if (STATES.isPlaying) {
+        GuideMenu.#injectHomePlaying($root);
+      } else {
+        GuideMenu.#injectHome($root);
+      }
+    }
+  }
+  static observe() {
+    window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, GuideMenu.#onShown);
+  }
+}
+
 // src/index.ts
 var unload = function() {
   if (!STATES.isPlaying) {
@@ -9498,7 +9520,7 @@ var observeRootDialog = function($root) {
               for (index = 0;$elm = $elm?.previousElementSibling; index++)
                 ;
               if (index === 0) {
-                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_SHOWN, { where: XcloudGuideWhere.HOME });
+                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: GuideMenuTab.HOME });
               }
             }
           }
@@ -9547,7 +9569,7 @@ var main = function() {
   Toast.setup();
   getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance();
   BX_FLAGS.PreloadUi && setupStreamUi();
-  setupStreamUiEvents();
+  GuideMenu.observe();
   StreamBadges.setupEvents();
   StreamStats.setupEvents();
   EmulatedMkbHandler.setupEvents();
