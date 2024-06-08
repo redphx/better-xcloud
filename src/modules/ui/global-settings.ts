@@ -55,7 +55,7 @@ const SETTINGS_UI = {
 
     [t('mouse-and-keyboard')]: {
         items: [
-            PrefKey.NATIVE_MKB_DISABLED,
+            PrefKey.NATIVE_MKB_ENABLED,
             PrefKey.MKB_ENABLED,
             PrefKey.MKB_HIDE_IDLE_CURSOR,
         ],
@@ -375,7 +375,7 @@ export function setupSettingsUi() {
     $btnReload = createButton({
         label: t('settings-reload'),
         classes: ['bx-settings-reload-button'],
-        style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+        style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH | ButtonStyle.TALL,
         onClick: e => {
             window.location.reload();
             $btnReload.disabled = true;

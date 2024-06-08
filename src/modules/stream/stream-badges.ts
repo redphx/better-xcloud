@@ -1,5 +1,5 @@
 import { t } from "@utils/translation";
-import { BxEvent, XcloudGuideWhere } from "@utils/bx-event";
+import { BxEvent } from "@utils/bx-event";
 import { CE, createSvgIcon } from "@utils/html";
 import { STATES } from "@utils/global";
 import { BxLogger } from "@/utils/bx-logger";

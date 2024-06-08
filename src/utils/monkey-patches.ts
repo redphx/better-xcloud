@@ -219,3 +219,44 @@ export function patchCanvasContext() {
         return nativeGetContext.apply(this, [contextType, contextAttributes]);
     }
 }
+
+
+export function patchPointerLockApi() {
+    Object.defineProperty(document, 'fullscreenElement', {
+        configurable: true,
+        get() {
+            return document.documentElement;
+        },
+    });
+
+    HTMLElement.prototype.requestFullscreen = function(options?: FullscreenOptions): Promise<void> {
+        return Promise.resolve();
+    }
+
+    let pointerLockElement: unknown = null;
+    Object.defineProperty(document, 'pointerLockElement', {
+        configurable: true,
+        get() {
+            return pointerLockElement;
+        },
+    });
+
+    // const nativeRequestPointerLock = HTMLElement.prototype.requestPointerLock;
+    HTMLElement.prototype.requestPointerLock = function() {
+        pointerLockElement = document.documentElement;
+        window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_REQUESTED));
+        // document.dispatchEvent(new Event('pointerlockchange'));
+
+        // @ts-ignore
+        // nativeRequestPointerLock.apply(this, arguments);
+    }
+
+    // const nativeExitPointerLock = Document.prototype.exitPointerLock;
+    Document.prototype.exitPointerLock = function() {
+        pointerLockElement = null;
+        window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_EXITED));
+        // document.dispatchEvent(new Event('pointerlockchange'));
+
+        // nativeExitPointerLock.apply(this);
+    }
+}

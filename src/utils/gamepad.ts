@@ -1,4 +1,4 @@
-import { MkbHandler } from "@modules/mkb/mkb-handler";
+import { EmulatedMkbHandler } from "@modules/mkb/mkb-handler";
 import { PrefKey, getPref } from "@utils/preferences";
 import { t } from "@utils/translation";
 import { Toast } from "@utils/toast";
@@ -7,7 +7,7 @@ import { BxLogger } from "@utils/bx-logger";
 // Show a toast when connecting/disconecting controller
 export function showGamepadToast(gamepad: Gamepad) {
     // Don't show Toast for virtual controller
-    if (gamepad.id === MkbHandler.VIRTUAL_GAMEPAD_ID) {
+    if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) {
         return;
     }
 

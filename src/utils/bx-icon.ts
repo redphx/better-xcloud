@@ -4,8 +4,7 @@ import iconCopy from "@assets/svg/copy.svg" with { type: "text" };
 import iconCursorText from "@assets/svg/cursor-text.svg" with { type: "text" };
 import iconDisplay from "@assets/svg/display.svg" with { type: "text" };
 import iconHome from "@assets/svg/home.svg" with { type: "text" };
-import iconMouseSettings from "@assets/svg/mouse-settings.svg" with { type: "text" };
-import iconMouse from "@assets/svg/mouse.svg" with { type: "text" };
+import iconNativeMkb from "@assets/svg/native-mkb.svg" with { type: "text" };
 import iconNew from "@assets/svg/new.svg" with { type: "text" };
 import iconQuestion from "@assets/svg/question.svg" with { type: "text" };
 import iconRefresh from "@assets/svg/refresh.svg" with { type: "text" };
@@ -15,6 +14,7 @@ import iconStreamStats from "@assets/svg/stream-stats.svg" with { type: "text" }
 import iconTrash from "@assets/svg/trash.svg" with { type: "text" };
 import iconTouchControlEnable from "@assets/svg/touch-control-enable.svg" with { type: "text" };
 import iconTouchControlDisable from "@assets/svg/touch-control-disable.svg" with { type: "text" };
+import iconVirtualController from "@assets/svg/virtual-controller.svg" with { type: "text" };
 
 // Game Bar
 import iconCaretLeft from "@assets/svg/caret-left.svg" with { type: "text" };
@@ -39,14 +39,14 @@ export const BxIcon = {
     CONTROLLER: iconController,
     DISPLAY: iconDisplay,
     HOME: iconHome,
-    MOUSE: iconMouse,
-    MOUSE_SETTINGS: iconMouseSettings,
+    NATIVE_MKB: iconNativeMkb,
     NEW: iconNew,
     COPY: iconCopy,
     TRASH: iconTrash,
     CURSOR_TEXT: iconCursorText,
     QUESTION: iconQuestion,
     REFRESH: iconRefresh,
+    VIRTUAL_CONTROLLER: iconVirtualController,
 
     REMOTE_PLAY: iconRemotePlay,
 

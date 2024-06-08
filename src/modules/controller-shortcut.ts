@@ -3,7 +3,7 @@ import { GamepadKey } from "./mkb/definitions";
 import { PrompFont } from "@utils/prompt-font";
 import { CE } from "@utils/html";
 import { t } from "@utils/translation";
-import { MkbHandler } from "./mkb/mkb-handler";
+import { EmulatedMkbHandler } from "./mkb/mkb-handler";
 import { StreamStats } from "./stream/stream-stats";
 import { MicrophoneShortcut } from "./shortcuts/shortcut-microphone";
 import { StreamUiShortcut } from "./shortcuts/shortcut-stream-ui";
@@ -172,7 +172,7 @@ export class ControllerShortcut {
             }
 
             // Ignore emulated gamepad
-            if (gamepad.id === MkbHandler.VIRTUAL_GAMEPAD_ID) {
+            if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) {
                 continue;
             }
 

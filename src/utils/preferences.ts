@@ -1,7 +1,7 @@
 import { CE } from "@utils/html";
 import { SUPPORTED_LANGUAGES, t } from "@utils/translation";
 import { SettingElement, SettingElementType } from "@utils/settings";
-import { UserAgentProfile } from "@utils/user-agent";
+import { UserAgent, UserAgentProfile } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
 import type { PreferenceSetting, PreferenceSettings } from "@/types/preferences";
 import { AppInterface, STATES } from "@utils/global";
@@ -44,7 +44,10 @@ export enum PrefKey {
     CONTROLLER_DEVICE_VIBRATION = 'controller_device_vibration',
     CONTROLLER_VIBRATION_INTENSITY = 'controller_vibration_intensity',
 
-    NATIVE_MKB_DISABLED = 'native_mkb_disabled',
+    NATIVE_MKB_ENABLED = 'native_mkb_enabled',
+    NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY = 'native_mkb_scroll_x_sensitivity',
+    NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY = 'native_mkb_scroll_y_sensitivity',
+
     MKB_ENABLED = 'mkb_enabled',
     MKB_HIDE_IDLE_CURSOR = 'mkb_hide_idle_cursor',
     MKB_ABSOLUTE_MOUSE = 'mkb_absolute_mouse',
@@ -337,8 +340,6 @@ export class Preferences {
                     } else {
                         return (value / (1024 * 1000)).toFixed(1) + ' Mb/s';
                     }
-
-                    return null;
                 },
             },
             migrate: function(savedPrefs: any, value: any) {
@@ -436,9 +437,64 @@ export class Preferences {
             },
         },
 
-        [PrefKey.NATIVE_MKB_DISABLED]: {
-            label: t('disable-native-mkb'),
-            default: false,
+        [PrefKey.NATIVE_MKB_ENABLED]: {
+            label: t('native-mkb'),
+            default: 'default',
+            options: {
+                default: t('default'),
+                on: t('on'),
+                off: t('off'),
+            },
+            ready: (setting: PreferenceSetting) => {
+                if (AppInterface) {
+
+                } else if (UserAgent.isMobile()) {
+                    setting.unsupported = true;
+                    setting.default = 'off';
+                    delete setting.options!['default'];
+                    delete setting.options!['on'];
+                } else {
+                    delete setting.options!['on'];
+                }
+            },
+        },
+
+        [PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY]: {
+            label: t('horizontal-scroll-sensitivity'),
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 0,
+            min: 0,
+            max: 100 * 100,
+            steps: 10,
+            params: {
+                exactTicks: 20 * 100,
+                customTextValue: (value: any) => {
+                    if (!value) {
+                        return t('default');
+                    }
+
+                    return (value / 100).toFixed(1) + 'x';
+                },
+            },
+        },
+
+        [PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY]: {
+            label: t('vertical-scroll-sensitivity'),
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 0,
+            min: 0,
+            max: 100 * 100,
+            steps: 10,
+            params: {
+                exactTicks: 20 * 100,
+                customTextValue: (value: any) => {
+                    if (!value) {
+                        return t('default');
+                    }
+
+                    return (value / 100).toFixed(1) + 'x';
+                },
+            },
         },
 
         [PrefKey.MKB_DEFAULT_PRESET_ID]: {

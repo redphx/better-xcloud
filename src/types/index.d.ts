@@ -82,16 +82,12 @@ type MkbMouseMove = {
 }
 
 type MkbMouseClick = {
-    key: {
-        code: string;
-        name: string;
-    } | null;
-    pressed: boolean;
+    pointerButton?: number,
+    mouseButton?: number,
+    pressed: boolean,
 }
 
 type MkbMouseWheel = {
-    key: {
-        code: string;
-        name: string;
-    } | null;
+    vertical: number;
+    horizontal: number;
 }

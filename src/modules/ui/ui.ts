@@ -1,4 +1,4 @@
-import { STATES } from "@utils/global";
+import { AppInterface, STATES } from "@utils/global";
 import { CE, createButton, ButtonStyle, createSvgIcon } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { UserAgent } from "@utils/user-agent";
@@ -12,6 +12,7 @@ import { VibrationManager } from "@modules/vibration-manager";
 import { Screenshot } from "@/utils/screenshot";
 import { ControllerShortcut } from "../controller-shortcut";
 import { SoundShortcut } from "../shortcuts/shortcut-sound";
+import { NativeMkbHandler } from "../mkb/native-mkb-handler";
 
 
 export function localRedirect(path: string) {
@@ -72,19 +73,6 @@ function setupStreamSettingsDialog() {
     const isSafari = UserAgent.isSafari();
 
     const SETTINGS_UI = [
-        getPref(PrefKey.MKB_ENABLED) && {
-            icon: BxIcon.MOUSE,
-            group: 'mkb',
-            items: [
-                {
-                    group: 'mkb',
-                    label: t('mouse-and-keyboard'),
-                    help_url: 'https://better-xcloud.github.io/mouse-and-keyboard/',
-                    content: MkbRemapper.INSTANCE.render(),
-                },
-            ],
-        },
-
         {
             icon: BxIcon.DISPLAY,
             group: 'stream',
@@ -238,6 +226,44 @@ function setupStreamSettingsDialog() {
                         },
                     ],
                 }
+            ],
+        },
+
+        getPref(PrefKey.MKB_ENABLED) && {
+            icon: BxIcon.VIRTUAL_CONTROLLER,
+            group: 'mkb',
+            items: [
+                {
+                    group: 'mkb',
+                    label: t('virtual-controller'),
+                    help_url: 'https://better-xcloud.github.io/mouse-and-keyboard/',
+                    content: MkbRemapper.INSTANCE.render(),
+                },
+            ],
+        },
+
+        AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' && {
+            icon: BxIcon.NATIVE_MKB,
+            group: 'native-mkb',
+            items: [
+                {
+                    group: 'native-mkb',
+                    label: t('native-mkb'),
+                    items: [
+                        {
+                            pref: PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY,
+                            onChange: (e: any, value: number) => {
+                                NativeMkbHandler.getInstance().setVerticalScrollMultiplier(value / 100);
+                            },
+                        },
+                        {
+                            pref: PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY,
+                            onChange: (e: any, value: number) => {
+                                NativeMkbHandler.getInstance().setHorizontalScrollMultiplier(value / 100);
+                            },
+                        },
+                    ],
+                },
             ],
         },
 

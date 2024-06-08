@@ -1,7 +1,7 @@
 import { t } from "@utils/translation";
 import { SettingElementType } from "@utils/settings";
 import { GamepadKey, MouseButtonCode, MouseMapTo, MkbPresetKey } from "./definitions";
-import { MkbHandler } from "./mkb-handler";
+import { EmulatedMkbHandler } from "./mkb-handler";
 import type { MkbPresetData, MkbConvertedPresetData } from "@/types/mkb";
 import type { PreferenceSettings } from "@/types/preferences";
 
@@ -119,9 +119,9 @@ export class MkbPreset {
 
         // Pre-calculate mouse's sensitivities
         const mouse = obj.mouse;
-        mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-        mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= MkbHandler.DEFAULT_PANNING_SENSITIVITY;
-        mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= MkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+        mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
+        mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
+        mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= EmulatedMkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
 
         const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]!];
         if (typeof mouseMapTo !== 'undefined') {

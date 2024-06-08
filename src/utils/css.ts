@@ -19,15 +19,6 @@ button[class*=SocialEmptyCard],
 `;
     }
 
-    if (getPref(PrefKey.BLOCK_TRACKING)) {
-        css += `
-/* Remove Feedback button in the Guide menu */
-#gamepass-dialog-root #Home-panel button[class*=FeedbackButton] {
-    display: none;
-}
-`;
-    }
-
     // Reduce animations
     if (getPref(PrefKey.REDUCE_ANIMATIONS)) {
         css += `

@@ -6,7 +6,7 @@ import { getPref, setPref, PrefKey } from "@utils/preferences";
 import { MkbPresetKey, GamepadKeyName } from "./definitions";
 import { KeyHelper } from "./key-helper";
 import { MkbPreset } from "./mkb-preset";
-import { MkbHandler } from "./mkb-handler";
+import { EmulatedMkbHandler } from "./mkb-handler";
 import { LocalDb } from "@utils/local-db";
 import { BxIcon } from "@utils/bx-icon";
 import { SettingElement } from "@utils/settings";
@@ -258,7 +258,7 @@ export class MkbRemapper {
 
                 defaultPresetId = this.#STATE.currentPresetId;
                 setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId);
-                MkbHandler.INSTANCE.refreshPresetData();
+                EmulatedMkbHandler.getInstance().refreshPresetData();
             } else {
                 defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
             }
@@ -487,7 +487,7 @@ export class MkbRemapper {
                            style: ButtonStyle.PRIMARY,
                            onClick: e => {
                                setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
-                               MkbHandler.INSTANCE.refreshPresetData();
+                               EmulatedMkbHandler.getInstance().refreshPresetData();
 
                                this.#refresh();
                            },
@@ -517,7 +517,7 @@ export class MkbRemapper {
                                LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
                                    // If this is the default preset => refresh preset data
                                    if (id === getPref(PrefKey.MKB_DEFAULT_PRESET_ID)) {
-                                       MkbHandler.INSTANCE.refreshPresetData();
+                                       EmulatedMkbHandler.getInstance().refreshPresetData();
                                    }
 
                                    this.#toggleEditing(false);

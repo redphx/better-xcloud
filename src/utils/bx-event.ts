@@ -35,21 +35,20 @@ export enum BxEvent {
     CAPTURE_SCREENSHOT = 'bx-capture-screenshot',
     GAINNODE_VOLUME_CHANGED = 'bx-gainnode-volume-changed',
 
+    POINTER_LOCK_REQUESTED = 'bx-pointer-lock-requested',
+    POINTER_LOCK_EXITED = 'bx-pointer-lock-exited',
+
     // xCloud Dialog events
     XCLOUD_DIALOG_SHOWN = 'bx-xcloud-dialog-shown',
     XCLOUD_DIALOG_DISMISSED = 'bx-xcloud-dialog-dismissed',
 
-    XCLOUD_GUIDE_SHOWN = 'bx-xcloud-guide-shown',
+    XCLOUD_GUIDE_MENU_SHOWN = 'bx-xcloud-guide-menu-shown',
 
     XCLOUD_POLLING_MODE_CHANGED = 'bx-xcloud-polling-mode-changed',
 }
 
 export enum XcloudEvent {
     MICROPHONE_STATE_CHANGED = 'microphoneStateChanged',
-}
-
-export enum XcloudGuideWhere {
-    HOME,
 }
 
 export namespace BxEvent {

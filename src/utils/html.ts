@@ -1,7 +1,7 @@
 import type { BxIcon } from "@utils/bx-icon";
 
 type BxButton = {
-    style?: number | string;
+    style?: number | string | ButtonStyle;
     url?: string;
     classes?: string[];
     icon?: typeof BxIcon;
@@ -67,6 +67,7 @@ ButtonStyle[ButtonStyle.GHOST = 4] = 'bx-ghost';
 ButtonStyle[ButtonStyle.FOCUSABLE = 8] = 'bx-focusable';
 ButtonStyle[ButtonStyle.FULL_WIDTH = 16] = 'bx-full-width';
 ButtonStyle[ButtonStyle.FULL_HEIGHT = 32] = 'bx-full-height';
+ButtonStyle[ButtonStyle.TALL = 64] = 'bx-tall';
 
 const ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map(i => parseInt(i));
 

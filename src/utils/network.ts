@@ -9,7 +9,6 @@ import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
 import { GamePassCloudGallery } from "./gamepass-gallery";
 import { InputType } from "./bx-exposed";
-import { UserAgent } from "./user-agent";
 
 enum RequestType {
     XCLOUD = 'xcloud',
@@ -441,16 +440,17 @@ class XcloudInterceptor {
 
         let overrideMkb: boolean | null = null;
 
-        if (getPref(PrefKey.NATIVE_MKB_DISABLED) || UserAgent.isMobile()) {
-            overrideMkb = false;
-        } else if (BX_FLAGS.ForceNativeMkbTitles.includes(STATES.currentStream.titleInfo!.details.productId)) {
+        if (getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' || BX_FLAGS.ForceNativeMkbTitles.includes(STATES.currentStream.titleInfo!.details.productId)) {
             overrideMkb = true;
+        }
+
+        if (getPref(PrefKey.NATIVE_MKB_ENABLED) === 'off') {
+            overrideMkb = false;
         }
 
         if (overrideMkb !== null) {
             overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
                 enableMouseInput: overrideMkb,
-                enableAbsoluteMouse: overrideMkb,
                 enableKeyboardInput: overrideMkb,
             });
         }

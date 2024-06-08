@@ -1,8 +1,6 @@
 import { BxLogger } from "@/utils/bx-logger";
-import type { MkbHandler } from "./mkb-handler";
-import { KeyHelper } from "./key-helper";
-import { WheelCode } from "./definitions";
 import { Toast } from "@/utils/toast";
+import type { MkbHandler } from "./base-mkb-handler";
 
 const LOG_TAG = 'PointerClient';
 
@@ -14,11 +12,6 @@ enum PointerAction {
     POINTER_CAPTURE_CHANGED = 5,
 }
 
-const FixedMouseIndex = {
-    1: 0,
-    2: 2,
-    4: 1,
-}
 
 export class PointerClient {
     static #PORT = 9269;
@@ -97,15 +90,10 @@ export class PointerClient {
     }
 
     onPress(messageType: PointerAction, dataView: DataView, offset: number) {
-        const buttonIndex = dataView.getInt8(offset);
-        const fixedIndex = FixedMouseIndex[buttonIndex as keyof typeof FixedMouseIndex];
-        const keyCode = 'Mouse' + fixedIndex;
+        const button = dataView.getUint8(offset);
 
         this.#mkbHandler?.handleMouseClick({
-            key: {
-                code: keyCode,
-                name: KeyHelper.codeToKeyName(keyCode),
-            },
+            pointerButton: button,
             pressed: messageType === PointerAction.BUTTON_PRESS,
         });
 
@@ -114,26 +102,13 @@ export class PointerClient {
 
     onScroll(dataView: DataView, offset: number) {
         // [V_SCROLL, H_SCROLL]
-        const vScroll = dataView.getInt8(offset);
-        offset += Int8Array.BYTES_PER_ELEMENT;
-        const hScroll = dataView.getInt8(offset);
+        const vScroll = dataView.getInt16(offset);
+        offset += Int16Array.BYTES_PER_ELEMENT;
+        const hScroll = dataView.getInt16(offset);
 
-        let code = '';
-        if (vScroll < 0) {
-            code = WheelCode.SCROLL_UP;
-        } else if (vScroll > 0) {
-            code = WheelCode.SCROLL_DOWN;
-        } else if (hScroll < 0) {
-            code = WheelCode.SCROLL_LEFT;
-        } else if (hScroll > 0) {
-            code = WheelCode.SCROLL_RIGHT;
-        }
-
-        code && this.#mkbHandler?.handleMouseWheel({
-            key: {
-                code: code,
-                name: KeyHelper.codeToKeyName(code),
-            },
+        this.#mkbHandler?.handleMouseWheel({
+            vertical: vScroll,
+            horizontal: hScroll,
         });
 
         // BxLogger.info(LOG_TAG, 'scroll', vScroll, hScroll);
@@ -148,5 +123,6 @@ export class PointerClient {
         try {
             this.#socket?.close();
         } catch (e) {}
+        this.#socket = null;
     }
 }

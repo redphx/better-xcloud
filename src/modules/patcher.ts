@@ -304,6 +304,37 @@ window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
         return str;
     },
 
+
+    patchBabylonRendererClass(str: string) {
+        // ()=>{a.current.render(),h.current=window.requestAnimationFrame(l)
+        let index = str.indexOf('.current.render(),');
+        if (index === -1) {
+            return false;
+        }
+
+        // Move back a character
+        index -= 1;
+
+        // Get variable of the "BabylonRendererClass" object
+        const rendererVar = str[index];
+
+        const newCode = `
+if (window.BX_EXPOSED.stopTakRendering) {
+    try {
+        document.getElementById('BabylonCanvasContainer-main')?.parentElement.classList.add('bx-offscreen');
+
+        ${rendererVar}.current.dispose();
+    } catch (e) {}
+
+    window.BX_EXPOSED.stopTakRendering = false;
+    return;
+}
+`;
+
+        str = str.substring(0, index) + newCode + str.substring(index);
+        return str;
+    },
+
     supportLocalCoOp(str: string) {
         const text = 'this.gamepadMappingsToSend=[],';
         if (!str.includes(text)) {
@@ -564,9 +595,58 @@ true` + text;
         str = str.replace(text, '&& false ' + text);
         return str;
     },
+
+    enableNativeMkb(str: string) {
+        const text = 'e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;';
+        if ((!str.includes(text))) {
+            return false;
+        }
+
+        str = str.replace(text, text + 'return true;');
+        return str;
+    },
+
+    patchMouseAndKeyboardEnabled(str: string) {
+        const text = 'get mouseAndKeyboardEnabled(){';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        str = str.replace(text, text + 'return true;');
+        return str;
+    },
+
+    exposeInputSink(str: string) {
+        const text = 'this.controlChannel=null,this.inputChannel=null';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = 'window.BX_EXPOSED.inputSink = this;';
+
+        str = str.replace(text, newCode + text);
+        return str;
+    },
+
+    disableNativeRequestPointerLock(str: string) {
+        const text = 'async requestPointerLock(){';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        str = str.replace(text, text + 'return;');
+        return str;
+    }
 };
 
 let PATCH_ORDERS: PatchArray = [
+    ...(getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' ? [
+        'enableNativeMkb',
+        'patchMouseAndKeyboardEnabled',
+        'disableNativeRequestPointerLock',
+        'exposeInputSink',
+    ] : []),
+
     'disableStreamGate',
     'overrideSettings',
     'broadcastPollingMode',
@@ -618,11 +698,13 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     // Skip feedback dialog
     getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && 'skipFeedbackDialog',
 
-
-    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'patchShowSensorControls',
-    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
-    STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',
-    STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && 'patchTouchControlDefaultOpacity',
+    ...(STATES.hasTouchSupport ? [
+        getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'patchShowSensorControls',
+        getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
+        (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',
+        getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && 'patchTouchControlDefaultOpacity',
+        'patchBabylonRendererClass',
+    ] : []),
 
     BX_FLAGS.EnableXcloudLogging && 'enableConsoleLogging',
 

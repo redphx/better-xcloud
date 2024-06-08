@@ -1,12 +1,12 @@
 import "@utils/global";
-import { BxEvent, XcloudGuideWhere } from "@utils/bx-event";
+import { BxEvent } from "@utils/bx-event";
 import { BX_FLAGS } from "@utils/bx-flags";
 import { BxExposed } from "@utils/bx-exposed";
 import { t } from "@utils/translation";
 import { interceptHttpRequests } from "@utils/network";
 import { CE } from "@utils/html";
 import { showGamepadToast } from "@utils/gamepad";
-import { MkbHandler } from "@modules/mkb/mkb-handler";
+import { EmulatedMkbHandler } from "@modules/mkb/mkb-handler";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { addCss } from "@utils/css";
@@ -23,12 +23,14 @@ import { RemotePlay } from "@modules/remote-play";
 import { onHistoryChanged, patchHistoryMethod } from "@utils/history";
 import { VibrationManager } from "@modules/vibration-manager";
 import { overridePreloadState } from "@utils/preload-state";
-import { patchAudioContext, patchCanvasContext, patchMeControl, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
+import { patchAudioContext, patchCanvasContext, patchMeControl, patchPointerLockApi, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
 import { AppInterface, STATES } from "@utils/global";
-import { injectStreamMenuButtons, setupStreamUiEvents } from "@modules/stream/stream-ui";
+import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
 import { Screenshot } from "./utils/screenshot";
+import { NativeMkbHandler } from "./modules/mkb/native-mkb-handler";
+import { GuideMenu, GuideMenuTab } from "./modules/ui/guide-menu";
 
 
 // Handle login page
@@ -166,17 +168,19 @@ window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
     BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
 
-window.addEventListener(BxEvent.STREAM_STOPPED, e => {
+function unload() {
     if (!STATES.isPlaying) {
         return;
     }
 
+    // Stop MKB listeners
+    EmulatedMkbHandler.getInstance().destroy();
+    NativeMkbHandler.getInstance().destroy();
+
     STATES.isPlaying = false;
     STATES.currentStream = {};
     window.BX_EXPOSED.shouldShowSensorControls = false;
-
-    // Stop MKB listeners
-    getPref(PrefKey.MKB_ENABLED) && MkbHandler.INSTANCE.destroy();
+    window.BX_EXPOSED.stopTakRendering = false;
 
     const $streamSettingsDialog = document.querySelector('.bx-stream-settings-dialog');
     if ($streamSettingsDialog) {
@@ -190,6 +194,11 @@ window.addEventListener(BxEvent.STREAM_STOPPED, e => {
     MouseCursorHider.stop();
     TouchController.reset();
     GameBar.getInstance().disable();
+}
+
+window.addEventListener(BxEvent.STREAM_STOPPED, unload);
+window.addEventListener('pagehide', e => {
+    BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
 
 window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, e => {
@@ -218,7 +227,7 @@ function observeRootDialog($root: HTMLElement) {
                             for (index = 0; ($elm = $elm?.previousElementSibling); index++);
 
                             if (index === 0) {
-                                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_SHOWN, {where: XcloudGuideWhere.HOME});
+                                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, {where: GuideMenuTab.HOME});
                             }
                         }
                     }
@@ -263,6 +272,7 @@ function main() {
     interceptHttpRequests();
     patchVideoApi();
     patchCanvasContext();
+    AppInterface && patchPointerLockApi();
 
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
     getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
@@ -281,10 +291,10 @@ function main() {
     (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance();
     BX_FLAGS.PreloadUi && setupStreamUi();
 
-    setupStreamUiEvents();
+    GuideMenu.observe();
     StreamBadges.setupEvents();
     StreamStats.setupEvents();
-    MkbHandler.setupEvents();
+    EmulatedMkbHandler.setupEvents();
 
     Patcher.init();
 
