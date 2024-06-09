@@ -544,7 +544,7 @@ export class Preferences {
 
         [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
             label: t('disable-home-context-menu'),
-            default: false,
+            default: STATES.browserHasTouchSupport,
         },
 
         [PrefKey.BLOCK_SOCIAL_FEATURES]: {
