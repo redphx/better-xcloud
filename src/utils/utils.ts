@@ -7,6 +7,11 @@ import { Translations } from "./translation";
  * Check for update
  */
 export function checkForUpdate() {
+    // Don't check update for beta version
+    if (SCRIPT_VERSION.includes('beta')) {
+        return;
+    }
+
     const CHECK_INTERVAL_SECONDS = 2 * 3600; // check every 2 hours
 
     const currentVersion = getPref(PrefKey.CURRENT_VERSION);
