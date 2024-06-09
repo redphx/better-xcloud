@@ -28,7 +28,7 @@ type BxStates = {
     appContext: any | null;
     serverRegions: any;
 
-    hasTouchSupport: boolean;
+    userAgentHasTouchSupport: boolean;
     browserHasTouchSupport: boolean;
 
     currentStream: Partial<{

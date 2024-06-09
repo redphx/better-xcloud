@@ -263,7 +263,7 @@ export class Preferences {
                 all: t('tc-all-games'),
                 off: t('off'),
             },
-            unsupported: !STATES.hasTouchSupport,
+            unsupported: !STATES.userAgentHasTouchSupport,
             ready: (setting: PreferenceSetting) => {
                 if (setting.unsupported) {
                     setting.default = 'default';
@@ -273,7 +273,7 @@ export class Preferences {
         [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
             label: t('tc-auto-off'),
             default: false,
-            unsupported: !STATES.hasTouchSupport,
+            unsupported: !STATES.userAgentHasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
             type: SettingElementType.NUMBER_STEPPER,
@@ -287,7 +287,7 @@ export class Preferences {
                 ticks: 10,
                 hideSlider: true,
             },
-            unsupported: !STATES.hasTouchSupport,
+            unsupported: !STATES.userAgentHasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             label: t('tc-standard-layout-style'),
@@ -297,7 +297,7 @@ export class Preferences {
                 white: t('tc-all-white'),
                 muted: t('tc-muted-colors'),
             },
-            unsupported: !STATES.hasTouchSupport,
+            unsupported: !STATES.userAgentHasTouchSupport,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             label: t('tc-custom-layout-style'),
@@ -306,7 +306,7 @@ export class Preferences {
                 default: t('default'),
                 muted: t('tc-muted-colors'),
             },
-            unsupported: !STATES.hasTouchSupport,
+            unsupported: !STATES.userAgentHasTouchSupport,
         },
 
         [PrefKey.STREAM_SIMPLIFY_MENU]: {

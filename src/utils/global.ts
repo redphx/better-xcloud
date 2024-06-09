@@ -11,13 +11,13 @@ const userAgent = window.navigator.userAgent.toLowerCase();
 const isTv = userAgent.includes('smart-tv') || userAgent.includes('smarttv') || /\baft.*\b/.test(userAgent);
 const isVr = window.navigator.userAgent.includes('VR') && window.navigator.userAgent.includes('OculusBrowser');
 const browserHasTouchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-const hasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
+const userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
 
 export const STATES: BxStates = {
     isPlaying: false,
     appContext: {},
     serverRegions: {},
-    hasTouchSupport: hasTouchSupport,
+    userAgentHasTouchSupport: userAgentHasTouchSupport,
     browserHasTouchSupport: browserHasTouchSupport,
 
     currentStream: {},

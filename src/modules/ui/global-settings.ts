@@ -62,8 +62,8 @@ const SETTINGS_UI = {
     },
 
     [t('touch-controller')]: {
-        note: !STATES.hasTouchSupport ? '⚠️ ' + t('device-unsupported-touch') : null,
-        unsupported: !STATES.hasTouchSupport,
+        note: !STATES.userAgentHasTouchSupport ? '⚠️ ' + t('device-unsupported-touch') : null,
+        unsupported: !STATES.userAgentHasTouchSupport,
         items: [
             PrefKey.STREAM_TOUCH_CONTROLLER,
             PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,

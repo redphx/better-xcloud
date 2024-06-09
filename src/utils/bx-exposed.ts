@@ -34,7 +34,7 @@ export const BxExposed = {
 
         titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
 
-        if (STATES.hasTouchSupport) {
+        if (STATES.userAgentHasTouchSupport) {
             let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
 
             // Disable touch control when gamepad found

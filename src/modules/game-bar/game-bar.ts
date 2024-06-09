@@ -41,7 +41,7 @@ export class GameBar {
 
         this.actions = [
             new ScreenshotAction(),
-            ...(STATES.hasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'off') ? [new TouchControlAction()] : []),
+            ...(STATES.userAgentHasTouchSupport && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'off') ? [new TouchControlAction()] : []),
             new MicrophoneAction(),
         ];
 

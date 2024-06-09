@@ -167,7 +167,7 @@ function setupStreamSettingsDialog() {
                     ],
                 },
 
-                STATES.hasTouchSupport && {
+                STATES.userAgentHasTouchSupport && {
                     group: 'touch-controller',
                     label: t('touch-controller'),
                     items: [
