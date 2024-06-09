@@ -1,6 +1,6 @@
 import { Toast } from "@/utils/toast";
 import { PointerClient } from "./pointer-client";
-import { AppInterface } from "@/utils/global";
+import { AppInterface, STATES } from "@/utils/global";
 import { MkbHandler } from "./base-mkb-handler";
 import { t } from "@/utils/translation";
 import { BxEvent } from "@/utils/bx-event";
@@ -149,7 +149,7 @@ export class NativeMkbHandler extends MkbHandler {
         this.#updateInputConfigurationAsync(false);
 
         try {
-            this.#pointerClient.start(this);
+            this.#pointerClient.start(STATES.pointerServerPort, this);
         } catch (e) {
             Toast.show('Cannot enable Mouse & Keyboard feature');
         }

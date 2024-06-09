@@ -51,6 +51,8 @@ type BxStates = {
             serverId: string;
         };
     }>;
+
+    pointerServerPort: number;
 }
 
 type DualEnum = {[index: string]: number} & {[index: number]: string};

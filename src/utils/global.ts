@@ -22,4 +22,6 @@ export const STATES: BxStates = {
 
     currentStream: {},
     remotePlay: {},
+
+    pointerServerPort: 9269,
 };

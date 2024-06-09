@@ -14,8 +14,6 @@ enum PointerAction {
 
 
 export class PointerClient {
-    static #PORT = 9269;
-
     private static instance: PointerClient;
     public static getInstance(): PointerClient {
         if (!PointerClient.instance) {
@@ -28,11 +26,15 @@ export class PointerClient {
     #socket: WebSocket | undefined | null;
     #mkbHandler: MkbHandler | undefined;
 
-    start(mkbHandler: MkbHandler) {
+    start(port: number, mkbHandler: MkbHandler) {
+        if (!port) {
+            throw new Error('PointerServer port is 0');
+        }
+
         this.#mkbHandler = mkbHandler;
 
         // Create WebSocket connection.
-        this.#socket = new WebSocket(`ws://localhost:${PointerClient.#PORT}`);
+        this.#socket = new WebSocket(`ws://localhost:${port}`);
         this.#socket.binaryType = 'arraybuffer';
 
         // Connection opened

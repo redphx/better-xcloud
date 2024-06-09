@@ -33,7 +33,7 @@ class WebSocketMouseDataProvider extends MouseDataProvider {
         this.#pointerClient = PointerClient.getInstance();
         this.#connected = false;
         try {
-            this.#pointerClient.start(this.mkbHandler);
+            this.#pointerClient.start(STATES.pointerServerPort, this.mkbHandler);
             this.#connected = true;
         } catch (e) {
             Toast.show('Cannot enable Mouse & Keyboard feature');

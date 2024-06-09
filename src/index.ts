@@ -314,7 +314,10 @@ function main() {
     }
 
     // Start PointerProviderServer
-    (getPref(PrefKey.MKB_ENABLED)) && AppInterface && AppInterface.startPointerServer();
+    if (getPref(PrefKey.MKB_ENABLED) && AppInterface) {
+        STATES.pointerServerPort = AppInterface.startPointerServer() || 9269;
+        BxLogger.info('startPointerServer', 'Port', STATES.pointerServerPort.toString());
+    }
 }
 
 main();
