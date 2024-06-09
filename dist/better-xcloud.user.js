@@ -105,7 +105,6 @@ class UserAgent {
 
 // src/utils/global.ts
 var SCRIPT_VERSION = "4.7.1-beta";
-var SCRIPT_HOME = "https://github.com/redphx/better-xcloud";
 var AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase();
@@ -8566,7 +8565,7 @@ function setupSettingsUi() {
   let $updateAvailable;
   const $wrapper = CE("div", { class: "bx-settings-wrapper" }, CE("div", { class: "bx-settings-title-wrapper" }, CE("a", {
     class: "bx-settings-title",
-    href: SCRIPT_HOME,
+    href: "https://github.com/redphx/better-xcloud/releases",
     target: "_blank"
   }, "Better xCloud " + SCRIPT_VERSION), createButton({
     icon: BxIcon.QUESTION,
@@ -8576,7 +8575,7 @@ function setupSettingsUi() {
   })));
   $updateAvailable = CE("a", {
     class: "bx-settings-update bx-gone",
-    href: "https://github.com/redphx/better-xcloud/releases",
+    href: "https://github.com/redphx/better-xcloud/releases/latest",
     target: "_blank"
   });
   $wrapper.appendChild($updateAvailable);

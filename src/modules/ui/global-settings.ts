@@ -1,4 +1,4 @@
-import { STATES, AppInterface, SCRIPT_HOME, SCRIPT_VERSION } from "@utils/global";
+import { STATES, AppInterface, SCRIPT_VERSION } from "@utils/global";
 import { CE, createButton, ButtonStyle } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
@@ -130,7 +130,7 @@ export function setupSettingsUi() {
             CE<HTMLElement>('div', {'class': 'bx-settings-title-wrapper'},
                 CE('a', {
                     'class': 'bx-settings-title',
-                    'href': SCRIPT_HOME,
+                    'href': 'https://github.com/redphx/better-xcloud/releases',
                     'target': '_blank',
                 }, 'Better xCloud ' + SCRIPT_VERSION),
                 createButton({
@@ -143,7 +143,7 @@ export function setupSettingsUi() {
         );
     $updateAvailable = CE('a', {
         'class': 'bx-settings-update bx-gone',
-        'href': 'https://github.com/redphx/better-xcloud/releases',
+        'href': 'https://github.com/redphx/better-xcloud/releases/latest',
         'target': '_blank',
     });
 
