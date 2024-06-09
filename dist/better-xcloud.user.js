@@ -8890,7 +8890,7 @@ var injectSettingsButton = function($parent) {
       document.activeElement && document.activeElement.blur();
     }
   });
-  if (PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
+  if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
     $settingsBtn.setAttribute("data-update-available", "true");
   }
   $headerFragment.appendChild($settingsBtn);
