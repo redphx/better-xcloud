@@ -150,7 +150,7 @@ export function setupSettingsUi() {
     $wrapper.appendChild($updateAvailable);
 
     // Show new version indicator
-    if (PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
+    if (!SCRIPT_VERSION.includes('beta') && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
         $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
         $updateAvailable.classList.remove('bx-gone');
     }
