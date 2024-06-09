@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      4.7.0
+// @version      4.7.1-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -104,7 +104,7 @@ class UserAgent {
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "4.7.0";
+var SCRIPT_VERSION = "4.7.1-beta";
 var SCRIPT_HOME = "https://github.com/redphx/better-xcloud";
 var AppInterface = window.AppInterface;
 UserAgent.init();
@@ -112,15 +112,16 @@ var userAgent = window.navigator.userAgent.toLowerCase();
 var isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent);
 var isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser");
 var browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-var hasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
+var userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
 var STATES = {
   isPlaying: false,
   appContext: {},
   serverRegions: {},
-  hasTouchSupport,
+  userAgentHasTouchSupport,
   browserHasTouchSupport,
   currentStream: {},
-  remotePlay: {}
+  remotePlay: {},
+  pointerServerPort: 9269
 };
 
 // src/utils/bx-event.ts
@@ -1590,7 +1591,7 @@ class Preferences {
         all: t("tc-all-games"),
         off: t("off")
       },
-      unsupported: !STATES.hasTouchSupport,
+      unsupported: !STATES.userAgentHasTouchSupport,
       ready: (setting) => {
         if (setting.unsupported) {
           setting.default = "default";
@@ -1600,7 +1601,7 @@ class Preferences {
     [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
       label: t("tc-auto-off"),
       default: false,
-      unsupported: !STATES.hasTouchSupport
+      unsupported: !STATES.userAgentHasTouchSupport
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
       type: SettingElementType.NUMBER_STEPPER,
@@ -1614,7 +1615,7 @@ class Preferences {
         ticks: 10,
         hideSlider: true
       },
-      unsupported: !STATES.hasTouchSupport
+      unsupported: !STATES.userAgentHasTouchSupport
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
       label: t("tc-standard-layout-style"),
@@ -1624,7 +1625,7 @@ class Preferences {
         white: t("tc-all-white"),
         muted: t("tc-muted-colors")
       },
-      unsupported: !STATES.hasTouchSupport
+      unsupported: !STATES.userAgentHasTouchSupport
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
       label: t("tc-custom-layout-style"),
@@ -1633,7 +1634,7 @@ class Preferences {
         default: t("default"),
         muted: t("tc-muted-colors")
       },
-      unsupported: !STATES.hasTouchSupport
+      unsupported: !STATES.userAgentHasTouchSupport
     },
     [PrefKey.STREAM_SIMPLIFY_MENU]: {
       label: t("simplify-stream-menu"),
@@ -1842,7 +1843,7 @@ class Preferences {
     },
     [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
       label: t("disable-home-context-menu"),
-      default: false
+      default: STATES.browserHasTouchSupport
     },
     [PrefKey.BLOCK_SOCIAL_FEATURES]: {
       label: t("disable-social-features"),
@@ -2968,7 +2969,6 @@ var PointerAction;
 })(PointerAction || (PointerAction = {}));
 
 class PointerClient {
-  static #PORT = 9269;
   static instance;
   static getInstance() {
     if (!PointerClient.instance) {
@@ -2978,9 +2978,12 @@ class PointerClient {
   }
   #socket;
   #mkbHandler;
-  start(mkbHandler) {
+  start(port, mkbHandler) {
+    if (!port) {
+      throw new Error("PointerServer port is 0");
+    }
     this.#mkbHandler = mkbHandler;
-    this.#socket = new WebSocket(`ws://localhost:${PointerClient.#PORT}`);
+    this.#socket = new WebSocket(`ws://localhost:${port}`);
     this.#socket.binaryType = "arraybuffer";
     this.#socket.addEventListener("open", (event) => {
       BxLogger.info(LOG_TAG, "connected");
@@ -3159,7 +3162,7 @@ class NativeMkbHandler extends MkbHandler {
     this.#inputSink = window.BX_EXPOSED.inputSink;
     this.#updateInputConfigurationAsync(false);
     try {
-      this.#pointerClient.start(this);
+      this.#pointerClient.start(STATES.pointerServerPort, this);
     } catch (e) {
       Toast.show("Cannot enable Mouse & Keyboard feature");
     }
@@ -3313,7 +3316,7 @@ class WebSocketMouseDataProvider extends MouseDataProvider {
     this.#pointerClient = PointerClient.getInstance();
     this.#connected = false;
     try {
-      this.#pointerClient.start(this.mkbHandler);
+      this.#pointerClient.start(STATES.pointerServerPort, this.mkbHandler);
       this.#connected = true;
     } catch (e) {
       Toast.show("Cannot enable Mouse & Keyboard feature");
@@ -3837,6 +3840,9 @@ class StreamUiShortcut {
 
 // src/utils/utils.ts
 function checkForUpdate() {
+  if (SCRIPT_VERSION.includes("beta")) {
+    return;
+  }
   const CHECK_INTERVAL_SECONDS = 7200;
   const currentVersion = getPref(PrefKey.CURRENT_VERSION);
   const lastCheck = getPref(PrefKey.LAST_UPDATE_CHECK);
@@ -4228,7 +4234,7 @@ var BxExposed = {
       supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
     }
     titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-    if (STATES.hasTouchSupport) {
+    if (STATES.userAgentHasTouchSupport) {
       let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
       if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
         const gamepads = window.navigator.getGamepads();
@@ -5333,7 +5339,7 @@ var setupStreamSettingsDialog = function() {
             }
           ]
         },
-        STATES.hasTouchSupport && {
+        STATES.userAgentHasTouchSupport && {
           group: "touch-controller",
           label: t("touch-controller"),
           items: [
@@ -6055,7 +6061,7 @@ function interceptHttpRequests() {
         console.log(e);
       }
     }
-    if (STATES.hasTouchSupport && url.includes("catalog.gamepass.com/sigls/")) {
+    if (STATES.userAgentHasTouchSupport && url.includes("catalog.gamepass.com/sigls/")) {
       const response = await NATIVE_FETCH(request, init);
       const obj = await response.clone().json();
       if (url.includes(GamePassCloudGallery.ALL)) {
@@ -6149,12 +6155,12 @@ class XhomeInterceptor {
     const xboxTitleId = JSON.parse(opts.body).titleIds[0];
     STATES.currentStream.xboxTitleId = xboxTitleId;
     const inputConfigs = obj[0];
-    let hasTouchSupport2 = inputConfigs.supportedTabs.length > 0;
-    if (!hasTouchSupport2) {
+    let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
+    if (!hasTouchSupport) {
       const supportedInputTypes = inputConfigs.supportedInputTypes;
-      hasTouchSupport2 = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
+      hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
     }
-    if (hasTouchSupport2) {
+    if (hasTouchSupport) {
       TouchController.disable();
       BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
         data: null
@@ -8356,7 +8362,7 @@ var PATCH_ORDERS = [
     "remotePlayKeepAlive",
     "remotePlayDirectConnectUrl",
     "remotePlayDisableAchievementToast",
-    STATES.hasTouchSupport && "patchUpdateInputConfigurationAsync"
+    STATES.userAgentHasTouchSupport && "patchUpdateInputConfigurationAsync"
   ] : [],
   ...BX_FLAGS.EnableXcloudLogging ? [
     "enableConsoleLogging",
@@ -8371,7 +8377,7 @@ var PLAYING_PATCH_ORDERS = [
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
   getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && "skipFeedbackDialog",
-  ...STATES.hasTouchSupport ? [
+  ...STATES.userAgentHasTouchSupport ? [
     getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "patchShowSensorControls",
     getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
     (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
@@ -8811,8 +8817,8 @@ var SETTINGS_UI = {
     ]
   },
   [t("touch-controller")]: {
-    note: !STATES.hasTouchSupport ? "⚠️ " + t("device-unsupported-touch") : null,
-    unsupported: !STATES.hasTouchSupport,
+    note: !STATES.userAgentHasTouchSupport ? "⚠️ " + t("device-unsupported-touch") : null,
+    unsupported: !STATES.userAgentHasTouchSupport,
     items: [
       PrefKey.STREAM_TOUCH_CONTROLLER,
       PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
@@ -8950,7 +8956,7 @@ function overridePreloadState() {
       } catch (e) {
         BxLogger.error(LOG_TAG6, e);
       }
-      if (STATES.hasTouchSupport) {
+      if (STATES.userAgentHasTouchSupport) {
         try {
           const sigls = state.xcloud.sigls;
           if (GamePassCloudGallery.TOUCH in sigls) {
@@ -9339,7 +9345,7 @@ class GameBar {
     const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
     this.actions = [
       new ScreenshotAction,
-      ...STATES.hasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
+      ...STATES.userAgentHasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
       new MicrophoneAction
     ];
     if (position === "bottom-right") {
@@ -9561,7 +9567,7 @@ var main = function() {
   AppInterface && patchPointerLockApi();
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
   getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
-  STATES.hasTouchSupport && TouchController.updateCustomList();
+  STATES.userAgentHasTouchSupport && TouchController.updateCustomList();
   overridePreloadState();
   VibrationManager.initialSetup();
   BX_FLAGS.CheckForUpdate && checkForUpdate();
@@ -9583,7 +9589,10 @@ var main = function() {
   if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
     TouchController.setup();
   }
-  getPref(PrefKey.MKB_ENABLED) && AppInterface && AppInterface.startPointerServer();
+  if (getPref(PrefKey.MKB_ENABLED) && AppInterface) {
+    STATES.pointerServerPort = AppInterface.startPointerServer() || 9269;
+    BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
+  }
 };
 if (window.location.pathname.includes("/auth/msa")) {
   window.addEventListener("load", (e) => {
