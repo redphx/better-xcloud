@@ -23,7 +23,7 @@ export const BxExposed = {
 
         let supportedInputTypes = titleInfo.details.supportedInputTypes;
 
-        if (BX_FLAGS.ForceNativeMkbTitles.includes(titleInfo.details.productId)) {
+        if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId)) {
             supportedInputTypes.push(InputType.MKB);
         }
 

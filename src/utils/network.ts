@@ -9,6 +9,7 @@ import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
 import { GamePassCloudGallery } from "./gamepass-gallery";
 import { InputType } from "./bx-exposed";
+import { FeatureGates } from "./feature-gates";
 
 enum RequestType {
     XCLOUD = 'xcloud',
@@ -440,7 +441,7 @@ class XcloudInterceptor {
 
         let overrideMkb: boolean | null = null;
 
-        if (getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' || BX_FLAGS.ForceNativeMkbTitles.includes(STATES.currentStream.titleInfo!.details.productId)) {
+        if (getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' || BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo!.details.productId)) {
             overrideMkb = true;
         }
 
@@ -578,14 +579,8 @@ export function interceptHttpRequests() {
                 const response = await NATIVE_FETCH(request, init);
                 const json = await response.json();
 
-                const overrideTreatments: {[key: string]: boolean} = {};
-
-                if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
-                    overrideTreatments['EnableHomeContextMenu'] = false;
-                }
-
-                for (const key in overrideTreatments) {
-                    json.exp.treatments[key] = overrideTreatments[key]
+                for (const key in FeatureGates) {
+                    json.exp.treatments[key] = FeatureGates[key]
                 }
 
                 response.json = () => Promise.resolve(json);

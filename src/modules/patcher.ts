@@ -11,6 +11,7 @@ import codeLocalCoOpEnable from "./patches/local-co-op-enable.js" with { type: "
 import codeRemotePlayEnable from "./patches/remote-play-enable.js" with { type: "text" };
 import codeRemotePlayKeepAlive from "./patches/remote-play-keep-alive.js" with { type: "text" };
 import codeVibrationAdjust from "./patches/vibration-adjust.js" with { type: "text" };
+import { FeatureGates } from "@/utils/feature-gates.js";
 
 type PatchArray = (keyof typeof PATCHES)[];
 
@@ -228,12 +229,10 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
         // Find the next "},"
         const endIndex = str.indexOf('},', index);
 
-        const newSettings = [
-            // 'EnableStreamGate: false',
-            'PwaPrompt: false',
-        ];
+        let newSettings = JSON.stringify(FeatureGates);
+        newSettings = newSettings.substring(1, newSettings.length - 1);
 
-        const newCode = newSettings.join(',');
+        const newCode = newSettings;
 
         str = str.substring(0, endIndex) + ',' + newCode + str.substring(endIndex);
         return str;

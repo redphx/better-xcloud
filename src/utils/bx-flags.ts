@@ -8,6 +8,7 @@ type BxFlags = Partial<{
     UseDevTouchLayout: boolean;
 
     ForceNativeMkbTitles: string[];
+    FeatureGates: {[key: string]: boolean} | null,
 }>
 
 // Setup flags
@@ -21,9 +22,10 @@ const DEFAULT_FLAGS: BxFlags = {
     UseDevTouchLayout: false,
 
     ForceNativeMkbTitles: [],
+    FeatureGates: null,
 }
 
-export const BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+export const BX_FLAGS: BxFlags = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {
     delete window.BX_FLAGS;
 } catch (e) {}
