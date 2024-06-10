@@ -2990,7 +2990,7 @@ class PointerClient {
     });
     this.#socket.addEventListener("error", (event) => {
       BxLogger.error(LOG_TAG, event);
-      Toast.show("Cannot setup mouse");
+      Toast.show("Cannot setup mouse: " + event);
     });
     this.#socket.addEventListener("close", (event) => {
       this.#socket = null;
