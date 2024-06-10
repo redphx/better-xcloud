@@ -66,8 +66,8 @@ export namespace BxEvent {
             }
         }
 
-        AppInterface && AppInterface.onEvent(eventName);
         target.dispatchEvent(event);
+        AppInterface && AppInterface.onEvent(eventName);
     }
 }
 

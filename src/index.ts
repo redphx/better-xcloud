@@ -219,15 +219,18 @@ function observeRootDialog($root: HTMLElement) {
                 const $addedElm = mutation.addedNodes[0];
                 if ($addedElm instanceof HTMLElement && $addedElm.className) {
                     if ($addedElm.className.startsWith('NavigationAnimation') || $addedElm.className.startsWith('DialogRoutes') || $addedElm.className.startsWith('Dialog-module__container')) {
-                        // Find navigation bar
-                        const $selectedTab = $addedElm.querySelector('div[class^=NavigationMenu] button[aria-selected=true');
-                        if ($selectedTab) {
-                            let $elm: Element | null = $selectedTab;
-                            let index;
-                            for (index = 0; ($elm = $elm?.previousElementSibling); index++);
+                        // Make sure it's Guide dialog
+                        if (document.querySelector('#gamepass-dialog-root div[class*=GuideDialog]')) {
+                            // Find navigation bar
+                            const $selectedTab = $addedElm.querySelector('div[class^=NavigationMenu] button[aria-selected=true');
+                            if ($selectedTab) {
+                                let $elm: Element | null = $selectedTab;
+                                let index;
+                                for (index = 0; ($elm = $elm?.previousElementSibling); index++);
 
-                            if (index === 0) {
-                                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, {where: GuideMenuTab.HOME});
+                                if (index === 0) {
+                                    BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, {where: GuideMenuTab.HOME});
+                                }
                             }
                         }
                     }
