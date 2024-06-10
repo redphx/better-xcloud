@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      4.7.1-beta
+// @version      4.7.1
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -104,7 +104,7 @@ class UserAgent {
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "4.7.1-beta";
+var SCRIPT_VERSION = "4.7.1";
 var AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase();
@@ -171,8 +171,8 @@ var XcloudEvent;
         event[key] = data[key];
       }
     }
-    AppInterface && AppInterface.onEvent(eventName);
     target.dispatchEvent(event);
+    AppInterface && AppInterface.onEvent(eventName);
   }
   BxEvent.dispatch = dispatch;
 })(BxEvent || (BxEvent = {}));
@@ -189,7 +189,8 @@ var DEFAULT_FLAGS = {
   EnableXcloudLogging: false,
   SafariWorkaround: true,
   UseDevTouchLayout: false,
-  ForceNativeMkbTitles: []
+  ForceNativeMkbTitles: [],
+  FeatureGates: null
 };
 var BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {
@@ -4226,7 +4227,7 @@ var BxExposed = {
   modifyTitleInfo: (titleInfo) => {
     titleInfo = structuredClone(titleInfo);
     let supportedInputTypes = titleInfo.details.supportedInputTypes;
-    if (BX_FLAGS.ForceNativeMkbTitles.includes(titleInfo.details.productId)) {
+    if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId)) {
       supportedInputTypes.push(InputType.MKB);
     }
     if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off") {
@@ -5904,6 +5905,20 @@ var GamePassCloudGallery;
   GamePassCloudGallery2["TOUCH"] = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
 })(GamePassCloudGallery || (GamePassCloudGallery = {}));
 
+// src/utils/feature-gates.ts
+var FeatureGates = {
+  PwaPrompt: false
+};
+if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
+  FeatureGates["EnableHomeContextMenu"] = false;
+}
+if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
+  FeatureGates["EnableGuideChatTab"] = false;
+}
+if (BX_FLAGS.FeatureGates) {
+  FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
+}
+
 // src/utils/network.ts
 var clearApplicationInsightsBuffers = function() {
   window.sessionStorage.removeItem("AI_buffer");
@@ -6047,12 +6062,8 @@ function interceptHttpRequests() {
       try {
         const response = await NATIVE_FETCH(request, init);
         const json = await response.json();
-        const overrideTreatments = {};
-        if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
-          overrideTreatments["EnableHomeContextMenu"] = false;
-        }
-        for (const key in overrideTreatments) {
-          json.exp.treatments[key] = overrideTreatments[key];
+        for (const key in FeatureGates) {
+          json.exp.treatments[key] = FeatureGates[key];
         }
         response.json = () => Promise.resolve(json);
         return response;
@@ -6345,7 +6356,7 @@ class XcloudInterceptor {
     overrides.inputConfiguration = overrides.inputConfiguration || {};
     overrides.inputConfiguration.enableVibration = true;
     let overrideMkb = null;
-    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" || BX_FLAGS.ForceNativeMkbTitles.includes(STATES.currentStream.titleInfo.details.productId)) {
+    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" || BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId)) {
       overrideMkb = true;
     }
     if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off") {
@@ -8028,10 +8039,9 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
       return false;
     }
     const endIndex = str2.indexOf("},", index);
-    const newSettings = [
-      "PwaPrompt: false"
-    ];
-    const newCode = newSettings.join(",");
+    let newSettings = JSON.stringify(FeatureGates);
+    newSettings = newSettings.substring(1, newSettings.length - 1);
+    const newCode = newSettings;
     str2 = str2.substring(0, endIndex) + "," + newCode + str2.substring(endIndex);
     return str2;
   },
@@ -9055,10 +9065,10 @@ function patchVideoApi() {
       }
       return nativePlay.apply(this);
     }
-    if (!!this.src) {
-      return nativePlay.apply(this);
+    const $parent = this.parentElement;
+    if (!this.src && $parent.dataset.testid === "media-container") {
+      this.addEventListener("playing", showFunc);
     }
-    this.addEventListener("playing", showFunc);
     return nativePlay.apply(this);
   };
 }
@@ -9518,14 +9528,16 @@ var observeRootDialog = function($root) {
         const $addedElm = mutation.addedNodes[0];
         if ($addedElm instanceof HTMLElement && $addedElm.className) {
           if ($addedElm.className.startsWith("NavigationAnimation") || $addedElm.className.startsWith("DialogRoutes") || $addedElm.className.startsWith("Dialog-module__container")) {
-            const $selectedTab = $addedElm.querySelector("div[class^=NavigationMenu] button[aria-selected=true");
-            if ($selectedTab) {
-              let $elm = $selectedTab;
-              let index;
-              for (index = 0;$elm = $elm?.previousElementSibling; index++)
-                ;
-              if (index === 0) {
-                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: GuideMenuTab.HOME });
+            if (document.querySelector("#gamepass-dialog-root div[class*=GuideDialog]")) {
+              const $selectedTab = $addedElm.querySelector("div[class^=NavigationMenu] button[aria-selected=true");
+              if ($selectedTab) {
+                let $elm = $selectedTab;
+                let index;
+                for (index = 0;$elm = $elm?.previousElementSibling; index++)
+                  ;
+                if (index === 0) {
+                  BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: GuideMenuTab.HOME });
+                }
               }
             }
           }
