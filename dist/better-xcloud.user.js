@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      4.7.1
+// @version      4.8.0-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -36,6 +36,9 @@ if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
 class UserAgent {
   static STORAGE_KEY = "better_xcloud_user_agent";
   static #config;
+  static #isMobile = null;
+  static #isSafari = null;
+  static #isSafariMobile = null;
   static #USER_AGENTS = {
     [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
     [UserAgentProfile.MACOS_SAFARI]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
@@ -76,17 +79,32 @@ class UserAgent {
         return UserAgent.#USER_AGENTS[profile] || defaultUserAgent;
     }
   }
-  static isSafari(mobile = false) {
+  static isSafari() {
+    if (this.#isSafari !== null) {
+      return this.#isSafari;
+    }
     const userAgent = UserAgent.getDefault().toLowerCase();
     let result = userAgent.includes("safari") && !userAgent.includes("chrom");
-    if (result && mobile) {
-      result = userAgent.includes("mobile");
+    this.#isSafari = result;
+    return result;
+  }
+  static isSafariMobile() {
+    if (this.#isSafariMobile !== null) {
+      return this.#isSafariMobile;
     }
+    const userAgent = UserAgent.getDefault().toLowerCase();
+    const result = this.isSafari() && userAgent.includes("mobile");
+    this.#isSafariMobile = result;
     return result;
   }
   static isMobile() {
+    if (this.#isMobile !== null) {
+      return this.#isMobile;
+    }
     const userAgent = UserAgent.getDefault().toLowerCase();
-    return /iphone|ipad|android/.test(userAgent);
+    const result = /iphone|ipad|android/.test(userAgent);
+    this.#isMobile = result;
+    return result;
   }
   static spoof() {
     const profile = UserAgent.#config.profile;
@@ -104,7 +122,7 @@ class UserAgent {
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "4.7.1";
+var SCRIPT_VERSION = "4.8.0-beta";
 var AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase();
@@ -199,6 +217,18 @@ try {
 }
 var NATIVE_FETCH = window.fetch;
 
+// src/utils/enums.ts
+var StreamPlayerType;
+(function(StreamPlayerType2) {
+  StreamPlayerType2["VIDEO"] = "default";
+  StreamPlayerType2["WEBGL2"] = "webgl2";
+})(StreamPlayerType || (StreamPlayerType = {}));
+var StreamVideoProcessing;
+(function(StreamVideoProcessing2) {
+  StreamVideoProcessing2["USM"] = "usm";
+  StreamVideoProcessing2["CAS"] = "cas";
+})(StreamVideoProcessing || (StreamVideoProcessing = {}));
+
 // src/utils/html.ts
 var createElement = function(elmName, props = {}, ..._) {
   let $elm;
@@ -274,183 +304,30 @@ var createButton = (options) => {
 var CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
 
-// src/utils/screenshot.ts
-class Screenshot {
-  static #$canvas;
-  static #canvasContext;
-  static setup() {
-    if (Screenshot.#$canvas) {
-      return;
-    }
-    Screenshot.#$canvas = CE("canvas", { class: "bx-gone" });
-    Screenshot.#canvasContext = Screenshot.#$canvas.getContext("2d", {
-      alpha: false,
-      willReadFrequently: false
-    });
+// src/utils/bx-logger.ts
+var TextColor;
+(function(TextColor2) {
+  TextColor2["INFO"] = "#008746";
+  TextColor2["WARNING"] = "#c1a404";
+  TextColor2["ERROR"] = "#c10404";
+})(TextColor || (TextColor = {}));
+
+class BxLogger {
+  static #PREFIX = "[BxC]";
+  static info(tag, ...args) {
+    BxLogger.#log(TextColor.INFO, tag, ...args);
   }
-  static updateCanvasSize(width, height) {
-    const $canvas = Screenshot.#$canvas;
-    if ($canvas) {
-      $canvas.width = width;
-      $canvas.height = height;
-    }
+  static warning(tag, ...args) {
+    BxLogger.#log(TextColor.WARNING, tag, ...args);
   }
-  static updateCanvasFilters(filters) {
-    Screenshot.#canvasContext.filter = filters;
+  static error(tag, ...args) {
+    BxLogger.#log(TextColor.ERROR, tag, ...args);
   }
-  static onAnimationEnd(e) {
-    e.target.classList.remove("bx-taking-screenshot");
-  }
-  static takeScreenshot(callback) {
-    const currentStream = STATES.currentStream;
-    const $video = currentStream.$video;
-    const $canvas = Screenshot.#$canvas;
-    if (!$video || !$canvas) {
-      return;
-    }
-    $video.parentElement?.addEventListener("animationend", this.onAnimationEnd);
-    $video.parentElement?.classList.add("bx-taking-screenshot");
-    const canvasContext = Screenshot.#canvasContext;
-    canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
-    if (AppInterface) {
-      const data = $canvas.toDataURL("image/png").split(";base64,")[1];
-      AppInterface.saveScreenshot(currentStream.titleId, data);
-      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-      callback && callback();
-      return;
-    }
-    $canvas && $canvas.toBlob((blob) => {
-      const now = +new Date;
-      const $anchor = CE("a", {
-        download: `${currentStream.titleId}-${now}.png`,
-        href: URL.createObjectURL(blob)
-      });
-      $anchor.click();
-      URL.revokeObjectURL($anchor.href);
-      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-      callback && callback();
-    }, "image/png");
+  static #log(color, tag, ...args) {
+    console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, "//", ...args);
   }
 }
-
-// src/utils/prompt-font.ts
-var PrompFont;
-(function(PrompFont2) {
-  PrompFont2["A"] = "⇓";
-  PrompFont2["B"] = "⇒";
-  PrompFont2["X"] = "⇐";
-  PrompFont2["Y"] = "⇑";
-  PrompFont2["LB"] = "↘";
-  PrompFont2["RB"] = "↙";
-  PrompFont2["LT"] = "↖";
-  PrompFont2["RT"] = "↗";
-  PrompFont2["SELECT"] = "⇺";
-  PrompFont2["START"] = "⇻";
-  PrompFont2["HOME"] = "";
-  PrompFont2["UP"] = "≻";
-  PrompFont2["DOWN"] = "≽";
-  PrompFont2["LEFT"] = "≺";
-  PrompFont2["RIGHT"] = "≼";
-  PrompFont2["L3"] = "↺";
-  PrompFont2["LS_UP"] = "↾";
-  PrompFont2["LS_DOWN"] = "⇂";
-  PrompFont2["LS_LEFT"] = "↼";
-  PrompFont2["LS_RIGHT"] = "⇀";
-  PrompFont2["R3"] = "↻";
-  PrompFont2["RS_UP"] = "↿";
-  PrompFont2["RS_DOWN"] = "⇃";
-  PrompFont2["RS_LEFT"] = "↽";
-  PrompFont2["RS_RIGHT"] = "⇁";
-})(PrompFont || (PrompFont = {}));
-
-// src/modules/mkb/definitions.ts
-var GamepadKey;
-(function(GamepadKey2) {
-  GamepadKey2[GamepadKey2["A"] = 0] = "A";
-  GamepadKey2[GamepadKey2["B"] = 1] = "B";
-  GamepadKey2[GamepadKey2["X"] = 2] = "X";
-  GamepadKey2[GamepadKey2["Y"] = 3] = "Y";
-  GamepadKey2[GamepadKey2["LB"] = 4] = "LB";
-  GamepadKey2[GamepadKey2["RB"] = 5] = "RB";
-  GamepadKey2[GamepadKey2["LT"] = 6] = "LT";
-  GamepadKey2[GamepadKey2["RT"] = 7] = "RT";
-  GamepadKey2[GamepadKey2["SELECT"] = 8] = "SELECT";
-  GamepadKey2[GamepadKey2["START"] = 9] = "START";
-  GamepadKey2[GamepadKey2["L3"] = 10] = "L3";
-  GamepadKey2[GamepadKey2["R3"] = 11] = "R3";
-  GamepadKey2[GamepadKey2["UP"] = 12] = "UP";
-  GamepadKey2[GamepadKey2["DOWN"] = 13] = "DOWN";
-  GamepadKey2[GamepadKey2["LEFT"] = 14] = "LEFT";
-  GamepadKey2[GamepadKey2["RIGHT"] = 15] = "RIGHT";
-  GamepadKey2[GamepadKey2["HOME"] = 16] = "HOME";
-  GamepadKey2[GamepadKey2["SHARE"] = 17] = "SHARE";
-  GamepadKey2[GamepadKey2["LS_UP"] = 100] = "LS_UP";
-  GamepadKey2[GamepadKey2["LS_DOWN"] = 101] = "LS_DOWN";
-  GamepadKey2[GamepadKey2["LS_LEFT"] = 102] = "LS_LEFT";
-  GamepadKey2[GamepadKey2["LS_RIGHT"] = 103] = "LS_RIGHT";
-  GamepadKey2[GamepadKey2["RS_UP"] = 200] = "RS_UP";
-  GamepadKey2[GamepadKey2["RS_DOWN"] = 201] = "RS_DOWN";
-  GamepadKey2[GamepadKey2["RS_LEFT"] = 202] = "RS_LEFT";
-  GamepadKey2[GamepadKey2["RS_RIGHT"] = 203] = "RS_RIGHT";
-})(GamepadKey || (GamepadKey = {}));
-var GamepadKeyName = {
-  [GamepadKey.A]: ["A", PrompFont.A],
-  [GamepadKey.B]: ["B", PrompFont.B],
-  [GamepadKey.X]: ["X", PrompFont.X],
-  [GamepadKey.Y]: ["Y", PrompFont.Y],
-  [GamepadKey.LB]: ["LB", PrompFont.LB],
-  [GamepadKey.RB]: ["RB", PrompFont.RB],
-  [GamepadKey.LT]: ["LT", PrompFont.LT],
-  [GamepadKey.RT]: ["RT", PrompFont.RT],
-  [GamepadKey.SELECT]: ["Select", PrompFont.SELECT],
-  [GamepadKey.START]: ["Start", PrompFont.START],
-  [GamepadKey.HOME]: ["Home", PrompFont.HOME],
-  [GamepadKey.UP]: ["D-Pad Up", PrompFont.UP],
-  [GamepadKey.DOWN]: ["D-Pad Down", PrompFont.DOWN],
-  [GamepadKey.LEFT]: ["D-Pad Left", PrompFont.LEFT],
-  [GamepadKey.RIGHT]: ["D-Pad Right", PrompFont.RIGHT],
-  [GamepadKey.L3]: ["L3", PrompFont.L3],
-  [GamepadKey.LS_UP]: ["Left Stick Up", PrompFont.LS_UP],
-  [GamepadKey.LS_DOWN]: ["Left Stick Down", PrompFont.LS_DOWN],
-  [GamepadKey.LS_LEFT]: ["Left Stick Left", PrompFont.LS_LEFT],
-  [GamepadKey.LS_RIGHT]: ["Left Stick Right", PrompFont.LS_RIGHT],
-  [GamepadKey.R3]: ["R3", PrompFont.R3],
-  [GamepadKey.RS_UP]: ["Right Stick Up", PrompFont.RS_UP],
-  [GamepadKey.RS_DOWN]: ["Right Stick Down", PrompFont.RS_DOWN],
-  [GamepadKey.RS_LEFT]: ["Right Stick Left", PrompFont.RS_LEFT],
-  [GamepadKey.RS_RIGHT]: ["Right Stick Right", PrompFont.RS_RIGHT]
-};
-var GamepadStick;
-(function(GamepadStick2) {
-  GamepadStick2[GamepadStick2["LEFT"] = 0] = "LEFT";
-  GamepadStick2[GamepadStick2["RIGHT"] = 1] = "RIGHT";
-})(GamepadStick || (GamepadStick = {}));
-var MouseButtonCode;
-(function(MouseButtonCode2) {
-  MouseButtonCode2["LEFT_CLICK"] = "Mouse0";
-  MouseButtonCode2["RIGHT_CLICK"] = "Mouse2";
-  MouseButtonCode2["MIDDLE_CLICK"] = "Mouse1";
-})(MouseButtonCode || (MouseButtonCode = {}));
-var MouseMapTo;
-(function(MouseMapTo2) {
-  MouseMapTo2[MouseMapTo2["OFF"] = 0] = "OFF";
-  MouseMapTo2[MouseMapTo2["LS"] = 1] = "LS";
-  MouseMapTo2[MouseMapTo2["RS"] = 2] = "RS";
-})(MouseMapTo || (MouseMapTo = {}));
-var WheelCode;
-(function(WheelCode2) {
-  WheelCode2["SCROLL_UP"] = "ScrollUp";
-  WheelCode2["SCROLL_DOWN"] = "ScrollDown";
-  WheelCode2["SCROLL_LEFT"] = "ScrollLeft";
-  WheelCode2["SCROLL_RIGHT"] = "ScrollRight";
-})(WheelCode || (WheelCode = {}));
-var MkbPresetKey;
-(function(MkbPresetKey2) {
-  MkbPresetKey2["MOUSE_MAP_TO"] = "map_to";
-  MkbPresetKey2["MOUSE_SENSITIVITY_X"] = "sensitivity_x";
-  MkbPresetKey2["MOUSE_SENSITIVITY_Y"] = "sensitivity_y";
-  MkbPresetKey2["MOUSE_DEADZONE_COUNTERWEIGHT"] = "deadzone_counterweight";
-})(MkbPresetKey || (MkbPresetKey = {}));
+window.BxLogger = BxLogger;
 
 // src/utils/translation.ts
 var SUPPORTED_LANGUAGES = {
@@ -816,6 +693,10 @@ class Translations {
   }
 }
 var t = Translations.get;
+var ut = (text) => {
+  BxLogger.warning("Untranslated text", text);
+  return text;
+};
 Translations.init();
 
 // src/utils/settings.ts
@@ -928,7 +809,7 @@ class SettingElement {
       }
       return textContent;
     };
-    const $wrapper = CE("div", { class: "bx-number-stepper" }, $decBtn = CE("button", {
+    const $wrapper = CE("div", { class: "bx-number-stepper", id: `bx_setting_${key}` }, $decBtn = CE("button", {
       "data-type": "dec",
       type: "button",
       tabindex: -1
@@ -1053,113 +934,6 @@ class SettingElement {
       $control.name = $control.id;
     }
     return $control;
-  }
-}
-
-// src/modules/mkb/mkb-preset.ts
-class MkbPreset {
-  static MOUSE_SETTINGS = {
-    [MkbPresetKey.MOUSE_MAP_TO]: {
-      label: t("map-mouse-to"),
-      type: SettingElementType.OPTIONS,
-      default: MouseMapTo[MouseMapTo.RS],
-      options: {
-        [MouseMapTo[MouseMapTo.RS]]: t("right-stick"),
-        [MouseMapTo[MouseMapTo.LS]]: t("left-stick"),
-        [MouseMapTo[MouseMapTo.OFF]]: t("off")
-      }
-    },
-    [MkbPresetKey.MOUSE_SENSITIVITY_Y]: {
-      label: t("horizontal-sensitivity"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 50,
-      min: 1,
-      max: 300,
-      params: {
-        suffix: "%",
-        exactTicks: 50
-      }
-    },
-    [MkbPresetKey.MOUSE_SENSITIVITY_X]: {
-      label: t("vertical-sensitivity"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 50,
-      min: 1,
-      max: 300,
-      params: {
-        suffix: "%",
-        exactTicks: 50
-      }
-    },
-    [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: {
-      label: t("deadzone-counterweight"),
-      type: SettingElementType.NUMBER_STEPPER,
-      default: 20,
-      min: 1,
-      max: 50,
-      params: {
-        suffix: "%",
-        exactTicks: 10
-      }
-    }
-  };
-  static DEFAULT_PRESET = {
-    mapping: {
-      [GamepadKey.UP]: ["ArrowUp"],
-      [GamepadKey.DOWN]: ["ArrowDown"],
-      [GamepadKey.LEFT]: ["ArrowLeft"],
-      [GamepadKey.RIGHT]: ["ArrowRight"],
-      [GamepadKey.LS_UP]: ["KeyW"],
-      [GamepadKey.LS_DOWN]: ["KeyS"],
-      [GamepadKey.LS_LEFT]: ["KeyA"],
-      [GamepadKey.LS_RIGHT]: ["KeyD"],
-      [GamepadKey.RS_UP]: ["KeyI"],
-      [GamepadKey.RS_DOWN]: ["KeyK"],
-      [GamepadKey.RS_LEFT]: ["KeyJ"],
-      [GamepadKey.RS_RIGHT]: ["KeyL"],
-      [GamepadKey.A]: ["Space", "KeyE"],
-      [GamepadKey.X]: ["KeyR"],
-      [GamepadKey.B]: ["ControlLeft", "Backspace"],
-      [GamepadKey.Y]: ["KeyV"],
-      [GamepadKey.START]: ["Enter"],
-      [GamepadKey.SELECT]: ["Tab"],
-      [GamepadKey.LB]: ["KeyC", "KeyG"],
-      [GamepadKey.RB]: ["KeyQ"],
-      [GamepadKey.HOME]: ["Backquote"],
-      [GamepadKey.RT]: [MouseButtonCode.LEFT_CLICK],
-      [GamepadKey.LT]: [MouseButtonCode.RIGHT_CLICK],
-      [GamepadKey.L3]: ["ShiftLeft"],
-      [GamepadKey.R3]: ["KeyF"]
-    },
-    mouse: {
-      [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
-      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 100,
-      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 100,
-      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20
-    }
-  };
-  static convert(preset) {
-    const obj = {
-      mapping: {},
-      mouse: Object.assign({}, preset.mouse)
-    };
-    for (const buttonIndex in preset.mapping) {
-      for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
-        obj.mapping[keyName] = parseInt(buttonIndex);
-      }
-    }
-    const mouse = obj.mouse;
-    mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= EmulatedMkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
-    const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
-    if (typeof mouseMapTo !== "undefined") {
-      mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
-    } else {
-      mouse[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
-    }
-    console.log(obj);
-    return obj;
   }
 }
 
@@ -1417,7 +1191,9 @@ var PrefKey;
   PrefKey2["UI_LAYOUT"] = "ui_layout";
   PrefKey2["UI_SCROLLBAR_HIDE"] = "ui_scrollbar_hide";
   PrefKey2["UI_HOME_CONTEXT_MENU_DISABLED"] = "ui_home_context_menu_disabled";
-  PrefKey2["VIDEO_CLARITY"] = "video_clarity";
+  PrefKey2["VIDEO_PLAYER_TYPE"] = "video_player_type";
+  PrefKey2["VIDEO_PROCESSING"] = "video_processing";
+  PrefKey2["VIDEO_SHARPNESS"] = "video_sharpness";
   PrefKey2["VIDEO_RATIO"] = "video_ratio";
   PrefKey2["VIDEO_BRIGHTNESS"] = "video_brightness";
   PrefKey2["VIDEO_CONTRAST"] = "video_contrast";
@@ -1868,12 +1644,28 @@ class Preferences {
         [UserAgentProfile.CUSTOM]: t("custom")
       }
     },
-    [PrefKey.VIDEO_CLARITY]: {
-      label: t("clarity"),
+    [PrefKey.VIDEO_PLAYER_TYPE]: {
+      label: ut("Video player"),
+      default: "default",
+      options: {
+        [StreamPlayerType.VIDEO]: t("default"),
+        [StreamPlayerType.WEBGL2]: ut("WebGL2")
+      }
+    },
+    [PrefKey.VIDEO_PROCESSING]: {
+      label: ut("Clarity boost"),
+      default: StreamVideoProcessing.USM,
+      options: {
+        [StreamVideoProcessing.USM]: ut("Unsharp Masking"),
+        [StreamVideoProcessing.CAS]: ut("AMD FidelityFX CAS")
+      }
+    },
+    [PrefKey.VIDEO_SHARPNESS]: {
+      label: ut("Sharpness"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 0,
       min: 0,
-      max: 5,
+      max: 10,
       params: {
         hideSlider: true
       }
@@ -2140,6 +1932,304 @@ var prefs = new Preferences;
 var getPref = prefs.get.bind(prefs);
 var setPref = prefs.set.bind(prefs);
 var toPrefElement = prefs.toElement.bind(prefs);
+
+// src/utils/screenshot.ts
+class Screenshot {
+  static #$canvas;
+  static #canvasContext;
+  static setup() {
+    if (Screenshot.#$canvas) {
+      return;
+    }
+    Screenshot.#$canvas = CE("canvas", { class: "bx-gone" });
+    Screenshot.#canvasContext = Screenshot.#$canvas.getContext("2d", {
+      alpha: false,
+      willReadFrequently: false
+    });
+  }
+  static updateCanvasSize(width, height) {
+    const $canvas = Screenshot.#$canvas;
+    if ($canvas) {
+      $canvas.width = width;
+      $canvas.height = height;
+    }
+  }
+  static updateCanvasFilters(filters) {
+    Screenshot.#canvasContext.filter = filters;
+  }
+  static #onAnimationEnd(e) {
+    const $target = e.target;
+    $target.classList.remove("bx-taking-screenshot");
+  }
+  static takeScreenshot(callback) {
+    const currentStream = STATES.currentStream;
+    const streamPlayer = currentStream.streamPlayer;
+    const $canvas = Screenshot.#$canvas;
+    if (!streamPlayer || !$canvas) {
+      return;
+    }
+    let $player;
+    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
+      $player = streamPlayer.getPlayerElement();
+    } else {
+      $player = streamPlayer.getPlayerElement(StreamPlayerType.VIDEO);
+    }
+    if (!$player || !$player.isConnected) {
+      return;
+    }
+    $player.parentElement.addEventListener("animationend", this.#onAnimationEnd);
+    $player.parentElement.classList.add("bx-taking-screenshot");
+    const canvasContext = Screenshot.#canvasContext;
+    if ($player instanceof HTMLCanvasElement) {
+      streamPlayer.getWebGL2Player().drawFrame();
+    }
+    canvasContext.drawImage($player, 0, 0, $canvas.width, $canvas.height);
+    if (AppInterface) {
+      const data = $canvas.toDataURL("image/png").split(";base64,")[1];
+      AppInterface.saveScreenshot(currentStream.titleId, data);
+      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      callback && callback();
+      return;
+    }
+    $canvas && $canvas.toBlob((blob) => {
+      const now = +new Date;
+      const $anchor = CE("a", {
+        download: `${currentStream.titleId}-${now}.png`,
+        href: URL.createObjectURL(blob)
+      });
+      $anchor.click();
+      URL.revokeObjectURL($anchor.href);
+      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
+      callback && callback();
+    }, "image/png");
+  }
+}
+
+// src/utils/prompt-font.ts
+var PrompFont;
+(function(PrompFont2) {
+  PrompFont2["A"] = "⇓";
+  PrompFont2["B"] = "⇒";
+  PrompFont2["X"] = "⇐";
+  PrompFont2["Y"] = "⇑";
+  PrompFont2["LB"] = "↘";
+  PrompFont2["RB"] = "↙";
+  PrompFont2["LT"] = "↖";
+  PrompFont2["RT"] = "↗";
+  PrompFont2["SELECT"] = "⇺";
+  PrompFont2["START"] = "⇻";
+  PrompFont2["HOME"] = "";
+  PrompFont2["UP"] = "≻";
+  PrompFont2["DOWN"] = "≽";
+  PrompFont2["LEFT"] = "≺";
+  PrompFont2["RIGHT"] = "≼";
+  PrompFont2["L3"] = "↺";
+  PrompFont2["LS_UP"] = "↾";
+  PrompFont2["LS_DOWN"] = "⇂";
+  PrompFont2["LS_LEFT"] = "↼";
+  PrompFont2["LS_RIGHT"] = "⇀";
+  PrompFont2["R3"] = "↻";
+  PrompFont2["RS_UP"] = "↿";
+  PrompFont2["RS_DOWN"] = "⇃";
+  PrompFont2["RS_LEFT"] = "↽";
+  PrompFont2["RS_RIGHT"] = "⇁";
+})(PrompFont || (PrompFont = {}));
+
+// src/modules/mkb/definitions.ts
+var GamepadKey;
+(function(GamepadKey2) {
+  GamepadKey2[GamepadKey2["A"] = 0] = "A";
+  GamepadKey2[GamepadKey2["B"] = 1] = "B";
+  GamepadKey2[GamepadKey2["X"] = 2] = "X";
+  GamepadKey2[GamepadKey2["Y"] = 3] = "Y";
+  GamepadKey2[GamepadKey2["LB"] = 4] = "LB";
+  GamepadKey2[GamepadKey2["RB"] = 5] = "RB";
+  GamepadKey2[GamepadKey2["LT"] = 6] = "LT";
+  GamepadKey2[GamepadKey2["RT"] = 7] = "RT";
+  GamepadKey2[GamepadKey2["SELECT"] = 8] = "SELECT";
+  GamepadKey2[GamepadKey2["START"] = 9] = "START";
+  GamepadKey2[GamepadKey2["L3"] = 10] = "L3";
+  GamepadKey2[GamepadKey2["R3"] = 11] = "R3";
+  GamepadKey2[GamepadKey2["UP"] = 12] = "UP";
+  GamepadKey2[GamepadKey2["DOWN"] = 13] = "DOWN";
+  GamepadKey2[GamepadKey2["LEFT"] = 14] = "LEFT";
+  GamepadKey2[GamepadKey2["RIGHT"] = 15] = "RIGHT";
+  GamepadKey2[GamepadKey2["HOME"] = 16] = "HOME";
+  GamepadKey2[GamepadKey2["SHARE"] = 17] = "SHARE";
+  GamepadKey2[GamepadKey2["LS_UP"] = 100] = "LS_UP";
+  GamepadKey2[GamepadKey2["LS_DOWN"] = 101] = "LS_DOWN";
+  GamepadKey2[GamepadKey2["LS_LEFT"] = 102] = "LS_LEFT";
+  GamepadKey2[GamepadKey2["LS_RIGHT"] = 103] = "LS_RIGHT";
+  GamepadKey2[GamepadKey2["RS_UP"] = 200] = "RS_UP";
+  GamepadKey2[GamepadKey2["RS_DOWN"] = 201] = "RS_DOWN";
+  GamepadKey2[GamepadKey2["RS_LEFT"] = 202] = "RS_LEFT";
+  GamepadKey2[GamepadKey2["RS_RIGHT"] = 203] = "RS_RIGHT";
+})(GamepadKey || (GamepadKey = {}));
+var GamepadKeyName = {
+  [GamepadKey.A]: ["A", PrompFont.A],
+  [GamepadKey.B]: ["B", PrompFont.B],
+  [GamepadKey.X]: ["X", PrompFont.X],
+  [GamepadKey.Y]: ["Y", PrompFont.Y],
+  [GamepadKey.LB]: ["LB", PrompFont.LB],
+  [GamepadKey.RB]: ["RB", PrompFont.RB],
+  [GamepadKey.LT]: ["LT", PrompFont.LT],
+  [GamepadKey.RT]: ["RT", PrompFont.RT],
+  [GamepadKey.SELECT]: ["Select", PrompFont.SELECT],
+  [GamepadKey.START]: ["Start", PrompFont.START],
+  [GamepadKey.HOME]: ["Home", PrompFont.HOME],
+  [GamepadKey.UP]: ["D-Pad Up", PrompFont.UP],
+  [GamepadKey.DOWN]: ["D-Pad Down", PrompFont.DOWN],
+  [GamepadKey.LEFT]: ["D-Pad Left", PrompFont.LEFT],
+  [GamepadKey.RIGHT]: ["D-Pad Right", PrompFont.RIGHT],
+  [GamepadKey.L3]: ["L3", PrompFont.L3],
+  [GamepadKey.LS_UP]: ["Left Stick Up", PrompFont.LS_UP],
+  [GamepadKey.LS_DOWN]: ["Left Stick Down", PrompFont.LS_DOWN],
+  [GamepadKey.LS_LEFT]: ["Left Stick Left", PrompFont.LS_LEFT],
+  [GamepadKey.LS_RIGHT]: ["Left Stick Right", PrompFont.LS_RIGHT],
+  [GamepadKey.R3]: ["R3", PrompFont.R3],
+  [GamepadKey.RS_UP]: ["Right Stick Up", PrompFont.RS_UP],
+  [GamepadKey.RS_DOWN]: ["Right Stick Down", PrompFont.RS_DOWN],
+  [GamepadKey.RS_LEFT]: ["Right Stick Left", PrompFont.RS_LEFT],
+  [GamepadKey.RS_RIGHT]: ["Right Stick Right", PrompFont.RS_RIGHT]
+};
+var GamepadStick;
+(function(GamepadStick2) {
+  GamepadStick2[GamepadStick2["LEFT"] = 0] = "LEFT";
+  GamepadStick2[GamepadStick2["RIGHT"] = 1] = "RIGHT";
+})(GamepadStick || (GamepadStick = {}));
+var MouseButtonCode;
+(function(MouseButtonCode2) {
+  MouseButtonCode2["LEFT_CLICK"] = "Mouse0";
+  MouseButtonCode2["RIGHT_CLICK"] = "Mouse2";
+  MouseButtonCode2["MIDDLE_CLICK"] = "Mouse1";
+})(MouseButtonCode || (MouseButtonCode = {}));
+var MouseMapTo;
+(function(MouseMapTo2) {
+  MouseMapTo2[MouseMapTo2["OFF"] = 0] = "OFF";
+  MouseMapTo2[MouseMapTo2["LS"] = 1] = "LS";
+  MouseMapTo2[MouseMapTo2["RS"] = 2] = "RS";
+})(MouseMapTo || (MouseMapTo = {}));
+var WheelCode;
+(function(WheelCode2) {
+  WheelCode2["SCROLL_UP"] = "ScrollUp";
+  WheelCode2["SCROLL_DOWN"] = "ScrollDown";
+  WheelCode2["SCROLL_LEFT"] = "ScrollLeft";
+  WheelCode2["SCROLL_RIGHT"] = "ScrollRight";
+})(WheelCode || (WheelCode = {}));
+var MkbPresetKey;
+(function(MkbPresetKey2) {
+  MkbPresetKey2["MOUSE_MAP_TO"] = "map_to";
+  MkbPresetKey2["MOUSE_SENSITIVITY_X"] = "sensitivity_x";
+  MkbPresetKey2["MOUSE_SENSITIVITY_Y"] = "sensitivity_y";
+  MkbPresetKey2["MOUSE_DEADZONE_COUNTERWEIGHT"] = "deadzone_counterweight";
+})(MkbPresetKey || (MkbPresetKey = {}));
+
+// src/modules/mkb/mkb-preset.ts
+class MkbPreset {
+  static MOUSE_SETTINGS = {
+    [MkbPresetKey.MOUSE_MAP_TO]: {
+      label: t("map-mouse-to"),
+      type: SettingElementType.OPTIONS,
+      default: MouseMapTo[MouseMapTo.RS],
+      options: {
+        [MouseMapTo[MouseMapTo.RS]]: t("right-stick"),
+        [MouseMapTo[MouseMapTo.LS]]: t("left-stick"),
+        [MouseMapTo[MouseMapTo.OFF]]: t("off")
+      }
+    },
+    [MkbPresetKey.MOUSE_SENSITIVITY_Y]: {
+      label: t("horizontal-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 50,
+      min: 1,
+      max: 300,
+      params: {
+        suffix: "%",
+        exactTicks: 50
+      }
+    },
+    [MkbPresetKey.MOUSE_SENSITIVITY_X]: {
+      label: t("vertical-sensitivity"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 50,
+      min: 1,
+      max: 300,
+      params: {
+        suffix: "%",
+        exactTicks: 50
+      }
+    },
+    [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: {
+      label: t("deadzone-counterweight"),
+      type: SettingElementType.NUMBER_STEPPER,
+      default: 20,
+      min: 1,
+      max: 50,
+      params: {
+        suffix: "%",
+        exactTicks: 10
+      }
+    }
+  };
+  static DEFAULT_PRESET = {
+    mapping: {
+      [GamepadKey.UP]: ["ArrowUp"],
+      [GamepadKey.DOWN]: ["ArrowDown"],
+      [GamepadKey.LEFT]: ["ArrowLeft"],
+      [GamepadKey.RIGHT]: ["ArrowRight"],
+      [GamepadKey.LS_UP]: ["KeyW"],
+      [GamepadKey.LS_DOWN]: ["KeyS"],
+      [GamepadKey.LS_LEFT]: ["KeyA"],
+      [GamepadKey.LS_RIGHT]: ["KeyD"],
+      [GamepadKey.RS_UP]: ["KeyI"],
+      [GamepadKey.RS_DOWN]: ["KeyK"],
+      [GamepadKey.RS_LEFT]: ["KeyJ"],
+      [GamepadKey.RS_RIGHT]: ["KeyL"],
+      [GamepadKey.A]: ["Space", "KeyE"],
+      [GamepadKey.X]: ["KeyR"],
+      [GamepadKey.B]: ["ControlLeft", "Backspace"],
+      [GamepadKey.Y]: ["KeyV"],
+      [GamepadKey.START]: ["Enter"],
+      [GamepadKey.SELECT]: ["Tab"],
+      [GamepadKey.LB]: ["KeyC", "KeyG"],
+      [GamepadKey.RB]: ["KeyQ"],
+      [GamepadKey.HOME]: ["Backquote"],
+      [GamepadKey.RT]: [MouseButtonCode.LEFT_CLICK],
+      [GamepadKey.LT]: [MouseButtonCode.RIGHT_CLICK],
+      [GamepadKey.L3]: ["ShiftLeft"],
+      [GamepadKey.R3]: ["KeyF"]
+    },
+    mouse: {
+      [MkbPresetKey.MOUSE_MAP_TO]: MouseMapTo[MouseMapTo.RS],
+      [MkbPresetKey.MOUSE_SENSITIVITY_X]: 100,
+      [MkbPresetKey.MOUSE_SENSITIVITY_Y]: 100,
+      [MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT]: 20
+    }
+  };
+  static convert(preset) {
+    const obj = {
+      mapping: {},
+      mouse: Object.assign({}, preset.mouse)
+    };
+    for (const buttonIndex in preset.mapping) {
+      for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
+        obj.mapping[keyName] = parseInt(buttonIndex);
+      }
+    }
+    const mouse = obj.mouse;
+    mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
+    mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
+    mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= EmulatedMkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+    const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
+    if (typeof mouseMapTo !== "undefined") {
+      mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
+    } else {
+      mouse[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
+    }
+    console.log(obj);
+    return obj;
+  }
+}
 
 // src/utils/toast.ts
 class Toast {
@@ -2471,31 +2561,6 @@ var BxIcon = {
   UPLOAD: upload_default,
   AUDIO: speaker_high_default
 };
-
-// src/utils/bx-logger.ts
-var TextColor;
-(function(TextColor2) {
-  TextColor2["INFO"] = "#008746";
-  TextColor2["WARNING"] = "#c1a404";
-  TextColor2["ERROR"] = "#c10404";
-})(TextColor || (TextColor = {}));
-
-class BxLogger {
-  static #PREFIX = "[BxC]";
-  static info(tag, ...args) {
-    BxLogger.#log(TextColor.INFO, tag, ...args);
-  }
-  static warning(tag, ...args) {
-    BxLogger.#log(TextColor.WARNING, tag, ...args);
-  }
-  static error(tag, ...args) {
-    BxLogger.#log(TextColor.ERROR, tag, ...args);
-  }
-  static #log(color, tag, ...args) {
-    console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, "//", ...args);
-  }
-}
-window.BxLogger = BxLogger;
 
 // src/modules/stream/stream-badges.ts
 var StreamBadge;
@@ -3066,9 +3131,6 @@ class MkbHandler {
 
 // src/modules/mkb/native-mkb-handler.ts
 class NativeMkbHandler extends MkbHandler {
-  constructor() {
-    super(...arguments);
-  }
   static instance;
   #pointerClient;
   #enabled = false;
@@ -3307,9 +3369,6 @@ var PointerToMouseButton = {
 };
 
 class WebSocketMouseDataProvider extends MouseDataProvider {
-  constructor() {
-    super(...arguments);
-  }
   #pointerClient;
   #connected = false;
   init() {
@@ -3334,9 +3393,6 @@ class WebSocketMouseDataProvider extends MouseDataProvider {
 }
 
 class PointerLockMouseDataProvider extends MouseDataProvider {
-  constructor() {
-    super(...arguments);
-  }
   init() {
   }
   start() {
@@ -3862,7 +3918,7 @@ function disablePwa() {
   if (!userAgent2) {
     return;
   }
-  if (!!AppInterface || UserAgent.isSafari(true)) {
+  if (!!AppInterface || UserAgent.isSafariMobile()) {
     Object.defineProperty(window.navigator, "standalone", {
       value: true
     });
@@ -5228,31 +5284,7 @@ function localRedirect(path) {
   $pageContent.appendChild($anchor);
   $anchor.click();
 }
-var getVideoPlayerFilterStyle = function() {
-  const filters = [];
-  const clarity = getPref(PrefKey.VIDEO_CLARITY);
-  if (clarity != 0) {
-    const level = (7 - (clarity - 1) * 0.5).toFixed(1);
-    const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
-    document.getElementById("bx-filter-clarity-matrix").setAttributeNS(null, "kernelMatrix", matrix);
-    filters.push(`url(#bx-filter-clarity)`);
-  }
-  const saturation = getPref(PrefKey.VIDEO_SATURATION);
-  if (saturation != 100) {
-    filters.push(`saturate(${saturation}%)`);
-  }
-  const contrast = getPref(PrefKey.VIDEO_CONTRAST);
-  if (contrast != 100) {
-    filters.push(`contrast(${contrast}%)`);
-  }
-  const brightness = getPref(PrefKey.VIDEO_BRIGHTNESS);
-  if (brightness != 100) {
-    filters.push(`brightness(${brightness}%)`);
-  }
-  return filters.join(" ");
-};
 var setupStreamSettingsDialog = function() {
-  const isSafari = UserAgent.isSafari();
   const SETTINGS_UI = [
     {
       icon: BxIcon.DISPLAY,
@@ -5289,25 +5321,32 @@ var setupStreamSettingsDialog = function() {
           help_url: "https://better-xcloud.github.io/ingame-features/#video",
           items: [
             {
-              pref: PrefKey.VIDEO_RATIO,
-              onChange: updateVideoPlayerCss
+              pref: PrefKey.VIDEO_PLAYER_TYPE,
+              onChange: onChangeVideoPlayerType
             },
             {
-              pref: PrefKey.VIDEO_CLARITY,
-              onChange: updateVideoPlayerCss,
-              unsupported: isSafari
+              pref: PrefKey.VIDEO_RATIO,
+              onChange: updateVideoPlayer
+            },
+            {
+              pref: PrefKey.VIDEO_PROCESSING,
+              onChange: updateVideoPlayer
+            },
+            {
+              pref: PrefKey.VIDEO_SHARPNESS,
+              onChange: updateVideoPlayer
             },
             {
               pref: PrefKey.VIDEO_SATURATION,
-              onChange: updateVideoPlayerCss
+              onChange: updateVideoPlayer
             },
             {
               pref: PrefKey.VIDEO_CONTRAST,
-              onChange: updateVideoPlayerCss
+              onChange: updateVideoPlayer
             },
             {
               pref: PrefKey.VIDEO_BRIGHTNESS,
-              onChange: updateVideoPlayerCss
+              onChange: updateVideoPlayer
             }
           ]
         }
@@ -5553,70 +5592,41 @@ var setupStreamSettingsDialog = function() {
   $tabs.firstElementChild.dispatchEvent(new Event("click"));
   document.documentElement.appendChild($wrapper);
 };
-function updateVideoPlayerCss() {
-  let $elm = document.getElementById("bx-video-css");
-  if (!$elm) {
-    const $fragment = document.createDocumentFragment();
-    $elm = CE("style", { id: "bx-video-css" });
-    $fragment.appendChild($elm);
-    const $svg = CE("svg", {
-      id: "bx-video-filters",
-      xmlns: "http://www.w3.org/2000/svg",
-      class: "bx-gone"
-    }, CE("defs", { xmlns: "http://www.w3.org/2000/svg" }, CE("filter", { id: "bx-filter-clarity", xmlns: "http://www.w3.org/2000/svg" }, CE("feConvolveMatrix", { id: "bx-filter-clarity-matrix", order: "3", xmlns: "http://www.w3.org/2000/svg" }))));
-    $fragment.appendChild($svg);
-    document.documentElement.appendChild($fragment);
+var onChangeVideoPlayerType = function() {
+  const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE);
+  const $videoProcessing = document.getElementById("bx_setting_video_processing");
+  const $videoSharpness = document.getElementById("bx_setting_video_sharpness");
+  let isDisabled = false;
+  if (playerType === StreamPlayerType.WEBGL2) {
+    $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = false;
+  } else {
+    $videoProcessing.value = StreamVideoProcessing.USM;
+    setPref(PrefKey.VIDEO_PROCESSING, StreamVideoProcessing.USM);
+    $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = true;
+    if (UserAgent.isSafari()) {
+      isDisabled = true;
+    }
   }
-  let filters = getVideoPlayerFilterStyle();
-  let videoCss = "";
-  if (filters) {
-    videoCss += `filter: ${filters} !important;`;
-  }
-  if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
-    Screenshot.updateCanvasFilters(filters);
-  }
-  let css = "";
-  if (videoCss) {
-    css = `
-#game-stream video {
-    ${videoCss}
-}
-`;
-  }
-  $elm.textContent = css;
-  resizeVideoPlayer();
-}
-var resizeVideoPlayer = function() {
-  const $video = STATES.currentStream.$video;
-  if (!$video || !$video.parentElement) {
+  $videoProcessing.disabled = isDisabled;
+  $videoSharpness.dataset.disabled = isDisabled.toString();
+  updateVideoPlayer();
+};
+function updateVideoPlayer() {
+  const streamPlayer = STATES.currentStream.streamPlayer;
+  if (!streamPlayer) {
     return;
   }
-  const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
-  if (PREF_RATIO.includes(":")) {
-    const tmp = PREF_RATIO.split(":");
-    const videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
-    let width = 0;
-    let height = 0;
-    const parentRect = $video.parentElement.getBoundingClientRect();
-    const parentRatio = parentRect.width / parentRect.height;
-    if (parentRatio > videoRatio) {
-      height = parentRect.height;
-      width = height * videoRatio;
-    } else {
-      width = parentRect.width;
-      height = width / videoRatio;
-    }
-    width = Math.min(parentRect.width, Math.ceil(width));
-    height = Math.min(parentRect.height, Math.ceil(height));
-    $video.style.width = `${width}px`;
-    $video.style.height = `${height}px`;
-    $video.style.objectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
-  } else {
-    $video.style.width = "100%";
-    $video.style.height = "100%";
-    $video.style.objectFit = PREF_RATIO;
-  }
-};
+  const options = {
+    processing: getPref(PrefKey.VIDEO_PROCESSING),
+    sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
+    saturation: getPref(PrefKey.VIDEO_SATURATION),
+    contrast: getPref(PrefKey.VIDEO_CONTRAST),
+    brightness: getPref(PrefKey.VIDEO_BRIGHTNESS)
+  };
+  streamPlayer.setPlayerType(getPref(PrefKey.VIDEO_PLAYER_TYPE));
+  streamPlayer.updateOptions(options);
+  streamPlayer.refreshPlayer();
+}
 var preloadFonts = function() {
   const $link = CE("link", {
     rel: "preload",
@@ -5630,11 +5640,11 @@ var preloadFonts = function() {
 function setupStreamUi() {
   if (!document.querySelector(".bx-stream-settings-dialog")) {
     preloadFonts();
-    window.addEventListener("resize", updateVideoPlayerCss);
+    window.addEventListener("resize", updateVideoPlayer);
     setupStreamSettingsDialog();
     Screenshot.setup();
   }
-  updateVideoPlayerCss();
+  updateVideoPlayer();
 }
 
 // src/modules/remote-play.ts
@@ -7082,6 +7092,13 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   align-self: center;
   background: #000;
 }
+#game-stream canvas {
+  position: absolute;
+  align-self: center;
+  margin: auto;
+  left: 0;
+  right: 0;
+}
 #gamepass-dialog-root div[class^=Guide-module__guide] .bx-button {
   overflow: visible;
   margin-bottom: 12px;
@@ -7172,6 +7189,10 @@ div[data-testid=media-container].bx-taking-screenshot:before {
 }
 .bx-number-stepper input[type=range]:disabled,
 .bx-number-stepper button:disabled {
+  display: none;
+}
+.bx-number-stepper[data-disabled=true] input[type=range],
+.bx-number-stepper[data-disabled=true] button {
   display: none;
 }
 #bx-game-bar {
@@ -7512,6 +7533,7 @@ div[class^=StreamMenu-module__container] .bx-badges {
   background: transparent;
   text-align-last: right;
   border: none;
+  color: #fff;
 }
 .bx-stream-settings-dialog-note {
   display: block;
@@ -9040,6 +9062,349 @@ function patchSdpBitrate(sdp, video, audio) {
   return lines.join("\n");
 }
 
+// src/modules/player/shaders/clarity_boost.vert
+var clarity_boost_default = "#version 300 es\n\nin vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
+
+// src/modules/player/shaders/clarity_boost.fs
+var clarity_boost_default2 = "#version 300 es\n\n#define CONVERT_COLOR_SPACE false\n\nconst int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nout vec4 outColor;\n\nvec3 linearToSrgb(vec3 inColor) {\n    bvec3 cutoff = lessThan(inColor.rgb, vec3(0.0031308));\n    vec3 higher = vec3(1.055) * pow(inColor.rgb, vec3(1.0 / 2.4)) - vec3(0.055);\n    vec3 lower = inColor.rgb * vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec3 srgbToLinear(vec3 col) {\n    bvec3 cutoff = lessThan(col, vec3(0.04045));\n    vec3 higher = pow((col + vec3(0.055)) / vec3(1.055), vec3(2.4));\n    vec3 lower = col / vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec4 textureAt(sampler2D tex, vec2 coord, bool convertSrgb) {\n    vec4 color = texture(tex, coord / iResolution.xy);\n\n    if (convertSrgb) {\n        return vec4(srgbToLinear(color.rgb), 1.0);\n    }\n\n    return color;\n}\n\nvec4 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // bool convertSrgb = filterId == FILTER_CAS;\n    bool convertSrgb = false;\n\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec4 a = textureAt(tex, coord + vec2(-1, 1), convertSrgb);\n    vec4 b = textureAt(tex, coord + vec2(0, 1), convertSrgb);\n    vec4 c = textureAt(tex, coord + vec2(1, 1), convertSrgb);\n\n    vec4 d = textureAt(tex, coord + vec2(-1, 0), convertSrgb);\n    vec4 e = textureAt(tex, coord, convertSrgb);\n    vec4 f = textureAt(tex, coord + vec2(1, 0), convertSrgb);\n\n    vec4 g = textureAt(tex, coord + vec2(-1, -1), convertSrgb);\n    vec4 h = textureAt(tex, coord + vec2(0, -1), convertSrgb);\n    vec4 i = textureAt(tex, coord + vec2(1, -1), convertSrgb);\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d.rgb, e.rgb), min(f.rgb, b.rgb)), h.rgb);\n        vec3 minRgb2 = min(min(a.rgb, c.rgb), min(g.rgb, i.rgb));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d.rgb, e.rgb), max(f.rgb, b.rgb)), h.rgb);\n        vec3 maxRgb2 = max(max(a.rgb, c.rgb), max(g.rgb, i.rgb));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //\t\t\t\t\t\t0 w 0\n        //  Filter shape:\t\tw 1 w\n        //\t\t\t\t\t\t0 w 0\n        vec3 window = (b.rgb + d.rgb) + (f.rgb + h.rgb);\n        vec3 outColor = clamp((window * weightRgb + e.rgb) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e.rgb, outColor, sharpenFactor / 2.0);\n        if (convertSrgb) {\n            outColor = linearToSrgb(outColor);\n        }\n        return vec4(outColor, 1.0);\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec4 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor;\n    }\n\n    return e;\n}\n\nvec4 adjustBrightness(vec4 color) {\n    // color.rgb += brightness;\n    color.rgb = (1.0 + brightness) * color.rgb;\n    return color;\n}\n\nvec4 adjustContrast(vec4 color) {\n    color.rgb = 0.5 + (1.0 + contrast) * (color.rgb - 0.5);\n    return color;\n}\n\nvec4 adjustSaturation(vec4 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color.rgb, luminosityFactor));\n\n    return vec4(mix(grayscale, color.rgb, 1.0 + saturation), color.a);\n}\n\n\nvoid main() {\n    vec4 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy, false);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    outColor = color;\n}\n";
+
+// src/modules/player/webgl2-player.ts
+class WebGL2Player {
+  #$video;
+  #$canvas;
+  #gl = null;
+  #program = null;
+  #texture = null;
+  #stopped = false;
+  #options = {
+    filterId: 1,
+    sharpenFactor: 5,
+    brightness: 0,
+    contrast: 0,
+    saturation: 0
+  };
+  #animFrameId = null;
+  constructor($video) {
+    this.#$video = $video;
+    const $canvas = document.createElement("canvas");
+    $canvas.width = $video.videoWidth;
+    $canvas.height = $video.videoHeight;
+    this.#$canvas = $canvas;
+    this.#setupShaders();
+    $video.nativePlay();
+    $video.insertAdjacentElement("afterend", $canvas);
+    $video.classList.add("bx-gone");
+    this.#setupRendering();
+  }
+  setFilter(filterId, update = true) {
+    this.#options.filterId = filterId;
+    update && this.updateCanvas();
+  }
+  setSharpness(sharpness, update = true) {
+    this.#options.sharpenFactor = sharpness;
+    update && this.updateCanvas();
+  }
+  setBrightness(brightness, update = true) {
+    this.#options.brightness = (brightness - 100) / 100;
+    update && this.updateCanvas();
+  }
+  setContrast(contrast, update = true) {
+    this.#options.contrast = (contrast - 100) / 100;
+    update && this.updateCanvas();
+  }
+  setSaturation(saturation, update = true) {
+    this.#options.saturation = (saturation - 100) / 100;
+    update && this.updateCanvas();
+  }
+  getCanvas() {
+    return this.#$canvas;
+  }
+  updateCanvas() {
+    const gl = this.#gl;
+    const program = this.#program;
+    gl.uniform2f(gl.getUniformLocation(program, "iResolution"), this.#$canvas.width, this.#$canvas.height);
+    gl.uniform1i(gl.getUniformLocation(program, "filterId"), this.#options.filterId);
+    gl.uniform1f(gl.getUniformLocation(program, "sharpenFactor"), this.#options.sharpenFactor);
+    gl.uniform1f(gl.getUniformLocation(program, "brightness"), this.#options.brightness);
+    gl.uniform1f(gl.getUniformLocation(program, "contrast"), this.#options.contrast);
+    gl.uniform1f(gl.getUniformLocation(program, "saturation"), this.#options.saturation);
+  }
+  drawFrame() {
+    const gl = this.#gl;
+    const $video = this.#$video;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, $video);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+  }
+  #setupRendering() {
+    let animate;
+    if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
+      const $video = this.#$video;
+      animate = () => {
+        if (this.#stopped) {
+          return;
+        }
+        this.drawFrame();
+        this.#animFrameId = $video.requestVideoFrameCallback(animate);
+      };
+      this.#animFrameId = $video.requestVideoFrameCallback(animate);
+    } else {
+      animate = () => {
+        if (this.#stopped) {
+          return;
+        }
+        this.drawFrame();
+        this.#animFrameId = requestAnimationFrame(animate);
+      };
+      this.#animFrameId = requestAnimationFrame(animate);
+    }
+  }
+  #setupShaders() {
+    const gl = this.#$canvas.getContext("webgl2", {
+      isBx: true,
+      antialias: true,
+      alpha: false,
+      powerPreference: "high-performance"
+    });
+    this.#gl = gl;
+    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
+    const vShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vShader, clarity_boost_default);
+    gl.compileShader(vShader);
+    const fShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fShader, clarity_boost_default2);
+    gl.compileShader(fShader);
+    const program = gl.createProgram();
+    this.#program = program;
+    gl.attachShader(program, vShader);
+    gl.attachShader(program, fShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error(`Link failed: ${gl.getProgramInfoLog(program)}`);
+      console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`);
+      console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
+    }
+    this.updateCanvas();
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      -1,
+      -1,
+      1,
+      -1,
+      -1,
+      1,
+      -1,
+      1,
+      1,
+      -1,
+      1,
+      1
+    ]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    const texture = gl.createTexture();
+    this.#texture = texture;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.uniform1i(gl.getUniformLocation(program, "data"), 0);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+  }
+  destroy() {
+    this.#stopped = true;
+    if (this.#animFrameId) {
+      if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
+        this.#$video.cancelVideoFrameCallback(this.#animFrameId);
+      } else {
+        cancelAnimationFrame(this.#animFrameId);
+      }
+      this.#animFrameId = null;
+    }
+    const gl = this.#gl;
+    if (gl) {
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      gl.useProgram(null);
+      this.#program && gl.deleteProgram(this.#program);
+      this.#program = null;
+      this.#texture && gl.deleteTexture(this.#texture);
+      this.#texture = null;
+    }
+    if (this.#$canvas.isConnected) {
+      this.#$canvas.parentElement?.removeChild(this.#$canvas);
+    }
+    this.#$canvas.width = 1;
+    this.#$canvas.height = 1;
+  }
+}
+
+// src/modules/stream-player.ts
+class StreamPlayer {
+  #$video;
+  #playerType = StreamPlayerType.VIDEO;
+  #options = {};
+  #webGL2Player = null;
+  #$videoCss = null;
+  #$usmMatrix = null;
+  constructor($video, type, options) {
+    this.#setupVideoElements();
+    this.#$video = $video;
+    this.#options = options || {};
+    this.setPlayerType(type);
+  }
+  #setupVideoElements() {
+    this.#$videoCss = document.getElementById("bx-video-css");
+    if (this.#$videoCss) {
+      return;
+    }
+    const $fragment = document.createDocumentFragment();
+    this.#$videoCss = CE("style", { id: "bx-video-css" });
+    $fragment.appendChild(this.#$videoCss);
+    const $svg = CE("svg", {
+      id: "bx-video-filters",
+      xmlns: "http://www.w3.org/2000/svg",
+      class: "bx-gone"
+    }, CE("defs", { xmlns: "http://www.w3.org/2000/svg" }, CE("filter", {
+      id: "bx-filter-usm",
+      xmlns: "http://www.w3.org/2000/svg"
+    }, this.#$usmMatrix = CE("feConvolveMatrix", {
+      id: "bx-filter-usm-matrix",
+      order: "3",
+      xmlns: "http://www.w3.org/2000/svg"
+    }))));
+    $fragment.appendChild($svg);
+    document.documentElement.appendChild($fragment);
+  }
+  #getVideoPlayerFilterStyle() {
+    const filters = [];
+    const sharpness = this.#options.sharpness || 0;
+    if (sharpness != 0) {
+      const level = (7 - (sharpness / 2 - 1) * 0.5).toFixed(1);
+      const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
+      this.#$usmMatrix?.setAttributeNS(null, "kernelMatrix", matrix);
+      filters.push(`url(#bx-filter-usm)`);
+    }
+    const saturation = this.#options.saturation || 100;
+    if (saturation != 100) {
+      filters.push(`saturate(${saturation}%)`);
+    }
+    const contrast = this.#options.contrast || 100;
+    if (contrast != 100) {
+      filters.push(`contrast(${contrast}%)`);
+    }
+    const brightness = this.#options.brightness || 100;
+    if (brightness != 100) {
+      filters.push(`brightness(${brightness}%)`);
+    }
+    return filters.join(" ");
+  }
+  #resizePlayer() {
+    const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
+    let $target;
+    if (this.#playerType == StreamPlayerType.WEBGL2) {
+      $target = this.#webGL2Player?.getCanvas();
+    } else {
+      $target = this.#$video;
+    }
+    if (PREF_RATIO.includes(":")) {
+      const tmp = PREF_RATIO.split(":");
+      const videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
+      let width = 0;
+      let height = 0;
+      const parentRect = this.#$video.parentElement.getBoundingClientRect();
+      const parentRatio = parentRect.width / parentRect.height;
+      if (parentRatio > videoRatio) {
+        height = parentRect.height;
+        width = height * videoRatio;
+      } else {
+        width = parentRect.width;
+        height = width / videoRatio;
+      }
+      width = Math.ceil(Math.min(parentRect.width, width));
+      height = Math.ceil(Math.min(parentRect.height, height));
+      $target.style.width = `${width}px`;
+      $target.style.height = `${height}px`;
+      $target.style.objectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
+    } else {
+      $target.style.width = "100%";
+      $target.style.height = "100%";
+      $target.style.objectFit = PREF_RATIO;
+    }
+  }
+  setPlayerType(type, refreshPlayer = false) {
+    if (this.#playerType !== type) {
+      if (type === StreamPlayerType.WEBGL2) {
+        this.#webGL2Player = new WebGL2Player(this.#$video);
+        this.#$videoCss.textContent = "";
+      } else {
+        this.#webGL2Player?.destroy();
+        this.#webGL2Player = null;
+        this.#$video.nativePlay();
+        this.#$video.classList.remove("bx-gone");
+      }
+    }
+    this.#playerType = type;
+    refreshPlayer && this.refreshPlayer();
+  }
+  setOptions(options, refreshPlayer = false) {
+    this.#options = options;
+    refreshPlayer && this.refreshPlayer();
+  }
+  updateOptions(options, refreshPlayer = false) {
+    this.#options = Object.assign(this.#options, options);
+    refreshPlayer && this.refreshPlayer();
+  }
+  getPlayerElement(playerType) {
+    if (typeof playerType === "undefined") {
+      playerType = this.#playerType;
+    }
+    if (playerType === StreamPlayerType.WEBGL2) {
+      return this.#webGL2Player?.getCanvas();
+    }
+    return this.#$video;
+  }
+  getWebGL2Player() {
+    return this.#webGL2Player;
+  }
+  refreshPlayer() {
+    if (this.#playerType === StreamPlayerType.WEBGL2) {
+      const options = this.#options;
+      const webGL2Player = this.#webGL2Player;
+      if (options.processing === "usm") {
+        webGL2Player.setFilter(1);
+      } else {
+        webGL2Player.setFilter(2);
+      }
+      Screenshot.updateCanvasFilters("none");
+      webGL2Player.setSharpness(options.sharpness || 0);
+      webGL2Player.setSaturation(options.saturation || 100);
+      webGL2Player.setContrast(options.contrast || 100);
+      webGL2Player.setBrightness(options.brightness || 100);
+    } else {
+      let filters = this.#getVideoPlayerFilterStyle();
+      let videoCss = "";
+      if (filters) {
+        videoCss += `filter: ${filters} !important;`;
+      }
+      if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
+        Screenshot.updateCanvasFilters(filters);
+      }
+      let css = "";
+      if (videoCss) {
+        css = `#game-stream video { ${videoCss} }`;
+      }
+      this.#$videoCss.textContent = css;
+    }
+    this.#resizePlayer();
+  }
+  destroy() {
+    this.#webGL2Player?.destroy();
+  }
+}
+
 // src/utils/monkey-patches.ts
 function patchVideoApi() {
   const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);
@@ -9049,11 +9414,20 @@ function patchVideoApi() {
     if (!this.videoWidth) {
       return;
     }
+    const playerOptions = {
+      processing: getPref(PrefKey.VIDEO_PROCESSING),
+      sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
+      saturation: getPref(PrefKey.VIDEO_SATURATION),
+      contrast: getPref(PrefKey.VIDEO_CONTRAST),
+      brightness: getPref(PrefKey.VIDEO_BRIGHTNESS)
+    };
+    STATES.currentStream.streamPlayer = new StreamPlayer(this, getPref(PrefKey.VIDEO_PLAYER_TYPE), playerOptions);
     BxEvent.dispatch(window, BxEvent.STREAM_PLAYING, {
       $video: this
     });
   };
   const nativePlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.nativePlay = nativePlay;
   HTMLMediaElement.prototype.play = function() {
     if (this.className && this.className.startsWith("XboxSplashVideo")) {
       if (PREF_SKIP_SPLASH_VIDEO) {
@@ -9156,7 +9530,10 @@ function patchMeControl() {
     oneDSUrl: ""
   };
   const MSA = {
-    MeControl: {}
+    MeControl: {
+      setMobileState: () => {
+      }
+    }
   };
   const MeControl = {};
   const MsaHandler = {
@@ -9191,9 +9568,11 @@ function patchCanvasContext() {
   HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
     if (contextType.includes("webgl")) {
       contextAttributes = contextAttributes || {};
-      contextAttributes.antialias = false;
-      if (contextAttributes.powerPreference === "high-performance") {
-        contextAttributes.powerPreference = "low-power";
+      if (!contextAttributes.isBx) {
+        contextAttributes.antialias = false;
+        if (contextAttributes.powerPreference === "high-performance") {
+          contextAttributes.powerPreference = "low-power";
+        }
       }
     }
     return nativeGetContext.apply(this, [contextType, contextAttributes]);
@@ -9502,6 +9881,7 @@ var unload = function() {
   }
   EmulatedMkbHandler.getInstance().destroy();
   NativeMkbHandler.getInstance().destroy();
+  STATES.currentStream.streamPlayer?.destroy();
   STATES.isPlaying = false;
   STATES.currentStream = {};
   window.BX_EXPOSED.shouldShowSensorControls = false;
@@ -9510,8 +9890,6 @@ var unload = function() {
   if ($streamSettingsDialog) {
     $streamSettingsDialog.classList.add("bx-gone");
   }
-  STATES.currentStream.audioGainNode = null;
-  STATES.currentStream.$video = null;
   StreamStats.getInstance().onStoppedPlaying();
   MouseCursorHider.stop();
   TouchController.reset();
@@ -9681,8 +10059,6 @@ window.addEventListener(BxEvent.STREAM_STARTING, (e) => {
   }
 });
 window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-  const $video = e.$video;
-  STATES.currentStream.$video = $video;
   STATES.isPlaying = true;
   injectStreamMenuButtons();
   if (getPref(PrefKey.GAME_BAR_POSITION) !== "off") {
@@ -9691,8 +10067,9 @@ window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
     gameBar.enable();
     gameBar.showBar();
   }
+  const $video = e.$video;
   Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight);
-  updateVideoPlayerCss();
+  updateVideoPlayer();
 });
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
