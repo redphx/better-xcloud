@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      4.8.0-beta
+// @version      4.8.0-beta-2
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -122,7 +122,7 @@ class UserAgent {
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "4.8.0-beta";
+var SCRIPT_VERSION = "4.8.0-beta-2";
 var AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase();
@@ -354,8 +354,11 @@ var Texts = {
   activated: "Activated",
   active: "Active",
   advanced: "Advanced",
+  "amd-fidelity-cas": "AMD FidelityFX CAS",
   "android-app-settings": "Android app settings",
   apply: "Apply",
+  "aspect-ratio": "Aspect ratio",
+  "aspect-ratio-note": "Don't use with native touch games",
   audio: "Audio",
   auto: "Auto",
   "back-to-home": "Back to home",
@@ -376,7 +379,7 @@ var Texts = {
   "can-stream-xbox-360-games": "Can stream Xbox 360 games",
   cancel: "Cancel",
   "cant-stream-xbox-360-games": "Can't stream Xbox 360 games",
-  clarity: "Clarity",
+  "clarity-boost": "Clarity boost",
   "clarity-boost-warning": "These settings don't work when the Clarity Boost mode is ON",
   clear: "Clear",
   close: "Close",
@@ -480,14 +483,14 @@ var Texts = {
     ,
     (e) => `${e.key}: Funktion an-/ausschalten`,
     ,
-    ,
+    (e) => `Pulsa ${e.key} para alternar esta función`,
     (e) => `Appuyez sur ${e.key} pour activer cette fonctionnalité`,
     (e) => `Premi ${e.key} per attivare questa funzionalità`,
     (e) => `${e.key} でこの機能を切替`,
+    (e) => `${e.key} 키를 눌러 이 기능을 켜고 끄세요`,
+    (e) => `Naciśnij ${e.key} aby przełączyć tę funkcję`,
     ,
-    ,
-    ,
-    ,
+    (e) => `Нажмите ${e.key} для переключения этой функции`,
     ,
     (e) => `Etkinleştirmek için ${e.key} tuşuna basın`,
     (e) => `Натисніть ${e.key} щоб перемкнути цю функцію`,
@@ -496,12 +499,12 @@ var Texts = {
   ],
   "press-to-bind": "Press a key or do a mouse click to bind...",
   "prompt-preset-name": "Preset's name:",
-  ratio: "Ratio",
   "reduce-animations": "Reduce UI animations",
   region: "Region",
   "reload-stream": "Reload stream",
   "remote-play": "Remote Play",
   rename: "Rename",
+  renderer: "Renderer",
   "right-click-to-unbind": "Right-click on a key to unbind it",
   "right-stick": "Right stick",
   "rocket-always-hide": "Always hide",
@@ -519,6 +522,7 @@ var Texts = {
   settings: "Settings",
   "settings-reload": "Reload page to reflect changes",
   "settings-reloading": "Reloading...",
+  sharpness: "Sharpness",
   "shortcut-keys": "Shortcut keys",
   show: "Show",
   "show-game-art": "Show game art",
@@ -546,7 +550,6 @@ var Texts = {
   "stream-settings": "Stream settings",
   "stream-stats": "Stream stats",
   stretch: "Stretch",
-  "stretch-note": "Don't use with native touch games",
   "support-better-xcloud": "Support Better xCloud",
   "swap-buttons": "Swap buttons",
   "take-screenshot": "Take screenshot",
@@ -591,6 +594,7 @@ var Texts = {
   unknown: "Unknown",
   unlimited: "Unlimited",
   unmuted: "Unmuted",
+  "unsharp-masking": "Unsharp masking",
   "use-mouse-absolute-position": "Use mouse's absolute position",
   "user-agent-profile": "User-Agent profile",
   "vertical-scroll-sensitivity": "Vertical scroll sensitivity",
@@ -605,7 +609,8 @@ var Texts = {
   "visual-quality-normal": "Normal",
   volume: "Volume",
   "wait-time-countdown": "Countdown",
-  "wait-time-estimated": "Estimated finish time"
+  "wait-time-estimated": "Estimated finish time",
+  webgl2: "WebGL2"
 };
 
 class Translations {
@@ -693,10 +698,6 @@ class Translations {
   }
 }
 var t = Translations.get;
-var ut = (text) => {
-  BxLogger.warning("Untranslated text", text);
-  return text;
-};
 Translations.init();
 
 // src/utils/settings.ts
@@ -1062,7 +1063,11 @@ class StreamStats {
         const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
         const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
         const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
-        this.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+        if (isNaN(currentDecodeTime)) {
+          this.#$dt.textContent = "??ms";
+        } else {
+          this.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+        }
         if (PREF_STATS_CONDITIONAL_FORMATTING) {
           grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "";
           this.#$dt.dataset.grade = grade;
@@ -1645,23 +1650,23 @@ class Preferences {
       }
     },
     [PrefKey.VIDEO_PLAYER_TYPE]: {
-      label: ut("Video player"),
+      label: t("renderer"),
       default: "default",
       options: {
         [StreamPlayerType.VIDEO]: t("default"),
-        [StreamPlayerType.WEBGL2]: ut("WebGL2")
+        [StreamPlayerType.WEBGL2]: t("webgl2")
       }
     },
     [PrefKey.VIDEO_PROCESSING]: {
-      label: ut("Clarity boost"),
+      label: t("clarity-boost"),
       default: StreamVideoProcessing.USM,
       options: {
-        [StreamVideoProcessing.USM]: ut("Unsharp Masking"),
-        [StreamVideoProcessing.CAS]: ut("AMD FidelityFX CAS")
+        [StreamVideoProcessing.USM]: t("unsharp-masking"),
+        [StreamVideoProcessing.CAS]: t("amd-fidelity-cas")
       }
     },
     [PrefKey.VIDEO_SHARPNESS]: {
-      label: ut("Sharpness"),
+      label: t("sharpness"),
       type: SettingElementType.NUMBER_STEPPER,
       default: 0,
       min: 0,
@@ -1671,8 +1676,8 @@ class Preferences {
       }
     },
     [PrefKey.VIDEO_RATIO]: {
-      label: t("ratio"),
-      note: t("stretch-note"),
+      label: t("aspect-ratio"),
+      note: t("aspect-ratio-note"),
       default: "16:9",
       options: {
         "16:9": "16:9",
@@ -4307,7 +4312,8 @@ var BxExposed = {
         supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
         titleInfo.details.supportedTabs = [];
       }
-      titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+      titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH);
+      titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
       if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
         titleInfo.details.hasFakeTouchSupport = true;
         supportedInputTypes.push(InputType.GENERIC_TOUCH);
@@ -6498,6 +6504,10 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
 .bx-hidden {
   visibility: hidden !important;
 }
+.bx-pixel {
+  width: 1px !important;
+  height: 1px !important;
+}
 .bx-no-margin {
   margin: 0 !important;
 }
@@ -7892,6 +7902,9 @@ class MouseCursorHider {
 // src/modules/patches/controller-shortcuts.js
 var controller_shortcuts_default = "const currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    let intervalMs = 0;\n    let hijack = false;\n\n    if (btnHome.pressed) {\n        hijack = true;\n        intervalMs = 16;\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                shortcutPressed: 0,\n                timestamp: currentGamepad.timestamp,\n            };\n        }\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        hijack = true;\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                GamepadIndex: currentGamepad.index,\n                A: 0,\n                B: 0,\n                X: 0,\n                Y: 0,\n                LeftShoulder: 0,\n                RightShoulder: 0,\n                LeftTrigger: 0,\n                RightTrigger: 0,\n                View: 0,\n                Menu: 0,\n                LeftThumb: 0,\n                RightThumb: 0,\n                DPadUp: 0,\n                DPadDown: 0,\n                DPadLeft: 0,\n                DPadRight: 0,\n                Nexus: 1,\n                LeftThumbXAxis: 0,\n                LeftThumbYAxis: 0,\n                RightThumbXAxis: 0,\n                RightThumbYAxis: 0,\n                PhysicalPhysicality: 0,\n                VirtualPhysicality: 0,\n                Dirty: true,\n                Virtual: false,\n            }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n        } else {\n            intervalMs = 4;\n        }\n    }\n\n    if (hijack && intervalMs) {\n        // Listen to next button press\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    }\n}\n";
 
+// src/modules/patches/expose-stream-session.js
+var expose_stream_session_default = "window.BX_EXPOSED.streamSession = this;\n\nconst orgSetMicrophoneState = this.setMicrophoneState.bind(this);\nthis.setMicrophoneState = state => {\n    orgSetMicrophoneState(state);\n\n    const evt = new Event(BxEvent.MICROPHONE_STATE_CHANGED);\n    evt.microphoneState = state;\n\n    window.dispatchEvent(evt);\n};\n\nwindow.dispatchEvent(new Event(BxEvent.STREAM_SESSION_READY));\n\n// Patch updateDimensions() to make native touch work correctly with WebGL2\nlet updateDimensionsStr = this.updateDimensions.toString();\n\n// if(r){\nconst renderTargetVar = updateDimensionsStr.match(/if\\((\\w+)\\){/)[1];\n\nupdateDimensionsStr = updateDimensionsStr.replaceAll(renderTargetVar + '.scroll', 'scroll');\n\nupdateDimensionsStr = updateDimensionsStr.replace(`if(${renderTargetVar}){`, `\nif (${renderTargetVar}) {\n    const scrollWidth = ${renderTargetVar}.dataset.width ? parseInt(${renderTargetVar}.dataset.width) : ${renderTargetVar}.scrollWidth;\n    const scrollHeight = ${renderTargetVar}.dataset.height ? parseInt(${renderTargetVar}.dataset.height) : ${renderTargetVar}.scrollHeight;\n`);\n\neval(`this.updateDimensions = function ${updateDimensionsStr}`);\n";
+
 // src/modules/patches/local-co-op-enable.js
 var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
 
@@ -8307,20 +8320,7 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
       return false;
     }
     const newCode = `;
-window.BX_EXPOSED.streamSession = this;
-
-const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
-this.setMicrophoneState = state => {
-    orgSetMicrophoneState(state);
-
-    const evt = new Event('${BxEvent.MICROPHONE_STATE_CHANGED}');
-    evt.microphoneState = state;
-
-    window.dispatchEvent(evt);
-};
-
-window.dispatchEvent(new Event('${BxEvent.STREAM_SESSION_READY}'))
-
+${expose_stream_session_default}
 true` + text;
     str2 = str2.replace(text, newCode);
     return str2;
@@ -9063,38 +9063,39 @@ function patchSdpBitrate(sdp, video, audio) {
 }
 
 // src/modules/player/shaders/clarity_boost.vert
-var clarity_boost_default = "#version 300 es\n\nin vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
+var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
 
 // src/modules/player/shaders/clarity_boost.fs
-var clarity_boost_default2 = "#version 300 es\n\n#define CONVERT_COLOR_SPACE false\n\nconst int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nout vec4 outColor;\n\nvec3 linearToSrgb(vec3 inColor) {\n    bvec3 cutoff = lessThan(inColor.rgb, vec3(0.0031308));\n    vec3 higher = vec3(1.055) * pow(inColor.rgb, vec3(1.0 / 2.4)) - vec3(0.055);\n    vec3 lower = inColor.rgb * vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec3 srgbToLinear(vec3 col) {\n    bvec3 cutoff = lessThan(col, vec3(0.04045));\n    vec3 higher = pow((col + vec3(0.055)) / vec3(1.055), vec3(2.4));\n    vec3 lower = col / vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec4 textureAt(sampler2D tex, vec2 coord, bool convertSrgb) {\n    vec4 color = texture(tex, coord / iResolution.xy);\n\n    if (convertSrgb) {\n        return vec4(srgbToLinear(color.rgb), 1.0);\n    }\n\n    return color;\n}\n\nvec4 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // bool convertSrgb = filterId == FILTER_CAS;\n    bool convertSrgb = false;\n\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec4 a = textureAt(tex, coord + vec2(-1, 1), convertSrgb);\n    vec4 b = textureAt(tex, coord + vec2(0, 1), convertSrgb);\n    vec4 c = textureAt(tex, coord + vec2(1, 1), convertSrgb);\n\n    vec4 d = textureAt(tex, coord + vec2(-1, 0), convertSrgb);\n    vec4 e = textureAt(tex, coord, convertSrgb);\n    vec4 f = textureAt(tex, coord + vec2(1, 0), convertSrgb);\n\n    vec4 g = textureAt(tex, coord + vec2(-1, -1), convertSrgb);\n    vec4 h = textureAt(tex, coord + vec2(0, -1), convertSrgb);\n    vec4 i = textureAt(tex, coord + vec2(1, -1), convertSrgb);\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d.rgb, e.rgb), min(f.rgb, b.rgb)), h.rgb);\n        vec3 minRgb2 = min(min(a.rgb, c.rgb), min(g.rgb, i.rgb));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d.rgb, e.rgb), max(f.rgb, b.rgb)), h.rgb);\n        vec3 maxRgb2 = max(max(a.rgb, c.rgb), max(g.rgb, i.rgb));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //\t\t\t\t\t\t0 w 0\n        //  Filter shape:\t\tw 1 w\n        //\t\t\t\t\t\t0 w 0\n        vec3 window = (b.rgb + d.rgb) + (f.rgb + h.rgb);\n        vec3 outColor = clamp((window * weightRgb + e.rgb) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e.rgb, outColor, sharpenFactor / 2.0);\n        if (convertSrgb) {\n            outColor = linearToSrgb(outColor);\n        }\n        return vec4(outColor, 1.0);\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec4 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor;\n    }\n\n    return e;\n}\n\nvec4 adjustBrightness(vec4 color) {\n    // color.rgb += brightness;\n    color.rgb = (1.0 + brightness) * color.rgb;\n    return color;\n}\n\nvec4 adjustContrast(vec4 color) {\n    color.rgb = 0.5 + (1.0 + contrast) * (color.rgb - 0.5);\n    return color;\n}\n\nvec4 adjustSaturation(vec4 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color.rgb, luminosityFactor));\n\n    return vec4(mix(grayscale, color.rgb, 1.0 + saturation), color.a);\n}\n\n\nvoid main() {\n    vec4 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy, false);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    outColor = color;\n}\n";
+var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvarying vec4 outColor;\n\nvec3 linearToSrgb(vec3 inColor) {\n    vec3 cutoff = step(inColor.rgb, vec3(0.0031308));\n    vec3 higher = vec3(1.055) * pow(inColor.rgb, vec3(1.0 / 2.4)) - vec3(0.055);\n    vec3 lower = inColor.rgb * vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec3 srgbToLinear(vec3 col) {\n    vec3 cutoff = step(col, vec3(0.04045));\n    vec3 higher = pow((col + vec3(0.055)) / vec3(1.055), vec3(2.4));\n    vec3 lower = col / vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec4 textureAt(sampler2D tex, vec2 coord, bool convertSrgb) {\n    vec4 color = texture2D(tex, coord / iResolution.xy);\n\n    if (convertSrgb) {\n        return vec4(srgbToLinear(color.rgb), 1.0);\n    }\n\n    return color;\n}\n\nvec4 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // bool convertSrgb = filterId == FILTER_CAS;\n    bool convertSrgb = false;\n\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec4 a = textureAt(tex, coord + vec2(-1, 1), convertSrgb);\n    vec4 b = textureAt(tex, coord + vec2(0, 1), convertSrgb);\n    vec4 c = textureAt(tex, coord + vec2(1, 1), convertSrgb);\n\n    vec4 d = textureAt(tex, coord + vec2(-1, 0), convertSrgb);\n    vec4 e = textureAt(tex, coord, convertSrgb);\n    vec4 f = textureAt(tex, coord + vec2(1, 0), convertSrgb);\n\n    vec4 g = textureAt(tex, coord + vec2(-1, -1), convertSrgb);\n    vec4 h = textureAt(tex, coord + vec2(0, -1), convertSrgb);\n    vec4 i = textureAt(tex, coord + vec2(1, -1), convertSrgb);\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d.rgb, e.rgb), min(f.rgb, b.rgb)), h.rgb);\n        vec3 minRgb2 = min(min(a.rgb, c.rgb), min(g.rgb, i.rgb));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d.rgb, e.rgb), max(f.rgb, b.rgb)), h.rgb);\n        vec3 maxRgb2 = max(max(a.rgb, c.rgb), max(g.rgb, i.rgb));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //\t\t\t\t\t\t0 w 0\n        //  Filter shape:\t\tw 1 w\n        //\t\t\t\t\t\t0 w 0\n        vec3 window = (b.rgb + d.rgb) + (f.rgb + h.rgb);\n        vec3 outColor = clamp((window * weightRgb + e.rgb) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e.rgb, outColor, sharpenFactor / 2.0);\n        if (convertSrgb) {\n            outColor = linearToSrgb(outColor);\n        }\n        return vec4(outColor, 1.0);\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec4 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor;\n    }\n\n    return e;\n}\n\nvec4 adjustBrightness(vec4 color) {\n    // color.rgb += brightness;\n    color.rgb = (1.0 + brightness) * color.rgb;\n    return color;\n}\n\nvec4 adjustContrast(vec4 color) {\n    color.rgb = 0.5 + (1.0 + contrast) * (color.rgb - 0.5);\n    return color;\n}\n\nvec4 adjustSaturation(vec4 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color.rgb, luminosityFactor));\n\n    return vec4(mix(grayscale, color.rgb, 1.0 + saturation), color.a);\n}\n\n\nvoid main() {\n    vec4 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy, false);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = color;\n}\n";
 
 // src/modules/player/webgl2-player.ts
+var LOG_TAG7 = "WebGL2Player";
+
 class WebGL2Player {
   #$video;
   #$canvas;
   #gl = null;
+  #resources = [];
   #program = null;
-  #texture = null;
   #stopped = false;
   #options = {
     filterId: 1,
-    sharpenFactor: 5,
+    sharpenFactor: 0,
     brightness: 0,
     contrast: 0,
     saturation: 0
   };
   #animFrameId = null;
   constructor($video) {
+    BxLogger.info(LOG_TAG7, "Initialize");
     this.#$video = $video;
     const $canvas = document.createElement("canvas");
     $canvas.width = $video.videoWidth;
     $canvas.height = $video.videoHeight;
     this.#$canvas = $canvas;
     this.#setupShaders();
-    $video.nativePlay();
-    $video.insertAdjacentElement("afterend", $canvas);
-    $video.classList.add("bx-gone");
     this.#setupRendering();
+    $video.insertAdjacentElement("afterend", $canvas);
   }
   setFilter(filterId, update = true) {
     this.#options.filterId = filterId;
@@ -9132,7 +9133,7 @@ class WebGL2Player {
   drawFrame() {
     const gl = this.#gl;
     const $video = this.#$video;
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, $video);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, $video);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
   #setupRendering() {
@@ -9185,7 +9186,9 @@ class WebGL2Player {
       console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
     }
     this.updateCanvas();
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    const buffer = gl.createBuffer();
+    this.#resources.push(buffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
       -1,
       -1,
@@ -9203,7 +9206,7 @@ class WebGL2Player {
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     const texture = gl.createTexture();
-    this.#texture = texture;
+    this.#resources.push(texture);
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -9212,9 +9215,17 @@ class WebGL2Player {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.uniform1i(gl.getUniformLocation(program, "data"), 0);
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
   }
-  destroy() {
+  resume() {
+    this.stop();
+    this.#stopped = false;
+    BxLogger.info(LOG_TAG7, "Resume");
+    this.#$canvas.classList.remove("bx-gone");
+    this.#setupRendering();
+  }
+  stop() {
+    BxLogger.info(LOG_TAG7, "Stop");
+    this.#$canvas.classList.add("bx-gone");
     this.#stopped = true;
     if (this.#animFrameId) {
       if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
@@ -9224,14 +9235,26 @@ class WebGL2Player {
       }
       this.#animFrameId = null;
     }
+  }
+  destroy() {
+    BxLogger.info(LOG_TAG7, "Destroy");
+    this.stop();
     const gl = this.#gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
-      gl.useProgram(null);
-      this.#program && gl.deleteProgram(this.#program);
-      this.#program = null;
-      this.#texture && gl.deleteTexture(this.#texture);
-      this.#texture = null;
+      for (const resource of this.#resources) {
+        if (resource instanceof WebGLProgram) {
+          gl.useProgram(null);
+          gl.deleteProgram(resource);
+        } else if (resource instanceof WebGLShader) {
+          gl.deleteShader(resource);
+        } else if (resource instanceof WebGLTexture) {
+          gl.deleteTexture(resource);
+        } else if (resource instanceof WebGLBuffer) {
+          gl.deleteBuffer(resource);
+        }
+      }
+      this.#gl = null;
     }
     if (this.#$canvas.isConnected) {
       this.#$canvas.parentElement?.removeChild(this.#$canvas);
@@ -9258,6 +9281,7 @@ class StreamPlayer {
   #setupVideoElements() {
     this.#$videoCss = document.getElementById("bx-video-css");
     if (this.#$videoCss) {
+      this.#$usmMatrix = this.#$videoCss.querySelector("#bx-filter-usm-matrix");
       return;
     }
     const $fragment = document.createDocumentFragment();
@@ -9303,18 +9327,21 @@ class StreamPlayer {
   }
   #resizePlayer() {
     const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
-    let $target;
+    const $video = this.#$video;
+    const isNativeTouchGame = STATES.currentStream.titleInfo?.details.hasNativeTouchSupport;
+    let $webGL2Canvas;
     if (this.#playerType == StreamPlayerType.WEBGL2) {
-      $target = this.#webGL2Player?.getCanvas();
-    } else {
-      $target = this.#$video;
+      $webGL2Canvas = this.#webGL2Player?.getCanvas();
     }
+    let targetWidth;
+    let targetHeight;
+    let targetObjectFit;
     if (PREF_RATIO.includes(":")) {
       const tmp = PREF_RATIO.split(":");
       const videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
       let width = 0;
       let height = 0;
-      const parentRect = this.#$video.parentElement.getBoundingClientRect();
+      const parentRect = $video.parentElement.getBoundingClientRect();
       const parentRatio = parentRect.width / parentRect.height;
       if (parentRatio > videoRatio) {
         height = parentRect.height;
@@ -9325,25 +9352,43 @@ class StreamPlayer {
       }
       width = Math.ceil(Math.min(parentRect.width, width));
       height = Math.ceil(Math.min(parentRect.height, height));
-      $target.style.width = `${width}px`;
-      $target.style.height = `${height}px`;
-      $target.style.objectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
+      $video.dataset.width = width.toString();
+      $video.dataset.height = height.toString();
+      targetWidth = `${width}px`;
+      targetHeight = `${height}px`;
+      targetObjectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
     } else {
-      $target.style.width = "100%";
-      $target.style.height = "100%";
-      $target.style.objectFit = PREF_RATIO;
+      targetWidth = "100%";
+      targetHeight = "100%";
+      targetObjectFit = PREF_RATIO;
+      $video.dataset.width = window.innerWidth.toString();
+      $video.dataset.height = window.innerHeight.toString();
+    }
+    $video.style.width = targetWidth;
+    $video.style.height = targetHeight;
+    $video.style.objectFit = targetObjectFit;
+    if ($webGL2Canvas) {
+      $webGL2Canvas.style.width = targetWidth;
+      $webGL2Canvas.style.height = targetHeight;
+      $webGL2Canvas.style.objectFit = targetObjectFit;
+    }
+    if (isNativeTouchGame && this.#playerType == StreamPlayerType.WEBGL2) {
+      window.BX_EXPOSED.streamSession.updateDimensions();
     }
   }
   setPlayerType(type, refreshPlayer = false) {
     if (this.#playerType !== type) {
       if (type === StreamPlayerType.WEBGL2) {
-        this.#webGL2Player = new WebGL2Player(this.#$video);
+        if (!this.#webGL2Player) {
+          this.#webGL2Player = new WebGL2Player(this.#$video);
+        } else {
+          this.#webGL2Player.resume();
+        }
         this.#$videoCss.textContent = "";
+        this.#$video.classList.add("bx-pixel");
       } else {
-        this.#webGL2Player?.destroy();
-        this.#webGL2Player = null;
-        this.#$video.nativePlay();
-        this.#$video.classList.remove("bx-gone");
+        this.#webGL2Player?.stop();
+        this.#$video.classList.remove("bx-pixel");
       }
     }
     this.#playerType = type;
@@ -9373,7 +9418,7 @@ class StreamPlayer {
     if (this.#playerType === StreamPlayerType.WEBGL2) {
       const options = this.#options;
       const webGL2Player = this.#webGL2Player;
-      if (options.processing === "usm") {
+      if (options.processing === StreamVideoProcessing.USM) {
         webGL2Player.setFilter(1);
       } else {
         webGL2Player.setFilter(2);
@@ -9402,6 +9447,7 @@ class StreamPlayer {
   }
   destroy() {
     this.#webGL2Player?.destroy();
+    this.#webGL2Player = null;
   }
 }
 
@@ -9484,18 +9530,20 @@ function patchRtcPeerConnection() {
     });
     return dataChannel;
   };
-  const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
-  RTCPeerConnection.prototype.setLocalDescription = function(description) {
-    try {
-      const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
-      if (maxVideoBitrate > 0) {
-        arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
+  const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
+  if (maxVideoBitrate > 0) {
+    const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
+    RTCPeerConnection.prototype.setLocalDescription = function(description) {
+      try {
+        if (description) {
+          arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
+        }
+      } catch (e) {
+        BxLogger.error("setLocalDescription", e);
       }
-    } catch (e) {
-      BxLogger.error("setLocalDescription", e);
-    }
-    return nativeSetLocalDescription.apply(this, arguments);
-  };
+      return nativeSetLocalDescription.apply(this, arguments);
+    };
+  }
   const OrgRTCPeerConnection = window.RTCPeerConnection;
   window.RTCPeerConnection = function() {
     const conn = new OrgRTCPeerConnection;
@@ -9531,7 +9579,11 @@ function patchMeControl() {
   };
   const MSA = {
     MeControl: {
-      setMobileState: () => {
+      API: {
+        setDisplayMode: () => {
+        },
+        setMobileState: () => {
+        }
       }
     }
   };
