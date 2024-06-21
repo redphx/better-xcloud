@@ -7,7 +7,7 @@ import { StreamBadges } from "@modules/stream/stream-badges";
 import { TouchController } from "@modules/touch-controller";
 import { STATES } from "@utils/global";
 import { getPreferredServerRegion } from "@utils/region";
-import { GamePassCloudGallery } from "./gamepass-gallery";
+import { GamePassCloudGallery } from "../enums/game-pass-gallery";
 import { InputType } from "./bx-exposed";
 import { FeatureGates } from "./feature-gates";
 

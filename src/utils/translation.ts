@@ -1,4 +1,5 @@
 import { NATIVE_FETCH } from "./bx-flags";
+import { BxLogger } from "./bx-logger";
 
 export const SUPPORTED_LANGUAGES = {
     'en-US': 'English (United States)',
@@ -26,8 +27,11 @@ const Texts = {
     "activated": "Activated",
     "active": "Active",
     "advanced": "Advanced",
+    "amd-fidelity-cas": "AMD FidelityFX CAS",
     "android-app-settings": "Android app settings",
     "apply": "Apply",
+    "aspect-ratio": "Aspect ratio",
+    "aspect-ratio-note": "Don't use with native touch games",
     "audio": "Audio",
     "auto": "Auto",
     "back-to-home": "Back to home",
@@ -48,7 +52,7 @@ const Texts = {
     "can-stream-xbox-360-games": "Can stream Xbox 360 games",
     "cancel": "Cancel",
     "cant-stream-xbox-360-games": "Can't stream Xbox 360 games",
-    "clarity": "Clarity",
+    "clarity-boost": "Clarity boost",
     "clarity-boost-warning": "These settings don't work when the Clarity Boost mode is ON",
     "clear": "Clear",
     "close": "Close",
@@ -152,14 +156,14 @@ const Texts = {
         ,
         (e: any) => `${e.key}: Funktion an-/ausschalten`,
         ,
-        ,
+        (e: any) => `Pulsa ${e.key} para alternar esta función`,
         (e: any) => `Appuyez sur ${e.key} pour activer cette fonctionnalité`,
         (e: any) => `Premi ${e.key} per attivare questa funzionalità`,
         (e: any) => `${e.key} でこの機能を切替`,
+        (e: any) => `${e.key} 키를 눌러 이 기능을 켜고 끄세요`,
+        (e: any) => `Naciśnij ${e.key} aby przełączyć tę funkcję`,
         ,
-        ,
-        ,
-        ,
+        (e: any) => `Нажмите ${e.key} для переключения этой функции`,
         ,
         (e: any) => `Etkinleştirmek için ${e.key} tuşuna basın`,
         (e: any) => `Натисніть ${e.key} щоб перемкнути цю функцію`,
@@ -168,12 +172,12 @@ const Texts = {
     ],
     "press-to-bind": "Press a key or do a mouse click to bind...",
     "prompt-preset-name": "Preset's name:",
-    "ratio": "Ratio",
     "reduce-animations": "Reduce UI animations",
     "region": "Region",
     "reload-stream": "Reload stream",
     "remote-play": "Remote Play",
     "rename": "Rename",
+    "renderer": "Renderer",
     "right-click-to-unbind": "Right-click on a key to unbind it",
     "right-stick": "Right stick",
     "rocket-always-hide": "Always hide",
@@ -191,6 +195,7 @@ const Texts = {
     "settings": "Settings",
     "settings-reload": "Reload page to reflect changes",
     "settings-reloading": "Reloading...",
+    "sharpness": "Sharpness",
     "shortcut-keys": "Shortcut keys",
     "show": "Show",
     "show-game-art": "Show game art",
@@ -218,7 +223,6 @@ const Texts = {
     "stream-settings": "Stream settings",
     "stream-stats": "Stream stats",
     "stretch": "Stretch",
-    "stretch-note": "Don't use with native touch games",
     "support-better-xcloud": "Support Better xCloud",
     "swap-buttons": "Swap buttons",
     "take-screenshot": "Take screenshot",
@@ -263,6 +267,7 @@ const Texts = {
     "unknown": "Unknown",
     "unlimited": "Unlimited",
     "unmuted": "Unmuted",
+    "unsharp-masking": "Unsharp masking",
     "use-mouse-absolute-position": "Use mouse's absolute position",
     "user-agent-profile": "User-Agent profile",
     "vertical-scroll-sensitivity": "Vertical scroll sensitivity",
@@ -278,6 +283,7 @@ const Texts = {
     "volume": "Volume",
     "wait-time-countdown": "Countdown",
     "wait-time-estimated": "Estimated finish time",
+    "webgl2": "WebGL2",
 };
 
 export class Translations {
@@ -390,5 +396,9 @@ export class Translations {
 }
 
 export const t = Translations.get;
+export const ut = (text: string): string => {
+    BxLogger.warning('Untranslated text', text);
+    return text;
+}
 
 Translations.init();

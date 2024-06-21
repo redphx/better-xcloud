@@ -1,5 +1,7 @@
+import { StreamPlayerType } from "@enums/stream-player";
 import { AppInterface, STATES } from "./global";
 import { CE } from "./html";
+import { getPref, PrefKey } from "./preferences";
 
 
 export class Screenshot {
@@ -31,23 +33,39 @@ export class Screenshot {
         Screenshot.#canvasContext.filter = filters;
     }
 
-    private static onAnimationEnd(e: Event) {
-        (e.target as any).classList.remove('bx-taking-screenshot');
+    static #onAnimationEnd(e: Event) {
+        const $target = e.target as HTMLElement;
+        $target.classList.remove('bx-taking-screenshot');
     }
 
     static takeScreenshot(callback?: any) {
         const currentStream = STATES.currentStream;
-        const $video = currentStream.$video;
+        const streamPlayer = currentStream.streamPlayer;
         const $canvas = Screenshot.#$canvas;
-        if (!$video || !$canvas) {
+        if (!streamPlayer || !$canvas) {
             return;
         }
 
-        $video.parentElement?.addEventListener('animationend', this.onAnimationEnd);
-        $video.parentElement?.classList.add('bx-taking-screenshot');
+        let $player;
+        if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
+            $player = streamPlayer.getPlayerElement();
+        } else {
+            $player = streamPlayer.getPlayerElement(StreamPlayerType.VIDEO);
+        }
+
+        if (!$player || !$player.isConnected) {
+            return;
+        }
+
+        $player.parentElement!.addEventListener('animationend', this.#onAnimationEnd);
+        $player.parentElement!.classList.add('bx-taking-screenshot');
 
         const canvasContext = Screenshot.#canvasContext;
-        canvasContext.drawImage($video, 0, 0, $canvas.width, $canvas.height);
+
+        if ($player instanceof HTMLCanvasElement) {
+            streamPlayer.getWebGL2Player().drawFrame();
+        }
+        canvasContext.drawImage($player, 0, 0, $canvas.width, $canvas.height);
 
         // Get data URL and pass to parent app
         if (AppInterface) {

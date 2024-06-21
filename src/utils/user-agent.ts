@@ -1,18 +1,9 @@
+import { UserAgentProfile } from "@enums/user-agent";
+
 type UserAgentConfig = {
     profile: UserAgentProfile,
     custom?: string,
 };
-
-export enum UserAgentProfile {
-    WINDOWS_EDGE = 'windows-edge',
-    MACOS_SAFARI = 'macos-safari',
-    SMARTTV_GENERIC = 'smarttv-generic',
-    SMARTTV_TIZEN = 'smarttv-tizen',
-    VR_OCULUS = 'vr-oculus',
-    ANDROID_KIWI_V123 = 'android-kiwi-v123',
-    DEFAULT = 'default',
-    CUSTOM = 'custom',
-}
 
 let CHROMIUM_VERSION = '123.0.0.0';
 if (!!(window as any).chrome || window.navigator.userAgent.includes('Chrome')) {
@@ -26,6 +17,10 @@ if (!!(window as any).chrome || window.navigator.userAgent.includes('Chrome')) {
 export class UserAgent {
     static readonly STORAGE_KEY = 'better_xcloud_user_agent';
     static #config: UserAgentConfig;
+
+    static #isMobile: boolean | null = null;
+    static #isSafari: boolean | null = null;
+    static #isSafariMobile: boolean | null = null;
 
     static #USER_AGENTS: PartialRecord<UserAgentProfile, string> = {
         [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
@@ -79,20 +74,40 @@ export class UserAgent {
         }
     }
 
-    static isSafari(mobile=false): boolean {
+    static isSafari(): boolean {
+        if (this.#isSafari !== null) {
+            return this.#isSafari;
+        }
+
         const userAgent = UserAgent.getDefault().toLowerCase();
         let result = userAgent.includes('safari') && !userAgent.includes('chrom');
 
-        if (result && mobile) {
-            result = userAgent.includes('mobile');
+        this.#isSafari = result;
+        return result;
+    }
+
+    static isSafariMobile(): boolean {
+        if (this.#isSafariMobile !== null) {
+            return this.#isSafariMobile;
         }
 
+        const userAgent = UserAgent.getDefault().toLowerCase();
+        const result = this.isSafari() && userAgent.includes('mobile');
+
+        this.#isSafariMobile = result;
         return result;
     }
 
     static isMobile(): boolean {
+        if (this.#isMobile !== null) {
+            return this.#isMobile;
+        }
+
         const userAgent = UserAgent.getDefault().toLowerCase();
-        return /iphone|ipad|android/.test(userAgent);
+        const result = /iphone|ipad|android/.test(userAgent);
+
+        this.#isMobile = result;
+        return result;
     }
 
     static spoof() {

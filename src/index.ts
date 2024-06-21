@@ -11,7 +11,7 @@ import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { addCss } from "@utils/css";
 import { Toast } from "@utils/toast";
-import { setupStreamUi, updateVideoPlayerCss } from "@modules/ui/ui";
+import { setupStreamUi, updateVideoPlayer } from "@modules/ui/ui";
 import { PrefKey, getPref } from "@utils/preferences";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
@@ -146,9 +146,6 @@ window.addEventListener(BxEvent.STREAM_STARTING, e => {
 });
 
 window.addEventListener(BxEvent.STREAM_PLAYING, e => {
-    const $video = (e as any).$video as HTMLVideoElement;
-    STATES.currentStream.$video = $video;
-
     STATES.isPlaying = true;
     injectStreamMenuButtons();
 
@@ -159,9 +156,10 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
         gameBar.showBar();
     }
 
+    const $video = (e as any).$video as HTMLVideoElement;
     Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight);
 
-    updateVideoPlayerCss();
+    updateVideoPlayer();
 });
 
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
@@ -177,6 +175,9 @@ function unload() {
     EmulatedMkbHandler.getInstance().destroy();
     NativeMkbHandler.getInstance().destroy();
 
+    // Destroy StreamPlayer
+    STATES.currentStream.streamPlayer?.destroy();
+
     STATES.isPlaying = false;
     STATES.currentStream = {};
     window.BX_EXPOSED.shouldShowSensorControls = false;
@@ -187,8 +188,6 @@ function unload() {
         $streamSettingsDialog.classList.add('bx-gone');
     }
 
-    STATES.currentStream.audioGainNode = null;
-    STATES.currentStream.$video = null;
     StreamStats.getInstance().onStoppedPlaying();
 
     MouseCursorHider.stop();

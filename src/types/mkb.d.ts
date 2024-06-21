@@ -1,4 +1,4 @@
-import { MkbPresetKey } from "@modules/mkb/definitions";
+import { MkbPresetKey } from "@enums/mkb";
 
 type GamepadKeyNameType = {[index: string | number]: string[]};
 

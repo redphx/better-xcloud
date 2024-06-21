@@ -11,6 +11,7 @@
     "paths": {
       "@/*": ["./*"],
       "@assets/*": ["./assets/*"],
+      "@enums/*": ["./enums/*"],
       "@macros/*": ["./macros/*"],
       "@modules/*": ["./modules/*"],
       "@utils/*": ["./utils/*"],

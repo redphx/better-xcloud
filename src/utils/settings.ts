@@ -155,7 +155,7 @@ export class SettingElement {
             return textContent;
         };
 
-        const $wrapper = CE('div', {'class': 'bx-number-stepper'},
+        const $wrapper = CE('div', {'class': 'bx-number-stepper', id: `bx_setting_${key}`},
                 $decBtn = CE('button', {
                         'data-type': 'dec',
                         type: 'button',

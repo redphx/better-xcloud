@@ -1,10 +1,9 @@
 import { AppInterface, STATES } from "@utils/global";
 import { CE, createButton, ButtonStyle, createSvgIcon } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
-import { UserAgent } from "@utils/user-agent";
 import { BxEvent } from "@utils/bx-event";
 import { MkbRemapper } from "@modules/mkb/mkb-remapper";
-import { getPref, Preferences, PrefKey, toPrefElement } from "@utils/preferences";
+import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/preferences";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { TouchController } from "@modules/touch-controller";
 import { t } from "@utils/translation";
@@ -13,6 +12,9 @@ import { Screenshot } from "@/utils/screenshot";
 import { ControllerShortcut } from "../controller-shortcut";
 import { SoundShortcut } from "../shortcuts/shortcut-sound";
 import { NativeMkbHandler } from "../mkb/native-mkb-handler";
+import { UserAgent } from "@/utils/user-agent";
+import type { StreamPlayerOptions } from "../stream-player";
+import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 
 
 export function localRedirect(path: string) {
@@ -38,40 +40,7 @@ export function localRedirect(path: string) {
     $anchor.click();
 }
 
-
-function getVideoPlayerFilterStyle() {
-    const filters = [];
-
-    const clarity = getPref(PrefKey.VIDEO_CLARITY);
-    if (clarity != 0) {
-        const level = (7 - (clarity - 1) * 0.5).toFixed(1); // 5, 5.5, 6, 6.5, 7
-        const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
-        document.getElementById('bx-filter-clarity-matrix')!.setAttributeNS(null, 'kernelMatrix', matrix);
-
-        filters.push(`url(#bx-filter-clarity)`);
-    }
-
-    const saturation = getPref(PrefKey.VIDEO_SATURATION);
-    if (saturation != 100) {
-        filters.push(`saturate(${saturation}%)`);
-    }
-
-    const contrast = getPref(PrefKey.VIDEO_CONTRAST);
-    if (contrast != 100) {
-        filters.push(`contrast(${contrast}%)`);
-    }
-
-    const brightness = getPref(PrefKey.VIDEO_BRIGHTNESS);
-    if (brightness != 100) {
-        filters.push(`brightness(${brightness}%)`);
-    }
-
-    return filters.join(' ');
-}
-
 function setupStreamSettingsDialog() {
-    const isSafari = UserAgent.isSafari();
-
     const SETTINGS_UI = [
         {
             icon: BxIcon.DISPLAY,
@@ -109,29 +78,38 @@ function setupStreamSettingsDialog() {
                     help_url: 'https://better-xcloud.github.io/ingame-features/#video',
                     items: [
                         {
-                            pref: PrefKey.VIDEO_RATIO,
-                            onChange: updateVideoPlayerCss,
+                            pref: PrefKey.VIDEO_PLAYER_TYPE,
+                            onChange: onChangeVideoPlayerType,
                         },
 
                         {
-                            pref: PrefKey.VIDEO_CLARITY,
-                            onChange: updateVideoPlayerCss,
-                            unsupported: isSafari,
+                            pref: PrefKey.VIDEO_RATIO,
+                            onChange: updateVideoPlayer,
+                        },
+
+                        {
+                            pref: PrefKey.VIDEO_PROCESSING,
+                            onChange: updateVideoPlayer,
+                        },
+
+                        {
+                            pref: PrefKey.VIDEO_SHARPNESS,
+                            onChange: updateVideoPlayer,
                         },
 
                         {
                             pref: PrefKey.VIDEO_SATURATION,
-                            onChange: updateVideoPlayerCss,
+                            onChange: updateVideoPlayer,
                         },
 
                         {
                             pref: PrefKey.VIDEO_CONTRAST,
-                            onChange: updateVideoPlayerCss,
+                            onChange: updateVideoPlayer,
                         },
 
                         {
                             pref: PrefKey.VIDEO_BRIGHTNESS,
-                            onChange: updateVideoPlayerCss,
+                            onChange: updateVideoPlayer,
                         },
                     ],
                 },
@@ -436,94 +414,51 @@ function setupStreamSettingsDialog() {
 }
 
 
-export function updateVideoPlayerCss() {
-    let $elm = document.getElementById('bx-video-css');
-    if (!$elm) {
-        const $fragment = document.createDocumentFragment();
-        $elm = CE<HTMLStyleElement>('style', {id: 'bx-video-css'});
-        $fragment.appendChild($elm);
+function onChangeVideoPlayerType() {
+    const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE);
+    const $videoProcessing = document.getElementById('bx_setting_video_processing') as HTMLSelectElement;
+    const $videoSharpness = document.getElementById('bx_setting_video_sharpness') as HTMLElement;
 
-        // Setup SVG filters
-        const $svg = CE('svg', {
-            'id': 'bx-video-filters',
-            'xmlns': 'http://www.w3.org/2000/svg',
-            'class': 'bx-gone',
-        }, CE('defs', {'xmlns': 'http://www.w3.org/2000/svg'},
-              CE('filter', {'id': 'bx-filter-clarity', 'xmlns': 'http://www.w3.org/2000/svg'},
-                CE('feConvolveMatrix', {'id': 'bx-filter-clarity-matrix', 'order': '3', 'xmlns': 'http://www.w3.org/2000/svg'}))
-             )
-        );
-        $fragment.appendChild($svg);
-        document.documentElement.appendChild($fragment);
+    let isDisabled = false;
+
+    if (playerType === StreamPlayerType.WEBGL2) {
+        ($videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`) as HTMLOptionElement).disabled = false;
+    } else {
+        // Only allow USM when player type is Video
+        $videoProcessing.value = StreamVideoProcessing.USM;
+        setPref(PrefKey.VIDEO_PROCESSING, StreamVideoProcessing.USM);
+
+        ($videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`) as HTMLOptionElement).disabled = true;
+
+        if (UserAgent.isSafari()) {
+            isDisabled = true;
+        }
     }
 
-    let filters = getVideoPlayerFilterStyle();
-    let videoCss = '';
-    if (filters) {
-        videoCss += `filter: ${filters} !important;`;
-    }
+    $videoProcessing.disabled = isDisabled;
+    $videoSharpness.dataset.disabled = isDisabled.toString();
 
-    // Apply video filters to screenshots
-    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
-        Screenshot.updateCanvasFilters(filters);
-    }
-
-    let css = '';
-    if (videoCss) {
-        css = `
-#game-stream video {
-    ${videoCss}
-}
-`;
-    }
-
-    $elm.textContent = css;
-
-    resizeVideoPlayer();
+    updateVideoPlayer();
 }
 
-function resizeVideoPlayer() {
-    const $video = STATES.currentStream.$video;
-    if (!$video || !$video.parentElement) {
+
+export function updateVideoPlayer() {
+    const streamPlayer = STATES.currentStream.streamPlayer;
+    if (!streamPlayer) {
         return;
     }
 
-    const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
-    if (PREF_RATIO.includes(':')) {
-        const tmp = PREF_RATIO.split(':');
+    const options = {
+        processing: getPref(PrefKey.VIDEO_PROCESSING),
+        sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
+        saturation: getPref(PrefKey.VIDEO_SATURATION),
+        contrast: getPref(PrefKey.VIDEO_CONTRAST),
+        brightness: getPref(PrefKey.VIDEO_BRIGHTNESS),
+    } satisfies StreamPlayerOptions;
 
-        // Get preferred ratio
-        const videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
-
-        let width = 0;
-        let height = 0;
-
-        // Get parent's ratio
-        const parentRect = $video.parentElement.getBoundingClientRect();
-        const parentRatio = parentRect.width / parentRect.height;
-
-        // Get target width & height
-        if (parentRatio > videoRatio) {
-            height = parentRect.height;
-            width = height * videoRatio;
-        } else {
-            width = parentRect.width;
-            height = width / videoRatio;
-        }
-
-        // Prevent floating points
-        width = Math.min(parentRect.width, Math.ceil(width));
-        height = Math.min(parentRect.height, Math.ceil(height));
-
-        // Update size
-        $video.style.width = `${width}px`;
-        $video.style.height = `${height}px`;
-        $video.style.objectFit = PREF_RATIO === '16:9' ? 'contain' : 'fill';
-    } else {
-        $video.style.width = '100%';
-        $video.style.height = '100%';
-        $video.style.objectFit = PREF_RATIO;
-    }
+    streamPlayer.setPlayerType(getPref(PrefKey.VIDEO_PLAYER_TYPE));
+    streamPlayer.updateOptions(options);
+    streamPlayer.refreshPlayer();
 }
 
 
@@ -545,11 +480,11 @@ export function setupStreamUi() {
     if (!document.querySelector('.bx-stream-settings-dialog')) {
         preloadFonts();
 
-        window.addEventListener('resize', updateVideoPlayerCss);
+        window.addEventListener('resize', updateVideoPlayer);
         setupStreamSettingsDialog();
 
         Screenshot.setup();
     }
 
-    updateVideoPlayerCss();
+    onChangeVideoPlayerType();
 }

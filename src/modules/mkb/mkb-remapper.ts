@@ -1,9 +1,7 @@
-import { GamepadKey } from "./definitions";
 import { CE, createButton, ButtonStyle } from "@utils/html";
 import { t } from "@utils/translation";
 import { Dialog } from "@modules/dialog";
 import { getPref, setPref, PrefKey } from "@utils/preferences";
-import { MkbPresetKey, GamepadKeyName } from "./definitions";
 import { KeyHelper } from "./key-helper";
 import { MkbPreset } from "./mkb-preset";
 import { EmulatedMkbHandler } from "./mkb-handler";
@@ -11,6 +9,7 @@ import { LocalDb } from "@utils/local-db";
 import { BxIcon } from "@utils/bx-icon";
 import { SettingElement } from "@utils/settings";
 import type { MkbPresetData, MkbStoredPresets } from "@/types/mkb";
+import { MkbPresetKey, GamepadKey, GamepadKeyName } from "@enums/mkb";
 
 
 type MkbRemapperElements = {

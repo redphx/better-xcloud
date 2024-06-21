@@ -1,5 +1,5 @@
 import type { GamepadKeyNameType } from "@/types/mkb";
-import { PrompFont } from "@/utils/prompt-font";
+import { PrompFont } from "@enums/prompt-font";
 
 export enum GamepadKey {
     A = 0,

@@ -47,4 +47,10 @@
     input[type=range]:disabled, button:disabled {
         display: none;
     }
+
+    &[data-disabled=true] {
+        input[type=range], button {
+            display: none;
+        }
+    }
 }

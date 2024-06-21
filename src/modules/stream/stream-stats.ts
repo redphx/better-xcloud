@@ -161,7 +161,12 @@ export class StreamStats {
                 const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
                 const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
                 const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
-                this.#$dt!.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+
+                if (isNaN(currentDecodeTime)) {
+                    this.#$dt!.textContent = '??ms';
+                } else {
+                    this.#$dt!.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+                }
 
                 if (PREF_STATS_CONDITIONAL_FORMATTING) {
                     grade = (currentDecodeTime > 12) ? 'bad' : (currentDecodeTime > 9) ? 'ok' : (currentDecodeTime > 6) ? 'good' : '';

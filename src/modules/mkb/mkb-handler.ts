@@ -1,5 +1,5 @@
 import { MkbPreset } from "./mkb-preset";
-import { GamepadKey, MkbPresetKey, GamepadStick, MouseMapTo, WheelCode } from "./definitions";
+import { GamepadKey, MkbPresetKey, GamepadStick, MouseMapTo, WheelCode } from "@enums/mkb";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BxEvent } from "@utils/bx-event";
 import { PrefKey, getPref } from "@utils/preferences";

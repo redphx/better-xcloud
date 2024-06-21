@@ -3,6 +3,7 @@ import { getPref, PrefKey } from "@utils/preferences";
 import { STATES } from "@utils/global";
 import { BxLogger } from "@utils/bx-logger";
 import { patchSdpBitrate } from "./sdp";
+import { StreamPlayer, type StreamPlayerOptions } from "@/modules/stream-player";
 
 export function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);
@@ -16,12 +17,22 @@ export function patchVideoApi() {
             return;
         }
 
+        const playerOptions = {
+            processing: getPref(PrefKey.VIDEO_PROCESSING),
+            sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
+            saturation: getPref(PrefKey.VIDEO_SATURATION),
+            contrast: getPref(PrefKey.VIDEO_CONTRAST),
+            brightness: getPref(PrefKey.VIDEO_BRIGHTNESS),
+        } satisfies StreamPlayerOptions;
+        STATES.currentStream.streamPlayer = new StreamPlayer(this, getPref(PrefKey.VIDEO_PLAYER_TYPE), playerOptions);
+
         BxEvent.dispatch(window, BxEvent.STREAM_PLAYING, {
                 $video: this,
             });
     }
 
     const nativePlay = HTMLMediaElement.prototype.play;
+    (HTMLMediaElement.prototype as any).nativePlay = nativePlay;
     HTMLMediaElement.prototype.play = function() {
         if (this.className && this.className.startsWith('XboxSplashVideo')) {
             if (PREF_SKIP_SPLASH_VIDEO) {
@@ -97,21 +108,23 @@ export function patchRtcPeerConnection() {
         return dataChannel;
     }
 
-    const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
-    RTCPeerConnection.prototype.setLocalDescription = function(description?: RTCLocalSessionDescriptionInit): Promise<void> {
-        // set maximum bitrate
-        try {
-            const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
-            if (maxVideoBitrate > 0) {
-                arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
+    const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
+    if (maxVideoBitrate > 0) {
+        const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
+        RTCPeerConnection.prototype.setLocalDescription = function(description?: RTCLocalSessionDescriptionInit): Promise<void> {
+            // set maximum bitrate
+            try {
+                if (description) {
+                    arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
+                }
+            } catch (e) {
+                BxLogger.error('setLocalDescription', e);
             }
-        } catch (e) {
-            BxLogger.error('setLocalDescription', e);
-        }
 
-        // @ts-ignore
-        return nativeSetLocalDescription.apply(this, arguments);
-    };
+            // @ts-ignore
+            return nativeSetLocalDescription.apply(this, arguments);
+        };
+    }
 
     const OrgRTCPeerConnection = window.RTCPeerConnection;
     // @ts-ignore
@@ -132,6 +145,10 @@ export function patchAudioContext() {
 
     // @ts-ignore
     window.AudioContext = function(options?: AudioContextOptions | undefined): AudioContext {
+        if (options && options.latencyHint) {
+            options.latencyHint = 0;
+        }
+
         const ctx = new OrgAudioContext(options);
         BxLogger.info('patchAudioContext', ctx, options);
 
@@ -160,7 +177,12 @@ export function patchMeControl() {
     };
 
     const MSA = {
-        MeControl: {},
+        MeControl: {
+            API: {
+                setDisplayMode: () => {},
+                setMobileState: () => {},
+            },
+        },
     };
     const MeControl = {};
 
@@ -207,12 +229,13 @@ export function patchCanvasContext() {
     HTMLCanvasElement.prototype.getContext = function(contextType: string, contextAttributes?: any) {
         if (contextType.includes('webgl')) {
             contextAttributes = contextAttributes || {};
+            if (!contextAttributes.isBx) {
+                contextAttributes.antialias = false;
 
-            contextAttributes.antialias = false;
-
-            // Use low-power profile for touch controller
-            if (contextAttributes.powerPreference === 'high-performance') {
-                contextAttributes.powerPreference = 'low-power';
+                // Use low-power profile for touch controller
+                if (contextAttributes.powerPreference === 'high-performance') {
+                    contextAttributes.powerPreference = 'low-power';
+                }
             }
         }
 

@@ -37,7 +37,7 @@ type BxStates = {
         productId: string;
         titleInfo: XcloudTitleInfo;
 
-        $video: HTMLVideoElement | null;
+        streamPlayer: StreamPlayer | null;
 
         peerConnection: RTCPeerConnection;
         audioContext: AudioContext | null;
@@ -62,6 +62,7 @@ type XcloudTitleInfo = {
         productId: string;
         supportedInputTypes: InputType[];
         supportedTabs: any[];
+        hasNativeTouchSupport: boolean;
         hasTouchSupport: boolean;
         hasFakeTouchSupport: boolean;
         hasMkbSupport: boolean;
@@ -77,6 +78,9 @@ type XcloudTitleInfo = {
 declare module '*.js';
 declare module '*.svg';
 declare module '*.styl';
+
+declare module '*.fs';
+declare module '*.vert';
 
 type MkbMouseMove = {
     movementX: number;

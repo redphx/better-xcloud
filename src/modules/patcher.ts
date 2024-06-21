@@ -7,6 +7,7 @@ import { hashCode, renderString } from "@utils/utils";
 import { BxEvent } from "@/utils/bx-event";
 
 import codeControllerShortcuts from "./patches/controller-shortcuts.js" with { type: "text" };
+import codeExposeStreamSession from "./patches/expose-stream-session.js" with { type: "text" };
 import codeLocalCoOpEnable from "./patches/local-co-op-enable.js" with { type: "text" };
 import codeRemotePlayEnable from "./patches/remote-play-enable.js" with { type: "text" };
 import codeRemotePlayKeepAlive from "./patches/remote-play-keep-alive.js" with { type: "text" };
@@ -565,20 +566,7 @@ window.dispatchEvent(new Event('${BxEvent.STREAM_EVENT_TARGET_READY}'))
         }
 
         const newCode = `;
-window.BX_EXPOSED.streamSession = this;
-
-const orgSetMicrophoneState = this.setMicrophoneState.bind(this);
-this.setMicrophoneState = state => {
-    orgSetMicrophoneState(state);
-
-    const evt = new Event('${BxEvent.MICROPHONE_STATE_CHANGED}');
-    evt.microphoneState = state;
-
-    window.dispatchEvent(evt);
-};
-
-window.dispatchEvent(new Event('${BxEvent.STREAM_SESSION_READY}'))
-
+${codeExposeStreamSession}
 true` + text;
 
         str = str.replace(text, newCode);

@@ -47,7 +47,7 @@ export function disablePwa() {
     }
 
     // Check if it's Safari on mobile
-    if (!!AppInterface || UserAgent.isSafari(true)) {
+    if (!!AppInterface || UserAgent.isSafariMobile()) {
         // Disable the PWA prompt
         Object.defineProperty(window.navigator, 'standalone', {
             value: true,

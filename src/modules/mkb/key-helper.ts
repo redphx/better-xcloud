@@ -1,4 +1,4 @@
-import { MouseButtonCode, WheelCode } from "./definitions";
+import { MouseButtonCode, WheelCode } from "@enums/mkb";
 
 export class KeyHelper {
     static #NON_PRINTABLE_KEYS = {

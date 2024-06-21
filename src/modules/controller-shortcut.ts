@@ -1,6 +1,6 @@
 import { Screenshot } from "@utils/screenshot";
-import { GamepadKey } from "./mkb/definitions";
-import { PrompFont } from "@utils/prompt-font";
+import { GamepadKey } from "@enums/mkb";
+import { PrompFont } from "@enums/prompt-font";
 import { CE } from "@utils/html";
 import { t } from "@utils/translation";
 import { EmulatedMkbHandler } from "./mkb/mkb-handler";

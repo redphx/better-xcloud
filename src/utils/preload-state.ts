@@ -1,7 +1,7 @@
 import { STATES } from "@utils/global";
 import { BxLogger } from "./bx-logger";
 import { TouchController } from "@modules/touch-controller";
-import { GamePassCloudGallery } from "./gamepass-gallery";
+import { GamePassCloudGallery } from "../enums/game-pass-gallery";
 import { getPref, PrefKey } from "./preferences";
 import { BX_FLAGS } from "./bx-flags";
 

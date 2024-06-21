@@ -1,10 +1,12 @@
 import { CE } from "@utils/html";
 import { SUPPORTED_LANGUAGES, t } from "@utils/translation";
 import { SettingElement, SettingElementType } from "@utils/settings";
-import { UserAgent, UserAgentProfile } from "@utils/user-agent";
+import { UserAgent } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
 import type { PreferenceSetting, PreferenceSettings } from "@/types/preferences";
 import { AppInterface, STATES } from "@utils/global";
+import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
+import { UserAgentProfile } from "@/enums/user-agent";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',
@@ -70,7 +72,9 @@ export enum PrefKey {
 
     UI_HOME_CONTEXT_MENU_DISABLED = 'ui_home_context_menu_disabled',
 
-    VIDEO_CLARITY = 'video_clarity',
+    VIDEO_PLAYER_TYPE = 'video_player_type',
+    VIDEO_PROCESSING = 'video_processing',
+    VIDEO_SHARPNESS = 'video_sharpness',
     VIDEO_RATIO = 'video_ratio',
     VIDEO_BRIGHTNESS = 'video_brightness',
     VIDEO_CONTRAST = 'video_contrast',
@@ -570,19 +574,35 @@ export class Preferences {
                 [UserAgentProfile.CUSTOM]: t('custom'),
             },
         },
-        [PrefKey.VIDEO_CLARITY]: {
-            label: t('clarity'),
+        [PrefKey.VIDEO_PLAYER_TYPE]: {
+            label: t('renderer'),
+            default: 'default',
+            options: {
+                [StreamPlayerType.VIDEO]: t('default'),
+                [StreamPlayerType.WEBGL2]: t('webgl2'),
+            },
+        },
+        [PrefKey.VIDEO_PROCESSING]: {
+            label: t('clarity-boost'),
+            default: StreamVideoProcessing.USM,
+            options: {
+                [StreamVideoProcessing.USM]: t('unsharp-masking'),
+                [StreamVideoProcessing.CAS]: t('amd-fidelity-cas'),
+            },
+        },
+        [PrefKey.VIDEO_SHARPNESS]: {
+            label: t('sharpness'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 0,
             min: 0,
-            max: 5,
+            max: 10,
             params: {
                 hideSlider: true,
             },
         },
         [PrefKey.VIDEO_RATIO]: {
-            label: t('ratio'),
-            note: t('stretch-note'),
+            label: t('aspect-ratio'),
+            note: t('aspect-ratio-note'),
             default: '16:9',
             options: {
                 '16:9': '16:9',

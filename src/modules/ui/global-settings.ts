@@ -2,10 +2,11 @@ import { STATES, AppInterface, SCRIPT_VERSION } from "@utils/global";
 import { CE, createButton, ButtonStyle } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
-import { UserAgent, UserAgentProfile } from "@utils/user-agent";
+import { UserAgent } from "@utils/user-agent";
 import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/preferences";
 import { t, Translations } from "@utils/translation";
 import { PatcherCache } from "../patcher";
+import { UserAgentProfile } from "@enums/user-agent";
 
 const SETTINGS_UI = {
     'Better xCloud': {

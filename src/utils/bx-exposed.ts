@@ -60,7 +60,8 @@ export const BxExposed = {
             }
 
             // Pre-check supported input types
-            titleInfo.details.hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) ||
+            titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH);
+            titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport ||
                     supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) ||
                     supportedInputTypes.includes(InputType.GENERIC_TOUCH);
 
