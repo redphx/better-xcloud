@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      4.8.0-beta-2
+// @version      5.0.0
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -13,7 +13,7 @@
 // @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
 // ==/UserScript==
 'use strict';
-// src/utils/user-agent.ts
+// src/enums/user-agent.ts
 var UserAgentProfile;
 (function(UserAgentProfile2) {
   UserAgentProfile2["WINDOWS_EDGE"] = "windows-edge";
@@ -25,6 +25,8 @@ var UserAgentProfile;
   UserAgentProfile2["DEFAULT"] = "default";
   UserAgentProfile2["CUSTOM"] = "custom";
 })(UserAgentProfile || (UserAgentProfile = {}));
+
+// src/utils/user-agent.ts
 var CHROMIUM_VERSION = "123.0.0.0";
 if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
@@ -122,7 +124,7 @@ class UserAgent {
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "4.8.0-beta-2";
+var SCRIPT_VERSION = "5.0.0";
 var AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase();
@@ -217,7 +219,7 @@ try {
 }
 var NATIVE_FETCH = window.fetch;
 
-// src/utils/enums.ts
+// src/enums/stream-player.ts
 var StreamPlayerType;
 (function(StreamPlayerType2) {
   StreamPlayerType2["VIDEO"] = "default";
@@ -2010,7 +2012,7 @@ class Screenshot {
   }
 }
 
-// src/utils/prompt-font.ts
+// src/enums/prompt-font.ts
 var PrompFont;
 (function(PrompFont2) {
   PrompFont2["A"] = "⇓";
@@ -2040,7 +2042,7 @@ var PrompFont;
   PrompFont2["RS_RIGHT"] = "⇁";
 })(PrompFont || (PrompFont = {}));
 
-// src/modules/mkb/definitions.ts
+// src/enums/mkb.ts
 var GamepadKey;
 (function(GamepadKey2) {
   GamepadKey2[GamepadKey2["A"] = 0] = "A";
@@ -5650,7 +5652,7 @@ function setupStreamUi() {
     setupStreamSettingsDialog();
     Screenshot.setup();
   }
-  updateVideoPlayer();
+  onChangeVideoPlayerType();
 }
 
 // src/modules/remote-play.ts
@@ -5913,7 +5915,7 @@ class RemotePlay {
   }
 }
 
-// src/utils/gamepass-gallery.ts
+// src/enums/game-pass-gallery.ts
 var GamePassCloudGallery;
 (function(GamePassCloudGallery2) {
   GamePassCloudGallery2["ALL"] = "29a81209-df6f-41fd-a528-2ae6b91f719c";
@@ -7310,7 +7312,6 @@ div[data-testid=media-container].bx-taking-screenshot:before {
   margin: 0 8px 8px 0;
   box-shadow: 0px 0px 6px #000;
   border-radius: 4px;
-  height: 30px;
 }
 .bx-badge-name {
   background-color: #2d3036;
@@ -7544,6 +7545,9 @@ div[class^=StreamMenu-module__container] .bx-badges {
   text-align-last: right;
   border: none;
   color: #fff;
+}
+.bx-stream-settings-row select option:disabled {
+  display: none;
 }
 .bx-stream-settings-dialog-note {
   display: block;
@@ -9066,7 +9070,7 @@ function patchSdpBitrate(sdp, video, audio) {
 var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
 
 // src/modules/player/shaders/clarity_boost.fs
-var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvarying vec4 outColor;\n\nvec3 linearToSrgb(vec3 inColor) {\n    vec3 cutoff = step(inColor.rgb, vec3(0.0031308));\n    vec3 higher = vec3(1.055) * pow(inColor.rgb, vec3(1.0 / 2.4)) - vec3(0.055);\n    vec3 lower = inColor.rgb * vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec3 srgbToLinear(vec3 col) {\n    vec3 cutoff = step(col, vec3(0.04045));\n    vec3 higher = pow((col + vec3(0.055)) / vec3(1.055), vec3(2.4));\n    vec3 lower = col / vec3(12.92);\n\n    return mix(higher, lower, cutoff);\n}\n\nvec4 textureAt(sampler2D tex, vec2 coord, bool convertSrgb) {\n    vec4 color = texture2D(tex, coord / iResolution.xy);\n\n    if (convertSrgb) {\n        return vec4(srgbToLinear(color.rgb), 1.0);\n    }\n\n    return color;\n}\n\nvec4 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // bool convertSrgb = filterId == FILTER_CAS;\n    bool convertSrgb = false;\n\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec4 a = textureAt(tex, coord + vec2(-1, 1), convertSrgb);\n    vec4 b = textureAt(tex, coord + vec2(0, 1), convertSrgb);\n    vec4 c = textureAt(tex, coord + vec2(1, 1), convertSrgb);\n\n    vec4 d = textureAt(tex, coord + vec2(-1, 0), convertSrgb);\n    vec4 e = textureAt(tex, coord, convertSrgb);\n    vec4 f = textureAt(tex, coord + vec2(1, 0), convertSrgb);\n\n    vec4 g = textureAt(tex, coord + vec2(-1, -1), convertSrgb);\n    vec4 h = textureAt(tex, coord + vec2(0, -1), convertSrgb);\n    vec4 i = textureAt(tex, coord + vec2(1, -1), convertSrgb);\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d.rgb, e.rgb), min(f.rgb, b.rgb)), h.rgb);\n        vec3 minRgb2 = min(min(a.rgb, c.rgb), min(g.rgb, i.rgb));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d.rgb, e.rgb), max(f.rgb, b.rgb)), h.rgb);\n        vec3 maxRgb2 = max(max(a.rgb, c.rgb), max(g.rgb, i.rgb));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //\t\t\t\t\t\t0 w 0\n        //  Filter shape:\t\tw 1 w\n        //\t\t\t\t\t\t0 w 0\n        vec3 window = (b.rgb + d.rgb) + (f.rgb + h.rgb);\n        vec3 outColor = clamp((window * weightRgb + e.rgb) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e.rgb, outColor, sharpenFactor / 2.0);\n        if (convertSrgb) {\n            outColor = linearToSrgb(outColor);\n        }\n        return vec4(outColor, 1.0);\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec4 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor;\n    }\n\n    return e;\n}\n\nvec4 adjustBrightness(vec4 color) {\n    // color.rgb += brightness;\n    color.rgb = (1.0 + brightness) * color.rgb;\n    return color;\n}\n\nvec4 adjustContrast(vec4 color) {\n    color.rgb = 0.5 + (1.0 + contrast) * (color.rgb - 0.5);\n    return color;\n}\n\nvec4 adjustSaturation(vec4 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color.rgb, luminosityFactor));\n\n    return vec4(mix(grayscale, color.rgb, 1.0 + saturation), color.a);\n}\n\n\nvoid main() {\n    vec4 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy, false);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = color;\n}\n";
+var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 textureAt(sampler2D tex, vec2 coord) {\n    return texture2D(tex, coord / iResolution.xy).rgb;\n}\n\nvec3 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec3 a = textureAt(tex, coord + vec2(-1, 1));\n    vec3 b = textureAt(tex, coord + vec2(0, 1));\n    vec3 c = textureAt(tex, coord + vec2(1, 1));\n\n    vec3 d = textureAt(tex, coord + vec2(-1, 0));\n    vec3 e = textureAt(tex, coord);\n    vec3 f = textureAt(tex, coord + vec2(1, 0));\n\n    vec3 g = textureAt(tex, coord + vec2(-1, -1));\n    vec3 h = textureAt(tex, coord + vec2(0, -1));\n    vec3 i = textureAt(tex, coord + vec2(1, -1));\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d, e), min(f, b)), h);\n        vec3 minRgb2 = min(min(a, c), min(g, i));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d, e), max(f, b)), h);\n        vec3 maxRgb2 = max(max(a, c), max(g, i));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //                0 w 0\n        // Filter shape:  w 1 w\n        //                0 w 0\n        vec3 window = (b + d) + (f + h);\n        vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e, outColor, sharpenFactor / 2.0);\n\n        return outColor;\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor / 3.0;\n    }\n\n    return e;\n}\n\nvec3 adjustBrightness(vec3 color) {\n    return (1.0 + brightness) * color;\n}\n\nvec3 adjustContrast(vec3 color) {\n    return 0.5 + (1.0 + contrast) * (color - 0.5);\n}\n\nvec3 adjustSaturation(vec3 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color, luminosityFactor));\n\n    return mix(grayscale, color, 1.0 + saturation);\n}\n\nvoid main() {\n    vec3 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = vec4(color, 1.0);\n}\n";
 
 // src/modules/player/webgl2-player.ts
 var LOG_TAG7 = "WebGL2Player";
@@ -9558,6 +9562,9 @@ function patchAudioContext() {
   const OrgAudioContext = window.AudioContext;
   const nativeCreateGain = OrgAudioContext.prototype.createGain;
   window.AudioContext = function(options) {
+    if (options && options.latencyHint) {
+      options.latencyHint = 0;
+    }
     const ctx = new OrgAudioContext(options);
     BxLogger.info("patchAudioContext", ctx, options);
     ctx.createGain = function() {
