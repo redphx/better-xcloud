@@ -4280,12 +4280,12 @@ class VibrationManager {
   static supportDeviceVibration() {
     return !!window.navigator.vibrate;
   }
-  static updateGlobalVars() {
+  static updateGlobalVars(stopVibration = !0) {
     if (window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : !1, window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100, !VibrationManager.supportDeviceVibration()) {
       window.BX_ENABLE_DEVICE_VIBRATION = !1;
       return;
     }
-    window.navigator.vibrate(0);
+    stopVibration && window.navigator.vibrate(0);
     const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
     let enabled;
     if (value === "on")
@@ -4328,7 +4328,7 @@ class VibrationManager {
     VibrationManager.#playDeviceVibration(data);
   }
   static initialSetup() {
-    window.addEventListener("gamepadconnected", VibrationManager.updateGlobalVars), window.addEventListener("gamepaddisconnected", VibrationManager.updateGlobalVars), VibrationManager.updateGlobalVars(), window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+    window.addEventListener("gamepadconnected", (e) => VibrationManager.updateGlobalVars()), window.addEventListener("gamepaddisconnected", (e) => VibrationManager.updateGlobalVars()), VibrationManager.updateGlobalVars(!1), window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
       const dataChannel = e.dataChannel;
       if (!dataChannel || dataChannel.label !== "input")
         return;
