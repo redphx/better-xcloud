@@ -30,9 +30,8 @@ var UserAgentProfile;
 var CHROMIUM_VERSION = "123.0.0.0";
 if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
-  if (match) {
+  if (match)
     CHROMIUM_VERSION = match[1];
-  }
 }
 
 class UserAgent {
@@ -50,21 +49,16 @@ class UserAgent {
     [UserAgentProfile.ANDROID_KIWI_V123]: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36"
   };
   static init() {
-    UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY) || "{}");
-    if (!UserAgent.#config.profile) {
+    if (UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY) || "{}"), !UserAgent.#config.profile)
       UserAgent.#config.profile = UserAgentProfile.DEFAULT;
-    }
-    if (!UserAgent.#config.custom) {
+    if (!UserAgent.#config.custom)
       UserAgent.#config.custom = "";
-    }
     UserAgent.spoof();
   }
   static updateStorage(profile, custom) {
     const clonedConfig = structuredClone(UserAgent.#config);
-    clonedConfig.profile = profile;
-    if (typeof custom !== "undefined") {
+    if (clonedConfig.profile = profile, typeof custom !== "undefined")
       clonedConfig.custom = custom;
-    }
     window.localStorage.setItem(UserAgent.STORAGE_KEY, JSON.stringify(clonedConfig));
   }
   static getDefault() {
@@ -82,58 +76,40 @@ class UserAgent {
     }
   }
   static isSafari() {
-    if (this.#isSafari !== null) {
+    if (this.#isSafari !== null)
       return this.#isSafari;
-    }
     const userAgent = UserAgent.getDefault().toLowerCase();
     let result = userAgent.includes("safari") && !userAgent.includes("chrom");
-    this.#isSafari = result;
-    return result;
+    return this.#isSafari = result, result;
   }
   static isSafariMobile() {
-    if (this.#isSafariMobile !== null) {
+    if (this.#isSafariMobile !== null)
       return this.#isSafariMobile;
-    }
-    const userAgent = UserAgent.getDefault().toLowerCase();
-    const result = this.isSafari() && userAgent.includes("mobile");
-    this.#isSafariMobile = result;
-    return result;
+    const userAgent = UserAgent.getDefault().toLowerCase(), result = this.isSafari() && userAgent.includes("mobile");
+    return this.#isSafariMobile = result, result;
   }
   static isMobile() {
-    if (this.#isMobile !== null) {
+    if (this.#isMobile !== null)
       return this.#isMobile;
-    }
-    const userAgent = UserAgent.getDefault().toLowerCase();
-    const result = /iphone|ipad|android/.test(userAgent);
-    this.#isMobile = result;
-    return result;
+    const userAgent = UserAgent.getDefault().toLowerCase(), result = /iphone|ipad|android/.test(userAgent);
+    return this.#isMobile = result, result;
   }
   static spoof() {
     const profile = UserAgent.#config.profile;
-    if (profile === UserAgentProfile.DEFAULT) {
+    if (profile === UserAgentProfile.DEFAULT)
       return;
-    }
     const newUserAgent = UserAgent.get(profile);
-    window.navigator.orgUserAgentData = window.navigator.userAgentData;
-    Object.defineProperty(window.navigator, "userAgentData", {});
-    window.navigator.orgUserAgent = window.navigator.userAgent;
-    Object.defineProperty(window.navigator, "userAgent", {
+    window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {}), window.navigator.orgUserAgent = window.navigator.userAgent, Object.defineProperty(window.navigator, "userAgent", {
       value: newUserAgent
     });
   }
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "5.0.1-beta";
-var AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.0.1-beta", AppInterface = window.AppInterface;
 UserAgent.init();
-var userAgent = window.navigator.userAgent.toLowerCase();
-var isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent);
-var isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser");
-var browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-var userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
-var STATES = {
-  isPlaying: false,
+var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
+  isPlaying: !1,
   appContext: {},
   serverRegions: {},
   userAgentHasTouchSupport,
@@ -186,13 +162,10 @@ var XcloudEvent;
       return;
     }
     const event = new Event(eventName);
-    if (data) {
-      for (const key in data) {
+    if (data)
+      for (let key in data)
         event[key] = data[key];
-      }
-    }
-    target.dispatchEvent(event);
-    AppInterface && AppInterface.onEvent(eventName);
+    target.dispatchEvent(event), AppInterface && AppInterface.onEvent(eventName);
   }
   BxEvent.dispatch = dispatch;
 })(BxEvent || (BxEvent = {}));
@@ -203,16 +176,15 @@ window.BxEvent = BxEvent;
 /* ADDITIONAL CODE */
 
 var DEFAULT_FLAGS = {
-  CheckForUpdate: true,
-  PreloadRemotePlay: true,
-  PreloadUi: false,
-  EnableXcloudLogging: false,
-  SafariWorkaround: true,
-  UseDevTouchLayout: false,
+  CheckForUpdate: !0,
+  PreloadRemotePlay: !0,
+  PreloadUi: !1,
+  EnableXcloudLogging: !1,
+  SafariWorkaround: !0,
+  UseDevTouchLayout: !1,
   ForceNativeMkbTitles: [],
   FeatureGates: null
-};
-var BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {
   delete window.BX_FLAGS;
 } catch (e) {
@@ -235,45 +207,34 @@ var StreamVideoProcessing;
 var createElement = function(elmName, props = {}, ..._) {
   let $elm;
   const hasNs = "xmlns" in props;
-  if (hasNs) {
-    $elm = document.createElementNS(props.xmlns, elmName);
-    delete props.xmlns;
-  } else {
+  if (hasNs)
+    $elm = document.createElementNS(props.xmlns, elmName), delete props.xmlns;
+  else
     $elm = document.createElement(elmName);
-  }
-  for (const key in props) {
-    if ($elm.hasOwnProperty(key)) {
+  for (let key in props) {
+    if ($elm.hasOwnProperty(key))
       continue;
-    }
-    if (hasNs) {
+    if (hasNs)
       $elm.setAttributeNS(null, key, props[key]);
-    } else {
+    else
       $elm.setAttribute(key, props[key]);
-    }
   }
   for (let i = 2, size = arguments.length;i < size; i++) {
-    const arg = arguments[i];
-    const argType = typeof arg;
-    if (argType === "string" || argType === "number") {
+    const arg = arguments[i], argType = typeof arg;
+    if (argType === "string" || argType === "number")
       $elm.appendChild(document.createTextNode(arg));
-    } else if (arg) {
+    else if (arg)
       $elm.appendChild(arg);
-    }
   }
   return $elm;
 };
 function escapeHtml(html) {
-  const text = document.createTextNode(html);
-  const $span = document.createElement("span");
-  $span.appendChild(text);
-  return $span.innerHTML;
+  const text = document.createTextNode(html), $span = document.createElement("span");
+  return $span.appendChild(text), $span.innerHTML;
 }
-var CE = createElement;
-var svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
-var createSvgIcon = (icon) => {
+var CE = createElement, svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement, createSvgIcon = (icon) => {
   return svgParser(icon.toString());
-};
-var ButtonStyle = {};
+}, ButtonStyle = {};
 ButtonStyle[ButtonStyle.PRIMARY = 1] = "bx-primary";
 ButtonStyle[ButtonStyle.DANGER = 2] = "bx-danger";
 ButtonStyle[ButtonStyle.GHOST = 4] = "bx-ghost";
@@ -281,29 +242,17 @@ ButtonStyle[ButtonStyle.FOCUSABLE = 8] = "bx-focusable";
 ButtonStyle[ButtonStyle.FULL_WIDTH = 16] = "bx-full-width";
 ButtonStyle[ButtonStyle.FULL_HEIGHT = 32] = "bx-full-height";
 ButtonStyle[ButtonStyle.TALL = 64] = "bx-tall";
-var ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map((i) => parseInt(i));
-var createButton = (options) => {
+var ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map((i) => parseInt(i)), createButton = (options) => {
   let $btn;
-  if (options.url) {
-    $btn = CE("a", { class: "bx-button" });
-    $btn.href = options.url;
-    $btn.target = "_blank";
-  } else {
+  if (options.url)
+    $btn = CE("a", { class: "bx-button" }), $btn.href = options.url, $btn.target = "_blank";
+  else
     $btn = CE("button", { class: "bx-button", type: "button" });
-  }
   const style = options.style || 0;
-  style && ButtonStyleIndices.forEach((index) => {
+  return style && ButtonStyleIndices.forEach((index) => {
     style & index && $btn.classList.add(ButtonStyle[index]);
-  });
-  options.classes && $btn.classList.add(...options.classes);
-  options.icon && $btn.appendChild(createSvgIcon(options.icon));
-  options.label && $btn.appendChild(CE("span", {}, options.label));
-  options.title && $btn.setAttribute("title", options.title);
-  options.disabled && ($btn.disabled = true);
-  options.onClick && $btn.addEventListener("click", options.onClick);
-  return $btn;
-};
-var CTN = document.createTextNode.bind(document);
+  }), options.classes && $btn.classList.add(...options.classes), options.icon && $btn.appendChild(createSvgIcon(options.icon)), options.label && $btn.appendChild(CE("span", {}, options.label)), options.title && $btn.setAttribute("title", options.title), options.disabled && ($btn.disabled = !0), options.onClick && $btn.addEventListener("click", options.onClick), $btn;
+}, CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
 
 // src/utils/bx-logger.ts
@@ -350,8 +299,7 @@ var SUPPORTED_LANGUAGES = {
   "uk-UA": "українська",
   "vi-VN": "Tiếng Việt",
   "zh-CN": "中文(简体)"
-};
-var Texts = {
+}, Texts = {
   activate: "Activate",
   activated: "Activated",
   active: "Active",
@@ -625,77 +573,59 @@ class Translations {
   static #supportedLocales = Object.keys(SUPPORTED_LANGUAGES);
   static #foreignTranslations = {};
   static async init() {
-    Translations.#enUsIndex = Translations.#supportedLocales.indexOf(Translations.#EN_US);
-    Translations.refreshCurrentLocale();
-    await Translations.#loadTranslations();
+    Translations.#enUsIndex = Translations.#supportedLocales.indexOf(Translations.#EN_US), Translations.refreshCurrentLocale(), await Translations.#loadTranslations();
   }
   static refreshCurrentLocale() {
     const supportedLocales = Translations.#supportedLocales;
     let locale = localStorage.getItem(Translations.#KEY_LOCALE);
     if (!locale) {
-      locale = window.navigator.language || Translations.#EN_US;
-      if (supportedLocales.indexOf(locale) === -1) {
+      if (locale = window.navigator.language || Translations.#EN_US, supportedLocales.indexOf(locale) === -1)
         locale = Translations.#EN_US;
-      }
       localStorage.setItem(Translations.#KEY_LOCALE, locale);
     }
-    Translations.#selectedLocale = locale;
-    Translations.#selectedLocaleIndex = supportedLocales.indexOf(locale);
+    Translations.#selectedLocale = locale, Translations.#selectedLocaleIndex = supportedLocales.indexOf(locale);
   }
   static get(key, values) {
     let text = null;
-    if (Translations.#foreignTranslations && Translations.#selectedLocale !== Translations.#EN_US) {
+    if (Translations.#foreignTranslations && Translations.#selectedLocale !== Translations.#EN_US)
       text = Translations.#foreignTranslations[key];
-    }
-    if (!text) {
+    if (!text)
       text = Texts[key] || alert(`Missing translation key: ${key}`);
-    }
     let translation;
-    if (Array.isArray(text)) {
-      translation = text[Translations.#selectedLocaleIndex] || text[Translations.#enUsIndex];
-      return translation(values);
-    }
-    translation = text;
-    return translation;
+    if (Array.isArray(text))
+      return translation = text[Translations.#selectedLocaleIndex] || text[Translations.#enUsIndex], translation(values);
+    return translation = text, translation;
   }
   static async#loadTranslations() {
-    if (Translations.#selectedLocale === Translations.#EN_US) {
+    if (Translations.#selectedLocale === Translations.#EN_US)
       return;
-    }
     try {
       Translations.#foreignTranslations = JSON.parse(window.localStorage.getItem(Translations.#KEY_TRANSLATIONS));
     } catch (e) {
     }
-    if (!Translations.#foreignTranslations) {
+    if (!Translations.#foreignTranslations)
       await this.downloadTranslations(Translations.#selectedLocale);
-    }
   }
-  static async updateTranslations(async = false) {
-    if (Translations.#selectedLocale === Translations.#EN_US) {
+  static async updateTranslations(async = !1) {
+    if (Translations.#selectedLocale === Translations.#EN_US)
       return;
-    }
-    if (async) {
+    if (async)
       Translations.downloadTranslationsAsync(Translations.#selectedLocale);
-    } else {
+    else
       await Translations.downloadTranslations(Translations.#selectedLocale);
-    }
   }
   static async downloadTranslations(locale) {
     try {
-      const resp = await NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/translations/${locale}.json`);
-      const translations = await resp.json();
-      window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations));
-      Translations.#foreignTranslations = translations;
-      return true;
+      const translations = await (await NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/translations/${locale}.json`)).json();
+      return window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations)), Translations.#foreignTranslations = translations, !0;
     } catch (e) {
       debugger;
     }
-    return false;
+    return !1;
   }
   static downloadTranslationsAsync(locale) {
     NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/translations/${locale}.json`).then((resp) => resp.json()).then((translations) => {
-      window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations));
-      Translations.#foreignTranslations = translations;
+      window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations)), Translations.#foreignTranslations = translations;
     });
   }
 }
@@ -719,105 +649,69 @@ class SettingElement {
       tabindex: 0
     });
     for (let value in setting.options) {
-      const label = setting.options[value];
-      const $option = CE("option", { value }, label);
+      const label = setting.options[value], $option = CE("option", { value }, label);
       $control.appendChild($option);
     }
-    $control.value = currentValue;
-    onChange && $control.addEventListener("change", (e) => {
-      const target = e.target;
-      const value = setting.type && setting.type === "number" ? parseInt(target.value) : target.value;
+    return $control.value = currentValue, onChange && $control.addEventListener("change", (e) => {
+      const target = e.target, value = setting.type && setting.type === "number" ? parseInt(target.value) : target.value;
       onChange(e, value);
-    });
-    $control.setValue = (value) => {
+    }), $control.setValue = (value) => {
       $control.value = value;
-    };
-    return $control;
+    }, $control;
   }
   static #renderMultipleOptions(key, setting, currentValue, onChange, params = {}) {
     const $control = CE("select", {
       title: setting.label,
-      multiple: true,
+      multiple: !0,
       tabindex: 0
     });
-    if (params && params.size) {
+    if (params && params.size)
       $control.setAttribute("size", params.size.toString());
-    }
     for (let value in setting.multipleOptions) {
-      const label = setting.multipleOptions[value];
-      const $option = CE("option", { value }, label);
-      $option.selected = currentValue.indexOf(value) > -1;
-      $option.addEventListener("mousedown", function(e) {
+      const label = setting.multipleOptions[value], $option = CE("option", { value }, label);
+      $option.selected = currentValue.indexOf(value) > -1, $option.addEventListener("mousedown", function(e) {
         e.preventDefault();
         const target = e.target;
         target.selected = !target.selected;
         const $parent = target.parentElement;
-        $parent.focus();
-        $parent.dispatchEvent(new Event("change"));
-      });
-      $control.appendChild($option);
+        $parent.focus(), $parent.dispatchEvent(new Event("change"));
+      }), $control.appendChild($option);
     }
-    $control.addEventListener("mousedown", function(e) {
-      const self = this;
-      const orgScrollTop = self.scrollTop;
+    return $control.addEventListener("mousedown", function(e) {
+      const self = this, orgScrollTop = self.scrollTop;
       window.setTimeout(() => self.scrollTop = orgScrollTop, 0);
-    });
-    $control.addEventListener("mousemove", (e) => e.preventDefault());
-    onChange && $control.addEventListener("change", (e) => {
-      const target = e.target;
-      const values = Array.from(target.selectedOptions).map((i) => i.value);
+    }), $control.addEventListener("mousemove", (e) => e.preventDefault()), onChange && $control.addEventListener("change", (e) => {
+      const target = e.target, values = Array.from(target.selectedOptions).map((i) => i.value);
       onChange(e, values);
-    });
-    return $control;
+    }), $control;
   }
   static #renderNumber(key, setting, currentValue, onChange) {
     const $control = CE("input", { tabindex: 0, type: "number", min: setting.min, max: setting.max });
-    $control.value = currentValue;
-    onChange && $control.addEventListener("change", (e) => {
-      const target = e.target;
-      const value = Math.max(setting.min, Math.min(setting.max, parseInt(target.value)));
-      target.value = value.toString();
-      onChange(e, value);
-    });
-    return $control;
+    return $control.value = currentValue, onChange && $control.addEventListener("change", (e) => {
+      const target = e.target, value = Math.max(setting.min, Math.min(setting.max, parseInt(target.value)));
+      target.value = value.toString(), onChange(e, value);
+    }), $control;
   }
   static #renderCheckbox(key, setting, currentValue, onChange) {
     const $control = CE("input", { type: "checkbox", tabindex: 0 });
-    $control.checked = currentValue;
-    onChange && $control.addEventListener("change", (e) => {
+    return $control.checked = currentValue, onChange && $control.addEventListener("change", (e) => {
       onChange(e, e.target.checked);
-    });
-    return $control;
+    }), $control;
   }
   static #renderNumberStepper(key, setting, value, onChange, options = {}) {
-    options = options || {};
-    options.suffix = options.suffix || "";
-    options.disabled = !!options.disabled;
-    options.hideSlider = !!options.hideSlider;
-    let $text;
-    let $btnDec;
-    let $btnInc;
-    let $range;
-    let controlValue = value;
-    const MIN = setting.min;
-    const MAX = setting.max;
-    const STEPS = Math.max(setting.steps || 1, 1);
-    const renderTextValue = (value2) => {
+    options = options || {}, options.suffix = options.suffix || "", options.disabled = !!options.disabled, options.hideSlider = !!options.hideSlider;
+    let $text, $btnDec, $btnInc, $range, controlValue = value;
+    const { min: MIN, max: MAX } = setting, STEPS = Math.max(setting.steps || 1, 1), renderTextValue = (value2) => {
       value2 = parseInt(value2);
       let textContent = null;
-      if (options.customTextValue) {
+      if (options.customTextValue)
         textContent = options.customTextValue(value2);
-      }
-      if (textContent === null) {
+      if (textContent === null)
         textContent = value2.toString() + options.suffix;
-      }
       return textContent;
-    };
-    const updateButtonsVisibility = () => {
-      $btnDec.classList.toggle("bx-hidden", controlValue === MIN);
-      $btnInc.classList.toggle("bx-hidden", controlValue === MAX);
-    };
-    const $wrapper = CE("div", { class: "bx-number-stepper", id: `bx_setting_${key}` }, $btnDec = CE("button", {
+    }, updateButtonsVisibility = () => {
+      $btnDec.classList.toggle("bx-hidden", controlValue === MIN), $btnInc.classList.toggle("bx-hidden", controlValue === MAX);
+    }, $wrapper = CE("div", { class: "bx-number-stepper", id: `bx_setting_${key}` }, $btnDec = CE("button", {
       "data-type": "dec",
       type: "button",
       tabindex: -1
@@ -827,7 +721,7 @@ class SettingElement {
       tabindex: -1
     }, "+"));
     if (!options.disabled && !options.hideSlider) {
-      $range = CE("input", {
+      if ($range = CE("input", {
         id: `bx_setting_${key}`,
         type: "range",
         min: MIN,
@@ -835,97 +729,51 @@ class SettingElement {
         value,
         step: STEPS,
         tabindex: 0
-      });
-      $range.addEventListener("input", (e) => {
-        value = parseInt(e.target.value);
-        controlValue = value;
-        updateButtonsVisibility();
-        $text.textContent = renderTextValue(value);
-        !e.ignoreOnChange && onChange && onChange(e, value);
-      });
-      $wrapper.appendChild($range);
-      if (options.ticks || options.exactTicks) {
-        const markersId = `markers-${key}`;
-        const $markers = CE("datalist", { id: markersId });
-        $range.setAttribute("list", markersId);
-        if (options.exactTicks) {
+      }), $range.addEventListener("input", (e) => {
+        value = parseInt(e.target.value), controlValue = value, updateButtonsVisibility(), $text.textContent = renderTextValue(value), !e.ignoreOnChange && onChange && onChange(e, value);
+      }), $wrapper.appendChild($range), options.ticks || options.exactTicks) {
+        const markersId = `markers-${key}`, $markers = CE("datalist", { id: markersId });
+        if ($range.setAttribute("list", markersId), options.exactTicks) {
           let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
-          if (start === MIN) {
+          if (start === MIN)
             start += options.exactTicks;
-          }
-          for (let i = start;i < MAX; i += options.exactTicks) {
+          for (let i = start;i < MAX; i += options.exactTicks)
             $markers.appendChild(CE("option", { value: i }));
-          }
-        } else {
-          for (let i = MIN + options.ticks;i < MAX; i += options.ticks) {
+        } else
+          for (let i = MIN + options.ticks;i < MAX; i += options.ticks)
             $markers.appendChild(CE("option", { value: i }));
-          }
-        }
         $wrapper.appendChild($markers);
       }
     }
-    if (options.disabled) {
-      $btnInc.disabled = true;
-      $btnInc.classList.add("bx-hidden");
-      $btnDec.disabled = true;
-      $btnDec.classList.add("bx-hidden");
-      return $wrapper;
-    }
+    if (options.disabled)
+      return $btnInc.disabled = !0, $btnInc.classList.add("bx-hidden"), $btnDec.disabled = !0, $btnDec.classList.add("bx-hidden"), $wrapper;
     updateButtonsVisibility();
-    let interval;
-    let isHolding = false;
+    let interval, isHolding = !1;
     const onClick = (e) => {
       if (isHolding) {
-        e.preventDefault();
-        isHolding = false;
+        e.preventDefault(), isHolding = !1;
         return;
       }
       const $btn = e.target;
       let value2 = parseInt(controlValue);
-      const btnType = $btn.dataset.type;
-      if (btnType === "dec") {
+      if ($btn.dataset.type === "dec")
         value2 = Math.max(MIN, value2 - STEPS);
-      } else {
+      else
         value2 = Math.min(MAX, value2 + STEPS);
-      }
-      controlValue = value2;
-      updateButtonsVisibility();
-      $text.textContent = renderTextValue(value2);
-      $range && ($range.value = value2.toString());
-      isHolding = false;
-      onChange && onChange(e, value2);
-    };
-    const onMouseDown = (e) => {
-      e.preventDefault();
-      isHolding = true;
+      controlValue = value2, updateButtonsVisibility(), $text.textContent = renderTextValue(value2), $range && ($range.value = value2.toString()), isHolding = !1, onChange && onChange(e, value2);
+    }, onMouseDown = (e) => {
+      e.preventDefault(), isHolding = !0;
       const args = arguments;
-      interval && clearInterval(interval);
-      interval = window.setInterval(() => {
+      interval && clearInterval(interval), interval = window.setInterval(() => {
         const event = new Event("click");
-        event.arguments = args;
-        e.target?.dispatchEvent(event);
+        event.arguments = args, e.target?.dispatchEvent(event);
       }, 200);
-    };
-    const onMouseUp = (e) => {
-      e.preventDefault();
-      interval && clearInterval(interval);
-      isHolding = false;
-    };
-    const onContextMenu = (e) => e.preventDefault();
-    $wrapper.setValue = (value2) => {
-      controlValue = parseInt(value2);
-      $text.textContent = renderTextValue(value2);
-      $range && ($range.value = value2);
-    };
-    $btnDec.addEventListener("click", onClick);
-    $btnDec.addEventListener("pointerdown", onMouseDown);
-    $btnDec.addEventListener("pointerup", onMouseUp);
-    $btnDec.addEventListener("contextmenu", onContextMenu);
-    $btnInc.addEventListener("click", onClick);
-    $btnInc.addEventListener("pointerdown", onMouseDown);
-    $btnInc.addEventListener("pointerup", onMouseUp);
-    $btnInc.addEventListener("contextmenu", onContextMenu);
-    return $wrapper;
+    }, onMouseUp = (e) => {
+      e.preventDefault(), interval && clearInterval(interval), isHolding = !1;
+    }, onContextMenu = (e) => e.preventDefault();
+    return $wrapper.setValue = (value2) => {
+      controlValue = parseInt(value2), $text.textContent = renderTextValue(value2), $range && ($range.value = value2);
+    }, $btnDec.addEventListener("click", onClick), $btnDec.addEventListener("pointerdown", onMouseDown), $btnDec.addEventListener("pointerup", onMouseUp), $btnDec.addEventListener("contextmenu", onContextMenu), $btnInc.addEventListener("click", onClick), $btnInc.addEventListener("pointerdown", onMouseDown), $btnInc.addEventListener("pointerup", onMouseUp), $btnInc.addEventListener("contextmenu", onContextMenu), $wrapper;
   }
   static #METHOD_MAP = {
     [SettingElementType.OPTIONS]: SettingElement.#renderOptions,
@@ -935,14 +783,11 @@ class SettingElement {
     [SettingElementType.CHECKBOX]: SettingElement.#renderCheckbox
   };
   static render(type, key, setting, currentValue, onChange, options) {
-    const method = SettingElement.#METHOD_MAP[type];
-    const $control = method(...Array.from(arguments).slice(1));
-    if (type !== SettingElementType.NUMBER_STEPPER) {
+    const method = SettingElement.#METHOD_MAP[type], $control = method(...Array.from(arguments).slice(1));
+    if (type !== SettingElementType.NUMBER_STEPPER)
       $control.id = `bx_setting_${key}`;
-    }
-    if (type === SettingElementType.OPTIONS || type === SettingElementType.MULTIPLE_OPTIONS) {
+    if (type === SettingElementType.OPTIONS || type === SettingElementType.MULTIPLE_OPTIONS)
       $control.name = $control.id;
-    }
     return $control;
   }
 }
@@ -961,9 +806,8 @@ var StreamStat;
 class StreamStats {
   static instance;
   static getInstance() {
-    if (!StreamStats.instance) {
+    if (!StreamStats.instance)
       StreamStats.instance = new StreamStats;
-    }
     return StreamStats.instance;
   }
   #timeoutId;
@@ -977,68 +821,49 @@ class StreamStats {
   #$br;
   #lastVideoStat;
   #quickGlanceObserver;
-  start(glancing = false) {
-    if (!this.isHidden() || glancing && this.isGlancing()) {
+  start(glancing = !1) {
+    if (!this.isHidden() || glancing && this.isGlancing())
       return;
-    }
-    if (this.#$container) {
-      this.#$container.classList.remove("bx-gone");
-      this.#$container.dataset.display = glancing ? "glancing" : "fixed";
-    }
+    if (this.#$container)
+      this.#$container.classList.remove("bx-gone"), this.#$container.dataset.display = glancing ? "glancing" : "fixed";
     this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval);
   }
-  stop(glancing = false) {
-    if (glancing && !this.isGlancing()) {
+  stop(glancing = !1) {
+    if (glancing && !this.isGlancing())
       return;
-    }
-    this.#timeoutId && clearTimeout(this.#timeoutId);
-    this.#timeoutId = null;
-    this.#lastVideoStat = null;
-    if (this.#$container) {
-      this.#$container.removeAttribute("data-display");
-      this.#$container.classList.add("bx-gone");
-    }
+    if (this.#timeoutId && clearTimeout(this.#timeoutId), this.#timeoutId = null, this.#lastVideoStat = null, this.#$container)
+      this.#$container.removeAttribute("data-display"), this.#$container.classList.add("bx-gone");
   }
   toggle() {
-    if (this.isGlancing()) {
+    if (this.isGlancing())
       this.#$container && (this.#$container.dataset.display = "fixed");
-    } else {
+    else
       this.isHidden() ? this.start() : this.stop();
-    }
   }
   onStoppedPlaying() {
-    this.stop();
-    this.quickGlanceStop();
-    this.hideSettingsUi();
+    this.stop(), this.quickGlanceStop(), this.hideSettingsUi();
   }
   isHidden = () => this.#$container && this.#$container.classList.contains("bx-gone");
   isGlancing = () => this.#$container && this.#$container.dataset.display === "glancing";
   quickGlanceSetup() {
-    if (this.#quickGlanceObserver) {
+    if (this.#quickGlanceObserver)
       return;
-    }
     const $uiContainer = document.querySelector("div[data-testid=ui-container]");
     this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
-      for (let record of mutationList) {
-        if (record.attributeName && record.attributeName === "aria-expanded") {
-          const expanded = record.target.ariaExpanded;
-          if (expanded === "true") {
-            this.isHidden() && this.start(true);
-          } else {
-            this.stop(true);
-          }
-        }
-      }
-    });
-    this.#quickGlanceObserver.observe($uiContainer, {
-      attributes: true,
+      for (let record of mutationList)
+        if (record.attributeName && record.attributeName === "aria-expanded")
+          if (record.target.ariaExpanded === "true")
+            this.isHidden() && this.start(!0);
+          else
+            this.stop(!0);
+    }), this.#quickGlanceObserver.observe($uiContainer, {
+      attributes: !0,
       attributeFilter: ["aria-expanded"],
-      subtree: true
+      subtree: !0
     });
   }
   quickGlanceStop() {
-    this.#quickGlanceObserver && this.#quickGlanceObserver.disconnect();
-    this.#quickGlanceObserver = null;
+    this.#quickGlanceObserver && this.#quickGlanceObserver.disconnect(), this.#quickGlanceObserver = null;
   }
   async#update() {
     if (this.isHidden() || !STATES.currentStream.peerConnection) {
@@ -1046,76 +871,48 @@ class StreamStats {
       return;
     }
     this.#timeoutId = null;
-    const startTime = performance.now();
-    const PREF_STATS_CONDITIONAL_FORMATTING = getPref(PrefKey.STATS_CONDITIONAL_FORMATTING);
-    const stats = await STATES.currentStream.peerConnection.getStats();
+    const startTime = performance.now(), PREF_STATS_CONDITIONAL_FORMATTING = getPref(PrefKey.STATS_CONDITIONAL_FORMATTING), stats = await STATES.currentStream.peerConnection.getStats();
     let grade = "";
     stats.forEach((stat) => {
       if (stat.type === "inbound-rtp" && stat.kind === "video") {
         this.#$fps.textContent = stat.framesPerSecond || 0;
-        const packetsLost = stat.packetsLost;
-        const packetsReceived = stat.packetsReceived;
-        const packetsLostPercentage = (packetsLost * 100 / (packetsLost + packetsReceived || 1)).toFixed(2);
+        const { packetsLost, packetsReceived } = stat, packetsLostPercentage = (packetsLost * 100 / (packetsLost + packetsReceived || 1)).toFixed(2);
         this.#$pl.textContent = packetsLostPercentage === "0.00" ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
-        const framesDropped = stat.framesDropped;
-        const framesReceived = stat.framesReceived;
-        const framesDroppedPercentage = (framesDropped * 100 / (framesDropped + framesReceived || 1)).toFixed(2);
-        this.#$fl.textContent = framesDroppedPercentage === "0.00" ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`;
-        if (!this.#lastVideoStat) {
+        const { framesDropped, framesReceived } = stat, framesDroppedPercentage = (framesDropped * 100 / (framesDropped + framesReceived || 1)).toFixed(2);
+        if (this.#$fl.textContent = framesDroppedPercentage === "0.00" ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`, !this.#lastVideoStat) {
           this.#lastVideoStat = stat;
           return;
         }
-        const lastStat = this.#lastVideoStat;
-        const timeDiff = stat.timestamp - lastStat.timestamp;
-        const bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
+        const lastStat = this.#lastVideoStat, timeDiff = stat.timestamp - lastStat.timestamp, bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
         this.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
-        const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime;
-        const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
-        const currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
-        if (isNaN(currentDecodeTime)) {
+        const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime, framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded, currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
+        if (isNaN(currentDecodeTime))
           this.#$dt.textContent = "??ms";
-        } else {
+        else
           this.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
-        }
-        if (PREF_STATS_CONDITIONAL_FORMATTING) {
-          grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "";
-          this.#$dt.dataset.grade = grade;
-        }
+        if (PREF_STATS_CONDITIONAL_FORMATTING)
+          grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "", this.#$dt.dataset.grade = grade;
         this.#lastVideoStat = stat;
       } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
         const roundTripTime = stat.currentRoundTripTime ? stat.currentRoundTripTime * 1000 : -1;
-        this.#$ping.textContent = roundTripTime === -1 ? "???" : roundTripTime.toString();
-        if (PREF_STATS_CONDITIONAL_FORMATTING) {
-          grade = roundTripTime > 100 ? "bad" : roundTripTime > 75 ? "ok" : roundTripTime > 40 ? "good" : "";
-          this.#$ping.dataset.grade = grade;
-        }
+        if (this.#$ping.textContent = roundTripTime === -1 ? "???" : roundTripTime.toString(), PREF_STATS_CONDITIONAL_FORMATTING)
+          grade = roundTripTime > 100 ? "bad" : roundTripTime > 75 ? "ok" : roundTripTime > 40 ? "good" : "", this.#$ping.dataset.grade = grade;
       }
     });
     const lapsedTime = performance.now() - startTime;
     this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval - lapsedTime);
   }
   refreshStyles() {
-    const PREF_ITEMS = getPref(PrefKey.STATS_ITEMS);
-    const PREF_POSITION = getPref(PrefKey.STATS_POSITION);
-    const PREF_TRANSPARENT = getPref(PrefKey.STATS_TRANSPARENT);
-    const PREF_OPACITY = getPref(PrefKey.STATS_OPACITY);
-    const PREF_TEXT_SIZE = getPref(PrefKey.STATS_TEXT_SIZE);
-    const $container = this.#$container;
-    $container.dataset.stats = "[" + PREF_ITEMS.join("][") + "]";
-    $container.dataset.position = PREF_POSITION;
-    $container.dataset.transparent = PREF_TRANSPARENT;
-    $container.style.opacity = PREF_OPACITY + "%";
-    $container.style.fontSize = PREF_TEXT_SIZE;
+    const PREF_ITEMS = getPref(PrefKey.STATS_ITEMS), PREF_POSITION = getPref(PrefKey.STATS_POSITION), PREF_TRANSPARENT = getPref(PrefKey.STATS_TRANSPARENT), PREF_OPACITY = getPref(PrefKey.STATS_OPACITY), PREF_TEXT_SIZE = getPref(PrefKey.STATS_TEXT_SIZE), $container = this.#$container;
+    $container.dataset.stats = "[" + PREF_ITEMS.join("][") + "]", $container.dataset.position = PREF_POSITION, $container.dataset.transparent = PREF_TRANSPARENT, $container.style.opacity = PREF_OPACITY + "%", $container.style.fontSize = PREF_TEXT_SIZE;
   }
   hideSettingsUi() {
-    if (this.isGlancing() && !getPref(PrefKey.STATS_QUICK_GLANCE)) {
+    if (this.isGlancing() && !getPref(PrefKey.STATS_QUICK_GLANCE))
       this.stop();
-    }
   }
   #render() {
-    if (this.#$container) {
+    if (this.#$container)
       return;
-    }
     const stats = {
       [StreamStat.PING]: [t("stat-ping"), this.#$ping = CE("span", {}, "0")],
       [StreamStat.FPS]: [t("stat-fps"), this.#$fps = CE("span", {}, "0")],
@@ -1123,8 +920,7 @@ class StreamStats {
       [StreamStat.DECODE_TIME]: [t("stat-decode-time"), this.#$dt = CE("span", {}, "0ms")],
       [StreamStat.PACKETS_LOST]: [t("stat-packets-lost"), this.#$pl = CE("span", {}, "0")],
       [StreamStat.FRAMES_LOST]: [t("stat-frames-lost"), this.#$fl = CE("span", {}, "0")]
-    };
-    const $barFragment = document.createDocumentFragment();
+    }, $barFragment = document.createDocumentFragment();
     let statKey;
     for (statKey in stats) {
       const $div = CE("div", {
@@ -1133,24 +929,17 @@ class StreamStats {
       }, CE("label", {}, statKey.toUpperCase()), stats[statKey][1]);
       $barFragment.appendChild($div);
     }
-    this.#$container = CE("div", { class: "bx-stats-bar bx-gone" }, $barFragment);
-    this.refreshStyles();
-    document.documentElement.appendChild(this.#$container);
+    this.#$container = CE("div", { class: "bx-stats-bar bx-gone" }, $barFragment), this.refreshStyles(), document.documentElement.appendChild(this.#$container);
   }
   static setupEvents() {
     window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
       StreamStats.getInstance().#render();
-    });
-    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-      const PREF_STATS_QUICK_GLANCE = getPref(PrefKey.STATS_QUICK_GLANCE);
-      const PREF_STATS_SHOW_WHEN_PLAYING = getPref(PrefKey.STATS_SHOW_WHEN_PLAYING);
-      const streamStats = StreamStats.getInstance();
-      if (PREF_STATS_SHOW_WHEN_PLAYING) {
+    }), window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+      const PREF_STATS_QUICK_GLANCE = getPref(PrefKey.STATS_QUICK_GLANCE), PREF_STATS_SHOW_WHEN_PLAYING = getPref(PrefKey.STATS_SHOW_WHEN_PLAYING), streamStats = StreamStats.getInstance();
+      if (PREF_STATS_SHOW_WHEN_PLAYING)
         streamStats.start();
-      } else if (PREF_STATS_QUICK_GLANCE) {
-        streamStats.quickGlanceSetup();
-        !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(true);
-      }
+      else if (PREF_STATS_QUICK_GLANCE)
+        streamStats.quickGlanceSetup(), !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(!0);
     });
   }
   static refreshStyles() {
@@ -1298,79 +1087,64 @@ class Preferences {
         const options = {
           default: t("default")
         };
-        if (!("getCapabilities" in RTCRtpReceiver) || typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype)) {
+        if (!("getCapabilities" in RTCRtpReceiver) || typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype))
           return options;
-        }
-        let hasLowCodec = false;
-        let hasNormalCodec = false;
-        let hasHighCodec = false;
+        let hasLowCodec = !1, hasNormalCodec = !1, hasHighCodec = !1;
         const codecs = RTCRtpReceiver.getCapabilities("video").codecs;
         for (let codec of codecs) {
-          if (codec.mimeType.toLowerCase() !== "video/h264" || !codec.sdpFmtpLine) {
+          if (codec.mimeType.toLowerCase() !== "video/h264" || !codec.sdpFmtpLine)
             continue;
-          }
           const fmtp = codec.sdpFmtpLine.toLowerCase();
-          if (!hasHighCodec && fmtp.includes("profile-level-id=4d")) {
-            hasHighCodec = true;
-          } else if (!hasNormalCodec && fmtp.includes("profile-level-id=42e")) {
-            hasNormalCodec = true;
-          } else if (!hasLowCodec && fmtp.includes("profile-level-id=420")) {
-            hasLowCodec = true;
-          }
+          if (!hasHighCodec && fmtp.includes("profile-level-id=4d"))
+            hasHighCodec = !0;
+          else if (!hasNormalCodec && fmtp.includes("profile-level-id=42e"))
+            hasNormalCodec = !0;
+          else if (!hasLowCodec && fmtp.includes("profile-level-id=420"))
+            hasLowCodec = !0;
         }
-        if (hasHighCodec) {
-          if (!hasLowCodec && !hasNormalCodec) {
+        if (hasHighCodec)
+          if (!hasLowCodec && !hasNormalCodec)
             options.default = `${t("visual-quality-high")} (${t("default")})`;
-          } else {
+          else
             options.high = t("visual-quality-high");
-          }
-        }
-        if (hasNormalCodec) {
-          if (!hasLowCodec && !hasHighCodec) {
+        if (hasNormalCodec)
+          if (!hasLowCodec && !hasHighCodec)
             options.default = `${t("visual-quality-normal")} (${t("default")})`;
-          } else {
+          else
             options.normal = t("visual-quality-normal");
-          }
-        }
-        if (hasLowCodec) {
-          if (!hasNormalCodec && !hasHighCodec) {
+        if (hasLowCodec)
+          if (!hasNormalCodec && !hasHighCodec)
             options.default = `${t("visual-quality-low")} (${t("default")})`;
-          } else {
+          else
             options.low = t("visual-quality-low");
-          }
-        }
         return options;
       })(),
       ready: (setting) => {
         const options = setting.options;
-        const keys = Object.keys(options);
-        if (keys.length <= 1) {
-          setting.unsupported = true;
-          setting.note = "⚠️ " + t("browser-unsupported-feature");
-        } else {
-        }
+        if (Object.keys(options).length <= 1)
+          setting.unsupported = !0, setting.note = "⚠️ " + t("browser-unsupported-feature");
       }
     },
     [PrefKey.PREFER_IPV6_SERVER]: {
       label: t("prefer-ipv6-server"),
-      default: false
+      default: !1
     },
     [PrefKey.SCREENSHOT_APPLY_FILTERS]: {
       label: t("screenshot-apply-filters"),
-      default: false
+      default: !1
     },
     [PrefKey.SKIP_SPLASH_VIDEO]: {
       label: t("skip-splash-video"),
-      default: false
+      default: !1
     },
     [PrefKey.HIDE_DOTS_ICON]: {
       label: t("hide-system-menu-icon"),
-      default: false
+      default: !1
     },
     [PrefKey.STREAM_COMBINE_SOURCES]: {
       label: t("combine-audio-video-streams"),
-      default: false,
-      experimental: true,
+      default: !1,
+      experimental: !0,
       note: t("combine-audio-video-streams-summary")
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER]: {
@@ -1383,14 +1157,13 @@ class Preferences {
       },
       unsupported: !STATES.userAgentHasTouchSupport,
       ready: (setting) => {
-        if (setting.unsupported) {
+        if (setting.unsupported)
           setting.default = "default";
-        }
       }
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
       label: t("tc-auto-off"),
-      default: false,
+      default: !1,
       unsupported: !STATES.userAgentHasTouchSupport
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
@@ -1403,7 +1176,7 @@ class Preferences {
       params: {
         suffix: "%",
         ticks: 10,
-        hideSlider: true
+        hideSlider: !0
       },
       unsupported: !STATES.userAgentHasTouchSupport
     },
@@ -1428,15 +1201,15 @@ class Preferences {
     },
     [PrefKey.STREAM_SIMPLIFY_MENU]: {
       label: t("simplify-stream-menu"),
-      default: false
+      default: !1
     },
     [PrefKey.MKB_HIDE_IDLE_CURSOR]: {
       label: t("hide-idle-cursor"),
-      default: false
+      default: !1
     },
     [PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG]: {
       label: t("disable-post-stream-feedback-dialog"),
-      default: false
+      default: !1
     },
     [PrefKey.BITRATE_VIDEO_MAX]: {
       type: SettingElementType.NUMBER_STEPPER,
@@ -1449,22 +1222,17 @@ class Preferences {
       params: {
         exactTicks: 5120000,
         customTextValue: (value) => {
-          value = parseInt(value);
-          if (value === 0) {
+          if (value = parseInt(value), value === 0)
             return t("unlimited");
-          } else {
+          else
             return (value / 1024000).toFixed(1) + " Mb/s";
-          }
         }
       },
       migrate: function(savedPrefs, value) {
         try {
-          value = parseInt(value);
-          if (value !== 0 && value < 100) {
+          if (value = parseInt(value), value !== 0 && value < 100)
             value *= 1024000;
-          }
-          this.set(PrefKey.BITRATE_VIDEO_MAX, value, true);
-          savedPrefs[PrefKey.BITRATE_VIDEO_MAX] = value;
+          this.set(PrefKey.BITRATE_VIDEO_MAX, value, !0), savedPrefs[PrefKey.BITRATE_VIDEO_MAX] = value;
         } catch (e) {
         }
       }
@@ -1480,18 +1248,18 @@ class Preferences {
     },
     [PrefKey.LOCAL_CO_OP_ENABLED]: {
       label: t("enable-local-co-op-support"),
-      default: false,
+      default: !1,
       note: CE("a", {
         href: "https://github.com/redphx/better-xcloud/discussions/275",
         target: "_blank"
       }, t("enable-local-co-op-support-note"))
     },
     [PrefKey.CONTROLLER_ENABLE_SHORTCUTS]: {
-      default: false
+      default: !1
     },
     [PrefKey.CONTROLLER_ENABLE_VIBRATION]: {
       label: t("controller-vibration"),
-      default: true
+      default: !0
     },
     [PrefKey.CONTROLLER_DEVICE_VIBRATION]: {
       label: t("device-vibration"),
@@ -1516,21 +1284,17 @@ class Preferences {
     },
     [PrefKey.MKB_ENABLED]: {
       label: t("enable-mkb"),
-      default: false,
+      default: !1,
       unsupported: (() => {
         const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
-        return !AppInterface && userAgent2.match(/(android|iphone|ipad)/) ? t("browser-unsupported-feature") : false;
+        return !AppInterface && userAgent2.match(/(android|iphone|ipad)/) ? t("browser-unsupported-feature") : !1;
       })(),
       ready: (setting) => {
-        let note;
-        let url;
-        if (setting.unsupported) {
-          note = t("browser-unsupported-feature");
-          url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
-        } else {
-          note = t("mkb-disclaimer");
-          url = "https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer";
-        }
+        let note, url;
+        if (setting.unsupported)
+          note = t("browser-unsupported-feature"), url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
+        else
+          note = t("mkb-disclaimer"), url = "https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer";
         setting.note = CE("a", {
           href: url,
           target: "_blank"
@@ -1546,15 +1310,12 @@ class Preferences {
         off: t("off")
       },
       ready: (setting) => {
-        if (AppInterface) {
-        } else if (UserAgent.isMobile()) {
-          setting.unsupported = true;
-          setting.default = "off";
-          delete setting.options["default"];
-          delete setting.options["on"];
-        } else {
-          delete setting.options["on"];
-        }
+        if (AppInterface)
+          ;
+        else if (UserAgent.isMobile())
+          setting.unsupported = !0, setting.default = "off", delete setting.options.default, delete setting.options.on;
+        else
+          delete setting.options.on;
       }
     },
     [PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY]: {
@@ -1567,9 +1328,8 @@ class Preferences {
       params: {
         exactTicks: 2000,
         customTextValue: (value) => {
-          if (!value) {
+          if (!value)
             return t("default");
-          }
           return (value / 100).toFixed(1) + "x";
         }
       }
@@ -1584,9 +1344,8 @@ class Preferences {
       params: {
         exactTicks: 2000,
         customTextValue: (value) => {
-          if (!value) {
+          if (!value)
             return t("default");
-          }
           return (value / 100).toFixed(1) + "x";
         }
       }
@@ -1595,19 +1354,19 @@ class Preferences {
       default: 0
     },
     [PrefKey.MKB_ABSOLUTE_MOUSE]: {
-      default: false
+      default: !1
     },
     [PrefKey.REDUCE_ANIMATIONS]: {
       label: t("reduce-animations"),
-      default: false
+      default: !1
     },
     [PrefKey.UI_LOADING_SCREEN_GAME_ART]: {
       label: t("show-game-art"),
-      default: true
+      default: !0
     },
     [PrefKey.UI_LOADING_SCREEN_WAIT_TIME]: {
       label: t("show-wait-time"),
-      default: true
+      default: !0
     },
     [PrefKey.UI_LOADING_SCREEN_ROCKET]: {
       label: t("rocket-animation"),
@@ -1629,7 +1388,7 @@ class Preferences {
     },
     [PrefKey.UI_SCROLLBAR_HIDE]: {
       label: t("hide-scrollbar"),
-      default: false
+      default: !1
     },
     [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
       label: t("disable-home-context-menu"),
@@ -1637,11 +1396,11 @@ class Preferences {
     },
     [PrefKey.BLOCK_SOCIAL_FEATURES]: {
       label: t("disable-social-features"),
-      default: false
+      default: !1
     },
     [PrefKey.BLOCK_TRACKING]: {
       label: t("disable-xcloud-analytics"),
-      default: false
+      default: !1
     },
     [PrefKey.USER_AGENT_PROFILE]: {
       label: t("user-agent-profile"),
@@ -1681,10 +1440,9 @@ class Preferences {
       min: 0,
       max: 10,
       params: {
-        hideSlider: true,
+        hideSlider: !0,
         customTextValue: (value) => {
-          value = parseInt(value);
-          return value === 0 ? t("off") : value.toString();
+          return value = parseInt(value), value === 0 ? t("off") : value.toString();
         }
       }
     },
@@ -1736,11 +1494,11 @@ class Preferences {
     },
     [PrefKey.AUDIO_MIC_ON_PLAYING]: {
       label: t("enable-mic-on-startup"),
-      default: false
+      default: !1
     },
     [PrefKey.AUDIO_ENABLE_VOLUME_CONTROL]: {
       label: t("enable-volume-control"),
-      default: false
+      default: !1
     },
     [PrefKey.AUDIO_VOLUME]: {
       label: t("volume"),
@@ -1770,11 +1528,11 @@ class Preferences {
     },
     [PrefKey.STATS_SHOW_WHEN_PLAYING]: {
       label: t("show-stats-on-startup"),
-      default: false
+      default: !1
     },
     [PrefKey.STATS_QUICK_GLANCE]: {
       label: "👀 " + t("enable-quick-glance-mode"),
-      default: true
+      default: !0
     },
     [PrefKey.STATS_POSITION]: {
       label: t("position"),
@@ -1796,7 +1554,7 @@ class Preferences {
     },
     [PrefKey.STATS_TRANSPARENT]: {
       label: t("transparent-background"),
-      default: false
+      default: !1
     },
     [PrefKey.STATS_OPACITY]: {
       label: t("opacity"),
@@ -1811,11 +1569,11 @@ class Preferences {
     },
     [PrefKey.STATS_CONDITIONAL_FORMATTING]: {
       label: t("conditional-formatting"),
-      default: false
+      default: !1
     },
     [PrefKey.REMOTE_PLAY_ENABLED]: {
       label: t("enable-remote-play-feature"),
-      default: false
+      default: !1
     },
     [PrefKey.REMOTE_PLAY_RESOLUTION]: {
       default: "1080p",
@@ -1826,7 +1584,7 @@ class Preferences {
     },
     [PrefKey.GAME_FORTNITE_FORCE_CONSOLE]: {
       label: "🎮 " + t("fortnite-force-console-version"),
-      default: false,
+      default: !1,
       note: t("fortnite-allow-stw-mode")
     }
   };
@@ -1835,60 +1593,50 @@ class Preferences {
   #prefs = {};
   constructor() {
     let savedPrefsStr = this.#storage.getItem(this.#key);
-    if (savedPrefsStr == null) {
+    if (savedPrefsStr == null)
       savedPrefsStr = "{}";
-    }
     const savedPrefs = JSON.parse(savedPrefsStr);
     for (let settingId in Preferences.SETTINGS) {
       const setting = Preferences.SETTINGS[settingId];
-      if (setting.migrate && settingId in savedPrefs) {
+      if (setting.migrate && settingId in savedPrefs)
         setting.migrate.call(this, savedPrefs, savedPrefs[settingId]);
-      }
       setting.ready && setting.ready.call(this, setting);
     }
     for (let settingId in Preferences.SETTINGS) {
       const setting = Preferences.SETTINGS[settingId];
       if (!setting) {
-        alert(`Undefined setting key: ${settingId}`);
-        console.log("Undefined setting key");
+        alert(`Undefined setting key: ${settingId}`), console.log("Undefined setting key");
         continue;
       }
-      if (setting.migrate) {
+      if (setting.migrate)
         continue;
-      }
-      if (settingId in savedPrefs) {
+      if (settingId in savedPrefs)
         this.#prefs[settingId] = this.#validateValue(settingId, savedPrefs[settingId]);
-      } else {
+      else
         this.#prefs[settingId] = setting.default;
-      }
     }
   }
   #validateValue(key, value) {
     const config = Preferences.SETTINGS[key];
-    if (!config) {
+    if (!config)
       return value;
-    }
-    if (typeof value === "undefined" || value === null) {
+    if (typeof value === "undefined" || value === null)
       value = config.default;
-    }
-    if ("min" in config) {
+    if ("min" in config)
       value = Math.max(config.min, value);
-    }
-    if ("max" in config) {
+    if ("max" in config)
       value = Math.min(config.max, value);
-    }
-    if ("options" in config && !(value in config.options)) {
+    if ("options" in config && !(value in config.options))
       value = config.default;
-    } else if ("multipleOptions" in config) {
+    else if ("multipleOptions" in config) {
       if (value.length) {
         const validOptions = Object.keys(config.multipleOptions);
         value.forEach((item2, idx) => {
           validOptions.indexOf(item2) === -1 && value.splice(idx, 1);
         });
       }
-      if (!value.length) {
+      if (!value.length)
         value = config.default;
-      }
     }
     return value;
   }
@@ -1897,128 +1645,95 @@ class Preferences {
       debugger;
       return;
     }
-    if (Preferences.SETTINGS[key].unsupported) {
+    if (Preferences.SETTINGS[key].unsupported)
       return Preferences.SETTINGS[key].default;
-    }
-    if (!(key in this.#prefs)) {
+    if (!(key in this.#prefs))
       this.#prefs[key] = this.#validateValue(key, null);
-    }
     return this.#prefs[key];
   }
   set(key, value, skipSave) {
-    value = this.#validateValue(key, value);
-    this.#prefs[key] = value;
-    !skipSave && this.#updateStorage();
-    return value;
+    return value = this.#validateValue(key, value), this.#prefs[key] = value, !skipSave && this.#updateStorage(), value;
   }
   #updateStorage() {
     this.#storage.setItem(this.#key, JSON.stringify(this.#prefs));
   }
   toElement(key, onChange, overrideParams = {}) {
     const setting = Preferences.SETTINGS[key];
-    let currentValue = this.get(key);
-    let type;
-    if ("type" in setting) {
+    let currentValue = this.get(key), type;
+    if ("type" in setting)
       type = setting.type;
-    } else if ("options" in setting) {
+    else if ("options" in setting)
       type = SettingElementType.OPTIONS;
-    } else if ("multipleOptions" in setting) {
+    else if ("multipleOptions" in setting)
       type = SettingElementType.MULTIPLE_OPTIONS;
-    } else if (typeof setting.default === "number") {
+    else if (typeof setting.default === "number")
       type = SettingElementType.NUMBER;
-    } else {
+    else
       type = SettingElementType.CHECKBOX;
-    }
     const params = Object.assign(overrideParams, setting.params || {});
-    if (params.disabled) {
+    if (params.disabled)
       currentValue = Preferences.SETTINGS[key].default;
-    }
-    const $control = SettingElement.render(type, key, setting, currentValue, (e, value) => {
-      this.set(key, value);
-      onChange && onChange(e, value);
+    return SettingElement.render(type, key, setting, currentValue, (e, value) => {
+      this.set(key, value), onChange && onChange(e, value);
     }, params);
-    return $control;
   }
   toNumberStepper(key, onChange, options = {}) {
     return SettingElement.render(SettingElementType.NUMBER_STEPPER, key, Preferences.SETTINGS[key], this.get(key), (e, value) => {
-      this.set(key, value);
-      onChange && onChange(e, value);
+      this.set(key, value), onChange && onChange(e, value);
     }, options);
   }
 }
-var prefs = new Preferences;
-var getPref = prefs.get.bind(prefs);
-var setPref = prefs.set.bind(prefs);
-var toPrefElement = prefs.toElement.bind(prefs);
+var prefs = new Preferences, getPref = prefs.get.bind(prefs), setPref = prefs.set.bind(prefs), toPrefElement = prefs.toElement.bind(prefs);
 
 // src/utils/screenshot.ts
 class Screenshot {
   static #$canvas;
   static #canvasContext;
   static setup() {
-    if (Screenshot.#$canvas) {
+    if (Screenshot.#$canvas)
       return;
-    }
-    Screenshot.#$canvas = CE("canvas", { class: "bx-gone" });
-    Screenshot.#canvasContext = Screenshot.#$canvas.getContext("2d", {
-      alpha: false,
-      willReadFrequently: false
+    Screenshot.#$canvas = CE("canvas", { class: "bx-gone" }), Screenshot.#canvasContext = Screenshot.#$canvas.getContext("2d", {
+      alpha: !1,
+      willReadFrequently: !1
     });
   }
   static updateCanvasSize(width, height) {
     const $canvas = Screenshot.#$canvas;
-    if ($canvas) {
-      $canvas.width = width;
-      $canvas.height = height;
-    }
+    if ($canvas)
+      $canvas.width = width, $canvas.height = height;
   }
   static updateCanvasFilters(filters) {
     Screenshot.#canvasContext.filter = filters;
   }
   static #onAnimationEnd(e) {
-    const $target = e.target;
-    $target.classList.remove("bx-taking-screenshot");
+    e.target.classList.remove("bx-taking-screenshot");
   }
   static takeScreenshot(callback) {
-    const currentStream = STATES.currentStream;
-    const streamPlayer = currentStream.streamPlayer;
-    const $canvas = Screenshot.#$canvas;
-    if (!streamPlayer || !$canvas) {
+    const currentStream = STATES.currentStream, streamPlayer = currentStream.streamPlayer, $canvas = Screenshot.#$canvas;
+    if (!streamPlayer || !$canvas)
       return;
-    }
     let $player;
-    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
+    if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS))
       $player = streamPlayer.getPlayerElement();
-    } else {
+    else
       $player = streamPlayer.getPlayerElement(StreamPlayerType.VIDEO);
-    }
-    if (!$player || !$player.isConnected) {
+    if (!$player || !$player.isConnected)
       return;
-    }
-    $player.parentElement.addEventListener("animationend", this.#onAnimationEnd);
-    $player.parentElement.classList.add("bx-taking-screenshot");
+    $player.parentElement.addEventListener("animationend", this.#onAnimationEnd), $player.parentElement.classList.add("bx-taking-screenshot");
     const canvasContext = Screenshot.#canvasContext;
-    if ($player instanceof HTMLCanvasElement) {
+    if ($player instanceof HTMLCanvasElement)
       streamPlayer.getWebGL2Player().drawFrame();
-    }
-    canvasContext.drawImage($player, 0, 0, $canvas.width, $canvas.height);
-    if (AppInterface) {
+    if (canvasContext.drawImage($player, 0, 0, $canvas.width, $canvas.height), AppInterface) {
       const data = $canvas.toDataURL("image/png").split(";base64,")[1];
-      AppInterface.saveScreenshot(currentStream.titleId, data);
-      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-      callback && callback();
+      AppInterface.saveScreenshot(currentStream.titleId, data), canvasContext.clearRect(0, 0, $canvas.width, $canvas.height), callback && callback();
       return;
     }
     $canvas && $canvas.toBlob((blob) => {
-      const now = +new Date;
-      const $anchor = CE("a", {
+      const now = +new Date, $anchor = CE("a", {
         download: `${currentStream.titleId}-${now}.png`,
         href: URL.createObjectURL(blob)
       });
-      $anchor.click();
-      URL.revokeObjectURL($anchor.href);
-      canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
-      callback && callback();
+      $anchor.click(), URL.revokeObjectURL($anchor.href), canvasContext.clearRect(0, 0, $canvas.width, $canvas.height), callback && callback();
     }, "image/png");
   }
 }
@@ -2109,8 +1824,7 @@ var GamepadKeyName = {
   [GamepadKey.RS_DOWN]: ["Right Stick Down", PrompFont.RS_DOWN],
   [GamepadKey.RS_LEFT]: ["Right Stick Left", PrompFont.RS_LEFT],
   [GamepadKey.RS_RIGHT]: ["Right Stick Right", PrompFont.RS_RIGHT]
-};
-var GamepadStick;
+}, GamepadStick;
 (function(GamepadStick2) {
   GamepadStick2[GamepadStick2["LEFT"] = 0] = "LEFT";
   GamepadStick2[GamepadStick2["RIGHT"] = 1] = "RIGHT";
@@ -2229,23 +1943,17 @@ class MkbPreset {
       mapping: {},
       mouse: Object.assign({}, preset.mouse)
     };
-    for (const buttonIndex in preset.mapping) {
-      for (const keyName of preset.mapping[parseInt(buttonIndex)]) {
+    for (let buttonIndex in preset.mapping)
+      for (let keyName of preset.mapping[parseInt(buttonIndex)])
         obj.mapping[keyName] = parseInt(buttonIndex);
-      }
-    }
     const mouse = obj.mouse;
-    mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY;
-    mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= EmulatedMkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
+    mouse[MkbPresetKey.MOUSE_SENSITIVITY_X] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY, mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY, mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT] *= EmulatedMkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
     const mouseMapTo = MouseMapTo[mouse[MkbPresetKey.MOUSE_MAP_TO]];
-    if (typeof mouseMapTo !== "undefined") {
+    if (typeof mouseMapTo !== "undefined")
       mouse[MkbPresetKey.MOUSE_MAP_TO] = mouseMapTo;
-    } else {
+    else
       mouse[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
-    }
-    console.log(obj);
-    return obj;
+    return console.log(obj), obj;
   }
 }
 
@@ -2255,61 +1963,46 @@ class Toast {
   static #$msg;
   static #$status;
   static #stack = [];
-  static #isShowing = false;
+  static #isShowing = !1;
   static #timeout;
   static #DURATION = 3000;
   static show(msg, status, options = {}) {
     options = options || {};
     const args = Array.from(arguments);
-    if (options.instant) {
-      Toast.#stack = [args];
-      Toast.#showNext();
-    } else {
-      Toast.#stack.push(args);
-      !Toast.#isShowing && Toast.#showNext();
-    }
+    if (options.instant)
+      Toast.#stack = [args], Toast.#showNext();
+    else
+      Toast.#stack.push(args), !Toast.#isShowing && Toast.#showNext();
   }
   static #showNext() {
     if (!Toast.#stack.length) {
-      Toast.#isShowing = false;
+      Toast.#isShowing = !1;
       return;
     }
-    Toast.#isShowing = true;
-    Toast.#timeout && clearTimeout(Toast.#timeout);
-    Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
+    Toast.#isShowing = !0, Toast.#timeout && clearTimeout(Toast.#timeout), Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
     const [msg, status, options] = Toast.#stack.shift();
-    if (options && options.html) {
+    if (options && options.html)
       Toast.#$msg.innerHTML = msg;
-    } else {
+    else
       Toast.#$msg.textContent = msg;
-    }
-    if (status) {
-      Toast.#$status.classList.remove("bx-gone");
-      Toast.#$status.textContent = status;
-    } else {
+    if (status)
+      Toast.#$status.classList.remove("bx-gone"), Toast.#$status.textContent = status;
+    else
       Toast.#$status.classList.add("bx-gone");
-    }
     const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-offscreen", "bx-hide");
-    classList.add("bx-show");
+    classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
   }
   static #hide() {
     Toast.#timeout = null;
     const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-show");
-    classList.add("bx-hide");
+    classList.remove("bx-show"), classList.add("bx-hide");
   }
   static setup() {
-    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" }));
-    Toast.#$wrapper.addEventListener("transitionend", (e) => {
+    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" })), Toast.#$wrapper.addEventListener("transitionend", (e) => {
       const classList = Toast.#$wrapper.classList;
-      if (classList.contains("bx-hide")) {
-        classList.remove("bx-offscreen", "bx-hide");
-        classList.add("bx-offscreen");
-        Toast.#showNext();
-      }
-    });
-    document.documentElement.appendChild(Toast.#$wrapper);
+      if (classList.contains("bx-hide"))
+        classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.#showNext();
+    }), document.documentElement.appendChild(Toast.#$wrapper);
   }
 }
 
@@ -2317,9 +2010,8 @@ class Toast {
 class LocalDb {
   static #instance;
   static get INSTANCE() {
-    if (!LocalDb.#instance) {
+    if (!LocalDb.#instance)
       LocalDb.#instance = new LocalDb;
-    }
     return LocalDb.#instance;
   }
   static DB_NAME = "BetterXcloud";
@@ -2337,26 +2029,19 @@ class LocalDb {
         const db = e.target.result;
         switch (e.oldVersion) {
           case 0: {
-            const presets = db.createObjectStore(LocalDb.TABLE_PRESETS, { keyPath: "id", autoIncrement: true });
-            presets.createIndex("name_idx", "name");
+            db.createObjectStore(LocalDb.TABLE_PRESETS, { keyPath: "id", autoIncrement: !0 }).createIndex("name_idx", "name");
             break;
           }
         }
-      };
-      request.onerror = (e) => {
-        console.log(e);
-        alert(e.target.error.message);
-        reject && reject();
-      };
-      request.onsuccess = (e) => {
-        this.#DB = e.target.result;
-        resolve();
+      }, request.onerror = (e) => {
+        console.log(e), alert(e.target.error.message), reject && reject();
+      }, request.onsuccess = (e) => {
+        this.#DB = e.target.result, resolve();
       };
     });
   }
   #table(name, type) {
-    const transaction = this.#DB.transaction(name, type || "readonly");
-    const table = transaction.objectStore(name);
+    const table = this.#DB.transaction(name, type || "readonly").objectStore(name);
     return new Promise((resolve) => resolve(table));
   }
   #call(method) {
@@ -2400,24 +2085,20 @@ class LocalDb {
   }
   getPresets() {
     return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#count(table)).then(([table, count]) => {
-      if (count > 0) {
+      if (count > 0)
         return new Promise((resolve) => {
           this.#getAll(table).then(([table2, items]) => {
             const presets = {};
-            items.forEach((item2) => presets[item2.id] = item2);
-            resolve(presets);
+            items.forEach((item2) => presets[item2.id] = item2), resolve(presets);
           });
         });
-      }
       const preset = {
         name: t("default"),
         data: MkbPreset.DEFAULT_PRESET
       };
       return new Promise((resolve) => {
         this.#add(table, preset).then(([table2, id2]) => {
-          preset.id = id2;
-          setPref(PrefKey.MKB_DEFAULT_PRESET_ID, id2);
-          resolve({ [id2]: preset });
+          preset.id = id2, setPref(PrefKey.MKB_DEFAULT_PRESET_ID, id2), resolve({ [id2]: preset });
         });
       });
     });
@@ -2437,26 +2118,22 @@ class KeyHelper {
     [WheelCode.SCROLL_RIGHT]: "Scroll Right"
   };
   static getKeyFromEvent(e) {
-    let code;
-    let name;
-    if (e instanceof KeyboardEvent) {
+    let code, name;
+    if (e instanceof KeyboardEvent)
       code = e.code || e.key;
-    } else if (e instanceof WheelEvent) {
-      if (e.deltaY < 0) {
+    else if (e instanceof WheelEvent) {
+      if (e.deltaY < 0)
         code = WheelCode.SCROLL_UP;
-      } else if (e.deltaY > 0) {
+      else if (e.deltaY > 0)
         code = WheelCode.SCROLL_DOWN;
-      } else if (e.deltaX < 0) {
+      else if (e.deltaX < 0)
         code = WheelCode.SCROLL_LEFT;
-      } else if (e.deltaX > 0) {
+      else if (e.deltaX > 0)
         code = WheelCode.SCROLL_RIGHT;
-      }
-    } else if (e instanceof MouseEvent) {
+    } else if (e instanceof MouseEvent)
       code = "Mouse" + e.button;
-    }
-    if (code) {
+    if (code)
       name = KeyHelper.codeToKeyName(code);
-    }
     return code ? { code, name } : null;
   }
   static codeToKeyName(code) {
@@ -2604,12 +2281,11 @@ var StreamBadgeIcon = {
 class StreamBadges {
   static instance;
   static getInstance() {
-    if (!StreamBadges.instance) {
+    if (!StreamBadges.instance)
       StreamBadges.instance = new StreamBadges;
-    }
     return StreamBadges.instance;
   }
-  #ipv6 = false;
+  #ipv6 = !1;
   #resolution = null;
   #video = null;
   #audio = null;
@@ -2625,51 +2301,34 @@ class StreamBadges {
   }
   #renderBadge(name, value, color) {
     let $badge;
-    if (this.#cachedDoms[name]) {
-      $badge = this.#cachedDoms[name];
-      $badge.lastElementChild.textContent = value;
-      return $badge;
-    }
-    $badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value));
-    if (name === StreamBadge.BATTERY) {
+    if (this.#cachedDoms[name])
+      return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
+    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === StreamBadge.BATTERY)
       $badge.classList.add("bx-badge-battery");
-    }
-    this.#cachedDoms[name] = $badge;
-    return $badge;
+    return this.#cachedDoms[name] = $badge, $badge;
   }
-  async#updateBadges(forceUpdate = false) {
+  async#updateBadges(forceUpdate = !1) {
     if (!this.#$container || !forceUpdate && !this.#$container.isConnected) {
       this.#stop();
       return;
     }
     let now = +new Date;
-    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000);
-    const playtime = this.#secondsToHm(diffSeconds);
-    let batteryLevel = "100%";
-    let batteryLevelInt = 100;
-    let isCharging = false;
-    if ("getBattery" in navigator) {
+    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
+    let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
+    if ("getBattery" in navigator)
       try {
         const bm = await navigator.getBattery();
-        isCharging = bm.charging;
-        batteryLevelInt = Math.round(bm.level * 100);
-        batteryLevel = `${batteryLevelInt}%`;
-        if (batteryLevelInt != this.startBatteryLevel) {
-          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel);
-          const sign = diffLevel > 0 ? "+" : "";
+        if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
+          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
           batteryLevel += ` (${sign}${diffLevel}%)`;
         }
       } catch (e) {
       }
-    }
     const stats = await STATES.currentStream.peerConnection?.getStats();
-    let totalIn = 0;
-    let totalOut = 0;
+    let totalIn = 0, totalOut = 0;
     stats.forEach((stat) => {
-      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
-        totalIn += stat.bytesReceived;
-        totalOut += stat.bytesSent;
-      }
+      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
+        totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
     });
     const badges = {
       [StreamBadge.DOWNLOAD]: totalIn ? this.#humanFileSize(totalIn) : null,
@@ -2680,35 +2339,24 @@ class StreamBadges {
     let name;
     for (name in badges) {
       const value = badges[name];
-      if (value === null) {
+      if (value === null)
         continue;
-      }
       const $elm = this.#cachedDoms[name];
-      $elm && ($elm.lastElementChild.textContent = value);
-      if (name === StreamBadge.BATTERY) {
-        if (this.startBatteryLevel === 100 && batteryLevelInt === 100) {
+      if ($elm && ($elm.lastElementChild.textContent = value), name === StreamBadge.BATTERY)
+        if (this.startBatteryLevel === 100 && batteryLevelInt === 100)
           $elm.classList.add("bx-gone");
-        } else {
-          $elm.dataset.charging = isCharging.toString();
-          $elm.classList.remove("bx-gone");
-        }
-      }
+        else
+          $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
     }
   }
   async#start() {
-    await this.#updateBadges(true);
-    this.#stop();
-    this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
+    await this.#updateBadges(!0), this.#stop(), this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
   }
   #stop() {
-    this.#interval && clearInterval(this.#interval);
-    this.#interval = null;
+    this.#interval && clearInterval(this.#interval), this.#interval = null;
   }
   #secondsToHm(seconds) {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor(seconds % 3600 / 60) + 1;
-    const hDisplay = h > 0 ? `${h}h` : "";
-    const mDisplay = m > 0 ? `${m}m` : "";
+    const h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1, hDisplay = h > 0 ? `${h}h` : "", mDisplay = m > 0 ? `${m}m` : "";
     return hDisplay + mDisplay;
   }
   #humanFileSize(size) {
@@ -2717,28 +2365,22 @@ class StreamBadges {
     return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
   }
   async render() {
-    if (this.#$container) {
-      this.#start();
-      return this.#$container;
-    }
+    if (this.#$container)
+      return this.#start(), this.#$container;
     await this.#getServerStats();
     let video = "";
-    if (this.#resolution) {
+    if (this.#resolution)
       video = `${this.#resolution.height}p`;
-    }
     if (this.#video) {
-      video && (video += "/");
-      video += this.#video.codec;
-      if (this.#video.profile) {
+      if (video && (video += "/"), video += this.#video.codec, this.#video.profile) {
         const profile = this.#video.profile;
         let quality = profile;
-        if (profile.startsWith("4d")) {
+        if (profile.startsWith("4d"))
           quality = t("visual-quality-high");
-        } else if (profile.startsWith("42e")) {
+        else if (profile.startsWith("42e"))
           quality = t("visual-quality-normal");
-        } else if (profile.startsWith("420")) {
+        else if (profile.startsWith("420"))
           quality = t("visual-quality-low");
-        }
         video += ` (${quality})`;
       }
     }
@@ -2749,9 +2391,8 @@ class StreamBadges {
       audio += ` (${bitrate} kHz)`;
     }
     let batteryLevel = "";
-    if ("getBattery" in navigator) {
+    if ("getBattery" in navigator)
       batteryLevel = "100%";
-    }
     let server = this.#region;
     server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
     const BADGES = [
@@ -2762,50 +2403,39 @@ class StreamBadges {
       [StreamBadge.SERVER, server, "#ff6c24"],
       video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
       audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
-    ];
-    const $container = CE("div", { class: "bx-badges" });
-    BADGES.forEach((item2) => {
-      if (!item2) {
+    ], $container = CE("div", { class: "bx-badges" });
+    return BADGES.forEach((item2) => {
+      if (!item2)
         return;
-      }
       const $badge = this.#renderBadge(...item2);
       $container.appendChild($badge);
-    });
-    this.#$container = $container;
-    await this.#start();
-    return $container;
+    }), this.#$container = $container, await this.#start(), $container;
   }
   async#getServerStats() {
-    const stats = await STATES.currentStream.peerConnection.getStats();
-    const allVideoCodecs = {};
+    const stats = await STATES.currentStream.peerConnection.getStats(), allVideoCodecs = {};
     let videoCodecId;
     const allAudioCodecs = {};
     let audioCodecId;
     const allCandidates = {};
     let candidateId;
-    stats.forEach((stat) => {
+    if (stats.forEach((stat) => {
       if (stat.type === "codec") {
         const mimeType = stat.mimeType.split("/")[0];
-        if (mimeType === "video") {
+        if (mimeType === "video")
           allVideoCodecs[stat.id] = stat;
-        } else if (mimeType === "audio") {
+        else if (mimeType === "audio")
           allAudioCodecs[stat.id] = stat;
-        }
       } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
-        if (stat.kind === "video") {
+        if (stat.kind === "video")
           videoCodecId = stat.codecId;
-        } else if (stat.kind === "audio") {
+        else if (stat.kind === "audio")
           audioCodecId = stat.codecId;
-        }
-      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
+      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
         candidateId = stat.remoteCandidateId;
-      } else if (stat.type === "remote-candidate") {
+      else if (stat.type === "remote-candidate")
         allCandidates[stat.id] = stat.address;
-      }
-    });
-    if (videoCodecId) {
-      const videoStat = allVideoCodecs[videoCodecId];
-      const video = {
+    }), videoCodecId) {
+      const videoStat = allVideoCodecs[videoCodecId], video = {
         codec: videoStat.mimeType.substring(6)
       };
       if (video.codec === "H264") {
@@ -2821,20 +2451,16 @@ class StreamBadges {
         bitrate: audioStat.clockRate
       };
     }
-    if (candidateId) {
-      BxLogger.info("candidate", candidateId, allCandidates);
-      this.#ipv6 = allCandidates[candidateId].includes(":");
-    }
+    if (candidateId)
+      BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
   }
   static setupEvents() {
     window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-      const $video = e.$video;
-      const streamBadges = StreamBadges.getInstance();
+      const $video = e.$video, streamBadges = StreamBadges.getInstance();
       streamBadges.#resolution = {
         width: $video.videoWidth,
         height: $video.videoHeight
-      };
-      streamBadges.startTimestamp = +new Date;
+      }, streamBadges.startTimestamp = +new Date;
       try {
         "getBattery" in navigator && navigator.getBattery().then((bm) => {
           streamBadges.startBatteryLevel = Math.round(bm.level * 100);
@@ -2847,178 +2473,116 @@ class StreamBadges {
 
 // src/modules/stream/stream-ui.ts
 var cloneStreamHudButton = function($orgButton, label, svgIcon) {
-  const $container = $orgButton.cloneNode(true);
+  const $container = $orgButton.cloneNode(!0);
   let timeout;
   const onTransitionStart = (e) => {
-    if (e.propertyName !== "opacity") {
+    if (e.propertyName !== "opacity")
       return;
-    }
-    timeout && clearTimeout(timeout);
-    $container.style.pointerEvents = "none";
-  };
-  const onTransitionEnd = (e) => {
-    if (e.propertyName !== "opacity") {
+    timeout && clearTimeout(timeout), $container.style.pointerEvents = "none";
+  }, onTransitionEnd = (e) => {
+    if (e.propertyName !== "opacity")
       return;
-    }
-    const left = document.getElementById("StreamHud")?.style.left;
-    if (left === "0px") {
-      timeout && clearTimeout(timeout);
-      timeout = window.setTimeout(() => {
+    if (document.getElementById("StreamHud")?.style.left === "0px")
+      timeout && clearTimeout(timeout), timeout = window.setTimeout(() => {
         $container.style.pointerEvents = "auto";
       }, 100);
-    }
   };
-  if (STATES.browserHasTouchSupport) {
-    $container.addEventListener("transitionstart", onTransitionStart);
-    $container.addEventListener("transitionend", onTransitionEnd);
-  }
+  if (STATES.browserHasTouchSupport)
+    $container.addEventListener("transitionstart", onTransitionStart), $container.addEventListener("transitionend", onTransitionEnd);
   const $button = $container.querySelector("button");
   $button.setAttribute("title", label);
-  const $orgSvg = $button.querySelector("svg");
-  const $svg = createSvgIcon(svgIcon);
-  $svg.style.fill = "none";
-  $svg.setAttribute("class", $orgSvg.getAttribute("class") || "");
-  $svg.ariaHidden = "true";
-  $orgSvg.replaceWith($svg);
-  return $container;
-};
-var cloneCloseButton = function($$btnOrg, icon, className, onChange) {
-  const $btn = $$btnOrg.cloneNode(true);
-  const $svg = createSvgIcon(icon);
-  $svg.setAttribute("class", $btn.firstElementChild.getAttribute("class") || "");
-  $svg.style.fill = "none";
-  $btn.classList.add(className);
-  $btn.removeChild($btn.firstElementChild);
-  $btn.appendChild($svg);
-  $btn.addEventListener("click", onChange);
-  return $btn;
+  const $orgSvg = $button.querySelector("svg"), $svg = createSvgIcon(svgIcon);
+  return $svg.style.fill = "none", $svg.setAttribute("class", $orgSvg.getAttribute("class") || ""), $svg.ariaHidden = "true", $orgSvg.replaceWith($svg), $container;
+}, cloneCloseButton = function($$btnOrg, icon, className, onChange) {
+  const $btn = $$btnOrg.cloneNode(!0), $svg = createSvgIcon(icon);
+  return $svg.setAttribute("class", $btn.firstElementChild.getAttribute("class") || ""), $svg.style.fill = "none", $btn.classList.add(className), $btn.removeChild($btn.firstElementChild), $btn.appendChild($svg), $btn.addEventListener("click", onChange), $btn;
 };
 function injectStreamMenuButtons() {
   const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
-  if (!$screen) {
+  if (!$screen)
     return;
-  }
-  if ($screen.xObserving) {
+  if ($screen.xObserving)
     return;
-  }
-  $screen.xObserving = true;
-  const $settingsDialog = document.querySelector(".bx-stream-settings-dialog");
-  const $parent = $screen.parentElement;
-  const hideSettingsFunc = (e) => {
+  $screen.xObserving = !0;
+  const $settingsDialog = document.querySelector(".bx-stream-settings-dialog"), $parent = $screen.parentElement, hideSettingsFunc = (e) => {
     if (e) {
       const $target = e.target;
-      e.stopPropagation();
-      if ($target != $parent && $target.id !== "MultiTouchSurface" && !$target.querySelector("#BabylonCanvasContainer-main")) {
+      if (e.stopPropagation(), $target != $parent && $target.id !== "MultiTouchSurface" && !$target.querySelector("#BabylonCanvasContainer-main"))
         return;
-      }
-      if ($target.id === "MultiTouchSurface") {
+      if ($target.id === "MultiTouchSurface")
         $target.removeEventListener("touchstart", hideSettingsFunc);
-      }
     }
-    $settingsDialog.classList.add("bx-gone");
-    $parent?.removeEventListener("click", hideSettingsFunc);
+    $settingsDialog.classList.add("bx-gone"), $parent?.removeEventListener("click", hideSettingsFunc);
   };
-  let $btnStreamSettings;
-  let $btnStreamStats;
+  let $btnStreamSettings, $btnStreamStats;
   const streamStats = StreamStats.getInstance();
-  const observer = new MutationObserver((mutationList) => {
+  new MutationObserver((mutationList) => {
     mutationList.forEach((item2) => {
-      if (item2.type !== "childList") {
+      if (item2.type !== "childList")
         return;
-      }
       item2.addedNodes.forEach(async ($node) => {
-        if (!$node || $node.nodeType !== Node.ELEMENT_NODE) {
+        if (!$node || $node.nodeType !== Node.ELEMENT_NODE)
           return;
-        }
         let $elm = $node;
-        if ($elm instanceof SVGSVGElement) {
+        if ($elm instanceof SVGSVGElement)
           return;
-        }
         if ($elm.className?.includes("PureErrorPage")) {
           BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
           return;
         }
         if ($elm.className?.startsWith("StreamMenu-module__container")) {
           const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
-          if (!$btnCloseHud) {
+          if (!$btnCloseHud)
             return;
-          }
           $btnCloseHud.addEventListener("click", (e) => {
             $settingsDialog.classList.add("bx-gone");
           });
           const $btnRefresh = cloneCloseButton($btnCloseHud, BxIcon.REFRESH, "bx-stream-refresh-button", () => {
             confirm(t("confirm-reload-stream")) && window.location.reload();
-          });
-          const $btnHome = cloneCloseButton($btnCloseHud, BxIcon.HOME, "bx-stream-home-button", () => {
+          }), $btnHome = cloneCloseButton($btnCloseHud, BxIcon.HOME, "bx-stream-home-button", () => {
             confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
           });
-          $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh);
-          $btnRefresh.insertAdjacentElement("afterend", $btnHome);
-          const $menu = document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]");
-          $menu?.appendChild(await StreamBadges.getInstance().render());
-          hideSettingsFunc();
+          $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh), $btnRefresh.insertAdjacentElement("afterend", $btnHome), document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]")?.appendChild(await StreamBadges.getInstance().render()), hideSettingsFunc();
           return;
         }
-        if ($elm.className?.startsWith("Overlay-module_") || $elm.className?.startsWith("InProgressScreen")) {
+        if ($elm.className?.startsWith("Overlay-module_") || $elm.className?.startsWith("InProgressScreen"))
           $elm = $elm.querySelector("#StreamHud");
-        }
-        if (!$elm || ($elm.id || "") !== "StreamHud") {
+        if (!$elm || ($elm.id || "") !== "StreamHud")
           return;
-        }
-        const $gripHandle = $elm.querySelector("button[class^=GripHandle]");
-        const hideGripHandle = () => {
-          if (!$gripHandle) {
+        const $gripHandle = $elm.querySelector("button[class^=GripHandle]"), hideGripHandle = () => {
+          if (!$gripHandle)
             return;
-          }
-          $gripHandle.dispatchEvent(new PointerEvent("pointerdown"));
-          $gripHandle.click();
-          $gripHandle.dispatchEvent(new PointerEvent("pointerdown"));
-          $gripHandle.click();
-        };
-        const $orgButton = $elm.querySelector("div[class^=HUDButton]");
-        if (!$orgButton) {
+          $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
+        }, $orgButton = $elm.querySelector("div[class^=HUDButton]");
+        if (!$orgButton)
           return;
-        }
-        if (!$btnStreamSettings) {
-          $btnStreamSettings = cloneStreamHudButton($orgButton, t("stream-settings"), BxIcon.STREAM_SETTINGS);
-          $btnStreamSettings.addEventListener("click", (e) => {
-            hideGripHandle();
-            e.preventDefault();
-            $settingsDialog.classList.remove("bx-gone");
-            $parent?.addEventListener("click", hideSettingsFunc);
+        if (!$btnStreamSettings)
+          $btnStreamSettings = cloneStreamHudButton($orgButton, t("stream-settings"), BxIcon.STREAM_SETTINGS), $btnStreamSettings.addEventListener("click", (e) => {
+            hideGripHandle(), e.preventDefault(), $settingsDialog.classList.remove("bx-gone"), $parent?.addEventListener("click", hideSettingsFunc);
             const $touchSurface = document.getElementById("MultiTouchSurface");
             $touchSurface && $touchSurface.style.display != "none" && $touchSurface.addEventListener("touchstart", hideSettingsFunc);
           });
-        }
-        if (!$btnStreamStats) {
-          $btnStreamStats = cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS);
-          $btnStreamStats.addEventListener("click", (e) => {
-            hideGripHandle();
-            e.preventDefault();
-            streamStats.toggle();
+        if (!$btnStreamStats)
+          $btnStreamStats = cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats.addEventListener("click", (e) => {
+            hideGripHandle(), e.preventDefault(), streamStats.toggle();
             const btnStreamStatsOn2 = !streamStats.isHidden() && !streamStats.isGlancing();
             $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn2);
           });
-        }
         const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();
-        $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn);
-        if ($orgButton) {
+        if ($btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn), $orgButton) {
           const $btnParent = $orgButton.parentElement;
-          $btnParent.insertBefore($btnStreamStats, $btnParent.lastElementChild);
-          $btnParent.insertBefore($btnStreamSettings, $btnStreamStats);
+          $btnParent.insertBefore($btnStreamStats, $btnParent.lastElementChild), $btnParent.insertBefore($btnStreamSettings, $btnStreamStats);
           const $dotsButton = $btnParent.lastElementChild;
           $dotsButton.parentElement.insertBefore($dotsButton, $dotsButton.parentElement.firstElementChild);
         }
       });
     });
-  });
-  observer.observe($screen, { subtree: true, childList: true });
+  }).observe($screen, { subtree: !0, childList: !0 });
 }
 function showStreamSettings(tabId) {
   const $wrapper = document.querySelector(".bx-stream-settings-dialog");
-  if (!$wrapper) {
+  if (!$wrapper)
     return;
-  }
   if (tabId) {
     const $tab = $wrapper.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
     $tab && $tab.dispatchEvent(new Event("click"));
@@ -3027,22 +2591,18 @@ function showStreamSettings(tabId) {
   const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
   if ($screen && $screen.parentElement) {
     const $parent = $screen.parentElement;
-    if (!$parent || $parent.bxClick) {
+    if (!$parent || $parent.bxClick)
       return;
-    }
-    $parent.bxClick = true;
+    $parent.bxClick = !0;
     const onClick = (e) => {
-      $wrapper.classList.add("bx-gone");
-      $parent.bxClick = false;
-      $parent.removeEventListener("click", onClick);
+      $wrapper.classList.add("bx-gone"), $parent.bxClick = !1, $parent.removeEventListener("click", onClick);
     };
     $parent.addEventListener("click", onClick);
   }
 }
 
 // src/modules/mkb/pointer-client.ts
-var LOG_TAG = "PointerClient";
-var PointerAction;
+var LOG_TAG = "PointerClient", PointerAction;
 (function(PointerAction2) {
   PointerAction2[PointerAction2["MOVE"] = 1] = "MOVE";
   PointerAction2[PointerAction2["BUTTON_PRESS"] = 2] = "BUTTON_PRESS";
@@ -3054,34 +2614,24 @@ var PointerAction;
 class PointerClient {
   static instance;
   static getInstance() {
-    if (!PointerClient.instance) {
+    if (!PointerClient.instance)
       PointerClient.instance = new PointerClient;
-    }
     return PointerClient.instance;
   }
   #socket;
   #mkbHandler;
   start(port, mkbHandler) {
-    if (!port) {
+    if (!port)
       throw new Error("PointerServer port is 0");
-    }
-    this.#mkbHandler = mkbHandler;
-    this.#socket = new WebSocket(`ws://localhost:${port}`);
-    this.#socket.binaryType = "arraybuffer";
-    this.#socket.addEventListener("open", (event) => {
+    this.#mkbHandler = mkbHandler, this.#socket = new WebSocket(`ws://localhost:${port}`), this.#socket.binaryType = "arraybuffer", this.#socket.addEventListener("open", (event) => {
       BxLogger.info(LOG_TAG, "connected");
-    });
-    this.#socket.addEventListener("error", (event) => {
-      BxLogger.error(LOG_TAG, event);
-      Toast.show("Cannot setup mouse: " + event);
-    });
-    this.#socket.addEventListener("close", (event) => {
+    }), this.#socket.addEventListener("error", (event) => {
+      BxLogger.error(LOG_TAG, event), Toast.show("Cannot setup mouse: " + event);
+    }), this.#socket.addEventListener("close", (event) => {
       this.#socket = null;
-    });
-    this.#socket.addEventListener("message", (event) => {
+    }), this.#socket.addEventListener("message", (event) => {
       const dataView = new DataView(event.data);
-      let messageType = dataView.getInt8(0);
-      let offset = Int8Array.BYTES_PER_ELEMENT;
+      let messageType = dataView.getInt8(0), offset = Int8Array.BYTES_PER_ELEMENT;
       switch (messageType) {
         case PointerAction.MOVE:
           this.onMove(dataView, offset);
@@ -3124,8 +2674,7 @@ class PointerClient {
     });
   }
   onPointerCaptureChanged(dataView, offset) {
-    const hasCapture = dataView.getInt8(offset) === 1;
-    !hasCapture && this.#mkbHandler?.stop();
+    dataView.getInt8(offset) !== 1 && this.#mkbHandler?.stop();
   }
   stop() {
     try {
@@ -3151,7 +2700,7 @@ class MkbHandler {
 class NativeMkbHandler extends MkbHandler {
   static instance;
   #pointerClient;
-  #enabled = false;
+  #enabled = !1;
   #mouseButtonsPressed = 0;
   #mouseWheelX = 0;
   #mouseWheelY = 0;
@@ -3160,63 +2709,50 @@ class NativeMkbHandler extends MkbHandler {
   #inputSink;
   #$message;
   static getInstance() {
-    if (!NativeMkbHandler.instance) {
+    if (!NativeMkbHandler.instance)
       NativeMkbHandler.instance = new NativeMkbHandler;
-    }
     return NativeMkbHandler.instance;
   }
   #onKeyboardEvent(e) {
     if (e.type === "keyup" && e.code === "F8") {
-      e.preventDefault();
-      this.toggle();
+      e.preventDefault(), this.toggle();
       return;
     }
   }
   #onPointerLockRequested(e) {
-    AppInterface.requestPointerCapture();
-    this.start();
+    AppInterface.requestPointerCapture(), this.start();
   }
   #onPointerLockExited(e) {
-    AppInterface.releasePointerCapture();
-    this.stop();
+    AppInterface.releasePointerCapture(), this.stop();
   }
   #onPollingModeChanged = (e) => {
-    if (!this.#$message) {
+    if (!this.#$message)
       return;
-    }
-    const mode = e.mode;
-    if (mode === "None") {
+    if (e.mode === "None")
       this.#$message.classList.remove("bx-offscreen");
-    } else {
+    else
       this.#$message.classList.add("bx-offscreen");
-    }
   };
   #onDialogShown = () => {
     document.pointerLockElement && document.exitPointerLock();
   };
   #initMessage() {
-    if (!this.#$message) {
+    if (!this.#$message)
       this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg" }, CE("div", {}, CE("p", {}, t("native-mkb")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "native" }, createButton({
         style: ButtonStyle.PRIMARY | ButtonStyle.FULL_WIDTH | ButtonStyle.TALL,
         label: t("activate"),
         onClick: ((e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          this.toggle(true);
+          e.preventDefault(), e.stopPropagation(), this.toggle(!0);
         }).bind(this)
       }), createButton({
         style: ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH,
         label: t("ignore"),
         onClick: (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          this.#$message?.classList.add("bx-gone");
+          e.preventDefault(), e.stopPropagation(), this.#$message?.classList.add("bx-gone");
         }
       })));
-    }
-    if (!this.#$message.isConnected) {
+    if (!this.#$message.isConnected)
       document.documentElement.appendChild(this.#$message);
-    }
   }
   handleEvent(event) {
     switch (event.type) {
@@ -3238,72 +2774,44 @@ class NativeMkbHandler extends MkbHandler {
     }
   }
   init() {
-    this.#pointerClient = PointerClient.getInstance();
-    this.#inputSink = window.BX_EXPOSED.inputSink;
-    this.#updateInputConfigurationAsync(false);
+    this.#pointerClient = PointerClient.getInstance(), this.#inputSink = window.BX_EXPOSED.inputSink, this.#updateInputConfigurationAsync(!1);
     try {
       this.#pointerClient.start(STATES.pointerServerPort, this);
     } catch (e) {
       Toast.show("Cannot enable Mouse & Keyboard feature");
     }
-    this.#mouseVerticalMultiply = getPref(PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY);
-    this.#mouseHorizontalMultiply = getPref(PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY);
-    window.addEventListener("keyup", this);
-    window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this);
-    window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
-    window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this);
-    this.#initMessage();
-    if (AppInterface) {
-      Toast.show(t("press-key-to-toggle-mkb", { key: `<b>F8</b>` }), t("native-mkb"), { html: true });
-      this.#$message?.classList.add("bx-gone");
-    } else {
+    if (this.#mouseVerticalMultiply = getPref(PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY), this.#mouseHorizontalMultiply = getPref(PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY), window.addEventListener("keyup", this), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this), window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this), this.#initMessage(), AppInterface)
+      Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("native-mkb"), { html: !0 }), this.#$message?.classList.add("bx-gone");
+    else
       this.#$message?.classList.remove("bx-gone");
-    }
   }
   toggle(force) {
     let setEnable;
-    if (typeof force !== "undefined") {
+    if (typeof force !== "undefined")
       setEnable = force;
-    } else {
+    else
       setEnable = !this.#enabled;
-    }
-    if (setEnable) {
+    if (setEnable)
       document.documentElement.requestPointerLock();
-    } else {
+    else
       document.exitPointerLock();
-    }
   }
   #updateInputConfigurationAsync(enabled) {
     window.BX_EXPOSED.streamSession.updateInputConfigurationAsync({
       enableKeyboardInput: enabled,
       enableMouseInput: enabled,
-      enableAbsoluteMouse: false,
-      enableTouchInput: false
+      enableAbsoluteMouse: !1,
+      enableTouchInput: !1
     });
   }
   start() {
-    this.#resetMouseInput();
-    this.#enabled = true;
-    this.#updateInputConfigurationAsync(true);
-    window.BX_EXPOSED.stopTakRendering = true;
-    this.#$message?.classList.add("bx-gone");
-    Toast.show(t("native-mkb"), t("enabled"), { instant: true });
+    this.#resetMouseInput(), this.#enabled = !0, this.#updateInputConfigurationAsync(!0), window.BX_EXPOSED.stopTakRendering = !0, this.#$message?.classList.add("bx-gone"), Toast.show(t("native-mkb"), t("enabled"), { instant: !0 });
   }
   stop() {
-    this.#resetMouseInput();
-    this.#enabled = false;
-    this.#updateInputConfigurationAsync(false);
-    this.#$message?.classList.remove("bx-gone");
+    this.#resetMouseInput(), this.#enabled = !1, this.#updateInputConfigurationAsync(!1), this.#$message?.classList.remove("bx-gone");
   }
   destroy() {
-    this.#pointerClient?.stop();
-    window.removeEventListener("keyup", this);
-    window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this);
-    window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
-    window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this);
-    this.#$message?.classList.add("bx-gone");
+    this.#pointerClient?.stop(), window.removeEventListener("keyup", this), window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this), window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this), window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this), this.#$message?.classList.add("bx-gone");
   }
   handleMouseMove(data) {
     this.#sendMouseInput({
@@ -3316,13 +2824,11 @@ class NativeMkbHandler extends MkbHandler {
   }
   handleMouseClick(data) {
     const { pointerButton, pressed } = data;
-    if (pressed) {
+    if (pressed)
       this.#mouseButtonsPressed |= pointerButton;
-    } else {
+    else
       this.#mouseButtonsPressed ^= pointerButton;
-    }
-    this.#mouseButtonsPressed = Math.max(0, this.#mouseButtonsPressed);
-    this.#sendMouseInput({
+    this.#mouseButtonsPressed = Math.max(0, this.#mouseButtonsPressed), this.#sendMouseInput({
       X: 0,
       Y: 0,
       Buttons: this.#mouseButtonsPressed,
@@ -3332,22 +2838,17 @@ class NativeMkbHandler extends MkbHandler {
   }
   handleMouseWheel(data) {
     const { vertical, horizontal } = data;
-    this.#mouseWheelX = horizontal;
-    if (this.#mouseHorizontalMultiply && this.#mouseHorizontalMultiply !== 1) {
+    if (this.#mouseWheelX = horizontal, this.#mouseHorizontalMultiply && this.#mouseHorizontalMultiply !== 1)
       this.#mouseWheelX *= this.#mouseHorizontalMultiply;
-    }
-    this.#mouseWheelY = vertical;
-    if (this.#mouseVerticalMultiply && this.#mouseVerticalMultiply !== 1) {
+    if (this.#mouseWheelY = vertical, this.#mouseVerticalMultiply && this.#mouseVerticalMultiply !== 1)
       this.#mouseWheelY *= this.#mouseVerticalMultiply;
-    }
-    this.#sendMouseInput({
+    return this.#sendMouseInput({
       X: 0,
       Y: 0,
       Buttons: this.#mouseButtonsPressed,
       WheelX: this.#mouseWheelX,
       WheelY: this.#mouseWheelY
-    });
-    return true;
+    }), !0;
   }
   setVerticalScrollMultiplier(vertical) {
     this.#mouseVerticalMultiply = vertical;
@@ -3361,14 +2862,10 @@ class NativeMkbHandler extends MkbHandler {
     return this.#enabled;
   }
   #sendMouseInput(data) {
-    data.Type = 0;
-    this.#inputSink?.onMouseInput(data);
+    data.Type = 0, this.#inputSink?.onMouseInput(data);
   }
   #resetMouseInput() {
-    this.#mouseButtonsPressed = 0;
-    this.#mouseWheelX = 0;
-    this.#mouseWheelY = 0;
-    this.#sendMouseInput({
+    this.#mouseButtonsPressed = 0, this.#mouseWheelX = 0, this.#mouseWheelY = 0, this.#sendMouseInput({
       X: 0,
       Y: 0,
       Buttons: 0,
@@ -3379,8 +2876,7 @@ class NativeMkbHandler extends MkbHandler {
 }
 
 // src/modules/mkb/mkb-handler.ts
-var LOG_TAG2 = "MkbHandler";
-var PointerToMouseButton = {
+var LOG_TAG2 = "MkbHandler", PointerToMouseButton = {
   1: 0,
   2: 2,
   4: 1
@@ -3388,13 +2884,11 @@ var PointerToMouseButton = {
 
 class WebSocketMouseDataProvider extends MouseDataProvider {
   #pointerClient;
-  #connected = false;
+  #connected = !1;
   init() {
-    this.#pointerClient = PointerClient.getInstance();
-    this.#connected = false;
+    this.#pointerClient = PointerClient.getInstance(), this.#connected = !1;
     try {
-      this.#pointerClient.start(STATES.pointerServerPort, this.mkbHandler);
-      this.#connected = true;
+      this.#pointerClient.start(STATES.pointerServerPort, this.mkbHandler), this.#connected = !0;
     } catch (e) {
       Toast.show("Cannot enable Mouse & Keyboard feature");
     }
@@ -3414,19 +2908,10 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
   init() {
   }
   start() {
-    window.addEventListener("mousemove", this.#onMouseMoveEvent);
-    window.addEventListener("mousedown", this.#onMouseEvent);
-    window.addEventListener("mouseup", this.#onMouseEvent);
-    window.addEventListener("wheel", this.#onWheelEvent, { passive: false });
-    window.addEventListener("contextmenu", this.#disableContextMenu);
+    window.addEventListener("mousemove", this.#onMouseMoveEvent), window.addEventListener("mousedown", this.#onMouseEvent), window.addEventListener("mouseup", this.#onMouseEvent), window.addEventListener("wheel", this.#onWheelEvent, { passive: !1 }), window.addEventListener("contextmenu", this.#disableContextMenu);
   }
   stop() {
-    document.pointerLockElement && document.exitPointerLock();
-    window.removeEventListener("mousemove", this.#onMouseMoveEvent);
-    window.removeEventListener("mousedown", this.#onMouseEvent);
-    window.removeEventListener("mouseup", this.#onMouseEvent);
-    window.removeEventListener("wheel", this.#onWheelEvent);
-    window.removeEventListener("contextmenu", this.#disableContextMenu);
+    document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("mousemove", this.#onMouseMoveEvent), window.removeEventListener("mousedown", this.#onMouseEvent), window.removeEventListener("mouseup", this.#onMouseEvent), window.removeEventListener("wheel", this.#onWheelEvent), window.removeEventListener("contextmenu", this.#disableContextMenu);
   }
   destroy() {
   }
@@ -3438,25 +2923,21 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
   };
   #onMouseEvent = (e) => {
     e.preventDefault();
-    const isMouseDown = e.type === "mousedown";
-    const data = {
+    const isMouseDown = e.type === "mousedown", data = {
       mouseButton: e.button,
       pressed: isMouseDown
     };
     this.mkbHandler.handleMouseClick(data);
   };
   #onWheelEvent = (e) => {
-    const key = KeyHelper.getKeyFromEvent(e);
-    if (!key) {
+    if (!KeyHelper.getKeyFromEvent(e))
       return;
-    }
     const data = {
       vertical: e.deltaY,
       horizontal: e.deltaX
     };
-    if (this.mkbHandler.handleMouseWheel(data)) {
+    if (this.mkbHandler.handleMouseWheel(data))
       e.preventDefault();
-    }
   };
   #disableContextMenu = (e) => e.preventDefault();
 }
@@ -3464,9 +2945,8 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
 class EmulatedMkbHandler extends MkbHandler {
   static #instance;
   static getInstance() {
-    if (!EmulatedMkbHandler.#instance) {
+    if (!EmulatedMkbHandler.#instance)
       EmulatedMkbHandler.#instance = new EmulatedMkbHandler;
-    }
     return EmulatedMkbHandler.#instance;
   }
   #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
@@ -3477,18 +2957,18 @@ class EmulatedMkbHandler extends MkbHandler {
   #VIRTUAL_GAMEPAD = {
     id: EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID,
     index: 3,
-    connected: false,
+    connected: !1,
     hapticActuators: null,
     mapping: "standard",
     axes: [0, 0, 0, 0],
-    buttons: new Array(17).fill(null).map(() => ({ pressed: false, value: 0 })),
+    buttons: new Array(17).fill(null).map(() => ({ pressed: !1, value: 0 })),
     timestamp: performance.now(),
     vibrationActuator: null
   };
   #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
-  #enabled = false;
+  #enabled = !1;
   #mouseDataProvider;
-  #isPolling = false;
+  #isPolling = !1;
   #prevWheelCode = null;
   #wheelStoppedTimeout;
   #detectMouseStoppedTimeout;
@@ -3515,177 +2995,135 @@ class EmulatedMkbHandler extends MkbHandler {
   isEnabled = () => this.#enabled;
   #patchedGetGamepads = () => {
     const gamepads = this.#nativeGetGamepads() || [];
-    gamepads[this.#VIRTUAL_GAMEPAD.index] = this.#VIRTUAL_GAMEPAD;
-    return gamepads;
+    return gamepads[this.#VIRTUAL_GAMEPAD.index] = this.#VIRTUAL_GAMEPAD, gamepads;
   };
   #getVirtualGamepad = () => this.#VIRTUAL_GAMEPAD;
   #updateStick(stick, x, y) {
     const virtualGamepad = this.#getVirtualGamepad();
-    virtualGamepad.axes[stick * 2] = x;
-    virtualGamepad.axes[stick * 2 + 1] = y;
-    virtualGamepad.timestamp = performance.now();
+    virtualGamepad.axes[stick * 2] = x, virtualGamepad.axes[stick * 2 + 1] = y, virtualGamepad.timestamp = performance.now();
   }
   #vectorLength = (x, y) => Math.sqrt(x ** 2 + y ** 2);
   #resetGamepad = () => {
     const gamepad = this.#getVirtualGamepad();
     gamepad.axes = [0, 0, 0, 0];
-    for (const button of gamepad.buttons) {
-      button.pressed = false;
-      button.value = 0;
-    }
+    for (let button of gamepad.buttons)
+      button.pressed = !1, button.value = 0;
     gamepad.timestamp = performance.now();
   };
   #pressButton = (buttonIndex, pressed) => {
     const virtualGamepad = this.#getVirtualGamepad();
     if (buttonIndex >= 100) {
       let [valueArr, axisIndex] = this.#STICK_MAP[buttonIndex];
-      valueArr = valueArr;
-      axisIndex = axisIndex;
-      for (let i = valueArr.length - 1;i >= 0; i--) {
-        if (valueArr[i] === buttonIndex) {
+      valueArr = valueArr, axisIndex = axisIndex;
+      for (let i = valueArr.length - 1;i >= 0; i--)
+        if (valueArr[i] === buttonIndex)
           valueArr.splice(i, 1);
-        }
-      }
       pressed && valueArr.push(buttonIndex);
       let value;
-      if (valueArr.length) {
+      if (valueArr.length)
         value = this.#STICK_MAP[valueArr[valueArr.length - 1]][2];
-      } else {
+      else
         value = 0;
-      }
       virtualGamepad.axes[axisIndex] = value;
-    } else {
-      virtualGamepad.buttons[buttonIndex].pressed = pressed;
-      virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
-    }
+    } else
+      virtualGamepad.buttons[buttonIndex].pressed = pressed, virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
     virtualGamepad.timestamp = performance.now();
   };
   #onKeyboardEvent = (e) => {
     const isKeyDown = e.type === "keydown";
     if (e.code === "F8") {
-      if (!isKeyDown) {
-        e.preventDefault();
-        this.toggle();
-      }
+      if (!isKeyDown)
+        e.preventDefault(), this.toggle();
       return;
     }
     if (e.code === "Escape") {
-      e.preventDefault();
-      if (this.#enabled && isKeyDown) {
-        if (this.#escKeyDownTime === -1) {
+      if (e.preventDefault(), this.#enabled && isKeyDown) {
+        if (this.#escKeyDownTime === -1)
           this.#escKeyDownTime = performance.now();
-        } else if (performance.now() - this.#escKeyDownTime >= 1000) {
+        else if (performance.now() - this.#escKeyDownTime >= 1000)
           this.stop();
-        }
-      } else {
+      } else
         this.#escKeyDownTime = -1;
-      }
       return;
     }
-    if (!this.#isPolling) {
+    if (!this.#isPolling)
       return;
-    }
     const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code || e.key];
-    if (typeof buttonIndex === "undefined") {
+    if (typeof buttonIndex === "undefined")
       return;
-    }
-    if (e.repeat) {
+    if (e.repeat)
       return;
-    }
-    e.preventDefault();
-    this.#pressButton(buttonIndex, isKeyDown);
+    e.preventDefault(), this.#pressButton(buttonIndex, isKeyDown);
   };
   #onMouseStopped = () => {
     this.#detectMouseStoppedTimeout = null;
-    const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_MAP_TO];
-    const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
+    const analog = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_MAP_TO] === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
     this.#updateStick(analog, 0, 0);
   };
   handleMouseClick = (data) => {
     let mouseButton;
-    if (typeof data.mouseButton !== "undefined") {
+    if (typeof data.mouseButton !== "undefined")
       mouseButton = data.mouseButton;
-    } else if (typeof data.pointerButton !== "undefined") {
+    else if (typeof data.pointerButton !== "undefined")
       mouseButton = PointerToMouseButton[data.pointerButton];
-    }
-    const keyCode = "Mouse" + mouseButton;
-    const key = {
+    const keyCode = "Mouse" + mouseButton, key = {
       code: keyCode,
       name: KeyHelper.codeToKeyName(keyCode)
     };
-    if (!key.name) {
+    if (!key.name)
       return;
-    }
     const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined") {
+    if (typeof buttonIndex === "undefined")
       return;
-    }
     this.#pressButton(buttonIndex, data.pressed);
   };
   handleMouseMove = (data) => {
     const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_MAP_TO];
-    if (mouseMapTo === MouseMapTo.OFF) {
+    if (mouseMapTo === MouseMapTo.OFF)
       return;
-    }
-    this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout);
-    this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 50);
+    this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout), this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 50);
     const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_DEADZONE_COUNTERWEIGHT];
-    let x = data.movementX * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_X];
-    let y = data.movementY * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y];
-    let length = this.#vectorLength(x, y);
-    if (length !== 0 && length < deadzoneCounterweight) {
-      x *= deadzoneCounterweight / length;
-      y *= deadzoneCounterweight / length;
-    } else if (length > EmulatedMkbHandler.MAXIMUM_STICK_RANGE) {
-      x *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length;
-      y *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length;
-    }
+    let x = data.movementX * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_X], y = data.movementY * this.#CURRENT_PRESET_DATA.mouse[MkbPresetKey.MOUSE_SENSITIVITY_Y], length = this.#vectorLength(x, y);
+    if (length !== 0 && length < deadzoneCounterweight)
+      x *= deadzoneCounterweight / length, y *= deadzoneCounterweight / length;
+    else if (length > EmulatedMkbHandler.MAXIMUM_STICK_RANGE)
+      x *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length, y *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length;
     const analog = mouseMapTo === MouseMapTo.LS ? GamepadStick.LEFT : GamepadStick.RIGHT;
     this.#updateStick(analog, x, y);
   };
   handleMouseWheel = (data) => {
     let code = "";
-    if (data.vertical < 0) {
+    if (data.vertical < 0)
       code = WheelCode.SCROLL_UP;
-    } else if (data.vertical > 0) {
+    else if (data.vertical > 0)
       code = WheelCode.SCROLL_DOWN;
-    } else if (data.horizontal < 0) {
+    else if (data.horizontal < 0)
       code = WheelCode.SCROLL_LEFT;
-    } else if (data.horizontal > 0) {
+    else if (data.horizontal > 0)
       code = WheelCode.SCROLL_RIGHT;
-    }
-    if (!code) {
-      return false;
-    }
+    if (!code)
+      return !1;
     const key = {
       code,
       name: KeyHelper.codeToKeyName(code)
-    };
-    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined") {
-      return false;
-    }
-    if (this.#prevWheelCode === null || this.#prevWheelCode === key.code) {
-      this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout);
-      this.#pressButton(buttonIndex, true);
-    }
-    this.#wheelStoppedTimeout = window.setTimeout(() => {
-      this.#prevWheelCode = null;
-      this.#pressButton(buttonIndex, false);
-    }, 20);
-    return true;
+    }, buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
+    if (typeof buttonIndex === "undefined")
+      return !1;
+    if (this.#prevWheelCode === null || this.#prevWheelCode === key.code)
+      this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout), this.#pressButton(buttonIndex, !0);
+    return this.#wheelStoppedTimeout = window.setTimeout(() => {
+      this.#prevWheelCode = null, this.#pressButton(buttonIndex, !1);
+    }, 20), !0;
   };
   toggle = (force) => {
-    if (typeof force !== "undefined") {
+    if (typeof force !== "undefined")
       this.#enabled = force;
-    } else {
+    else
       this.#enabled = !this.#enabled;
-    }
-    if (this.#enabled) {
+    if (this.#enabled)
       document.body.requestPointerLock();
-    } else {
+    else
       document.pointerLockElement && document.exitPointerLock();
-    }
   };
   #getCurrentPreset = () => {
     return new Promise((resolve) => {
@@ -3697,69 +3135,54 @@ class EmulatedMkbHandler extends MkbHandler {
   };
   refreshPresetData = () => {
     this.#getCurrentPreset().then((preset) => {
-      this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset ? preset.data : MkbPreset.DEFAULT_PRESET);
-      this.#resetGamepad();
+      this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset ? preset.data : MkbPreset.DEFAULT_PRESET), this.#resetGamepad();
     });
   };
   waitForMouseData = (wait) => {
     this.#$message && this.#$message.classList.toggle("bx-gone", !wait);
   };
   #onPollingModeChanged = (e) => {
-    if (!this.#$message) {
+    if (!this.#$message)
       return;
-    }
-    const mode = e.mode;
-    if (mode === "None") {
+    if (e.mode === "None")
       this.#$message.classList.remove("bx-offscreen");
-    } else {
+    else
       this.#$message.classList.add("bx-offscreen");
-    }
   };
   #onDialogShown = () => {
     document.pointerLockElement && document.exitPointerLock();
   };
   #initMessage = () => {
-    if (!this.#$message) {
+    if (!this.#$message)
       this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("virtual-controller")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "virtual" }, createButton({
         style: ButtonStyle.PRIMARY | ButtonStyle.TALL | ButtonStyle.FULL_WIDTH,
         label: t("activate"),
         onClick: ((e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          this.toggle(true);
+          e.preventDefault(), e.stopPropagation(), this.toggle(!0);
         }).bind(this)
       }), CE("div", {}, createButton({
         label: t("ignore"),
         style: ButtonStyle.GHOST,
         onClick: (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          this.toggle(false);
-          this.waitForMouseData(false);
+          e.preventDefault(), e.stopPropagation(), this.toggle(!1), this.waitForMouseData(!1);
         }
       }), createButton({
         label: t("edit"),
         onClick: (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          showStreamSettings("mkb");
+          e.preventDefault(), e.stopPropagation(), showStreamSettings("mkb");
         }
       }))));
-    }
-    if (!this.#$message.isConnected) {
+    if (!this.#$message.isConnected)
       document.documentElement.appendChild(this.#$message);
-    }
   };
   #onPointerLockChange = () => {
-    if (document.pointerLockElement) {
+    if (document.pointerLockElement)
       this.start();
-    } else {
+    else
       this.stop();
-    }
   };
   #onPointerLockError = (e) => {
-    console.log(e);
-    this.stop();
+    console.log(e), this.stop();
   };
   #onPointerLockRequested = () => {
     this.start();
@@ -3778,101 +3201,51 @@ class EmulatedMkbHandler extends MkbHandler {
     }
   }
   init = () => {
-    this.refreshPresetData();
-    this.#enabled = false;
-    if (AppInterface) {
+    if (this.refreshPresetData(), this.#enabled = !1, AppInterface)
       this.#mouseDataProvider = new WebSocketMouseDataProvider(this);
-    } else {
+    else
       this.#mouseDataProvider = new PointerLockMouseDataProvider(this);
-    }
-    this.#mouseDataProvider.init();
-    window.addEventListener("keydown", this.#onKeyboardEvent);
-    window.addEventListener("keyup", this.#onKeyboardEvent);
-    window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
-    window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown);
-    if (AppInterface) {
-      window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
-      window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    } else {
-      document.addEventListener("pointerlockchange", this.#onPointerLockChange);
-      document.addEventListener("pointerlockerror", this.#onPointerLockError);
-    }
-    this.#initMessage();
-    this.#$message?.classList.add("bx-gone");
-    if (AppInterface) {
-      Toast.show(t("press-key-to-toggle-mkb", { key: `<b>F8</b>` }), t("virtual-controller"), { html: true });
-      this.waitForMouseData(false);
-    } else {
-      this.waitForMouseData(true);
-    }
+    if (this.#mouseDataProvider.init(), window.addEventListener("keydown", this.#onKeyboardEvent), window.addEventListener("keyup", this.#onKeyboardEvent), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), AppInterface)
+      window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    else
+      document.addEventListener("pointerlockchange", this.#onPointerLockChange), document.addEventListener("pointerlockerror", this.#onPointerLockError);
+    if (this.#initMessage(), this.#$message?.classList.add("bx-gone"), AppInterface)
+      Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("virtual-controller"), { html: !0 }), this.waitForMouseData(!1);
+    else
+      this.waitForMouseData(!0);
   };
   destroy = () => {
-    this.#isPolling = false;
-    this.#enabled = false;
-    this.stop();
-    this.waitForMouseData(false);
-    document.pointerLockElement && document.exitPointerLock();
-    window.removeEventListener("keydown", this.#onKeyboardEvent);
-    window.removeEventListener("keyup", this.#onKeyboardEvent);
-    if (AppInterface) {
-      window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this);
-      window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    } else {
-      document.removeEventListener("pointerlockchange", this.#onPointerLockChange);
-      document.removeEventListener("pointerlockerror", this.#onPointerLockError);
-    }
-    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
-    window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown);
-    this.#mouseDataProvider?.destroy();
-    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
+    if (this.#isPolling = !1, this.#enabled = !1, this.stop(), this.waitForMouseData(!1), document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("keydown", this.#onKeyboardEvent), window.removeEventListener("keyup", this.#onKeyboardEvent), AppInterface)
+      window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    else
+      document.removeEventListener("pointerlockchange", this.#onPointerLockChange), document.removeEventListener("pointerlockerror", this.#onPointerLockError);
+    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), this.#mouseDataProvider?.destroy(), window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
   };
   start = () => {
-    if (!this.#enabled) {
-      this.#enabled = true;
-      Toast.show(t("virtual-controller"), t("enabled"), { instant: true });
-    }
-    this.#isPolling = true;
-    this.#escKeyDownTime = -1;
-    this.#resetGamepad();
-    window.navigator.getGamepads = this.#patchedGetGamepads;
-    this.waitForMouseData(false);
-    this.#mouseDataProvider?.start();
+    if (!this.#enabled)
+      this.#enabled = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
+    this.#isPolling = !0, this.#escKeyDownTime = -1, this.#resetGamepad(), window.navigator.getGamepads = this.#patchedGetGamepads, this.waitForMouseData(!1), this.#mouseDataProvider?.start();
     const virtualGamepad = this.#getVirtualGamepad();
-    virtualGamepad.connected = true;
-    virtualGamepad.timestamp = performance.now();
-    BxEvent.dispatch(window, "gamepadconnected", {
+    virtualGamepad.connected = !0, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepadconnected", {
       gamepad: virtualGamepad
-    });
-    window.BX_EXPOSED.stopTakRendering = true;
-    Toast.show(t("virtual-controller"), t("enabled"), { instant: true });
+    }), window.BX_EXPOSED.stopTakRendering = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
   };
   stop = () => {
-    this.#enabled = false;
-    this.#isPolling = false;
-    this.#escKeyDownTime = -1;
+    this.#enabled = !1, this.#isPolling = !1, this.#escKeyDownTime = -1;
     const virtualGamepad = this.#getVirtualGamepad();
-    if (virtualGamepad.connected) {
-      this.#resetGamepad();
-      virtualGamepad.connected = false;
-      virtualGamepad.timestamp = performance.now();
-      BxEvent.dispatch(window, "gamepaddisconnected", {
+    if (virtualGamepad.connected)
+      this.#resetGamepad(), virtualGamepad.connected = !1, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepaddisconnected", {
         gamepad: virtualGamepad
-      });
-      window.navigator.getGamepads = this.#nativeGetGamepads;
-    }
-    this.waitForMouseData(true);
-    this.#mouseDataProvider?.stop();
+      }), window.navigator.getGamepads = this.#nativeGetGamepads;
+    this.waitForMouseData(!0), this.#mouseDataProvider?.stop();
   };
   static setupEvents() {
     window.addEventListener(BxEvent.STREAM_PLAYING, () => {
       if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-        if (AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === "on") {
+        if (AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === "on")
           AppInterface && NativeMkbHandler.getInstance().init();
-        }
-      } else if (getPref(PrefKey.MKB_ENABLED) && (AppInterface || !UserAgent.isMobile())) {
-        BxLogger.info(LOG_TAG2, "Emulate MKB");
-        EmulatedMkbHandler.getInstance().init();
-      }
+      } else if (getPref(PrefKey.MKB_ENABLED) && (AppInterface || !UserAgent.isMobile()))
+        BxLogger.info(LOG_TAG2, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
     });
   }
 }
@@ -3888,20 +3261,16 @@ var MicrophoneState;
 })(MicrophoneState || (MicrophoneState = {}));
 
 class MicrophoneShortcut {
-  static toggle(showToast = true) {
-    if (!window.BX_EXPOSED.streamSession) {
-      return false;
-    }
-    const state = window.BX_EXPOSED.streamSession._microphoneState;
-    const enableMic = state === MicrophoneState.ENABLED ? false : true;
+  static toggle(showToast = !0) {
+    if (!window.BX_EXPOSED.streamSession)
+      return !1;
+    const enableMic = window.BX_EXPOSED.streamSession._microphoneState === MicrophoneState.ENABLED ? !1 : !0;
     try {
-      window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic);
-      showToast && Toast.show(t("microphone"), t(enableMic ? "unmuted" : "muted"), { instant: true });
-      return enableMic;
+      return window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic), showToast && Toast.show(t("microphone"), t(enableMic ? "unmuted" : "muted"), { instant: !0 }), enableMic;
     } catch (e) {
       console.log(e);
     }
-    return false;
+    return !1;
   }
 }
 
@@ -3914,49 +3283,36 @@ class StreamUiShortcut {
 
 // src/utils/utils.ts
 function checkForUpdate() {
-  if (SCRIPT_VERSION.includes("beta")) {
+  if (SCRIPT_VERSION.includes("beta"))
     return;
-  }
-  const CHECK_INTERVAL_SECONDS = 7200;
-  const currentVersion = getPref(PrefKey.CURRENT_VERSION);
-  const lastCheck = getPref(PrefKey.LAST_UPDATE_CHECK);
-  const now = Math.round(+new Date / 1000);
-  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) {
+  const CHECK_INTERVAL_SECONDS = 7200, currentVersion = getPref(PrefKey.CURRENT_VERSION), lastCheck = getPref(PrefKey.LAST_UPDATE_CHECK), now = Math.round(+new Date / 1000);
+  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS)
     return;
-  }
-  setPref(PrefKey.LAST_UPDATE_CHECK, now);
-  fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
-    setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1));
-    setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
-  });
-  Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
+  setPref(PrefKey.LAST_UPDATE_CHECK, now), fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
+    setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1)), setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
+  }), Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
 }
 function disablePwa() {
-  const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
-  if (!userAgent2) {
+  if (!(window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase())
     return;
-  }
-  if (!!AppInterface || UserAgent.isSafariMobile()) {
+  if (!!AppInterface || UserAgent.isSafariMobile())
     Object.defineProperty(window.navigator, "standalone", {
-      value: true
+      value: !0
     });
-  }
 }
 function hashCode(str2) {
   let hash = 0;
   for (let i = 0, len = str2.length;i < len; i++) {
     const chr = str2.charCodeAt(i);
-    hash = (hash << 5) - hash + chr;
-    hash |= 0;
+    hash = (hash << 5) - hash + chr, hash |= 0;
   }
   return hash;
 }
 function renderString(str2, obj) {
   return str2.replace(/\$\{.+?\}/g, (match) => {
     const key = match.substring(2, match.length - 1);
-    if (key in obj) {
+    if (key in obj)
       return obj[key];
-    }
     return match;
   });
 }
@@ -3970,68 +3326,53 @@ function floorToNearest(value, interval) {
 // src/modules/shortcuts/shortcut-sound.ts
 class SoundShortcut {
   static adjustGainNodeVolume(amount) {
-    if (!getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)) {
+    if (!getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL))
       return 0;
-    }
     const currentValue = getPref(PrefKey.AUDIO_VOLUME);
     let nearestValue;
-    if (amount > 0) {
+    if (amount > 0)
       nearestValue = ceilToNearest(currentValue, amount);
-    } else {
+    else
       nearestValue = floorToNearest(currentValue, -1 * amount);
-    }
     let newValue;
-    if (currentValue !== nearestValue) {
+    if (currentValue !== nearestValue)
       newValue = nearestValue;
-    } else {
+    else
       newValue = currentValue + amount;
-    }
-    newValue = setPref(PrefKey.AUDIO_VOLUME, newValue);
-    SoundShortcut.setGainNodeVolume(newValue);
-    Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: true });
-    BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
+    return newValue = setPref(PrefKey.AUDIO_VOLUME, newValue), SoundShortcut.setGainNodeVolume(newValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: !0 }), BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
       volume: newValue
-    });
-    return newValue;
+    }), newValue;
   }
   static setGainNodeVolume(value) {
     STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
   }
   static muteUnmute() {
     if (getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && STATES.currentStream.audioGainNode) {
-      const gainValue = STATES.currentStream.audioGainNode.gain.value;
-      const settingValue = getPref(PrefKey.AUDIO_VOLUME);
+      const gainValue = STATES.currentStream.audioGainNode.gain.value, settingValue = getPref(PrefKey.AUDIO_VOLUME);
       let targetValue;
-      if (settingValue === 0) {
-        targetValue = 100;
-        setPref(PrefKey.AUDIO_VOLUME, targetValue);
-        BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
+      if (settingValue === 0)
+        targetValue = 100, setPref(PrefKey.AUDIO_VOLUME, targetValue), BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
           volume: targetValue
         });
-      } else if (gainValue === 0) {
+      else if (gainValue === 0)
         targetValue = settingValue;
-      } else {
+      else
         targetValue = 0;
-      }
       let status;
-      if (targetValue === 0) {
+      if (targetValue === 0)
         status = t("muted");
-      } else {
+      else
         status = targetValue + "%";
-      }
-      SoundShortcut.setGainNodeVolume(targetValue);
-      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: true });
+      SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
       return;
     }
     let $media;
-    $media = document.querySelector("div[data-testid=media-container] audio");
-    if (!$media) {
+    if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media)
       $media = document.querySelector("div[data-testid=media-container] video");
-    }
     if ($media) {
       $media.muted = !$media.muted;
       const status = $media.muted ? t("muted") : t("unmuted");
-      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: true });
+      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
     }
   }
 }
@@ -4062,30 +3403,21 @@ class ControllerShortcut {
   static #$container;
   static #ACTIONS = {};
   static reset(index) {
-    ControllerShortcut.#buttonsCache[index] = [];
-    ControllerShortcut.#buttonsStatus[index] = [];
+    ControllerShortcut.#buttonsCache[index] = [], ControllerShortcut.#buttonsStatus[index] = [];
   }
   static handle(gamepad) {
-    const gamepadIndex = gamepad.index;
-    const actions = ControllerShortcut.#ACTIONS[gamepad.id];
-    if (!actions) {
-      return false;
-    }
-    ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0);
-    ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
+    const gamepadIndex = gamepad.index, actions = ControllerShortcut.#ACTIONS[gamepad.id];
+    if (!actions)
+      return !1;
+    ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0), ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
     const pressed = [];
-    let otherButtonPressed = false;
-    gamepad.buttons.forEach((button, index) => {
+    let otherButtonPressed = !1;
+    return gamepad.buttons.forEach((button, index) => {
       if (button.pressed && index !== GamepadKey.HOME) {
-        otherButtonPressed = true;
-        pressed[index] = true;
-        if (actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) {
+        if (otherButtonPressed = !0, pressed[index] = !0, actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index])
           setTimeout(() => ControllerShortcut.#runAction(actions[index]), 0);
-        }
       }
-    });
-    ControllerShortcut.#buttonsStatus[gamepadIndex] = pressed;
-    return otherButtonPressed;
+    }), ControllerShortcut.#buttonsStatus[gamepadIndex] = pressed, otherButtonPressed;
   }
   static #runAction(action) {
     switch (action) {
@@ -4120,88 +3452,58 @@ class ControllerShortcut {
     }
   }
   static #updateAction(profile, button, action) {
-    if (!(profile in ControllerShortcut.#ACTIONS)) {
+    if (!(profile in ControllerShortcut.#ACTIONS))
       ControllerShortcut.#ACTIONS[profile] = [];
-    }
-    if (!action) {
+    if (!action)
       action = null;
-    }
     ControllerShortcut.#ACTIONS[profile][button] = action;
-    for (const key in ControllerShortcut.#ACTIONS) {
-      let empty = true;
-      for (const value of ControllerShortcut.#ACTIONS[key]) {
-        if (!!value) {
-          empty = false;
+    for (let key in ControllerShortcut.#ACTIONS) {
+      let empty = !0;
+      for (let value of ControllerShortcut.#ACTIONS[key])
+        if (value) {
+          empty = !1;
           break;
         }
-      }
-      if (empty) {
+      if (empty)
         delete ControllerShortcut.#ACTIONS[key];
-      }
     }
-    window.localStorage.setItem(ControllerShortcut.#STORAGE_KEY, JSON.stringify(ControllerShortcut.#ACTIONS));
-    console.log(ControllerShortcut.#ACTIONS);
+    window.localStorage.setItem(ControllerShortcut.#STORAGE_KEY, JSON.stringify(ControllerShortcut.#ACTIONS)), console.log(ControllerShortcut.#ACTIONS);
   }
   static #updateProfileList(e) {
-    const $select = ControllerShortcut.#$selectProfile;
-    const $container = ControllerShortcut.#$container;
-    const $fragment = document.createDocumentFragment();
-    while ($select.firstElementChild) {
+    const $select = ControllerShortcut.#$selectProfile, $container = ControllerShortcut.#$container, $fragment = document.createDocumentFragment();
+    while ($select.firstElementChild)
       $select.firstElementChild.remove();
-    }
     const gamepads = navigator.getGamepads();
-    let hasGamepad = false;
-    for (const gamepad of gamepads) {
-      if (!gamepad || !gamepad.connected) {
+    let hasGamepad = !1;
+    for (let gamepad of gamepads) {
+      if (!gamepad || !gamepad.connected)
         continue;
-      }
-      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) {
+      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
         continue;
-      }
-      hasGamepad = true;
+      hasGamepad = !0;
       const $option = CE("option", { value: gamepad.id }, gamepad.id);
       $fragment.appendChild($option);
     }
-    if (hasGamepad) {
-      $select.appendChild($fragment);
-      $select.selectedIndex = 0;
-      $select.dispatchEvent(new Event("change"));
-    }
+    if (hasGamepad)
+      $select.appendChild($fragment), $select.selectedIndex = 0, $select.dispatchEvent(new Event("change"));
     $container.dataset.hasGamepad = hasGamepad.toString();
   }
   static #switchProfile(profile) {
     let actions = ControllerShortcut.#ACTIONS[profile];
-    if (!actions) {
+    if (!actions)
       actions = [];
-    }
     let button;
     for (button in ControllerShortcut.#$selectActions) {
       const $select = ControllerShortcut.#$selectActions[button];
-      $select.value = actions[button] || "";
-      BxEvent.dispatch($select, "change", {
-        ignoreOnChange: true
+      $select.value = actions[button] || "", BxEvent.dispatch($select, "change", {
+        ignoreOnChange: !0
       });
     }
   }
   static renderSettings() {
     ControllerShortcut.#ACTIONS = JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || "{}");
     const buttons = new Map;
-    buttons.set(GamepadKey.Y, PrompFont.Y);
-    buttons.set(GamepadKey.A, PrompFont.A);
-    buttons.set(GamepadKey.B, PrompFont.B);
-    buttons.set(GamepadKey.X, PrompFont.X);
-    buttons.set(GamepadKey.UP, PrompFont.UP);
-    buttons.set(GamepadKey.DOWN, PrompFont.DOWN);
-    buttons.set(GamepadKey.LEFT, PrompFont.LEFT);
-    buttons.set(GamepadKey.RIGHT, PrompFont.RIGHT);
-    buttons.set(GamepadKey.SELECT, PrompFont.SELECT);
-    buttons.set(GamepadKey.START, PrompFont.START);
-    buttons.set(GamepadKey.LB, PrompFont.LB);
-    buttons.set(GamepadKey.RB, PrompFont.RB);
-    buttons.set(GamepadKey.LT, PrompFont.LT);
-    buttons.set(GamepadKey.RT, PrompFont.RT);
-    buttons.set(GamepadKey.L3, PrompFont.L3);
-    buttons.set(GamepadKey.R3, PrompFont.R3);
+    buttons.set(GamepadKey.Y, PrompFont.Y), buttons.set(GamepadKey.A, PrompFont.A), buttons.set(GamepadKey.B, PrompFont.B), buttons.set(GamepadKey.X, PrompFont.X), buttons.set(GamepadKey.UP, PrompFont.UP), buttons.set(GamepadKey.DOWN, PrompFont.DOWN), buttons.set(GamepadKey.LEFT, PrompFont.LEFT), buttons.set(GamepadKey.RIGHT, PrompFont.RIGHT), buttons.set(GamepadKey.SELECT, PrompFont.SELECT), buttons.set(GamepadKey.START, PrompFont.START), buttons.set(GamepadKey.LB, PrompFont.LB), buttons.set(GamepadKey.RB, PrompFont.RB), buttons.set(GamepadKey.LT, PrompFont.LT), buttons.set(GamepadKey.RT, PrompFont.RT), buttons.set(GamepadKey.L3, PrompFont.L3), buttons.set(GamepadKey.R3, PrompFont.R3);
     const actions = {
       [t("device")]: AppInterface && {
         [ShortcutAction.DEVICE_SOUND_TOGGLE]: [t("sound"), t("toggle")],
@@ -4219,70 +3521,44 @@ class ControllerShortcut {
         [ShortcutAction.STREAM_STATS_TOGGLE]: [t("stats"), t("show-hide")],
         [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t("microphone"), t("toggle")]
       }
-    };
-    const $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
-    for (const groupLabel in actions) {
+    }, $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
+    for (let groupLabel in actions) {
       const items = actions[groupLabel];
-      if (!items) {
+      if (!items)
         continue;
-      }
       const $optGroup = CE("optgroup", { label: groupLabel });
-      for (const action in items) {
+      for (let action in items) {
         let label = items[action];
-        if (!label) {
+        if (!label)
           continue;
-        }
-        if (Array.isArray(label)) {
+        if (Array.isArray(label))
           label = label.join(" ❯ ");
-        }
         const $option = CE("option", { value: action }, label);
         $optGroup.appendChild($option);
       }
       $baseSelect.appendChild($optGroup);
     }
-    let $remap;
-    let $selectProfile;
+    let $remap, $selectProfile;
     const $container = CE("div", { "data-has-gamepad": "false" }, CE("div", {}, CE("p", { class: "bx-shortcut-note" }, t("controller-shortcuts-connect-note"))), $remap = CE("div", {}, $selectProfile = CE("select", { class: "bx-shortcut-profile", autocomplete: "off" }), CE("p", { class: "bx-shortcut-note" }, CE("span", { class: "bx-prompt" }, PrompFont.HOME), ": " + t("controller-shortcuts-xbox-note"))));
     $selectProfile.addEventListener("change", (e) => {
       ControllerShortcut.#switchProfile($selectProfile.value);
     });
     const onActionChanged = (e) => {
-      const $target = e.target;
-      const profile = $selectProfile.value;
-      const button = $target.dataset.button;
-      const action = $target.value;
-      const $fakeSelect = $target.previousElementSibling;
+      const $target = e.target, profile = $selectProfile.value, button = $target.dataset.button, action = $target.value, $fakeSelect = $target.previousElementSibling;
       let fakeText = "---";
       if (action) {
         const $selectedOption = $target.options[$target.selectedIndex];
-        const $optGroup = $selectedOption.parentElement;
-        fakeText = $optGroup.label + " ❯ " + $selectedOption.text;
+        fakeText = $selectedOption.parentElement.label + " ❯ " + $selectedOption.text;
       }
-      $fakeSelect.firstElementChild.text = fakeText;
-      !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button, action);
+      $fakeSelect.firstElementChild.text = fakeText, !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button, action);
     };
-    for (const [button, prompt2] of buttons) {
-      const $row = CE("div", { class: "bx-shortcut-row" });
-      const $label = CE("label", { class: "bx-prompt" }, `${PrompFont.HOME} + ${prompt2}`);
-      const $div = CE("div", { class: "bx-shortcut-actions" });
-      const $fakeSelect = CE("select", { autocomplete: "off" }, CE("option", {}, "---"));
+    for (let [button, prompt2] of buttons) {
+      const $row = CE("div", { class: "bx-shortcut-row" }), $label = CE("label", { class: "bx-prompt" }, `${PrompFont.HOME} + ${prompt2}`), $div = CE("div", { class: "bx-shortcut-actions" }), $fakeSelect = CE("select", { autocomplete: "off" }, CE("option", {}, "---"));
       $div.appendChild($fakeSelect);
-      const $select = $baseSelect.cloneNode(true);
-      $select.dataset.button = button.toString();
-      $select.addEventListener("change", onActionChanged);
-      ControllerShortcut.#$selectActions[button] = $select;
-      $div.appendChild($select);
-      $row.appendChild($label);
-      $row.appendChild($div);
-      $remap.appendChild($row);
+      const $select = $baseSelect.cloneNode(!0);
+      $select.dataset.button = button.toString(), $select.addEventListener("change", onActionChanged), ControllerShortcut.#$selectActions[button] = $select, $div.appendChild($select), $row.appendChild($label), $row.appendChild($div), $remap.appendChild($row);
     }
-    $container.appendChild($remap);
-    ControllerShortcut.#$selectProfile = $selectProfile;
-    ControllerShortcut.#$container = $container;
-    window.addEventListener("gamepadconnected", ControllerShortcut.#updateProfileList);
-    window.addEventListener("gamepaddisconnected", ControllerShortcut.#updateProfileList);
-    ControllerShortcut.#updateProfileList();
-    return $container;
+    return $container.appendChild($remap), ControllerShortcut.#$selectProfile = $selectProfile, ControllerShortcut.#$container = $container, window.addEventListener("gamepadconnected", ControllerShortcut.#updateProfileList), window.addEventListener("gamepaddisconnected", ControllerShortcut.#updateProfileList), ControllerShortcut.#updateProfileList(), $container;
   }
 }
 
@@ -4301,63 +3577,43 @@ var BxExposed = {
   modifyTitleInfo: (titleInfo) => {
     titleInfo = structuredClone(titleInfo);
     let supportedInputTypes = titleInfo.details.supportedInputTypes;
-    if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId)) {
+    if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId))
       supportedInputTypes.push(InputType.MKB);
-    }
-    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off") {
+    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off")
       supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
-    }
-    titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
-    if (STATES.userAgentHasTouchSupport) {
+    if (titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB), STATES.userAgentHasTouchSupport) {
       let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
       if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
         const gamepads = window.navigator.getGamepads();
-        let gamepadFound = false;
-        for (let gamepad of gamepads) {
+        let gamepadFound = !1;
+        for (let gamepad of gamepads)
           if (gamepad && gamepad.connected) {
-            gamepadFound = true;
+            gamepadFound = !0;
             break;
           }
-        }
         gamepadFound && (touchControllerAvailability = "off");
       }
-      if (touchControllerAvailability === "off") {
-        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
-        titleInfo.details.supportedTabs = [];
-      }
-      titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH);
-      titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH);
-      if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") {
-        titleInfo.details.hasFakeTouchSupport = true;
-        supportedInputTypes.push(InputType.GENERIC_TOUCH);
-      }
+      if (touchControllerAvailability === "off")
+        supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH), titleInfo.details.supportedTabs = [];
+      if (titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH), titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) || supportedInputTypes.includes(InputType.GENERIC_TOUCH), !titleInfo.details.hasTouchSupport && touchControllerAvailability === "all")
+        titleInfo.details.hasFakeTouchSupport = !0, supportedInputTypes.push(InputType.GENERIC_TOUCH);
     }
-    titleInfo.details.supportedInputTypes = supportedInputTypes;
-    STATES.currentStream.titleInfo = titleInfo;
-    BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
-    return titleInfo;
+    return titleInfo.details.supportedInputTypes = supportedInputTypes, STATES.currentStream.titleInfo = titleInfo, BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY), titleInfo;
   },
   setupGainNode: ($media, audioStream) => {
-    if ($media instanceof HTMLAudioElement) {
-      $media.muted = true;
-      $media.addEventListener("playing", (e) => {
-        $media.muted = true;
-        $media.pause();
+    if ($media instanceof HTMLAudioElement)
+      $media.muted = !0, $media.addEventListener("playing", (e) => {
+        $media.muted = !0, $media.pause();
       });
-    } else {
-      $media.muted = true;
-      $media.addEventListener("playing", (e) => {
-        $media.muted = true;
+    else
+      $media.muted = !0, $media.addEventListener("playing", (e) => {
+        $media.muted = !0;
       });
-    }
     try {
-      const audioCtx = STATES.currentStream.audioContext;
-      const source = audioCtx.createMediaStreamSource(audioStream);
-      const gainNode = audioCtx.createGain();
+      const audioCtx = STATES.currentStream.audioContext, source = audioCtx.createMediaStreamSource(audioStream), gainNode = audioCtx.createGain();
       source.connect(gainNode).connect(audioCtx.destination);
     } catch (e) {
-      BxLogger.error("setupGainNode", e);
-      STATES.currentStream.audioGainNode = null;
+      BxLogger.error("setupGainNode", e), STATES.currentStream.audioGainNode = null;
     }
   },
   handleControllerShortcut: ControllerShortcut.handle,
@@ -4365,25 +3621,21 @@ var BxExposed = {
 };
 
 // src/utils/region.ts
-function getPreferredServerRegion(shortName = false) {
+function getPreferredServerRegion(shortName = !1) {
   let preferredRegion = getPref(PrefKey.SERVER_REGION);
-  if (preferredRegion in STATES.serverRegions) {
-    if (shortName && STATES.serverRegions[preferredRegion].shortName) {
+  if (preferredRegion in STATES.serverRegions)
+    if (shortName && STATES.serverRegions[preferredRegion].shortName)
       return STATES.serverRegions[preferredRegion].shortName;
-    } else {
+    else
       return preferredRegion;
-    }
-  }
   for (let regionName in STATES.serverRegions) {
     const region = STATES.serverRegions[regionName];
-    if (!region.isDefault) {
+    if (!region.isDefault)
       continue;
-    }
-    if (shortName && region.shortName) {
+    if (shortName && region.shortName)
       return region.shortName;
-    } else {
+    else
       return regionName;
-    }
   }
   return "???";
 }
@@ -4395,26 +3647,19 @@ class LoadingScreen {
   static #waitTimeInterval = null;
   static #orgWebTitle;
   static #secondsToString(seconds) {
-    const m = Math.floor(seconds / 60);
-    const s = Math.floor(seconds % 60);
-    const mDisplay = m > 0 ? `${m}m` : "";
-    const sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
+    const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60), mDisplay = m > 0 ? `${m}m` : "", sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
     return mDisplay + sDisplay;
   }
   static setup() {
     const titleInfo = STATES.currentStream.titleInfo;
-    if (!titleInfo) {
+    if (!titleInfo)
       return;
-    }
     if (!LoadingScreen.#$bgStyle) {
       const $bgStyle = CE("style");
-      document.documentElement.appendChild($bgStyle);
-      LoadingScreen.#$bgStyle = $bgStyle;
+      document.documentElement.appendChild($bgStyle), LoadingScreen.#$bgStyle = $bgStyle;
     }
-    LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl);
-    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide") {
+    if (LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide")
       LoadingScreen.#hideRocket();
-    }
   }
   static #hideRocket() {
     let $bgStyle = LoadingScreen.#$bgStyle;
@@ -4453,50 +3698,29 @@ class LoadingScreen {
     opacity: 0 !important;
 }
 `;
-    };
-    bg.src = imageUrl;
+    }, bg.src = imageUrl;
   }
   static setupWaitTime(waitTime) {
-    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue") {
+    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue")
       LoadingScreen.#hideRocket();
-    }
-    let secondsLeft = waitTime;
-    let $countDown;
-    let $estimated;
+    let secondsLeft = waitTime, $countDown, $estimated;
     LoadingScreen.#orgWebTitle = document.title;
-    const endDate = new Date;
-    const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
+    const endDate = new Date, timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
     endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
     let endDateStr = endDate.toISOString().slice(0, 19);
-    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19);
-    endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
     let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-    if (!$waitTimeBox) {
-      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {}));
-      document.documentElement.appendChild($waitTimeBox);
-      LoadingScreen.#$waitTimeBox = $waitTimeBox;
-    } else {
-      $waitTimeBox.classList.remove("bx-gone");
-      $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated");
-      $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
-    }
-    $estimated.textContent = endDateStr;
-    $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-    document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-    LoadingScreen.#waitTimeInterval = window.setInterval(() => {
-      secondsLeft--;
-      $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-      document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
-      if (secondsLeft <= 0) {
-        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-        LoadingScreen.#waitTimeInterval = null;
-      }
+    if (!$waitTimeBox)
+      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    else
+      $waitTimeBox.classList.remove("bx-gone"), $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated"), $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
+    $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, LoadingScreen.#waitTimeInterval = window.setInterval(() => {
+      if (secondsLeft--, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, secondsLeft <= 0)
+        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
     }, 1000);
   }
   static hide() {
-    LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
-    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
-    if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
+    if (LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
       const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
       $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
         LoadingScreen.#$bgStyle.textContent += `
@@ -4504,8 +3728,7 @@ class LoadingScreen {
     background: #000 !important;
 }
 `;
-      });
-      LoadingScreen.#$bgStyle.textContent += `
+      }), LoadingScreen.#$bgStyle.textContent += `
 #game-stream rect[width="800"] {
     opacity: 1 !important;
 }
@@ -4514,10 +3737,7 @@ class LoadingScreen {
     setTimeout(LoadingScreen.reset, 2000);
   }
   static reset() {
-    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = "");
-    LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone");
-    LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-    LoadingScreen.#waitTimeInterval = null;
+    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = ""), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
   }
 }
 
@@ -4536,50 +3756,31 @@ class Dialog {
       hideCloseButton,
       onClose,
       helpUrl
-    } = options;
-    const $overlay = document.querySelector(".bx-dialog-overlay");
-    if (!$overlay) {
-      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" });
-      this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault());
-      document.documentElement.appendChild(this.$overlay);
-    } else {
+    } = options, $overlay = document.querySelector(".bx-dialog-overlay");
+    if (!$overlay)
+      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" }), this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$overlay);
+    else
       this.$overlay = $overlay;
-    }
     let $close;
-    this.onClose = onClose;
-    this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
+    this.onClose = onClose, this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
       icon: BxIcon.QUESTION,
       style: ButtonStyle.GHOST,
       title: t("help"),
       url: helpUrl
-    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close"))));
-    $close && $close.addEventListener("click", (e) => {
+    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close")))), $close && $close.addEventListener("click", (e) => {
       this.hide(e);
-    });
-    !title && this.$title.classList.add("bx-gone");
-    !content && this.$content.classList.add("bx-gone");
-    this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault());
-    document.documentElement.appendChild(this.$dialog);
+    }), !title && this.$title.classList.add("bx-gone"), !content && this.$content.classList.add("bx-gone"), this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$dialog);
   }
   show(newOptions) {
-    document.activeElement && document.activeElement.blur();
-    if (newOptions && newOptions.title) {
-      this.$title.querySelector("b").textContent = newOptions.title;
-      this.$title.classList.remove("bx-gone");
-    }
-    this.$dialog.classList.remove("bx-gone");
-    this.$overlay.classList.remove("bx-gone");
-    document.body.classList.add("bx-no-scroll");
+    if (document.activeElement && document.activeElement.blur(), newOptions && newOptions.title)
+      this.$title.querySelector("b").textContent = newOptions.title, this.$title.classList.remove("bx-gone");
+    this.$dialog.classList.remove("bx-gone"), this.$overlay.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
   }
   hide(e) {
-    this.$dialog.classList.add("bx-gone");
-    this.$overlay.classList.add("bx-gone");
-    document.body.classList.remove("bx-no-scroll");
-    this.onClose && this.onClose(e);
+    this.$dialog.classList.add("bx-gone"), this.$overlay.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll"), this.onClose && this.onClose(e);
   }
   toggle() {
-    this.$dialog.classList.toggle("bx-gone");
-    this.$overlay.classList.toggle("bx-gone");
+    this.$dialog.classList.toggle("bx-gone"), this.$overlay.classList.toggle("bx-gone");
   }
 }
 
@@ -4614,16 +3815,15 @@ class MkbRemapper {
   ];
   static #instance;
   static get INSTANCE() {
-    if (!MkbRemapper.#instance) {
+    if (!MkbRemapper.#instance)
       MkbRemapper.#instance = new MkbRemapper;
-    }
     return MkbRemapper.#instance;
   }
   #STATE = {
     currentPresetId: 0,
     presets: {},
     editingPresetData: null,
-    isEditing: false
+    isEditing: !1
   };
   #$ = {
     wrapper: null,
@@ -4635,77 +3835,47 @@ class MkbRemapper {
   };
   bindingDialog;
   constructor() {
-    this.#STATE.currentPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
-    this.bindingDialog = new Dialog({
+    this.#STATE.currentPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID), this.bindingDialog = new Dialog({
       className: "bx-binding-dialog",
       content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
-      hideCloseButton: true
+      hideCloseButton: !0
     });
   }
   #clearEventListeners = () => {
-    window.removeEventListener("keydown", this.#onKeyDown);
-    window.removeEventListener("mousedown", this.#onMouseDown);
-    window.removeEventListener("wheel", this.#onWheel);
+    window.removeEventListener("keydown", this.#onKeyDown), window.removeEventListener("mousedown", this.#onMouseDown), window.removeEventListener("wheel", this.#onWheel);
   };
   #bindKey = ($elm, key) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
-    const keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    if ($elm.getAttribute("data-key-code") === key.code) {
+    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
+    if ($elm.getAttribute("data-key-code") === key.code)
       return;
-    }
-    for (const $otherElm of this.#$.allKeyElements) {
-      if ($otherElm.getAttribute("data-key-code") === key.code) {
+    for (let $otherElm of this.#$.allKeyElements)
+      if ($otherElm.getAttribute("data-key-code") === key.code)
         this.#unbindKey($otherElm);
-      }
-    }
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code;
-    $elm.textContent = key.name;
-    $elm.setAttribute("data-key-code", key.code);
+    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.setAttribute("data-key-code", key.code);
   };
   #unbindKey = ($elm) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
-    const keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null;
-    $elm.textContent = "";
-    $elm.removeAttribute("data-key-code");
+    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
+    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null, $elm.textContent = "", $elm.removeAttribute("data-key-code");
   };
   #onWheel = (e) => {
-    e.preventDefault();
-    this.#clearEventListeners();
-    this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    window.setTimeout(() => this.bindingDialog.hide(), 200);
+    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
   };
   #onMouseDown = (e) => {
-    e.preventDefault();
-    this.#clearEventListeners();
-    this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    window.setTimeout(() => this.bindingDialog.hide(), 200);
+    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
   };
   #onKeyDown = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    this.#clearEventListeners();
-    if (e.code !== "Escape") {
+    if (e.preventDefault(), e.stopPropagation(), this.#clearEventListeners(), e.code !== "Escape")
       this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    }
     window.setTimeout(() => this.bindingDialog.hide(), 200);
   };
   #onBindingKey = (e) => {
-    if (!this.#STATE.isEditing || e.button !== 0) {
+    if (!this.#STATE.isEditing || e.button !== 0)
       return;
-    }
-    console.log(e);
-    this.#$.currentBindingKey = e.target;
-    window.addEventListener("keydown", this.#onKeyDown);
-    window.addEventListener("mousedown", this.#onMouseDown);
-    window.addEventListener("wheel", this.#onWheel);
-    this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
+    console.log(e), this.#$.currentBindingKey = e.target, window.addEventListener("keydown", this.#onKeyDown), window.addEventListener("mousedown", this.#onMouseDown), window.addEventListener("wheel", this.#onWheel), this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
   };
   #onContextMenu = (e) => {
-    e.preventDefault();
-    if (!this.#STATE.isEditing) {
+    if (e.preventDefault(), !this.#STATE.isEditing)
       return;
-    }
     this.#unbindKey(e.target);
   };
   #getPreset = (presetId) => {
@@ -4717,124 +3887,93 @@ class MkbRemapper {
   #switchPreset = (presetId) => {
     this.#STATE.currentPresetId = presetId;
     const presetData = this.#getCurrentPreset().data;
-    for (const $elm of this.#$.allKeyElements) {
-      const buttonIndex = parseInt($elm.getAttribute("data-button-index"));
-      const keySlot = parseInt($elm.getAttribute("data-key-slot"));
-      const buttonKeys = presetData.mapping[buttonIndex];
-      if (buttonKeys && buttonKeys[keySlot]) {
-        $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]);
-        $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
-      } else {
-        $elm.textContent = "";
-        $elm.removeAttribute("data-key-code");
-      }
+    for (let $elm of this.#$.allKeyElements) {
+      const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot")), buttonKeys = presetData.mapping[buttonIndex];
+      if (buttonKeys && buttonKeys[keySlot])
+        $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]), $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
+      else
+        $elm.textContent = "", $elm.removeAttribute("data-key-code");
     }
     let key;
     for (key in this.#$.allMouseElements) {
       const $elm = this.#$.allMouseElements[key];
       let value = presetData.mouse[key];
-      if (typeof value === "undefined") {
+      if (typeof value === "undefined")
         value = MkbPreset.MOUSE_SETTINGS[key].default;
-      }
       "setValue" in $elm && $elm.setValue(value);
     }
     const activated = getPref(PrefKey.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
-    this.#$.activateButton.disabled = activated;
-    this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
+    this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
   };
   #refresh() {
-    while (this.#$.presetsSelect.firstChild) {
+    while (this.#$.presetsSelect.firstChild)
       this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
-    }
     LocalDb.INSTANCE.getPresets().then((presets) => {
       this.#STATE.presets = presets;
       const $fragment = document.createDocumentFragment();
       let defaultPresetId;
-      if (this.#STATE.currentPresetId === 0) {
-        this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]);
-        defaultPresetId = this.#STATE.currentPresetId;
-        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId);
-        EmulatedMkbHandler.getInstance().refreshPresetData();
-      } else {
+      if (this.#STATE.currentPresetId === 0)
+        this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.#STATE.currentPresetId, setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
+      else
         defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
-      }
       for (let id2 in presets) {
-        const preset = presets[id2];
-        let name = preset.name;
-        if (id2 === defaultPresetId) {
-          name = `🎮 ` + name;
-        }
+        let name = presets[id2].name;
+        if (id2 === defaultPresetId)
+          name = "🎮 " + name;
         const $options = CE("option", { value: id2 }, name);
-        $options.selected = parseInt(id2) === this.#STATE.currentPresetId;
-        $fragment.appendChild($options);
+        $options.selected = parseInt(id2) === this.#STATE.currentPresetId, $fragment.appendChild($options);
       }
       this.#$.presetsSelect.appendChild($fragment);
       const activated = defaultPresetId === this.#STATE.currentPresetId;
-      this.#$.activateButton.disabled = activated;
-      this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
-      !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
+      this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate"), !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
     });
   }
   #toggleEditing = (force) => {
-    this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing;
-    this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing);
-    if (this.#STATE.isEditing) {
+    if (this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing, this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing), this.#STATE.isEditing)
       this.#STATE.editingPresetData = structuredClone(this.#getCurrentPreset().data);
-    } else {
+    else
       this.#STATE.editingPresetData = null;
-    }
     const childElements = this.#$.wrapper.querySelectorAll("select, button, input");
-    for (const $elm of Array.from(childElements)) {
-      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons")) {
+    for (let $elm of Array.from(childElements)) {
+      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons"))
         continue;
-      }
       let disable = !this.#STATE.isEditing;
-      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools")) {
+      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools"))
         disable = !disable;
-      }
       $elm.disabled = disable;
     }
   };
   render() {
-    this.#$.wrapper = CE("div", { class: "bx-mkb-settings" });
-    this.#$.presetsSelect = CE("select", {});
-    this.#$.presetsSelect.addEventListener("change", (e) => {
+    this.#$.wrapper = CE("div", { class: "bx-mkb-settings" }), this.#$.presetsSelect = CE("select", {}), this.#$.presetsSelect.addEventListener("change", (e) => {
       this.#switchPreset(parseInt(e.target.value));
     });
     const promptNewName = (value) => {
       let newName = "";
       while (!newName) {
-        newName = prompt(t("prompt-preset-name"), value);
-        if (newName === null) {
-          return false;
-        }
+        if (newName = prompt(t("prompt-preset-name"), value), newName === null)
+          return !1;
         newName = newName.trim();
       }
-      return newName ? newName : false;
-    };
-    const $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
+      return newName ? newName : !1;
+    }, $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
       title: t("rename"),
       icon: BxIcon.CURSOR_TEXT,
       onClick: (e) => {
         const preset = this.#getCurrentPreset();
         let newName = promptNewName(preset.name);
-        if (!newName || newName === preset.name) {
+        if (!newName || newName === preset.name)
           return;
-        }
-        preset.name = newName;
-        LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
+        preset.name = newName, LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
       }
     }), createButton({
       icon: BxIcon.NEW,
       title: t("new"),
       onClick: (e) => {
         let newName = promptNewName("");
-        if (!newName) {
+        if (!newName)
           return;
-        }
         LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
-          this.#STATE.currentPresetId = id2;
-          this.#refresh();
+          this.#STATE.currentPresetId = id2, this.#refresh();
         });
       }
     }), createButton({
@@ -4843,12 +3982,10 @@ class MkbRemapper {
       onClick: (e) => {
         const preset = this.#getCurrentPreset();
         let newName = promptNewName(`${preset.name} (2)`);
-        if (!newName) {
+        if (!newName)
           return;
-        }
         LocalDb.INSTANCE.newPreset(newName, preset.data).then((id2) => {
-          this.#STATE.currentPresetId = id2;
-          this.#refresh();
+          this.#STATE.currentPresetId = id2, this.#refresh();
         });
       }
     }), createButton({
@@ -4856,89 +3993,68 @@ class MkbRemapper {
       style: ButtonStyle.DANGER,
       title: t("delete"),
       onClick: (e) => {
-        if (!confirm(t("confirm-delete-preset"))) {
+        if (!confirm(t("confirm-delete-preset")))
           return;
-        }
         LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id2) => {
-          this.#STATE.currentPresetId = 0;
-          this.#refresh();
+          this.#STATE.currentPresetId = 0, this.#refresh();
         });
       }
     }));
     this.#$.wrapper.appendChild($header);
-    const $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind")));
-    const keysPerButton = 2;
-    for (const buttonIndex of this.#BUTTON_ORDERS) {
+    const $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind"))), keysPerButton = 2;
+    for (let buttonIndex of this.#BUTTON_ORDERS) {
       const [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex];
       let $elm;
       const $fragment = document.createDocumentFragment();
-      for (let i = 0;i < keysPerButton; i++) {
+      for (let i = 0;i < keysPerButton; i++)
         $elm = CE("button", {
           type: "button",
           "data-prompt": buttonPrompt,
           "data-button-index": buttonIndex,
           "data-key-slot": i
-        }, " ");
-        $elm.addEventListener("mouseup", this.#onBindingKey);
-        $elm.addEventListener("contextmenu", this.#onContextMenu);
-        $fragment.appendChild($elm);
-        this.#$.allKeyElements.push($elm);
-      }
+        }, " "), $elm.addEventListener("mouseup", this.#onBindingKey), $elm.addEventListener("contextmenu", this.#onContextMenu), $fragment.appendChild($elm), this.#$.allKeyElements.push($elm);
       const $keyRow = CE("div", { class: "bx-mkb-key-row" }, CE("label", { title: buttonName }, buttonPrompt), $fragment);
       $rows.appendChild($keyRow);
     }
     $rows.appendChild(CE("i", { class: "bx-mkb-note" }, t("mkb-adjust-ingame-settings")));
     const $mouseSettings = document.createDocumentFragment();
-    for (const key in MkbPreset.MOUSE_SETTINGS) {
-      const setting = MkbPreset.MOUSE_SETTINGS[key];
-      const value = setting.default;
+    for (let key in MkbPreset.MOUSE_SETTINGS) {
+      const setting = MkbPreset.MOUSE_SETTINGS[key], value = setting.default;
       let $elm;
       const onChange = (e, value2) => {
         this.#STATE.editingPresetData.mouse[key] = value2;
-      };
-      const $row = CE("div", { class: "bx-stream-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
-      $mouseSettings.appendChild($row);
-      this.#$.allMouseElements[key] = $elm;
+      }, $row = CE("div", { class: "bx-stream-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
+      $mouseSettings.appendChild($row), this.#$.allMouseElements[key] = $elm;
     }
-    $rows.appendChild($mouseSettings);
-    this.#$.wrapper.appendChild($rows);
+    $rows.appendChild($mouseSettings), this.#$.wrapper.appendChild($rows);
     const $actionButtons = CE("div", { class: "bx-mkb-action-buttons" }, CE("div", {}, createButton({
       label: t("edit"),
-      onClick: (e) => this.#toggleEditing(true)
+      onClick: (e) => this.#toggleEditing(!0)
     }), this.#$.activateButton = createButton({
       label: t("activate"),
       style: ButtonStyle.PRIMARY,
       onClick: (e) => {
-        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
-        EmulatedMkbHandler.getInstance().refreshPresetData();
-        this.#refresh();
+        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.#refresh();
       }
     })), CE("div", {}, createButton({
       label: t("cancel"),
       style: ButtonStyle.GHOST,
       onClick: (e) => {
-        this.#switchPreset(this.#STATE.currentPresetId);
-        this.#toggleEditing(false);
+        this.#switchPreset(this.#STATE.currentPresetId), this.#toggleEditing(!1);
       }
     }), createButton({
       label: t("save"),
       style: ButtonStyle.PRIMARY,
       onClick: (e) => {
         const updatedPreset = structuredClone(this.#getCurrentPreset());
-        updatedPreset.data = this.#STATE.editingPresetData;
-        LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
-          if (id2 === getPref(PrefKey.MKB_DEFAULT_PRESET_ID)) {
+        updatedPreset.data = this.#STATE.editingPresetData, LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
+          if (id2 === getPref(PrefKey.MKB_DEFAULT_PRESET_ID))
             EmulatedMkbHandler.getInstance().refreshPresetData();
-          }
-          this.#toggleEditing(false);
-          this.#refresh();
+          this.#toggleEditing(!1), this.#refresh();
         });
       }
     })));
-    this.#$.wrapper.appendChild($actionButtons);
-    this.#toggleEditing(false);
-    this.#refresh();
-    return this.#$.wrapper;
+    return this.#$.wrapper.appendChild($actionButtons), this.#toggleEditing(!1), this.#refresh(), this.#$.wrapper;
   }
 }
 
@@ -4955,17 +4071,17 @@ class TouchController {
     origin: "better-xcloud"
   });
   static #$style;
-  static #enable = false;
+  static #enable = !1;
   static #dataChannel;
   static #customLayouts = {};
   static #baseCustomLayouts = {};
   static #currentLayoutId;
   static #customList;
   static enable() {
-    TouchController.#enable = true;
+    TouchController.#enable = !0;
   }
   static disable() {
-    TouchController.#enable = false;
+    TouchController.#enable = !1;
   }
   static isEnabled() {
     return TouchController.#enable;
@@ -4980,15 +4096,12 @@ class TouchController {
     document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
   }
   static toggleVisibility(status) {
-    if (!TouchController.#dataChannel) {
+    if (!TouchController.#dataChannel)
       return;
-    }
     status ? TouchController.#hide() : TouchController.#show();
   }
   static reset() {
-    TouchController.#enable = false;
-    TouchController.#dataChannel = null;
-    TouchController.#$style && (TouchController.#$style.textContent = "");
+    TouchController.#enable = !1, TouchController.#dataChannel = null, TouchController.#$style && (TouchController.#$style.textContent = "");
   }
   static #dispatchMessage(msg) {
     TouchController.#dataChannel && window.setTimeout(() => {
@@ -5005,37 +4118,25 @@ class TouchController {
       TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
       return;
     }
-    retries = retries || 1;
-    if (retries > 2) {
-      TouchController.#customLayouts[xboxTitleId] = null;
-      window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+    if (retries = retries || 1, retries > 2) {
+      TouchController.#customLayouts[xboxTitleId] = null, window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
       return;
     }
-    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`;
-    const url = `${baseUrl}/${xboxTitleId}.json`;
+    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`, url = `${baseUrl}/${xboxTitleId}.json`;
     try {
-      const resp = await NATIVE_FETCH(url);
-      const json = await resp.json();
-      const layouts = {};
+      const json = await (await NATIVE_FETCH(url)).json(), layouts = {};
       json.layouts.forEach(async (layoutName) => {
         let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts) {
+        if (layoutName in TouchController.#baseCustomLayouts)
           baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        } else {
+        else
           try {
             const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
-            const resp2 = await NATIVE_FETCH(layoutUrl);
-            const json2 = await resp2.json();
-            baseLayouts = json2.layouts;
-            TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
+            baseLayouts = (await (await NATIVE_FETCH(layoutUrl)).json()).layouts, TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
           } catch (e) {
           }
-        }
         Object.assign(layouts, baseLayouts);
-      });
-      json.layouts = layouts;
-      TouchController.#customLayouts[xboxTitleId] = json;
-      window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+      }), json.layouts = layouts, TouchController.#customLayouts[xboxTitleId] = json, window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
     } catch (e) {
       TouchController.getCustomLayouts(xboxTitleId, retries + 1);
     }
@@ -5043,10 +4144,8 @@ class TouchController {
   static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
     if (!window.BX_EXPOSED.touchLayoutManager) {
       const listener = (e) => {
-        window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-        if (TouchController.#enable) {
+        if (window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener), TouchController.#enable)
           TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
-        }
       };
       window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
       return;
@@ -5059,22 +4158,16 @@ class TouchController {
       return;
     }
     const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout) {
+    if (!layout)
       return;
-    }
-    let msg;
-    let html15 = false;
+    let msg, html15 = !1;
     if (layout.author) {
       const author = `<b>${escapeHtml(layout.author)}</b>`;
-      msg = t("touch-control-layout-by", { name: author });
-      html15 = true;
-    } else {
+      msg = t("touch-control-layout-by", { name: author }), html15 = !0;
+    } else
       msg = t("touch-control-layout");
-    }
-    layoutChanged && Toast.show(msg, layout.name, { html: html15 });
-    window.setTimeout(() => {
-      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope");
-      window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
+    layoutChanged && Toast.show(msg, layout.name, { html: html15 }), window.setTimeout(() => {
+      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope"), window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
         type: "showLayout",
         scope: xboxTitleId,
         subscope: "base",
@@ -5087,11 +4180,8 @@ class TouchController {
     }, delay);
   }
   static updateCustomList() {
-    const key = "better_xcloud_custom_touch_layouts";
-    TouchController.#customList = JSON.parse(window.localStorage.getItem(key) || "[]");
-    NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
-      TouchController.#customList = json;
-      window.localStorage.setItem(key, JSON.stringify(json));
+    TouchController.#customList = JSON.parse(window.localStorage.getItem("better_xcloud_custom_touch_layouts") || "[]"), NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
+      TouchController.#customList = json, window.localStorage.setItem("better_xcloud_custom_touch_layouts", JSON.stringify(json));
     });
   }
   static getCustomList() {
@@ -5112,56 +4202,44 @@ class TouchController {
       });
     };
     const $style = document.createElement("style");
-    document.documentElement.appendChild($style);
-    TouchController.#$style = $style;
-    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD);
-    const PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+    document.documentElement.appendChild($style), TouchController.#$style = $style;
+    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD), PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
     window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
       const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message") {
+      if (!dataChannel || dataChannel.label !== "message")
         return;
-      }
       let filter = "";
       if (TouchController.#enable) {
-        if (PREF_STYLE_STANDARD === "white") {
+        if (PREF_STYLE_STANDARD === "white")
           filter = "grayscale(1) brightness(2)";
-        } else if (PREF_STYLE_STANDARD === "muted") {
+        else if (PREF_STYLE_STANDARD === "muted")
           filter = "sepia(0.5)";
-        }
-      } else if (PREF_STYLE_CUSTOM === "muted") {
+      } else if (PREF_STYLE_CUSTOM === "muted")
         filter = "sepia(0.5)";
-      }
-      if (filter) {
+      if (filter)
         $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      } else {
+      else
         $style.textContent = "";
-      }
-      TouchController.#dataChannel = dataChannel;
-      dataChannel.addEventListener("open", () => {
+      TouchController.#dataChannel = dataChannel, dataChannel.addEventListener("open", () => {
         window.setTimeout(TouchController.#show, 1000);
       });
-      let focused = false;
+      let focused = !1;
       dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") {
+        if (msg.origin === "better-xcloud" || typeof msg.data !== "string")
           return;
-        }
         if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enable) {
-            if (focused) {
+          if (TouchController.#enable)
+            if (focused)
               TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
-            } else {
+            else
               TouchController.#showDefault();
-            }
-          }
           return;
         }
         try {
           if (msg.data.includes("/titleinfo")) {
             const json = JSON.parse(JSON.parse(msg.data).content);
-            focused = json.focused;
-            if (!json.focused) {
+            if (focused = json.focused, !json.focused)
               TouchController.#show();
-            }
             STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
           }
         } catch (e2) {
@@ -5193,11 +4271,7 @@ class VibrationManager {
       window.navigator.vibrate(intensity ? data.durationMs : 0);
       return;
     }
-    const pulseDuration = 200;
-    const onDuration = Math.floor(pulseDuration * intensity / 100);
-    const offDuration = pulseDuration - onDuration;
-    const repeats = Math.ceil(data.durationMs / pulseDuration);
-    const pulses = Array(repeats).fill([onDuration, offDuration]).flat();
+    const pulseDuration = 200, onDuration = Math.floor(pulseDuration * intensity / 100), offDuration = pulseDuration - onDuration, repeats = Math.ceil(data.durationMs / pulseDuration), pulses = Array(repeats).fill([onDuration, offDuration]).flat();
     window.navigator.vibrate(pulses);
   }
   static supportControllerVibration() {
@@ -5207,78 +4281,57 @@ class VibrationManager {
     return !!window.navigator.vibrate;
   }
   static updateGlobalVars() {
-    window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : false;
-    window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100;
-    if (!VibrationManager.supportDeviceVibration()) {
-      window.BX_ENABLE_DEVICE_VIBRATION = false;
+    if (window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : !1, window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100, !VibrationManager.supportDeviceVibration()) {
+      window.BX_ENABLE_DEVICE_VIBRATION = !1;
       return;
     }
     window.navigator.vibrate(0);
     const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
     let enabled;
-    if (value === "on") {
-      enabled = true;
-    } else if (value === "auto") {
-      enabled = true;
+    if (value === "on")
+      enabled = !0;
+    else if (value === "auto") {
+      enabled = !0;
       const gamepads = window.navigator.getGamepads();
-      for (const gamepad of gamepads) {
+      for (let gamepad of gamepads)
         if (gamepad) {
-          enabled = false;
+          enabled = !1;
           break;
         }
-      }
-    } else {
-      enabled = false;
-    }
+    } else
+      enabled = !1;
     window.BX_ENABLE_DEVICE_VIBRATION = enabled;
   }
   static #onMessage(e) {
-    if (!window.BX_ENABLE_DEVICE_VIBRATION) {
+    if (!window.BX_ENABLE_DEVICE_VIBRATION)
       return;
-    }
-    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer)) {
+    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer))
       return;
-    }
     const dataView = new DataView(e.data);
-    let offset = 0;
-    let messageType;
-    if (dataView.byteLength === 13) {
-      messageType = dataView.getUint16(offset, true);
-      offset += Uint16Array.BYTES_PER_ELEMENT;
-    } else {
-      messageType = dataView.getUint8(offset);
-      offset += Uint8Array.BYTES_PER_ELEMENT;
-    }
-    if (!(messageType & 128)) {
+    let offset = 0, messageType;
+    if (dataView.byteLength === 13)
+      messageType = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
+    else
+      messageType = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
+    if (!(messageType & 128))
       return;
-    }
     const vibrationType = dataView.getUint8(offset);
-    offset += Uint8Array.BYTES_PER_ELEMENT;
-    if (vibrationType !== 0) {
+    if (offset += Uint8Array.BYTES_PER_ELEMENT, vibrationType !== 0)
       return;
-    }
     const data = {};
     let key;
-    for (key in VIBRATION_DATA_MAP) {
-      if (VIBRATION_DATA_MAP[key] === 16) {
-        data[key] = dataView.getUint16(offset, true);
-        offset += Uint16Array.BYTES_PER_ELEMENT;
-      } else {
-        data[key] = dataView.getUint8(offset);
-        offset += Uint8Array.BYTES_PER_ELEMENT;
-      }
-    }
+    for (key in VIBRATION_DATA_MAP)
+      if (VIBRATION_DATA_MAP[key] === 16)
+        data[key] = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
+      else
+        data[key] = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
     VibrationManager.#playDeviceVibration(data);
   }
   static initialSetup() {
-    window.addEventListener("gamepadconnected", VibrationManager.updateGlobalVars);
-    window.addEventListener("gamepaddisconnected", VibrationManager.updateGlobalVars);
-    VibrationManager.updateGlobalVars();
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+    window.addEventListener("gamepadconnected", VibrationManager.updateGlobalVars), window.addEventListener("gamepaddisconnected", VibrationManager.updateGlobalVars), VibrationManager.updateGlobalVars(), window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
       const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "input") {
+      if (!dataChannel || dataChannel.label !== "input")
         return;
-      }
       dataChannel.addEventListener("message", VibrationManager.#onMessage);
     });
   }
@@ -5286,11 +4339,9 @@ class VibrationManager {
 
 // src/modules/ui/ui.ts
 function localRedirect(path) {
-  const url = window.location.href.substring(0, 31) + path;
-  const $pageContent = document.getElementById("PageContent");
-  if (!$pageContent) {
+  const url = window.location.href.substring(0, 31) + path, $pageContent = document.getElementById("PageContent");
+  if (!$pageContent)
     return;
-  }
   const $anchor = CE("a", {
     href: url,
     class: "bx-hidden bx-offscreen"
@@ -5299,9 +4350,7 @@ function localRedirect(path) {
     window.setTimeout(() => {
       $pageContent.removeChild($anchor);
     }, 1000);
-  });
-  $pageContent.appendChild($anchor);
-  $anchor.click();
+  }), $pageContent.appendChild($anchor), $anchor.click();
 }
 var setupStreamSettingsDialog = function() {
   const SETTINGS_UI = [
@@ -5325,9 +4374,8 @@ var setupStreamSettingsDialog = function() {
               onMounted: ($elm) => {
                 const $range = $elm.querySelector("input[type=range");
                 window.addEventListener(BxEvent.GAINNODE_VOLUME_CHANGED, (e) => {
-                  $range.value = e.volume;
-                  BxEvent.dispatch($range, "input", {
-                    ignoreOnChange: true
+                  $range.value = e.volume, BxEvent.dispatch($range, "input", {
+                    ignoreOnChange: !0
                   });
                 });
               }
@@ -5403,43 +4451,35 @@ var setupStreamSettingsDialog = function() {
           items: [
             {
               label: t("layout"),
-              content: CE("select", { disabled: true }, CE("option", {}, t("default"))),
+              content: CE("select", { disabled: !0 }, CE("option", {}, t("default"))),
               onMounted: ($elm) => {
                 $elm.addEventListener("change", (e) => {
                   TouchController.loadCustomLayout(STATES.currentStream?.xboxTitleId, $elm.value, 1000);
-                });
-                window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, (e) => {
+                }), window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, (e) => {
                   const data = e.data;
                   if (STATES.currentStream?.xboxTitleId && $elm.xboxTitleId === STATES.currentStream?.xboxTitleId) {
                     $elm.dispatchEvent(new Event("change"));
                     return;
                   }
                   $elm.xboxTitleId = STATES.currentStream?.xboxTitleId;
-                  while ($elm.firstChild) {
+                  while ($elm.firstChild)
                     $elm.removeChild($elm.firstChild);
-                  }
-                  $elm.disabled = !data;
-                  if (!data) {
-                    $elm.appendChild(CE("option", { value: "" }, t("default")));
-                    $elm.value = "";
-                    $elm.dispatchEvent(new Event("change"));
+                  if ($elm.disabled = !data, !data) {
+                    $elm.appendChild(CE("option", { value: "" }, t("default"))), $elm.value = "", $elm.dispatchEvent(new Event("change"));
                     return;
                   }
                   const $fragment = document.createDocumentFragment();
-                  for (const key in data.layouts) {
+                  for (let key in data.layouts) {
                     const layout = data.layouts[key];
                     let name;
-                    if (layout.author) {
+                    if (layout.author)
                       name = `${layout.name} (${layout.author})`;
-                    } else {
+                    else
                       name = layout.name;
-                    }
                     const $option = CE("option", { value: key }, name);
                     $fragment.appendChild($option);
                   }
-                  $elm.appendChild($fragment);
-                  $elm.value = data.default_layout;
-                  $elm.dispatchEvent(new Event("change"));
+                  $elm.appendChild($fragment), $elm.value = data.default_layout, $elm.dispatchEvent(new Event("change"));
                 });
               }
             }
@@ -5542,99 +4582,71 @@ var setupStreamSettingsDialog = function() {
       ]
     }
   ];
-  let $tabs;
-  let $settings;
+  let $tabs, $settings;
   const $wrapper = CE("div", { class: "bx-stream-settings-dialog bx-gone" }, $tabs = CE("div", { class: "bx-stream-settings-tabs" }), $settings = CE("div", { class: "bx-stream-settings-tab-contents" }));
-  for (const settingTab of SETTINGS_UI) {
-    if (!settingTab) {
+  for (let settingTab of SETTINGS_UI) {
+    if (!settingTab)
       continue;
-    }
     const $svg = createSvgIcon(settingTab.icon);
     $svg.addEventListener("click", (e) => {
-      for (const $child of Array.from($settings.children)) {
-        if ($child.getAttribute("data-group") === settingTab.group) {
+      for (let $child of Array.from($settings.children))
+        if ($child.getAttribute("data-group") === settingTab.group)
           $child.classList.remove("bx-gone");
-        } else {
+        else
           $child.classList.add("bx-gone");
-        }
-      }
-      for (const $child of Array.from($tabs.children)) {
+      for (let $child of Array.from($tabs.children))
         $child.classList.remove("bx-active");
-      }
       $svg.classList.add("bx-active");
-    });
-    $tabs.appendChild($svg);
+    }), $tabs.appendChild($svg);
     const $group = CE("div", { "data-group": settingTab.group, class: "bx-gone" });
-    for (const settingGroup of settingTab.items) {
-      if (!settingGroup) {
+    for (let settingGroup of settingTab.items) {
+      if (!settingGroup)
         continue;
-      }
-      $group.appendChild(CE("h2", {}, CE("span", {}, settingGroup.label), settingGroup.help_url && createButton({
+      if ($group.appendChild(CE("h2", {}, CE("span", {}, settingGroup.label), settingGroup.help_url && createButton({
         icon: BxIcon.QUESTION,
         style: ButtonStyle.GHOST,
         url: settingGroup.help_url,
         title: t("help")
-      })));
-      if (settingGroup.note) {
-        if (typeof settingGroup.note === "string") {
+      }))), settingGroup.note) {
+        if (typeof settingGroup.note === "string")
           settingGroup.note = document.createTextNode(settingGroup.note);
-        }
         $group.appendChild(settingGroup.note);
       }
       if (settingGroup.content) {
         $group.appendChild(settingGroup.content);
         continue;
       }
-      if (!settingGroup.items) {
+      if (!settingGroup.items)
         settingGroup.items = [];
-      }
-      for (const setting of settingGroup.items) {
-        if (!setting) {
+      for (let setting of settingGroup.items) {
+        if (!setting)
           continue;
-        }
         const pref = setting.pref;
         let $control;
-        if (setting.content) {
+        if (setting.content)
           $control = setting.content;
-        } else if (!setting.unsupported) {
+        else if (!setting.unsupported)
           $control = toPrefElement(pref, setting.onChange, setting.params);
-        }
-        const label = Preferences.SETTINGS[pref]?.label || setting.label;
-        const note = Preferences.SETTINGS[pref]?.note || setting.note;
-        const $content = CE("div", { class: "bx-stream-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, label, note && CE("div", { class: "bx-stream-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-stream-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
-        $group.appendChild($content);
-        setting.onMounted && setting.onMounted($control);
+        const label = Preferences.SETTINGS[pref]?.label || setting.label, note = Preferences.SETTINGS[pref]?.note || setting.note, $content = CE("div", { class: "bx-stream-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, label, note && CE("div", { class: "bx-stream-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-stream-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
+        $group.appendChild($content), setting.onMounted && setting.onMounted($control);
       }
     }
     $settings.appendChild($group);
   }
-  $tabs.firstElementChild.dispatchEvent(new Event("click"));
-  document.documentElement.appendChild($wrapper);
-};
-var onChangeVideoPlayerType = function() {
-  const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE);
-  const $videoProcessing = document.getElementById("bx_setting_video_processing");
-  const $videoSharpness = document.getElementById("bx_setting_video_sharpness");
-  let isDisabled = false;
-  if (playerType === StreamPlayerType.WEBGL2) {
-    $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = false;
-  } else {
-    $videoProcessing.value = StreamVideoProcessing.USM;
-    setPref(PrefKey.VIDEO_PROCESSING, StreamVideoProcessing.USM);
-    $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = true;
-    if (UserAgent.isSafari()) {
-      isDisabled = true;
-    }
-  }
-  $videoProcessing.disabled = isDisabled;
-  $videoSharpness.dataset.disabled = isDisabled.toString();
-  updateVideoPlayer();
+  $tabs.firstElementChild.dispatchEvent(new Event("click")), document.documentElement.appendChild($wrapper);
+}, onChangeVideoPlayerType = function() {
+  const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE), $videoProcessing = document.getElementById("bx_setting_video_processing"), $videoSharpness = document.getElementById("bx_setting_video_sharpness");
+  let isDisabled = !1;
+  if (playerType === StreamPlayerType.WEBGL2)
+    $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = !1;
+  else if ($videoProcessing.value = StreamVideoProcessing.USM, setPref(PrefKey.VIDEO_PROCESSING, StreamVideoProcessing.USM), $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = !0, UserAgent.isSafari())
+    isDisabled = !0;
+  $videoProcessing.disabled = isDisabled, $videoSharpness.dataset.disabled = isDisabled.toString(), updateVideoPlayer();
 };
 function updateVideoPlayer() {
   const streamPlayer = STATES.currentStream.streamPlayer;
-  if (!streamPlayer) {
+  if (!streamPlayer)
     return;
-  }
   const options = {
     processing: getPref(PrefKey.VIDEO_PROCESSING),
     sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
@@ -5642,9 +4654,7 @@ function updateVideoPlayer() {
     contrast: getPref(PrefKey.VIDEO_CONTRAST),
     brightness: getPref(PrefKey.VIDEO_BRIGHTNESS)
   };
-  streamPlayer.setPlayerType(getPref(PrefKey.VIDEO_PLAYER_TYPE));
-  streamPlayer.updateOptions(options);
-  streamPlayer.refreshPlayer();
+  streamPlayer.setPlayerType(getPref(PrefKey.VIDEO_PLAYER_TYPE)), streamPlayer.updateOptions(options), streamPlayer.refreshPlayer();
 }
 var preloadFonts = function() {
   const $link = CE("link", {
@@ -5657,18 +4667,13 @@ var preloadFonts = function() {
   document.querySelector("head")?.appendChild($link);
 };
 function setupStreamUi() {
-  if (!document.querySelector(".bx-stream-settings-dialog")) {
-    preloadFonts();
-    window.addEventListener("resize", updateVideoPlayer);
-    setupStreamSettingsDialog();
-    Screenshot.setup();
-  }
+  if (!document.querySelector(".bx-stream-settings-dialog"))
+    preloadFonts(), window.addEventListener("resize", updateVideoPlayer), setupStreamSettingsDialog(), Screenshot.setup();
   onChangeVideoPlayerType();
 }
 
 // src/modules/remote-play.ts
-var LOG_TAG4 = "RemotePlay";
-var RemotePlayConsoleState;
+var LOG_TAG4 = "RemotePlay", RemotePlayConsoleState;
 (function(RemotePlayConsoleState2) {
   RemotePlayConsoleState2["ON"] = "On";
   RemotePlayConsoleState2["OFF"] = "Off";
@@ -5727,33 +4732,23 @@ class RemotePlay {
   };
   static #$content;
   static #initialize() {
-    if (RemotePlay.#$content) {
+    if (RemotePlay.#$content)
       return;
-    }
-    RemotePlay.#$content = CE("div", {}, t("getting-consoles-list"));
-    RemotePlay.#getXhomeToken(() => {
+    RemotePlay.#$content = CE("div", {}, t("getting-consoles-list")), RemotePlay.#getXhomeToken(() => {
       RemotePlay.#getConsolesList(() => {
-        BxLogger.info(LOG_TAG4, "Consoles", RemotePlay.#CONSOLES);
-        RemotePlay.#renderConsoles();
-        BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+        BxLogger.info(LOG_TAG4, "Consoles", RemotePlay.#CONSOLES), RemotePlay.#renderConsoles(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
       });
     });
   }
   static #renderConsoles() {
     const $fragment = CE("div", { class: "bx-remote-play-container" });
     if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
-      $fragment.appendChild(CE("span", {}, t("no-consoles-found")));
-      RemotePlay.#$content = CE("div", {}, $fragment);
+      $fragment.appendChild(CE("span", {}, t("no-consoles-found"))), RemotePlay.#$content = CE("div", {}, $fragment);
       return;
     }
-    const $settingNote = CE("p", {});
-    const resolutions = [1080, 720];
-    const currentResolution = getPref(PrefKey.REMOTE_PLAY_RESOLUTION);
-    const $resolutionGroup = CE("div", {});
-    for (const resolution of resolutions) {
-      const value = `${resolution}p`;
-      const id2 = `bx_radio_xhome_resolution_${resolution}`;
-      const $radio = CE("input", {
+    const $settingNote = CE("p", {}), resolutions = [1080, 720], currentResolution = getPref(PrefKey.REMOTE_PLAY_RESOLUTION), $resolutionGroup = CE("div", {});
+    for (let resolution of resolutions) {
+      const value = `${resolution}p`, id2 = `bx_radio_xhome_resolution_${resolution}`, $radio = CE("input", {
         type: "radio",
         value,
         id: id2,
@@ -5761,18 +4756,14 @@ class RemotePlay {
       }, value);
       $radio.addEventListener("change", (e) => {
         const value2 = e.target.value;
-        $settingNote.textContent = value2 === "1080p" ? "✅ " + t("can-stream-xbox-360-games") : "❌ " + t("cant-stream-xbox-360-games");
-        setPref(PrefKey.REMOTE_PLAY_RESOLUTION, value2);
+        $settingNote.textContent = value2 === "1080p" ? "✅ " + t("can-stream-xbox-360-games") : "❌ " + t("cant-stream-xbox-360-games"), setPref(PrefKey.REMOTE_PLAY_RESOLUTION, value2);
       });
       const $label = CE("label", {
         for: id2,
         class: "bx-remote-play-resolution"
       }, $radio, `${resolution}p`);
-      $resolutionGroup.appendChild($label);
-      if (currentResolution === value) {
-        $radio.checked = true;
-        $radio.dispatchEvent(new Event("change"));
-      }
+      if ($resolutionGroup.appendChild($label), currentResolution === value)
+        $radio.checked = !0, $radio.dispatchEvent(new Event("change"));
     }
     const $qualitySettings = CE("div", { class: "bx-remote-play-settings" }, CE("div", {}, CE("label", {}, t("target-resolution"), $settingNote), $resolutionGroup));
     $fragment.appendChild($qualitySettings);
@@ -5792,8 +4783,7 @@ class RemotePlay {
       style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
       url: "https://better-xcloud.github.io/remote-play",
       label: t("help")
-    }));
-    RemotePlay.#$content = CE("div", {}, $fragment);
+    })), RemotePlay.#$content = CE("div", {}, $fragment);
   }
   static #getXhomeToken(callback) {
     if (RemotePlay.XHOME_TOKEN) {
@@ -5806,14 +4796,12 @@ class RemotePlay {
     } catch (e) {
       for (let i = 0;i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (!key.startsWith("Auth.User.")) {
+        if (!key.startsWith("Auth.User."))
           continue;
-        }
         const json = JSON.parse(localStorage.getItem(key));
-        for (const token of json.tokens) {
-          if (!token.relyingParty.includes("gssv.xboxlive.com")) {
+        for (let token of json.tokens) {
+          if (!token.relyingParty.includes("gssv.xboxlive.com"))
             continue;
-          }
           GSSV_TOKEN = token.tokenData.token;
           break;
         }
@@ -5831,9 +4819,7 @@ class RemotePlay {
       }
     });
     fetch(request).then((resp) => resp.json()).then((json) => {
-      RemotePlay.#REGIONS = json.offeringSettings.regions;
-      RemotePlay.XHOME_TOKEN = json.gsToken;
-      callback();
+      RemotePlay.#REGIONS = json.offeringSettings.regions, RemotePlay.XHOME_TOKEN = json.gsToken, callback();
     });
   }
   static async#getConsolesList(callback) {
@@ -5847,34 +4833,24 @@ class RemotePlay {
         Authorization: `Bearer ${RemotePlay.XHOME_TOKEN}`
       }
     };
-    for (const region2 of RemotePlay.#REGIONS) {
+    for (let region2 of RemotePlay.#REGIONS) {
       try {
-        const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options);
-        const resp = await fetch(request);
-        const json = await resp.json();
-        RemotePlay.#CONSOLES = json.results;
-        STATES.remotePlay.server = region2.baseUri;
-        callback();
+        const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
+        RemotePlay.#CONSOLES = json.results, STATES.remotePlay.server = region2.baseUri, callback();
       } catch (e) {
       }
-      if (RemotePlay.#CONSOLES) {
+      if (RemotePlay.#CONSOLES)
         break;
-      }
     }
-    if (!STATES.remotePlay.server) {
+    if (!STATES.remotePlay.server)
       RemotePlay.#CONSOLES = [];
-    }
   }
   static play(serverId, resolution) {
-    if (resolution) {
+    if (resolution)
       setPref(PrefKey.REMOTE_PLAY_RESOLUTION, resolution);
-    }
     STATES.remotePlay.config = {
       serverId
-    };
-    window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
-    localRedirect("/launch/fortnite/BT5P2X999VH2#remote-play");
-    RemotePlay.detachPopup();
+    }, window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, localRedirect("/launch/fortnite/BT5P2X999VH2#remote-play"), RemotePlay.detachPopup();
   }
   static preload() {
     RemotePlay.#initialize();
@@ -5888,38 +4864,27 @@ class RemotePlay {
       Toast.show(t("getting-consoles-list"));
       return;
     }
-    RemotePlay.#initialize();
-    if (AppInterface && AppInterface.showRemotePlayDialog) {
-      AppInterface.showRemotePlayDialog(JSON.stringify(RemotePlay.#CONSOLES));
-      document.activeElement.blur();
+    if (RemotePlay.#initialize(), AppInterface && AppInterface.showRemotePlayDialog) {
+      AppInterface.showRemotePlayDialog(JSON.stringify(RemotePlay.#CONSOLES)), document.activeElement.blur();
       return;
     }
     if (document.querySelector(".bx-remote-play-popup")) {
-      if (force === false) {
+      if (force === !1)
         RemotePlay.#$content.classList.add("bx-gone");
-      } else {
+      else
         RemotePlay.#$content.classList.toggle("bx-gone");
-      }
       return;
     }
-    const $header = document.querySelector("#gamepass-root header");
-    const group = $header.firstElementChild.getAttribute("data-group");
-    RemotePlay.#$content.setAttribute("data-group", group);
-    RemotePlay.#$content.classList.add("bx-remote-play-popup");
-    RemotePlay.#$content.classList.remove("bx-gone");
-    $header.insertAdjacentElement("afterend", RemotePlay.#$content);
+    const $header = document.querySelector("#gamepass-root header"), group = $header.firstElementChild.getAttribute("data-group");
+    RemotePlay.#$content.setAttribute("data-group", group), RemotePlay.#$content.classList.add("bx-remote-play-popup"), RemotePlay.#$content.classList.remove("bx-gone"), $header.insertAdjacentElement("afterend", RemotePlay.#$content);
   }
   static detect() {
-    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
+    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED))
       return;
-    }
-    STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play");
-    if (STATES.remotePlay?.isPlaying) {
-      window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config;
-      window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
-    } else {
+    if (STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play"), STATES.remotePlay?.isPlaying)
+      window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
+    else
       window.BX_REMOTE_PLAY_CONFIG = null;
-    }
   }
   static isReady() {
     return RemotePlay.#CONSOLES !== null && RemotePlay.#CONSOLES.length > 0;
@@ -5936,59 +4901,45 @@ var GamePassCloudGallery;
 
 // src/utils/feature-gates.ts
 var FeatureGates = {
-  PwaPrompt: false
+  PwaPrompt: !1
 };
-if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
-  FeatureGates["EnableHomeContextMenu"] = false;
-}
-if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
-  FeatureGates["EnableGuideChatTab"] = false;
-}
-if (BX_FLAGS.FeatureGates) {
+if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED))
+  FeatureGates.EnableHomeContextMenu = !1;
+if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
+  FeatureGates.EnableGuideChatTab = !1;
+if (BX_FLAGS.FeatureGates)
   FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
-}
 
 // src/utils/network.ts
 var clearApplicationInsightsBuffers = function() {
-  window.sessionStorage.removeItem("AI_buffer");
-  window.sessionStorage.removeItem("AI_sentBuffer");
-};
-var clearDbLogs = function(dbName, table) {
+  window.sessionStorage.removeItem("AI_buffer"), window.sessionStorage.removeItem("AI_sentBuffer");
+}, clearDbLogs = function(dbName, table) {
   const request = window.indexedDB.open(dbName);
   request.onsuccess = (e) => {
     const db = e.target.result;
     try {
-      const objectStore = db.transaction(table, "readwrite").objectStore(table);
-      const objectStoreRequest = objectStore.clear();
+      const objectStoreRequest = db.transaction(table, "readwrite").objectStore(table).clear();
       objectStoreRequest.onsuccess = function() {
         console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
       };
     } catch (ex) {
     }
   };
-};
-var clearAllLogs = function() {
-  clearApplicationInsightsBuffers();
-  clearDbLogs("StreamClientLogHandler", "logs");
-  clearDbLogs("XCloudAppLogs", "logs");
-};
-var updateIceCandidates = function(candidates, options) {
-  const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/);
-  const lst = [];
+}, clearAllLogs = function() {
+  clearApplicationInsightsBuffers(), clearDbLogs("StreamClientLogHandler", "logs"), clearDbLogs("XCloudAppLogs", "logs");
+}, updateIceCandidates = function(candidates, options) {
+  const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/), lst = [];
   for (let item2 of candidates) {
-    if (item2.candidate == "a=end-of-candidates") {
+    if (item2.candidate == "a=end-of-candidates")
       continue;
-    }
     const groups = pattern.exec(item2.candidate).groups;
     lst.push(groups);
   }
-  if (options.preferIpv6Server) {
+  if (options.preferIpv6Server)
     lst.sort((a, b) => {
-      const firstIp = a.ip;
-      const secondIp = b.ip;
+      const firstIp = a.ip, secondIp = b.ip;
       return !firstIp.includes(":") && secondIp.includes(":") ? 1 : -1;
     });
-  }
   const newCandidates = [];
   let foundation = 1;
   const newCandidate = (candidate) => {
@@ -5999,115 +4950,83 @@ var updateIceCandidates = function(candidates, options) {
       sdpMid: "0"
     };
   };
-  lst.forEach((item2) => {
-    item2.foundation = foundation;
-    item2.priority = foundation == 1 ? 2130706431 : 1;
-    newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`));
-    ++foundation;
-  });
-  if (options.consoleAddrs) {
-    for (const ip in options.consoleAddrs) {
+  if (lst.forEach((item2) => {
+    item2.foundation = foundation, item2.priority = foundation == 1 ? 2130706431 : 1, newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`)), ++foundation;
+  }), options.consoleAddrs)
+    for (let ip in options.consoleAddrs) {
       const port = options.consoleAddrs[ip];
       newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
     }
-  }
-  newCandidates.push(newCandidate("a=end-of-candidates"));
-  console.log(newCandidates);
-  return newCandidates;
+  return newCandidates.push(newCandidate("a=end-of-candidates")), console.log(newCandidates), newCandidates;
 };
 async function patchIceCandidates(request, consoleAddrs) {
-  const response = await NATIVE_FETCH(request);
-  const text = await response.clone().text();
-  if (!text.length) {
+  const response = await NATIVE_FETCH(request), text = await response.clone().text();
+  if (!text.length)
     return response;
-  }
   const options = {
     preferIpv6Server: getPref(PrefKey.PREFER_IPV6_SERVER),
     consoleAddrs
-  };
-  const obj = JSON.parse(text);
+  }, obj = JSON.parse(text);
   let exchangeResponse = JSON.parse(obj.exchangeResponse);
-  exchangeResponse = updateIceCandidates(exchangeResponse, options);
-  obj.exchangeResponse = JSON.stringify(exchangeResponse);
-  response.json = () => Promise.resolve(obj);
-  response.text = () => Promise.resolve(JSON.stringify(obj));
-  return response;
+  return exchangeResponse = updateIceCandidates(exchangeResponse, options), obj.exchangeResponse = JSON.stringify(exchangeResponse), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
 }
 function interceptHttpRequests() {
   let BLOCKED_URLS = [];
-  if (getPref(PrefKey.BLOCK_TRACKING)) {
-    clearAllLogs();
-    BLOCKED_URLS = BLOCKED_URLS.concat([
+  if (getPref(PrefKey.BLOCK_TRACKING))
+    clearAllLogs(), BLOCKED_URLS = BLOCKED_URLS.concat([
       "https://arc.msn.com",
       "https://browser.events.data.microsoft.com",
       "https://dc.services.visualstudio.com",
       "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
     ]);
-  }
-  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
+  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
     BLOCKED_URLS = BLOCKED_URLS.concat([
       "https://peoplehub.xboxlive.com/users/me/people/social",
       "https://peoplehub.xboxlive.com/users/me/people/recommendations",
       "https://xblmessaging.xboxlive.com/network/xbox/users/me/inbox"
     ]);
-  }
-  const xhrPrototype = XMLHttpRequest.prototype;
-  const nativeXhrOpen = xhrPrototype.open;
-  const nativeXhrSend = xhrPrototype.send;
+  const xhrPrototype = XMLHttpRequest.prototype, nativeXhrOpen = xhrPrototype.open, nativeXhrSend = xhrPrototype.send;
   xhrPrototype.open = function(method, url) {
-    this._url = url;
-    return nativeXhrOpen.apply(this, arguments);
-  };
-  xhrPrototype.send = function(...arg) {
-    for (const blocked of BLOCKED_URLS) {
+    return this._url = url, nativeXhrOpen.apply(this, arguments);
+  }, xhrPrototype.send = function(...arg) {
+    for (let blocked of BLOCKED_URLS)
       if (this._url.startsWith(blocked)) {
-        if (blocked === "https://dc.services.visualstudio.com") {
+        if (blocked === "https://dc.services.visualstudio.com")
           window.setTimeout(clearAllLogs, 1000);
-        }
-        return false;
+        return !1;
       }
-    }
     return nativeXhrSend.apply(this, arguments);
   };
   let gamepassAllGames = [];
   window.BX_FETCH = window.fetch = async (request, init) => {
     let url = typeof request === "string" ? request : request.url;
     for (let blocked of BLOCKED_URLS) {
-      if (!url.startsWith(blocked)) {
+      if (!url.startsWith(blocked))
         continue;
-      }
       return new Response('{"acc":1,"webResult":{}}', {
         status: 200,
         statusText: "200 OK"
       });
     }
-    if (url.endsWith("/play")) {
+    if (url.endsWith("/play"))
       BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
-    }
-    if (url.endsWith("/configuration")) {
+    if (url.endsWith("/configuration"))
       BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
-    }
-    if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation")) {
+    if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation"))
       try {
-        const response = await NATIVE_FETCH(request, init);
-        const json = await response.json();
-        for (const key in FeatureGates) {
+        const response = await NATIVE_FETCH(request, init), json = await response.json();
+        for (let key in FeatureGates)
           json.exp.treatments[key] = FeatureGates[key];
-        }
-        response.json = () => Promise.resolve(json);
-        return response;
+        return response.json = () => Promise.resolve(json), response;
       } catch (e) {
         console.log(e);
       }
-    }
     if (STATES.userAgentHasTouchSupport && url.includes("catalog.gamepass.com/sigls/")) {
-      const response = await NATIVE_FETCH(request, init);
-      const obj = await response.clone().json();
-      if (url.includes(GamePassCloudGallery.ALL)) {
-        for (let i = 1;i < obj.length; i++) {
+      const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
+      if (url.includes(GamePassCloudGallery.ALL))
+        for (let i = 1;i < obj.length; i++)
           gamepassAllGames.push(obj[i].id);
-        }
-      } else if (url.includes(GamePassCloudGallery.TOUCH)) {
+      else if (url.includes(GamePassCloudGallery.TOUCH))
         try {
           let customList = TouchController.getCustomList();
           customList = customList.filter((id2) => gamepassAllGames.includes(id2));
@@ -6116,31 +5035,25 @@ function interceptHttpRequests() {
         } catch (e) {
           console.log(e);
         }
-      }
-      response.json = () => Promise.resolve(obj);
-      return response;
+      return response.json = () => Promise.resolve(obj), response;
     }
     if (BX_FLAGS.ForceNativeMkbTitles && url.includes("catalog.gamepass.com/sigls/") && url.includes(GamePassCloudGallery.NATIVE_MKB)) {
-      const response = await NATIVE_FETCH(request, init);
-      const obj = await response.clone().json();
+      const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
       try {
         const newCustomList = BX_FLAGS.ForceNativeMkbTitles.map((item2) => ({ id: item2 }));
         obj.push(...newCustomList);
       } catch (e) {
         console.log(e);
       }
-      response.json = () => Promise.resolve(obj);
-      return response;
+      return response.json = () => Promise.resolve(obj), response;
     }
     let requestType;
-    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs")) {
+    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs"))
       requestType = RequestType.XHOME;
-    } else {
+    else
       requestType = RequestType.XCLOUD;
-    }
-    if (requestType === RequestType.XHOME) {
+    if (requestType === RequestType.XHOME)
       return XhomeInterceptor.handle(request);
-    }
     return XcloudInterceptor.handle(request, init);
   };
 }
@@ -6154,10 +5067,8 @@ class XhomeInterceptor {
   static #consoleAddrs = {};
   static async#handleLogin(request) {
     try {
-      const clone = request.clone();
-      const obj = await clone.json();
-      obj.offeringId = "xhome";
-      request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
+      const obj = await request.clone().json();
+      obj.offeringId = "xhome", request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
         method: "POST",
         body: JSON.stringify(obj),
         headers: {
@@ -6165,33 +5076,25 @@ class XhomeInterceptor {
         }
       });
     } catch (e) {
-      alert(e);
-      console.log(e);
+      alert(e), console.log(e);
     }
     return NATIVE_FETCH(request);
   }
   static async#handleConfiguration(request) {
-    const response = await NATIVE_FETCH(request);
-    const obj = await response.clone().json();
+    const response = await NATIVE_FETCH(request), obj = await response.clone().json();
     console.log(obj);
     const serverDetails = obj.serverDetails;
-    if (serverDetails.ipV4Address) {
+    if (serverDetails.ipV4Address)
       XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
-    }
-    if (serverDetails.ipV6Address) {
+    if (serverDetails.ipV6Address)
       XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
-    }
-    response.json = () => Promise.resolve(obj);
-    response.text = () => Promise.resolve(JSON.stringify(obj));
-    return response;
+    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async#handleInputConfigs(request, opts) {
     const response = await NATIVE_FETCH(request);
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "all") {
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "all")
       return response;
-    }
-    const obj = await response.clone().json();
-    const xboxTitleId = JSON.parse(opts.body).titleIds[0];
+    const obj = await response.clone().json(), xboxTitleId = JSON.parse(opts.body).titleIds[0];
     STATES.currentStream.xboxTitleId = xboxTitleId;
     const inputConfigs = obj[0];
     let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
@@ -6199,62 +5102,48 @@ class XhomeInterceptor {
       const supportedInputTypes = inputConfigs.supportedInputTypes;
       hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
     }
-    if (hasTouchSupport) {
-      TouchController.disable();
-      BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+    if (hasTouchSupport)
+      TouchController.disable(), BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
         data: null
       });
-    } else {
-      TouchController.enable();
-      TouchController.getCustomLayouts(xboxTitleId);
-    }
-    response.json = () => Promise.resolve(obj);
-    response.text = () => Promise.resolve(JSON.stringify(obj));
-    return response;
+    else
+      TouchController.enable(), TouchController.getCustomLayouts(xboxTitleId);
+    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async#handleTitles(request) {
-    const clone = request.clone();
-    const headers = {};
-    for (const pair of clone.headers.entries()) {
+    const clone = request.clone(), headers = {};
+    for (let pair of clone.headers.entries())
       headers[pair[0]] = pair[1];
-    }
     headers.authorization = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
     const index = request.url.indexOf(".xboxlive.com");
-    request = new Request("https://wus.core.gssv-play-prod" + request.url.substring(index), {
+    return request = new Request("https://wus.core.gssv-play-prod" + request.url.substring(index), {
       method: clone.method,
       body: await clone.text(),
       headers
-    });
-    return NATIVE_FETCH(request);
+    }), NATIVE_FETCH(request);
   }
   static async#handlePlay(request) {
-    const clone = request.clone();
-    const body = await clone.json();
-    const newRequest = new Request(request, {
+    const body = await request.clone().json(), newRequest = new Request(request, {
       body: JSON.stringify(body)
     });
     return NATIVE_FETCH(newRequest);
   }
   static async handle(request) {
     TouchController.disable();
-    const clone = request.clone();
-    const headers = {};
-    for (const pair of clone.headers.entries()) {
+    const clone = request.clone(), headers = {};
+    for (let pair of clone.headers.entries())
       headers[pair[0]] = pair[1];
-    }
     headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
     const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
-    if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === "720p") {
+    if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === "720p")
       deviceInfo.dev.os.name = "android";
-    }
     headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
     const opts = {
       method: clone.method,
       headers
     };
-    if (clone.method === "POST") {
+    if (clone.method === "POST")
       opts.body = await clone.text();
-    }
     let newUrl = request.url;
     if (!newUrl.includes("/servers/home")) {
       const index = request.url.indexOf(".xboxlive.com");
@@ -6262,29 +5151,26 @@ class XhomeInterceptor {
     }
     request = new Request(newUrl, opts);
     let url = typeof request === "string" ? request : request.url;
-    if (url.includes("/configuration")) {
+    if (url.includes("/configuration"))
       return XhomeInterceptor.#handleConfiguration(request);
-    } else if (url.endsWith("/sessions/home/play")) {
+    else if (url.endsWith("/sessions/home/play"))
       return XhomeInterceptor.#handlePlay(request);
-    } else if (url.includes("inputconfigs")) {
+    else if (url.includes("inputconfigs"))
       return XhomeInterceptor.#handleInputConfigs(request, opts);
-    } else if (url.includes("/login/user")) {
+    else if (url.includes("/login/user"))
       return XhomeInterceptor.#handleLogin(request);
-    } else if (url.endsWith("/titles")) {
+    else if (url.endsWith("/titles"))
       return XhomeInterceptor.#handleTitles(request);
-    } else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") {
+    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
       return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
-    }
     return await NATIVE_FETCH(request);
   }
 }
 
 class XcloudInterceptor {
   static async#handleLogin(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    const obj = await response.clone().json();
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
-    RemotePlay.XCLOUD_TOKEN = obj.gsToken;
+    const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
+    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload(), RemotePlay.XCLOUD_TOKEN = obj.gsToken;
     const serverEmojis = {
       AustraliaEast: "🇦🇺",
       AustraliaSouthEast: "🇦🇺",
@@ -6300,36 +5186,26 @@ class XcloudInterceptor {
       WestEurope: "🇪🇺",
       WestUS: "🇺🇸",
       WestUS2: "🇺🇸"
-    };
-    const serverRegex = /\/\/(\w+)\./;
+    }, serverRegex = /\/\/(\w+)\./;
     for (let region3 of obj.offeringSettings.regions) {
       const regionName = region3.name;
-      let shortName = region3.name;
-      let match = serverRegex.exec(region3.baseUri);
+      let shortName = region3.name, match = serverRegex.exec(region3.baseUri);
       if (match) {
-        shortName = match[1];
-        if (serverEmojis[regionName]) {
+        if (shortName = match[1], serverEmojis[regionName])
           shortName = serverEmojis[regionName] + " " + shortName;
-        }
       }
-      region3.shortName = shortName.toUpperCase();
-      STATES.serverRegions[region3.name] = Object.assign({}, region3);
+      region3.shortName = shortName.toUpperCase(), STATES.serverRegions[region3.name] = Object.assign({}, region3);
     }
     BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
     const preferredRegion = getPreferredServerRegion();
     if (preferredRegion in STATES.serverRegions) {
       const tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
-      tmp.isDefault = true;
-      obj.offeringSettings.regions = [tmp];
+      tmp.isDefault = !0, obj.offeringSettings.regions = [tmp];
     }
-    response.json = () => Promise.resolve(obj);
-    return response;
+    return response.json = () => Promise.resolve(obj), response;
   }
   static async#handlePlay(request, init) {
-    const PREF_STREAM_TARGET_RESOLUTION = getPref(PrefKey.STREAM_TARGET_RESOLUTION);
-    const PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE);
-    const url = typeof request === "string" ? request : request.url;
-    const parsedUrl = new URL(url);
+    const PREF_STREAM_TARGET_RESOLUTION = getPref(PrefKey.STREAM_TARGET_RESOLUTION), PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url);
     let badgeRegion = parsedUrl.host.split(".", 1)[0];
     for (let regionName in STATES.serverRegions) {
       const region3 = STATES.serverRegions[regionName];
@@ -6339,15 +5215,13 @@ class XcloudInterceptor {
       }
     }
     StreamBadges.getInstance().setRegion(badgeRegion);
-    const clone = request.clone();
-    const body = await clone.json();
+    const body = await request.clone().json();
     if (PREF_STREAM_TARGET_RESOLUTION !== "auto") {
       const osName = PREF_STREAM_TARGET_RESOLUTION === "720p" ? "android" : "windows";
       body.settings.osName = osName;
     }
-    if (PREF_STREAM_PREFERRED_LOCALE !== "default") {
+    if (PREF_STREAM_PREFERRED_LOCALE !== "default")
       body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
-    }
     const newRequest = new Request(request, {
       body: JSON.stringify(body)
     });
@@ -6357,98 +5231,73 @@ class XcloudInterceptor {
     const response = await NATIVE_FETCH(request, init);
     if (getPref(PrefKey.UI_LOADING_SCREEN_WAIT_TIME)) {
       const json = await response.clone().json();
-      if (json.estimatedAllocationTimeInSeconds > 0) {
+      if (json.estimatedAllocationTimeInSeconds > 0)
         LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
-      }
     }
     return response;
   }
   static async#handleConfiguration(request, init) {
-    if (request.method !== "GET") {
+    if (request.method !== "GET")
       return NATIVE_FETCH(request, init);
-    }
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
-      const titleInfo = STATES.currentStream.titleInfo;
-      if (titleInfo?.details.hasTouchSupport) {
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all")
+      if (STATES.currentStream.titleInfo?.details.hasTouchSupport)
         TouchController.disable();
-      } else {
+      else
         TouchController.enable();
-      }
-    }
-    const response = await NATIVE_FETCH(request, init);
-    const text = await response.clone().text();
-    if (!text.length) {
+    const response = await NATIVE_FETCH(request, init), text = await response.clone().text();
+    if (!text.length)
       return response;
-    }
     const obj = JSON.parse(text);
     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
-    overrides.inputConfiguration = overrides.inputConfiguration || {};
-    overrides.inputConfiguration.enableVibration = true;
+    overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
     let overrideMkb = null;
-    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" || BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId)) {
-      overrideMkb = true;
-    }
-    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off") {
-      overrideMkb = false;
-    }
-    if (overrideMkb !== null) {
+    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" || BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId))
+      overrideMkb = !0;
+    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off")
+      overrideMkb = !1;
+    if (overrideMkb !== null)
       overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
         enableMouseInput: overrideMkb,
         enableKeyboardInput: overrideMkb
       });
-    }
-    overrides.videoConfiguration = overrides.videoConfiguration || {};
-    overrides.videoConfiguration.setCodecPreferences = true;
-    if (TouchController.isEnabled()) {
-      overrides.inputConfiguration.enableTouchInput = true;
-      overrides.inputConfiguration.maxTouchPoints = 10;
-    }
-    if (getPref(PrefKey.AUDIO_MIC_ON_PLAYING)) {
-      overrides.audioConfiguration = overrides.audioConfiguration || {};
-      overrides.audioConfiguration.enableMicrophone = true;
-    }
-    obj.clientStreamingConfigOverrides = JSON.stringify(overrides);
-    response.json = () => Promise.resolve(obj);
-    response.text = () => Promise.resolve(JSON.stringify(obj));
-    return response;
+    if (overrides.videoConfiguration = overrides.videoConfiguration || {}, overrides.videoConfiguration.setCodecPreferences = !0, TouchController.isEnabled())
+      overrides.inputConfiguration.enableTouchInput = !0, overrides.inputConfiguration.maxTouchPoints = 10;
+    if (getPref(PrefKey.AUDIO_MIC_ON_PLAYING))
+      overrides.audioConfiguration = overrides.audioConfiguration || {}, overrides.audioConfiguration.enableMicrophone = !0;
+    return obj.clientStreamingConfigOverrides = JSON.stringify(overrides), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async handle(request, init) {
     let url = typeof request === "string" ? request : request.url;
-    if (url.endsWith("/v2/login/user")) {
+    if (url.endsWith("/v2/login/user"))
       return XcloudInterceptor.#handleLogin(request, init);
-    } else if (url.endsWith("/sessions/cloud/play")) {
+    else if (url.endsWith("/sessions/cloud/play"))
       return XcloudInterceptor.#handlePlay(request, init);
-    } else if (url.includes("xboxlive.com") && url.includes("/waittime/")) {
+    else if (url.includes("xboxlive.com") && url.includes("/waittime/"))
       return XcloudInterceptor.#handleWaitTime(request, init);
-    } else if (url.endsWith("/configuration")) {
+    else if (url.endsWith("/configuration"))
       return XcloudInterceptor.#handleConfiguration(request, init);
-    } else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") {
+    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
       return patchIceCandidates(request);
-    }
     return NATIVE_FETCH(request, init);
   }
 }
 
 // src/utils/gamepad.ts
 function showGamepadToast(gamepad) {
-  if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) {
+  if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
     return;
-  }
   BxLogger.info("Gamepad", gamepad);
   let text = "🎮";
-  if (getPref(PrefKey.LOCAL_CO_OP_ENABLED)) {
+  if (getPref(PrefKey.LOCAL_CO_OP_ENABLED))
     text += ` #${gamepad.index + 1}`;
-  }
   const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, "");
   text += ` - ${gamepadId}`;
   let status;
-  if (gamepad.connected) {
-    const supportVibration = !!gamepad.vibrationActuator;
-    status = (supportVibration ? "✅" : "❌") + " " + t("vibration-status");
-  } else {
+  if (gamepad.connected)
+    status = (gamepad.vibrationActuator ? "✅" : "❌") + " " + t("vibration-status");
+  else
     status = t("disconnected");
-  }
-  Toast.show(text, status, { instant: false });
+  Toast.show(text, status, { instant: !1 });
 }
 
 // src/utils/css.ts
@@ -7761,7 +6610,7 @@ div[class^=StreamMenu-module__container] .bx-badges {
   margin-top: 0;
 }
 `;
-  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
+  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
     css += `
 /* Hide "Play with friends" section */
 div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
@@ -7772,8 +6621,7 @@ button[class*=SocialEmptyCard],
     display: none;
 }
 `;
-  }
-  if (getPref(PrefKey.REDUCE_ANIMATIONS)) {
+  if (getPref(PrefKey.REDUCE_ANIMATIONS))
     css += `
 div[class*=GameCard-module__gameTitleInnerWrapper],
 div[class*=GameCard-module__card],
@@ -7781,8 +6629,7 @@ div[class*=ScrollArrows-module] {
     transition: none !important;
 }
 `;
-  }
-  if (getPref(PrefKey.HIDE_DOTS_ICON)) {
+  if (getPref(PrefKey.HIDE_DOTS_ICON))
     css += `
 div[class*=Grip-module__container] {
     visibility: hidden;
@@ -7806,13 +6653,11 @@ div[class*=StreamHUD-module__buttonsContainer] {
     padding: 0px !important;
 }
 `;
-  }
-  css += `
+  if (css += `
 div[class*=StreamMenu-module__menu] {
     min-width: 100vw !important;
 }
-`;
-  if (getPref(PrefKey.STREAM_SIMPLIFY_MENU)) {
+`, getPref(PrefKey.STREAM_SIMPLIFY_MENU))
     css += `
 div[class*=Menu-module__scrollable] {
     --bxStreamMenuItemSize: 80px;
@@ -7845,7 +6690,7 @@ svg[class*=MenuItem-module__icon] {
     margin: 0 !important;
 }
 `;
-  } else {
+  else
     css += `
 body[data-media-type=tv] .bx-badges {
     top: calc(var(--streamMenuItemSize) + 30px);
@@ -7869,8 +6714,7 @@ body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
     margin-right: 8px !important;
 }
 `;
-  }
-  if (getPref(PrefKey.UI_SCROLLBAR_HIDE)) {
+  if (getPref(PrefKey.UI_SCROLLBAR_HIDE))
     css += `
 html {
     scrollbar-width: none;
@@ -7880,7 +6724,6 @@ body::-webkit-scrollbar {
     display: none;
 }
 `;
-  }
   const $style = CE("style", {}, css);
   document.documentElement.appendChild($style);
 }
@@ -7888,29 +6731,21 @@ body::-webkit-scrollbar {
 // src/modules/mkb/mouse-cursor-hider.ts
 class MouseCursorHider {
   static #timeout;
-  static #cursorVisible = true;
+  static #cursorVisible = !0;
   static show() {
-    document.body && (document.body.style.cursor = "unset");
-    MouseCursorHider.#cursorVisible = true;
+    document.body && (document.body.style.cursor = "unset"), MouseCursorHider.#cursorVisible = !0;
   }
   static hide() {
-    document.body && (document.body.style.cursor = "none");
-    MouseCursorHider.#timeout = null;
-    MouseCursorHider.#cursorVisible = false;
+    document.body && (document.body.style.cursor = "none"), MouseCursorHider.#timeout = null, MouseCursorHider.#cursorVisible = !1;
   }
   static onMouseMove(e) {
-    !MouseCursorHider.#cursorVisible && MouseCursorHider.show();
-    MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout);
-    MouseCursorHider.#timeout = window.setTimeout(MouseCursorHider.hide, 3000);
+    !MouseCursorHider.#cursorVisible && MouseCursorHider.show(), MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout), MouseCursorHider.#timeout = window.setTimeout(MouseCursorHider.hide, 3000);
   }
   static start() {
-    MouseCursorHider.show();
-    document.addEventListener("mousemove", MouseCursorHider.onMouseMove);
+    MouseCursorHider.show(), document.addEventListener("mousemove", MouseCursorHider.onMouseMove);
   }
   static stop() {
-    MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout);
-    document.removeEventListener("mousemove", MouseCursorHider.onMouseMove);
-    MouseCursorHider.show();
+    MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout), document.removeEventListener("mousemove", MouseCursorHider.onMouseMove), MouseCursorHider.show();
   }
 }
 
@@ -7933,32 +6768,23 @@ var remote_play_keep_alive_default = "const msg = JSON.parse(e);\nif (msg.reason
 var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity === 0) {\n    return void(0);\n}\n\nif (intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
 
 // src/modules/patcher.ts
-var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks";
-var LOG_TAG5 = "Patcher";
-var PATCHES = {
+var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG5 = "Patcher", PATCHES = {
   disableAiTrack(str2) {
-    const text = ".track=function(";
-    const index = str2.indexOf(text);
-    if (index === -1) {
-      return false;
-    }
-    if (str2.substring(0, index + 200).includes('"AppInsightsCore')) {
-      return false;
-    }
-    return str2.substring(0, index) + ".track=function(e){},!!function(" + str2.substring(index + text.length);
+    const index = str2.indexOf(".track=function(");
+    if (index === -1)
+      return !1;
+    if (str2.substring(0, index + 200).includes('"AppInsightsCore'))
+      return !1;
+    return str2.substring(0, index) + ".track=function(e){},!!function(" + str2.substring(index + ".track=function(".length);
   },
   disableTelemetry(str2) {
-    const text = ".disableTelemetry=function(){return!1}";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    return str2.replace(text, ".disableTelemetry=function(){return!0}");
+    if (!str2.includes(".disableTelemetry=function(){return!1}"))
+      return !1;
+    return str2.replace(".disableTelemetry=function(){return!1}", ".disableTelemetry=function(){return!0}");
   },
   disableTelemetryProvider(str2) {
-    const text = "this.enableLightweightTelemetry=!";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes("this.enableLightweightTelemetry=!"))
+      return !1;
     const newCode = [
       "this.trackEvent",
       "this.trackPageView",
@@ -7969,89 +6795,69 @@ var PATCHES = {
       "this.onTrackEvent",
       "()=>{}"
     ].join("=");
-    return str2.replace(text, newCode + ";" + text);
+    return str2.replace("this.enableLightweightTelemetry=!", newCode + ";this.enableLightweightTelemetry=!");
   },
   disableIndexDbLogging(str2) {
-    const text = ",this.logsDb=new";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes(",this.logsDb=new"))
+      return !1;
     let newCode = ",this.log=()=>{}";
-    return str2.replace(text, newCode + text);
+    return str2.replace(",this.logsDb=new", newCode + ",this.logsDb=new");
   },
   websiteLayout(str2) {
-    const text = '?"tv":"default"';
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes('?"tv":"default"'))
+      return !1;
     const layout = getPref(PrefKey.UI_LAYOUT) === "tv" ? "tv" : "default";
-    return str2.replace(text, `?"${layout}":"${layout}"`);
+    return str2.replace('?"tv":"default"', `?"${layout}":"${layout}"`);
   },
   remotePlayDirectConnectUrl(str2) {
     const index = str2.indexOf("/direct-connect");
-    if (index === -1) {
-      return false;
-    }
+    if (index === -1)
+      return !1;
     return str2.replace(str2.substring(index - 9, index + 15), "https://www.xbox.com/play");
   },
   remotePlayKeepAlive(str2) {
-    const text = "onServerDisconnectMessage(e){";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replace(text, text + remote_play_keep_alive_default);
-    return str2;
+    if (!str2.includes("onServerDisconnectMessage(e){"))
+      return !1;
+    return str2 = str2.replace("onServerDisconnectMessage(e){", "onServerDisconnectMessage(e){" + remote_play_keep_alive_default), str2;
   },
   remotePlayConnectMode(str2) {
-    const text = 'connectMode:"cloud-connect",';
-    if (!str2.includes(text)) {
-      return false;
-    }
-    return str2.replace(text, remote_play_enable_default);
+    if (!str2.includes('connectMode:"cloud-connect",'))
+      return !1;
+    return str2.replace('connectMode:"cloud-connect",', remote_play_enable_default);
   },
   remotePlayDisableAchievementToast(str2) {
-    const text = ".AchievementUnlock:{";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes(".AchievementUnlock:{"))
+      return !1;
     const newCode = `
 if (!!window.BX_REMOTE_PLAY_CONFIG) {
     return;
 }
 `;
-    return str2.replace(text, text + newCode);
+    return str2.replace(".AchievementUnlock:{", ".AchievementUnlock:{" + newCode);
   },
   disableTrackEvent(str2) {
-    const text = "this.trackEvent=";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    return str2.replace(text, "this.trackEvent=e=>{},this.uwuwu=");
+    if (!str2.includes("this.trackEvent="))
+      return !1;
+    return str2.replace("this.trackEvent=", "this.trackEvent=e=>{},this.uwuwu=");
   },
   blockWebRtcStatsCollector(str2) {
-    const text = "this.shouldCollectStats=!0";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    return str2.replace(text, "this.shouldCollectStats=!1");
+    if (!str2.includes("this.shouldCollectStats=!0"))
+      return !1;
+    return str2.replace("this.shouldCollectStats=!0", "this.shouldCollectStats=!1");
   },
   patchPollGamepads(str2) {
     const index = str2.indexOf("},this.pollGamepads=()=>{");
-    if (index === -1) {
-      return false;
-    }
+    if (index === -1)
+      return !1;
     const nextIndex = str2.indexOf("setTimeout(this.pollGamepads", index);
-    if (nextIndex === -1) {
-      return false;
-    }
+    if (nextIndex === -1)
+      return !1;
     let codeBlock = str2.substring(index, nextIndex);
-    if (getPref(PrefKey.BLOCK_TRACKING)) {
+    if (getPref(PrefKey.BLOCK_TRACKING))
       codeBlock = codeBlock.replaceAll("this.inputPollingIntervalStats.addValue", "");
-    }
     const match = codeBlock.match(/this\.gamepadTimestamps\.set\((\w+)\.index/);
     if (match) {
-      const gamepadVar = match[1];
-      const newCode = renderString(controller_shortcuts_default, {
+      const gamepadVar = match[1], newCode = renderString(controller_shortcuts_default, {
         gamepadVar
       });
       codeBlock = codeBlock.replace("this.gamepadTimestamps.set", newCode + "this.gamepadTimestamps.set");
@@ -8059,138 +6865,101 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     return str2.substring(0, index) + codeBlock + str2.substring(nextIndex);
   },
   enableXcloudLogger(str2) {
-    const text = "this.telemetryProvider=e}log(e,t,i){";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replaceAll(text, text + "console.log(Array.from(arguments));");
-    return str2;
+    if (!str2.includes("this.telemetryProvider=e}log(e,t,i){"))
+      return !1;
+    return str2 = str2.replaceAll("this.telemetryProvider=e}log(e,t,i){", "this.telemetryProvider=e}log(e,t,i){console.log(Array.from(arguments));"), str2;
   },
   enableConsoleLogging(str2) {
-    const text = "static isConsoleLoggingAllowed(){";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replaceAll(text, text + "return true;");
-    return str2;
+    if (!str2.includes("static isConsoleLoggingAllowed(){"))
+      return !1;
+    return str2 = str2.replaceAll("static isConsoleLoggingAllowed(){", "static isConsoleLoggingAllowed(){return true;"), str2;
   },
   playVibration(str2) {
-    const text = "}playVibration(e){";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    VibrationManager.updateGlobalVars();
-    str2 = str2.replaceAll(text, text + vibration_adjust_default);
-    return str2;
+    if (!str2.includes("}playVibration(e){"))
+      return !1;
+    return VibrationManager.updateGlobalVars(), str2 = str2.replaceAll("}playVibration(e){", "}playVibration(e){" + vibration_adjust_default), str2;
   },
   overrideSettings(str2) {
     const index = str2.indexOf(",EnableStreamGate:");
-    if (index === -1) {
-      return false;
-    }
+    if (index === -1)
+      return !1;
     const endIndex = str2.indexOf("},", index);
     let newSettings = JSON.stringify(FeatureGates);
     newSettings = newSettings.substring(1, newSettings.length - 1);
     const newCode = newSettings;
-    str2 = str2.substring(0, endIndex) + "," + newCode + str2.substring(endIndex);
-    return str2;
+    return str2 = str2.substring(0, endIndex) + "," + newCode + str2.substring(endIndex), str2;
   },
   disableGamepadDisconnectedScreen(str2) {
     const index = str2.indexOf('"GamepadDisconnected_Title",');
-    if (index === -1) {
-      return false;
-    }
+    if (index === -1)
+      return !1;
     const constIndex = str2.indexOf("const", index - 30);
-    str2 = str2.substring(0, constIndex) + "e.onClose();return null;" + str2.substring(constIndex);
-    return str2;
+    return str2 = str2.substring(0, constIndex) + "e.onClose();return null;" + str2.substring(constIndex), str2;
   },
   patchUpdateInputConfigurationAsync(str2) {
-    const text = "async updateInputConfigurationAsync(e){";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes("async updateInputConfigurationAsync(e){"))
+      return !1;
     const newCode = "e.enableTouchInput = true;";
-    str2 = str2.replace(text, text + newCode);
-    return str2;
+    return str2 = str2.replace("async updateInputConfigurationAsync(e){", "async updateInputConfigurationAsync(e){" + newCode), str2;
   },
   loadingEndingChunks(str2) {
-    const text = '"FamilySagaManager"';
-    if (!str2.includes(text)) {
-      return false;
-    }
-    BxLogger.info(LOG_TAG5, "Remaining patches:", PATCH_ORDERS);
-    PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS);
-    return str2;
+    if (!str2.includes('"FamilySagaManager"'))
+      return !1;
+    return BxLogger.info(LOG_TAG5, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str2;
   },
   disableStreamGate(str2) {
     const index = str2.indexOf('case"partially-ready":');
-    if (index === -1) {
-      return false;
-    }
+    if (index === -1)
+      return !1;
     const bracketIndex = str2.indexOf("=>{", index - 150) + 3;
-    str2 = str2.substring(0, bracketIndex) + "return 0;" + str2.substring(bracketIndex);
-    return str2;
+    return str2 = str2.substring(0, bracketIndex) + "return 0;" + str2.substring(bracketIndex), str2;
   },
   exposeTouchLayoutManager(str2) {
-    const text = "this._perScopeLayoutsStream=new";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes("this._perScopeLayoutsStream=new"))
+      return !1;
     const newCode = `
 true;
 window.BX_EXPOSED["touchLayoutManager"] = this;
 window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
 `;
-    str2 = str2.replace(text, newCode + text);
-    return str2;
+    return str2 = str2.replace("this._perScopeLayoutsStream=new", newCode + "this._perScopeLayoutsStream=new"), str2;
   },
   patchBabylonRendererClass(str2) {
     let index = str2.indexOf(".current.render(),");
-    if (index === -1) {
-      return false;
-    }
+    if (index === -1)
+      return !1;
     index -= 1;
-    const rendererVar = str2[index];
     const newCode = `
 if (window.BX_EXPOSED.stopTakRendering) {
     try {
         document.getElementById('BabylonCanvasContainer-main')?.parentElement.classList.add('bx-offscreen');
 
-        ${rendererVar}.current.dispose();
+        ${str2[index]}.current.dispose();
     } catch (e) {}
 
     window.BX_EXPOSED.stopTakRendering = false;
     return;
 }
 `;
-    str2 = str2.substring(0, index) + newCode + str2.substring(index);
-    return str2;
+    return str2 = str2.substring(0, index) + newCode + str2.substring(index), str2;
   },
   supportLocalCoOp(str2) {
-    const text = "this.gamepadMappingsToSend=[],";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes("this.gamepadMappingsToSend=[],"))
+      return !1;
     const newCode = `true; ${local_co_op_enable_default}; true,`;
-    str2 = str2.replace(text, text + newCode);
-    return str2;
+    return str2 = str2.replace("this.gamepadMappingsToSend=[],", "this.gamepadMappingsToSend=[]," + newCode), str2;
   },
   forceFortniteConsole(str2) {
-    const text = "sendTouchInputEnabledMessage(e){";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    const newCode = `window.location.pathname.includes('/launch/fortnite/') && (e = false);`;
-    str2 = str2.replace(text, text + newCode);
-    return str2;
+    if (!str2.includes("sendTouchInputEnabledMessage(e){"))
+      return !1;
+    const newCode = "window.location.pathname.includes('/launch/fortnite/') && (e = false);";
+    return str2 = str2.replace("sendTouchInputEnabledMessage(e){", "sendTouchInputEnabledMessage(e){" + newCode), str2;
   },
   disableTakRenderer(str2) {
-    const text = "const{TakRenderer:";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes("const{TakRenderer:"))
+      return !1;
     let remotePlayCode = "";
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF))
       remotePlayCode = `
 const gamepads = window.navigator.getGamepads();
 let gamepadFound = false;
@@ -8206,7 +6975,6 @@ if (gamepadFound) {
     return;
 }
 `;
-    }
     const newCode = `
 if (!!window.BX_REMOTE_PLAY_CONFIG) {
     ${remotePlayCode}
@@ -8217,71 +6985,51 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     }
 }
 `;
-    str2 = str2.replace(text, newCode + text);
-    return str2;
+    return str2 = str2.replace("const{TakRenderer:", newCode + "const{TakRenderer:"), str2;
   },
   streamCombineSources(str2) {
-    const text = "this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replace(text, "this.useCombinedAudioVideoStream=true");
-    return str2;
+    if (!str2.includes("this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen"))
+      return !1;
+    return str2 = str2.replace("this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen", "this.useCombinedAudioVideoStream=true"), str2;
   },
   patchStreamHud(str2) {
-    const text = "let{onCollapse";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes("let{onCollapse"))
+      return !1;
     let newCode = `
 // Expose onShowStreamMenu
 window.BX_EXPOSED.showStreamMenu = e.onShowStreamMenu;
 // Restore the "..." button
 e.guideUI = null;
 `;
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off") {
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off")
       newCode += "e.canShowTakHUD = false;";
-    }
-    str2 = str2.replace(text, newCode + text);
-    return str2;
+    return str2 = str2.replace("let{onCollapse", newCode + "let{onCollapse"), str2;
   },
   broadcastPollingMode(str2) {
-    const text = ".setPollingMode=e=>{";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes(".setPollingMode=e=>{"))
+      return !1;
     const newCode = `
 BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
 `;
-    str2 = str2.replace(text, text + newCode);
-    return str2;
+    return str2 = str2.replace(".setPollingMode=e=>{", ".setPollingMode=e=>{" + newCode), str2;
   },
   patchXcloudTitleInfo(str2) {
-    const text = "async cloudConnect";
-    let index = str2.indexOf(text);
-    if (index === -1) {
-      return false;
-    }
+    let index = str2.indexOf("async cloudConnect");
+    if (index === -1)
+      return !1;
     let backetIndex = str2.indexOf("{", index);
-    const params = str2.substring(index, backetIndex).match(/\(([^)]+)\)/)[1];
-    const titleInfoVar = params.split(",")[0];
-    const newCode = `
+    const titleInfoVar = str2.substring(index, backetIndex).match(/\(([^)]+)\)/)[1].split(",")[0], newCode = `
 ${titleInfoVar} = window.BX_EXPOSED.modifyTitleInfo(${titleInfoVar});
 BxLogger.info('patchXcloudTitleInfo', ${titleInfoVar});
 `;
-    str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1);
-    return str2;
+    return str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1), str2;
   },
   patchRemotePlayMkb(str2) {
-    const text = "async homeConsoleConnect";
-    let index = str2.indexOf(text);
-    if (index === -1) {
-      return false;
-    }
+    let index = str2.indexOf("async homeConsoleConnect");
+    if (index === -1)
+      return !1;
     let backetIndex = str2.indexOf("{", index);
-    const params = str2.substring(index, backetIndex).match(/\(([^)]+)\)/)[1];
-    const configsVar = params.split(",")[1];
-    const newCode = `
+    const configsVar = str2.substring(index, backetIndex).match(/\(([^)]+)\)/)[1].split(",")[1], newCode = `
 Object.assign(${configsVar}.inputConfiguration, {
     enableMouseInput: false,
     enableKeyboardInput: false,
@@ -8289,100 +7037,67 @@ Object.assign(${configsVar}.inputConfiguration, {
 });
 BxLogger.info('patchRemotePlayMkb', ${configsVar});
 `;
-    str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1);
-    return str2;
+    return str2 = str2.substring(0, backetIndex + 1) + newCode + str2.substring(backetIndex + 1), str2;
   },
   patchAudioMediaStream(str2) {
-    const text = ".srcObject=this.audioMediaStream,";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    const newCode = `window.BX_EXPOSED.setupGainNode(arguments[1], this.audioMediaStream),`;
-    str2 = str2.replace(text, text + newCode);
-    return str2;
+    if (!str2.includes(".srcObject=this.audioMediaStream,"))
+      return !1;
+    const newCode = "window.BX_EXPOSED.setupGainNode(arguments[1], this.audioMediaStream),";
+    return str2 = str2.replace(".srcObject=this.audioMediaStream,", ".srcObject=this.audioMediaStream," + newCode), str2;
   },
   patchCombinedAudioVideoMediaStream(str2) {
-    const text = ".srcObject=this.combinedAudioVideoStream";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    const newCode = `,window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)`;
-    str2 = str2.replace(text, text + newCode);
-    return str2;
+    if (!str2.includes(".srcObject=this.combinedAudioVideoStream"))
+      return !1;
+    const newCode = ",window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)";
+    return str2 = str2.replace(".srcObject=this.combinedAudioVideoStream", ".srcObject=this.combinedAudioVideoStream" + newCode), str2;
   },
   patchTouchControlDefaultOpacity(str2) {
-    const text = "opacityMultiplier:1";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    const opacity = (getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) / 100).toFixed(1);
-    const newCode = `opacityMultiplier: ${opacity}`;
-    str2 = str2.replace(text, newCode);
-    return str2;
+    if (!str2.includes("opacityMultiplier:1"))
+      return !1;
+    const newCode = `opacityMultiplier: ${(getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) / 100).toFixed(1)}`;
+    return str2 = str2.replace("opacityMultiplier:1", newCode), str2;
   },
   patchShowSensorControls(str2) {
-    const text = "{shouldShowSensorControls:";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    const newCode = `{shouldShowSensorControls: (window.BX_EXPOSED && window.BX_EXPOSED.shouldShowSensorControls) ||`;
-    str2 = str2.replace(text, newCode);
-    return str2;
+    if (!str2.includes("{shouldShowSensorControls:"))
+      return !1;
+    const newCode = "{shouldShowSensorControls: (window.BX_EXPOSED && window.BX_EXPOSED.shouldShowSensorControls) ||";
+    return str2 = str2.replace("{shouldShowSensorControls:", newCode), str2;
   },
   exposeStreamSession(str2) {
-    const text = ",this._connectionType=";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes(",this._connectionType="))
+      return !1;
     const newCode = `;
 ${expose_stream_session_default}
-true` + text;
-    str2 = str2.replace(text, newCode);
-    return str2;
+true` + ",this._connectionType=";
+    return str2 = str2.replace(",this._connectionType=", newCode), str2;
   },
   skipFeedbackDialog(str2) {
-    const text = "&&this.shouldTransitionToFeedback(";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replace(text, "&& false " + text);
-    return str2;
+    if (!str2.includes("&&this.shouldTransitionToFeedback("))
+      return !1;
+    return str2 = str2.replace("&&this.shouldTransitionToFeedback(", "&& false &&this.shouldTransitionToFeedback("), str2;
   },
   enableNativeMkb(str2) {
-    const text = "e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replace(text, text + "return true;");
-    return str2;
+    if (!str2.includes("e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;"))
+      return !1;
+    return str2 = str2.replace("e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;", "e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;return true;"), str2;
   },
   patchMouseAndKeyboardEnabled(str2) {
-    const text = "get mouseAndKeyboardEnabled(){";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replace(text, text + "return true;");
-    return str2;
+    if (!str2.includes("get mouseAndKeyboardEnabled(){"))
+      return !1;
+    return str2 = str2.replace("get mouseAndKeyboardEnabled(){", "get mouseAndKeyboardEnabled(){return true;"), str2;
   },
   exposeInputSink(str2) {
-    const text = "this.controlChannel=null,this.inputChannel=null";
-    if (!str2.includes(text)) {
-      return false;
-    }
+    if (!str2.includes("this.controlChannel=null,this.inputChannel=null"))
+      return !1;
     const newCode = "window.BX_EXPOSED.inputSink = this;";
-    str2 = str2.replace(text, newCode + text);
-    return str2;
+    return str2 = str2.replace("this.controlChannel=null,this.inputChannel=null", newCode + "this.controlChannel=null,this.inputChannel=null"), str2;
   },
   disableNativeRequestPointerLock(str2) {
-    const text = "async requestPointerLock(){";
-    if (!str2.includes(text)) {
-      return false;
-    }
-    str2 = str2.replace(text, text + "return;");
-    return str2;
+    if (!str2.includes("async requestPointerLock(){"))
+      return !1;
+    return str2 = str2.replace("async requestPointerLock(){", "async requestPointerLock(){return;"), str2;
   }
-};
-var PATCH_ORDERS = [
+}, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [
     "enableNativeMkb",
     "patchMouseAndKeyboardEnabled",
@@ -8414,8 +7129,7 @@ var PATCH_ORDERS = [
     "enableConsoleLogging",
     "enableXcloudLogger"
   ] : []
-].filter((item2) => !!item2);
-var PLAYING_PATCH_ORDERS = [
+].filter((item2) => !!item2), PLAYING_PATCH_ORDERS = [
   "patchXcloudTitleInfo",
   "disableGamepadDisconnectedScreen",
   "patchStreamHud",
@@ -8437,84 +7151,59 @@ var PLAYING_PATCH_ORDERS = [
     "patchRemotePlayMkb",
     "remotePlayConnectMode"
   ] : []
-].filter((item2) => !!item2);
-var ALL_PATCHES = [...PATCH_ORDERS, ...PLAYING_PATCH_ORDERS];
+].filter((item2) => !!item2), ALL_PATCHES = [...PATCH_ORDERS, ...PLAYING_PATCH_ORDERS];
 
 class Patcher {
   static #patchFunctionBind() {
     const nativeBind = Function.prototype.bind;
     Function.prototype.bind = function() {
-      let valid = false;
+      let valid = !1;
       if (this.name.length <= 2 && arguments.length === 2 && arguments[0] === null) {
-        if (arguments[1] === 0 || typeof arguments[1] === "function") {
-          valid = true;
-        }
+        if (arguments[1] === 0 || typeof arguments[1] === "function")
+          valid = !0;
       }
-      if (!valid) {
+      if (!valid)
         return nativeBind.apply(this, arguments);
-      }
-      PatcherCache.init();
-      if (typeof arguments[1] === "function") {
-        BxLogger.info(LOG_TAG5, "Restored Function.prototype.bind()");
-        Function.prototype.bind = nativeBind;
-      }
-      const orgFunc = this;
-      const newFunc = (a, item2) => {
-        Patcher.patch(item2);
-        orgFunc(a, item2);
+      if (PatcherCache.init(), typeof arguments[1] === "function")
+        BxLogger.info(LOG_TAG5, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
+      const orgFunc = this, newFunc = (a, item2) => {
+        Patcher.patch(item2), orgFunc(a, item2);
       };
       return nativeBind.apply(newFunc, arguments);
     };
   }
   static patch(item) {
-    let patchesToCheck;
-    let appliedPatches;
+    let patchesToCheck, appliedPatches;
     const patchesMap = {};
     for (let id in item[1]) {
       appliedPatches = [];
       const cachedPatches = PatcherCache.getPatches(id);
-      if (cachedPatches) {
-        patchesToCheck = cachedPatches.slice(0);
-        patchesToCheck.push(...PATCH_ORDERS);
-      } else {
+      if (cachedPatches)
+        patchesToCheck = cachedPatches.slice(0), patchesToCheck.push(...PATCH_ORDERS);
+      else
         patchesToCheck = PATCH_ORDERS.slice(0);
-      }
-      if (!patchesToCheck.length) {
+      if (!patchesToCheck.length)
         continue;
-      }
       const func = item[1][id];
-      let str = func.toString();
-      let modified = false;
+      let str = func.toString(), modified = !1;
       for (let patchIndex = 0;patchIndex < patchesToCheck.length; patchIndex++) {
         const patchName = patchesToCheck[patchIndex];
-        if (appliedPatches.indexOf(patchName) > -1) {
+        if (appliedPatches.indexOf(patchName) > -1)
           continue;
-        }
-        if (!PATCHES[patchName]) {
+        if (!PATCHES[patchName])
           continue;
-        }
         const patchedStr = PATCHES[patchName].call(null, str);
-        if (!patchedStr) {
+        if (!patchedStr)
           continue;
-        }
-        modified = true;
-        str = patchedStr;
-        BxLogger.info(LOG_TAG5, `✅ ${patchName}`);
-        appliedPatches.push(patchName);
-        patchesToCheck.splice(patchIndex, 1);
-        patchIndex--;
-        PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
+        modified = !0, str = patchedStr, BxLogger.info(LOG_TAG5, `✅ ${patchName}`), appliedPatches.push(patchName), patchesToCheck.splice(patchIndex, 1), patchIndex--, PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
       }
-      if (modified) {
+      if (modified)
         item[1][id] = eval(str);
-      }
-      if (appliedPatches.length) {
+      if (appliedPatches.length)
         patchesMap[id] = appliedPatches;
-      }
     }
-    if (Object.keys(patchesMap).length) {
+    if (Object.keys(patchesMap).length)
       PatcherCache.saveToCache(patchesMap);
-    }
   }
   static init() {
     Patcher.#patchFunctionBind();
@@ -8525,86 +7214,61 @@ class PatcherCache {
   static #KEY_CACHE = "better_xcloud_patches_cache";
   static #KEY_SIGNATURE = "better_xcloud_patches_cache_signature";
   static #CACHE;
-  static #isInitialized = false;
+  static #isInitialized = !1;
   static #getSignature() {
-    const scriptVersion = SCRIPT_VERSION;
-    const webVersion = document.querySelector("meta[name=gamepass-app-version]")?.content;
-    const patches = JSON.stringify(ALL_PATCHES);
-    const sig = hashCode(scriptVersion + webVersion + patches);
-    return sig;
+    const scriptVersion = SCRIPT_VERSION, webVersion = document.querySelector("meta[name=gamepass-app-version]")?.content, patches = JSON.stringify(ALL_PATCHES);
+    return hashCode(scriptVersion + webVersion + patches);
   }
   static clear() {
-    window.localStorage.removeItem(PatcherCache.#KEY_CACHE);
-    PatcherCache.#CACHE = {};
+    window.localStorage.removeItem(PatcherCache.#KEY_CACHE), PatcherCache.#CACHE = {};
   }
   static checkSignature() {
-    const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0;
-    const currentSig = PatcherCache.#getSignature();
-    if (currentSig !== parseInt(storedSig)) {
-      BxLogger.warning(LOG_TAG5, "Signature changed");
-      window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString());
-      PatcherCache.clear();
-    } else {
+    const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0, currentSig = PatcherCache.#getSignature();
+    if (currentSig !== parseInt(storedSig))
+      BxLogger.warning(LOG_TAG5, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
+    else
       BxLogger.info(LOG_TAG5, "Signature unchanged");
-    }
   }
   static #cleanupPatches(patches) {
     return patches.filter((item2) => {
-      for (const id2 in PatcherCache.#CACHE) {
-        const cached = PatcherCache.#CACHE[id2];
-        if (cached.includes(item2)) {
-          return false;
-        }
-      }
-      return true;
+      for (let id2 in PatcherCache.#CACHE)
+        if (PatcherCache.#CACHE[id2].includes(item2))
+          return !1;
+      return !0;
     });
   }
   static getPatches(id2) {
     return PatcherCache.#CACHE[id2];
   }
   static saveToCache(subCache) {
-    for (const id2 in subCache) {
+    for (let id2 in subCache) {
       const patchNames = subCache[id2];
       let data = PatcherCache.#CACHE[id2];
-      if (!data) {
+      if (!data)
         PatcherCache.#CACHE[id2] = patchNames;
-      } else {
-        for (const patchName of patchNames) {
-          if (!data.includes(patchName)) {
+      else
+        for (let patchName of patchNames)
+          if (!data.includes(patchName))
             data.push(patchName);
-          }
-        }
-      }
     }
     window.localStorage.setItem(PatcherCache.#KEY_CACHE, JSON.stringify(PatcherCache.#CACHE));
   }
   static init() {
-    if (PatcherCache.#isInitialized) {
+    if (PatcherCache.#isInitialized)
       return;
-    }
-    PatcherCache.#isInitialized = true;
-    PatcherCache.checkSignature();
-    PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}");
-    BxLogger.info(LOG_TAG5, PatcherCache.#CACHE);
-    if (window.location.pathname.includes("/play/")) {
+    if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG5, PatcherCache.#CACHE), window.location.pathname.includes("/play/"))
       PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
-    } else {
+    else
       PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
-    }
-    PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS);
-    PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS);
-    BxLogger.info(LOG_TAG5, PATCH_ORDERS.slice(0));
-    BxLogger.info(LOG_TAG5, PLAYING_PATCH_ORDERS.slice(0));
+    PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG5, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG5, PLAYING_PATCH_ORDERS.slice(0));
   }
 }
 
 // src/modules/ui/global-settings.ts
 function setupSettingsUi() {
-  if (document.querySelector(".bx-settings-container")) {
+  if (document.querySelector(".bx-settings-container"))
     return;
-  }
-  const PREF_PREFERRED_REGION = getPreferredServerRegion();
-  const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
+  const PREF_PREFERRED_REGION = getPreferredServerRegion(), PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
   let $btnReload;
   const $container = CE("div", {
     class: "bx-settings-container bx-gone"
@@ -8620,16 +7284,12 @@ function setupSettingsUi() {
     label: t("help"),
     url: "https://better-xcloud.github.io/features/"
   })));
-  $updateAvailable = CE("a", {
+  if ($updateAvailable = CE("a", {
     class: "bx-settings-update bx-gone",
     href: "https://github.com/redphx/better-xcloud/releases/latest",
     target: "_blank"
-  });
-  $wrapper.appendChild($updateAvailable);
-  if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
-    $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
-    $updateAvailable.classList.remove("bx-gone");
-  }
+  }), $wrapper.appendChild($updateAvailable), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION)
+    $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`, $updateAvailable.classList.remove("bx-gone");
   if (AppInterface) {
     const $btn = createButton({
       label: t("android-app-settings"),
@@ -8640,28 +7300,19 @@ function setupSettingsUi() {
       }
     });
     $wrapper.appendChild($btn);
-  } else {
-    const userAgent2 = UserAgent.getDefault().toLowerCase();
-    if (userAgent2.includes("android")) {
-      const $btn = createButton({
-        label: "🔥 " + t("install-android"),
-        style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-        url: "https://better-xcloud.github.io/android"
-      });
-      $wrapper.appendChild($btn);
-    }
+  } else if (UserAgent.getDefault().toLowerCase().includes("android")) {
+    const $btn = createButton({
+      label: "🔥 " + t("install-android"),
+      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      url: "https://better-xcloud.github.io/android"
+    });
+    $wrapper.appendChild($btn);
   }
   const onChange = async (e) => {
-    PatcherCache.clear();
-    $btnReload.classList.add("bx-danger");
+    PatcherCache.clear(), $btnReload.classList.add("bx-danger");
     const $btnHeaderSettings = document.querySelector(".bx-header-settings-button");
-    $btnHeaderSettings && $btnHeaderSettings.classList.add("bx-danger");
-    if (e.target.id === "bx_setting_" + PrefKey.BETTER_XCLOUD_LOCALE) {
-      Translations.refreshCurrentLocale();
-      await Translations.updateTranslations();
-      $btnReload.textContent = t("settings-reloading");
-      $btnReload.click();
-    }
+    if ($btnHeaderSettings && $btnHeaderSettings.classList.add("bx-danger"), e.target.id === "bx_setting_" + PrefKey.BETTER_XCLOUD_LOCALE)
+      Translations.refreshCurrentLocale(), await Translations.updateTranslations(), $btnReload.textContent = t("settings-reloading"), $btnReload.click();
   };
   for (let groupLabel in SETTINGS_UI) {
     const $group = CE("span", { class: "bx-settings-group-label" }, groupLabel);
@@ -8669,32 +7320,22 @@ function setupSettingsUi() {
       const $note = CE("b", {}, SETTINGS_UI[groupLabel].note);
       $group.appendChild($note);
     }
-    $wrapper.appendChild($group);
-    if (SETTINGS_UI[groupLabel].unsupported) {
+    if ($wrapper.appendChild($group), SETTINGS_UI[groupLabel].unsupported)
       continue;
-    }
     const settingItems = SETTINGS_UI[groupLabel].items;
     for (let settingId of settingItems) {
-      if (!settingId) {
+      if (!settingId)
         continue;
-      }
       const setting = Preferences.SETTINGS[settingId];
-      if (!setting) {
+      if (!setting)
         continue;
-      }
-      let settingLabel = setting.label;
-      let settingNote = setting.note || "";
-      if (setting.experimental) {
-        settingLabel = "🧪 " + settingLabel;
-        if (!settingNote) {
+      let settingLabel = setting.label, settingNote = setting.note || "";
+      if (setting.experimental)
+        if (settingLabel = "🧪 " + settingLabel, !settingNote)
           settingNote = t("experimental");
-        } else {
+        else
           settingNote = `${t("experimental")}: ${settingNote}`;
-        }
-      }
-      let $control;
-      let $inpCustomUserAgent;
-      let labelAttrs = {
+      let $control, $inpCustomUserAgent, labelAttrs = {
         tabindex: "-1"
       };
       if (settingId === PrefKey.USER_AGENT_PROFILE) {
@@ -8704,22 +7345,13 @@ function setupSettingsUi() {
           type: "text",
           placeholder: defaultUserAgent,
           class: "bx-settings-custom-user-agent"
-        });
-        $inpCustomUserAgent.addEventListener("change", (e) => {
-          const profile = $control.value;
-          const custom = e.target.value.trim();
-          UserAgent.updateStorage(profile, custom);
-          onChange(e);
-        });
-        $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e) => {
+        }), $inpCustomUserAgent.addEventListener("change", (e) => {
+          const profile = $control.value, custom = e.target.value.trim();
+          UserAgent.updateStorage(profile, custom), onChange(e);
+        }), $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e) => {
           const value = e.target.value;
-          let isCustom = value === UserAgentProfile.CUSTOM;
-          let userAgent2 = UserAgent.get(value);
-          UserAgent.updateStorage(value);
-          $inpCustomUserAgent.value = userAgent2;
-          $inpCustomUserAgent.readOnly = !isCustom;
-          $inpCustomUserAgent.disabled = !isCustom;
-          !e.target.disabled && onChange(e);
+          let isCustom = value === UserAgentProfile.CUSTOM, userAgent2 = UserAgent.get(value);
+          UserAgent.updateStorage(value), $inpCustomUserAgent.value = userAgent2, $inpCustomUserAgent.readOnly = !isCustom, $inpCustomUserAgent.disabled = !isCustom, !e.target.disabled && onChange(e);
         });
       } else if (settingId === PrefKey.SERVER_REGION) {
         let selectedValue;
@@ -8727,66 +7359,43 @@ function setupSettingsUi() {
           id: `bx_setting_${settingId}`,
           title: settingLabel,
           tabindex: 0
-        });
-        $control.name = $control.id;
-        $control.addEventListener("change", (e) => {
-          setPref(settingId, e.target.value);
-          onChange(e);
-        });
-        selectedValue = PREF_PREFERRED_REGION;
-        setting.options = {};
+        }), $control.name = $control.id, $control.addEventListener("change", (e) => {
+          setPref(settingId, e.target.value), onChange(e);
+        }), selectedValue = PREF_PREFERRED_REGION, setting.options = {};
         for (let regionName in STATES.serverRegions) {
           const region4 = STATES.serverRegions[regionName];
-          let value = regionName;
-          let label = `${region4.shortName} - ${regionName}`;
+          let value = regionName, label = `${region4.shortName} - ${regionName}`;
           if (region4.isDefault) {
-            label += ` (${t("default")})`;
-            value = "default";
-            if (selectedValue === regionName) {
+            if (label += ` (${t("default")})`, value = "default", selectedValue === regionName)
               selectedValue = "default";
-            }
           }
           setting.options[value] = label;
         }
         for (let value in setting.options) {
-          const label = setting.options[value];
-          const $option = CE("option", { value }, label);
+          const label = setting.options[value], $option = CE("option", { value }, label);
           $control.appendChild($option);
         }
         $control.value = selectedValue;
-      } else {
-        if (settingId === PrefKey.BETTER_XCLOUD_LOCALE) {
-          $control = toPrefElement(settingId, (e) => {
-            localStorage.setItem("better_xcloud_locale", e.target.value);
-            onChange(e);
-          });
-        } else {
-          $control = toPrefElement(settingId, onChange);
-        }
-      }
-      if (!!$control.id) {
-        labelAttrs["for"] = $control.id;
-      } else {
-        labelAttrs["for"] = `bx_setting_${settingId}`;
-      }
-      if (setting.unsupported) {
-        $control.disabled = true;
-      }
-      if ($control.disabled && !!$control.getAttribute("tabindex")) {
+      } else if (settingId === PrefKey.BETTER_XCLOUD_LOCALE)
+        $control = toPrefElement(settingId, (e) => {
+          localStorage.setItem("better_xcloud_locale", e.target.value), onChange(e);
+        });
+      else
+        $control = toPrefElement(settingId, onChange);
+      if ($control.id)
+        labelAttrs.for = $control.id;
+      else
+        labelAttrs.for = `bx_setting_${settingId}`;
+      if (setting.unsupported)
+        $control.disabled = !0;
+      if ($control.disabled && !!$control.getAttribute("tabindex"))
         $control.setAttribute("tabindex", -1);
-      }
       const $label = CE("label", labelAttrs, settingLabel);
-      if (settingNote) {
+      if (settingNote)
         $label.appendChild(CE("b", {}, settingNote));
-      }
       const $elm = CE("div", { class: "bx-settings-row" }, $label, $control);
-      $wrapper.appendChild($elm);
-      if (settingId === PrefKey.USER_AGENT_PROFILE) {
-        $wrapper.appendChild($inpCustomUserAgent);
-        $control.disabled = true;
-        $control.dispatchEvent(new Event("change"));
-        $control.disabled = false;
-      }
+      if ($wrapper.appendChild($elm), settingId === PrefKey.USER_AGENT_PROFILE)
+        $wrapper.appendChild($inpCustomUserAgent), $control.disabled = !0, $control.dispatchEvent(new Event("change")), $control.disabled = !1;
     }
   }
   $btnReload = createButton({
@@ -8794,13 +7403,9 @@ function setupSettingsUi() {
     classes: ["bx-settings-reload-button"],
     style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH | ButtonStyle.TALL,
     onClick: (e) => {
-      window.location.reload();
-      $btnReload.disabled = true;
-      $btnReload.textContent = t("settings-reloading");
+      window.location.reload(), $btnReload.disabled = !0, $btnReload.textContent = t("settings-reloading");
     }
-  });
-  $btnReload.setAttribute("tabindex", "0");
-  $wrapper.appendChild($btnReload);
+  }), $btnReload.setAttribute("tabindex", "0"), $wrapper.appendChild($btnReload);
   const $donationLink = CE("a", {
     class: "bx-donation-link",
     href: "https://ko-fi.com/redphx",
@@ -8809,8 +7414,7 @@ function setupSettingsUi() {
   }, `❤️ ${t("support-better-xcloud")}`);
   $wrapper.appendChild($donationLink);
   try {
-    const appVersion = document.querySelector("meta[name=gamepass-app-version]").content;
-    const appDate = new Date(document.querySelector("meta[name=gamepass-app-date]").content).toISOString().substring(0, 10);
+    const appVersion = document.querySelector("meta[name=gamepass-app-version]").content, appDate = new Date(document.querySelector("meta[name=gamepass-app-date]").content).toISOString().substring(0, 10);
     $wrapper.appendChild(CE("div", { class: "bx-settings-app-version" }, `xCloud website version ${appVersion} (${appDate})`));
   } catch (e) {
   }
@@ -8906,12 +7510,9 @@ var SETTINGS_UI = {
 
 // src/modules/ui/header.ts
 var injectSettingsButton = function($parent) {
-  if (!$parent) {
+  if (!$parent)
     return;
-  }
-  const PREF_PREFERRED_REGION = getPreferredServerRegion(true);
-  const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
-  const $headerFragment = document.createDocumentFragment();
+  const PREF_PREFERRED_REGION = getPreferredServerRegion(!0), PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION), $headerFragment = document.createDocumentFragment();
   if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
     const $remotePlayBtn = createButton({
       classes: ["bx-header-remote-play-button"],
@@ -8929,70 +7530,53 @@ var injectSettingsButton = function($parent) {
     label: PREF_PREFERRED_REGION,
     style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
     onClick: (e) => {
-      setupSettingsUi();
-      const $settings = document.querySelector(".bx-settings-container");
-      $settings.classList.toggle("bx-gone");
-      window.scrollTo(0, 0);
-      document.activeElement && document.activeElement.blur();
+      setupSettingsUi(), document.querySelector(".bx-settings-container").classList.toggle("bx-gone"), window.scrollTo(0, 0), document.activeElement && document.activeElement.blur();
     }
   });
-  if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
+  if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION)
     $settingsBtn.setAttribute("data-update-available", "true");
-  }
-  $headerFragment.appendChild($settingsBtn);
-  $parent.appendChild($headerFragment);
+  $headerFragment.appendChild($settingsBtn), $parent.appendChild($headerFragment);
 };
 function checkHeader() {
-  const $button = document.querySelector(".bx-header-settings-button");
-  if (!$button) {
+  if (!document.querySelector(".bx-header-settings-button")) {
     const $rightHeader = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
     injectSettingsButton($rightHeader);
   }
 }
 function watchHeader() {
   const $header = document.querySelector("#PageContent header");
-  if (!$header) {
+  if (!$header)
     return;
-  }
   let timeout;
-  const observer = new MutationObserver((mutationList) => {
-    timeout && clearTimeout(timeout);
-    timeout = window.setTimeout(checkHeader, 2000);
-  });
-  observer.observe($header, { subtree: true, childList: true });
-  checkHeader();
+  new MutationObserver((mutationList) => {
+    timeout && clearTimeout(timeout), timeout = window.setTimeout(checkHeader, 2000);
+  }).observe($header, { subtree: !0, childList: !0 }), checkHeader();
 }
 
 // src/utils/history.ts
 function patchHistoryMethod(type) {
   const orig = window.history[type];
   return function(...args) {
-    BxEvent.dispatch(window, BxEvent.POPSTATE, {
+    return BxEvent.dispatch(window, BxEvent.POPSTATE, {
       arguments: args
-    });
-    return orig.apply(this, arguments);
+    }), orig.apply(this, arguments);
   };
 }
 function onHistoryChanged(e) {
-  if (e && e.arguments && e.arguments[0] && e.arguments[0].origin === "better-xcloud") {
+  if (e && e.arguments && e.arguments[0] && e.arguments[0].origin === "better-xcloud")
     return;
-  }
   window.setTimeout(RemotePlay.detect, 10);
   const $settings = document.querySelector(".bx-settings-container");
-  if ($settings) {
+  if ($settings)
     $settings.classList.add("bx-gone");
-  }
-  RemotePlay.detachPopup();
-  LoadingScreen.reset();
-  window.setTimeout(checkHeader, 2000);
-  BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+  RemotePlay.detachPopup(), LoadingScreen.reset(), window.setTimeout(checkHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
 
 // src/utils/preload-state.ts
 function overridePreloadState() {
   let _state;
   Object.defineProperty(window, "__PRELOADED_STATE__", {
-    configurable: true,
+    configurable: !0,
     get: () => {
       return _state;
     },
@@ -9002,31 +7586,26 @@ function overridePreloadState() {
       } catch (e) {
         BxLogger.error(LOG_TAG6, e);
       }
-      if (STATES.userAgentHasTouchSupport) {
+      if (STATES.userAgentHasTouchSupport)
         try {
           const sigls = state.xcloud.sigls;
           if (GamePassCloudGallery.TOUCH in sigls) {
             let customList = TouchController.getCustomList();
             const allGames = sigls[GamePassCloudGallery.ALL].data.products;
-            customList = customList.filter((id2) => allGames.includes(id2));
-            sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
+            customList = customList.filter((id2) => allGames.includes(id2)), sigls[GamePassCloudGallery.TOUCH]?.data.products.push(...customList);
           }
-          if (BX_FLAGS.ForceNativeMkbTitles && GamePassCloudGallery.NATIVE_MKB in sigls) {
+          if (BX_FLAGS.ForceNativeMkbTitles && GamePassCloudGallery.NATIVE_MKB in sigls)
             sigls[GamePassCloudGallery.NATIVE_MKB]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
-          }
         } catch (e) {
           BxLogger.error(LOG_TAG6, e);
         }
-      }
-      if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
+      if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED))
         try {
-          state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = false;
+          state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = !1;
         } catch (e) {
           BxLogger.error(LOG_TAG6, e);
         }
-      }
-      _state = state;
-      STATES.appContext = structuredClone(state.appContext);
+      _state = state, STATES.appContext = structuredClone(state.appContext);
     }
   });
 }
@@ -9034,36 +7613,27 @@ var LOG_TAG6 = "PreloadState";
 
 // src/utils/sdp.ts
 function patchSdpBitrate(sdp, video, audio) {
-  const lines = sdp.split("\n");
-  const mediaSet = new Set;
-  !!video && mediaSet.add("video");
-  !!audio && mediaSet.add("audio");
+  const lines = sdp.split("\n"), mediaSet = new Set;
+  !!video && mediaSet.add("video"), !!audio && mediaSet.add("audio");
   const bitrate = {
     video,
     audio
   };
   for (let lineNumber = 0;lineNumber < lines.length; lineNumber++) {
-    let media = "";
-    let line = lines[lineNumber];
-    if (!line.startsWith("m=")) {
+    let media = "", line = lines[lineNumber];
+    if (!line.startsWith("m="))
       continue;
-    }
-    for (const m of mediaSet) {
+    for (let m of mediaSet)
       if (line.startsWith(`m=${m}`)) {
-        media = m;
-        mediaSet.delete(media);
+        media = m, mediaSet.delete(media);
         break;
       }
-    }
-    if (!media) {
+    if (!media)
       continue;
-    }
     const bLine = `b=AS:${bitrate[media]}`;
     while (lineNumber++, lineNumber < lines.length) {
-      line = lines[lineNumber];
-      if (line.startsWith("i=") || line.startsWith("c=")) {
+      if (line = lines[lineNumber], line.startsWith("i=") || line.startsWith("c="))
         continue;
-      }
       if (line.startsWith("b=AS:")) {
         lines[lineNumber] = bLine;
         break;
@@ -9092,7 +7662,7 @@ class WebGL2Player {
   #gl = null;
   #resources = [];
   #program = null;
-  #stopped = false;
+  #stopped = !1;
   #options = {
     filterId: 1,
     sharpenFactor: 0,
@@ -9102,109 +7672,70 @@ class WebGL2Player {
   };
   #animFrameId = null;
   constructor($video) {
-    BxLogger.info(LOG_TAG7, "Initialize");
-    this.#$video = $video;
+    BxLogger.info(LOG_TAG7, "Initialize"), this.#$video = $video;
     const $canvas = document.createElement("canvas");
-    $canvas.width = $video.videoWidth;
-    $canvas.height = $video.videoHeight;
-    this.#$canvas = $canvas;
-    this.#setupShaders();
-    this.#setupRendering();
-    $video.insertAdjacentElement("afterend", $canvas);
+    $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.#$canvas = $canvas, this.#setupShaders(), this.#setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
   }
-  setFilter(filterId, update = true) {
-    this.#options.filterId = filterId;
-    update && this.updateCanvas();
+  setFilter(filterId, update = !0) {
+    this.#options.filterId = filterId, update && this.updateCanvas();
   }
-  setSharpness(sharpness, update = true) {
-    this.#options.sharpenFactor = sharpness;
-    update && this.updateCanvas();
+  setSharpness(sharpness, update = !0) {
+    this.#options.sharpenFactor = sharpness, update && this.updateCanvas();
   }
-  setBrightness(brightness, update = true) {
-    this.#options.brightness = (brightness - 100) / 100;
-    update && this.updateCanvas();
+  setBrightness(brightness, update = !0) {
+    this.#options.brightness = (brightness - 100) / 100, update && this.updateCanvas();
   }
-  setContrast(contrast, update = true) {
-    this.#options.contrast = (contrast - 100) / 100;
-    update && this.updateCanvas();
+  setContrast(contrast, update = !0) {
+    this.#options.contrast = (contrast - 100) / 100, update && this.updateCanvas();
   }
-  setSaturation(saturation, update = true) {
-    this.#options.saturation = (saturation - 100) / 100;
-    update && this.updateCanvas();
+  setSaturation(saturation, update = !0) {
+    this.#options.saturation = (saturation - 100) / 100, update && this.updateCanvas();
   }
   getCanvas() {
     return this.#$canvas;
   }
   updateCanvas() {
-    const gl = this.#gl;
-    const program = this.#program;
-    gl.uniform2f(gl.getUniformLocation(program, "iResolution"), this.#$canvas.width, this.#$canvas.height);
-    gl.uniform1i(gl.getUniformLocation(program, "filterId"), this.#options.filterId);
-    gl.uniform1f(gl.getUniformLocation(program, "sharpenFactor"), this.#options.sharpenFactor);
-    gl.uniform1f(gl.getUniformLocation(program, "brightness"), this.#options.brightness);
-    gl.uniform1f(gl.getUniformLocation(program, "contrast"), this.#options.contrast);
-    gl.uniform1f(gl.getUniformLocation(program, "saturation"), this.#options.saturation);
+    const gl = this.#gl, program = this.#program;
+    gl.uniform2f(gl.getUniformLocation(program, "iResolution"), this.#$canvas.width, this.#$canvas.height), gl.uniform1i(gl.getUniformLocation(program, "filterId"), this.#options.filterId), gl.uniform1f(gl.getUniformLocation(program, "sharpenFactor"), this.#options.sharpenFactor), gl.uniform1f(gl.getUniformLocation(program, "brightness"), this.#options.brightness), gl.uniform1f(gl.getUniformLocation(program, "contrast"), this.#options.contrast), gl.uniform1f(gl.getUniformLocation(program, "saturation"), this.#options.saturation);
   }
   drawFrame() {
-    const gl = this.#gl;
-    const $video = this.#$video;
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, $video);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    const gl = this.#gl, $video = this.#$video;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, $video), gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
   #setupRendering() {
     let animate;
     if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
       const $video = this.#$video;
       animate = () => {
-        if (this.#stopped) {
+        if (this.#stopped)
           return;
-        }
-        this.drawFrame();
-        this.#animFrameId = $video.requestVideoFrameCallback(animate);
-      };
-      this.#animFrameId = $video.requestVideoFrameCallback(animate);
-    } else {
+        this.drawFrame(), this.#animFrameId = $video.requestVideoFrameCallback(animate);
+      }, this.#animFrameId = $video.requestVideoFrameCallback(animate);
+    } else
       animate = () => {
-        if (this.#stopped) {
+        if (this.#stopped)
           return;
-        }
-        this.drawFrame();
-        this.#animFrameId = requestAnimationFrame(animate);
-      };
-      this.#animFrameId = requestAnimationFrame(animate);
-    }
+        this.drawFrame(), this.#animFrameId = requestAnimationFrame(animate);
+      }, this.#animFrameId = requestAnimationFrame(animate);
   }
   #setupShaders() {
     const gl = this.#$canvas.getContext("webgl2", {
-      isBx: true,
-      antialias: true,
-      alpha: false,
+      isBx: !0,
+      antialias: !0,
+      alpha: !1,
       powerPreference: "high-performance"
     });
-    this.#gl = gl;
-    gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
+    this.#gl = gl, gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
     const vShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vShader, clarity_boost_default);
-    gl.compileShader(vShader);
+    gl.shaderSource(vShader, clarity_boost_default), gl.compileShader(vShader);
     const fShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fShader, clarity_boost_default2);
-    gl.compileShader(fShader);
+    gl.shaderSource(fShader, clarity_boost_default2), gl.compileShader(fShader);
     const program = gl.createProgram();
-    this.#program = program;
-    gl.attachShader(program, vShader);
-    gl.attachShader(program, fShader);
-    gl.linkProgram(program);
-    gl.useProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error(`Link failed: ${gl.getProgramInfoLog(program)}`);
-      console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`);
-      console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
-    }
+    if (this.#program = program, gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), gl.useProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS))
+      console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
     this.updateCanvas();
     const buffer = gl.createBuffer();
-    this.#resources.push(buffer);
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    this.#resources.push(buffer), gl.bindBuffer(gl.ARRAY_BUFFER, buffer), gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
       -1,
       -1,
       1,
@@ -9217,65 +7748,41 @@ class WebGL2Player {
       -1,
       1,
       1
-    ]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    ]), gl.STATIC_DRAW), gl.enableVertexAttribArray(0), gl.vertexAttribPointer(0, 2, gl.FLOAT, !1, 0, 0);
     const texture = gl.createTexture();
-    this.#resources.push(texture);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.uniform1i(gl.getUniformLocation(program, "data"), 0);
-    gl.activeTexture(gl.TEXTURE0);
+    this.#resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
   }
   resume() {
-    this.stop();
-    this.#stopped = false;
-    BxLogger.info(LOG_TAG7, "Resume");
-    this.#$canvas.classList.remove("bx-gone");
-    this.#setupRendering();
+    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG7, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
   }
   stop() {
-    BxLogger.info(LOG_TAG7, "Stop");
-    this.#$canvas.classList.add("bx-gone");
-    this.#stopped = true;
-    if (this.#animFrameId) {
-      if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
+    if (BxLogger.info(LOG_TAG7, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
+      if ("requestVideoFrameCallback" in HTMLVideoElement.prototype)
         this.#$video.cancelVideoFrameCallback(this.#animFrameId);
-      } else {
+      else
         cancelAnimationFrame(this.#animFrameId);
-      }
       this.#animFrameId = null;
     }
   }
   destroy() {
-    BxLogger.info(LOG_TAG7, "Destroy");
-    this.stop();
+    BxLogger.info(LOG_TAG7, "Destroy"), this.stop();
     const gl = this.#gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
-      for (const resource of this.#resources) {
-        if (resource instanceof WebGLProgram) {
-          gl.useProgram(null);
-          gl.deleteProgram(resource);
-        } else if (resource instanceof WebGLShader) {
+      for (let resource of this.#resources)
+        if (resource instanceof WebGLProgram)
+          gl.useProgram(null), gl.deleteProgram(resource);
+        else if (resource instanceof WebGLShader)
           gl.deleteShader(resource);
-        } else if (resource instanceof WebGLTexture) {
+        else if (resource instanceof WebGLTexture)
           gl.deleteTexture(resource);
-        } else if (resource instanceof WebGLBuffer) {
+        else if (resource instanceof WebGLBuffer)
           gl.deleteBuffer(resource);
-        }
-      }
       this.#gl = null;
     }
-    if (this.#$canvas.isConnected) {
+    if (this.#$canvas.isConnected)
       this.#$canvas.parentElement?.removeChild(this.#$canvas);
-    }
-    this.#$canvas.width = 1;
-    this.#$canvas.height = 1;
+    this.#$canvas.width = 1, this.#$canvas.height = 1;
   }
 }
 
@@ -9288,20 +7795,15 @@ class StreamPlayer {
   #$videoCss = null;
   #$usmMatrix = null;
   constructor($video, type, options) {
-    this.#setupVideoElements();
-    this.#$video = $video;
-    this.#options = options || {};
-    this.setPlayerType(type);
+    this.#setupVideoElements(), this.#$video = $video, this.#options = options || {}, this.setPlayerType(type);
   }
   #setupVideoElements() {
-    this.#$videoCss = document.getElementById("bx-video-css");
-    if (this.#$videoCss) {
+    if (this.#$videoCss = document.getElementById("bx-video-css"), this.#$videoCss) {
       this.#$usmMatrix = this.#$videoCss.querySelector("#bx-filter-usm-matrix");
       return;
     }
     const $fragment = document.createDocumentFragment();
-    this.#$videoCss = CE("style", { id: "bx-video-css" });
-    $fragment.appendChild(this.#$videoCss);
+    this.#$videoCss = CE("style", { id: "bx-video-css" }), $fragment.appendChild(this.#$videoCss);
     const $svg = CE("svg", {
       id: "bx-video-filters",
       xmlns: "http://www.w3.org/2000/svg",
@@ -9314,116 +7816,70 @@ class StreamPlayer {
       order: "3",
       xmlns: "http://www.w3.org/2000/svg"
     }))));
-    $fragment.appendChild($svg);
-    document.documentElement.appendChild($fragment);
+    $fragment.appendChild($svg), document.documentElement.appendChild($fragment);
   }
   #getVideoPlayerFilterStyle() {
-    const filters = [];
-    const sharpness = this.#options.sharpness || 0;
+    const filters = [], sharpness = this.#options.sharpness || 0;
     if (sharpness != 0) {
-      const level = (7 - (sharpness / 2 - 1) * 0.5).toFixed(1);
-      const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
-      this.#$usmMatrix?.setAttributeNS(null, "kernelMatrix", matrix);
-      filters.push(`url(#bx-filter-usm)`);
+      const matrix = `0 -1 0 -1 ${(7 - (sharpness / 2 - 1) * 0.5).toFixed(1)} -1 0 -1 0`;
+      this.#$usmMatrix?.setAttributeNS(null, "kernelMatrix", matrix), filters.push("url(#bx-filter-usm)");
     }
     const saturation = this.#options.saturation || 100;
-    if (saturation != 100) {
+    if (saturation != 100)
       filters.push(`saturate(${saturation}%)`);
-    }
     const contrast = this.#options.contrast || 100;
-    if (contrast != 100) {
+    if (contrast != 100)
       filters.push(`contrast(${contrast}%)`);
-    }
     const brightness = this.#options.brightness || 100;
-    if (brightness != 100) {
+    if (brightness != 100)
       filters.push(`brightness(${brightness}%)`);
-    }
     return filters.join(" ");
   }
   #resizePlayer() {
-    const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO);
-    const $video = this.#$video;
-    const isNativeTouchGame = STATES.currentStream.titleInfo?.details.hasNativeTouchSupport;
+    const PREF_RATIO = getPref(PrefKey.VIDEO_RATIO), $video = this.#$video, isNativeTouchGame = STATES.currentStream.titleInfo?.details.hasNativeTouchSupport;
     let $webGL2Canvas;
-    if (this.#playerType == StreamPlayerType.WEBGL2) {
+    if (this.#playerType == StreamPlayerType.WEBGL2)
       $webGL2Canvas = this.#webGL2Player?.getCanvas();
-    }
-    let targetWidth;
-    let targetHeight;
-    let targetObjectFit;
+    let targetWidth, targetHeight, targetObjectFit;
     if (PREF_RATIO.includes(":")) {
-      const tmp = PREF_RATIO.split(":");
-      const videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
-      let width = 0;
-      let height = 0;
+      const tmp = PREF_RATIO.split(":"), videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
+      let width = 0, height = 0;
       const parentRect = $video.parentElement.getBoundingClientRect();
-      const parentRatio = parentRect.width / parentRect.height;
-      if (parentRatio > videoRatio) {
-        height = parentRect.height;
-        width = height * videoRatio;
-      } else {
-        width = parentRect.width;
-        height = width / videoRatio;
-      }
-      width = Math.ceil(Math.min(parentRect.width, width));
-      height = Math.ceil(Math.min(parentRect.height, height));
-      $video.dataset.width = width.toString();
-      $video.dataset.height = height.toString();
-      targetWidth = `${width}px`;
-      targetHeight = `${height}px`;
-      targetObjectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
-    } else {
-      targetWidth = "100%";
-      targetHeight = "100%";
-      targetObjectFit = PREF_RATIO;
-      $video.dataset.width = window.innerWidth.toString();
-      $video.dataset.height = window.innerHeight.toString();
-    }
-    $video.style.width = targetWidth;
-    $video.style.height = targetHeight;
-    $video.style.objectFit = targetObjectFit;
-    if ($webGL2Canvas) {
-      $webGL2Canvas.style.width = targetWidth;
-      $webGL2Canvas.style.height = targetHeight;
-      $webGL2Canvas.style.objectFit = targetObjectFit;
-    }
-    if (isNativeTouchGame && this.#playerType == StreamPlayerType.WEBGL2) {
+      if (parentRect.width / parentRect.height > videoRatio)
+        height = parentRect.height, width = height * videoRatio;
+      else
+        width = parentRect.width, height = width / videoRatio;
+      width = Math.ceil(Math.min(parentRect.width, width)), height = Math.ceil(Math.min(parentRect.height, height)), $video.dataset.width = width.toString(), $video.dataset.height = height.toString(), targetWidth = `${width}px`, targetHeight = `${height}px`, targetObjectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
+    } else
+      targetWidth = "100%", targetHeight = "100%", targetObjectFit = PREF_RATIO, $video.dataset.width = window.innerWidth.toString(), $video.dataset.height = window.innerHeight.toString();
+    if ($video.style.width = targetWidth, $video.style.height = targetHeight, $video.style.objectFit = targetObjectFit, $webGL2Canvas)
+      $webGL2Canvas.style.width = targetWidth, $webGL2Canvas.style.height = targetHeight, $webGL2Canvas.style.objectFit = targetObjectFit;
+    if (isNativeTouchGame && this.#playerType == StreamPlayerType.WEBGL2)
       window.BX_EXPOSED.streamSession.updateDimensions();
-    }
   }
-  setPlayerType(type, refreshPlayer = false) {
-    if (this.#playerType !== type) {
+  setPlayerType(type, refreshPlayer = !1) {
+    if (this.#playerType !== type)
       if (type === StreamPlayerType.WEBGL2) {
-        if (!this.#webGL2Player) {
+        if (!this.#webGL2Player)
           this.#webGL2Player = new WebGL2Player(this.#$video);
-        } else {
+        else
           this.#webGL2Player.resume();
-        }
-        this.#$videoCss.textContent = "";
-        this.#$video.classList.add("bx-pixel");
-      } else {
-        this.#webGL2Player?.stop();
-        this.#$video.classList.remove("bx-pixel");
-      }
-    }
-    this.#playerType = type;
-    refreshPlayer && this.refreshPlayer();
+        this.#$videoCss.textContent = "", this.#$video.classList.add("bx-pixel");
+      } else
+        this.#webGL2Player?.stop(), this.#$video.classList.remove("bx-pixel");
+    this.#playerType = type, refreshPlayer && this.refreshPlayer();
   }
-  setOptions(options, refreshPlayer = false) {
-    this.#options = options;
-    refreshPlayer && this.refreshPlayer();
+  setOptions(options, refreshPlayer = !1) {
+    this.#options = options, refreshPlayer && this.refreshPlayer();
   }
-  updateOptions(options, refreshPlayer = false) {
-    this.#options = Object.assign(this.#options, options);
-    refreshPlayer && this.refreshPlayer();
+  updateOptions(options, refreshPlayer = !1) {
+    this.#options = Object.assign(this.#options, options), refreshPlayer && this.refreshPlayer();
   }
   getPlayerElement(playerType) {
-    if (typeof playerType === "undefined") {
+    if (typeof playerType === "undefined")
       playerType = this.#playerType;
-    }
-    if (playerType === StreamPlayerType.WEBGL2) {
+    if (playerType === StreamPlayerType.WEBGL2)
       return this.#webGL2Player?.getCanvas();
-    }
     return this.#$video;
   }
   getWebGL2Player() {
@@ -9431,50 +7887,35 @@ class StreamPlayer {
   }
   refreshPlayer() {
     if (this.#playerType === StreamPlayerType.WEBGL2) {
-      const options = this.#options;
-      const webGL2Player = this.#webGL2Player;
-      if (options.processing === StreamVideoProcessing.USM) {
+      const options = this.#options, webGL2Player = this.#webGL2Player;
+      if (options.processing === StreamVideoProcessing.USM)
         webGL2Player.setFilter(1);
-      } else {
+      else
         webGL2Player.setFilter(2);
-      }
-      Screenshot.updateCanvasFilters("none");
-      webGL2Player.setSharpness(options.sharpness || 0);
-      webGL2Player.setSaturation(options.saturation || 100);
-      webGL2Player.setContrast(options.contrast || 100);
-      webGL2Player.setBrightness(options.brightness || 100);
+      Screenshot.updateCanvasFilters("none"), webGL2Player.setSharpness(options.sharpness || 0), webGL2Player.setSaturation(options.saturation || 100), webGL2Player.setContrast(options.contrast || 100), webGL2Player.setBrightness(options.brightness || 100);
     } else {
-      let filters = this.#getVideoPlayerFilterStyle();
-      let videoCss = "";
-      if (filters) {
+      let filters = this.#getVideoPlayerFilterStyle(), videoCss = "";
+      if (filters)
         videoCss += `filter: ${filters} !important;`;
-      }
-      if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
+      if (getPref(PrefKey.SCREENSHOT_APPLY_FILTERS))
         Screenshot.updateCanvasFilters(filters);
-      }
       let css = "";
-      if (videoCss) {
+      if (videoCss)
         css = `#game-stream video { ${videoCss} }`;
-      }
       this.#$videoCss.textContent = css;
     }
     this.#resizePlayer();
   }
   destroy() {
-    this.#webGL2Player?.destroy();
-    this.#webGL2Player = null;
+    this.#webGL2Player?.destroy(), this.#webGL2Player = null;
   }
 }
 
 // src/utils/monkey-patches.ts
 function patchVideoApi() {
-  const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);
-  const showFunc = function() {
-    this.style.visibility = "visible";
-    this.removeEventListener("playing", showFunc);
-    if (!this.videoWidth) {
+  const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO), showFunc = function() {
+    if (this.style.visibility = "visible", this.removeEventListener("playing", showFunc), !this.videoWidth)
       return;
-    }
     const playerOptions = {
       processing: getPref(PrefKey.VIDEO_PROCESSING),
       sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
@@ -9482,57 +7923,41 @@ function patchVideoApi() {
       contrast: getPref(PrefKey.VIDEO_CONTRAST),
       brightness: getPref(PrefKey.VIDEO_BRIGHTNESS)
     };
-    STATES.currentStream.streamPlayer = new StreamPlayer(this, getPref(PrefKey.VIDEO_PLAYER_TYPE), playerOptions);
-    BxEvent.dispatch(window, BxEvent.STREAM_PLAYING, {
+    STATES.currentStream.streamPlayer = new StreamPlayer(this, getPref(PrefKey.VIDEO_PLAYER_TYPE), playerOptions), BxEvent.dispatch(window, BxEvent.STREAM_PLAYING, {
       $video: this
     });
-  };
-  const nativePlay = HTMLMediaElement.prototype.play;
-  HTMLMediaElement.prototype.nativePlay = nativePlay;
-  HTMLMediaElement.prototype.play = function() {
+  }, nativePlay = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.nativePlay = nativePlay, HTMLMediaElement.prototype.play = function() {
     if (this.className && this.className.startsWith("XboxSplashVideo")) {
-      if (PREF_SKIP_SPLASH_VIDEO) {
-        this.volume = 0;
-        this.style.display = "none";
-        this.dispatchEvent(new Event("ended"));
-        return new Promise(() => {
+      if (PREF_SKIP_SPLASH_VIDEO)
+        return this.volume = 0, this.style.display = "none", this.dispatchEvent(new Event("ended")), new Promise(() => {
         });
-      }
       return nativePlay.apply(this);
     }
     const $parent = this.parentElement;
-    if (!this.src && $parent.dataset.testid === "media-container") {
+    if (!this.src && $parent.dataset.testid === "media-container")
       this.addEventListener("playing", showFunc);
-    }
     return nativePlay.apply(this);
   };
 }
 function patchRtcCodecs() {
   const codecProfile = getPref(PrefKey.STREAM_CODEC_PROFILE);
-  if (codecProfile === "default") {
+  if (codecProfile === "default")
     return;
-  }
-  if (typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype)) {
-    return false;
-  }
-  const profilePrefix = codecProfile === "high" ? "4d" : codecProfile === "low" ? "420" : "42e";
-  const profileLevelId = `profile-level-id=${profilePrefix}`;
-  const nativeSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
+  if (typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype))
+    return !1;
+  const profileLevelId = `profile-level-id=${codecProfile === "high" ? "4d" : codecProfile === "low" ? "420" : "42e"}`, nativeSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
   RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
     const newCodecs = codecs.slice();
     let pos = 0;
     newCodecs.forEach((codec, i) => {
-      if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes(profileLevelId)) {
-        newCodecs.splice(i, 1);
-        newCodecs.splice(pos, 0, codec);
-        ++pos;
-      }
+      if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes(profileLevelId))
+        newCodecs.splice(i, 1), newCodecs.splice(pos, 0, codec), ++pos;
     });
     try {
       nativeSetCodecPreferences.apply(this, [newCodecs]);
     } catch (e) {
-      BxLogger.error("setCodecPreferences", e);
-      nativeSetCodecPreferences.apply(this, [codecs]);
+      BxLogger.error("setCodecPreferences", e), nativeSetCodecPreferences.apply(this, [codecs]);
     }
   };
 }
@@ -9540,19 +7965,17 @@ function patchRtcPeerConnection() {
   const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
   RTCPeerConnection.prototype.createDataChannel = function() {
     const dataChannel = nativeCreateDataChannel.apply(this, arguments);
-    BxEvent.dispatch(window, BxEvent.DATA_CHANNEL_CREATED, {
+    return BxEvent.dispatch(window, BxEvent.DATA_CHANNEL_CREATED, {
       dataChannel
-    });
-    return dataChannel;
+    }), dataChannel;
   };
   const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
   if (maxVideoBitrate > 0) {
     const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
     RTCPeerConnection.prototype.setLocalDescription = function(description) {
       try {
-        if (description) {
+        if (description)
           arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
-        }
       } catch (e) {
         BxLogger.error("setLocalDescription", e);
       }
@@ -9562,40 +7985,30 @@ function patchRtcPeerConnection() {
   const OrgRTCPeerConnection = window.RTCPeerConnection;
   window.RTCPeerConnection = function() {
     const conn = new OrgRTCPeerConnection;
-    STATES.currentStream.peerConnection = conn;
-    conn.addEventListener("connectionstatechange", (e) => {
+    return STATES.currentStream.peerConnection = conn, conn.addEventListener("connectionstatechange", (e) => {
       BxLogger.info("connectionstatechange", conn.connectionState);
-    });
-    return conn;
+    }), conn;
   };
 }
 function patchAudioContext() {
-  const OrgAudioContext = window.AudioContext;
-  const nativeCreateGain = OrgAudioContext.prototype.createGain;
+  const OrgAudioContext = window.AudioContext, nativeCreateGain = OrgAudioContext.prototype.createGain;
   window.AudioContext = function(options) {
-    if (options && options.latencyHint) {
+    if (options && options.latencyHint)
       options.latencyHint = 0;
-    }
     const ctx = new OrgAudioContext(options);
-    BxLogger.info("patchAudioContext", ctx, options);
-    ctx.createGain = function() {
+    return BxLogger.info("patchAudioContext", ctx, options), ctx.createGain = function() {
       const gainNode = nativeCreateGain.apply(this);
-      gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100;
-      STATES.currentStream.audioGainNode = gainNode;
-      return gainNode;
-    };
-    STATES.currentStream.audioContext = ctx;
-    return ctx;
+      return gainNode.gain.value = getPref(PrefKey.AUDIO_VOLUME) / 100, STATES.currentStream.audioGainNode = gainNode, gainNode;
+    }, STATES.currentStream.audioContext = ctx, ctx;
   };
 }
 function patchMeControl() {
   const overrideConfigs = {
-    enableAADTelemetry: false,
-    enableTelemetry: false,
+    enableAADTelemetry: !1,
+    enableTelemetry: !1,
     telEvs: "",
     oneDSUrl: ""
-  };
-  const MSA = {
+  }, MSA = {
     MeControl: {
       API: {
         setDisplayMode: () => {
@@ -9604,45 +8017,34 @@ function patchMeControl() {
         }
       }
     }
-  };
-  const MeControl = {};
-  const MsaHandler = {
+  }, MeControl = {}, MsaHandler = {
     get(target, prop, receiver) {
       return target[prop];
     },
     set(obj, prop, value) {
-      if (prop === "MeControl" && value.Config) {
+      if (prop === "MeControl" && value.Config)
         value.Config = Object.assign(value.Config, overrideConfigs);
-      }
-      obj[prop] = value;
-      return true;
+      return obj[prop] = value, !0;
     }
-  };
-  const MeControlHandler = {
+  }, MeControlHandler = {
     get(target, prop, receiver) {
       return target[prop];
     },
     set(obj, prop, value) {
-      if (prop === "Config") {
+      if (prop === "Config")
         value = Object.assign(value, overrideConfigs);
-      }
-      obj[prop] = value;
-      return true;
+      return obj[prop] = value, !0;
     }
   };
-  window.MSA = new Proxy(MSA, MsaHandler);
-  window.MeControl = new Proxy(MeControl, MeControlHandler);
+  window.MSA = new Proxy(MSA, MsaHandler), window.MeControl = new Proxy(MeControl, MeControlHandler);
 }
 function patchCanvasContext() {
   const nativeGetContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
     if (contextType.includes("webgl")) {
-      contextAttributes = contextAttributes || {};
-      if (!contextAttributes.isBx) {
-        contextAttributes.antialias = false;
-        if (contextAttributes.powerPreference === "high-performance") {
+      if (contextAttributes = contextAttributes || {}, !contextAttributes.isBx) {
+        if (contextAttributes.antialias = !1, contextAttributes.powerPreference === "high-performance")
           contextAttributes.powerPreference = "low-power";
-        }
       }
     }
     return nativeGetContext.apply(this, [contextType, contextAttributes]);
@@ -9650,28 +8052,23 @@ function patchCanvasContext() {
 }
 function patchPointerLockApi() {
   Object.defineProperty(document, "fullscreenElement", {
-    configurable: true,
+    configurable: !0,
     get() {
       return document.documentElement;
     }
-  });
-  HTMLElement.prototype.requestFullscreen = function(options) {
+  }), HTMLElement.prototype.requestFullscreen = function(options) {
     return Promise.resolve();
   };
   let pointerLockElement = null;
   Object.defineProperty(document, "pointerLockElement", {
-    configurable: true,
+    configurable: !0,
     get() {
       return pointerLockElement;
     }
-  });
-  HTMLElement.prototype.requestPointerLock = function() {
-    pointerLockElement = document.documentElement;
-    window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_REQUESTED));
-  };
-  Document.prototype.exitPointerLock = function() {
-    pointerLockElement = null;
-    window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_EXITED));
+  }), HTMLElement.prototype.requestPointerLock = function() {
+    pointerLockElement = document.documentElement, window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_REQUESTED));
+  }, Document.prototype.exitPointerLock = function() {
+    pointerLockElement = null, window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_EXITED));
   };
 }
 
@@ -9689,8 +8086,7 @@ class ScreenshotAction extends BaseGameBarAction {
   constructor() {
     super();
     const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      Screenshot.takeScreenshot();
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), Screenshot.takeScreenshot();
     };
     this.$content = createButton({
       style: ButtonStyle.GHOST,
@@ -9713,24 +8109,20 @@ class TouchControlAction extends BaseGameBarAction {
       BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
       const $parent = e.target.closest("div[data-enabled]");
       let enabled = $parent.getAttribute("data-enabled", "true") === "true";
-      $parent.setAttribute("data-enabled", (!enabled).toString());
-      TouchController.toggleVisibility(enabled);
-    };
-    const $btnEnable = createButton({
+      $parent.setAttribute("data-enabled", (!enabled).toString()), TouchController.toggleVisibility(enabled);
+    }, $btnEnable = createButton({
       style: ButtonStyle.GHOST,
       icon: BxIcon.TOUCH_CONTROL_ENABLE,
       title: t("show-touch-controller"),
       onClick,
       classes: ["bx-activated"]
-    });
-    const $btnDisable = createButton({
+    }), $btnDisable = createButton({
       style: ButtonStyle.GHOST,
       icon: BxIcon.TOUCH_CONTROL_DISABLE,
       title: t("hide-touch-controller"),
       onClick
     });
-    this.$content = CE("div", {}, $btnEnable, $btnDisable);
-    this.reset();
+    this.$content = CE("div", {}, $btnEnable, $btnDisable), this.reset();
   }
   render() {
     return this.$content;
@@ -9743,43 +8135,35 @@ class TouchControlAction extends BaseGameBarAction {
 // src/modules/game-bar/action-microphone.ts
 class MicrophoneAction extends BaseGameBarAction {
   $content;
-  visible = false;
+  visible = !1;
   constructor() {
     super();
     const onClick = (e) => {
       BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const enabled = MicrophoneShortcut.toggle(false);
+      const enabled = MicrophoneShortcut.toggle(!1);
       this.$content.setAttribute("data-enabled", enabled.toString());
-    };
-    const $btnDefault = createButton({
+    }, $btnDefault = createButton({
       style: ButtonStyle.GHOST,
       icon: BxIcon.MICROPHONE,
       title: t("show-touch-controller"),
       onClick,
       classes: ["bx-activated"]
-    });
-    const $btnMuted = createButton({
+    }), $btnMuted = createButton({
       style: ButtonStyle.GHOST,
       icon: BxIcon.MICROPHONE_MUTED,
       title: t("hide-touch-controller"),
       onClick
     });
-    this.$content = CE("div", {}, $btnDefault, $btnMuted);
-    this.reset();
-    window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
-      const microphoneState = e.microphoneState;
-      const enabled = microphoneState === MicrophoneState.ENABLED;
-      this.$content.setAttribute("data-enabled", enabled.toString());
-      this.$content.classList.remove("bx-gone");
+    this.$content = CE("div", {}, $btnDefault, $btnMuted), this.reset(), window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
+      const enabled = e.microphoneState === MicrophoneState.ENABLED;
+      this.$content.setAttribute("data-enabled", enabled.toString()), this.$content.classList.remove("bx-gone");
     });
   }
   render() {
     return this.$content;
   }
   reset() {
-    this.visible = false;
-    this.$content.classList.add("bx-gone");
-    this.$content.setAttribute("data-enabled", "false");
+    this.visible = !1, this.$content.classList.add("bx-gone"), this.$content.setAttribute("data-enabled", "false");
   }
 }
 
@@ -9787,9 +8171,8 @@ class MicrophoneAction extends BaseGameBarAction {
 class GameBar {
   static instance;
   static getInstance() {
-    if (!GameBar.instance) {
+    if (!GameBar.instance)
       GameBar.instance = new GameBar;
-    }
     return GameBar.instance;
   }
   static VISIBLE_DURATION = 2000;
@@ -9799,84 +8182,58 @@ class GameBar {
   actions = [];
   constructor() {
     let $container;
-    const position = getPref(PrefKey.GAME_BAR_POSITION);
-    const $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
-    this.actions = [
+    const position = getPref(PrefKey.GAME_BAR_POSITION), $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
+    if (this.actions = [
       new ScreenshotAction,
       ...STATES.userAgentHasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
       new MicrophoneAction
-    ];
-    if (position === "bottom-right") {
+    ], position === "bottom-right")
       this.actions.reverse();
-    }
-    for (const action of this.actions) {
+    for (let action of this.actions)
       $container.appendChild(action.render());
-    }
     $gameBar.addEventListener("click", (e) => {
-      if (e.target !== $gameBar) {
+      if (e.target !== $gameBar)
         return;
-      }
       $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
-    });
-    window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this));
-    $container.addEventListener("pointerover", this.clearHideTimeout.bind(this));
-    $container.addEventListener("pointerout", this.beginHideTimeout.bind(this));
-    $container.addEventListener("transitionend", (e) => {
+    }), window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this)), $container.addEventListener("pointerover", this.clearHideTimeout.bind(this)), $container.addEventListener("pointerout", this.beginHideTimeout.bind(this)), $container.addEventListener("transitionend", (e) => {
       const classList = $container.classList;
-      if (classList.contains("bx-hide")) {
-        classList.remove("bx-offscreen", "bx-hide");
-        classList.add("bx-offscreen");
-      }
-    });
-    document.documentElement.appendChild($gameBar);
-    this.$gameBar = $gameBar;
-    this.$container = $container;
-    getPref(PrefKey.GAME_BAR_POSITION) !== "off" && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e) => {
+      if (classList.contains("bx-hide"))
+        classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen");
+    }), document.documentElement.appendChild($gameBar), this.$gameBar = $gameBar, this.$container = $container, getPref(PrefKey.GAME_BAR_POSITION) !== "off" && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e) => {
       if (!STATES.isPlaying) {
         this.disable();
         return;
       }
-      const mode = e.mode;
-      mode !== "None" ? this.disable() : this.enable();
+      e.mode !== "None" ? this.disable() : this.enable();
     }).bind(this));
   }
   beginHideTimeout() {
-    this.clearHideTimeout();
-    this.timeout = window.setTimeout(() => {
-      this.timeout = null;
-      this.hideBar();
+    this.clearHideTimeout(), this.timeout = window.setTimeout(() => {
+      this.timeout = null, this.hideBar();
     }, GameBar.VISIBLE_DURATION);
   }
   clearHideTimeout() {
-    this.timeout && clearTimeout(this.timeout);
-    this.timeout = null;
+    this.timeout && clearTimeout(this.timeout), this.timeout = null;
   }
   enable() {
     this.$gameBar && this.$gameBar.classList.remove("bx-gone");
   }
   disable() {
-    this.hideBar();
-    this.$gameBar && this.$gameBar.classList.add("bx-gone");
+    this.hideBar(), this.$gameBar && this.$gameBar.classList.add("bx-gone");
   }
   showBar() {
-    if (!this.$container) {
+    if (!this.$container)
       return;
-    }
-    this.$container.classList.remove("bx-offscreen", "bx-hide");
-    this.$container.classList.add("bx-show");
-    this.beginHideTimeout();
+    this.$container.classList.remove("bx-offscreen", "bx-hide"), this.$container.classList.add("bx-show"), this.beginHideTimeout();
   }
   hideBar() {
-    if (!this.$container) {
+    if (!this.$container)
       return;
-    }
-    this.$container.classList.remove("bx-show");
-    this.$container.classList.add("bx-hide");
+    this.$container.classList.remove("bx-show"), this.$container.classList.add("bx-hide");
   }
   reset() {
-    for (const action of this.actions) {
+    for (let action of this.actions)
       action.reset();
-    }
   }
 }
 
@@ -9889,9 +8246,8 @@ var GuideMenuTab;
 class GuideMenu {
   static #injectHome($root) {
     const $dividers = $root.querySelectorAll("div[class*=Divider-module__divider]");
-    if (!$dividers) {
+    if (!$dividers)
       return;
-    }
     const $lastDivider = $dividers[$dividers.length - 1];
     if (AppInterface) {
       const $btnQuit = createButton({
@@ -9906,37 +8262,32 @@ class GuideMenu {
   }
   static #injectHomePlaying($root) {
     const $btnQuit = $root.querySelector("a[class*=QuitGameButton]");
-    if (!$btnQuit) {
+    if (!$btnQuit)
       return;
-    }
     const $btnReload = createButton({
       label: t("reload-stream"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
         confirm(t("confirm-reload-stream")) && window.location.reload();
       }
-    });
-    const $btnHome = createButton({
+    }), $btnHome = createButton({
       label: t("back-to-home"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
         confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
       }
     });
-    $btnQuit.insertAdjacentElement("afterend", $btnReload);
-    $btnReload.insertAdjacentElement("afterend", $btnHome);
+    $btnQuit.insertAdjacentElement("afterend", $btnReload), $btnReload.insertAdjacentElement("afterend", $btnHome);
     const $btnXcloudHome = $root.querySelector("div[class^=HomeButtonWithDivider]");
     $btnXcloudHome && ($btnXcloudHome.style.display = "none");
   }
   static async#onShown(e) {
-    const where = e.where;
-    if (where === GuideMenuTab.HOME) {
+    if (e.where === GuideMenuTab.HOME) {
       const $root = document.querySelector("#gamepass-dialog-root div[role=dialog]");
-      if (STATES.isPlaying) {
+      if (STATES.isPlaying)
         GuideMenu.#injectHomePlaying($root);
-      } else {
+      else
         GuideMenu.#injectHome($root);
-      }
     }
   }
   static observe() {
@@ -9946,32 +8297,19 @@ class GuideMenu {
 
 // src/index.ts
 var unload = function() {
-  if (!STATES.isPlaying) {
+  if (!STATES.isPlaying)
     return;
-  }
-  EmulatedMkbHandler.getInstance().destroy();
-  NativeMkbHandler.getInstance().destroy();
-  STATES.currentStream.streamPlayer?.destroy();
-  STATES.isPlaying = false;
-  STATES.currentStream = {};
-  window.BX_EXPOSED.shouldShowSensorControls = false;
-  window.BX_EXPOSED.stopTakRendering = false;
+  EmulatedMkbHandler.getInstance().destroy(), NativeMkbHandler.getInstance().destroy(), STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1;
   const $streamSettingsDialog = document.querySelector(".bx-stream-settings-dialog");
-  if ($streamSettingsDialog) {
+  if ($streamSettingsDialog)
     $streamSettingsDialog.classList.add("bx-gone");
-  }
-  StreamStats.getInstance().onStoppedPlaying();
-  MouseCursorHider.stop();
-  TouchController.reset();
-  GameBar.getInstance().disable();
-};
-var observeRootDialog = function($root) {
-  let currentShown = false;
-  const observer = new MutationObserver((mutationList) => {
-    for (const mutation of mutationList) {
-      if (mutation.type !== "childList") {
+  StreamStats.getInstance().onStoppedPlaying(), MouseCursorHider.stop(), TouchController.reset(), GameBar.getInstance().disable();
+}, observeRootDialog = function($root) {
+  let currentShown = !1;
+  new MutationObserver((mutationList) => {
+    for (let mutation of mutationList) {
+      if (mutation.type !== "childList")
         continue;
-      }
       if (mutation.addedNodes.length === 1) {
         const $addedElm = mutation.addedNodes[0];
         if ($addedElm instanceof HTMLElement && $addedElm.className) {
@@ -9979,89 +8317,49 @@ var observeRootDialog = function($root) {
             if (document.querySelector("#gamepass-dialog-root div[class*=GuideDialog]")) {
               const $selectedTab = $addedElm.querySelector("div[class^=NavigationMenu] button[aria-selected=true");
               if ($selectedTab) {
-                let $elm = $selectedTab;
-                let index;
+                let $elm = $selectedTab, index;
                 for (index = 0;$elm = $elm?.previousElementSibling; index++)
                   ;
-                if (index === 0) {
+                if (index === 0)
                   BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: GuideMenuTab.HOME });
-                }
               }
             }
           }
         }
       }
-      const shown = $root.firstElementChild && $root.firstElementChild.childElementCount > 0 || false;
-      if (shown !== currentShown) {
-        currentShown = shown;
-        BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
-      }
+      const shown = $root.firstElementChild && $root.firstElementChild.childElementCount > 0 || !1;
+      if (shown !== currentShown)
+        currentShown = shown, BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
     }
-  });
-  observer.observe($root, { subtree: true, childList: true });
-};
-var waitForRootDialog = function() {
+  }).observe($root, { subtree: !0, childList: !0 });
+}, waitForRootDialog = function() {
   const observer = new MutationObserver((mutationList) => {
-    for (const mutation of mutationList) {
-      if (mutation.type !== "childList") {
+    for (let mutation of mutationList) {
+      if (mutation.type !== "childList")
         continue;
-      }
       const $target = mutation.target;
       if ($target.id && $target.id === "gamepass-dialog-root") {
-        observer.disconnect();
-        observeRootDialog($target);
+        observer.disconnect(), observeRootDialog($target);
         break;
       }
     }
   });
-  observer.observe(document.documentElement, { subtree: true, childList: true });
-};
-var main = function() {
-  waitForRootDialog();
-  patchRtcPeerConnection();
-  patchRtcCodecs();
-  interceptHttpRequests();
-  patchVideoApi();
-  patchCanvasContext();
-  AppInterface && patchPointerLockApi();
-  getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
-  getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
-  STATES.userAgentHasTouchSupport && TouchController.updateCustomList();
-  overridePreloadState();
-  VibrationManager.initialSetup();
-  BX_FLAGS.CheckForUpdate && checkForUpdate();
-  addCss();
-  Toast.setup();
-  getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance();
-  BX_FLAGS.PreloadUi && setupStreamUi();
-  GuideMenu.observe();
-  StreamBadges.setupEvents();
-  StreamStats.setupEvents();
-  EmulatedMkbHandler.setupEvents();
-  Patcher.init();
-  disablePwa();
-  window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad));
-  window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
-  if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
+  observer.observe(document.documentElement, { subtree: !0, childList: !0 });
+}, main = function() {
+  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext(), getPref(PrefKey.BLOCK_TRACKING) && patchMeControl(), STATES.userAgentHasTouchSupport && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), Toast.setup(), getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance(), BX_FLAGS.PreloadUi && setupStreamUi(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad)), getPref(PrefKey.REMOTE_PLAY_ENABLED))
     RemotePlay.detect();
-  }
-  if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all") {
+  if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all")
     TouchController.setup();
-  }
-  if (getPref(PrefKey.MKB_ENABLED) && AppInterface) {
-    STATES.pointerServerPort = AppInterface.startPointerServer() || 9269;
-    BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
-  }
+  if (getPref(PrefKey.MKB_ENABLED) && AppInterface)
+    STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
 };
-if (window.location.pathname.includes("/auth/msa")) {
-  window.addEventListener("load", (e) => {
+if (window.location.pathname.includes("/auth/msa"))
+  throw window.addEventListener("load", (e) => {
     window.location.search.includes("loggedIn") && window.setTimeout(() => {
       const location2 = window.location;
-      location2.pathname.includes("/play") && location2.reload(true);
+      location2.pathname.includes("/play") && location2.reload(!0);
     }, 2000);
-  });
-  throw new Error("[Better xCloud] Refreshing the page after logging in");
-}
+  }), new Error("[Better xCloud] Refreshing the page after logging in");
 BxLogger.info("readyState", document.readyState);
 if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
   window.stop();
@@ -10079,20 +8377,13 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     font-size: 1.3rem;
 }
-`;
-  const $fragment = document.createDocumentFragment();
-  $fragment.appendChild(CE("style", {}, css2));
-  $fragment.appendChild(CE("div", { class: "bx-reload-overlay" }, t("safari-failed-message")));
-  document.documentElement.appendChild($fragment);
-  window.location.reload(true);
-  throw new Error("[Better xCloud] Executing workaround for Safari");
+`, $fragment = document.createDocumentFragment();
+  throw $fragment.appendChild(CE("style", {}, css2)), $fragment.appendChild(CE("div", { class: "bx-reload-overlay" }, t("safari-failed-message"))), document.documentElement.appendChild($fragment), window.location.reload(!0), new Error("[Better xCloud] Executing workaround for Safari");
 }
 window.addEventListener("load", (e) => {
   window.setTimeout(() => {
-    if (document.body.classList.contains("legacyBackground")) {
-      window.stop();
-      window.location.reload(true);
-    }
+    if (document.body.classList.contains("legacyBackground"))
+      window.stop(), window.location.reload(!0);
   }, 3000);
 });
 window.BX_EXPOSED = BxExposed;
@@ -10101,45 +8392,32 @@ window.addEventListener("popstate", onHistoryChanged);
 window.history.pushState = patchHistoryMethod("pushState");
 window.history.replaceState = patchHistoryMethod("replaceState");
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
-  if (document.querySelector("div[class^=UnsupportedMarketPage]")) {
+  if (document.querySelector("div[class^=UnsupportedMarketPage]"))
     window.setTimeout(watchHeader, 2000);
-  } else {
+  else
     watchHeader();
-  }
 });
 window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
   if (window.location.pathname.includes("/launch/")) {
     const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
-    if (matches?.groups) {
-      STATES.currentStream.titleId = matches.groups.title_id;
-      STATES.currentStream.productId = matches.groups.product_id;
-    }
-  } else {
-    STATES.currentStream.titleId = "remote-play";
-    STATES.currentStream.productId = "";
-  }
+    if (matches?.groups)
+      STATES.currentStream.titleId = matches.groups.title_id, STATES.currentStream.productId = matches.groups.product_id;
+  } else
+    STATES.currentStream.titleId = "remote-play", STATES.currentStream.productId = "";
   setupStreamUi();
 });
 getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && window.addEventListener(BxEvent.TITLE_INFO_READY, LoadingScreen.setup);
 window.addEventListener(BxEvent.STREAM_STARTING, (e) => {
-  LoadingScreen.hide();
-  if (!getPref(PrefKey.MKB_ENABLED) && getPref(PrefKey.MKB_HIDE_IDLE_CURSOR)) {
-    MouseCursorHider.start();
-    MouseCursorHider.hide();
-  }
+  if (LoadingScreen.hide(), !getPref(PrefKey.MKB_ENABLED) && getPref(PrefKey.MKB_HIDE_IDLE_CURSOR))
+    MouseCursorHider.start(), MouseCursorHider.hide();
 });
 window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-  STATES.isPlaying = true;
-  injectStreamMenuButtons();
-  if (getPref(PrefKey.GAME_BAR_POSITION) !== "off") {
+  if (STATES.isPlaying = !0, injectStreamMenuButtons(), getPref(PrefKey.GAME_BAR_POSITION) !== "off") {
     const gameBar = GameBar.getInstance();
-    gameBar.reset();
-    gameBar.enable();
-    gameBar.showBar();
+    gameBar.reset(), gameBar.enable(), gameBar.showBar();
   }
   const $video = e.$video;
-  Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight);
-  updateVideoPlayer();
+  Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight), updateVideoPlayer();
 });
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
