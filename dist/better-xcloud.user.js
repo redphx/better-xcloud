@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.0.0
+// @version      5.0.1-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -124,7 +124,7 @@ class UserAgent {
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "5.0.0";
+var SCRIPT_VERSION = "5.0.1-beta";
 var AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase();
@@ -795,9 +795,10 @@ class SettingElement {
     options.disabled = !!options.disabled;
     options.hideSlider = !!options.hideSlider;
     let $text;
-    let $decBtn;
-    let $incBtn;
+    let $btnDec;
+    let $btnInc;
     let $range;
+    let controlValue = value;
     const MIN = setting.min;
     const MAX = setting.max;
     const STEPS = Math.max(setting.steps || 1, 1);
@@ -812,11 +813,15 @@ class SettingElement {
       }
       return textContent;
     };
-    const $wrapper = CE("div", { class: "bx-number-stepper", id: `bx_setting_${key}` }, $decBtn = CE("button", {
+    const updateButtonsVisibility = () => {
+      $btnDec.classList.toggle("bx-hidden", controlValue === MIN);
+      $btnInc.classList.toggle("bx-hidden", controlValue === MAX);
+    };
+    const $wrapper = CE("div", { class: "bx-number-stepper", id: `bx_setting_${key}` }, $btnDec = CE("button", {
       "data-type": "dec",
       type: "button",
       tabindex: -1
-    }, "-"), $text = CE("span", {}, renderTextValue(value)), $incBtn = CE("button", {
+    }, "-"), $text = CE("span", {}, renderTextValue(value)), $btnInc = CE("button", {
       "data-type": "inc",
       type: "button",
       tabindex: -1
@@ -833,6 +838,8 @@ class SettingElement {
       });
       $range.addEventListener("input", (e) => {
         value = parseInt(e.target.value);
+        controlValue = value;
+        updateButtonsVisibility();
         $text.textContent = renderTextValue(value);
         !e.ignoreOnChange && onChange && onChange(e, value);
       });
@@ -858,12 +865,13 @@ class SettingElement {
       }
     }
     if (options.disabled) {
-      $incBtn.disabled = true;
-      $incBtn.classList.add("bx-hidden");
-      $decBtn.disabled = true;
-      $decBtn.classList.add("bx-hidden");
+      $btnInc.disabled = true;
+      $btnInc.classList.add("bx-hidden");
+      $btnDec.disabled = true;
+      $btnDec.classList.add("bx-hidden");
       return $wrapper;
     }
+    updateButtonsVisibility();
     let interval;
     let isHolding = false;
     const onClick = (e) => {
@@ -872,18 +880,16 @@ class SettingElement {
         isHolding = false;
         return;
       }
-      let value2;
-      if ($range) {
-        value2 = parseInt($range.value);
-      } else {
-        value2 = parseInt($text.textContent);
-      }
-      const btnType = e.target.getAttribute("data-type");
+      const $btn = e.target;
+      let value2 = parseInt(controlValue);
+      const btnType = $btn.dataset.type;
       if (btnType === "dec") {
         value2 = Math.max(MIN, value2 - STEPS);
       } else {
         value2 = Math.min(MAX, value2 + STEPS);
       }
+      controlValue = value2;
+      updateButtonsVisibility();
       $text.textContent = renderTextValue(value2);
       $range && ($range.value = value2.toString());
       isHolding = false;
@@ -907,17 +913,18 @@ class SettingElement {
     };
     const onContextMenu = (e) => e.preventDefault();
     $wrapper.setValue = (value2) => {
+      controlValue = parseInt(value2);
       $text.textContent = renderTextValue(value2);
       $range && ($range.value = value2);
     };
-    $decBtn.addEventListener("click", onClick);
-    $decBtn.addEventListener("pointerdown", onMouseDown);
-    $decBtn.addEventListener("pointerup", onMouseUp);
-    $decBtn.addEventListener("contextmenu", onContextMenu);
-    $incBtn.addEventListener("click", onClick);
-    $incBtn.addEventListener("pointerdown", onMouseDown);
-    $incBtn.addEventListener("pointerup", onMouseUp);
-    $incBtn.addEventListener("contextmenu", onContextMenu);
+    $btnDec.addEventListener("click", onClick);
+    $btnDec.addEventListener("pointerdown", onMouseDown);
+    $btnDec.addEventListener("pointerup", onMouseUp);
+    $btnDec.addEventListener("contextmenu", onContextMenu);
+    $btnInc.addEventListener("click", onClick);
+    $btnInc.addEventListener("pointerdown", onMouseDown);
+    $btnInc.addEventListener("pointerup", onMouseUp);
+    $btnInc.addEventListener("contextmenu", onContextMenu);
     return $wrapper;
   }
   static #METHOD_MAP = {
@@ -1674,7 +1681,11 @@ class Preferences {
       min: 0,
       max: 10,
       params: {
-        hideSlider: true
+        hideSlider: true,
+        customTextValue: (value) => {
+          value = parseInt(value);
+          return value === 0 ? t("off") : value.toString();
+        }
       }
     },
     [PrefKey.VIDEO_RATIO]: {
