@@ -4,7 +4,8 @@ import { renderStylus } from "@macros/build" with {type: "macro"};
 
 
 export function addCss() {
-    let css = renderStylus();
+    const STYLUS_CSS = renderStylus();
+    let css = STYLUS_CSS;
 
     if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
         css += `

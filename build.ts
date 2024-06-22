@@ -45,6 +45,9 @@ const build = async (target: BuildTarget, version: string, config: any={}) => {
 		entrypoints: ['src/index.ts'],
 		outdir: outDir,
 		naming: outputScriptName,
+		minify: {
+			syntax: true,
+		},
 		define: {
 			'Bun.env.BUILD_TARGET': JSON.stringify(target),
 			'Bun.env.SCRIPT_VERSION': JSON.stringify(version),
