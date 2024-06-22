@@ -128,19 +128,19 @@ function setupStreamSettingsDialog() {
                         {
                             pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
                             unsupported: !VibrationManager.supportControllerVibration(),
-                            onChange: VibrationManager.updateGlobalVars,
+                            onChange: () => VibrationManager.updateGlobalVars(),
                         },
 
                         {
                             pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
                             unsupported: !VibrationManager.supportDeviceVibration(),
-                            onChange: VibrationManager.updateGlobalVars,
+                            onChange: () => VibrationManager.updateGlobalVars(),
                         },
 
                         (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
                             pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
                             unsupported: !VibrationManager.supportDeviceVibration(),
-                            onChange: VibrationManager.updateGlobalVars,
+                            onChange: () => VibrationManager.updateGlobalVars(),
                         },
                     ],
                 },

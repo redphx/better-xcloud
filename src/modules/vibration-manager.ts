@@ -53,7 +53,7 @@ export class VibrationManager {
         return !!window.navigator.vibrate;
     }
 
-    static updateGlobalVars() {
+    static updateGlobalVars(stopVibration: boolean = true) {
         window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : false;
         window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100;
 
@@ -63,7 +63,7 @@ export class VibrationManager {
         }
 
         // Stop vibration
-        window.navigator.vibrate(0);
+        stopVibration && window.navigator.vibrate(0);
 
         const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
         let enabled;
@@ -134,10 +134,10 @@ export class VibrationManager {
     }
 
     static initialSetup() {
-        window.addEventListener('gamepadconnected', VibrationManager.updateGlobalVars);
-        window.addEventListener('gamepaddisconnected', VibrationManager.updateGlobalVars);
+        window.addEventListener('gamepadconnected', e => VibrationManager.updateGlobalVars());
+        window.addEventListener('gamepaddisconnected', e => VibrationManager.updateGlobalVars());
 
-        VibrationManager.updateGlobalVars();
+        VibrationManager.updateGlobalVars(false);
 
         window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
             const dataChannel = (e as any).dataChannel;
