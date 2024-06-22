@@ -598,6 +598,10 @@ export class Preferences {
             max: 10,
             params: {
                 hideSlider: true,
+                customTextValue: (value: any) => {
+                    value = parseInt(value);
+                    return value === 0 ? t('off') : value.toString();
+                },
             },
         },
         [PrefKey.VIDEO_RATIO]: {
