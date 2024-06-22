@@ -132,9 +132,11 @@ export class SettingElement {
         options.hideSlider = !!options.hideSlider;
 
         let $text: HTMLSpanElement;
-        let $decBtn: HTMLButtonElement;
-        let $incBtn: HTMLButtonElement;
+        let $btnDec: HTMLButtonElement;
+        let $btnInc: HTMLButtonElement;
         let $range: HTMLInputElement;
+
+        let controlValue = value;
 
         const MIN = setting.min!;
         const MAX = setting.max!;
@@ -155,14 +157,19 @@ export class SettingElement {
             return textContent;
         };
 
+        const updateButtonsVisibility = () => {
+            $btnDec.classList.toggle('bx-hidden', controlValue === MIN);
+            $btnInc.classList.toggle('bx-hidden', controlValue === MAX);
+        }
+
         const $wrapper = CE('div', {'class': 'bx-number-stepper', id: `bx_setting_${key}`},
-                $decBtn = CE('button', {
+                $btnDec = CE('button', {
                         'data-type': 'dec',
                         type: 'button',
                         tabindex: -1,
                     }, '-') as HTMLButtonElement,
                 $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
-                $incBtn = CE('button', {
+                $btnInc = CE('button', {
                         'data-type': 'inc',
                         type: 'button',
                         tabindex: -1,
@@ -182,6 +189,9 @@ export class SettingElement {
 
             $range.addEventListener('input', e => {
                 value = parseInt((e.target as HTMLInputElement).value);
+                controlValue = value;
+                updateButtonsVisibility();
+
                 $text.textContent = renderTextValue(value);
                 !(e as any).ignoreOnChange && onChange && onChange(e, value);
             });
@@ -212,13 +222,15 @@ export class SettingElement {
         }
 
         if (options.disabled) {
-            $incBtn.disabled = true;
-            $incBtn.classList.add('bx-hidden');
+            $btnInc.disabled = true;
+            $btnInc.classList.add('bx-hidden');
 
-            $decBtn.disabled = true;
-            $decBtn.classList.add('bx-hidden');
+            $btnDec.disabled = true;
+            $btnDec.classList.add('bx-hidden');
             return $wrapper;
         }
+
+        updateButtonsVisibility();
 
         let interval: number;
         let isHolding = false;
@@ -231,18 +243,18 @@ export class SettingElement {
                 return;
             }
 
-            let value: number;
-            if ($range) {
-                value = parseInt($range.value);
-            } else {
-                value = parseInt($text.textContent!);
-            }
-            const btnType = (e.target as HTMLElement).getAttribute('data-type');
+            const $btn = e.target as HTMLElement;
+            let value = parseInt(controlValue);
+
+            const btnType = $btn.dataset.type;
             if (btnType === 'dec') {
                 value = Math.max(MIN, value - STEPS);
             } else {
                 value = Math.min(MAX, value + STEPS);
             }
+
+            controlValue = value;
+            updateButtonsVisibility();
 
             $text.textContent = renderTextValue(value);
             $range && ($range.value = value.toString());
@@ -277,19 +289,21 @@ export class SettingElement {
 
         // Custom method
         ($wrapper as any).setValue = (value: any) => {
+            controlValue = parseInt(value);
+
             $text.textContent = renderTextValue(value);
             $range && ($range.value = value);
         };
 
-        $decBtn.addEventListener('click', onClick);
-        $decBtn.addEventListener('pointerdown', onMouseDown);
-        $decBtn.addEventListener('pointerup', onMouseUp);
-        $decBtn.addEventListener('contextmenu', onContextMenu);
+        $btnDec.addEventListener('click', onClick);
+        $btnDec.addEventListener('pointerdown', onMouseDown);
+        $btnDec.addEventListener('pointerup', onMouseUp);
+        $btnDec.addEventListener('contextmenu', onContextMenu);
 
-        $incBtn.addEventListener('click', onClick);
-        $incBtn.addEventListener('pointerdown', onMouseDown);
-        $incBtn.addEventListener('pointerup', onMouseUp);
-        $incBtn.addEventListener('contextmenu', onContextMenu);
+        $btnInc.addEventListener('click', onClick);
+        $btnInc.addEventListener('pointerdown', onMouseDown);
+        $btnInc.addEventListener('pointerup', onMouseUp);
+        $btnInc.addEventListener('contextmenu', onContextMenu);
 
         return $wrapper;
     }
