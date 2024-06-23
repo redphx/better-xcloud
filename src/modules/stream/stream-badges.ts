@@ -158,19 +158,26 @@ export class StreamBadges {
     }
 
     #secondsToHm(seconds: number) {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor(seconds % 3600 / 60) + 1;
+        let h = Math.floor(seconds / 3600);
+        let m = Math.floor(seconds % 3600 / 60) + 1;
 
-        const hDisplay = h > 0 ? `${h}h`: '';
-        const mDisplay = m > 0 ? `${m}m`: '';
-        return hDisplay + mDisplay;
+        if (m === 60) {
+            h += 1;
+            m = 0;
+        }
+
+        const output = [];
+        h > 0 && output.push(`${h}h`);
+        m > 0 && output.push(`${m}m`);
+
+        return output.join(' ');
     }
 
     // https://stackoverflow.com/a/20732091
     #humanFileSize(size: number) {
         const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
-        let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+        const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
         return (size / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
     }
 
