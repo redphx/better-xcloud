@@ -2356,12 +2356,14 @@ class StreamBadges {
     this.#interval && clearInterval(this.#interval), this.#interval = null;
   }
   #secondsToHm(seconds) {
-    const h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1, hDisplay = h > 0 ? `${h}h` : "", mDisplay = m > 0 ? `${m}m` : "";
-    return hDisplay + mDisplay;
+    let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
+    if (m === 60)
+      h += 1, m = 0;
+    const output = [];
+    return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
   }
   #humanFileSize(size) {
-    const units = ["B", "KB", "MB", "GB", "TB"];
-    let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+    const units = ["B", "KB", "MB", "GB", "TB"], i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
     return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
   }
   async render() {
@@ -4431,17 +4433,17 @@ var setupStreamSettingsDialog = function() {
             {
               pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
               unsupported: !VibrationManager.supportControllerVibration(),
-              onChange: VibrationManager.updateGlobalVars
+              onChange: () => VibrationManager.updateGlobalVars()
             },
             {
               pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
               unsupported: !VibrationManager.supportDeviceVibration(),
-              onChange: VibrationManager.updateGlobalVars
+              onChange: () => VibrationManager.updateGlobalVars()
             },
             (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
               pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
               unsupported: !VibrationManager.supportDeviceVibration(),
-              onChange: VibrationManager.updateGlobalVars
+              onChange: () => VibrationManager.updateGlobalVars()
             }
           ]
         },
