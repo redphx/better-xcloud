@@ -27,6 +27,8 @@ const Texts = {
     "activated": "Activated",
     "active": "Active",
     "advanced": "Advanced",
+    "always-off": "Always off",
+    "always-on": "Always on",
     "amd-fidelity-cas": "AMD FidelityFX CAS",
     "android-app-settings": "Android app settings",
     "apply": "Apply",
