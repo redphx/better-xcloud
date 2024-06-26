@@ -3,6 +3,8 @@
   "activated": "設定中",
   "active": "有効",
   "advanced": "高度な設定",
+  "always-off": "常時オフ",
+  "always-on": "常時オン",
   "android-app-settings": "Androidアプリ設定",
   "apply": "適用",
   "aspect-ratio": "比率",
