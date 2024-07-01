@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.0.1
+// @version      5.1.0-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -56,7 +56,7 @@ class UserAgent {
     UserAgent.spoof();
   }
   static updateStorage(profile, custom) {
-    const clonedConfig = structuredClone(UserAgent.#config);
+    const clonedConfig = deepClone(UserAgent.#config);
     if (clonedConfig.profile = profile, typeof custom !== "undefined")
       clonedConfig.custom = custom;
     window.localStorage.setItem(UserAgent.STORAGE_KEY, JSON.stringify(clonedConfig));
@@ -106,7 +106,14 @@ class UserAgent {
 }
 
 // src/utils/global.ts
-var SCRIPT_VERSION = "5.0.1", AppInterface = window.AppInterface;
+function deepClone(obj) {
+  if ("structuredClone" in window)
+    return structuredClone(obj);
+  if (!obj)
+    return obj;
+  return JSON.parse(JSON.stringify(obj));
+}
+var SCRIPT_VERSION = "5.1.0-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   isPlaying: !1,
@@ -183,7 +190,8 @@ var DEFAULT_FLAGS = {
   SafariWorkaround: !0,
   UseDevTouchLayout: !1,
   ForceNativeMkbTitles: [],
-  FeatureGates: null
+  FeatureGates: null,
+  ScriptUi: "default"
 }, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {
   delete window.BX_FLAGS;
@@ -249,9 +257,13 @@ var ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonSt
   else
     $btn = CE("button", { class: "bx-button", type: "button" });
   const style = options.style || 0;
-  return style && ButtonStyleIndices.forEach((index) => {
+  style && ButtonStyleIndices.forEach((index) => {
     style & index && $btn.classList.add(ButtonStyle[index]);
-  }), options.classes && $btn.classList.add(...options.classes), options.icon && $btn.appendChild(createSvgIcon(options.icon)), options.label && $btn.appendChild(CE("span", {}, options.label)), options.title && $btn.setAttribute("title", options.title), options.disabled && ($btn.disabled = !0), options.onClick && $btn.addEventListener("click", options.onClick), $btn;
+  }), options.classes && $btn.classList.add(...options.classes), options.icon && $btn.appendChild(createSvgIcon(options.icon)), options.label && $btn.appendChild(CE("span", {}, options.label)), options.title && $btn.setAttribute("title", options.title), options.disabled && ($btn.disabled = !0), options.onClick && $btn.addEventListener("click", options.onClick);
+  for (let key in options.attributes)
+    if (!$btn.hasOwnProperty(key))
+      $btn.setAttribute(key, options.attributes[key]);
+  return $btn;
 }, CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
 
@@ -304,6 +316,8 @@ var SUPPORTED_LANGUAGES = {
   activated: "Activated",
   active: "Active",
   advanced: "Advanced",
+  "always-off": "Always off",
+  "always-on": "Always on",
   "amd-fidelity-cas": "AMD FidelityFX CAS",
   "android-app-settings": "Android app settings",
   apply: "Apply",
@@ -617,7 +631,9 @@ class Translations {
   static async downloadTranslations(locale) {
     try {
       const translations = await (await NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/translations/${locale}.json`)).json();
-      return window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations)), Translations.#foreignTranslations = translations, !0;
+      if (localStorage.getItem(Translations.#KEY_LOCALE) === locale)
+        window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations)), Translations.#foreignTranslations = translations;
+      return !0;
     } catch (e) {
       debugger;
     }
@@ -652,7 +668,7 @@ class SettingElement {
       const label = setting.options[value], $option = CE("option", { value }, label);
       $control.appendChild($option);
     }
-    return $control.value = currentValue, onChange && $control.addEventListener("change", (e) => {
+    return $control.value = currentValue, onChange && $control.addEventListener("input", (e) => {
       const target = e.target, value = setting.type && setting.type === "number" ? parseInt(target.value) : target.value;
       onChange(e, value);
     }), $control.setValue = (value) => {
@@ -674,13 +690,13 @@ class SettingElement {
         const target = e.target;
         target.selected = !target.selected;
         const $parent = target.parentElement;
-        $parent.focus(), $parent.dispatchEvent(new Event("change"));
+        $parent.focus(), $parent.dispatchEvent(new Event("input"));
       }), $control.appendChild($option);
     }
     return $control.addEventListener("mousedown", function(e) {
       const self = this, orgScrollTop = self.scrollTop;
       window.setTimeout(() => self.scrollTop = orgScrollTop, 0);
-    }), $control.addEventListener("mousemove", (e) => e.preventDefault()), onChange && $control.addEventListener("change", (e) => {
+    }), $control.addEventListener("mousemove", (e) => e.preventDefault()), onChange && $control.addEventListener("input", (e) => {
       const target = e.target, values = Array.from(target.selectedOptions).map((i) => i.value);
       onChange(e, values);
     }), $control;
@@ -821,6 +837,9 @@ class StreamStats {
   #$br;
   #lastVideoStat;
   #quickGlanceObserver;
+  constructor() {
+    this.#render();
+  }
   start(glancing = !1) {
     if (!this.isHidden() || glancing && this.isGlancing())
       return;
@@ -846,9 +865,11 @@ class StreamStats {
   isHidden = () => this.#$container && this.#$container.classList.contains("bx-gone");
   isGlancing = () => this.#$container && this.#$container.dataset.display === "glancing";
   quickGlanceSetup() {
-    if (this.#quickGlanceObserver)
+    if (!STATES.isPlaying || this.#quickGlanceObserver)
       return;
     const $uiContainer = document.querySelector("div[data-testid=ui-container]");
+    if (!$uiContainer)
+      return;
     this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
       for (let record of mutationList)
         if (record.attributeName && record.attributeName === "aria-expanded")
@@ -911,8 +932,6 @@ class StreamStats {
       this.stop();
   }
   #render() {
-    if (this.#$container)
-      return;
     const stats = {
       [StreamStat.PING]: [t("stat-ping"), this.#$ping = CE("span", {}, "0")],
       [StreamStat.FPS]: [t("stat-fps"), this.#$fps = CE("span", {}, "0")],
@@ -932,9 +951,7 @@ class StreamStats {
     this.#$container = CE("div", { class: "bx-stats-bar bx-gone" }, $barFragment), this.refreshStyles(), document.documentElement.appendChild(this.#$container);
   }
   static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
-      StreamStats.getInstance().#render();
-    }), window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
       const PREF_STATS_QUICK_GLANCE = getPref(PrefKey.STATS_QUICK_GLANCE), PREF_STATS_SHOW_WHEN_PLAYING = getPref(PrefKey.STATS_SHOW_WHEN_PLAYING), streamStats = StreamStats.getInstance();
       if (PREF_STATS_SHOW_WHEN_PLAYING)
         streamStats.start();
@@ -1087,7 +1104,7 @@ class Preferences {
         const options = {
           default: t("default")
         };
-        if (!("getCapabilities" in RTCRtpReceiver) || typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype))
+        if (!("getCapabilities" in RTCRtpReceiver))
           return options;
         let hasLowCodec = !1, hasNormalCodec = !1, hasHighCodec = !1;
         const codecs = RTCRtpReceiver.getCapabilities("video").codecs;
@@ -1413,7 +1430,7 @@ class Preferences {
         [UserAgentProfile.SMARTTV_GENERIC]: "Smart TV",
         [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV",
         [UserAgentProfile.VR_OCULUS]: "Meta Quest VR",
-        [UserAgentProfile.ANDROID_KIWI_V123]: "Kiwi Browser v123",
+        [UserAgentProfile.ANDROID_KIWI_V123]: "Kiwi Browser v124 Fix",
         [UserAgentProfile.CUSTOM]: t("custom")
       }
     },
@@ -2141,468 +2158,6 @@ class KeyHelper {
   }
 }
 
-// src/assets/svg/command.svg
-var command_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M25.425 1.5c2.784 0 5.075 2.291 5.075 5.075s-2.291 5.075-5.075 5.075H20.35V6.575c0-2.784 2.291-5.075 5.075-5.075zM11.65 11.65H6.575C3.791 11.65 1.5 9.359 1.5 6.575S3.791 1.5 6.575 1.5s5.075 2.291 5.075 5.075v5.075zm8.7 8.7h5.075c2.784 0 5.075 2.291 5.075 5.075S28.209 30.5 25.425 30.5s-5.075-2.291-5.075-5.075V20.35zM6.575 30.5c-2.784 0-5.075-2.291-5.075-5.075s2.291-5.075 5.075-5.075h5.075v5.075c0 2.784-2.291 5.075-5.075 5.075z'/>\n    <path d='M11.65 11.65h8.7v8.7h-8.7z'/>\n</svg>\n";
-
-// src/assets/svg/controller.svg
-var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
-
-// src/assets/svg/copy.svg
-var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
-
-// src/assets/svg/cursor-text.svg
-var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
-
-// src/assets/svg/display.svg
-var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
-
-// src/assets/svg/home.svg
-var home_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M12.217 30.503V20.414h7.567v10.089h10.089V15.37a1.26 1.26 0 0 0-.369-.892L16.892 1.867a1.26 1.26 0 0 0-1.784 0L2.497 14.478a1.26 1.26 0 0 0-.369.892v15.133h10.089z'/>\n</svg>\n";
-
-// src/assets/svg/native-mkb.svg
-var native_mkb_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g stroke-width=\"2.1\">\n        <path d=\"m15.817 6h-10.604c-2.215 0-4.013 1.798-4.013 4.013v12.213c0 2.215 1.798 4.013 4.013 4.013h11.21\"/>\n        <path d=\"m5.698 20.617h1.124m-1.124-4.517h7.9m-7.881-4.5h7.9m-2.3 9h2.2\"/>\n    </g>\n    <g stroke-width=\"2.13\">\n        <path d=\"m30.805 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.4c0 3.919 3.182 7.1 7.1 7.1s7.1-3.181 7.1-7.1z\"/>\n        <path d=\"m23.705 14.715v-4.753\"/>\n    </g>\n</svg>\n";
-
-// src/assets/svg/new.svg
-var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
-
-// src/assets/svg/question.svg
-var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
-
-// src/assets/svg/refresh.svg
-var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M23.247 12.377h7.247V5.13'/><path d='M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772'/>\n</svg>\n";
-
-// src/assets/svg/remote-play.svg
-var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
-
-// src/assets/svg/stream-settings.svg
-var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
-
-// src/assets/svg/stream-stats.svg
-var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
-
-// src/assets/svg/trash.svg
-var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
-
-// src/assets/svg/touch-control-enable.svg
-var touch_control_enable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <path d='M30.021 9.448a.89.89 0 0 0-.889-.889H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h26.223a.89.89 0 0 0 .889-.888V9.448z' fill='none' stroke='#fff' stroke-width='2.083'/>\n    <path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/>\n    <path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/>\n    <circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/>\n</svg>\n";
-
-// src/assets/svg/touch-control-disable.svg
-var touch_control_disable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <g fill='none' stroke='#fff'>\n        <path d='M6.021 5.021l20 22' stroke-width='2'/>\n        <path d='M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971' stroke-miterlimit='1.5' stroke-width='2.083'/>\n    </g>\n    <path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/>\n    <path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/>\n    <circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/>\n</svg>\n";
-
-// src/assets/svg/virtual-controller.svg
-var virtual_controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g stroke-width=\"2.06\">\n        <path d=\"M8.417 13.218h4.124\"/>\n        <path d=\"M10.479 11.155v4.125\"/>\n        <path d=\"M12.787 19.404L7.36 25.565a3.61 3.61 0 0 1-2.551 1.056A3.63 3.63 0 0 1 1.2 23.013c0-.21.018-.42.055-.626l2.108-10.845C3.923 8.356 6.714 6.007 9.949 6h5.192\"/>\n    </g>\n    <g stroke-width=\"2.11\">\n        <path d=\"M30.8 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.421c0 3.919 3.181 7.1 7.1 7.1s7.1-3.181 7.1-7.1V13.1z\"/>\n        <path d=\"M23.7 14.724V9.966\"/>\n    </g>\n</svg>\n";
-
-// src/assets/svg/caret-left.svg
-var caret_left_default = "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <path d='M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z'/>\n</svg>\n";
-
-// src/assets/svg/caret-right.svg
-var caret_right_default = "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <path d='M2.685 1.924l6 13.649c.119.27.119.578 0 .849l-6 13.649c-.234.533-.857.775-1.389.541s-.775-.857-.541-1.389l5.813-13.225L.755 2.773c-.234-.533.008-1.155.541-1.389s1.155.008 1.389.541z'/>\n</svg>\n";
-
-// src/assets/svg/camera.svg
-var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.150985 0 0 .150985 -3.32603 -2.72209)' fill='none' stroke='#fff' stroke-width='16'>\n        <path d='M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z'/>\n        <circle cx='128' cy='132' r='36'/>\n    </g>\n</svg>\n";
-
-// src/assets/svg/microphone.svg
-var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662'/>\n</svg>\n";
-
-// src/assets/svg/microphone-slash.svg
-var microphone_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662'/>\n    <path d='M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562'/>\n</svg>\n";
-
-// src/assets/svg/battery-full.svg
-var battery_full_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke-miterlimit='2' viewBox='0 0 32 32'>\n    <path d='M24.774 6.71H3.097C1.398 6.71 0 8.108 0 9.806v12.387c0 1.699 1.398 3.097 3.097 3.097h21.677c1.699 0 3.097-1.398 3.097-3.097V9.806c0-1.699-1.398-3.097-3.097-3.097zm1.032 15.484a1.04 1.04 0 0 1-1.032 1.032H3.097a1.04 1.04 0 0 1-1.032-1.032V9.806a1.04 1.04 0 0 1 1.032-1.032h21.677a1.04 1.04 0 0 1 1.032 1.032v12.387zm-2.065-10.323v8.258a1.04 1.04 0 0 1-1.032 1.032H5.161a1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032H22.71a1.04 1.04 0 0 1 1.032 1.032zm8.258 0v8.258a1.04 1.04 0 0 1-1.032 1.032 1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032A1.04 1.04 0 0 1 32 11.871z' fill-rule='nonzero'/>\n</svg>\n";
-
-// src/assets/svg/clock.svg
-var clock_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.150026 0 0 .150026 -3.20332 -3.20332)' fill='none' stroke='#fff' stroke-width='16'>\n        <circle cx='128' cy='128' r='96'/>\n        <path d='M128 72v56h56'/>\n    </g>\n</svg>\n";
-
-// src/assets/svg/cloud.svg
-var cloud_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M9.773 16c0-5.694 4.685-10.379 10.379-10.379S30.53 10.306 30.53 16s-4.685 10.379-10.379 10.379H8.735c-3.982-.005-7.256-3.283-7.256-7.265s3.28-7.265 7.265-7.265c.606 0 1.21.076 1.797.226' fill='none' stroke='#fff' stroke-width='2.076'/>\n</svg>\n";
-
-// src/assets/svg/download.svg
-var download_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M16 19.955V1.5m14.5 18.455v9.227c0 .723-.595 1.318-1.318 1.318H2.818c-.723 0-1.318-.595-1.318-1.318v-9.227'/>\n    <path d='M22.591 13.364L16 19.955l-6.591-6.591'/>\n</svg>\n";
-
-// src/assets/svg/speaker-high.svg
-var speaker_high_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M8.964 21.417h-6.5a1.09 1.09 0 0 1-1.083-1.083v-8.667a1.09 1.09 0 0 1 1.083-1.083h6.5L18.714 3v26l-9.75-7.583z'/>\n    <path d='M8.964 10.583v10.833m15.167-8.28a4.35 4.35 0 0 1 0 5.728M28.149 9.5a9.79 9.79 0 0 1 0 13'/>\n</svg>\n";
-
-// src/assets/svg/upload.svg
-var upload_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M16 19.905V1.682m14.318 18.223v9.112a1.31 1.31 0 0 1-1.302 1.302H2.983a1.31 1.31 0 0 1-1.302-1.302v-9.112'/>\n    <path d='M9.492 8.19L16 1.682l6.508 6.508'/>\n</svg>\n";
-
-// src/utils/bx-icon.ts
-var BxIcon = {
-  STREAM_SETTINGS: stream_settings_default,
-  STREAM_STATS: stream_stats_default,
-  COMMAND: command_default,
-  CONTROLLER: controller_default,
-  DISPLAY: display_default,
-  HOME: home_default,
-  NATIVE_MKB: native_mkb_default,
-  NEW: new_default,
-  COPY: copy_default,
-  TRASH: trash_default,
-  CURSOR_TEXT: cursor_text_default,
-  QUESTION: question_default,
-  REFRESH: refresh_default,
-  VIRTUAL_CONTROLLER: virtual_controller_default,
-  REMOTE_PLAY: remote_play_default,
-  CARET_LEFT: caret_left_default,
-  CARET_RIGHT: caret_right_default,
-  SCREENSHOT: camera_default,
-  TOUCH_CONTROL_ENABLE: touch_control_enable_default,
-  TOUCH_CONTROL_DISABLE: touch_control_disable_default,
-  MICROPHONE: microphone_default,
-  MICROPHONE_MUTED: microphone_slash_default,
-  BATTERY: battery_full_default,
-  PLAYTIME: clock_default,
-  SERVER: cloud_default,
-  DOWNLOAD: download_default,
-  UPLOAD: upload_default,
-  AUDIO: speaker_high_default
-};
-
-// src/modules/stream/stream-badges.ts
-var StreamBadge;
-(function(StreamBadge2) {
-  StreamBadge2["PLAYTIME"] = "playtime";
-  StreamBadge2["BATTERY"] = "battery";
-  StreamBadge2["DOWNLOAD"] = "in";
-  StreamBadge2["UPLOAD"] = "out";
-  StreamBadge2["SERVER"] = "server";
-  StreamBadge2["VIDEO"] = "video";
-  StreamBadge2["AUDIO"] = "audio";
-})(StreamBadge || (StreamBadge = {}));
-var StreamBadgeIcon = {
-  [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
-  [StreamBadge.VIDEO]: BxIcon.DISPLAY,
-  [StreamBadge.BATTERY]: BxIcon.BATTERY,
-  [StreamBadge.DOWNLOAD]: BxIcon.DOWNLOAD,
-  [StreamBadge.UPLOAD]: BxIcon.UPLOAD,
-  [StreamBadge.SERVER]: BxIcon.SERVER,
-  [StreamBadge.AUDIO]: BxIcon.AUDIO
-};
-
-class StreamBadges {
-  static instance;
-  static getInstance() {
-    if (!StreamBadges.instance)
-      StreamBadges.instance = new StreamBadges;
-    return StreamBadges.instance;
-  }
-  #ipv6 = !1;
-  #resolution = null;
-  #video = null;
-  #audio = null;
-  #region = "";
-  startBatteryLevel = 100;
-  startTimestamp = 0;
-  #$container;
-  #cachedDoms = {};
-  #interval;
-  #REFRESH_INTERVAL = 3000;
-  setRegion(region) {
-    this.#region = region;
-  }
-  #renderBadge(name, value, color) {
-    let $badge;
-    if (this.#cachedDoms[name])
-      return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
-    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === StreamBadge.BATTERY)
-      $badge.classList.add("bx-badge-battery");
-    return this.#cachedDoms[name] = $badge, $badge;
-  }
-  async#updateBadges(forceUpdate = !1) {
-    if (!this.#$container || !forceUpdate && !this.#$container.isConnected) {
-      this.#stop();
-      return;
-    }
-    let now = +new Date;
-    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
-    let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
-    if ("getBattery" in navigator)
-      try {
-        const bm = await navigator.getBattery();
-        if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
-          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
-          batteryLevel += ` (${sign}${diffLevel}%)`;
-        }
-      } catch (e) {
-      }
-    const stats = await STATES.currentStream.peerConnection?.getStats();
-    let totalIn = 0, totalOut = 0;
-    stats.forEach((stat) => {
-      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
-        totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
-    });
-    const badges = {
-      [StreamBadge.DOWNLOAD]: totalIn ? this.#humanFileSize(totalIn) : null,
-      [StreamBadge.UPLOAD]: totalOut ? this.#humanFileSize(totalOut) : null,
-      [StreamBadge.PLAYTIME]: playtime,
-      [StreamBadge.BATTERY]: batteryLevel
-    };
-    let name;
-    for (name in badges) {
-      const value = badges[name];
-      if (value === null)
-        continue;
-      const $elm = this.#cachedDoms[name];
-      if ($elm && ($elm.lastElementChild.textContent = value), name === StreamBadge.BATTERY)
-        if (this.startBatteryLevel === 100 && batteryLevelInt === 100)
-          $elm.classList.add("bx-gone");
-        else
-          $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
-    }
-  }
-  async#start() {
-    await this.#updateBadges(!0), this.#stop(), this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
-  }
-  #stop() {
-    this.#interval && clearInterval(this.#interval), this.#interval = null;
-  }
-  #secondsToHm(seconds) {
-    let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
-    if (m === 60)
-      h += 1, m = 0;
-    const output = [];
-    return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
-  }
-  #humanFileSize(size) {
-    const units = ["B", "KB", "MB", "GB", "TB"], i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-    return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
-  }
-  async render() {
-    if (this.#$container)
-      return this.#start(), this.#$container;
-    await this.#getServerStats();
-    let video = "";
-    if (this.#resolution)
-      video = `${this.#resolution.height}p`;
-    if (this.#video) {
-      if (video && (video += "/"), video += this.#video.codec, this.#video.profile) {
-        const profile = this.#video.profile;
-        let quality = profile;
-        if (profile.startsWith("4d"))
-          quality = t("visual-quality-high");
-        else if (profile.startsWith("42e"))
-          quality = t("visual-quality-normal");
-        else if (profile.startsWith("420"))
-          quality = t("visual-quality-low");
-        video += ` (${quality})`;
-      }
-    }
-    let audio;
-    if (this.#audio) {
-      audio = this.#audio.codec;
-      const bitrate = this.#audio.bitrate / 1000;
-      audio += ` (${bitrate} kHz)`;
-    }
-    let batteryLevel = "";
-    if ("getBattery" in navigator)
-      batteryLevel = "100%";
-    let server = this.#region;
-    server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
-    const BADGES = [
-      [StreamBadge.PLAYTIME, "1m", "#ff004d"],
-      [StreamBadge.BATTERY, batteryLevel, "#00b543"],
-      [StreamBadge.DOWNLOAD, this.#humanFileSize(0), "#29adff"],
-      [StreamBadge.UPLOAD, this.#humanFileSize(0), "#ff77a8"],
-      [StreamBadge.SERVER, server, "#ff6c24"],
-      video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
-      audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
-    ], $container = CE("div", { class: "bx-badges" });
-    return BADGES.forEach((item2) => {
-      if (!item2)
-        return;
-      const $badge = this.#renderBadge(...item2);
-      $container.appendChild($badge);
-    }), this.#$container = $container, await this.#start(), $container;
-  }
-  async#getServerStats() {
-    const stats = await STATES.currentStream.peerConnection.getStats(), allVideoCodecs = {};
-    let videoCodecId;
-    const allAudioCodecs = {};
-    let audioCodecId;
-    const allCandidates = {};
-    let candidateId;
-    if (stats.forEach((stat) => {
-      if (stat.type === "codec") {
-        const mimeType = stat.mimeType.split("/")[0];
-        if (mimeType === "video")
-          allVideoCodecs[stat.id] = stat;
-        else if (mimeType === "audio")
-          allAudioCodecs[stat.id] = stat;
-      } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
-        if (stat.kind === "video")
-          videoCodecId = stat.codecId;
-        else if (stat.kind === "audio")
-          audioCodecId = stat.codecId;
-      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
-        candidateId = stat.remoteCandidateId;
-      else if (stat.type === "remote-candidate")
-        allCandidates[stat.id] = stat.address;
-    }), videoCodecId) {
-      const videoStat = allVideoCodecs[videoCodecId], video = {
-        codec: videoStat.mimeType.substring(6)
-      };
-      if (video.codec === "H264") {
-        const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-        video.profile = match ? match[1] : null;
-      }
-      this.#video = video;
-    }
-    if (audioCodecId) {
-      const audioStat = allAudioCodecs[audioCodecId];
-      this.#audio = {
-        codec: audioStat.mimeType.substring(6),
-        bitrate: audioStat.clockRate
-      };
-    }
-    if (candidateId)
-      BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
-  }
-  static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-      const $video = e.$video, streamBadges = StreamBadges.getInstance();
-      streamBadges.#resolution = {
-        width: $video.videoWidth,
-        height: $video.videoHeight
-      }, streamBadges.startTimestamp = +new Date;
-      try {
-        "getBattery" in navigator && navigator.getBattery().then((bm) => {
-          streamBadges.startBatteryLevel = Math.round(bm.level * 100);
-        });
-      } catch (e2) {
-      }
-    });
-  }
-}
-
-// src/modules/stream/stream-ui.ts
-var cloneStreamHudButton = function($orgButton, label, svgIcon) {
-  const $container = $orgButton.cloneNode(!0);
-  let timeout;
-  const onTransitionStart = (e) => {
-    if (e.propertyName !== "opacity")
-      return;
-    timeout && clearTimeout(timeout), $container.style.pointerEvents = "none";
-  }, onTransitionEnd = (e) => {
-    if (e.propertyName !== "opacity")
-      return;
-    if (document.getElementById("StreamHud")?.style.left === "0px")
-      timeout && clearTimeout(timeout), timeout = window.setTimeout(() => {
-        $container.style.pointerEvents = "auto";
-      }, 100);
-  };
-  if (STATES.browserHasTouchSupport)
-    $container.addEventListener("transitionstart", onTransitionStart), $container.addEventListener("transitionend", onTransitionEnd);
-  const $button = $container.querySelector("button");
-  $button.setAttribute("title", label);
-  const $orgSvg = $button.querySelector("svg"), $svg = createSvgIcon(svgIcon);
-  return $svg.style.fill = "none", $svg.setAttribute("class", $orgSvg.getAttribute("class") || ""), $svg.ariaHidden = "true", $orgSvg.replaceWith($svg), $container;
-}, cloneCloseButton = function($$btnOrg, icon, className, onChange) {
-  const $btn = $$btnOrg.cloneNode(!0), $svg = createSvgIcon(icon);
-  return $svg.setAttribute("class", $btn.firstElementChild.getAttribute("class") || ""), $svg.style.fill = "none", $btn.classList.add(className), $btn.removeChild($btn.firstElementChild), $btn.appendChild($svg), $btn.addEventListener("click", onChange), $btn;
-};
-function injectStreamMenuButtons() {
-  const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
-  if (!$screen)
-    return;
-  if ($screen.xObserving)
-    return;
-  $screen.xObserving = !0;
-  const $settingsDialog = document.querySelector(".bx-stream-settings-dialog"), $parent = $screen.parentElement, hideSettingsFunc = (e) => {
-    if (e) {
-      const $target = e.target;
-      if (e.stopPropagation(), $target != $parent && $target.id !== "MultiTouchSurface" && !$target.querySelector("#BabylonCanvasContainer-main"))
-        return;
-      if ($target.id === "MultiTouchSurface")
-        $target.removeEventListener("touchstart", hideSettingsFunc);
-    }
-    $settingsDialog.classList.add("bx-gone"), $parent?.removeEventListener("click", hideSettingsFunc);
-  };
-  let $btnStreamSettings, $btnStreamStats;
-  const streamStats = StreamStats.getInstance();
-  new MutationObserver((mutationList) => {
-    mutationList.forEach((item2) => {
-      if (item2.type !== "childList")
-        return;
-      item2.addedNodes.forEach(async ($node) => {
-        if (!$node || $node.nodeType !== Node.ELEMENT_NODE)
-          return;
-        let $elm = $node;
-        if ($elm instanceof SVGSVGElement)
-          return;
-        if ($elm.className?.includes("PureErrorPage")) {
-          BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
-          return;
-        }
-        if ($elm.className?.startsWith("StreamMenu-module__container")) {
-          const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
-          if (!$btnCloseHud)
-            return;
-          $btnCloseHud.addEventListener("click", (e) => {
-            $settingsDialog.classList.add("bx-gone");
-          });
-          const $btnRefresh = cloneCloseButton($btnCloseHud, BxIcon.REFRESH, "bx-stream-refresh-button", () => {
-            confirm(t("confirm-reload-stream")) && window.location.reload();
-          }), $btnHome = cloneCloseButton($btnCloseHud, BxIcon.HOME, "bx-stream-home-button", () => {
-            confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
-          });
-          $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh), $btnRefresh.insertAdjacentElement("afterend", $btnHome), document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]")?.appendChild(await StreamBadges.getInstance().render()), hideSettingsFunc();
-          return;
-        }
-        if ($elm.className?.startsWith("Overlay-module_") || $elm.className?.startsWith("InProgressScreen"))
-          $elm = $elm.querySelector("#StreamHud");
-        if (!$elm || ($elm.id || "") !== "StreamHud")
-          return;
-        const $gripHandle = $elm.querySelector("button[class^=GripHandle]"), hideGripHandle = () => {
-          if (!$gripHandle)
-            return;
-          $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
-        }, $orgButton = $elm.querySelector("div[class^=HUDButton]");
-        if (!$orgButton)
-          return;
-        if (!$btnStreamSettings)
-          $btnStreamSettings = cloneStreamHudButton($orgButton, t("stream-settings"), BxIcon.STREAM_SETTINGS), $btnStreamSettings.addEventListener("click", (e) => {
-            hideGripHandle(), e.preventDefault(), $settingsDialog.classList.remove("bx-gone"), $parent?.addEventListener("click", hideSettingsFunc);
-            const $touchSurface = document.getElementById("MultiTouchSurface");
-            $touchSurface && $touchSurface.style.display != "none" && $touchSurface.addEventListener("touchstart", hideSettingsFunc);
-          });
-        if (!$btnStreamStats)
-          $btnStreamStats = cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats.addEventListener("click", (e) => {
-            hideGripHandle(), e.preventDefault(), streamStats.toggle();
-            const btnStreamStatsOn2 = !streamStats.isHidden() && !streamStats.isGlancing();
-            $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn2);
-          });
-        const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();
-        if ($btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn), $orgButton) {
-          const $btnParent = $orgButton.parentElement;
-          $btnParent.insertBefore($btnStreamStats, $btnParent.lastElementChild), $btnParent.insertBefore($btnStreamSettings, $btnStreamStats);
-          const $dotsButton = $btnParent.lastElementChild;
-          $dotsButton.parentElement.insertBefore($dotsButton, $dotsButton.parentElement.firstElementChild);
-        }
-      });
-    });
-  }).observe($screen, { subtree: !0, childList: !0 });
-}
-function showStreamSettings(tabId) {
-  const $wrapper = document.querySelector(".bx-stream-settings-dialog");
-  if (!$wrapper)
-    return;
-  if (tabId) {
-    const $tab = $wrapper.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
-    $tab && $tab.dispatchEvent(new Event("click"));
-  }
-  $wrapper.classList.remove("bx-gone");
-  const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
-  if ($screen && $screen.parentElement) {
-    const $parent = $screen.parentElement;
-    if (!$parent || $parent.bxClick)
-      return;
-    $parent.bxClick = !0;
-    const onClick = (e) => {
-      $wrapper.classList.add("bx-gone"), $parent.bxClick = !1, $parent.removeEventListener("click", onClick);
-    };
-    $parent.addEventListener("click", onClick);
-  }
-}
-
 // src/modules/mkb/pointer-client.ts
 var LOG_TAG = "PointerClient", PointerAction;
 (function(PointerAction2) {
@@ -2877,8 +2432,1180 @@ class NativeMkbHandler extends MkbHandler {
   }
 }
 
+// src/assets/svg/command.svg
+var command_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M25.425 1.5c2.784 0 5.075 2.291 5.075 5.075s-2.291 5.075-5.075 5.075H20.35V6.575c0-2.784 2.291-5.075 5.075-5.075zM11.65 11.65H6.575C3.791 11.65 1.5 9.359 1.5 6.575S3.791 1.5 6.575 1.5s5.075 2.291 5.075 5.075v5.075zm8.7 8.7h5.075c2.784 0 5.075 2.291 5.075 5.075S28.209 30.5 25.425 30.5s-5.075-2.291-5.075-5.075V20.35zM6.575 30.5c-2.784 0-5.075-2.291-5.075-5.075s2.291-5.075 5.075-5.075h5.075v5.075c0 2.784-2.291 5.075-5.075 5.075z'/>\n    <path d='M11.65 11.65h8.7v8.7h-8.7z'/>\n</svg>\n";
+
+// src/assets/svg/controller.svg
+var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/>\n</svg>\n";
+
+// src/assets/svg/copy.svg
+var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/>\n</svg>\n";
+
+// src/assets/svg/cursor-text.svg
+var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/>\n</svg>\n";
+
+// src/assets/svg/display.svg
+var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/>\n</svg>\n";
+
+// src/assets/svg/home.svg
+var home_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M12.217 30.503V20.414h7.567v10.089h10.089V15.37a1.26 1.26 0 0 0-.369-.892L16.892 1.867a1.26 1.26 0 0 0-1.784 0L2.497 14.478a1.26 1.26 0 0 0-.369.892v15.133h10.089z'/>\n</svg>\n";
+
+// src/assets/svg/native-mkb.svg
+var native_mkb_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g stroke-width=\"2.1\">\n        <path d=\"m15.817 6h-10.604c-2.215 0-4.013 1.798-4.013 4.013v12.213c0 2.215 1.798 4.013 4.013 4.013h11.21\"/>\n        <path d=\"m5.698 20.617h1.124m-1.124-4.517h7.9m-7.881-4.5h7.9m-2.3 9h2.2\"/>\n    </g>\n    <g stroke-width=\"2.13\">\n        <path d=\"m30.805 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.4c0 3.919 3.182 7.1 7.1 7.1s7.1-3.181 7.1-7.1z\"/>\n        <path d=\"m23.705 14.715v-4.753\"/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/new.svg
+var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/>\n</svg>\n";
+
+// src/assets/svg/question.svg
+var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g>\n</svg>\n";
+
+// src/assets/svg/refresh.svg
+var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M23.247 12.377h7.247V5.13'/><path d='M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772'/>\n</svg>\n";
+
+// src/assets/svg/remote-play.svg
+var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g>\n</svg>\n";
+
+// src/assets/svg/stream-settings.svg
+var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g>\n</svg>\n";
+
+// src/assets/svg/stream-stats.svg
+var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/>\n</svg>\n";
+
+// src/assets/svg/trash.svg
+var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'>\n    <path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/>\n</svg>\n";
+
+// src/assets/svg/touch-control-enable.svg
+var touch_control_enable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <path d='M30.021 9.448a.89.89 0 0 0-.889-.889H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h26.223a.89.89 0 0 0 .889-.888V9.448z' fill='none' stroke='#fff' stroke-width='2.083'/>\n    <path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/>\n    <path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/>\n    <circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/>\n</svg>\n";
+
+// src/assets/svg/touch-control-disable.svg
+var touch_control_disable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <g fill='none' stroke='#fff'>\n        <path d='M6.021 5.021l20 22' stroke-width='2'/>\n        <path d='M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971' stroke-miterlimit='1.5' stroke-width='2.083'/>\n    </g>\n    <path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/>\n    <path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/>\n    <circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/>\n</svg>\n";
+
+// src/assets/svg/virtual-controller.svg
+var virtual_controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g stroke-width=\"2.06\">\n        <path d=\"M8.417 13.218h4.124\"/>\n        <path d=\"M10.479 11.155v4.125\"/>\n        <path d=\"M12.787 19.404L7.36 25.565a3.61 3.61 0 0 1-2.551 1.056A3.63 3.63 0 0 1 1.2 23.013c0-.21.018-.42.055-.626l2.108-10.845C3.923 8.356 6.714 6.007 9.949 6h5.192\"/>\n    </g>\n    <g stroke-width=\"2.11\">\n        <path d=\"M30.8 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.421c0 3.919 3.181 7.1 7.1 7.1s7.1-3.181 7.1-7.1V13.1z\"/>\n        <path d=\"M23.7 14.724V9.966\"/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/caret-left.svg
+var caret_left_default = "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <path d='M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z'/>\n</svg>\n";
+
+// src/assets/svg/caret-right.svg
+var caret_right_default = "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'>\n    <path d='M2.685 1.924l6 13.649c.119.27.119.578 0 .849l-6 13.649c-.234.533-.857.775-1.389.541s-.775-.857-.541-1.389l5.813-13.225L.755 2.773c-.234-.533.008-1.155.541-1.389s1.155.008 1.389.541z'/>\n</svg>\n";
+
+// src/assets/svg/camera.svg
+var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.150985 0 0 .150985 -3.32603 -2.72209)' fill='none' stroke='#fff' stroke-width='16'>\n        <path d='M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z'/>\n        <circle cx='128' cy='132' r='36'/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/microphone.svg
+var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662'/>\n</svg>\n";
+
+// src/assets/svg/microphone-slash.svg
+var microphone_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662'/>\n    <path d='M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562'/>\n</svg>\n";
+
+// src/assets/svg/battery-full.svg
+var battery_full_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke-miterlimit='2' viewBox='0 0 32 32'>\n    <path d='M24.774 6.71H3.097C1.398 6.71 0 8.108 0 9.806v12.387c0 1.699 1.398 3.097 3.097 3.097h21.677c1.699 0 3.097-1.398 3.097-3.097V9.806c0-1.699-1.398-3.097-3.097-3.097zm1.032 15.484a1.04 1.04 0 0 1-1.032 1.032H3.097a1.04 1.04 0 0 1-1.032-1.032V9.806a1.04 1.04 0 0 1 1.032-1.032h21.677a1.04 1.04 0 0 1 1.032 1.032v12.387zm-2.065-10.323v8.258a1.04 1.04 0 0 1-1.032 1.032H5.161a1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032H22.71a1.04 1.04 0 0 1 1.032 1.032zm8.258 0v8.258a1.04 1.04 0 0 1-1.032 1.032 1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032A1.04 1.04 0 0 1 32 11.871z' fill-rule='nonzero'/>\n</svg>\n";
+
+// src/assets/svg/clock.svg
+var clock_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <g transform='matrix(.150026 0 0 .150026 -3.20332 -3.20332)' fill='none' stroke='#fff' stroke-width='16'>\n        <circle cx='128' cy='128' r='96'/>\n        <path d='M128 72v56h56'/>\n    </g>\n</svg>\n";
+
+// src/assets/svg/cloud.svg
+var cloud_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M9.773 16c0-5.694 4.685-10.379 10.379-10.379S30.53 10.306 30.53 16s-4.685 10.379-10.379 10.379H8.735c-3.982-.005-7.256-3.283-7.256-7.265s3.28-7.265 7.265-7.265c.606 0 1.21.076 1.797.226' fill='none' stroke='#fff' stroke-width='2.076'/>\n</svg>\n";
+
+// src/assets/svg/download.svg
+var download_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M16 19.955V1.5m14.5 18.455v9.227c0 .723-.595 1.318-1.318 1.318H2.818c-.723 0-1.318-.595-1.318-1.318v-9.227'/>\n    <path d='M22.591 13.364L16 19.955l-6.591-6.591'/>\n</svg>\n";
+
+// src/assets/svg/speaker-high.svg
+var speaker_high_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M8.964 21.417h-6.5a1.09 1.09 0 0 1-1.083-1.083v-8.667a1.09 1.09 0 0 1 1.083-1.083h6.5L18.714 3v26l-9.75-7.583z'/>\n    <path d='M8.964 10.583v10.833m15.167-8.28a4.35 4.35 0 0 1 0 5.728M28.149 9.5a9.79 9.79 0 0 1 0 13'/>\n</svg>\n";
+
+// src/assets/svg/upload.svg
+var upload_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'>\n    <path d='M16 19.905V1.682m14.318 18.223v9.112a1.31 1.31 0 0 1-1.302 1.302H2.983a1.31 1.31 0 0 1-1.302-1.302v-9.112'/>\n    <path d='M9.492 8.19L16 1.682l6.508 6.508'/>\n</svg>\n";
+
+// src/utils/bx-icon.ts
+var BxIcon = {
+  STREAM_SETTINGS: stream_settings_default,
+  STREAM_STATS: stream_stats_default,
+  COMMAND: command_default,
+  CONTROLLER: controller_default,
+  DISPLAY: display_default,
+  HOME: home_default,
+  NATIVE_MKB: native_mkb_default,
+  NEW: new_default,
+  COPY: copy_default,
+  TRASH: trash_default,
+  CURSOR_TEXT: cursor_text_default,
+  QUESTION: question_default,
+  REFRESH: refresh_default,
+  VIRTUAL_CONTROLLER: virtual_controller_default,
+  REMOTE_PLAY: remote_play_default,
+  CARET_LEFT: caret_left_default,
+  CARET_RIGHT: caret_right_default,
+  SCREENSHOT: camera_default,
+  TOUCH_CONTROL_ENABLE: touch_control_enable_default,
+  TOUCH_CONTROL_DISABLE: touch_control_disable_default,
+  MICROPHONE: microphone_default,
+  MICROPHONE_MUTED: microphone_slash_default,
+  BATTERY: battery_full_default,
+  PLAYTIME: clock_default,
+  SERVER: cloud_default,
+  DOWNLOAD: download_default,
+  UPLOAD: upload_default,
+  AUDIO: speaker_high_default
+};
+
+// src/modules/dialog.ts
+class Dialog {
+  $dialog;
+  $title;
+  $content;
+  $overlay;
+  onClose;
+  constructor(options) {
+    const {
+      title,
+      className,
+      content,
+      hideCloseButton,
+      onClose,
+      helpUrl
+    } = options, $overlay = document.querySelector(".bx-dialog-overlay");
+    if (!$overlay)
+      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" }), this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$overlay);
+    else
+      this.$overlay = $overlay;
+    let $close;
+    this.onClose = onClose, this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
+      icon: BxIcon.QUESTION,
+      style: ButtonStyle.GHOST,
+      title: t("help"),
+      url: helpUrl
+    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close")))), $close && $close.addEventListener("click", (e) => {
+      this.hide(e);
+    }), !title && this.$title.classList.add("bx-gone"), !content && this.$content.classList.add("bx-gone"), this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$dialog);
+  }
+  show(newOptions) {
+    if (document.activeElement && document.activeElement.blur(), newOptions && newOptions.title)
+      this.$title.querySelector("b").textContent = newOptions.title, this.$title.classList.remove("bx-gone");
+    this.$dialog.classList.remove("bx-gone"), this.$overlay.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
+  }
+  hide(e) {
+    this.$dialog.classList.add("bx-gone"), this.$overlay.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll"), this.onClose && this.onClose(e);
+  }
+  toggle() {
+    this.$dialog.classList.toggle("bx-gone"), this.$overlay.classList.toggle("bx-gone");
+  }
+}
+
+// src/modules/mkb/mkb-remapper.ts
+class MkbRemapper {
+  #BUTTON_ORDERS = [
+    GamepadKey.UP,
+    GamepadKey.DOWN,
+    GamepadKey.LEFT,
+    GamepadKey.RIGHT,
+    GamepadKey.A,
+    GamepadKey.B,
+    GamepadKey.X,
+    GamepadKey.Y,
+    GamepadKey.LB,
+    GamepadKey.RB,
+    GamepadKey.LT,
+    GamepadKey.RT,
+    GamepadKey.SELECT,
+    GamepadKey.START,
+    GamepadKey.HOME,
+    GamepadKey.L3,
+    GamepadKey.LS_UP,
+    GamepadKey.LS_DOWN,
+    GamepadKey.LS_LEFT,
+    GamepadKey.LS_RIGHT,
+    GamepadKey.R3,
+    GamepadKey.RS_UP,
+    GamepadKey.RS_DOWN,
+    GamepadKey.RS_LEFT,
+    GamepadKey.RS_RIGHT
+  ];
+  static #instance;
+  static get INSTANCE() {
+    if (!MkbRemapper.#instance)
+      MkbRemapper.#instance = new MkbRemapper;
+    return MkbRemapper.#instance;
+  }
+  #STATE = {
+    currentPresetId: 0,
+    presets: {},
+    editingPresetData: null,
+    isEditing: !1
+  };
+  #$ = {
+    wrapper: null,
+    presetsSelect: null,
+    activateButton: null,
+    currentBindingKey: null,
+    allKeyElements: [],
+    allMouseElements: {}
+  };
+  bindingDialog;
+  constructor() {
+    this.#STATE.currentPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID), this.bindingDialog = new Dialog({
+      className: "bx-binding-dialog",
+      content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
+      hideCloseButton: !0
+    });
+  }
+  #clearEventListeners = () => {
+    window.removeEventListener("keydown", this.#onKeyDown), window.removeEventListener("mousedown", this.#onMouseDown), window.removeEventListener("wheel", this.#onWheel);
+  };
+  #bindKey = ($elm, key) => {
+    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
+    if ($elm.getAttribute("data-key-code") === key.code)
+      return;
+    for (let $otherElm of this.#$.allKeyElements)
+      if ($otherElm.getAttribute("data-key-code") === key.code)
+        this.#unbindKey($otherElm);
+    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.setAttribute("data-key-code", key.code);
+  };
+  #unbindKey = ($elm) => {
+    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
+    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null, $elm.textContent = "", $elm.removeAttribute("data-key-code");
+  };
+  #onWheel = (e) => {
+    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
+  };
+  #onMouseDown = (e) => {
+    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
+  };
+  #onKeyDown = (e) => {
+    if (e.preventDefault(), e.stopPropagation(), this.#clearEventListeners(), e.code !== "Escape")
+      this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
+    window.setTimeout(() => this.bindingDialog.hide(), 200);
+  };
+  #onBindingKey = (e) => {
+    if (!this.#STATE.isEditing || e.button !== 0)
+      return;
+    console.log(e), this.#$.currentBindingKey = e.target, window.addEventListener("keydown", this.#onKeyDown), window.addEventListener("mousedown", this.#onMouseDown), window.addEventListener("wheel", this.#onWheel), this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
+  };
+  #onContextMenu = (e) => {
+    if (e.preventDefault(), !this.#STATE.isEditing)
+      return;
+    this.#unbindKey(e.target);
+  };
+  #getPreset = (presetId) => {
+    return this.#STATE.presets[presetId];
+  };
+  #getCurrentPreset = () => {
+    return this.#getPreset(this.#STATE.currentPresetId);
+  };
+  #switchPreset = (presetId) => {
+    this.#STATE.currentPresetId = presetId;
+    const presetData = this.#getCurrentPreset().data;
+    for (let $elm of this.#$.allKeyElements) {
+      const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot")), buttonKeys = presetData.mapping[buttonIndex];
+      if (buttonKeys && buttonKeys[keySlot])
+        $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]), $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
+      else
+        $elm.textContent = "", $elm.removeAttribute("data-key-code");
+    }
+    let key;
+    for (key in this.#$.allMouseElements) {
+      const $elm = this.#$.allMouseElements[key];
+      let value = presetData.mouse[key];
+      if (typeof value === "undefined")
+        value = MkbPreset.MOUSE_SETTINGS[key].default;
+      "setValue" in $elm && $elm.setValue(value);
+    }
+    const activated = getPref(PrefKey.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
+    this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
+  };
+  #refresh() {
+    while (this.#$.presetsSelect.firstChild)
+      this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
+    LocalDb.INSTANCE.getPresets().then((presets) => {
+      this.#STATE.presets = presets;
+      const $fragment = document.createDocumentFragment();
+      let defaultPresetId;
+      if (this.#STATE.currentPresetId === 0)
+        this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.#STATE.currentPresetId, setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
+      else
+        defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
+      for (let id2 in presets) {
+        let name = presets[id2].name;
+        if (id2 === defaultPresetId)
+          name = "🎮 " + name;
+        const $options = CE("option", { value: id2 }, name);
+        $options.selected = parseInt(id2) === this.#STATE.currentPresetId, $fragment.appendChild($options);
+      }
+      this.#$.presetsSelect.appendChild($fragment);
+      const activated = defaultPresetId === this.#STATE.currentPresetId;
+      this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate"), !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
+    });
+  }
+  #toggleEditing = (force) => {
+    if (this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing, this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing), this.#STATE.isEditing)
+      this.#STATE.editingPresetData = deepClone(this.#getCurrentPreset().data);
+    else
+      this.#STATE.editingPresetData = null;
+    const childElements = this.#$.wrapper.querySelectorAll("select, button, input");
+    for (let $elm of Array.from(childElements)) {
+      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons"))
+        continue;
+      let disable = !this.#STATE.isEditing;
+      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools"))
+        disable = !disable;
+      $elm.disabled = disable;
+    }
+  };
+  render() {
+    this.#$.wrapper = CE("div", { class: "bx-mkb-settings" }), this.#$.presetsSelect = CE("select", {}), this.#$.presetsSelect.addEventListener("change", (e) => {
+      this.#switchPreset(parseInt(e.target.value));
+    });
+    const promptNewName = (value) => {
+      let newName = "";
+      while (!newName) {
+        if (newName = prompt(t("prompt-preset-name"), value), newName === null)
+          return !1;
+        newName = newName.trim();
+      }
+      return newName ? newName : !1;
+    }, $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
+      title: t("rename"),
+      icon: BxIcon.CURSOR_TEXT,
+      onClick: (e) => {
+        const preset = this.#getCurrentPreset();
+        let newName = promptNewName(preset.name);
+        if (!newName || newName === preset.name)
+          return;
+        preset.name = newName, LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
+      }
+    }), createButton({
+      icon: BxIcon.NEW,
+      title: t("new"),
+      onClick: (e) => {
+        let newName = promptNewName("");
+        if (!newName)
+          return;
+        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
+          this.#STATE.currentPresetId = id2, this.#refresh();
+        });
+      }
+    }), createButton({
+      icon: BxIcon.COPY,
+      title: t("copy"),
+      onClick: (e) => {
+        const preset = this.#getCurrentPreset();
+        let newName = promptNewName(`${preset.name} (2)`);
+        if (!newName)
+          return;
+        LocalDb.INSTANCE.newPreset(newName, preset.data).then((id2) => {
+          this.#STATE.currentPresetId = id2, this.#refresh();
+        });
+      }
+    }), createButton({
+      icon: BxIcon.TRASH,
+      style: ButtonStyle.DANGER,
+      title: t("delete"),
+      onClick: (e) => {
+        if (!confirm(t("confirm-delete-preset")))
+          return;
+        LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id2) => {
+          this.#STATE.currentPresetId = 0, this.#refresh();
+        });
+      }
+    }));
+    this.#$.wrapper.appendChild($header);
+    const $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind"))), keysPerButton = 2;
+    for (let buttonIndex of this.#BUTTON_ORDERS) {
+      const [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex];
+      let $elm;
+      const $fragment = document.createDocumentFragment();
+      for (let i = 0;i < keysPerButton; i++)
+        $elm = CE("button", {
+          type: "button",
+          "data-prompt": buttonPrompt,
+          "data-button-index": buttonIndex,
+          "data-key-slot": i
+        }, " "), $elm.addEventListener("mouseup", this.#onBindingKey), $elm.addEventListener("contextmenu", this.#onContextMenu), $fragment.appendChild($elm), this.#$.allKeyElements.push($elm);
+      const $keyRow = CE("div", { class: "bx-mkb-key-row" }, CE("label", { title: buttonName }, buttonPrompt), $fragment);
+      $rows.appendChild($keyRow);
+    }
+    $rows.appendChild(CE("i", { class: "bx-mkb-note" }, t("mkb-adjust-ingame-settings")));
+    const $mouseSettings = document.createDocumentFragment();
+    for (let key in MkbPreset.MOUSE_SETTINGS) {
+      const setting = MkbPreset.MOUSE_SETTINGS[key], value = setting.default;
+      let $elm;
+      const onChange = (e, value2) => {
+        this.#STATE.editingPresetData.mouse[key] = value2;
+      }, $row = CE("div", { class: "bx-stream-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
+      $mouseSettings.appendChild($row), this.#$.allMouseElements[key] = $elm;
+    }
+    $rows.appendChild($mouseSettings), this.#$.wrapper.appendChild($rows);
+    const $actionButtons = CE("div", { class: "bx-mkb-action-buttons" }, CE("div", {}, createButton({
+      label: t("edit"),
+      onClick: (e) => this.#toggleEditing(!0)
+    }), this.#$.activateButton = createButton({
+      label: t("activate"),
+      style: ButtonStyle.PRIMARY,
+      onClick: (e) => {
+        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.#refresh();
+      }
+    })), CE("div", {}, createButton({
+      label: t("cancel"),
+      style: ButtonStyle.GHOST,
+      onClick: (e) => {
+        this.#switchPreset(this.#STATE.currentPresetId), this.#toggleEditing(!1);
+      }
+    }), createButton({
+      label: t("save"),
+      style: ButtonStyle.PRIMARY,
+      onClick: (e) => {
+        const updatedPreset = deepClone(this.#getCurrentPreset());
+        updatedPreset.data = this.#STATE.editingPresetData, LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
+          if (id2 === getPref(PrefKey.MKB_DEFAULT_PRESET_ID))
+            EmulatedMkbHandler.getInstance().refreshPresetData();
+          this.#toggleEditing(!1), this.#refresh();
+        });
+      }
+    })));
+    return this.#$.wrapper.appendChild($actionButtons), this.#toggleEditing(!1), this.#refresh(), this.#$.wrapper;
+  }
+}
+
+// src/utils/utils.ts
+function checkForUpdate() {
+  if (SCRIPT_VERSION.includes("beta"))
+    return;
+  const CHECK_INTERVAL_SECONDS = 7200, currentVersion = getPref(PrefKey.CURRENT_VERSION), lastCheck = getPref(PrefKey.LAST_UPDATE_CHECK), now = Math.round(+new Date / 1000);
+  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS)
+    return;
+  setPref(PrefKey.LAST_UPDATE_CHECK, now), fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
+    setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1)), setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
+  }), Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
+}
+function disablePwa() {
+  if (!(window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase())
+    return;
+  if (!!AppInterface || UserAgent.isSafariMobile())
+    Object.defineProperty(window.navigator, "standalone", {
+      value: !0
+    });
+}
+function hashCode(str2) {
+  let hash = 0;
+  for (let i = 0, len = str2.length;i < len; i++) {
+    const chr = str2.charCodeAt(i);
+    hash = (hash << 5) - hash + chr, hash |= 0;
+  }
+  return hash;
+}
+function renderString(str2, obj) {
+  return str2.replace(/\$\{.+?\}/g, (match) => {
+    const key = match.substring(2, match.length - 1);
+    if (key in obj)
+      return obj[key];
+    return match;
+  });
+}
+function ceilToNearest(value, interval) {
+  return Math.ceil(value / interval) * interval;
+}
+function floorToNearest(value, interval) {
+  return Math.floor(value / interval) * interval;
+}
+
+// src/modules/shortcuts/shortcut-sound.ts
+class SoundShortcut {
+  static adjustGainNodeVolume(amount) {
+    if (!getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL))
+      return 0;
+    const currentValue = getPref(PrefKey.AUDIO_VOLUME);
+    let nearestValue;
+    if (amount > 0)
+      nearestValue = ceilToNearest(currentValue, amount);
+    else
+      nearestValue = floorToNearest(currentValue, -1 * amount);
+    let newValue;
+    if (currentValue !== nearestValue)
+      newValue = nearestValue;
+    else
+      newValue = currentValue + amount;
+    return newValue = setPref(PrefKey.AUDIO_VOLUME, newValue), SoundShortcut.setGainNodeVolume(newValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: !0 }), BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
+      volume: newValue
+    }), newValue;
+  }
+  static setGainNodeVolume(value) {
+    STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
+  }
+  static muteUnmute() {
+    if (getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && STATES.currentStream.audioGainNode) {
+      const gainValue = STATES.currentStream.audioGainNode.gain.value, settingValue = getPref(PrefKey.AUDIO_VOLUME);
+      let targetValue;
+      if (settingValue === 0)
+        targetValue = 100, setPref(PrefKey.AUDIO_VOLUME, targetValue), BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
+          volume: targetValue
+        });
+      else if (gainValue === 0)
+        targetValue = settingValue;
+      else
+        targetValue = 0;
+      let status;
+      if (targetValue === 0)
+        status = t("muted");
+      else
+        status = targetValue + "%";
+      SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
+      return;
+    }
+    let $media;
+    if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media)
+      $media = document.querySelector("div[data-testid=media-container] video");
+    if ($media) {
+      $media.muted = !$media.muted;
+      const status = $media.muted ? t("muted") : t("unmuted");
+      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
+    }
+  }
+}
+
+// src/modules/touch-controller.ts
+var LOG_TAG2 = "TouchController";
+
+class TouchController {
+  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
+    data: JSON.stringify({
+      content: '{"layoutId":""}',
+      target: "/streaming/touchcontrols/showlayoutv2",
+      type: "Message"
+    }),
+    origin: "better-xcloud"
+  });
+  static #$style;
+  static #enable = !1;
+  static #dataChannel;
+  static #customLayouts = {};
+  static #baseCustomLayouts = {};
+  static #currentLayoutId;
+  static #customList;
+  static enable() {
+    TouchController.#enable = !0;
+  }
+  static disable() {
+    TouchController.#enable = !1;
+  }
+  static isEnabled() {
+    return TouchController.#enable;
+  }
+  static #showDefault() {
+    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
+  }
+  static #show() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
+  }
+  static #hide() {
+    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
+  }
+  static toggleVisibility(status) {
+    if (!TouchController.#dataChannel)
+      return;
+    status ? TouchController.#hide() : TouchController.#show();
+  }
+  static reset() {
+    TouchController.#enable = !1, TouchController.#dataChannel = null, TouchController.#$style && (TouchController.#$style.textContent = "");
+  }
+  static #dispatchMessage(msg) {
+    TouchController.#dataChannel && window.setTimeout(() => {
+      TouchController.#dataChannel.dispatchEvent(msg);
+    }, 10);
+  }
+  static #dispatchLayouts(data) {
+    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+      data
+    });
+  }
+  static async getCustomLayouts(xboxTitleId, retries = 1) {
+    if (xboxTitleId in TouchController.#customLayouts) {
+      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
+      return;
+    }
+    if (retries = retries || 1, retries > 2) {
+      TouchController.#customLayouts[xboxTitleId] = null, window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
+      return;
+    }
+    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`, url = `${baseUrl}/${xboxTitleId}.json`;
+    try {
+      const json = await (await NATIVE_FETCH(url)).json(), layouts = {};
+      json.layouts.forEach(async (layoutName) => {
+        let baseLayouts = {};
+        if (layoutName in TouchController.#baseCustomLayouts)
+          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
+        else
+          try {
+            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
+            baseLayouts = (await (await NATIVE_FETCH(layoutUrl)).json()).layouts, TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
+          } catch (e) {
+          }
+        Object.assign(layouts, baseLayouts);
+      }), json.layouts = layouts, TouchController.#customLayouts[xboxTitleId] = json, window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
+    } catch (e) {
+      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
+    }
+  }
+  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
+    if (!window.BX_EXPOSED.touchLayoutManager) {
+      const listener = (e) => {
+        if (window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener), TouchController.#enable)
+          TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
+      };
+      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
+      return;
+    }
+    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
+    TouchController.#currentLayoutId = layoutId;
+    const layoutData = TouchController.#customLayouts[xboxTitleId];
+    if (!xboxTitleId || !layoutId || !layoutData) {
+      TouchController.#enable && TouchController.#showDefault();
+      return;
+    }
+    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
+    if (!layout)
+      return;
+    let msg, html10 = !1;
+    if (layout.author) {
+      const author = `<b>${escapeHtml(layout.author)}</b>`;
+      msg = t("touch-control-layout-by", { name: author }), html10 = !0;
+    } else
+      msg = t("touch-control-layout");
+    layoutChanged && Toast.show(msg, layout.name, { html: html10 }), window.setTimeout(() => {
+      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope"), window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "System",
+          layoutFile: layout
+        }
+      });
+    }, delay);
+  }
+  static updateCustomList() {
+    TouchController.#customList = JSON.parse(window.localStorage.getItem("better_xcloud_custom_touch_layouts") || "[]"), NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
+      TouchController.#customList = json, window.localStorage.setItem("better_xcloud_custom_touch_layouts", JSON.stringify(json));
+    });
+  }
+  static getCustomList() {
+    return TouchController.#customList;
+  }
+  static setup() {
+    window.testTouchLayout = (layout) => {
+      const { touchLayoutManager } = window.BX_EXPOSED;
+      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
+        type: "showLayout",
+        scope: "" + STATES.currentStream?.xboxTitleId,
+        subscope: "base",
+        layout: {
+          id: "System.Standard",
+          displayName: "Custom",
+          layoutFile: layout
+        }
+      });
+    };
+    const $style = document.createElement("style");
+    document.documentElement.appendChild($style), TouchController.#$style = $style;
+    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD), PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
+    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+      const dataChannel = e.dataChannel;
+      if (!dataChannel || dataChannel.label !== "message")
+        return;
+      let filter = "";
+      if (TouchController.#enable) {
+        if (PREF_STYLE_STANDARD === "white")
+          filter = "grayscale(1) brightness(2)";
+        else if (PREF_STYLE_STANDARD === "muted")
+          filter = "sepia(0.5)";
+      } else if (PREF_STYLE_CUSTOM === "muted")
+        filter = "sepia(0.5)";
+      if (filter)
+        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+      else
+        $style.textContent = "";
+      TouchController.#dataChannel = dataChannel, dataChannel.addEventListener("open", () => {
+        window.setTimeout(TouchController.#show, 1000);
+      });
+      let focused = !1;
+      dataChannel.addEventListener("message", (msg) => {
+        if (msg.origin === "better-xcloud" || typeof msg.data !== "string")
+          return;
+        if (msg.data.includes("touchcontrols/showtitledefault")) {
+          if (TouchController.#enable)
+            if (focused)
+              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
+            else
+              TouchController.#showDefault();
+          return;
+        }
+        try {
+          if (msg.data.includes("/titleinfo")) {
+            const json = JSON.parse(JSON.parse(msg.data).content);
+            if (focused = json.focused, !json.focused)
+              TouchController.#show();
+            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
+          }
+        } catch (e2) {
+          BxLogger.error(LOG_TAG2, "Load custom layout", e2);
+        }
+      });
+    });
+  }
+}
+
+// src/modules/vibration-manager.ts
+var VIBRATION_DATA_MAP = {
+  gamepadIndex: 8,
+  leftMotorPercent: 8,
+  rightMotorPercent: 8,
+  leftTriggerMotorPercent: 8,
+  rightTriggerMotorPercent: 8,
+  durationMs: 16
+};
+
+class VibrationManager {
+  static #playDeviceVibration(data) {
+    if (AppInterface) {
+      AppInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
+      return;
+    }
+    const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY;
+    if (intensity === 0 || intensity === 100) {
+      window.navigator.vibrate(intensity ? data.durationMs : 0);
+      return;
+    }
+    const pulseDuration = 200, onDuration = Math.floor(pulseDuration * intensity / 100), offDuration = pulseDuration - onDuration, repeats = Math.ceil(data.durationMs / pulseDuration), pulses = Array(repeats).fill([onDuration, offDuration]).flat();
+    window.navigator.vibrate(pulses);
+  }
+  static supportControllerVibration() {
+    return Gamepad.prototype.hasOwnProperty("vibrationActuator");
+  }
+  static supportDeviceVibration() {
+    return !!window.navigator.vibrate;
+  }
+  static updateGlobalVars(stopVibration = !0) {
+    if (window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : !1, window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100, !VibrationManager.supportDeviceVibration()) {
+      window.BX_ENABLE_DEVICE_VIBRATION = !1;
+      return;
+    }
+    stopVibration && window.navigator.vibrate(0);
+    const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
+    let enabled;
+    if (value === "on")
+      enabled = !0;
+    else if (value === "auto") {
+      enabled = !0;
+      const gamepads = window.navigator.getGamepads();
+      for (let gamepad of gamepads)
+        if (gamepad) {
+          enabled = !1;
+          break;
+        }
+    } else
+      enabled = !1;
+    window.BX_ENABLE_DEVICE_VIBRATION = enabled;
+  }
+  static #onMessage(e) {
+    if (!window.BX_ENABLE_DEVICE_VIBRATION)
+      return;
+    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer))
+      return;
+    const dataView = new DataView(e.data);
+    let offset = 0, messageType;
+    if (dataView.byteLength === 13)
+      messageType = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
+    else
+      messageType = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
+    if (!(messageType & 128))
+      return;
+    const vibrationType = dataView.getUint8(offset);
+    if (offset += Uint8Array.BYTES_PER_ELEMENT, vibrationType !== 0)
+      return;
+    const data = {};
+    let key;
+    for (key in VIBRATION_DATA_MAP)
+      if (VIBRATION_DATA_MAP[key] === 16)
+        data[key] = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
+      else
+        data[key] = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
+    VibrationManager.#playDeviceVibration(data);
+  }
+  static initialSetup() {
+    window.addEventListener("gamepadconnected", (e) => VibrationManager.updateGlobalVars()), window.addEventListener("gamepaddisconnected", (e) => VibrationManager.updateGlobalVars()), VibrationManager.updateGlobalVars(!1), window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
+      const dataChannel = e.dataChannel;
+      if (!dataChannel || dataChannel.label !== "input")
+        return;
+      dataChannel.addEventListener("message", VibrationManager.#onMessage);
+    });
+  }
+}
+
+// src/web-components/bx-select.ts
+class BxSelectElement {
+  static wrap($select) {
+    const $btnPrev = createButton({
+      label: "<",
+      style: ButtonStyle.FOCUSABLE,
+      attributes: {
+        tabindex: 0
+      }
+    }), $btnNext = createButton({
+      label: ">",
+      style: ButtonStyle.FOCUSABLE,
+      attributes: {
+        tabindex: 0
+      }
+    }), isMultiple = $select.multiple;
+    let visibleIndex = $select.selectedIndex, $checkBox, $label;
+    const $content = CE("div", {}, $checkBox = CE("input", { type: "checkbox", id: $select.id + "_checkbox" }), $label = CE("label", { for: $select.id + "_checkbox" }, ""));
+    isMultiple && $checkBox.addEventListener("input", (e) => {
+      const $option = getOptionAtIndex(visibleIndex);
+      $option && ($option.selected = e.target.checked), $select.dispatchEvent(new Event("input"));
+    }), $checkBox.classList.toggle("bx-gone", !isMultiple);
+    const getOptionAtIndex = (index) => {
+      return $select.querySelector(`option:nth-of-type(${visibleIndex + 1})`);
+    }, render = () => {
+      visibleIndex = normalizeIndex(visibleIndex);
+      const $option = getOptionAtIndex(visibleIndex);
+      let content = "";
+      if ($option)
+        content = $option.textContent || "";
+      $label.textContent = content, isMultiple && ($checkBox.checked = $option?.selected || !1), $checkBox.classList.toggle("bx-gone", !isMultiple || !content);
+      const disablePrev = visibleIndex <= 0, disableNext = visibleIndex === $select.querySelectorAll("option").length - 1;
+      $btnPrev.classList.toggle("bx-inactive", disablePrev), disablePrev && $btnNext.focus(), $btnNext.classList.toggle("bx-inactive", disableNext), disableNext && $btnPrev.focus();
+    }, normalizeIndex = (index) => {
+      return Math.min(Math.max(index, 0), $select.querySelectorAll("option").length - 1);
+    }, onPrevNext = (e) => {
+      const goNext = e.target === $btnNext, currentIndex = visibleIndex;
+      let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
+      if (newIndex = normalizeIndex(newIndex), visibleIndex = newIndex, !isMultiple && newIndex !== currentIndex)
+        $select.selectedIndex = newIndex;
+      $select.dispatchEvent(new Event("input"));
+    };
+    return $select.addEventListener("input", (e) => render()), $btnPrev.addEventListener("click", onPrevNext), $btnNext.addEventListener("click", onPrevNext), new MutationObserver((mutationList, observer2) => {
+      mutationList.forEach((mutation) => {
+        mutation.type === "childList" && render();
+      });
+    }).observe($select, {
+      subtree: !0,
+      childList: !0
+    }), render(), CE("div", { class: "bx-select" }, $select, $btnPrev, $content, $btnNext);
+  }
+}
+
+// src/modules/stream/stream-settings-utils.ts
+function onChangeVideoPlayerType() {
+  const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE), $videoProcessing = document.getElementById("bx_setting_video_processing"), $videoSharpness = document.getElementById("bx_setting_video_sharpness");
+  let isDisabled = !1;
+  if (playerType === StreamPlayerType.WEBGL2)
+    $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = !1;
+  else if ($videoProcessing.value = StreamVideoProcessing.USM, setPref(PrefKey.VIDEO_PROCESSING, StreamVideoProcessing.USM), $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = !0, UserAgent.isSafari())
+    isDisabled = !0;
+  $videoProcessing.disabled = isDisabled, $videoSharpness.dataset.disabled = isDisabled.toString(), updateVideoPlayer();
+}
+function updateVideoPlayer() {
+  const streamPlayer = STATES.currentStream.streamPlayer;
+  if (!streamPlayer)
+    return;
+  const options = {
+    processing: getPref(PrefKey.VIDEO_PROCESSING),
+    sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
+    saturation: getPref(PrefKey.VIDEO_SATURATION),
+    contrast: getPref(PrefKey.VIDEO_CONTRAST),
+    brightness: getPref(PrefKey.VIDEO_BRIGHTNESS)
+  };
+  streamPlayer.setPlayerType(getPref(PrefKey.VIDEO_PLAYER_TYPE)), streamPlayer.updateOptions(options), streamPlayer.refreshPlayer();
+}
+window.addEventListener("resize", updateVideoPlayer);
+
+// src/modules/stream/stream-settings.ts
+class StreamSettings {
+  static instance;
+  static getInstance() {
+    if (!StreamSettings.instance)
+      StreamSettings.instance = new StreamSettings;
+    return StreamSettings.instance;
+  }
+  $container;
+  $overlay;
+  SETTINGS_UI = [
+    {
+      icon: BxIcon.DISPLAY,
+      group: "stream",
+      items: [{
+        group: "audio",
+        label: t("audio"),
+        help_url: "https://better-xcloud.github.io/ingame-features/#audio",
+        items: [{
+          pref: PrefKey.AUDIO_VOLUME,
+          onChange: (e, value) => {
+            SoundShortcut.setGainNodeVolume(value);
+          },
+          params: {
+            disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)
+          },
+          onMounted: ($elm) => {
+            const $range = $elm.querySelector("input[type=range");
+            window.addEventListener(BxEvent.GAINNODE_VOLUME_CHANGED, (e) => {
+              $range.value = e.volume, BxEvent.dispatch($range, "input", {
+                ignoreOnChange: !0
+              });
+            });
+          }
+        }]
+      }, {
+        group: "video",
+        label: t("video"),
+        help_url: "https://better-xcloud.github.io/ingame-features/#video",
+        items: [{
+          pref: PrefKey.VIDEO_PLAYER_TYPE,
+          onChange: onChangeVideoPlayerType
+        }, {
+          pref: PrefKey.VIDEO_RATIO,
+          onChange: updateVideoPlayer
+        }, {
+          pref: PrefKey.VIDEO_PROCESSING,
+          onChange: updateVideoPlayer
+        }, {
+          pref: PrefKey.VIDEO_SHARPNESS,
+          onChange: updateVideoPlayer
+        }, {
+          pref: PrefKey.VIDEO_SATURATION,
+          onChange: updateVideoPlayer
+        }, {
+          pref: PrefKey.VIDEO_CONTRAST,
+          onChange: updateVideoPlayer
+        }, {
+          pref: PrefKey.VIDEO_BRIGHTNESS,
+          onChange: updateVideoPlayer
+        }]
+      }]
+    },
+    {
+      icon: BxIcon.CONTROLLER,
+      group: "controller",
+      items: [
+        {
+          group: "controller",
+          label: t("controller"),
+          help_url: "https://better-xcloud.github.io/ingame-features/#controller",
+          items: [{
+            pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
+            unsupported: !VibrationManager.supportControllerVibration(),
+            onChange: () => VibrationManager.updateGlobalVars()
+          }, {
+            pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
+            unsupported: !VibrationManager.supportDeviceVibration(),
+            onChange: () => VibrationManager.updateGlobalVars()
+          }, (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
+            pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
+            unsupported: !VibrationManager.supportDeviceVibration(),
+            onChange: () => VibrationManager.updateGlobalVars()
+          }]
+        },
+        STATES.userAgentHasTouchSupport && {
+          group: "touch-controller",
+          label: t("touch-controller"),
+          items: [{
+            label: t("layout"),
+            content: CE("select", { disabled: !0 }, CE("option", {}, t("default"))),
+            onMounted: ($elm) => {
+              $elm.addEventListener("change", (e) => {
+                TouchController.loadCustomLayout(STATES.currentStream?.xboxTitleId, $elm.value, 1000);
+              }), window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, (e) => {
+                const data = e.data;
+                if (STATES.currentStream?.xboxTitleId && $elm.xboxTitleId === STATES.currentStream?.xboxTitleId) {
+                  $elm.dispatchEvent(new Event("change"));
+                  return;
+                }
+                $elm.xboxTitleId = STATES.currentStream?.xboxTitleId;
+                while ($elm.firstChild)
+                  $elm.removeChild($elm.firstChild);
+                if ($elm.disabled = !data, !data) {
+                  $elm.appendChild(CE("option", { value: "" }, t("default"))), $elm.value = "", $elm.dispatchEvent(new Event("change"));
+                  return;
+                }
+                const $fragment = document.createDocumentFragment();
+                for (let key in data.layouts) {
+                  const layout = data.layouts[key];
+                  let name;
+                  if (layout.author)
+                    name = `${layout.name} (${layout.author})`;
+                  else
+                    name = layout.name;
+                  const $option = CE("option", { value: key }, name);
+                  $fragment.appendChild($option);
+                }
+                $elm.appendChild($fragment), $elm.value = data.default_layout, $elm.dispatchEvent(new Event("change"));
+              });
+            }
+          }]
+        }
+      ]
+    },
+    getPref(PrefKey.MKB_ENABLED) && {
+      icon: BxIcon.VIRTUAL_CONTROLLER,
+      group: "mkb",
+      items: [{
+        group: "mkb",
+        label: t("virtual-controller"),
+        help_url: "https://better-xcloud.github.io/mouse-and-keyboard/",
+        content: MkbRemapper.INSTANCE.render()
+      }]
+    },
+    AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" && {
+      icon: BxIcon.NATIVE_MKB,
+      group: "native-mkb",
+      items: [{
+        group: "native-mkb",
+        label: t("native-mkb"),
+        items: [{
+          pref: PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY,
+          onChange: (e, value) => {
+            NativeMkbHandler.getInstance().setVerticalScrollMultiplier(value / 100);
+          }
+        }, {
+          pref: PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY,
+          onChange: (e, value) => {
+            NativeMkbHandler.getInstance().setHorizontalScrollMultiplier(value / 100);
+          }
+        }]
+      }]
+    },
+    {
+      icon: BxIcon.COMMAND,
+      group: "shortcuts",
+      items: [{
+        group: "shortcuts_controller",
+        label: t("controller-shortcuts"),
+        content: ControllerShortcut.renderSettings()
+      }]
+    },
+    {
+      icon: BxIcon.STREAM_STATS,
+      group: "stats",
+      items: [{
+        group: "stats",
+        label: t("stream-stats"),
+        help_url: "https://better-xcloud.github.io/stream-stats/",
+        items: [
+          {
+            pref: PrefKey.STATS_SHOW_WHEN_PLAYING
+          },
+          {
+            pref: PrefKey.STATS_QUICK_GLANCE,
+            onChange: (e) => {
+              const streamStats = StreamStats.getInstance();
+              e.target.checked ? streamStats.quickGlanceSetup() : streamStats.quickGlanceStop();
+            }
+          },
+          {
+            pref: PrefKey.STATS_ITEMS,
+            onChange: StreamStats.refreshStyles
+          },
+          {
+            pref: PrefKey.STATS_POSITION,
+            onChange: StreamStats.refreshStyles
+          },
+          {
+            pref: PrefKey.STATS_TEXT_SIZE,
+            onChange: StreamStats.refreshStyles
+          },
+          {
+            pref: PrefKey.STATS_OPACITY,
+            onChange: StreamStats.refreshStyles
+          },
+          {
+            pref: PrefKey.STATS_TRANSPARENT,
+            onChange: StreamStats.refreshStyles
+          },
+          {
+            pref: PrefKey.STATS_CONDITIONAL_FORMATTING,
+            onChange: StreamStats.refreshStyles
+          }
+        ]
+      }]
+    }
+  ];
+  constructor() {
+    this.#setupDialog();
+  }
+  show(tabId) {
+    const $container = this.$container;
+    if (tabId) {
+      const $tab = $container.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
+      $tab && $tab.dispatchEvent(new Event("click"));
+    }
+    this.$overlay.classList.remove("bx-gone"), this.$overlay.dataset.isPlaying = STATES.isPlaying.toString(), $container.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
+  }
+  hide() {
+    this.$overlay.classList.add("bx-gone"), this.$container.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll");
+  }
+  #setupDialog() {
+    let $tabs, $settings;
+    const $overlay = CE("div", { class: "bx-stream-settings-overlay bx-gone" });
+    this.$overlay = $overlay;
+    const $container = CE("div", { class: "bx-stream-settings-dialog bx-gone" }, $tabs = CE("div", { class: "bx-stream-settings-tabs" }), $settings = CE("div", { class: "bx-stream-settings-tab-contents" }));
+    this.$container = $container, $overlay.addEventListener("click", (e) => {
+      e.preventDefault(), e.stopPropagation(), this.hide();
+    });
+    for (let settingTab of this.SETTINGS_UI) {
+      if (!settingTab)
+        continue;
+      const $svg = createSvgIcon(settingTab.icon);
+      $svg.addEventListener("click", (e) => {
+        for (let $child of Array.from($settings.children))
+          if ($child.getAttribute("data-group") === settingTab.group)
+            $child.classList.remove("bx-gone");
+          else
+            $child.classList.add("bx-gone");
+        for (let $child of Array.from($tabs.children))
+          $child.classList.remove("bx-active");
+        $svg.classList.add("bx-active");
+      }), $tabs.appendChild($svg);
+      const $group = CE("div", { "data-group": settingTab.group, class: "bx-gone" });
+      for (let settingGroup of settingTab.items) {
+        if (!settingGroup)
+          continue;
+        if ($group.appendChild(CE("h2", {}, CE("span", {}, settingGroup.label), settingGroup.help_url && createButton({
+          icon: BxIcon.QUESTION,
+          style: ButtonStyle.GHOST,
+          url: settingGroup.help_url,
+          title: t("help")
+        }))), settingGroup.note) {
+          if (typeof settingGroup.note === "string")
+            settingGroup.note = document.createTextNode(settingGroup.note);
+          $group.appendChild(settingGroup.note);
+        }
+        if (settingGroup.content) {
+          $group.appendChild(settingGroup.content);
+          continue;
+        }
+        if (!settingGroup.items)
+          settingGroup.items = [];
+        for (let setting of settingGroup.items) {
+          if (!setting)
+            continue;
+          const pref = setting.pref;
+          let $control;
+          if (setting.content)
+            $control = setting.content;
+          else if (!setting.unsupported) {
+            if ($control = toPrefElement(pref, setting.onChange, setting.params), $control instanceof HTMLSelectElement && BX_FLAGS.ScriptUi === "tv")
+              $control = BxSelectElement.wrap($control);
+          }
+          const label = Preferences.SETTINGS[pref]?.label || setting.label, note = Preferences.SETTINGS[pref]?.note || setting.note, $content = CE("div", { class: "bx-stream-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, label, note && CE("div", { class: "bx-stream-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-stream-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
+          $group.appendChild($content), setting.onMounted && setting.onMounted($control);
+        }
+      }
+      $settings.appendChild($group);
+    }
+    $tabs.firstElementChild.dispatchEvent(new Event("click")), document.documentElement.appendChild($overlay), document.documentElement.appendChild($container);
+  }
+}
+
 // src/modules/mkb/mkb-handler.ts
-var LOG_TAG2 = "MkbHandler", PointerToMouseButton = {
+var LOG_TAG3 = "MkbHandler", PointerToMouseButton = {
   1: 0,
   2: 2,
   4: 1
@@ -3171,7 +3898,7 @@ class EmulatedMkbHandler extends MkbHandler {
       }), createButton({
         label: t("edit"),
         onClick: (e) => {
-          e.preventDefault(), e.stopPropagation(), showStreamSettings("mkb");
+          e.preventDefault(), e.stopPropagation(), StreamSettings.getInstance().show("mkb");
         }
       }))));
     if (!this.#$message.isConnected)
@@ -3247,7 +3974,7 @@ class EmulatedMkbHandler extends MkbHandler {
         if (AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === "on")
           AppInterface && NativeMkbHandler.getInstance().init();
       } else if (getPref(PrefKey.MKB_ENABLED) && (AppInterface || !UserAgent.isMobile()))
-        BxLogger.info(LOG_TAG2, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
+        BxLogger.info(LOG_TAG3, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
     });
   }
 }
@@ -3280,102 +4007,6 @@ class MicrophoneShortcut {
 class StreamUiShortcut {
   static showHideStreamMenu() {
     window.BX_EXPOSED.showStreamMenu && window.BX_EXPOSED.showStreamMenu();
-  }
-}
-
-// src/utils/utils.ts
-function checkForUpdate() {
-  if (SCRIPT_VERSION.includes("beta"))
-    return;
-  const CHECK_INTERVAL_SECONDS = 7200, currentVersion = getPref(PrefKey.CURRENT_VERSION), lastCheck = getPref(PrefKey.LAST_UPDATE_CHECK), now = Math.round(+new Date / 1000);
-  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS)
-    return;
-  setPref(PrefKey.LAST_UPDATE_CHECK, now), fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
-    setPref(PrefKey.LATEST_VERSION, json.tag_name.substring(1)), setPref(PrefKey.CURRENT_VERSION, SCRIPT_VERSION);
-  }), Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
-}
-function disablePwa() {
-  if (!(window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase())
-    return;
-  if (!!AppInterface || UserAgent.isSafariMobile())
-    Object.defineProperty(window.navigator, "standalone", {
-      value: !0
-    });
-}
-function hashCode(str2) {
-  let hash = 0;
-  for (let i = 0, len = str2.length;i < len; i++) {
-    const chr = str2.charCodeAt(i);
-    hash = (hash << 5) - hash + chr, hash |= 0;
-  }
-  return hash;
-}
-function renderString(str2, obj) {
-  return str2.replace(/\$\{.+?\}/g, (match) => {
-    const key = match.substring(2, match.length - 1);
-    if (key in obj)
-      return obj[key];
-    return match;
-  });
-}
-function ceilToNearest(value, interval) {
-  return Math.ceil(value / interval) * interval;
-}
-function floorToNearest(value, interval) {
-  return Math.floor(value / interval) * interval;
-}
-
-// src/modules/shortcuts/shortcut-sound.ts
-class SoundShortcut {
-  static adjustGainNodeVolume(amount) {
-    if (!getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL))
-      return 0;
-    const currentValue = getPref(PrefKey.AUDIO_VOLUME);
-    let nearestValue;
-    if (amount > 0)
-      nearestValue = ceilToNearest(currentValue, amount);
-    else
-      nearestValue = floorToNearest(currentValue, -1 * amount);
-    let newValue;
-    if (currentValue !== nearestValue)
-      newValue = nearestValue;
-    else
-      newValue = currentValue + amount;
-    return newValue = setPref(PrefKey.AUDIO_VOLUME, newValue), SoundShortcut.setGainNodeVolume(newValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: !0 }), BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
-      volume: newValue
-    }), newValue;
-  }
-  static setGainNodeVolume(value) {
-    STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
-  }
-  static muteUnmute() {
-    if (getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && STATES.currentStream.audioGainNode) {
-      const gainValue = STATES.currentStream.audioGainNode.gain.value, settingValue = getPref(PrefKey.AUDIO_VOLUME);
-      let targetValue;
-      if (settingValue === 0)
-        targetValue = 100, setPref(PrefKey.AUDIO_VOLUME, targetValue), BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
-          volume: targetValue
-        });
-      else if (gainValue === 0)
-        targetValue = settingValue;
-      else
-        targetValue = 0;
-      let status;
-      if (targetValue === 0)
-        status = t("muted");
-      else
-        status = targetValue + "%";
-      SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
-      return;
-    }
-    let $media;
-    if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media)
-      $media = document.querySelector("div[data-testid=media-container] video");
-    if ($media) {
-      $media.muted = !$media.muted;
-      const status = $media.muted ? t("muted") : t("unmuted");
-      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
-    }
   }
 }
 
@@ -3577,7 +4208,7 @@ var InputType;
 var BxExposed = {
   getTitleInfo: () => STATES.currentStream.titleInfo,
   modifyTitleInfo: (titleInfo) => {
-    titleInfo = structuredClone(titleInfo);
+    titleInfo = deepClone(titleInfo);
     let supportedInputTypes = titleInfo.details.supportedInputTypes;
     if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId))
       supportedInputTypes.push(InputType.MKB);
@@ -3743,602 +4374,6 @@ class LoadingScreen {
   }
 }
 
-// src/modules/dialog.ts
-class Dialog {
-  $dialog;
-  $title;
-  $content;
-  $overlay;
-  onClose;
-  constructor(options) {
-    const {
-      title,
-      className,
-      content,
-      hideCloseButton,
-      onClose,
-      helpUrl
-    } = options, $overlay = document.querySelector(".bx-dialog-overlay");
-    if (!$overlay)
-      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" }), this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$overlay);
-    else
-      this.$overlay = $overlay;
-    let $close;
-    this.onClose = onClose, this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
-      icon: BxIcon.QUESTION,
-      style: ButtonStyle.GHOST,
-      title: t("help"),
-      url: helpUrl
-    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close")))), $close && $close.addEventListener("click", (e) => {
-      this.hide(e);
-    }), !title && this.$title.classList.add("bx-gone"), !content && this.$content.classList.add("bx-gone"), this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$dialog);
-  }
-  show(newOptions) {
-    if (document.activeElement && document.activeElement.blur(), newOptions && newOptions.title)
-      this.$title.querySelector("b").textContent = newOptions.title, this.$title.classList.remove("bx-gone");
-    this.$dialog.classList.remove("bx-gone"), this.$overlay.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
-  }
-  hide(e) {
-    this.$dialog.classList.add("bx-gone"), this.$overlay.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll"), this.onClose && this.onClose(e);
-  }
-  toggle() {
-    this.$dialog.classList.toggle("bx-gone"), this.$overlay.classList.toggle("bx-gone");
-  }
-}
-
-// src/modules/mkb/mkb-remapper.ts
-class MkbRemapper {
-  #BUTTON_ORDERS = [
-    GamepadKey.UP,
-    GamepadKey.DOWN,
-    GamepadKey.LEFT,
-    GamepadKey.RIGHT,
-    GamepadKey.A,
-    GamepadKey.B,
-    GamepadKey.X,
-    GamepadKey.Y,
-    GamepadKey.LB,
-    GamepadKey.RB,
-    GamepadKey.LT,
-    GamepadKey.RT,
-    GamepadKey.SELECT,
-    GamepadKey.START,
-    GamepadKey.HOME,
-    GamepadKey.L3,
-    GamepadKey.LS_UP,
-    GamepadKey.LS_DOWN,
-    GamepadKey.LS_LEFT,
-    GamepadKey.LS_RIGHT,
-    GamepadKey.R3,
-    GamepadKey.RS_UP,
-    GamepadKey.RS_DOWN,
-    GamepadKey.RS_LEFT,
-    GamepadKey.RS_RIGHT
-  ];
-  static #instance;
-  static get INSTANCE() {
-    if (!MkbRemapper.#instance)
-      MkbRemapper.#instance = new MkbRemapper;
-    return MkbRemapper.#instance;
-  }
-  #STATE = {
-    currentPresetId: 0,
-    presets: {},
-    editingPresetData: null,
-    isEditing: !1
-  };
-  #$ = {
-    wrapper: null,
-    presetsSelect: null,
-    activateButton: null,
-    currentBindingKey: null,
-    allKeyElements: [],
-    allMouseElements: {}
-  };
-  bindingDialog;
-  constructor() {
-    this.#STATE.currentPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID), this.bindingDialog = new Dialog({
-      className: "bx-binding-dialog",
-      content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
-      hideCloseButton: !0
-    });
-  }
-  #clearEventListeners = () => {
-    window.removeEventListener("keydown", this.#onKeyDown), window.removeEventListener("mousedown", this.#onMouseDown), window.removeEventListener("wheel", this.#onWheel);
-  };
-  #bindKey = ($elm, key) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    if ($elm.getAttribute("data-key-code") === key.code)
-      return;
-    for (let $otherElm of this.#$.allKeyElements)
-      if ($otherElm.getAttribute("data-key-code") === key.code)
-        this.#unbindKey($otherElm);
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.setAttribute("data-key-code", key.code);
-  };
-  #unbindKey = ($elm) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null, $elm.textContent = "", $elm.removeAttribute("data-key-code");
-  };
-  #onWheel = (e) => {
-    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onMouseDown = (e) => {
-    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onKeyDown = (e) => {
-    if (e.preventDefault(), e.stopPropagation(), this.#clearEventListeners(), e.code !== "Escape")
-      this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onBindingKey = (e) => {
-    if (!this.#STATE.isEditing || e.button !== 0)
-      return;
-    console.log(e), this.#$.currentBindingKey = e.target, window.addEventListener("keydown", this.#onKeyDown), window.addEventListener("mousedown", this.#onMouseDown), window.addEventListener("wheel", this.#onWheel), this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
-  };
-  #onContextMenu = (e) => {
-    if (e.preventDefault(), !this.#STATE.isEditing)
-      return;
-    this.#unbindKey(e.target);
-  };
-  #getPreset = (presetId) => {
-    return this.#STATE.presets[presetId];
-  };
-  #getCurrentPreset = () => {
-    return this.#getPreset(this.#STATE.currentPresetId);
-  };
-  #switchPreset = (presetId) => {
-    this.#STATE.currentPresetId = presetId;
-    const presetData = this.#getCurrentPreset().data;
-    for (let $elm of this.#$.allKeyElements) {
-      const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot")), buttonKeys = presetData.mapping[buttonIndex];
-      if (buttonKeys && buttonKeys[keySlot])
-        $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]), $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
-      else
-        $elm.textContent = "", $elm.removeAttribute("data-key-code");
-    }
-    let key;
-    for (key in this.#$.allMouseElements) {
-      const $elm = this.#$.allMouseElements[key];
-      let value = presetData.mouse[key];
-      if (typeof value === "undefined")
-        value = MkbPreset.MOUSE_SETTINGS[key].default;
-      "setValue" in $elm && $elm.setValue(value);
-    }
-    const activated = getPref(PrefKey.MKB_DEFAULT_PRESET_ID) === this.#STATE.currentPresetId;
-    this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
-  };
-  #refresh() {
-    while (this.#$.presetsSelect.firstChild)
-      this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
-    LocalDb.INSTANCE.getPresets().then((presets) => {
-      this.#STATE.presets = presets;
-      const $fragment = document.createDocumentFragment();
-      let defaultPresetId;
-      if (this.#STATE.currentPresetId === 0)
-        this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.#STATE.currentPresetId, setPref(PrefKey.MKB_DEFAULT_PRESET_ID, defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
-      else
-        defaultPresetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
-      for (let id2 in presets) {
-        let name = presets[id2].name;
-        if (id2 === defaultPresetId)
-          name = "🎮 " + name;
-        const $options = CE("option", { value: id2 }, name);
-        $options.selected = parseInt(id2) === this.#STATE.currentPresetId, $fragment.appendChild($options);
-      }
-      this.#$.presetsSelect.appendChild($fragment);
-      const activated = defaultPresetId === this.#STATE.currentPresetId;
-      this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate"), !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
-    });
-  }
-  #toggleEditing = (force) => {
-    if (this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing, this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing), this.#STATE.isEditing)
-      this.#STATE.editingPresetData = structuredClone(this.#getCurrentPreset().data);
-    else
-      this.#STATE.editingPresetData = null;
-    const childElements = this.#$.wrapper.querySelectorAll("select, button, input");
-    for (let $elm of Array.from(childElements)) {
-      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons"))
-        continue;
-      let disable = !this.#STATE.isEditing;
-      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools"))
-        disable = !disable;
-      $elm.disabled = disable;
-    }
-  };
-  render() {
-    this.#$.wrapper = CE("div", { class: "bx-mkb-settings" }), this.#$.presetsSelect = CE("select", {}), this.#$.presetsSelect.addEventListener("change", (e) => {
-      this.#switchPreset(parseInt(e.target.value));
-    });
-    const promptNewName = (value) => {
-      let newName = "";
-      while (!newName) {
-        if (newName = prompt(t("prompt-preset-name"), value), newName === null)
-          return !1;
-        newName = newName.trim();
-      }
-      return newName ? newName : !1;
-    }, $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
-      title: t("rename"),
-      icon: BxIcon.CURSOR_TEXT,
-      onClick: (e) => {
-        const preset = this.#getCurrentPreset();
-        let newName = promptNewName(preset.name);
-        if (!newName || newName === preset.name)
-          return;
-        preset.name = newName, LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
-      }
-    }), createButton({
-      icon: BxIcon.NEW,
-      title: t("new"),
-      onClick: (e) => {
-        let newName = promptNewName("");
-        if (!newName)
-          return;
-        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
-          this.#STATE.currentPresetId = id2, this.#refresh();
-        });
-      }
-    }), createButton({
-      icon: BxIcon.COPY,
-      title: t("copy"),
-      onClick: (e) => {
-        const preset = this.#getCurrentPreset();
-        let newName = promptNewName(`${preset.name} (2)`);
-        if (!newName)
-          return;
-        LocalDb.INSTANCE.newPreset(newName, preset.data).then((id2) => {
-          this.#STATE.currentPresetId = id2, this.#refresh();
-        });
-      }
-    }), createButton({
-      icon: BxIcon.TRASH,
-      style: ButtonStyle.DANGER,
-      title: t("delete"),
-      onClick: (e) => {
-        if (!confirm(t("confirm-delete-preset")))
-          return;
-        LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id2) => {
-          this.#STATE.currentPresetId = 0, this.#refresh();
-        });
-      }
-    }));
-    this.#$.wrapper.appendChild($header);
-    const $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind"))), keysPerButton = 2;
-    for (let buttonIndex of this.#BUTTON_ORDERS) {
-      const [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex];
-      let $elm;
-      const $fragment = document.createDocumentFragment();
-      for (let i = 0;i < keysPerButton; i++)
-        $elm = CE("button", {
-          type: "button",
-          "data-prompt": buttonPrompt,
-          "data-button-index": buttonIndex,
-          "data-key-slot": i
-        }, " "), $elm.addEventListener("mouseup", this.#onBindingKey), $elm.addEventListener("contextmenu", this.#onContextMenu), $fragment.appendChild($elm), this.#$.allKeyElements.push($elm);
-      const $keyRow = CE("div", { class: "bx-mkb-key-row" }, CE("label", { title: buttonName }, buttonPrompt), $fragment);
-      $rows.appendChild($keyRow);
-    }
-    $rows.appendChild(CE("i", { class: "bx-mkb-note" }, t("mkb-adjust-ingame-settings")));
-    const $mouseSettings = document.createDocumentFragment();
-    for (let key in MkbPreset.MOUSE_SETTINGS) {
-      const setting = MkbPreset.MOUSE_SETTINGS[key], value = setting.default;
-      let $elm;
-      const onChange = (e, value2) => {
-        this.#STATE.editingPresetData.mouse[key] = value2;
-      }, $row = CE("div", { class: "bx-stream-settings-row" }, CE("label", { for: `bx_setting_${key}` }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
-      $mouseSettings.appendChild($row), this.#$.allMouseElements[key] = $elm;
-    }
-    $rows.appendChild($mouseSettings), this.#$.wrapper.appendChild($rows);
-    const $actionButtons = CE("div", { class: "bx-mkb-action-buttons" }, CE("div", {}, createButton({
-      label: t("edit"),
-      onClick: (e) => this.#toggleEditing(!0)
-    }), this.#$.activateButton = createButton({
-      label: t("activate"),
-      style: ButtonStyle.PRIMARY,
-      onClick: (e) => {
-        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.#refresh();
-      }
-    })), CE("div", {}, createButton({
-      label: t("cancel"),
-      style: ButtonStyle.GHOST,
-      onClick: (e) => {
-        this.#switchPreset(this.#STATE.currentPresetId), this.#toggleEditing(!1);
-      }
-    }), createButton({
-      label: t("save"),
-      style: ButtonStyle.PRIMARY,
-      onClick: (e) => {
-        const updatedPreset = structuredClone(this.#getCurrentPreset());
-        updatedPreset.data = this.#STATE.editingPresetData, LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
-          if (id2 === getPref(PrefKey.MKB_DEFAULT_PRESET_ID))
-            EmulatedMkbHandler.getInstance().refreshPresetData();
-          this.#toggleEditing(!1), this.#refresh();
-        });
-      }
-    })));
-    return this.#$.wrapper.appendChild($actionButtons), this.#toggleEditing(!1), this.#refresh(), this.#$.wrapper;
-  }
-}
-
-// src/modules/touch-controller.ts
-var LOG_TAG3 = "TouchController";
-
-class TouchController {
-  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
-    data: JSON.stringify({
-      content: '{"layoutId":""}',
-      target: "/streaming/touchcontrols/showlayoutv2",
-      type: "Message"
-    }),
-    origin: "better-xcloud"
-  });
-  static #$style;
-  static #enable = !1;
-  static #dataChannel;
-  static #customLayouts = {};
-  static #baseCustomLayouts = {};
-  static #currentLayoutId;
-  static #customList;
-  static enable() {
-    TouchController.#enable = !0;
-  }
-  static disable() {
-    TouchController.#enable = !1;
-  }
-  static isEnabled() {
-    return TouchController.#enable;
-  }
-  static #showDefault() {
-    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
-  }
-  static #show() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
-  }
-  static #hide() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
-  }
-  static toggleVisibility(status) {
-    if (!TouchController.#dataChannel)
-      return;
-    status ? TouchController.#hide() : TouchController.#show();
-  }
-  static reset() {
-    TouchController.#enable = !1, TouchController.#dataChannel = null, TouchController.#$style && (TouchController.#$style.textContent = "");
-  }
-  static #dispatchMessage(msg) {
-    TouchController.#dataChannel && window.setTimeout(() => {
-      TouchController.#dataChannel.dispatchEvent(msg);
-    }, 10);
-  }
-  static #dispatchLayouts(data) {
-    BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-      data
-    });
-  }
-  static async getCustomLayouts(xboxTitleId, retries = 1) {
-    if (xboxTitleId in TouchController.#customLayouts) {
-      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
-      return;
-    }
-    if (retries = retries || 1, retries > 2) {
-      TouchController.#customLayouts[xboxTitleId] = null, window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
-      return;
-    }
-    const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? "/dev" : ""}`, url = `${baseUrl}/${xboxTitleId}.json`;
-    try {
-      const json = await (await NATIVE_FETCH(url)).json(), layouts = {};
-      json.layouts.forEach(async (layoutName) => {
-        let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts)
-          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        else
-          try {
-            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
-            baseLayouts = (await (await NATIVE_FETCH(layoutUrl)).json()).layouts, TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
-          } catch (e) {
-          }
-        Object.assign(layouts, baseLayouts);
-      }), json.layouts = layouts, TouchController.#customLayouts[xboxTitleId] = json, window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
-    } catch (e) {
-      TouchController.getCustomLayouts(xboxTitleId, retries + 1);
-    }
-  }
-  static loadCustomLayout(xboxTitleId, layoutId, delay = 0) {
-    if (!window.BX_EXPOSED.touchLayoutManager) {
-      const listener = (e) => {
-        if (window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener), TouchController.#enable)
-          TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
-      };
-      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-      return;
-    }
-    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
-    TouchController.#currentLayoutId = layoutId;
-    const layoutData = TouchController.#customLayouts[xboxTitleId];
-    if (!xboxTitleId || !layoutId || !layoutData) {
-      TouchController.#enable && TouchController.#showDefault();
-      return;
-    }
-    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout)
-      return;
-    let msg, html15 = !1;
-    if (layout.author) {
-      const author = `<b>${escapeHtml(layout.author)}</b>`;
-      msg = t("touch-control-layout-by", { name: author }), html15 = !0;
-    } else
-      msg = t("touch-control-layout");
-    layoutChanged && Toast.show(msg, layout.name, { html: html15 }), window.setTimeout(() => {
-      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope"), window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "System",
-          layoutFile: layout
-        }
-      });
-    }, delay);
-  }
-  static updateCustomList() {
-    TouchController.#customList = JSON.parse(window.localStorage.getItem("better_xcloud_custom_touch_layouts") || "[]"), NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
-      TouchController.#customList = json, window.localStorage.setItem("better_xcloud_custom_touch_layouts", JSON.stringify(json));
-    });
-  }
-  static getCustomList() {
-    return TouchController.#customList;
-  }
-  static setup() {
-    window.testTouchLayout = (layout) => {
-      const { touchLayoutManager } = window.BX_EXPOSED;
-      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: "" + STATES.currentStream?.xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "Custom",
-          layoutFile: layout
-        }
-      });
-    };
-    const $style = document.createElement("style");
-    document.documentElement.appendChild($style), TouchController.#$style = $style;
-    const PREF_STYLE_STANDARD = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD), PREF_STYLE_CUSTOM = getPref(PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM);
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message")
-        return;
-      let filter = "";
-      if (TouchController.#enable) {
-        if (PREF_STYLE_STANDARD === "white")
-          filter = "grayscale(1) brightness(2)";
-        else if (PREF_STYLE_STANDARD === "muted")
-          filter = "sepia(0.5)";
-      } else if (PREF_STYLE_CUSTOM === "muted")
-        filter = "sepia(0.5)";
-      if (filter)
-        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      else
-        $style.textContent = "";
-      TouchController.#dataChannel = dataChannel, dataChannel.addEventListener("open", () => {
-        window.setTimeout(TouchController.#show, 1000);
-      });
-      let focused = !1;
-      dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string")
-          return;
-        if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enable)
-            if (focused)
-              TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId);
-            else
-              TouchController.#showDefault();
-          return;
-        }
-        try {
-          if (msg.data.includes("/titleinfo")) {
-            const json = JSON.parse(JSON.parse(msg.data).content);
-            if (focused = json.focused, !json.focused)
-              TouchController.#show();
-            STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
-          }
-        } catch (e2) {
-          BxLogger.error(LOG_TAG3, "Load custom layout", e2);
-        }
-      });
-    });
-  }
-}
-
-// src/modules/vibration-manager.ts
-var VIBRATION_DATA_MAP = {
-  gamepadIndex: 8,
-  leftMotorPercent: 8,
-  rightMotorPercent: 8,
-  leftTriggerMotorPercent: 8,
-  rightTriggerMotorPercent: 8,
-  durationMs: 16
-};
-
-class VibrationManager {
-  static #playDeviceVibration(data) {
-    if (AppInterface) {
-      AppInterface.vibrate(JSON.stringify(data), window.BX_VIBRATION_INTENSITY);
-      return;
-    }
-    const intensity = Math.min(100, data.leftMotorPercent + data.rightMotorPercent / 2) * window.BX_VIBRATION_INTENSITY;
-    if (intensity === 0 || intensity === 100) {
-      window.navigator.vibrate(intensity ? data.durationMs : 0);
-      return;
-    }
-    const pulseDuration = 200, onDuration = Math.floor(pulseDuration * intensity / 100), offDuration = pulseDuration - onDuration, repeats = Math.ceil(data.durationMs / pulseDuration), pulses = Array(repeats).fill([onDuration, offDuration]).flat();
-    window.navigator.vibrate(pulses);
-  }
-  static supportControllerVibration() {
-    return Gamepad.prototype.hasOwnProperty("vibrationActuator");
-  }
-  static supportDeviceVibration() {
-    return !!window.navigator.vibrate;
-  }
-  static updateGlobalVars(stopVibration = !0) {
-    if (window.BX_ENABLE_CONTROLLER_VIBRATION = VibrationManager.supportControllerVibration() ? getPref(PrefKey.CONTROLLER_ENABLE_VIBRATION) : !1, window.BX_VIBRATION_INTENSITY = getPref(PrefKey.CONTROLLER_VIBRATION_INTENSITY) / 100, !VibrationManager.supportDeviceVibration()) {
-      window.BX_ENABLE_DEVICE_VIBRATION = !1;
-      return;
-    }
-    stopVibration && window.navigator.vibrate(0);
-    const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
-    let enabled;
-    if (value === "on")
-      enabled = !0;
-    else if (value === "auto") {
-      enabled = !0;
-      const gamepads = window.navigator.getGamepads();
-      for (let gamepad of gamepads)
-        if (gamepad) {
-          enabled = !1;
-          break;
-        }
-    } else
-      enabled = !1;
-    window.BX_ENABLE_DEVICE_VIBRATION = enabled;
-  }
-  static #onMessage(e) {
-    if (!window.BX_ENABLE_DEVICE_VIBRATION)
-      return;
-    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer))
-      return;
-    const dataView = new DataView(e.data);
-    let offset = 0, messageType;
-    if (dataView.byteLength === 13)
-      messageType = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
-    else
-      messageType = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
-    if (!(messageType & 128))
-      return;
-    const vibrationType = dataView.getUint8(offset);
-    if (offset += Uint8Array.BYTES_PER_ELEMENT, vibrationType !== 0)
-      return;
-    const data = {};
-    let key;
-    for (key in VIBRATION_DATA_MAP)
-      if (VIBRATION_DATA_MAP[key] === 16)
-        data[key] = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
-      else
-        data[key] = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
-    VibrationManager.#playDeviceVibration(data);
-  }
-  static initialSetup() {
-    window.addEventListener("gamepadconnected", (e) => VibrationManager.updateGlobalVars()), window.addEventListener("gamepaddisconnected", (e) => VibrationManager.updateGlobalVars()), VibrationManager.updateGlobalVars(!1), window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "input")
-        return;
-      dataChannel.addEventListener("message", VibrationManager.#onMessage);
-    });
-  }
-}
-
 // src/modules/ui/ui.ts
 function localRedirect(path) {
   const url = window.location.href.substring(0, 31) + path, $pageContent = document.getElementById("PageContent");
@@ -4354,324 +4389,8 @@ function localRedirect(path) {
     }, 1000);
   }), $pageContent.appendChild($anchor), $anchor.click();
 }
-var setupStreamSettingsDialog = function() {
-  const SETTINGS_UI = [
-    {
-      icon: BxIcon.DISPLAY,
-      group: "stream",
-      items: [
-        {
-          group: "audio",
-          label: t("audio"),
-          help_url: "https://better-xcloud.github.io/ingame-features/#audio",
-          items: [
-            {
-              pref: PrefKey.AUDIO_VOLUME,
-              onChange: (e, value) => {
-                SoundShortcut.setGainNodeVolume(value);
-              },
-              params: {
-                disabled: !getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL)
-              },
-              onMounted: ($elm) => {
-                const $range = $elm.querySelector("input[type=range");
-                window.addEventListener(BxEvent.GAINNODE_VOLUME_CHANGED, (e) => {
-                  $range.value = e.volume, BxEvent.dispatch($range, "input", {
-                    ignoreOnChange: !0
-                  });
-                });
-              }
-            }
-          ]
-        },
-        {
-          group: "video",
-          label: t("video"),
-          help_url: "https://better-xcloud.github.io/ingame-features/#video",
-          items: [
-            {
-              pref: PrefKey.VIDEO_PLAYER_TYPE,
-              onChange: onChangeVideoPlayerType
-            },
-            {
-              pref: PrefKey.VIDEO_RATIO,
-              onChange: updateVideoPlayer
-            },
-            {
-              pref: PrefKey.VIDEO_PROCESSING,
-              onChange: updateVideoPlayer
-            },
-            {
-              pref: PrefKey.VIDEO_SHARPNESS,
-              onChange: updateVideoPlayer
-            },
-            {
-              pref: PrefKey.VIDEO_SATURATION,
-              onChange: updateVideoPlayer
-            },
-            {
-              pref: PrefKey.VIDEO_CONTRAST,
-              onChange: updateVideoPlayer
-            },
-            {
-              pref: PrefKey.VIDEO_BRIGHTNESS,
-              onChange: updateVideoPlayer
-            }
-          ]
-        }
-      ]
-    },
-    {
-      icon: BxIcon.CONTROLLER,
-      group: "controller",
-      items: [
-        {
-          group: "controller",
-          label: t("controller"),
-          help_url: "https://better-xcloud.github.io/ingame-features/#controller",
-          items: [
-            {
-              pref: PrefKey.CONTROLLER_ENABLE_VIBRATION,
-              unsupported: !VibrationManager.supportControllerVibration(),
-              onChange: () => VibrationManager.updateGlobalVars()
-            },
-            {
-              pref: PrefKey.CONTROLLER_DEVICE_VIBRATION,
-              unsupported: !VibrationManager.supportDeviceVibration(),
-              onChange: () => VibrationManager.updateGlobalVars()
-            },
-            (VibrationManager.supportControllerVibration() || VibrationManager.supportDeviceVibration()) && {
-              pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
-              unsupported: !VibrationManager.supportDeviceVibration(),
-              onChange: () => VibrationManager.updateGlobalVars()
-            }
-          ]
-        },
-        STATES.userAgentHasTouchSupport && {
-          group: "touch-controller",
-          label: t("touch-controller"),
-          items: [
-            {
-              label: t("layout"),
-              content: CE("select", { disabled: !0 }, CE("option", {}, t("default"))),
-              onMounted: ($elm) => {
-                $elm.addEventListener("change", (e) => {
-                  TouchController.loadCustomLayout(STATES.currentStream?.xboxTitleId, $elm.value, 1000);
-                }), window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, (e) => {
-                  const data = e.data;
-                  if (STATES.currentStream?.xboxTitleId && $elm.xboxTitleId === STATES.currentStream?.xboxTitleId) {
-                    $elm.dispatchEvent(new Event("change"));
-                    return;
-                  }
-                  $elm.xboxTitleId = STATES.currentStream?.xboxTitleId;
-                  while ($elm.firstChild)
-                    $elm.removeChild($elm.firstChild);
-                  if ($elm.disabled = !data, !data) {
-                    $elm.appendChild(CE("option", { value: "" }, t("default"))), $elm.value = "", $elm.dispatchEvent(new Event("change"));
-                    return;
-                  }
-                  const $fragment = document.createDocumentFragment();
-                  for (let key in data.layouts) {
-                    const layout = data.layouts[key];
-                    let name;
-                    if (layout.author)
-                      name = `${layout.name} (${layout.author})`;
-                    else
-                      name = layout.name;
-                    const $option = CE("option", { value: key }, name);
-                    $fragment.appendChild($option);
-                  }
-                  $elm.appendChild($fragment), $elm.value = data.default_layout, $elm.dispatchEvent(new Event("change"));
-                });
-              }
-            }
-          ]
-        }
-      ]
-    },
-    getPref(PrefKey.MKB_ENABLED) && {
-      icon: BxIcon.VIRTUAL_CONTROLLER,
-      group: "mkb",
-      items: [
-        {
-          group: "mkb",
-          label: t("virtual-controller"),
-          help_url: "https://better-xcloud.github.io/mouse-and-keyboard/",
-          content: MkbRemapper.INSTANCE.render()
-        }
-      ]
-    },
-    AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" && {
-      icon: BxIcon.NATIVE_MKB,
-      group: "native-mkb",
-      items: [
-        {
-          group: "native-mkb",
-          label: t("native-mkb"),
-          items: [
-            {
-              pref: PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY,
-              onChange: (e, value) => {
-                NativeMkbHandler.getInstance().setVerticalScrollMultiplier(value / 100);
-              }
-            },
-            {
-              pref: PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY,
-              onChange: (e, value) => {
-                NativeMkbHandler.getInstance().setHorizontalScrollMultiplier(value / 100);
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      icon: BxIcon.COMMAND,
-      group: "shortcuts",
-      items: [
-        {
-          group: "shortcuts_controller",
-          label: t("controller-shortcuts"),
-          content: ControllerShortcut.renderSettings()
-        }
-      ]
-    },
-    {
-      icon: BxIcon.STREAM_STATS,
-      group: "stats",
-      items: [
-        {
-          group: "stats",
-          label: t("stream-stats"),
-          help_url: "https://better-xcloud.github.io/stream-stats/",
-          items: [
-            {
-              pref: PrefKey.STATS_SHOW_WHEN_PLAYING
-            },
-            {
-              pref: PrefKey.STATS_QUICK_GLANCE,
-              onChange: (e) => {
-                const streamStats = StreamStats.getInstance();
-                e.target.checked ? streamStats.quickGlanceSetup() : streamStats.quickGlanceStop();
-              }
-            },
-            {
-              pref: PrefKey.STATS_ITEMS,
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_POSITION,
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_TEXT_SIZE,
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_OPACITY,
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_TRANSPARENT,
-              onChange: StreamStats.refreshStyles
-            },
-            {
-              pref: PrefKey.STATS_CONDITIONAL_FORMATTING,
-              onChange: StreamStats.refreshStyles
-            }
-          ]
-        }
-      ]
-    }
-  ];
-  let $tabs, $settings;
-  const $wrapper = CE("div", { class: "bx-stream-settings-dialog bx-gone" }, $tabs = CE("div", { class: "bx-stream-settings-tabs" }), $settings = CE("div", { class: "bx-stream-settings-tab-contents" }));
-  for (let settingTab of SETTINGS_UI) {
-    if (!settingTab)
-      continue;
-    const $svg = createSvgIcon(settingTab.icon);
-    $svg.addEventListener("click", (e) => {
-      for (let $child of Array.from($settings.children))
-        if ($child.getAttribute("data-group") === settingTab.group)
-          $child.classList.remove("bx-gone");
-        else
-          $child.classList.add("bx-gone");
-      for (let $child of Array.from($tabs.children))
-        $child.classList.remove("bx-active");
-      $svg.classList.add("bx-active");
-    }), $tabs.appendChild($svg);
-    const $group = CE("div", { "data-group": settingTab.group, class: "bx-gone" });
-    for (let settingGroup of settingTab.items) {
-      if (!settingGroup)
-        continue;
-      if ($group.appendChild(CE("h2", {}, CE("span", {}, settingGroup.label), settingGroup.help_url && createButton({
-        icon: BxIcon.QUESTION,
-        style: ButtonStyle.GHOST,
-        url: settingGroup.help_url,
-        title: t("help")
-      }))), settingGroup.note) {
-        if (typeof settingGroup.note === "string")
-          settingGroup.note = document.createTextNode(settingGroup.note);
-        $group.appendChild(settingGroup.note);
-      }
-      if (settingGroup.content) {
-        $group.appendChild(settingGroup.content);
-        continue;
-      }
-      if (!settingGroup.items)
-        settingGroup.items = [];
-      for (let setting of settingGroup.items) {
-        if (!setting)
-          continue;
-        const pref = setting.pref;
-        let $control;
-        if (setting.content)
-          $control = setting.content;
-        else if (!setting.unsupported)
-          $control = toPrefElement(pref, setting.onChange, setting.params);
-        const label = Preferences.SETTINGS[pref]?.label || setting.label, note = Preferences.SETTINGS[pref]?.note || setting.note, $content = CE("div", { class: "bx-stream-settings-row", "data-type": settingGroup.group }, CE("label", { for: `bx_setting_${pref}` }, label, note && CE("div", { class: "bx-stream-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-stream-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control);
-        $group.appendChild($content), setting.onMounted && setting.onMounted($control);
-      }
-    }
-    $settings.appendChild($group);
-  }
-  $tabs.firstElementChild.dispatchEvent(new Event("click")), document.documentElement.appendChild($wrapper);
-}, onChangeVideoPlayerType = function() {
-  const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE), $videoProcessing = document.getElementById("bx_setting_video_processing"), $videoSharpness = document.getElementById("bx_setting_video_sharpness");
-  let isDisabled = !1;
-  if (playerType === StreamPlayerType.WEBGL2)
-    $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = !1;
-  else if ($videoProcessing.value = StreamVideoProcessing.USM, setPref(PrefKey.VIDEO_PROCESSING, StreamVideoProcessing.USM), $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`).disabled = !0, UserAgent.isSafari())
-    isDisabled = !0;
-  $videoProcessing.disabled = isDisabled, $videoSharpness.dataset.disabled = isDisabled.toString(), updateVideoPlayer();
-};
-function updateVideoPlayer() {
-  const streamPlayer = STATES.currentStream.streamPlayer;
-  if (!streamPlayer)
-    return;
-  const options = {
-    processing: getPref(PrefKey.VIDEO_PROCESSING),
-    sharpness: getPref(PrefKey.VIDEO_SHARPNESS),
-    saturation: getPref(PrefKey.VIDEO_SATURATION),
-    contrast: getPref(PrefKey.VIDEO_CONTRAST),
-    brightness: getPref(PrefKey.VIDEO_BRIGHTNESS)
-  };
-  streamPlayer.setPlayerType(getPref(PrefKey.VIDEO_PLAYER_TYPE)), streamPlayer.updateOptions(options), streamPlayer.refreshPlayer();
-}
-var preloadFonts = function() {
-  const $link = CE("link", {
-    rel: "preload",
-    href: "https://redphx.github.io/better-xcloud/fonts/promptfont.otf",
-    as: "font",
-    type: "font/otf",
-    crossorigin: ""
-  });
-  document.querySelector("head")?.appendChild($link);
-};
 function setupStreamUi() {
-  if (!document.querySelector(".bx-stream-settings-dialog"))
-    preloadFonts(), window.addEventListener("resize", updateVideoPlayer), setupStreamSettingsDialog(), Screenshot.setup();
-  onChangeVideoPlayerType();
+  StreamSettings.getInstance(), onChangeVideoPlayerType();
 }
 
 // src/modules/remote-play.ts
@@ -4893,6 +4612,222 @@ class RemotePlay {
   }
 }
 
+// src/modules/stream/stream-badges.ts
+var StreamBadge;
+(function(StreamBadge2) {
+  StreamBadge2["PLAYTIME"] = "playtime";
+  StreamBadge2["BATTERY"] = "battery";
+  StreamBadge2["DOWNLOAD"] = "in";
+  StreamBadge2["UPLOAD"] = "out";
+  StreamBadge2["SERVER"] = "server";
+  StreamBadge2["VIDEO"] = "video";
+  StreamBadge2["AUDIO"] = "audio";
+})(StreamBadge || (StreamBadge = {}));
+var StreamBadgeIcon = {
+  [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
+  [StreamBadge.VIDEO]: BxIcon.DISPLAY,
+  [StreamBadge.BATTERY]: BxIcon.BATTERY,
+  [StreamBadge.DOWNLOAD]: BxIcon.DOWNLOAD,
+  [StreamBadge.UPLOAD]: BxIcon.UPLOAD,
+  [StreamBadge.SERVER]: BxIcon.SERVER,
+  [StreamBadge.AUDIO]: BxIcon.AUDIO
+};
+
+class StreamBadges {
+  static instance;
+  static getInstance() {
+    if (!StreamBadges.instance)
+      StreamBadges.instance = new StreamBadges;
+    return StreamBadges.instance;
+  }
+  #ipv6 = !1;
+  #resolution = null;
+  #video = null;
+  #audio = null;
+  #region = "";
+  startBatteryLevel = 100;
+  startTimestamp = 0;
+  #$container;
+  #cachedDoms = {};
+  #interval;
+  #REFRESH_INTERVAL = 3000;
+  setRegion(region2) {
+    this.#region = region2;
+  }
+  #renderBadge(name, value, color) {
+    let $badge;
+    if (this.#cachedDoms[name])
+      return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
+    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === StreamBadge.BATTERY)
+      $badge.classList.add("bx-badge-battery");
+    return this.#cachedDoms[name] = $badge, $badge;
+  }
+  async#updateBadges(forceUpdate = !1) {
+    if (!this.#$container || !forceUpdate && !this.#$container.isConnected) {
+      this.#stop();
+      return;
+    }
+    let now = +new Date;
+    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
+    let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
+    if ("getBattery" in navigator)
+      try {
+        const bm = await navigator.getBattery();
+        if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
+          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
+          batteryLevel += ` (${sign}${diffLevel}%)`;
+        }
+      } catch (e) {
+      }
+    const stats = await STATES.currentStream.peerConnection?.getStats();
+    let totalIn = 0, totalOut = 0;
+    stats.forEach((stat) => {
+      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
+        totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
+    });
+    const badges = {
+      [StreamBadge.DOWNLOAD]: totalIn ? this.#humanFileSize(totalIn) : null,
+      [StreamBadge.UPLOAD]: totalOut ? this.#humanFileSize(totalOut) : null,
+      [StreamBadge.PLAYTIME]: playtime,
+      [StreamBadge.BATTERY]: batteryLevel
+    };
+    let name;
+    for (name in badges) {
+      const value = badges[name];
+      if (value === null)
+        continue;
+      const $elm = this.#cachedDoms[name];
+      if ($elm && ($elm.lastElementChild.textContent = value), name === StreamBadge.BATTERY)
+        if (this.startBatteryLevel === 100 && batteryLevelInt === 100)
+          $elm.classList.add("bx-gone");
+        else
+          $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
+    }
+  }
+  async#start() {
+    await this.#updateBadges(!0), this.#stop(), this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
+  }
+  #stop() {
+    this.#interval && clearInterval(this.#interval), this.#interval = null;
+  }
+  #secondsToHm(seconds) {
+    let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
+    if (m === 60)
+      h += 1, m = 0;
+    const output = [];
+    return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
+  }
+  #humanFileSize(size) {
+    const units = ["B", "KB", "MB", "GB", "TB"], i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+    return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
+  }
+  async render() {
+    if (this.#$container)
+      return this.#start(), this.#$container;
+    await this.#getServerStats();
+    let video = "";
+    if (this.#resolution)
+      video = `${this.#resolution.height}p`;
+    if (this.#video) {
+      if (video && (video += "/"), video += this.#video.codec, this.#video.profile) {
+        const profile = this.#video.profile;
+        let quality = profile;
+        if (profile.startsWith("4d"))
+          quality = t("visual-quality-high");
+        else if (profile.startsWith("42e"))
+          quality = t("visual-quality-normal");
+        else if (profile.startsWith("420"))
+          quality = t("visual-quality-low");
+        video += ` (${quality})`;
+      }
+    }
+    let audio;
+    if (this.#audio) {
+      audio = this.#audio.codec;
+      const bitrate = this.#audio.bitrate / 1000;
+      audio += ` (${bitrate} kHz)`;
+    }
+    let batteryLevel = "";
+    if ("getBattery" in navigator)
+      batteryLevel = "100%";
+    let server = this.#region;
+    server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
+    const BADGES = [
+      [StreamBadge.PLAYTIME, "1m", "#ff004d"],
+      [StreamBadge.BATTERY, batteryLevel, "#00b543"],
+      [StreamBadge.DOWNLOAD, this.#humanFileSize(0), "#29adff"],
+      [StreamBadge.UPLOAD, this.#humanFileSize(0), "#ff77a8"],
+      [StreamBadge.SERVER, server, "#ff6c24"],
+      video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
+      audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
+    ], $container = CE("div", { class: "bx-badges" });
+    return BADGES.forEach((item2) => {
+      if (!item2)
+        return;
+      const $badge = this.#renderBadge(...item2);
+      $container.appendChild($badge);
+    }), this.#$container = $container, await this.#start(), $container;
+  }
+  async#getServerStats() {
+    const stats = await STATES.currentStream.peerConnection.getStats(), allVideoCodecs = {};
+    let videoCodecId;
+    const allAudioCodecs = {};
+    let audioCodecId;
+    const allCandidates = {};
+    let candidateId;
+    if (stats.forEach((stat) => {
+      if (stat.type === "codec") {
+        const mimeType = stat.mimeType.split("/")[0];
+        if (mimeType === "video")
+          allVideoCodecs[stat.id] = stat;
+        else if (mimeType === "audio")
+          allAudioCodecs[stat.id] = stat;
+      } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
+        if (stat.kind === "video")
+          videoCodecId = stat.codecId;
+        else if (stat.kind === "audio")
+          audioCodecId = stat.codecId;
+      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
+        candidateId = stat.remoteCandidateId;
+      else if (stat.type === "remote-candidate")
+        allCandidates[stat.id] = stat.address;
+    }), videoCodecId) {
+      const videoStat = allVideoCodecs[videoCodecId], video = {
+        codec: videoStat.mimeType.substring(6)
+      };
+      if (video.codec === "H264") {
+        const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+        video.profile = match ? match[1] : null;
+      }
+      this.#video = video;
+    }
+    if (audioCodecId) {
+      const audioStat = allAudioCodecs[audioCodecId];
+      this.#audio = {
+        codec: audioStat.mimeType.substring(6),
+        bitrate: audioStat.clockRate
+      };
+    }
+    if (candidateId)
+      BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
+  }
+  static setupEvents() {
+    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+      const $video = e.$video, streamBadges = StreamBadges.getInstance();
+      streamBadges.#resolution = {
+        width: $video.videoWidth,
+        height: $video.videoHeight
+      }, streamBadges.startTimestamp = +new Date;
+      try {
+        "getBattery" in navigator && navigator.getBattery().then((bm) => {
+          streamBadges.startBatteryLevel = Math.round(bm.level * 100);
+        });
+      } catch (e2) {
+      }
+    });
+  }
+}
+
 // src/enums/game-pass-gallery.ts
 var GamePassCloudGallery;
 (function(GamePassCloudGallery2) {
@@ -5017,8 +4952,9 @@ function interceptHttpRequests() {
     if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation"))
       try {
         const response = await NATIVE_FETCH(request, init), json = await response.json();
-        for (let key in FeatureGates)
-          json.exp.treatments[key] = FeatureGates[key];
+        if (json && json.exp && json.treatments)
+          for (let key in FeatureGates)
+            json.exp.treatments[key] = FeatureGates[key];
         return response.json = () => Promise.resolve(json), response;
       } catch (e) {
         console.log(e);
@@ -5262,7 +5198,7 @@ class XcloudInterceptor {
         enableMouseInput: overrideMkb,
         enableKeyboardInput: overrideMkb
       });
-    if (overrides.videoConfiguration = overrides.videoConfiguration || {}, overrides.videoConfiguration.setCodecPreferences = !0, TouchController.isEnabled())
+    if (TouchController.isEnabled())
       overrides.inputConfiguration.enableTouchInput = !0, overrides.inputConfiguration.maxTouchPoints = 10;
     if (getPref(PrefKey.AUDIO_MIC_ON_PLAYING))
       overrides.audioConfiguration = overrides.audioConfiguration || {}, overrides.audioConfiguration.enableMicrophone = !0;
@@ -5304,1314 +5240,7 @@ function showGamepadToast(gamepad) {
 
 // src/utils/css.ts
 function addCss() {
-  let css = `:root {
-  --bx-title-font: Bahnschrift, Arial, Helvetica, sans-serif;
-  --bx-title-font-semibold: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
-  --bx-normal-font: "Segoe UI", Arial, Helvetica, sans-serif;
-  --bx-monospaced-font: Consolas, "Courier New", Courier, monospace;
-  --bx-promptfont-font: promptfont;
-  --bx-button-height: 36px;
-  --bx-default-button-color: #2d3036;
-  --bx-default-button-hover-color: #515863;
-  --bx-default-button-disabled-color: #8e8e8e;
-  --bx-primary-button-color: #008746;
-  --bx-primary-button-hover-color: #04b358;
-  --bx-primary-button-disabled-color: #448262;
-  --bx-danger-button-color: #c10404;
-  --bx-danger-button-hover-color: #e61d1d;
-  --bx-danger-button-disabled-color: #a26c6c;
-  --bx-toast-z-index: 9999;
-  --bx-dialog-z-index: 9101;
-  --bx-dialog-overlay-z-index: 9100;
-  --bx-remote-play-popup-z-index: 9090;
-  --bx-stats-bar-z-index: 9001;
-  --bx-stream-settings-z-index: 9000;
-  --bx-mkb-pointer-lock-msg-z-index: 8999;
-  --bx-game-bar-z-index: 8888;
-  --bx-wait-time-box-z-index: 100;
-  --bx-screenshot-animation-z-index: 1;
-}
-@font-face {
-  font-family: 'promptfont';
-  src: url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf");
-}
-div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]) {
-  opacity: 0;
-  pointer-events: none !important;
-  position: absolute;
-  top: -9999px;
-  left: -9999px;
-}
-@media screen and (max-width: 600px) {
-  header a[href="/play"] {
-    display: none;
-  }
-}
-.bx-full-width {
-  width: 100% !important;
-}
-.bx-full-height {
-  height: 100% !important;
-}
-.bx-no-scroll {
-  overflow: hidden !important;
-}
-.bx-gone {
-  display: none !important;
-}
-.bx-offscreen {
-  position: absolute !important;
-  top: -9999px !important;
-  left: -9999px !important;
-  visibility: hidden !important;
-}
-.bx-hidden {
-  visibility: hidden !important;
-}
-.bx-pixel {
-  width: 1px !important;
-  height: 1px !important;
-}
-.bx-no-margin {
-  margin: 0 !important;
-}
-.bx-no-padding {
-  padding: 0 !important;
-}
-.bx-prompt {
-  font-family: var(--bx-promptfont-font);
-}
-#headerArea,
-#uhfSkipToMain,
-.uhf-footer {
-  display: none;
-}
-div[class*=NotFocusedDialog] {
-  position: absolute !important;
-  top: -9999px !important;
-  left: -9999px !important;
-  width: 0px !important;
-  height: 0px !important;
-}
-#game-stream video:not([src]) {
-  visibility: hidden;
-}
-.bx-button {
-  background-color: var(--bx-default-button-color);
-  user-select: none;
-  -webkit-user-select: none;
-  color: #fff;
-  font-family: var(--bx-title-font-semibold);
-  font-size: 14px;
-  border: none;
-  font-weight: 400;
-  height: var(--bx-button-height);
-  border-radius: 4px;
-  padding: 0 8px;
-  text-transform: uppercase;
-  cursor: pointer;
-  overflow: hidden;
-}
-.bx-button:focus {
-  outline: none !important;
-}
-.bx-button:hover,
-.bx-button.bx-focusable:focus {
-  background-color: var(--bx-default-button-hover-color);
-}
-.bx-button:disabled {
-  cursor: default;
-  background-color: var(--bx-default-button-disabled-color);
-}
-.bx-button.bx-ghost {
-  background-color: transparent;
-}
-.bx-button.bx-ghost:hover,
-.bx-button.bx-ghost.bx-focusable:focus {
-  background-color: var(--bx-default-button-hover-color);
-}
-.bx-button.bx-primary {
-  background-color: var(--bx-primary-button-color);
-}
-.bx-button.bx-primary:hover,
-.bx-button.bx-primary.bx-focusable:focus {
-  background-color: var(--bx-primary-button-hover-color);
-}
-.bx-button.bx-primary:disabled {
-  background-color: var(--bx-primary-button-disabled-color);
-}
-.bx-button.bx-danger {
-  background-color: var(--bx-danger-button-color);
-}
-.bx-button.bx-danger:hover,
-.bx-button.bx-danger.bx-focusable:focus {
-  background-color: var(--bx-danger-button-hover-color);
-}
-.bx-button.bx-danger:disabled {
-  background-color: var(--bx-danger-button-disabled-color);
-}
-.bx-button.bx-tall {
-  height: calc(var(--bx-button-height) * 1.5) !important;
-}
-.bx-button svg {
-  display: inline-block;
-  width: 16px;
-  height: var(--bx-button-height);
-}
-.bx-button svg:not(:only-child) {
-  margin-right: 4px;
-}
-.bx-button span {
-  display: inline-block;
-/* height: var(--bx-button-height); */
-  line-height: var(--bx-button-height);
-  vertical-align: middle;
-/* vertical-align: -webkit-baseline-middle; */
-  color: #fff;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.bx-button.bx-focusable {
-  position: relative;
-}
-.bx-button.bx-focusable::after {
-  border: 2px solid transparent;
-  border-radius: 4px;
-}
-.bx-button.bx-focusable:focus::after {
-  content: '';
-  border-color: #fff;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-a.bx-button {
-  display: inline-block;
-}
-a.bx-button.bx-full-width {
-  text-align: center;
-}
-.bx-header-remote-play-button {
-  height: auto;
-  margin-right: 8px !important;
-}
-.bx-header-remote-play-button svg {
-  width: 24px;
-  height: 46px;
-}
-.bx-header-settings-button {
-  line-height: 30px;
-  font-size: 14px;
-  text-transform: uppercase;
-  position: relative;
-}
-.bx-header-settings-button[data-update-available]::before {
-  content: '🌟' !important;
-  line-height: var(--bx-button-height);
-  display: inline-block;
-  margin-left: 4px;
-}
-.bx-settings-reload-button {
-  margin-top: 10px;
-}
-.bx-settings-container {
-  background-color: #151515;
-  user-select: none;
-  -webkit-user-select: none;
-  color: #fff;
-  font-family: var(--bx-normal-font);
-}
-@media (hover: hover) {
-  .bx-settings-wrapper a.bx-settings-title:hover {
-    color: #83f73a;
-  }
-}
-.bx-settings-wrapper {
-  width: 450px;
-  margin: auto;
-  padding: 12px 6px;
-}
-@media screen and (max-width: 450px) {
-  .bx-settings-wrapper {
-    width: 100%;
-  }
-}
-.bx-settings-wrapper *:focus {
-  outline: none !important;
-}
-.bx-settings-wrapper .bx-settings-title-wrapper {
-  display: flex;
-  margin-bottom: 10px;
-  align-items: center;
-}
-.bx-settings-wrapper a.bx-settings-title {
-  font-family: var(--bx-title-font);
-  font-size: 1.4rem;
-  text-decoration: none;
-  font-weight: bold;
-  display: block;
-  color: #5dc21e;
-  flex: 1;
-}
-.bx-settings-wrapper a.bx-settings-title:focus {
-  color: #83f73a;
-}
-.bx-settings-wrapper .bx-button.bx-primary {
-  margin-top: 8px;
-}
-.bx-settings-wrapper a.bx-settings-update {
-  display: block;
-  color: #ff834b;
-  text-decoration: none;
-  margin-bottom: 8px;
-  text-align: center;
-  background: #222;
-  border-radius: 4px;
-  padding: 4px;
-}
-@media (hover: hover) {
-  .bx-settings-wrapper a.bx-settings-update:hover {
-    color: #ff9869;
-    text-decoration: underline;
-  }
-}
-.bx-settings-wrapper a.bx-settings-update:focus {
-  color: #ff9869;
-  text-decoration: underline;
-}
-.bx-settings-group-label {
-  font-weight: bold;
-  display: block;
-  font-size: 1.1rem;
-}
-.bx-settings-row {
-  display: flex;
-  padding: 6px 12px;
-  position: relative;
-}
-.bx-settings-row label {
-  flex: 1;
-  align-self: center;
-  margin-bottom: 0;
-}
-.bx-settings-row:hover,
-.bx-settings-row:focus-within {
-  background-color: #242424;
-}
-.bx-settings-row input {
-  align-self: center;
-  accent-color: var(--bx-primary-button-color);
-}
-.bx-settings-row input:focus {
-  accent-color: var(--bx-danger-button-color);
-}
-.bx-settings-row select:disabled {
-  -webkit-appearance: none;
-  background: transparent;
-  text-align-last: right;
-  border: none;
-  color: #fff;
-}
-.bx-settings-row input[type=checkbox]:focus,
-.bx-settings-row select:focus {
-  filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
-}
-.bx-settings-row:has(input:focus)::before,
-.bx-settings-row:has(select:focus)::before {
-  content: ' ';
-  border-radius: 4px;
-  border: 2px solid #fff;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-}
-.bx-settings-group-label b,
-.bx-settings-row label b {
-  display: block;
-  font-size: 12px;
-  font-style: italic;
-  font-weight: normal;
-  color: #828282;
-}
-.bx-settings-group-label b {
-  margin-bottom: 8px;
-}
-.bx-settings-app-version {
-  margin-top: 10px;
-  text-align: center;
-  color: #747474;
-  font-size: 12px;
-}
-.bx-donation-link {
-  display: block;
-  text-align: center;
-  text-decoration: none;
-  height: 20px;
-  line-height: 20px;
-  font-size: 14px;
-  margin-top: 10px;
-  color: #5dc21e;
-}
-.bx-donation-link:hover {
-  color: #6dd72b;
-}
-.bx-donation-link:focus {
-  text-decoration: underline;
-}
-.bx-settings-custom-user-agent {
-  display: block;
-  width: 100%;
-}
-.bx-dialog-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: var(--bx-dialog-overlay-z-index);
-  background: #000;
-  opacity: 50%;
-}
-.bx-dialog {
-  display: flex;
-  flex-flow: column;
-  max-height: 90vh;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  margin-right: -50%;
-  transform: translate(-50%, -50%);
-  min-width: 420px;
-  padding: 20px;
-  border-radius: 8px;
-  z-index: var(--bx-dialog-z-index);
-  background: #1a1b1e;
-  color: #fff;
-  font-weight: 400;
-  font-size: 16px;
-  font-family: var(--bx-normal-font);
-  box-shadow: 0 0 6px #000;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.bx-dialog *:focus {
-  outline: none !important;
-}
-.bx-dialog h2 {
-  display: flex;
-  margin-bottom: 12px;
-}
-.bx-dialog h2 b {
-  flex: 1;
-  color: #fff;
-  display: block;
-  font-family: var(--bx-title-font);
-  font-size: 26px;
-  font-weight: 400;
-  line-height: var(--bx-button-height);
-}
-.bx-dialog.bx-binding-dialog h2 b {
-  font-family: var(--bx-promptfont-font) !important;
-}
-.bx-dialog > div {
-  overflow: auto;
-  padding: 2px 0;
-}
-.bx-dialog > button {
-  padding: 8px 32px;
-  margin: 10px auto 0;
-  border: none;
-  border-radius: 4px;
-  display: block;
-  background-color: #2d3036;
-  text-align: center;
-  color: #fff;
-  text-transform: uppercase;
-  font-family: var(--bx-title-font);
-  font-weight: 400;
-  line-height: 18px;
-  font-size: 14px;
-}
-@media (hover: hover) {
-  .bx-dialog > button:hover {
-    background-color: #515863;
-  }
-}
-.bx-dialog > button:focus {
-  background-color: #515863;
-}
-@media screen and (max-width: 450px) {
-  .bx-dialog {
-    min-width: 100%;
-  }
-}
-.bx-toast {
-  user-select: none;
-  -webkit-user-select: none;
-  position: fixed;
-  left: 50%;
-  top: 24px;
-  transform: translate(-50%, 0);
-  background: #000;
-  border-radius: 16px;
-  color: #fff;
-  z-index: var(--bx-toast-z-index);
-  font-family: var(--bx-normal-font);
-  border: 2px solid #fff;
-  display: flex;
-  align-items: center;
-  opacity: 0;
-  overflow: clip;
-  transition: opacity 0.2s ease-in;
-}
-.bx-toast.bx-show {
-  opacity: 0.85;
-}
-.bx-toast.bx-hide {
-  opacity: 0;
-  pointer-events: none;
-}
-.bx-toast-msg {
-  font-size: 14px;
-  display: inline-block;
-  padding: 12px 16px;
-  white-space: pre;
-}
-.bx-toast-status {
-  font-weight: bold;
-  font-size: 14px;
-  text-transform: uppercase;
-  display: inline-block;
-  background: #515863;
-  padding: 12px 16px;
-  color: #fff;
-  white-space: pre;
-}
-.bx-wait-time-box {
-  position: fixed;
-  top: 0;
-  right: 0;
-  background-color: rgba(0,0,0,0.8);
-  color: #fff;
-  z-index: var(--bx-wait-time-box-z-index);
-  padding: 12px;
-  border-radius: 0 0 0 8px;
-}
-.bx-wait-time-box label {
-  display: block;
-  text-transform: uppercase;
-  text-align: right;
-  font-size: 12px;
-  font-weight: bold;
-  margin: 0;
-}
-.bx-wait-time-box span {
-  display: block;
-  font-family: var(--bx-monospaced-font);
-  text-align: right;
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-.bx-wait-time-box span:last-of-type {
-  margin-bottom: 0;
-}
-.bx-remote-play-popup {
-  width: 100%;
-  max-width: 1920px;
-  margin: auto;
-  position: relative;
-  height: 0.1px;
-  overflow: visible;
-  z-index: var(--bx-remote-play-popup-z-index);
-}
-.bx-remote-play-container {
-  position: absolute;
-  right: 10px;
-  top: 0;
-  background: #1a1b1e;
-  border-radius: 10px;
-  width: 420px;
-  max-width: calc(100vw - 20px);
-  margin: 0 0 0 auto;
-  padding: 20px;
-  box-shadow: rgba(0,0,0,0.502) 0px 0px 12px 0px;
-}
-@media (min-width: 480px) and (min-height: calc(480px + 1px)) {
-  .bx-remote-play-container {
-    right: calc(env(safe-area-inset-right, 0px) + 32px);
-  }
-}
-@media (min-width: 768px) and (min-height: calc(480px + 1px)) {
-  .bx-remote-play-container {
-    right: calc(env(safe-area-inset-right, 0px) + 48px);
-  }
-}
-@media (min-width: 1920px) and (min-height: calc(480px + 1px)) {
-  .bx-remote-play-container {
-    right: calc(env(safe-area-inset-right, 0px) + 80px);
-  }
-}
-.bx-remote-play-container > .bx-button {
-  display: table;
-  margin: 0 0 0 auto;
-}
-.bx-remote-play-settings {
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #2d2d2d;
-}
-.bx-remote-play-settings > div {
-  display: flex;
-}
-.bx-remote-play-settings label {
-  flex: 1;
-}
-.bx-remote-play-settings label p {
-  margin: 4px 0 0;
-  padding: 0;
-  color: #888;
-  font-size: 12px;
-}
-.bx-remote-play-settings span {
-  font-weight: bold;
-  font-size: 18px;
-  display: block;
-  margin-bottom: 8px;
-  text-align: center;
-}
-.bx-remote-play-resolution {
-  display: block;
-}
-.bx-remote-play-resolution input[type="radio"] {
-  accent-color: var(--bx-primary-button-color);
-  margin-right: 6px;
-}
-.bx-remote-play-resolution input[type="radio"]:focus {
-  accent-color: var(--bx-primary-button-hover-color);
-}
-.bx-remote-play-device-wrapper {
-  display: flex;
-  margin-bottom: 12px;
-}
-.bx-remote-play-device-wrapper:last-child {
-  margin-bottom: 2px;
-}
-.bx-remote-play-device-info {
-  flex: 1;
-  padding: 4px 0;
-}
-.bx-remote-play-device-name {
-  font-size: 20px;
-  font-weight: bold;
-  display: inline-block;
-  vertical-align: middle;
-}
-.bx-remote-play-console-type {
-  font-size: 12px;
-  background: #004c87;
-  color: #fff;
-  display: inline-block;
-  border-radius: 14px;
-  padding: 2px 10px;
-  margin-left: 8px;
-  vertical-align: middle;
-}
-.bx-remote-play-power-state {
-  color: #888;
-  font-size: 14px;
-}
-.bx-remote-play-connect-button {
-  min-height: 100%;
-  margin: 4px 0;
-}
-div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module] {
-  overflow: visible;
-}
-.bx-stream-menu-button-on {
-  fill: #000 !important;
-  background-color: #2d2d2d !important;
-  color: #000 !important;
-}
-.bx-stream-refresh-button {
-  top: calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important;
-}
-body[data-media-type=default] .bx-stream-refresh-button {
-  left: calc(env(safe-area-inset-left, 0px) + 11px) !important;
-}
-body[data-media-type=tv] .bx-stream-refresh-button {
-  top: calc(var(--gds-focus-borderSize) + 80px) !important;
-}
-.bx-stream-home-button {
-  top: calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important;
-}
-body[data-media-type=default] .bx-stream-home-button {
-  left: calc(env(safe-area-inset-left, 0px) + 12px) !important;
-}
-body[data-media-type=tv] .bx-stream-home-button {
-  top: calc(var(--gds-focus-borderSize) + 80px * 2) !important;
-}
-div[data-testid=media-container] {
-  display: flex;
-}
-div[data-testid=media-container].bx-taking-screenshot:before {
-  animation: bx-anim-taking-screenshot 0.5s ease;
-  content: ' ';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: var(--bx-screenshot-animation-z-index);
-}
-#game-stream video {
-  margin: auto;
-  align-self: center;
-  background: #000;
-}
-#game-stream canvas {
-  position: absolute;
-  align-self: center;
-  margin: auto;
-  left: 0;
-  right: 0;
-}
-#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button {
-  overflow: visible;
-  margin-bottom: 12px;
-}
-@-moz-keyframes bx-anim-taking-screenshot {
-  0% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-  50% {
-    border: 8px solid rgba(255,255,255,0.502);
-  }
-  100% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-}
-@-webkit-keyframes bx-anim-taking-screenshot {
-  0% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-  50% {
-    border: 8px solid rgba(255,255,255,0.502);
-  }
-  100% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-}
-@-o-keyframes bx-anim-taking-screenshot {
-  0% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-  50% {
-    border: 8px solid rgba(255,255,255,0.502);
-  }
-  100% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-}
-@keyframes bx-anim-taking-screenshot {
-  0% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-  50% {
-    border: 8px solid rgba(255,255,255,0.502);
-  }
-  100% {
-    border: 0px solid rgba(255,255,255,0.502);
-  }
-}
-.bx-number-stepper {
-  text-align: center;
-}
-.bx-number-stepper span {
-  display: inline-block;
-  min-width: 40px;
-  font-family: var(--bx-monospaced-font);
-  font-size: 14px;
-}
-.bx-number-stepper button {
-  border: none;
-  width: 24px;
-  height: 24px;
-  margin: 0 4px;
-  line-height: 24px;
-  background-color: var(--bx-default-button-color);
-  color: #fff;
-  border-radius: 4px;
-  font-weight: bold;
-  font-size: 14px;
-  font-family: var(--bx-monospaced-font);
-  color: #fff;
-}
-@media (hover: hover) {
-  .bx-number-stepper button:hover {
-    background-color: var(--bx-default-button-hover-color);
-  }
-}
-.bx-number-stepper button:active {
-  background-color: var(--bx-default-button-hover-color);
-}
-.bx-number-stepper button:disabled + span {
-  font-family: var(--bx-title-font);
-}
-.bx-number-stepper input[type="range"] {
-  display: block;
-  margin: 12px auto 2px;
-  width: 180px;
-  color: #959595 !important;
-}
-.bx-number-stepper input[type=range]:disabled,
-.bx-number-stepper button:disabled {
-  display: none;
-}
-.bx-number-stepper[data-disabled=true] input[type=range],
-.bx-number-stepper[data-disabled=true] button {
-  display: none;
-}
-#bx-game-bar {
-  z-index: var(--bx-game-bar-z-index);
-  position: fixed;
-  bottom: 0;
-  width: 40px;
-  height: 90px;
-  overflow: visible;
-  cursor: pointer;
-}
-#bx-game-bar > svg {
-  display: none;
-  pointer-events: none;
-  position: absolute;
-  height: 28px;
-  margin-top: 16px;
-}
-@media (hover: hover) {
-  #bx-game-bar:hover > svg {
-    display: block;
-  }
-}
-#bx-game-bar .bx-game-bar-container {
-  opacity: 0;
-  position: absolute;
-  display: flex;
-  overflow: hidden;
-  background: rgba(26,27,30,0.91);
-  box-shadow: 0px 0px 6px #1c1c1c;
-  transition: opacity 0.1s ease-in;
-/* Touch controller buttons */
-/* Show enabled button */
-/* Show enable button */
-}
-#bx-game-bar .bx-game-bar-container.bx-show {
-  opacity: 0.9;
-}
-#bx-game-bar .bx-game-bar-container.bx-show + svg {
-  display: none !important;
-}
-#bx-game-bar .bx-game-bar-container.bx-hide {
-  opacity: 0;
-  pointer-events: none;
-}
-#bx-game-bar .bx-game-bar-container button {
-  width: 60px;
-  height: 60px;
-  border-radius: 0;
-}
-#bx-game-bar .bx-game-bar-container button svg {
-  width: 28px;
-  height: 28px;
-  transition: transform 0.08s ease 0s;
-}
-#bx-game-bar .bx-game-bar-container button:hover {
-  border-radius: 0;
-}
-#bx-game-bar .bx-game-bar-container button:active svg {
-  transform: scale(0.75);
-}
-#bx-game-bar .bx-game-bar-container button.bx-activated {
-  background-color: #fff;
-}
-#bx-game-bar .bx-game-bar-container button.bx-activated svg {
-  filter: invert(1);
-}
-#bx-game-bar .bx-game-bar-container div[data-enabled] button {
-  display: none;
-}
-#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type {
-  display: block;
-}
-#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type {
-  display: block;
-}
-#bx-game-bar[data-position="bottom-left"] {
-  left: 0;
-  direction: ltr;
-}
-#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container {
-  border-radius: 0 10px 10px 0;
-}
-#bx-game-bar[data-position="bottom-right"] {
-  right: 0;
-  direction: rtl;
-}
-#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container {
-  direction: ltr;
-  border-radius: 10px 0 0 10px;
-}
-.bx-badges {
-  margin-left: 0px;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.bx-badge {
-  border: none;
-  display: inline-block;
-  line-height: 24px;
-  color: #fff;
-  font-family: var(--bx-title-font-semibold);
-  font-size: 14px;
-  font-weight: 400;
-  margin: 0 8px 8px 0;
-  box-shadow: 0px 0px 6px #000;
-  border-radius: 4px;
-}
-.bx-badge-name {
-  background-color: #2d3036;
-  border-radius: 4px 0 0 4px;
-}
-.bx-badge-name svg {
-  width: 16px;
-  height: 16px;
-}
-.bx-badge-value {
-  background-color: #808080;
-  border-radius: 0 4px 4px 0;
-}
-.bx-badge-name,
-.bx-badge-value {
-  display: inline-block;
-  padding: 0 8px;
-/* height: 30px; */
-  line-height: 30px;
-  vertical-align: bottom;
-}
-.bx-badge-battery[data-charging=true] span:first-of-type::after {
-  content: ' ⚡️';
-}
-div[class^=StreamMenu-module__container] .bx-badges {
-  position: absolute;
-  max-width: 500px;
-}
-#gamepass-dialog-root .bx-badges {
-  position: fixed;
-  top: 60px;
-  left: 460px;
-  max-width: 500px;
-}
-@media (min-width: 568px) and (max-height: 480px) {
-  #gamepass-dialog-root .bx-badges {
-    position: unset;
-    top: unset;
-    left: unset;
-    margin: 8px 0;
-  }
-}
-.bx-stats-bar {
-  display: block;
-  user-select: none;
-  -webkit-user-select: none;
-  position: fixed;
-  top: 0;
-  background-color: #000;
-  color: #fff;
-  font-family: var(--bx-monospaced-font);
-  font-size: 0.9rem;
-  padding-left: 8px;
-  z-index: var(--bx-stats-bar-z-index);
-  text-wrap: nowrap;
-}
-.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,
-.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,
-.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,
-.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,
-.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,
-.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl {
-  display: inline-block;
-}
-.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,
-.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,
-.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,
-.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,
-.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,
-.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl {
-  margin-right: 0;
-  border-right: none;
-}
-.bx-stats-bar::before {
-  display: none;
-  content: '👀';
-  vertical-align: middle;
-  margin-right: 8px;
-}
-.bx-stats-bar[data-display=glancing]::before {
-  display: inline-block;
-}
-.bx-stats-bar[data-position=top-left] {
-  left: 0;
-  border-radius: 0 0 4px 0;
-}
-.bx-stats-bar[data-position=top-right] {
-  right: 0;
-  border-radius: 0 0 0 4px;
-}
-.bx-stats-bar[data-position=top-center] {
-  transform: translate(-50%, 0);
-  left: 50%;
-  border-radius: 0 0 4px 4px;
-}
-.bx-stats-bar[data-transparent=true] {
-  background: none;
-  filter: drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941));
-}
-.bx-stats-bar > div {
-  display: none;
-  margin-right: 8px;
-  border-right: 1px solid #fff;
-  padding-right: 8px;
-}
-.bx-stats-bar label {
-  margin: 0 8px 0 0;
-  font-family: var(--bx-title-font);
-  font-size: inherit;
-  font-weight: bold;
-  vertical-align: middle;
-  cursor: help;
-}
-.bx-stats-bar span {
-  min-width: 60px;
-  display: inline-block;
-  text-align: right;
-  vertical-align: middle;
-}
-.bx-stats-bar span[data-grade=good] {
-  color: #6bffff;
-}
-.bx-stats-bar span[data-grade=ok] {
-  color: #fff16b;
-}
-.bx-stats-bar span[data-grade=bad] {
-  color: #ff5f5f;
-}
-.bx-stats-bar span:first-of-type {
-  min-width: 22px;
-}
-.bx-stream-settings-dialog {
-  display: flex;
-  position: fixed;
-  z-index: var(--bx-stream-settings-z-index);
-  opacity: 0.98;
-  user-select: none;
-  -webkit-user-select: none;
-}
-.bx-stream-settings-tabs {
-  position: fixed;
-  top: 0;
-  right: 420px;
-  display: flex;
-  flex-direction: column;
-  border-radius: 0 0 0 8px;
-  box-shadow: 0px 0px 6px #000;
-  overflow: clip;
-}
-.bx-stream-settings-tabs svg {
-  width: 32px;
-  height: 32px;
-  padding: 10px;
-  box-sizing: content-box;
-  background: #131313;
-  cursor: pointer;
-  border-left: 4px solid #1e1e1e;
-}
-.bx-stream-settings-tabs svg.bx-active {
-  background: #222;
-  border-color: #008746;
-}
-.bx-stream-settings-tabs svg:not(.bx-active):hover {
-  background: #2f2f2f;
-  border-color: #484848;
-}
-.bx-stream-settings-tab-contents {
-  flex-direction: column;
-  position: fixed;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  padding: 14px 14px 0;
-  width: 420px;
-  background: #1a1b1e;
-  color: #fff;
-  font-weight: 400;
-  font-size: 16px;
-  font-family: var(--bx-title-font);
-  text-align: center;
-  box-shadow: 0px 0px 6px #000;
-  overflow: overlay;
-}
-.bx-stream-settings-tab-contents > div[data-group=mkb] {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-.bx-stream-settings-tab-contents *:focus {
-  outline: none !important;
-}
-.bx-stream-settings-tab-contents h2 {
-  margin-bottom: 8px;
-  display: flex;
-  align-item: center;
-}
-.bx-stream-settings-tab-contents h2 span {
-  display: inline-block;
-  font-size: 24px;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-align: left;
-  flex: 1;
-  height: var(--bx-button-height);
-  line-height: calc(var(--bx-button-height) + 4px);
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.bx-stream-settings-row {
-  display: flex;
-  border-bottom: 1px solid rgba(64,64,64,0.502);
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-}
-.bx-stream-settings-row label {
-  font-size: 16px;
-  display: block;
-  text-align: left;
-  flex: 1;
-  align-self: center;
-  margin-bottom: 0 !important;
-}
-.bx-stream-settings-row input {
-  accent-color: var(--bx-primary-button-color);
-}
-.bx-stream-settings-row select:disabled {
-  -webkit-appearance: none;
-  background: transparent;
-  text-align-last: right;
-  border: none;
-  color: #fff;
-}
-.bx-stream-settings-row select option:disabled {
-  display: none;
-}
-.bx-stream-settings-dialog-note {
-  display: block;
-  font-size: 12px;
-  font-weight: lighter;
-  font-style: italic;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:first-of-type {
-  display: none;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:last-of-type {
-  display: block;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:first-of-type {
-  display: block;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:last-of-type {
-  display: none;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile {
-  width: 100%;
-  height: 36px;
-  display: block;
-  margin-bottom: 10px;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-note {
-  font-size: 14px;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row {
-  display: flex;
-  margin-bottom: 10px;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt {
-  flex: 1;
-  font-size: 26px;
-  margin-bottom: 0;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions {
-  flex: 2;
-  position: relative;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select:last-of-type {
-  opacity: 0;
-  z-index: calc(var(--bx-stream-settings-z-index) + 1);
-}
-.bx-mkb-settings {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  padding-bottom: 10px;
-  overflow: hidden;
-}
-.bx-mkb-settings select:disabled {
-  -webkit-appearance: none;
-  background: transparent;
-  text-align-last: right;
-  text-align: right;
-  border: none;
-  color: #fff;
-}
-.bx-mkb-pointer-lock-msg {
-  user-select: none;
-  -webkit-user-select: none;
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  margin: auto;
-  background: #151515;
-  z-index: var(--bx-mkb-pointer-lock-msg-z-index);
-  color: #fff;
-  text-align: center;
-  font-weight: 400;
-  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-  font-size: 1.3rem;
-  padding: 12px;
-  border-radius: 8px;
-  align-items: center;
-  box-shadow: 0 0 6px #000;
-  min-width: 220px;
-  opacity: 0.9;
-}
-.bx-mkb-pointer-lock-msg:hover {
-  opacity: 1;
-}
-.bx-mkb-pointer-lock-msg > div:first-of-type {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-.bx-mkb-pointer-lock-msg p {
-  margin: 0;
-}
-.bx-mkb-pointer-lock-msg p:first-child {
-  font-size: 22px;
-  margin-bottom: 4px;
-  font-weight: bold;
-}
-.bx-mkb-pointer-lock-msg p:last-child {
-  font-size: 12px;
-  font-style: italic;
-}
-.bx-mkb-pointer-lock-msg > div:last-of-type {
-  margin-top: 10px;
-}
-.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type {
-  margin-bottom: 8px;
-}
-.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div {
-  display: flex;
-  flex-flow: row;
-  margin-top: 8px;
-}
-.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button {
-  flex: 1;
-}
-.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type {
-  margin-right: 5px;
-}
-.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type {
-  margin-left: 5px;
-}
-.bx-mkb-preset-tools {
-  display: flex;
-  margin-bottom: 12px;
-}
-.bx-mkb-preset-tools select {
-  flex: 1;
-}
-.bx-mkb-preset-tools button {
-  margin-left: 6px;
-}
-.bx-mkb-settings-rows {
-  flex: 1;
-  overflow: scroll;
-}
-.bx-mkb-key-row {
-  display: flex;
-  margin-bottom: 10px;
-  align-items: center;
-}
-.bx-mkb-key-row label {
-  margin-bottom: 0;
-  font-family: var(--bx-promptfont-font);
-  font-size: 26px;
-  text-align: center;
-  width: 26px;
-  height: 32px;
-  line-height: 32px;
-}
-.bx-mkb-key-row button {
-  flex: 1;
-  height: 32px;
-  line-height: 32px;
-  margin: 0 0 0 10px;
-  background: transparent;
-  border: none;
-  color: #fff;
-  border-radius: 0;
-  border-left: 1px solid #373737;
-}
-.bx-mkb-key-row button:hover {
-  background: transparent;
-  cursor: default;
-}
-.bx-mkb-settings.bx-editing .bx-mkb-key-row button {
-  background: #393939;
-  border-radius: 4px;
-  border: none;
-}
-.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover {
-  background: #333;
-  cursor: pointer;
-}
-.bx-mkb-action-buttons > div {
-  text-align: right;
-  display: none;
-}
-.bx-mkb-action-buttons button {
-  margin-left: 8px;
-}
-.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child {
-  display: block;
-}
-.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child {
-  display: block;
-}
-.bx-mkb-note {
-  display: block;
-  margin: 16px 0 10px;
-  font-size: 12px;
-}
-.bx-mkb-note:first-of-type {
-  margin-top: 0;
-}
-`;
+  let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:36px;--bx-default-button-color:#2d3036;--bx-default-button-hover-color:#515863;--bx-default-button-disabled-color:#8e8e8e;--bx-primary-button-color:#008746;--bx-primary-button-hover-color:#04b358;--bx-primary-button-disabled-color:#448262;--bx-danger-button-color:#c10404;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-disabled-color:#a26c6c;--bx-toast-z-index:9999;--bx-dialog-z-index:9101;--bx-dialog-overlay-z-index:9100;--bx-remote-play-popup-z-index:9090;--bx-stats-bar-z-index:9010;--bx-stream-settings-z-index:9001;--bx-mkb-pointer-lock-msg-z-index:9000;--bx-stream-settings-overlay-z-index:8999;--bx-game-bar-z-index:8888;--bx-wait-time-box-z-index:100;--bx-screenshot-animation-z-index:1}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:600px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-button{background-color:var(--bx-default-button-color);user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:focus{outline:none !important}.bx-button:hover,.bx-button.bx-focusable:focus{background-color:var(--bx-default-button-hover-color)}.bx-button:disabled{cursor:default;background-color:var(--bx-default-button-disabled-color)}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:hover,.bx-button.bx-ghost.bx-focusable:focus{background-color:var(--bx-default-button-hover-color)}.bx-button.bx-primary{background-color:var(--bx-primary-button-color)}.bx-button.bx-primary:hover,.bx-button.bx-primary.bx-focusable:focus{background-color:var(--bx-primary-button-hover-color)}.bx-button.bx-primary:disabled{background-color:var(--bx-primary-button-disabled-color)}.bx-button.bx-danger{background-color:var(--bx-danger-button-color)}.bx-button.bx-danger:hover,.bx-button.bx-danger.bx-focusable:focus{background-color:var(--bx-danger-button-hover-color)}.bx-button.bx-danger:disabled{background-color:var(--bx-danger-button-disabled-color)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button svg:not(:only-child){margin-right:4px}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button.bx-focusable{position:relative}.bx-button.bx-focusable::after{border:2px solid transparent;border-radius:4px}.bx-button.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:0;left:0;right:0;bottom:0}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:46px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-settings-reload-button{margin-top:10px}.bx-settings-container{background-color:#151515;user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-normal-font)}@media (hover:hover){.bx-settings-wrapper a.bx-settings-title:hover{color:#83f73a}}.bx-settings-wrapper{width:450px;margin:auto;padding:12px 6px}@media screen and (max-width:450px){.bx-settings-wrapper{width:100%}}.bx-settings-wrapper *:focus{outline:none !important}.bx-settings-wrapper .bx-top-buttons .bx-button{display:block;margin-bottom:8px}.bx-settings-wrapper .bx-settings-title-wrapper{display:flex;margin-bottom:10px;align-items:center}.bx-settings-wrapper a.bx-settings-title{font-family:var(--bx-title-font);font-size:1.4rem;text-decoration:none;font-weight:bold;display:block;color:#5dc21e;flex:1}.bx-settings-wrapper a.bx-settings-title:focus{color:#83f73a}.bx-settings-wrapper a.bx-settings-update{display:block;color:#ff834b;text-decoration:none;margin-bottom:8px;text-align:center;background:#222;border-radius:4px;padding:4px}@media (hover:hover){.bx-settings-wrapper a.bx-settings-update:hover{color:#ff9869;text-decoration:underline}}.bx-settings-wrapper a.bx-settings-update:focus{color:#ff9869;text-decoration:underline}.bx-settings-group-label{font-weight:bold;display:block;font-size:1.1rem}.bx-settings-row{display:flex;padding:6px 12px;position:relative}.bx-settings-row label{flex:1;align-self:center;margin-bottom:0}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row input{align-self:center;accent-color:var(--bx-primary-button-color)}.bx-settings-row input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-row input[type=checkbox]:focus,.bx-settings-row select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-row:has(input:focus)::before,.bx-settings-row:has(select:focus)::before{content:' ';border-radius:4px;border:2px solid #fff;position:absolute;top:0;left:0;bottom:0}.bx-settings-group-label b,.bx-settings-row label b{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-group-label b{margin-bottom:8px}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px;color:#5dc21e}.bx-donation-link:hover{color:#6dd72b}.bx-donation-link:focus{text-decoration:underline}.bx-settings-custom-user-agent{display:block;width:100%}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-popup{width:100%;max-width:1920px;margin:auto;position:relative;height:.1px;overflow:visible;z-index:var(--bx-remote-play-popup-z-index)}.bx-remote-play-container{position:absolute;right:10px;top:0;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px;box-shadow:rgba(0,0,0,0.502) 0 0 12px 0}@media (min-width:480px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 32px)}}@media (min-width:768px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 48px)}}@media (min-width:1920px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 80px)}}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-settings span{font-weight:bold;font-size:18px;display:block;margin-bottom:8px;text-align:center}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:14px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-select select{display:none}.bx-select > div{display:inline-block;min-width:110px;text-align:center;margin:0 10px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 4px}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0}.bx-select button{border:none;width:24px;height:24px;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}.bx-select button.bx-inactive{pointer-events:none;opacity:.2}.bx-select button span{line-height:unset}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:14px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0 4px;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-stream-settings-dialog{display:flex;position:fixed;z-index:var(--bx-stream-settings-z-index);opacity:.98;user-select:none;-webkit-user-select:none}.bx-stream-settings-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-stream-settings-overlay-z-index)}.bx-stream-settings-overlay[data-is-playing="true"]{background:transparent}.bx-stream-settings-tabs{position:fixed;top:0;right:420px;display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:clip}.bx-stream-settings-tabs svg{width:32px;height:32px;padding:10px;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-stream-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-stream-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-stream-settings-tab-contents{flex-direction:column;position:fixed;right:0;top:0;bottom:0;padding:14px 14px 0;width:420px;background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay}.bx-stream-settings-tab-contents > div[data-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-stream-settings-tab-contents *:focus{outline:none !important}.bx-stream-settings-tab-contents h2{margin-bottom:8px;display:flex;align-item:center}.bx-stream-settings-tab-contents h2 span{display:inline-block;font-size:24px;font-weight:bold;text-transform:uppercase;text-align:left;flex:1;height:var(--bx-button-height);line-height:calc(var(--bx-button-height) + 4px);text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.bx-stream-settings-row{display:flex;border-bottom:1px solid rgba(64,64,64,0.502);margin-bottom:16px;padding-bottom:16px}.bx-stream-settings-row > label{font-size:16px;display:block;text-align:left;flex:1;align-self:center;margin-bottom:0 !important}.bx-stream-settings-row input{accent-color:var(--bx-primary-button-color)}.bx-stream-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-stream-settings-row select option:disabled{display:none}.bx-stream-settings-dialog-note{display:block;font-size:12px;font-weight:lighter;font-style:italic}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile{width:100%;height:36px;display:block;margin-bottom:10px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-note{font-size:14px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-stream-settings-z-index) + 1)}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}`;
   if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
     css += `
 /* Hide "Play with friends" section */
@@ -6728,6 +5357,16 @@ body::-webkit-scrollbar {
 `;
   const $style = CE("style", {}, css);
   document.documentElement.appendChild($style);
+}
+function preloadFonts() {
+  const $link = CE("link", {
+    rel: "preload",
+    href: "https://redphx.github.io/better-xcloud/fonts/promptfont.otf",
+    as: "font",
+    type: "font/otf",
+    crossorigin: ""
+  });
+  document.querySelector("head")?.appendChild($link);
 }
 
 // src/modules/mkb/mouse-cursor-hider.ts
@@ -7098,6 +5737,11 @@ true` + ",this._connectionType=";
     if (!str2.includes("async requestPointerLock(){"))
       return !1;
     return str2 = str2.replace("async requestPointerLock(){", "async requestPointerLock(){return;"), str2;
+  },
+  patchRequestInfoCrash(str2) {
+    if (!str2.includes('if(!e)throw new Error("RequestInfo.origin is falsy");'))
+      return !1;
+    return str2 = str2.replace('if(!e)throw new Error("RequestInfo.origin is falsy");', 'if (!e) e = "https://www.xbox.com";'), str2;
   }
 }, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [
@@ -7106,6 +5750,7 @@ true` + ",this._connectionType=";
     "disableNativeRequestPointerLock",
     "exposeInputSink"
   ] : [],
+  "patchRequestInfoCrash",
   "disableStreamGate",
   "overrideSettings",
   "broadcastPollingMode",
@@ -7274,9 +5919,7 @@ function setupSettingsUi() {
   let $btnReload;
   const $container = CE("div", {
     class: "bx-settings-container bx-gone"
-  });
-  let $updateAvailable;
-  const $wrapper = CE("div", { class: "bx-settings-wrapper" }, CE("div", { class: "bx-settings-title-wrapper" }, CE("a", {
+  }), $wrapper = CE("div", { class: "bx-settings-wrapper" }, CE("div", { class: "bx-settings-title-wrapper" }, CE("a", {
     class: "bx-settings-title",
     href: "https://github.com/redphx/better-xcloud/releases",
     target: "_blank"
@@ -7285,36 +5928,48 @@ function setupSettingsUi() {
     style: ButtonStyle.FOCUSABLE,
     label: t("help"),
     url: "https://better-xcloud.github.io/features/"
-  })));
-  if ($updateAvailable = CE("a", {
-    class: "bx-settings-update bx-gone",
-    href: "https://github.com/redphx/better-xcloud/releases/latest",
-    target: "_blank"
-  }), $wrapper.appendChild($updateAvailable), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION)
-    $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`, $updateAvailable.classList.remove("bx-gone");
-  if (AppInterface) {
-    const $btn = createButton({
+  }))), topButtons = [];
+  if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION)
+    topButtons.push(createButton({
+      label: `🌟 Version ${PREF_LATEST_VERSION} available`,
+      style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+      url: "https://github.com/redphx/better-xcloud/releases/latest"
+    }));
+  if (topButtons.push(createButton({
+    label: t("stream-settings"),
+    icon: BxIcon.STREAM_SETTINGS,
+    style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+    onClick: (e) => {
+      StreamSettings.getInstance().show();
+    }
+  })), AppInterface)
+    topButtons.push(createButton({
       label: t("android-app-settings"),
       icon: BxIcon.STREAM_SETTINGS,
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
         AppInterface.openAppSettings && AppInterface.openAppSettings();
       }
-    });
-    $wrapper.appendChild($btn);
-  } else if (UserAgent.getDefault().toLowerCase().includes("android")) {
-    const $btn = createButton({
+    }));
+  else if (UserAgent.getDefault().toLowerCase().includes("android"))
+    topButtons.push(createButton({
       label: "🔥 " + t("install-android"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       url: "https://better-xcloud.github.io/android"
-    });
-    $wrapper.appendChild($btn);
+    }));
+  if (topButtons.length) {
+    const $div = CE("div", { class: "bx-top-buttons" });
+    for (let $button of topButtons)
+      $div.appendChild($button);
+    $wrapper.appendChild($div);
   }
   const onChange = async (e) => {
     PatcherCache.clear(), $btnReload.classList.add("bx-danger");
     const $btnHeaderSettings = document.querySelector(".bx-header-settings-button");
-    if ($btnHeaderSettings && $btnHeaderSettings.classList.add("bx-danger"), e.target.id === "bx_setting_" + PrefKey.BETTER_XCLOUD_LOCALE)
-      Translations.refreshCurrentLocale(), await Translations.updateTranslations(), $btnReload.textContent = t("settings-reloading"), $btnReload.click();
+    if ($btnHeaderSettings && $btnHeaderSettings.classList.add("bx-danger"), e.target.id === "bx_setting_" + PrefKey.BETTER_XCLOUD_LOCALE) {
+      if (Translations.refreshCurrentLocale(), await Translations.updateTranslations(), BX_FLAGS.ScriptUi !== "tv")
+        $btnReload.textContent = t("settings-reloading"), $btnReload.click();
+    }
   };
   for (let groupLabel in SETTINGS_UI) {
     const $group = CE("span", { class: "bx-settings-group-label" }, groupLabel);
@@ -7347,7 +6002,7 @@ function setupSettingsUi() {
           type: "text",
           placeholder: defaultUserAgent,
           class: "bx-settings-custom-user-agent"
-        }), $inpCustomUserAgent.addEventListener("change", (e) => {
+        }), $inpCustomUserAgent.addEventListener("input", (e) => {
           const profile = $control.value, custom = e.target.value.trim();
           UserAgent.updateStorage(profile, custom), onChange(e);
         }), $control = toPrefElement(PrefKey.USER_AGENT_PROFILE, (e) => {
@@ -7361,7 +6016,7 @@ function setupSettingsUi() {
           id: `bx_setting_${settingId}`,
           title: settingLabel,
           tabindex: 0
-        }), $control.name = $control.id, $control.addEventListener("change", (e) => {
+        }), $control.name = $control.id, $control.addEventListener("input", (e) => {
           setPref(settingId, e.target.value), onChange(e);
         }), selectedValue = PREF_PREFERRED_REGION, setting.options = {};
         for (let regionName in STATES.serverRegions) {
@@ -7395,9 +6050,13 @@ function setupSettingsUi() {
       const $label = CE("label", labelAttrs, settingLabel);
       if (settingNote)
         $label.appendChild(CE("b", {}, settingNote));
-      const $elm = CE("div", { class: "bx-settings-row" }, $label, $control);
+      let $elm;
+      if ($control instanceof HTMLSelectElement && BX_FLAGS.ScriptUi === "tv")
+        $elm = CE("div", { class: "bx-settings-row" }, $label, BxSelectElement.wrap($control));
+      else
+        $elm = CE("div", { class: "bx-settings-row" }, $label, $control);
       if ($wrapper.appendChild($elm), settingId === PrefKey.USER_AGENT_PROFILE)
-        $wrapper.appendChild($inpCustomUserAgent), $control.disabled = !0, $control.dispatchEvent(new Event("change")), $control.disabled = !1;
+        $wrapper.appendChild($inpCustomUserAgent), $control.disabled = !0, $control.dispatchEvent(new Event("input")), $control.disabled = !1;
     }
   }
   $btnReload = createButton({
@@ -7607,15 +6266,36 @@ function overridePreloadState() {
         } catch (e) {
           BxLogger.error(LOG_TAG6, e);
         }
-      _state = state, STATES.appContext = structuredClone(state.appContext);
+      _state = state, STATES.appContext = deepClone(state.appContext);
     }
   });
 }
 var LOG_TAG6 = "PreloadState";
 
 // src/utils/sdp.ts
+function setCodecPreferences(sdp, preferredCodec) {
+  const h264Pattern = /a=fmtp:(\d+).*profile-level-id=([0-9a-f]{6})/g, profilePrefix = preferredCodec === "high" ? "4d" : preferredCodec === "low" ? "420" : "42e", preferredCodecIds = [], matches = sdp.matchAll(h264Pattern) || [];
+  for (let match of matches) {
+    const id2 = match[1];
+    if (match[2].startsWith(profilePrefix))
+      preferredCodecIds.push(id2);
+  }
+  if (!preferredCodecIds.length)
+    return sdp;
+  const lines = sdp.split("\r\n");
+  for (let lineIndex = 0;lineIndex < lines.length; lineIndex++) {
+    const line = lines[lineIndex];
+    if (!line.startsWith("m=video"))
+      continue;
+    const tmp = line.trim().split(" ");
+    let ids = tmp.slice(3);
+    ids = ids.filter((item2) => !preferredCodecIds.includes(item2)), ids = preferredCodecIds.concat(ids), lines[lineIndex] = tmp.slice(0, 3).concat(ids).join(" ");
+    break;
+  }
+  return lines.join("\r\n");
+}
 function patchSdpBitrate(sdp, video, audio) {
-  const lines = sdp.split("\n"), mediaSet = new Set;
+  const lines = sdp.split("\r\n"), mediaSet = new Set;
   !!video && mediaSet.add("video"), !!audio && mediaSet.add("audio");
   const bitrate = {
     video,
@@ -7646,7 +6326,7 @@ function patchSdpBitrate(sdp, video, audio) {
       }
     }
   }
-  return lines.join("\n");
+  return lines.join("\r\n");
 }
 
 // src/modules/player/shaders/clarity_boost.vert
@@ -7943,25 +6623,10 @@ function patchVideoApi() {
   };
 }
 function patchRtcCodecs() {
-  const codecProfile = getPref(PrefKey.STREAM_CODEC_PROFILE);
-  if (codecProfile === "default")
+  if (getPref(PrefKey.STREAM_CODEC_PROFILE) === "default")
     return;
   if (typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype))
     return !1;
-  const profileLevelId = `profile-level-id=${codecProfile === "high" ? "4d" : codecProfile === "low" ? "420" : "42e"}`, nativeSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
-  RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
-    const newCodecs = codecs.slice();
-    let pos = 0;
-    newCodecs.forEach((codec, i) => {
-      if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes(profileLevelId))
-        newCodecs.splice(i, 1), newCodecs.splice(pos, 0, codec), ++pos;
-    });
-    try {
-      nativeSetCodecPreferences.apply(this, [newCodecs]);
-    } catch (e) {
-      BxLogger.error("setCodecPreferences", e), nativeSetCodecPreferences.apply(this, [codecs]);
-    }
-  };
 }
 function patchRtcPeerConnection() {
   const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
@@ -7971,17 +6636,19 @@ function patchRtcPeerConnection() {
       dataChannel
     }), dataChannel;
   };
-  const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
-  if (maxVideoBitrate > 0) {
+  const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX), codec = getPref(PrefKey.STREAM_CODEC_PROFILE);
+  if (codec !== "default" || maxVideoBitrate > 0) {
     const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
     RTCPeerConnection.prototype.setLocalDescription = function(description) {
+      if (codec !== "default")
+        arguments[0].sdp = setCodecPreferences(arguments[0].sdp, codec);
       try {
-        if (description)
+        if (maxVideoBitrate > 0 && description)
           arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
       } catch (e) {
         BxLogger.error("setLocalDescription", e);
       }
-      return nativeSetLocalDescription.apply(this, arguments);
+      return BxLogger.info("setLocalDescription", arguments[0].sdp), nativeSetLocalDescription.apply(this, arguments);
     };
   }
   const OrgRTCPeerConnection = window.RTCPeerConnection;
@@ -8072,6 +6739,103 @@ function patchPointerLockApi() {
   }, Document.prototype.exitPointerLock = function() {
     pointerLockElement = null, window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_EXITED));
   };
+}
+
+// src/modules/stream/stream-ui.ts
+var cloneStreamHudButton = function($orgButton, label, svgIcon) {
+  const $container = $orgButton.cloneNode(!0);
+  let timeout;
+  const onTransitionStart = (e) => {
+    if (e.propertyName !== "opacity")
+      return;
+    timeout && clearTimeout(timeout), $container.style.pointerEvents = "none";
+  }, onTransitionEnd = (e) => {
+    if (e.propertyName !== "opacity")
+      return;
+    if (document.getElementById("StreamHud")?.style.left === "0px")
+      timeout && clearTimeout(timeout), timeout = window.setTimeout(() => {
+        $container.style.pointerEvents = "auto";
+      }, 100);
+  };
+  if (STATES.browserHasTouchSupport)
+    $container.addEventListener("transitionstart", onTransitionStart), $container.addEventListener("transitionend", onTransitionEnd);
+  const $button = $container.querySelector("button");
+  $button.setAttribute("title", label);
+  const $orgSvg = $button.querySelector("svg"), $svg = createSvgIcon(svgIcon);
+  return $svg.style.fill = "none", $svg.setAttribute("class", $orgSvg.getAttribute("class") || ""), $svg.ariaHidden = "true", $orgSvg.replaceWith($svg), $container;
+}, cloneCloseButton = function($$btnOrg, icon, className, onChange) {
+  const $btn = $$btnOrg.cloneNode(!0), $svg = createSvgIcon(icon);
+  return $svg.setAttribute("class", $btn.firstElementChild.getAttribute("class") || ""), $svg.style.fill = "none", $btn.classList.add(className), $btn.removeChild($btn.firstElementChild), $btn.appendChild($svg), $btn.addEventListener("click", onChange), $btn;
+};
+function injectStreamMenuButtons() {
+  const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
+  if (!$screen)
+    return;
+  if ($screen.xObserving)
+    return;
+  $screen.xObserving = !0;
+  let $btnStreamSettings, $btnStreamStats;
+  const streamStats = StreamStats.getInstance();
+  new MutationObserver((mutationList) => {
+    mutationList.forEach((item2) => {
+      if (item2.type !== "childList")
+        return;
+      item2.addedNodes.forEach(async ($node) => {
+        if (!$node || $node.nodeType !== Node.ELEMENT_NODE)
+          return;
+        let $elm = $node;
+        if ($elm instanceof SVGSVGElement)
+          return;
+        if ($elm.className?.includes("PureErrorPage")) {
+          BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
+          return;
+        }
+        if ($elm.className?.startsWith("StreamMenu-module__container")) {
+          const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
+          if (!$btnCloseHud)
+            return;
+          $btnCloseHud.addEventListener("click", (e) => {
+            StreamSettings.getInstance().hide();
+          });
+          const $btnRefresh = cloneCloseButton($btnCloseHud, BxIcon.REFRESH, "bx-stream-refresh-button", () => {
+            confirm(t("confirm-reload-stream")) && window.location.reload();
+          }), $btnHome = cloneCloseButton($btnCloseHud, BxIcon.HOME, "bx-stream-home-button", () => {
+            confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
+          });
+          $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh), $btnRefresh.insertAdjacentElement("afterend", $btnHome), document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]")?.appendChild(await StreamBadges.getInstance().render());
+          return;
+        }
+        if ($elm.className?.startsWith("Overlay-module_") || $elm.className?.startsWith("InProgressScreen"))
+          $elm = $elm.querySelector("#StreamHud");
+        if (!$elm || ($elm.id || "") !== "StreamHud")
+          return;
+        const $gripHandle = $elm.querySelector("button[class^=GripHandle]"), hideGripHandle = () => {
+          if (!$gripHandle)
+            return;
+          $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
+        }, $orgButton = $elm.querySelector("div[class^=HUDButton]");
+        if (!$orgButton)
+          return;
+        if (!$btnStreamSettings)
+          $btnStreamSettings = cloneStreamHudButton($orgButton, t("stream-settings"), BxIcon.STREAM_SETTINGS), $btnStreamSettings.addEventListener("click", (e) => {
+            hideGripHandle(), e.preventDefault(), StreamSettings.getInstance().show();
+          });
+        if (!$btnStreamStats)
+          $btnStreamStats = cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats.addEventListener("click", (e) => {
+            hideGripHandle(), e.preventDefault(), streamStats.toggle();
+            const btnStreamStatsOn2 = !streamStats.isHidden() && !streamStats.isGlancing();
+            $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn2);
+          });
+        const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();
+        if ($btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn), $orgButton) {
+          const $btnParent = $orgButton.parentElement;
+          $btnParent.insertBefore($btnStreamStats, $btnParent.lastElementChild), $btnParent.insertBefore($btnStreamSettings, $btnStreamStats);
+          const $dotsButton = $btnParent.lastElementChild;
+          $dotsButton.parentElement.insertBefore($dotsButton, $dotsButton.parentElement.firstElementChild);
+        }
+      });
+    });
+  }).observe($screen, { subtree: !0, childList: !0 });
 }
 
 // src/modules/game-bar/action-base.ts
@@ -8301,11 +7065,7 @@ class GuideMenu {
 var unload = function() {
   if (!STATES.isPlaying)
     return;
-  EmulatedMkbHandler.getInstance().destroy(), NativeMkbHandler.getInstance().destroy(), STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1;
-  const $streamSettingsDialog = document.querySelector(".bx-stream-settings-dialog");
-  if ($streamSettingsDialog)
-    $streamSettingsDialog.classList.add("bx-gone");
-  StreamStats.getInstance().onStoppedPlaying(), MouseCursorHider.stop(), TouchController.reset(), GameBar.getInstance().disable();
+  EmulatedMkbHandler.getInstance().destroy(), NativeMkbHandler.getInstance().destroy(), STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1, StreamSettings.getInstance().hide(), StreamStats.getInstance().onStoppedPlaying(), MouseCursorHider.stop(), TouchController.reset(), GameBar.getInstance().disable();
 }, observeRootDialog = function($root) {
   let currentShown = !1;
   new MutationObserver((mutationList) => {
@@ -8348,7 +7108,7 @@ var unload = function() {
   });
   observer.observe(document.documentElement, { subtree: !0, childList: !0 });
 }, main = function() {
-  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext(), getPref(PrefKey.BLOCK_TRACKING) && patchMeControl(), STATES.userAgentHasTouchSupport && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), Toast.setup(), getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance(), BX_FLAGS.PreloadUi && setupStreamUi(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad)), getPref(PrefKey.REMOTE_PLAY_ENABLED))
+  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext(), getPref(PrefKey.BLOCK_TRACKING) && patchMeControl(), STATES.userAgentHasTouchSupport && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), preloadFonts(), Toast.setup(), getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance(), BX_FLAGS.PreloadUi && setupStreamUi(), Screenshot.setup(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad)), getPref(PrefKey.REMOTE_PLAY_ENABLED))
     RemotePlay.detect();
   if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all")
     TouchController.setup();
