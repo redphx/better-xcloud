@@ -9,12 +9,16 @@
 
 .bx-stream-settings-overlay {
     position: fixed;
-    background: transparent;
+    background: #0b0b0be3;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: var(--bx-stream-settings-overlay-z-index);
+
+    &[data-is-playing="true"] {
+        background: transparent;
+    }
 }
 
 .bx-stream-settings-tabs {

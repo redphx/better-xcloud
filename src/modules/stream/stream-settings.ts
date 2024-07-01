@@ -251,8 +251,9 @@ export class StreamSettings {
         }
 
         this.$overlay!.classList.remove('bx-gone');
-        $container.classList.remove('bx-gone');
+        this.$overlay!.dataset.isPlaying = STATES.isPlaying.toString();
 
+        $container.classList.remove('bx-gone');
         document.body.classList.add('bx-no-scroll');
     }
 
