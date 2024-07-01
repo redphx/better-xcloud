@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.1.0
+// @version      5.1.1-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -111,7 +111,7 @@ function deepClone(obj) {
     return obj;
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.1.0", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.1.1-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   isPlaying: !1,
@@ -4949,7 +4949,7 @@ function interceptHttpRequests() {
     if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation"))
       try {
         const response = await NATIVE_FETCH(request, init), json = await response.json();
-        if (json && json.exp && json.treatments)
+        if (json && json.exp && json.exp.treatments)
           for (let key in FeatureGates)
             json.exp.treatments[key] = FeatureGates[key];
         return response.json = () => Promise.resolve(json), response;
@@ -5739,6 +5739,11 @@ true` + ",this._connectionType=";
     if (!str2.includes('if(!e)throw new Error("RequestInfo.origin is falsy");'))
       return !1;
     return str2 = str2.replace('if(!e)throw new Error("RequestInfo.origin is falsy");', 'if (!e) e = "https://www.xbox.com";'), str2;
+  },
+  exposeDialogRoutes(str2) {
+    if (!str2.includes("return{goBack:function(){"))
+      return !1;
+    return str2 = str2.replace("return{goBack:function(){", "return window.BX_EXPOSED.dialogRoutes = {goBack:function(){"), str2;
   }
 }, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [
@@ -5752,6 +5757,7 @@ true` + ",this._connectionType=";
   "overrideSettings",
   "broadcastPollingMode",
   "exposeStreamSession",
+  "exposeDialogRoutes",
   getPref(PrefKey.UI_LAYOUT) !== "default" && "websiteLayout",
   getPref(PrefKey.LOCAL_CO_OP_ENABLED) && "supportLocalCoOp",
   getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && "forceFortniteConsole",
@@ -7011,17 +7017,31 @@ class GuideMenu {
     const $dividers = $root.querySelectorAll("div[class*=Divider-module__divider]");
     if (!$dividers)
       return;
-    const $lastDivider = $dividers[$dividers.length - 1];
-    if (AppInterface) {
-      const $btnQuit = createButton({
-        label: t("close-app"),
-        style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
-        onClick: (e) => {
-          AppInterface.closeApp();
-        }
-      });
-      $lastDivider.insertAdjacentElement("afterend", $btnQuit);
-    }
+    const buttons = [];
+    if (buttons.push(createButton({
+      label: t("stream-settings"),
+      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      onClick: (e) => {
+        window.BX_EXPOSED.dialogRoutes.closeAll(), StreamSettings.getInstance().show();
+      }
+    })), buttons.push(createButton({
+      label: t("android-app-settings"),
+      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      onClick: (e) => {
+        AppInterface.openAppSettings && AppInterface.openAppSettings();
+      }
+    })), buttons.push(createButton({
+      label: t("close-app"),
+      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
+      onClick: (e) => {
+        AppInterface.closeApp();
+      }
+    })), !buttons.length)
+      return;
+    const $div = CE("div", {});
+    for (let $button of buttons)
+      $div.appendChild($button);
+    $dividers[$dividers.length - 1].insertAdjacentElement("afterend", $div);
   }
   static #injectHomePlaying($root) {
     const $btnQuit = $root.querySelector("a[class*=QuitGameButton]");
