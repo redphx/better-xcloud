@@ -170,7 +170,7 @@ export class Preferences {
                     default: t('default'),
                 };
 
-                if (!('getCapabilities' in RTCRtpReceiver) || typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
+                if (!('getCapabilities' in RTCRtpReceiver)) {
                     return options;
                 }
 

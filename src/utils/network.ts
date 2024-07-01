@@ -456,9 +456,6 @@ class XcloudInterceptor {
             });
         }
 
-        overrides.videoConfiguration = overrides.videoConfiguration || {};
-        overrides.videoConfiguration.setCodecPreferences = true;
-
         // Enable touch controller
         if (TouchController.isEnabled()) {
             overrides.inputConfiguration.enableTouchInput = true;

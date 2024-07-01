@@ -2,7 +2,7 @@ import { BxEvent } from "@utils/bx-event";
 import { getPref, PrefKey } from "@utils/preferences";
 import { STATES } from "@utils/global";
 import { BxLogger } from "@utils/bx-logger";
-import { patchSdpBitrate } from "./sdp";
+import { patchSdpBitrate, setCodecPreferences } from "./sdp";
 import { StreamPlayer, type StreamPlayerOptions } from "@/modules/stream-player";
 
 export function patchVideoApi() {
@@ -66,33 +66,6 @@ export function patchRtcCodecs() {
     if (typeof RTCRtpTransceiver === 'undefined' || !('setCodecPreferences' in RTCRtpTransceiver.prototype)) {
         return false;
     }
-
-    const profilePrefix = codecProfile === 'high' ? '4d' : (codecProfile === 'low' ? '420' : '42e');
-    const profileLevelId = `profile-level-id=${profilePrefix}`;
-
-    const nativeSetCodecPreferences = RTCRtpTransceiver.prototype.setCodecPreferences;
-    RTCRtpTransceiver.prototype.setCodecPreferences = function(codecs) {
-        // Use the same codecs as desktop
-        const newCodecs = codecs.slice();
-        let pos = 0;
-        newCodecs.forEach((codec, i) => {
-            // Find high-quality codecs
-            if (codec.sdpFmtpLine && codec.sdpFmtpLine.includes(profileLevelId)) {
-                // Move it to the top of the array
-                newCodecs.splice(i, 1);
-                newCodecs.splice(pos, 0, codec);
-                ++pos;
-            }
-        });
-
-        try {
-            nativeSetCodecPreferences.apply(this, [newCodecs]);
-        } catch (e) {
-            // Didn't work -> use default codecs
-            BxLogger.error('setCodecPreferences', e);
-            nativeSetCodecPreferences.apply(this, [codecs]);
-        }
-    }
 }
 
 export function patchRtcPeerConnection() {
@@ -109,17 +82,26 @@ export function patchRtcPeerConnection() {
     }
 
     const maxVideoBitrate = getPref(PrefKey.BITRATE_VIDEO_MAX);
-    if (maxVideoBitrate > 0) {
+    const codec = getPref(PrefKey.STREAM_CODEC_PROFILE);
+
+    if (codec !== 'default' || maxVideoBitrate > 0) {
         const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
         RTCPeerConnection.prototype.setLocalDescription = function(description?: RTCLocalSessionDescriptionInit): Promise<void> {
+            // Set preferred codec profile
+            if (codec !== 'default') {
+                arguments[0].sdp = setCodecPreferences(arguments[0].sdp, codec);
+            }
+
             // set maximum bitrate
             try {
-                if (description) {
+                if (maxVideoBitrate > 0 && description) {
                     arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
                 }
             } catch (e) {
                 BxLogger.error('setLocalDescription', e);
             }
+
+            BxLogger.info('setLocalDescription', arguments[0].sdp);
 
             // @ts-ignore
             return nativeSetLocalDescription.apply(this, arguments);
