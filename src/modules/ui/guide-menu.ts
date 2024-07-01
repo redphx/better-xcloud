@@ -1,7 +1,8 @@
 import { BxEvent } from "@/utils/bx-event";
 import { AppInterface, STATES } from "@/utils/global";
-import { createButton, ButtonStyle } from "@/utils/html";
+import { createButton, ButtonStyle, CE } from "@/utils/html";
 import { t } from "@/utils/translation";
+import { StreamSettings } from "../stream/stream-settings";
 
 export enum GuideMenuTab {
     HOME,
@@ -14,20 +15,52 @@ export class GuideMenu {
         if (!$dividers) {
             return;
         }
-        const $lastDivider = $dividers[$dividers.length - 1];
 
-        // Add "Close app" button
+        const buttons = [];
+
+        // "Stream settings" button
+        buttons.push(createButton({
+            label: t('stream-settings'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            onClick: e => {
+                // Close all xCloud's dialogs
+                window.BX_EXPOSED.dialogRoutes.closeAll();
+
+                StreamSettings.getInstance().show();
+            },
+        }));
+
+        // "App settings" & "Close app" buttons
         if (AppInterface) {
-            const $btnQuit = createButton({
+            buttons.push(createButton({
+                label: t('android-app-settings'),
+                style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+                onClick: e => {
+                    AppInterface.openAppSettings && AppInterface.openAppSettings();
+                },
+            }));
+
+            buttons.push(createButton({
                 label: t('close-app'),
                 style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
                 onClick: e => {
                     AppInterface.closeApp();
                 },
-            });
-
-            $lastDivider.insertAdjacentElement('afterend', $btnQuit);
+            }));
         }
+
+        if (!buttons.length) {
+            return;
+        }
+
+        const $div = CE('div', {});
+
+        for (const $button of buttons) {
+            $div.appendChild($button);
+        }
+
+        const $lastDivider = $dividers[$dividers.length - 1];
+        $lastDivider.insertAdjacentElement('afterend', $div);
     }
 
     static #injectHomePlaying($root: HTMLElement) {
