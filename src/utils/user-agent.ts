@@ -1,4 +1,5 @@
 import { UserAgentProfile } from "@enums/user-agent";
+import { deepClone } from "./global";
 
 type UserAgentConfig = {
     profile: UserAgentProfile,
@@ -45,7 +46,7 @@ export class UserAgent {
     }
 
     static updateStorage(profile: UserAgentProfile, custom?: string) {
-        const clonedConfig = structuredClone(UserAgent.#config);
+        const clonedConfig = deepClone(UserAgent.#config);
         clonedConfig.profile = profile;
 
         if (typeof custom !== 'undefined') {

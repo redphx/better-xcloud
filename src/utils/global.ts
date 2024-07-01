@@ -24,3 +24,15 @@ export const STATES: BxStates = {
 
     pointerServerPort: 9269,
 };
+
+export function deepClone(obj: any): any {
+    if ('structuredClone' in window) {
+        return structuredClone(obj);
+    }
+
+    if (!obj) {
+        return obj;
+    }
+
+    return JSON.parse(JSON.stringify(obj));
+}

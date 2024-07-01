@@ -7,6 +7,9 @@ import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/pr
 import { t, Translations } from "@utils/translation";
 import { PatcherCache } from "../patcher";
 import { UserAgentProfile } from "@enums/user-agent";
+import { BX_FLAGS } from "@/utils/bx-flags";
+import { BxSelectElement } from "@/web-components/bx-select";
+import { StreamSettings } from "../stream/stream-settings";
 
 const SETTINGS_UI = {
     'Better xCloud': {
@@ -121,14 +124,12 @@ export function setupSettingsUi() {
     let $btnReload: HTMLButtonElement;
 
     // Setup Settings UI
-    const $container = CE<HTMLElement>('div', {
+    const $container = CE('div', {
         'class': 'bx-settings-container bx-gone',
     });
 
-    let $updateAvailable;
-
-    const $wrapper = CE<HTMLElement>('div', {'class': 'bx-settings-wrapper'},
-            CE<HTMLElement>('div', {'class': 'bx-settings-title-wrapper'},
+    const $wrapper = CE('div', {'class': 'bx-settings-wrapper'},
+            CE('div', {'class': 'bx-settings-title-wrapper'},
                 CE('a', {
                     'class': 'bx-settings-title',
                     'href': 'https://github.com/redphx/better-xcloud/releases',
@@ -142,44 +143,59 @@ export function setupSettingsUi() {
                 }),
             )
         );
-    $updateAvailable = CE('a', {
-        'class': 'bx-settings-update bx-gone',
-        'href': 'https://github.com/redphx/better-xcloud/releases/latest',
-        'target': '_blank',
-    });
 
-    $wrapper.appendChild($updateAvailable);
+    const topButtons = [];
 
-    // Show new version indicator
+    // "New version available" button
     if (!SCRIPT_VERSION.includes('beta') && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
-        $updateAvailable.textContent = `🌟 Version ${PREF_LATEST_VERSION} available`;
-        $updateAvailable.classList.remove('bx-gone');
+        // Show new version indicator
+        topButtons.push(createButton({
+            label: `🌟 Version ${PREF_LATEST_VERSION} available`,
+            style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+            url: 'https://github.com/redphx/better-xcloud/releases/latest',
+        }));
     }
 
+    // "Stream settings" button
+    topButtons.push(createButton({
+        label: t('stream-settings'),
+        icon: BxIcon.STREAM_SETTINGS,
+        style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+        onClick: e => {
+            StreamSettings.getInstance().show();
+        },
+    }));
+
+    // Buttons for Android app
     if (AppInterface) {
         // Show Android app settings button
-        const $btn = createButton({
+        topButtons.push(createButton({
             label: t('android-app-settings'),
             icon: BxIcon.STREAM_SETTINGS,
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 AppInterface.openAppSettings && AppInterface.openAppSettings();
             },
-        });
-
-        $wrapper.appendChild($btn);
+        }));
     } else {
         // Show link to Android app
         const userAgent = UserAgent.getDefault().toLowerCase();
         if (userAgent.includes('android')) {
-            const $btn = createButton({
+            topButtons.push(createButton({
                 label: '🔥 ' + t('install-android'),
                 style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
                 url: 'https://better-xcloud.github.io/android',
-            });
-
-            $wrapper.appendChild($btn);
+            }));
         }
+    }
+
+    if (topButtons.length) {
+        const $div = CE('div', {class: 'bx-top-buttons'});
+        for (const $button of topButtons) {
+            $div.appendChild($button);
+        }
+
+        $wrapper.appendChild($div);
     }
 
     const onChange = async (e: Event) => {
@@ -197,8 +213,11 @@ export function setupSettingsUi() {
             Translations.refreshCurrentLocale();
             await Translations.updateTranslations();
 
-            $btnReload.textContent = t('settings-reloading');
-            $btnReload.click();
+            // Don't refresh the page on TV
+            if (BX_FLAGS.ScriptUi !== 'tv') {
+                $btnReload.textContent = t('settings-reloading');
+                $btnReload.click();
+            }
         }
     };
 
@@ -258,7 +277,7 @@ export function setupSettingsUi() {
                     placeholder: defaultUserAgent,
                     'class': 'bx-settings-custom-user-agent',
                 });
-                $inpCustomUserAgent.addEventListener('change', e => {
+                $inpCustomUserAgent.addEventListener('input', e => {
                     const profile = $control.value;
                     const custom = (e.target as HTMLInputElement).value.trim();
 
@@ -289,7 +308,7 @@ export function setupSettingsUi() {
                     });
                 $control.name = $control.id;
 
-                $control.addEventListener('change', (e: Event) => {
+                $control.addEventListener('input', (e: Event) => {
                     setPref(settingId, (e.target as HTMLSelectElement).value);
                     onChange(e);
                 });
@@ -354,10 +373,20 @@ export function setupSettingsUi() {
             if (settingNote) {
                 $label.appendChild(CE('b', {}, settingNote));
             }
-            const $elm = CE<HTMLElement>('div', {'class': 'bx-settings-row'},
+
+            let $elm: HTMLElement;
+
+            if ($control instanceof HTMLSelectElement && BX_FLAGS.ScriptUi === 'tv') {
+                $elm = CE('div', {'class': 'bx-settings-row'},
+                    $label,
+                    BxSelectElement.wrap($control),
+                );
+            } else {
+                $elm = CE('div', {'class': 'bx-settings-row'},
                     $label,
                     $control,
                 );
+            }
 
             $wrapper.appendChild($elm);
 
@@ -366,7 +395,7 @@ export function setupSettingsUi() {
                 $wrapper.appendChild($inpCustomUserAgent!);
                 // Trigger 'change' event
                 $control.disabled = true;
-                $control.dispatchEvent(new Event('change'));
+                $control.dispatchEvent(new Event('input'));
                 $control.disabled = false;
             }
         }
@@ -400,7 +429,7 @@ export function setupSettingsUi() {
     try {
         const appVersion = (document.querySelector('meta[name=gamepass-app-version]') as HTMLMetaElement).content;
         const appDate = new Date((document.querySelector('meta[name=gamepass-app-date]') as HTMLMetaElement).content).toISOString().substring(0, 10);
-        $wrapper.appendChild(CE<HTMLElement>('div', {'class': 'bx-settings-app-version'}, `xCloud website version ${appVersion} (${appDate})`));
+        $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `xCloud website version ${appVersion} (${appDate})`));
     } catch (e) {}
 
     $container.appendChild($wrapper);

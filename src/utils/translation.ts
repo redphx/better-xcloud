@@ -377,8 +377,12 @@ export class Translations {
             const resp = await NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/translations/${locale}.json`);
             const translations = await resp.json();
 
-            window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations));
-            Translations.#foreignTranslations = translations;
+            // Prevent saving incorrect translations
+            let currentLocale = localStorage.getItem(Translations.#KEY_LOCALE);
+            if (currentLocale === locale) {
+                window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations));
+                Translations.#foreignTranslations = translations;
+            }
             return true;
         } catch (e) {
             debugger;

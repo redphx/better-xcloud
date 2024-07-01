@@ -623,7 +623,18 @@ true` + text;
 
         str = str.replace(text, text + 'return;');
         return str;
-    }
+    },
+
+    // Fix crashing when RequestInfo.origin is empty
+    patchRequestInfoCrash(str: string) {
+        const text = 'if(!e)throw new Error("RequestInfo.origin is falsy");';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        str = str.replace(text, 'if (!e) e = "https://www.xbox.com";');
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -633,6 +644,8 @@ let PATCH_ORDERS: PatchArray = [
         'disableNativeRequestPointerLock',
         'exposeInputSink',
     ] : []),
+
+    'patchRequestInfoCrash',
 
     'disableStreamGate',
     'overrideSettings',

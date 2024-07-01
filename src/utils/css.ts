@@ -140,3 +140,16 @@ body::-webkit-scrollbar {
     const $style = CE('style', {}, css);
     document.documentElement.appendChild($style);
 }
+
+
+export function preloadFonts() {
+    const $link = CE<HTMLLinkElement>('link', {
+            rel: 'preload',
+            href: 'https://redphx.github.io/better-xcloud/fonts/promptfont.otf',
+            as: 'font',
+            type: 'font/otf',
+            crossorigin: '',
+        });
+
+    document.querySelector('head')?.appendChild($link);
+}

@@ -9,9 +9,9 @@ import { showGamepadToast } from "@utils/gamepad";
 import { EmulatedMkbHandler } from "@modules/mkb/mkb-handler";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
-import { addCss } from "@utils/css";
+import { addCss, preloadFonts } from "@utils/css";
 import { Toast } from "@utils/toast";
-import { setupStreamUi, updateVideoPlayer } from "@modules/ui/ui";
+import { setupStreamUi } from "@modules/ui/ui";
 import { PrefKey, getPref } from "@utils/preferences";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
@@ -31,6 +31,8 @@ import { GameBar } from "./modules/game-bar/game-bar";
 import { Screenshot } from "./utils/screenshot";
 import { NativeMkbHandler } from "./modules/mkb/native-mkb-handler";
 import { GuideMenu, GuideMenuTab } from "./modules/ui/guide-menu";
+import { StreamSettings } from "./modules/stream/stream-settings";
+import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
 
 
 // Handle login page
@@ -183,11 +185,7 @@ function unload() {
     window.BX_EXPOSED.shouldShowSensorControls = false;
     window.BX_EXPOSED.stopTakRendering = false;
 
-    const $streamSettingsDialog = document.querySelector('.bx-stream-settings-dialog');
-    if ($streamSettingsDialog) {
-        $streamSettingsDialog.classList.add('bx-gone');
-    }
-
+    StreamSettings.getInstance().hide();
     StreamStats.getInstance().onStoppedPlaying();
 
     MouseCursorHider.stop();
@@ -289,9 +287,11 @@ function main() {
 
     // Setup UI
     addCss();
+    preloadFonts();
     Toast.setup();
     (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance();
     BX_FLAGS.PreloadUi && setupStreamUi();
+    Screenshot.setup();
 
     GuideMenu.observe();
     StreamBadges.setupEvents();

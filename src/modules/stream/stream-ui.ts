@@ -5,6 +5,7 @@ import { BxEvent } from "@utils/bx-event.ts";
 import { t } from "@utils/translation.ts";
 import { StreamBadges } from "./stream-badges.ts";
 import { StreamStats } from "./stream-stats.ts";
+import { StreamSettings } from "./stream-settings.ts";
 
 
 function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: typeof BxIcon) {
@@ -87,27 +88,6 @@ export function injectStreamMenuButtons() {
 
     ($screen as any).xObserving = true;
 
-    const $settingsDialog = document.querySelector('.bx-stream-settings-dialog')!;
-    const $parent = $screen.parentElement;
-    const hideSettingsFunc = (e?: MouseEvent | TouchEvent) => {
-        if (e) {
-            const $target = e.target as HTMLElement;
-            e.stopPropagation();
-            if ($target != $parent && $target.id !== 'MultiTouchSurface' && !$target.querySelector('#BabylonCanvasContainer-main')) {
-                return;
-            }
-            if ($target.id === 'MultiTouchSurface') {
-                $target.removeEventListener('touchstart', hideSettingsFunc);
-            }
-        }
-
-        // Hide Stream settings dialog
-        $settingsDialog.classList.add('bx-gone');
-
-        $parent?.removeEventListener('click', hideSettingsFunc);
-        // $parent.removeEventListener('touchstart', hideSettingsFunc);
-    }
-
     let $btnStreamSettings: HTMLElement;
     let $btnStreamStats: HTMLElement;
     const streamStats = StreamStats.getInstance();
@@ -145,7 +125,7 @@ export function injectStreamMenuButtons() {
 
                     // Hide Stream Settings dialog when closing HUD
                     $btnCloseHud.addEventListener('click', e => {
-                        $settingsDialog.classList.add('bx-gone');
+                        StreamSettings.getInstance().hide();
                     });
 
                     // Create Refresh button from the Close button
@@ -165,7 +145,6 @@ export function injectStreamMenuButtons() {
                     const $menu = document.querySelector('div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]');
                     $menu?.appendChild(await StreamBadges.getInstance().render());
 
-                    hideSettingsFunc();
                     return;
                 }
 
@@ -205,13 +184,7 @@ export function injectStreamMenuButtons() {
                         e.preventDefault();
 
                         // Show Stream Settings dialog
-                        $settingsDialog.classList.remove('bx-gone');
-
-                        $parent?.addEventListener('click', hideSettingsFunc);
-                        //$parent.addEventListener('touchstart', hideSettingsFunc);
-
-                        const $touchSurface = document.getElementById('MultiTouchSurface');
-                        $touchSurface && $touchSurface.style.display != 'none' && $touchSurface.addEventListener('touchstart', hideSettingsFunc);
+                        StreamSettings.getInstance().show();
                     });
                 }
 
@@ -248,38 +221,4 @@ export function injectStreamMenuButtons() {
         });
     });
     observer.observe($screen, {subtree: true, childList: true});
-}
-
-
-export function showStreamSettings(tabId: string) {
-    const $wrapper = document.querySelector('.bx-stream-settings-dialog');
-    if (!$wrapper) {
-        return;
-    }
-
-    // Select tab
-    if (tabId) {
-        const $tab = $wrapper.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
-        $tab && $tab.dispatchEvent(new Event('click'));
-    }
-
-    $wrapper.classList.remove('bx-gone');
-
-    const $screen = document.querySelector('#PageContent section[class*=PureScreens]');
-    if ($screen && $screen.parentElement) {
-        const $parent = $screen.parentElement;
-        if (!$parent || ($parent as any).bxClick) {
-            return;
-        }
-
-        ($parent as any).bxClick = true;
-
-        const onClick = (e: Event) => {
-            $wrapper.classList.add('bx-gone');
-            ($parent as any).bxClick = false;
-            $parent.removeEventListener('click', onClick);
-        };
-
-        $parent.addEventListener('click', onClick);
-    }
 }

@@ -38,7 +38,7 @@ export class SettingElement {
         }
 
         $control.value = currentValue;
-        onChange && $control.addEventListener('change', e => {
+        onChange && $control.addEventListener('input', e => {
             const target = e.target as HTMLSelectElement;
             const value = (setting.type && setting.type === 'number') ? parseInt(target.value) : target.value;
             onChange(e, value);
@@ -76,7 +76,7 @@ export class SettingElement {
 
                 const $parent = target.parentElement!;
                 $parent.focus();
-                $parent.dispatchEvent(new Event('change'));
+                $parent.dispatchEvent(new Event('input'));
             });
 
             $control.appendChild($option);
@@ -90,7 +90,7 @@ export class SettingElement {
 
         $control.addEventListener('mousemove', e => e.preventDefault());
 
-        onChange && $control.addEventListener('change', (e: Event) => {
+        onChange && $control.addEventListener('input', (e: Event) => {
             const target = e.target as HTMLSelectElement
             const values = Array.from(target.selectedOptions).map(i => i.value);
             onChange(e, values);

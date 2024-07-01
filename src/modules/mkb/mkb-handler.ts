@@ -8,13 +8,13 @@ import { t } from "@utils/translation";
 import { LocalDb } from "@utils/local-db";
 import { KeyHelper } from "./key-helper";
 import type { MkbStoredPreset } from "@/types/mkb";
-import { showStreamSettings } from "@modules/stream/stream-ui";
 import { AppInterface, STATES } from "@utils/global";
 import { UserAgent } from "@utils/user-agent";
 import { BxLogger } from "@utils/bx-logger";
 import { PointerClient } from "./pointer-client";
 import { NativeMkbHandler } from "./native-mkb-handler";
 import { MkbHandler, MouseDataProvider } from "./base-mkb-handler";
+import { StreamSettings } from "../stream/stream-settings";
 
 const LOG_TAG = 'MkbHandler';
 
@@ -507,7 +507,7 @@ export class EmulatedMkbHandler extends MkbHandler {
                                 e.preventDefault();
                                 e.stopPropagation();
 
-                                showStreamSettings('mkb');
+                                StreamSettings.getInstance().show('mkb');
                             },
                         }),
                     ),

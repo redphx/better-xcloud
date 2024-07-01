@@ -1,6 +1,6 @@
 import { ControllerShortcut } from "@/modules/controller-shortcut";
 import { BxEvent } from "@utils/bx-event";
-import { STATES } from "@utils/global";
+import { deepClone, STATES } from "@utils/global";
 import { getPref, PrefKey } from "@utils/preferences";
 import { BxLogger } from "./bx-logger";
 import { BX_FLAGS } from "./bx-flags";
@@ -19,7 +19,7 @@ export const BxExposed = {
 
     modifyTitleInfo: (titleInfo: XcloudTitleInfo): XcloudTitleInfo => {
         // Clone the object since the original is read-only
-        titleInfo = structuredClone(titleInfo);
+        titleInfo = deepClone(titleInfo);
 
         let supportedInputTypes = titleInfo.details.supportedInputTypes;
 

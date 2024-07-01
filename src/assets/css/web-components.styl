@@ -1,0 +1,48 @@
+.bx-select {
+    select {
+        display: none;
+    }
+
+    > div {
+        display: inline-block;
+        min-width: 110px;
+        text-align: center;
+        margin: 0 10px;
+        line-height: 24px;
+        vertical-align: middle;
+        background: #fff;
+        color: #000;
+        border-radius: 4px;
+        padding: 2px 4px;
+
+        input {
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        label {
+            margin-bottom: 0;
+        }
+    }
+
+    button {
+        border: none;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        color: #fff;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 14px;
+        font-family: var(--bx-monospaced-font);
+
+        &.bx-inactive {
+            pointer-events: none;
+            opacity: 0.2;
+        }
+
+        span {
+            line-height: unset;
+        }
+    }
+}

@@ -39,6 +39,10 @@ export class StreamStats {
 
     #quickGlanceObserver?: MutationObserver | null;
 
+    constructor() {
+        this.#render();
+    }
+
     start(glancing=false) {
         if (!this.isHidden() || (glancing && this.isGlancing())) {
             return;
@@ -85,11 +89,15 @@ export class StreamStats {
     isGlancing = () => this.#$container && this.#$container.dataset.display === 'glancing';
 
     quickGlanceSetup() {
-        if (this.#quickGlanceObserver) {
+        if (!STATES.isPlaying || this.#quickGlanceObserver) {
             return;
         }
 
         const $uiContainer = document.querySelector('div[data-testid=ui-container]')!;
+        if (!$uiContainer) {
+            return;
+        }
+
         this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
             for (let record of mutationList) {
                 if (record.attributeName && record.attributeName === 'aria-expanded') {
@@ -212,10 +220,6 @@ export class StreamStats {
     }
 
     #render() {
-        if (this.#$container) {
-            return;
-        }
-
         const stats = {
             [StreamStat.PING]: [t('stat-ping'), this.#$ping = CE('span', {}, '0')],
             [StreamStat.FPS]: [t('stat-fps'), this.#$fps = CE('span', {}, '0')],
@@ -246,10 +250,6 @@ export class StreamStats {
     }
 
     static setupEvents() {
-        window.addEventListener(BxEvent.STREAM_LOADING, e => {
-            StreamStats.getInstance().#render();
-        });
-
         window.addEventListener(BxEvent.STREAM_PLAYING, e => {
             const PREF_STATS_QUICK_GLANCE = getPref(PrefKey.STATS_QUICK_GLANCE);
             const PREF_STATS_SHOW_WHEN_PLAYING = getPref(PrefKey.STATS_SHOW_WHEN_PLAYING);

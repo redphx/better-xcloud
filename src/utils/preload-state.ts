@@ -1,4 +1,4 @@
-import { STATES } from "@utils/global";
+import { deepClone, STATES } from "@utils/global";
 import { BxLogger } from "./bx-logger";
 import { TouchController } from "@modules/touch-controller";
 import { GamePassCloudGallery } from "../enums/game-pass-gallery";
@@ -59,7 +59,7 @@ export function overridePreloadState() {
 
             // @ts-ignore
             _state = state;
-            STATES.appContext = structuredClone(state.appContext);
+            STATES.appContext = deepClone(state.appContext);
         }
     });
 }

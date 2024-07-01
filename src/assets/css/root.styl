@@ -23,9 +23,10 @@
     --bx-dialog-z-index: 9101;
     --bx-dialog-overlay-z-index: 9100;
     --bx-remote-play-popup-z-index: 9090;
-    --bx-stats-bar-z-index: 9001;
-    --bx-stream-settings-z-index: 9000;
-    --bx-mkb-pointer-lock-msg-z-index: 8999;
+    --bx-stats-bar-z-index: 9010;
+    --bx-stream-settings-z-index: 9001;
+    --bx-mkb-pointer-lock-msg-z-index: 9000;
+    --bx-stream-settings-overlay-z-index: 8999;
     --bx-game-bar-z-index: 8888;
     --bx-wait-time-box-z-index: 100;
     --bx-screenshot-animation-z-index: 1;
@@ -79,6 +80,14 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
     visibility: hidden !important;
 }
 
+.bx-invisible {
+    opacity: 0;
+}
+
+.bx-unclickable {
+    pointer-events: none;
+}
+
 .bx-pixel {
     width: 1px !important;
     height: 1px !important;
@@ -111,4 +120,11 @@ div[class*=NotFocusedDialog] {
 
 #game-stream video:not([src]) {
     visibility: hidden;
+}
+
+/* Hide Controller icon in Game tiles */
+div[class*=SupportedInputsBadge] {
+    &:not(:has(:nth-child(2))), svg:first-of-type {
+        display: none;
+    }
 }

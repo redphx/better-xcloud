@@ -7,6 +7,16 @@
     -webkit-user-select: none;
 }
 
+.bx-stream-settings-overlay {
+    position: fixed;
+    background: transparent;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--bx-stream-settings-overlay-z-index);
+}
+
 .bx-stream-settings-tabs {
     position: fixed;
     top: 0;
@@ -95,7 +105,7 @@
     margin-bottom: 16px;
     padding-bottom: 16px;
 
-    label {
+    > label {
         font-size: 16px;
         display: block;
         text-align: left;

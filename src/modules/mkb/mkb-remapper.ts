@@ -10,6 +10,7 @@ import { BxIcon } from "@utils/bx-icon";
 import { SettingElement } from "@utils/settings";
 import type { MkbPresetData, MkbStoredPresets } from "@/types/mkb";
 import { MkbPresetKey, GamepadKey, GamepadKeyName } from "@enums/mkb";
+import { deepClone } from "@utils/global";
 
 
 type MkbRemapperElements = {
@@ -291,7 +292,7 @@ export class MkbRemapper {
         this.#$.wrapper!.classList.toggle('bx-editing', this.#STATE.isEditing);
 
         if (this.#STATE.isEditing) {
-            this.#STATE.editingPresetData = structuredClone(this.#getCurrentPreset().data);
+            this.#STATE.editingPresetData = deepClone(this.#getCurrentPreset().data);
         } else {
             this.#STATE.editingPresetData = null;
         }
@@ -510,7 +511,7 @@ export class MkbRemapper {
                            label: t('save'),
                            style: ButtonStyle.PRIMARY,
                            onClick: e => {
-                               const updatedPreset = structuredClone(this.#getCurrentPreset());
+                               const updatedPreset = deepClone(this.#getCurrentPreset());
                                updatedPreset.data = this.#STATE.editingPresetData as MkbPresetData;
 
                                LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
