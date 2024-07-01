@@ -576,7 +576,7 @@ export function interceptHttpRequests() {
                 const response = await NATIVE_FETCH(request, init);
                 const json = await response.json();
 
-                if (json && json.exp && json.treatments) {
+                if (json && json.exp && json.exp.treatments) {
                     for (const key in FeatureGates) {
                         json.exp.treatments[key] = FeatureGates[key]
                     }
