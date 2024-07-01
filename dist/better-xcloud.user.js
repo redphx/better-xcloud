@@ -21,7 +21,6 @@ var UserAgentProfile;
   UserAgentProfile2["SMARTTV_GENERIC"] = "smarttv-generic";
   UserAgentProfile2["SMARTTV_TIZEN"] = "smarttv-tizen";
   UserAgentProfile2["VR_OCULUS"] = "vr-oculus";
-  UserAgentProfile2["ANDROID_KIWI_V123"] = "android-kiwi-v123";
   UserAgentProfile2["DEFAULT"] = "default";
   UserAgentProfile2["CUSTOM"] = "custom";
 })(UserAgentProfile || (UserAgentProfile = {}));
@@ -45,8 +44,7 @@ class UserAgent {
     [UserAgentProfile.MACOS_SAFARI]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
     [UserAgentProfile.SMARTTV_GENERIC]: window.navigator.userAgent + " SmartTV",
     [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
-    [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR",
-    [UserAgentProfile.ANDROID_KIWI_V123]: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36"
+    [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR"
   };
   static init() {
     if (UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY) || "{}"), !UserAgent.#config.profile)
@@ -1430,7 +1428,6 @@ class Preferences {
         [UserAgentProfile.SMARTTV_GENERIC]: "Smart TV",
         [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV",
         [UserAgentProfile.VR_OCULUS]: "Meta Quest VR",
-        [UserAgentProfile.ANDROID_KIWI_V123]: "Kiwi Browser v124 Fix",
         [UserAgentProfile.CUSTOM]: t("custom")
       }
     },

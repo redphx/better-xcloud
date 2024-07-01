@@ -570,7 +570,6 @@ export class Preferences {
                 [UserAgentProfile.SMARTTV_GENERIC]: 'Smart TV',
                 [UserAgentProfile.SMARTTV_TIZEN]: 'Samsung Smart TV',
                 [UserAgentProfile.VR_OCULUS]: 'Meta Quest VR',
-                [UserAgentProfile.ANDROID_KIWI_V123]: 'Kiwi Browser v124 Fix',
                 [UserAgentProfile.CUSTOM]: t('custom'),
             },
         },

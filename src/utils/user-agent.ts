@@ -29,7 +29,6 @@ export class UserAgent {
         [UserAgentProfile.SMARTTV_GENERIC]: window.navigator.userAgent + ' SmartTV',
         [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
         [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + ' OculusBrowser VR',
-        [UserAgentProfile.ANDROID_KIWI_V123]: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.118 Mobile Safari/537.36',
     }
 
     static init() {
