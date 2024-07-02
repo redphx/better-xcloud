@@ -57,7 +57,7 @@ export class Screenshot {
             return;
         }
 
-        $player.parentElement!.addEventListener('animationend', this.#onAnimationEnd);
+        $player.parentElement!.addEventListener('animationend', this.#onAnimationEnd, { once: true });
         $player.parentElement!.classList.add('bx-taking-screenshot');
 
         const canvasContext = Screenshot.#canvasContext;

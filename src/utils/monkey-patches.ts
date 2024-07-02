@@ -11,8 +11,6 @@ export function patchVideoApi() {
     // Show video player when it's ready
     const showFunc = function(this: HTMLVideoElement) {
         this.style.visibility = 'visible';
-        this.removeEventListener('playing', showFunc);
-
         if (!this.videoWidth) {
             return;
         }
@@ -49,7 +47,7 @@ export function patchVideoApi() {
         const $parent = this.parentElement!!;
         // Video tag is stream player
         if (!this.src && $parent.dataset.testid === 'media-container') {
-            this.addEventListener('playing', showFunc);
+            this.addEventListener('loadedmetadata', showFunc, {once: true});
         }
 
         return nativePlay.apply(this);
