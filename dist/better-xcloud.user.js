@@ -487,6 +487,7 @@ var SUPPORTED_LANGUAGES = {
   sharpness: "Sharpness",
   "shortcut-keys": "Shortcut keys",
   show: "Show",
+  "show-controller-connection-status": "Show controller connection status",
   "show-game-art": "Show game art",
   "show-hide": "Show/hide",
   "show-stats-on-startup": "Show stats when starting the game",
@@ -990,6 +991,7 @@ var PrefKey;
   PrefKey2["CONTROLLER_ENABLE_VIBRATION"] = "controller_enable_vibration";
   PrefKey2["CONTROLLER_DEVICE_VIBRATION"] = "controller_device_vibration";
   PrefKey2["CONTROLLER_VIBRATION_INTENSITY"] = "controller_vibration_intensity";
+  PrefKey2["CONTROLLER_SHOW_CONNECTION_STATUS"] = "controller_show_connection_status";
   PrefKey2["NATIVE_MKB_ENABLED"] = "native_mkb_enabled";
   PrefKey2["NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY"] = "native_mkb_scroll_x_sensitivity";
   PrefKey2["NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY"] = "native_mkb_scroll_y_sensitivity";
@@ -1268,6 +1270,10 @@ class Preferences {
         href: "https://github.com/redphx/better-xcloud/discussions/275",
         target: "_blank"
       }, t("enable-local-co-op-support-note"))
+    },
+    [PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS]: {
+      label: t("show-controller-connection-status"),
+      default: !0
     },
     [PrefKey.CONTROLLER_ENABLE_SHORTCUTS]: {
       default: !1
@@ -1733,7 +1739,7 @@ class Screenshot {
       $player = streamPlayer.getPlayerElement(StreamPlayerType.VIDEO);
     if (!$player || !$player.isConnected)
       return;
-    $player.parentElement.addEventListener("animationend", this.#onAnimationEnd), $player.parentElement.classList.add("bx-taking-screenshot");
+    $player.parentElement.addEventListener("animationend", this.#onAnimationEnd, { once: !0 }), $player.parentElement.classList.add("bx-taking-screenshot");
     const canvasContext = Screenshot.#canvasContext;
     if ($player instanceof HTMLCanvasElement)
       streamPlayer.getWebGL2Player().drawFrame();
@@ -3533,10 +3539,10 @@ class StreamSettings {
       const $tab = $container.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
       $tab && $tab.dispatchEvent(new Event("click"));
     }
-    this.$overlay.classList.remove("bx-gone"), this.$overlay.dataset.isPlaying = STATES.isPlaying.toString(), $container.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
+    this.$overlay.classList.remove("bx-gone"), this.$overlay.dataset.isPlaying = STATES.isPlaying.toString(), $container.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll"), BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN);
   }
   hide() {
-    this.$overlay.classList.add("bx-gone"), this.$container.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll");
+    this.$overlay.classList.add("bx-gone"), this.$container.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll"), BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_DISMISSED);
   }
   #setupDialog() {
     let $tabs, $settings;
@@ -6152,6 +6158,7 @@ var SETTINGS_UI = {
     items: [
       PrefKey.UI_LAYOUT,
       PrefKey.UI_HOME_CONTEXT_MENU_DISABLED,
+      PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS,
       PrefKey.STREAM_SIMPLIFY_MENU,
       PrefKey.SKIP_SPLASH_VIDEO,
       !AppInterface && PrefKey.UI_SCROLLBAR_HIDE,
@@ -6599,7 +6606,7 @@ class StreamPlayer {
 // src/utils/monkey-patches.ts
 function patchVideoApi() {
   const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO), showFunc = function() {
-    if (this.style.visibility = "visible", this.removeEventListener("playing", showFunc), !this.videoWidth)
+    if (this.style.visibility = "visible", !this.videoWidth)
       return;
     const playerOptions = {
       processing: getPref(PrefKey.VIDEO_PROCESSING),
@@ -6621,7 +6628,7 @@ function patchVideoApi() {
     }
     const $parent = this.parentElement;
     if (!this.src && $parent.dataset.testid === "media-container")
-      this.addEventListener("playing", showFunc);
+      this.addEventListener("loadedmetadata", showFunc, { once: !0 });
     return nativePlay.apply(this);
   };
 }
@@ -7013,54 +7020,69 @@ var GuideMenuTab;
 })(GuideMenuTab || (GuideMenuTab = {}));
 
 class GuideMenu {
-  static #injectHome($root) {
-    const $dividers = $root.querySelectorAll("div[class*=Divider-module__divider]");
-    if (!$dividers)
-      return;
-    const buttons = [];
-    if (buttons.push(createButton({
+  static #BUTTONS = {
+    streamSetting: createButton({
       label: t("stream-settings"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
-        window.BX_EXPOSED.dialogRoutes.closeAll(), StreamSettings.getInstance().show();
+        window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, (e2) => {
+          setTimeout(() => StreamSettings.getInstance().show(), 50);
+        }, { once: !0 }), window.BX_EXPOSED.dialogRoutes.closeAll();
       }
-    })), buttons.push(createButton({
+    }),
+    appSettings: createButton({
       label: t("android-app-settings"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
-        AppInterface.openAppSettings && AppInterface.openAppSettings();
+        window.BX_EXPOSED.dialogRoutes.closeAll(), AppInterface.openAppSettings && AppInterface.openAppSettings();
       }
-    })), buttons.push(createButton({
+    }),
+    closeApp: createButton({
       label: t("close-app"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
       onClick: (e) => {
         AppInterface.closeApp();
       }
-    })), !buttons.length)
-      return;
-    const $div = CE("div", {});
-    for (let $button of buttons)
-      $div.appendChild($button);
-    $dividers[$dividers.length - 1].insertAdjacentElement("afterend", $div);
-  }
-  static #injectHomePlaying($root) {
-    const $btnQuit = $root.querySelector("a[class*=QuitGameButton]");
-    if (!$btnQuit)
-      return;
-    const $btnReload = createButton({
+    }),
+    reloadStream: createButton({
       label: t("reload-stream"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
         confirm(t("confirm-reload-stream")) && window.location.reload();
       }
-    }), $btnHome = createButton({
+    }),
+    backToHome: createButton({
       label: t("back-to-home"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
         confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
       }
-    });
-    $btnQuit.insertAdjacentElement("afterend", $btnReload), $btnReload.insertAdjacentElement("afterend", $btnHome);
+    })
+  };
+  static #renderButtons(buttons) {
+    const $div = CE("div", {});
+    for (let $button of buttons)
+      $div.appendChild($button);
+    return $div;
+  }
+  static #injectHome($root) {
+    const $dividers = $root.querySelectorAll("div[class*=Divider-module__divider]");
+    if (!$dividers)
+      return;
+    const buttons = [];
+    if (buttons.push(GuideMenu.#BUTTONS.streamSetting), AppInterface)
+      buttons.push(GuideMenu.#BUTTONS.appSettings), buttons.push(GuideMenu.#BUTTONS.closeApp);
+    const $buttons = GuideMenu.#renderButtons(buttons);
+    $dividers[$dividers.length - 1].insertAdjacentElement("afterend", $buttons);
+  }
+  static #injectHomePlaying($root) {
+    const $btnQuit = $root.querySelector("a[class*=QuitGameButton]");
+    if (!$btnQuit)
+      return;
+    const buttons = [];
+    buttons.push(GuideMenu.#BUTTONS.streamSetting), AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
+    const $buttons = GuideMenu.#renderButtons(buttons);
+    $btnQuit.insertAdjacentElement("afterend", $buttons);
     const $btnXcloudHome = $root.querySelector("div[class^=HomeButtonWithDivider]");
     $btnXcloudHome && ($btnXcloudHome.style.display = "none");
   }
@@ -7125,7 +7147,9 @@ var unload = function() {
   });
   observer.observe(document.documentElement, { subtree: !0, childList: !0 });
 }, main = function() {
-  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext(), getPref(PrefKey.BLOCK_TRACKING) && patchMeControl(), STATES.userAgentHasTouchSupport && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), preloadFonts(), Toast.setup(), getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance(), BX_FLAGS.PreloadUi && setupStreamUi(), Screenshot.setup(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad)), getPref(PrefKey.REMOTE_PLAY_ENABLED))
+  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext(), getPref(PrefKey.BLOCK_TRACKING) && patchMeControl(), STATES.userAgentHasTouchSupport && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), preloadFonts(), Toast.setup(), getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance(), BX_FLAGS.PreloadUi && setupStreamUi(), Screenshot.setup(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), getPref(PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS))
+    window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
+  if (getPref(PrefKey.REMOTE_PLAY_ENABLED))
     RemotePlay.detect();
   if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all")
     TouchController.setup();
