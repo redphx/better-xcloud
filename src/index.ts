@@ -303,8 +303,10 @@ function main() {
     disablePwa();
 
     // Show a toast when connecting/disconecting controller
-    window.addEventListener('gamepadconnected', e => showGamepadToast(e.gamepad));
-    window.addEventListener('gamepaddisconnected', e => showGamepadToast(e.gamepad));
+    if (getPref(PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS)) {
+        window.addEventListener('gamepadconnected', e => showGamepadToast(e.gamepad));
+        window.addEventListener('gamepaddisconnected', e => showGamepadToast(e.gamepad));
+    }
 
     // Preload Remote Play
     if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {

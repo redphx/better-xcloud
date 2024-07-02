@@ -1,6 +1,5 @@
-import { PrefKey } from "@utils/preferences"
+import { PrefKey, getPref } from "@utils/preferences"
 import { BxEvent } from "@utils/bx-event"
-import { getPref } from "@utils/preferences"
 import { CE } from "@utils/html"
 import { t } from "@utils/translation"
 import { STATES } from "@utils/global"

@@ -45,6 +45,7 @@ export enum PrefKey {
     CONTROLLER_ENABLE_VIBRATION = 'controller_enable_vibration',
     CONTROLLER_DEVICE_VIBRATION = 'controller_device_vibration',
     CONTROLLER_VIBRATION_INTENSITY = 'controller_vibration_intensity',
+    CONTROLLER_SHOW_CONNECTION_STATUS = 'controller_show_connection_status',
 
     NATIVE_MKB_ENABLED = 'native_mkb_enabled',
     NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY = 'native_mkb_scroll_x_sensitivity',
@@ -383,6 +384,11 @@ export class Preferences {
             'note': t('separate-touch-controller-note'),
         },
         */
+
+        [PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS]: {
+            label: t('show-controller-connection-status'),
+            default: true,
+        },
 
         [PrefKey.CONTROLLER_ENABLE_SHORTCUTS]: {
             default: false,

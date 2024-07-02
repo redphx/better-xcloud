@@ -200,6 +200,7 @@ const Texts = {
     "sharpness": "Sharpness",
     "shortcut-keys": "Shortcut keys",
     "show": "Show",
+    "show-controller-connection-status": "Show controller connection status",
     "show-game-art": "Show game art",
     "show-hide": "Show/hide",
     "show-stats-on-startup": "Show stats when starting the game",
