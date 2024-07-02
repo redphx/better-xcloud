@@ -147,6 +147,7 @@
   "sharpness": "Nitidezza",
   "shortcut-keys": "Tasti di scelta rapida",
   "show": "Mostra",
+  "show-controller-connection-status": "Mostra lo stato della connessione del controller",
   "show-game-art": "Mostra immagine del gioco",
   "show-hide": "Mostra/nascondi",
   "show-stats-on-startup": "Mostra le statistiche quando si avvia la partita",

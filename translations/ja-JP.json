@@ -155,6 +155,7 @@
   "sharpness": "シャープネス",
   "shortcut-keys": "ショートカットキー",
   "show": "表示",
+  "show-controller-connection-status": "コントローラーの接続状態を表示",
   "show-game-art": "ゲームアートを表示",
   "show-hide": "表示/非表示",
   "show-stats-on-startup": "ゲーム開始時に統計情報を表示",

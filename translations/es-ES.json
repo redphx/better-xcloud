@@ -149,6 +149,7 @@
   "sharpness": "Nitidez",
   "shortcut-keys": "Teclas de atajo",
   "show": "Mostrar",
+  "show-controller-connection-status": "Mostrar estado de conexión del controlador",
   "show-game-art": "Mostrar imagen del juego",
   "show-hide": "Mostrar/Ocultar",
   "show-stats-on-startup": "Mostrar estadísticas al iniciar el juego",
