@@ -255,6 +255,8 @@ export class StreamSettings {
 
         $container.classList.remove('bx-gone');
         document.body.classList.add('bx-no-scroll');
+
+        BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN);
     }
 
     hide() {
@@ -262,6 +264,8 @@ export class StreamSettings {
         this.$container!.classList.add('bx-gone');
 
         document.body.classList.remove('bx-no-scroll');
+
+        BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_DISMISSED);
     }
 
     #setupDialog() {
