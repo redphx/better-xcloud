@@ -10,6 +10,7 @@ import { getPreferredServerRegion } from "@utils/region";
 import { GamePassCloudGallery } from "../enums/game-pass-gallery";
 import { InputType } from "./bx-exposed";
 import { FeatureGates } from "./feature-gates";
+import { BxLogger } from "./bx-logger";
 
 enum RequestType {
     XCLOUD = 'xcloud',
@@ -95,7 +96,7 @@ function updateIceCandidates(candidates: any, options: any) {
 
     newCandidates.push(newCandidate('a=end-of-candidates'));
 
-    console.log(newCandidates);
+    BxLogger.info('ICE Candidates', newCandidates);
     return newCandidates;
 }
 
@@ -157,6 +158,10 @@ class XhomeInterceptor {
         console.log(obj);
 
         const serverDetails = obj.serverDetails;
+        if (serverDetails.ipAddress) {
+            XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = serverDetails.port;
+        }
+
         if (serverDetails.ipV4Address) {
             XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
         }
