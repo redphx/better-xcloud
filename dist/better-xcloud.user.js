@@ -25,8 +25,29 @@ var UserAgentProfile;
   UserAgentProfile2["CUSTOM"] = "custom";
 })(UserAgentProfile || (UserAgentProfile = {}));
 
+// src/utils/bx-flags.ts
+
+/* ADDITIONAL CODE */
+
+var DEFAULT_FLAGS = {
+  CheckForUpdate: !0,
+  PreloadRemotePlay: !0,
+  PreloadUi: !1,
+  EnableXcloudLogging: !1,
+  SafariWorkaround: !0,
+  UseDevTouchLayout: !1,
+  ForceNativeMkbTitles: [],
+  FeatureGates: null,
+  ScriptUi: "default"
+}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+try {
+  delete window.BX_FLAGS;
+} catch (e) {
+}
+var NATIVE_FETCH = window.fetch;
+
 // src/utils/user-agent.ts
-var CHROMIUM_VERSION = "123.0.0.0";
+var SMART_TV_UNIQUE_ID = "FC4A1DA2-711C-4E9C-BC7F-047AF8A672EA", CHROMIUM_VERSION = "123.0.0.0";
 if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
   if (match)
@@ -42,8 +63,8 @@ class UserAgent {
   static #USER_AGENTS = {
     [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
     [UserAgentProfile.MACOS_SAFARI]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
-    [UserAgentProfile.SMARTTV_GENERIC]: window.navigator.userAgent + " SmartTV",
-    [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
+    [UserAgentProfile.SMARTTV_GENERIC]: `${window.navigator.userAgent} SmartTV ${SMART_TV_UNIQUE_ID}`,
+    [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36 ${SMART_TV_UNIQUE_ID}`,
     [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR"
   };
   static init() {
@@ -96,7 +117,9 @@ class UserAgent {
     const profile = UserAgent.#config.profile;
     if (profile === UserAgentProfile.DEFAULT)
       return;
-    const newUserAgent = UserAgent.get(profile);
+    let newUserAgent = UserAgent.get(profile);
+    if (BX_FLAGS.IsSupportedTvBrowser)
+      newUserAgent += ` SmartTV ${SMART_TV_UNIQUE_ID}`;
     window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {}), window.navigator.orgUserAgent = window.navigator.userAgent, Object.defineProperty(window.navigator, "userAgent", {
       value: newUserAgent
     });
@@ -117,8 +140,17 @@ var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.inclu
   isPlaying: !1,
   appContext: {},
   serverRegions: {},
-  userAgentHasTouchSupport,
-  browserHasTouchSupport,
+  browser: {
+    capabilities: {
+      touch: browserHasTouchSupport,
+      batteryApi: "getBattery" in window.navigator
+    }
+  },
+  userAgent: {
+    capabilities: {
+      touch: userAgentHasTouchSupport
+    }
+  },
   currentStream: {},
   remotePlay: {},
   pointerServerPort: 9269
@@ -175,27 +207,6 @@ var XcloudEvent;
   BxEvent.dispatch = dispatch;
 })(BxEvent || (BxEvent = {}));
 window.BxEvent = BxEvent;
-
-// src/utils/bx-flags.ts
-
-/* ADDITIONAL CODE */
-
-var DEFAULT_FLAGS = {
-  CheckForUpdate: !0,
-  PreloadRemotePlay: !0,
-  PreloadUi: !1,
-  EnableXcloudLogging: !1,
-  SafariWorkaround: !0,
-  UseDevTouchLayout: !1,
-  ForceNativeMkbTitles: [],
-  FeatureGates: null,
-  ScriptUi: "default"
-}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
-try {
-  delete window.BX_FLAGS;
-} catch (e) {
-}
-var NATIVE_FETCH = window.fetch;
 
 // src/enums/stream-player.ts
 var StreamPlayerType;
@@ -1172,7 +1183,7 @@ class Preferences {
         all: t("tc-all-games"),
         off: t("off")
       },
-      unsupported: !STATES.userAgentHasTouchSupport,
+      unsupported: !STATES.userAgent.capabilities.touch,
       ready: (setting) => {
         if (setting.unsupported)
           setting.default = "default";
@@ -1181,7 +1192,7 @@ class Preferences {
     [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
       label: t("tc-auto-off"),
       default: !1,
-      unsupported: !STATES.userAgentHasTouchSupport
+      unsupported: !STATES.userAgent.capabilities.touch
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
       type: SettingElementType.NUMBER_STEPPER,
@@ -1195,7 +1206,7 @@ class Preferences {
         ticks: 10,
         hideSlider: !0
       },
-      unsupported: !STATES.userAgentHasTouchSupport
+      unsupported: !STATES.userAgent.capabilities.touch
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
       label: t("tc-standard-layout-style"),
@@ -1205,7 +1216,7 @@ class Preferences {
         white: t("tc-all-white"),
         muted: t("tc-muted-colors")
       },
-      unsupported: !STATES.userAgentHasTouchSupport
+      unsupported: !STATES.userAgent.capabilities.touch
     },
     [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
       label: t("tc-custom-layout-style"),
@@ -1214,7 +1225,7 @@ class Preferences {
         default: t("default"),
         muted: t("tc-muted-colors")
       },
-      unsupported: !STATES.userAgentHasTouchSupport
+      unsupported: !STATES.userAgent.capabilities.touch
     },
     [PrefKey.STREAM_SIMPLIFY_MENU]: {
       label: t("simplify-stream-menu"),
@@ -1413,7 +1424,7 @@ class Preferences {
     },
     [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
       label: t("disable-home-context-menu"),
-      default: STATES.browserHasTouchSupport
+      default: STATES.browser.capabilities.touch
     },
     [PrefKey.BLOCK_SOCIAL_FEATURES]: {
       label: t("disable-social-features"),
@@ -3406,7 +3417,7 @@ class StreamSettings {
             onChange: () => VibrationManager.updateGlobalVars()
           }]
         },
-        STATES.userAgentHasTouchSupport && {
+        STATES.userAgent.capabilities.touch && {
           group: "touch-controller",
           label: t("touch-controller"),
           items: [{
@@ -4217,7 +4228,7 @@ var BxExposed = {
       supportedInputTypes.push(InputType.MKB);
     if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off")
       supportedInputTypes = supportedInputTypes.filter((i) => i !== InputType.MKB);
-    if (titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB), STATES.userAgentHasTouchSupport) {
+    if (titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB), STATES.userAgent.capabilities.touch) {
       let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
       if (touchControllerAvailability !== "off" && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
         const gamepads = window.navigator.getGamepads();
@@ -4395,6 +4406,7 @@ function localRedirect(path) {
 function setupStreamUi() {
   StreamSettings.getInstance(), onChangeVideoPlayerType();
 }
+window.localRedirect = localRedirect;
 
 // src/modules/remote-play.ts
 var LOG_TAG4 = "RemotePlay", RemotePlayConsoleState;
@@ -4673,7 +4685,7 @@ class StreamBadges {
     let now = +new Date;
     const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
     let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
-    if ("getBattery" in navigator)
+    if (STATES.browser.capabilities.batteryApi)
       try {
         const bm = await navigator.getBattery();
         if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
@@ -4751,7 +4763,7 @@ class StreamBadges {
       audio += ` (${bitrate} kHz)`;
     }
     let batteryLevel = "";
-    if ("getBattery" in navigator)
+    if (STATES.browser.capabilities.batteryApi)
       batteryLevel = "100%";
     let server = this.#region;
     server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
@@ -4822,7 +4834,7 @@ class StreamBadges {
         height: $video.videoHeight
       }, streamBadges.startTimestamp = +new Date;
       try {
-        "getBattery" in navigator && navigator.getBattery().then((bm) => {
+        STATES.browser.capabilities.batteryApi && navigator.getBattery().then((bm) => {
           streamBadges.startBatteryLevel = Math.round(bm.level * 100);
         });
       } catch (e2) {
@@ -4962,7 +4974,7 @@ function interceptHttpRequests() {
       } catch (e) {
         console.log(e);
       }
-    if (STATES.userAgentHasTouchSupport && url.includes("catalog.gamepass.com/sigls/")) {
+    if (STATES.userAgent.capabilities.touch && url.includes("catalog.gamepass.com/sigls/")) {
       const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
       if (url.includes(GamePassCloudGallery.ALL))
         for (let i = 1;i < obj.length; i++)
@@ -5752,6 +5764,18 @@ true` + ",this._connectionType=";
     if (!str2.includes("return{goBack:function(){"))
       return !1;
     return str2 = str2.replace("return{goBack:function(){", "return window.BX_EXPOSED.dialogRoutes = {goBack:function(){"), str2;
+  },
+  enableTvRoutes(str2) {
+    let index = str2.indexOf(".LoginDeviceCode.path,");
+    if (index < 0)
+      return !1;
+    const match = /render:.*?jsx\)\(([^,]+),/.exec(str2.substring(index, index + 100));
+    if (!match)
+      return !1;
+    const funcName = match[1];
+    if (index = str2.indexOf(`const ${funcName}=e=>{`), index > -1 && (index = str2.indexOf("return ", index)), index > -1 && (index = str2.indexOf("?", index)), index === -1)
+      return !1;
+    return str2 = str2.substring(0, index) + "|| true" + str2.substring(index), str2;
   }
 }, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [
@@ -5766,6 +5790,7 @@ true` + ",this._connectionType=";
   "broadcastPollingMode",
   "exposeStreamSession",
   "exposeDialogRoutes",
+  "enableTvRoutes",
   getPref(PrefKey.UI_LAYOUT) !== "default" && "websiteLayout",
   getPref(PrefKey.LOCAL_CO_OP_ENABLED) && "supportLocalCoOp",
   getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && "forceFortniteConsole",
@@ -5781,7 +5806,7 @@ true` + ",this._connectionType=";
     "remotePlayKeepAlive",
     "remotePlayDirectConnectUrl",
     "remotePlayDisableAchievementToast",
-    STATES.userAgentHasTouchSupport && "patchUpdateInputConfigurationAsync"
+    STATES.userAgent.capabilities.touch && "patchUpdateInputConfigurationAsync"
   ] : [],
   ...BX_FLAGS.EnableXcloudLogging ? [
     "enableConsoleLogging",
@@ -5795,7 +5820,7 @@ true` + ",this._connectionType=";
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
   getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && "skipFeedbackDialog",
-  ...STATES.userAgentHasTouchSupport ? [
+  ...STATES.userAgent.capabilities.touch ? [
     getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "patchShowSensorControls",
     getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all" && "exposeTouchLayoutManager",
     (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "off" || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && "disableTakRenderer",
@@ -6139,8 +6164,8 @@ var SETTINGS_UI = {
     ]
   },
   [t("touch-controller")]: {
-    note: !STATES.userAgentHasTouchSupport ? "⚠️ " + t("device-unsupported-touch") : null,
-    unsupported: !STATES.userAgentHasTouchSupport,
+    note: !STATES.userAgent.capabilities.touch ? "⚠️ " + t("device-unsupported-touch") : null,
+    unsupported: !STATES.userAgent.capabilities.touch,
     items: [
       PrefKey.STREAM_TOUCH_CONTROLLER,
       PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
@@ -6259,7 +6284,7 @@ function overridePreloadState() {
       } catch (e) {
         BxLogger.error(LOG_TAG6, e);
       }
-      if (STATES.userAgentHasTouchSupport)
+      if (STATES.userAgent.capabilities.touch)
         try {
           const sigls = state.xcloud.sigls;
           if (GamePassCloudGallery.TOUCH in sigls) {
@@ -6773,7 +6798,7 @@ var cloneStreamHudButton = function($orgButton, label, svgIcon) {
         $container.style.pointerEvents = "auto";
       }, 100);
   };
-  if (STATES.browserHasTouchSupport)
+  if (STATES.browser.capabilities.touch)
     $container.addEventListener("transitionstart", onTransitionStart), $container.addEventListener("transitionend", onTransitionEnd);
   const $button = $container.querySelector("button");
   $button.setAttribute("title", label);
@@ -6967,7 +6992,7 @@ class GameBar {
     const position = getPref(PrefKey.GAME_BAR_POSITION), $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
     if (this.actions = [
       new ScreenshotAction,
-      ...STATES.userAgentHasTouchSupport && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
+      ...STATES.userAgent.capabilities.touch && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "off" ? [new TouchControlAction] : [],
       new MicrophoneAction
     ], position === "bottom-right")
       this.actions.reverse();
@@ -7153,7 +7178,7 @@ var unload = function() {
   });
   observer.observe(document.documentElement, { subtree: !0, childList: !0 });
 }, main = function() {
-  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext(), getPref(PrefKey.BLOCK_TRACKING) && patchMeControl(), STATES.userAgentHasTouchSupport && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), preloadFonts(), Toast.setup(), getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance(), BX_FLAGS.PreloadUi && setupStreamUi(), Screenshot.setup(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), getPref(PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS))
+  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext(), getPref(PrefKey.BLOCK_TRACKING) && patchMeControl(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), preloadFonts(), Toast.setup(), getPref(PrefKey.GAME_BAR_POSITION) !== "off" && GameBar.getInstance(), BX_FLAGS.PreloadUi && setupStreamUi(), Screenshot.setup(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), getPref(PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS))
     window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
   if (getPref(PrefKey.REMOTE_PLAY_ENABLED))
     RemotePlay.detect();
@@ -7167,7 +7192,7 @@ if (window.location.pathname.includes("/auth/msa")) {
   throw window.history.pushState = function(...args) {
     const url = args[2];
     if (url && (url.startsWith("/play") || url.substring(6).startsWith("/play"))) {
-      window.stop(), window.location.href = "https://www.xbox.com" + url;
+      console.log("Redirecting to xbox.com/play"), window.stop(), window.location.href = "https://www.xbox.com" + url;
       return;
     }
     return nativePushState.apply(this, arguments);
