@@ -7,6 +7,8 @@ type UserAgentConfig = {
     custom?: string,
 };
 
+const SMART_TV_UNIQUE_ID = 'FC4A1DA2-711C-4E9C-BC7F-047AF8A672EA';
+
 let CHROMIUM_VERSION = '123.0.0.0';
 if (!!(window as any).chrome || window.navigator.userAgent.includes('Chrome')) {
     // Get Chromium version in the original User-Agent value
@@ -27,8 +29,8 @@ export class UserAgent {
     static #USER_AGENTS: PartialRecord<UserAgentProfile, string> = {
         [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
         [UserAgentProfile.MACOS_SAFARI]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
-        [UserAgentProfile.SMARTTV_GENERIC]: window.navigator.userAgent + ' SmartTV',
-        [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36`,
+        [UserAgentProfile.SMARTTV_GENERIC]: `${window.navigator.userAgent} SmartTV ${SMART_TV_UNIQUE_ID}`,
+        [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36 ${SMART_TV_UNIQUE_ID}`,
         [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + ' OculusBrowser VR',
     }
 
@@ -121,7 +123,7 @@ export class UserAgent {
 
         // Pretend to be Tizen TV
         if (BX_FLAGS.IsSupportedTvBrowser) {
-            newUserAgent += 'SmartTV FC4A1DA2-711C-4E9C-BC7F-047AF8A672EA';
+            newUserAgent += ` SmartTV ${SMART_TV_UNIQUE_ID}`;
         }
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent

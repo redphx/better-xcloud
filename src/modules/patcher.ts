@@ -677,7 +677,7 @@ true` + text;
         }
 
         // Find *qe* name
-        const match = /render:.*jsx\)\(([^,]+),/.exec(str.substring(index, index + 100));
+        const match = /render:.*?jsx\)\(([^,]+),/.exec(str.substring(index, index + 100));
         if (!match) {
             return false;
         }
@@ -687,8 +687,12 @@ true` + text;
         // Replace *qe*'s return value
         // `return a && r ?` => `return a && r || true ?`
         index = str.indexOf(`const ${funcName}=e=>{`);
-        index = str.indexOf('return ', index);
-        index = str.indexOf('?', index);
+        index > -1 && (index = str.indexOf('return ', index));
+        index > -1 && (index = str.indexOf('?', index));
+
+        if (index === -1) {
+            return false;
+        }
 
         str = str.substring(0, index) + '|| true' + str.substring(index);
         return str;
