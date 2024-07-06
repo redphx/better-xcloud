@@ -644,7 +644,55 @@ true` + text;
 
         str = str.replace(text, 'return window.BX_EXPOSED.dialogRoutes = {goBack:function(){');
         return str;
-    }
+    },
+
+    /*
+    (x.AW, {
+        path: V.LoginDeviceCode.path,
+        exact: !0,
+        render: () => (0, n.jsx)(qe, {
+            children: (0, n.jsx)(Et.R, {})
+        })
+    }, V.LoginDeviceCode.name),
+
+    const qe = e => {
+        let {
+            children: t
+        } = e;
+        const {
+            isTV: a,
+            isSupportedTVBrowser: r
+        } = (0, T.d)();
+        return a && r ? (0, n.jsx)(n.Fragment, {
+            children: t
+        }) : (0, n.jsx)(x.l_, {
+            to: V.Home.getLink()
+        })
+    };
+    */
+    enableTvRoutes(str: string) {
+        let index = str.indexOf('.LoginDeviceCode.path,');
+        if (index < 0) {
+            return false;
+        }
+
+        // Find *qe* name
+        const match = /render:.*jsx\)\(([^,]+),/.exec(str.substring(index, index + 100));
+        if (!match) {
+            return false;
+        }
+
+        const funcName = match[1];
+
+        // Replace *qe*'s return value
+        // `return a && r ?` => `return a && r || true ?`
+        index = str.indexOf(`const ${funcName}=e=>{`);
+        index = str.indexOf('return ', index);
+        index = str.indexOf('?', index);
+
+        str = str.substring(0, index) + '|| true' + str.substring(index);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -663,6 +711,8 @@ let PATCH_ORDERS: PatchArray = [
 
     'exposeStreamSession',
     'exposeDialogRoutes',
+
+    'enableTvRoutes',
 
     getPref(PrefKey.UI_LAYOUT) !== 'default' && 'websiteLayout',
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
