@@ -11,6 +11,8 @@ type BxFlags = Partial<{
     FeatureGates: {[key: string]: boolean} | null,
 
     ScriptUi: 'default' | 'tv',
+
+    IsSupportedTvBrowser: boolean,
 }>
 
 // Setup flags
