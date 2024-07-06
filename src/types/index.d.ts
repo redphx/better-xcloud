@@ -28,8 +28,18 @@ type BxStates = {
     appContext: any | null;
     serverRegions: any;
 
-    userAgentHasTouchSupport: boolean;
-    browserHasTouchSupport: boolean;
+    browser: {
+        capabilities: {
+            touch: boolean;
+            batteryApi: boolean;
+        };
+    };
+
+    userAgent: {
+        capabilities: {
+            touch: boolean;
+        };
+    };
 
     currentStream: Partial<{
         titleId: string;

@@ -24,7 +24,7 @@ export function overridePreloadState() {
             }
 
             // Add list of games with custom layouts to the official list
-            if (STATES.userAgentHasTouchSupport) {
+            if (STATES.userAgent.capabilities.touch) {
                 try {
                     const sigls = state.xcloud.sigls;
                     if (GamePassCloudGallery.TOUCH in sigls) {

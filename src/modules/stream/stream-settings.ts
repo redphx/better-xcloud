@@ -103,7 +103,7 @@ export class StreamSettings {
                 }],
             },
 
-            STATES.userAgentHasTouchSupport && {
+            STATES.userAgent.capabilities.touch && {
                 group: 'touch-controller',
                 label: t('touch-controller'),
                 items: [{

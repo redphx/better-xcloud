@@ -595,7 +595,7 @@ export function interceptHttpRequests() {
         }
 
         // Add list of games with custom layouts to the official list
-        if (STATES.userAgentHasTouchSupport && url.includes('catalog.gamepass.com/sigls/')) {
+        if (STATES.userAgent.capabilities.touch && url.includes('catalog.gamepass.com/sigls/')) {
             const response = await NATIVE_FETCH(request, init);
             const obj = await response.clone().json();
 

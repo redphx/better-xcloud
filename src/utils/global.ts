@@ -16,8 +16,19 @@ export const STATES: BxStates = {
     isPlaying: false,
     appContext: {},
     serverRegions: {},
-    userAgentHasTouchSupport: userAgentHasTouchSupport,
-    browserHasTouchSupport: browserHasTouchSupport,
+
+    browser: {
+        capabilities: {
+            touch: browserHasTouchSupport,
+            batteryApi: 'getBattery' in window.navigator,
+        },
+    },
+
+    userAgent: {
+        capabilities: {
+            touch: userAgentHasTouchSupport,
+        }
+    },
 
     currentStream: {},
     remotePlay: {},

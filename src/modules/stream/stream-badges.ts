@@ -91,7 +91,7 @@ export class StreamBadges {
         let batteryLevel = '100%';
         let batteryLevelInt = 100;
         let isCharging = false;
-        if ('getBattery' in navigator) {
+        if (STATES.browser.capabilities.batteryApi) {
             try {
                 const bm = await (navigator as NavigatorBattery).getBattery();
                 isCharging = bm.charging;
@@ -224,7 +224,7 @@ export class StreamBadges {
 
         // Battery
         let batteryLevel = '';
-        if ('getBattery' in navigator) {
+        if (STATES.browser.capabilities.batteryApi) {
             batteryLevel = '100%';
         }
 
@@ -338,7 +338,7 @@ export class StreamBadges {
 
             // Get battery level
             try {
-                'getBattery' in navigator && (navigator as NavigatorBattery).getBattery().then(bm => {
+                STATES.browser.capabilities.batteryApi && (navigator as NavigatorBattery).getBattery().then(bm => {
                     streamBadges.startBatteryLevel = Math.round(bm.level * 100);
                 });
             } catch(e) {}

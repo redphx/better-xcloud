@@ -683,7 +683,7 @@ let PATCH_ORDERS: PatchArray = [
         'remotePlayKeepAlive',
         'remotePlayDirectConnectUrl',
         'remotePlayDisableAchievementToast',
-        STATES.userAgentHasTouchSupport && 'patchUpdateInputConfigurationAsync',
+        STATES.userAgent.capabilities.touch && 'patchUpdateInputConfigurationAsync',
     ] : []),
 
     ...(BX_FLAGS.EnableXcloudLogging ? [
@@ -709,7 +709,7 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     // Skip feedback dialog
     getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && 'skipFeedbackDialog',
 
-    ...(STATES.userAgentHasTouchSupport ? [
+    ...(STATES.userAgent.capabilities.touch ? [
         getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'patchShowSensorControls',
         getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
         (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',

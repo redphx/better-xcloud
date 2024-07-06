@@ -268,7 +268,7 @@ export class Preferences {
                 all: t('tc-all-games'),
                 off: t('off'),
             },
-            unsupported: !STATES.userAgentHasTouchSupport,
+            unsupported: !STATES.userAgent.capabilities.touch,
             ready: (setting: PreferenceSetting) => {
                 if (setting.unsupported) {
                     setting.default = 'default';
@@ -278,7 +278,7 @@ export class Preferences {
         [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
             label: t('tc-auto-off'),
             default: false,
-            unsupported: !STATES.userAgentHasTouchSupport,
+            unsupported: !STATES.userAgent.capabilities.touch,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
             type: SettingElementType.NUMBER_STEPPER,
@@ -292,7 +292,7 @@ export class Preferences {
                 ticks: 10,
                 hideSlider: true,
             },
-            unsupported: !STATES.userAgentHasTouchSupport,
+            unsupported: !STATES.userAgent.capabilities.touch,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
             label: t('tc-standard-layout-style'),
@@ -302,7 +302,7 @@ export class Preferences {
                 white: t('tc-all-white'),
                 muted: t('tc-muted-colors'),
             },
-            unsupported: !STATES.userAgentHasTouchSupport,
+            unsupported: !STATES.userAgent.capabilities.touch,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
             label: t('tc-custom-layout-style'),
@@ -311,7 +311,7 @@ export class Preferences {
                 default: t('default'),
                 muted: t('tc-muted-colors'),
             },
-            unsupported: !STATES.userAgentHasTouchSupport,
+            unsupported: !STATES.userAgent.capabilities.touch,
         },
 
         [PrefKey.STREAM_SIMPLIFY_MENU]: {
@@ -554,7 +554,7 @@ export class Preferences {
 
         [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
             label: t('disable-home-context-menu'),
-            default: STATES.browserHasTouchSupport,
+            default: STATES.browser.capabilities.touch,
         },
 
         [PrefKey.BLOCK_SOCIAL_FEATURES]: {

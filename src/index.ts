@@ -283,7 +283,7 @@ function main() {
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
     getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
 
-    STATES.userAgentHasTouchSupport && TouchController.updateCustomList();
+    STATES.userAgent.capabilities.touch && TouchController.updateCustomList();
     overridePreloadState();
 
     VibrationManager.initialSetup();

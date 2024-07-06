@@ -26,8 +26,10 @@ export function localRedirect(path: string) {
     $anchor.click();
 }
 
-
 export function setupStreamUi() {
     StreamSettings.getInstance();
     onChangeVideoPlayerType();
 }
+
+
+(window as any).localRedirect = localRedirect;
