@@ -8,24 +8,21 @@ export function addCss() {
     const STYLUS_CSS = renderStylus();
     let css = STYLUS_CSS;
 
-    // Hide "Play with Friends" section
-    if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS)) {
-        css += `
-div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
-button[class*=SocialEmptyCard] {
-    display: none;
-}
-`;
+    const PREF_HIDE_SECTIONS = getPref(PrefKey.UI_HIDE_SECTIONS);
+    const selectorToHide = [];
+
+    // Hide "News" section
+    if (PREF_HIDE_SECTIONS.includes(UiSection.NEWS)) {
+        selectorToHide.push('#BodyContent > div[class*=CarouselRow-module]');
     }
 
+   // Hide "Start a party" button in the Guide menu
     if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
-        css += `
-/* Hide "Start a party" button in the Guide menu */
-#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]
-{
-    display: none;
-}
-`;
+        selectorToHide.push('#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]');
+    }
+
+    if (selectorToHide) {
+        css += selectorToHide.join(',') + '{ display: none; }';
     }
 
     // Reduce animations
