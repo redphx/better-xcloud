@@ -189,7 +189,7 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     },
 
     enableXcloudLogger(str: string) {
-        const text = 'this.telemetryProvider=e}log(e,t,i){';
+        const text = 'this.telemetryProvider=e}log(e,t,r){';
         if (!str.includes(text)) {
             return false;
         }

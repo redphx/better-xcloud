@@ -42,7 +42,7 @@ export function deepClone(obj: any): any {
     }
 
     if (!obj) {
-        return obj;
+        return {};
     }
 
     return JSON.parse(JSON.stringify(obj));

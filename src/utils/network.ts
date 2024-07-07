@@ -446,7 +446,7 @@ class XcloudInterceptor {
 
         let overrideMkb: boolean | null = null;
 
-        if (getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' || BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo!.details.productId)) {
+        if (getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' || (STATES.currentStream.titleInfo && BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId))) {
             overrideMkb = true;
         }
 
