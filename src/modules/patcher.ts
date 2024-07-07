@@ -194,7 +194,13 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
             return false;
         }
 
-        str = str.replaceAll(text, text + 'console.log(Array.from(arguments));');
+        const newCode = `
+const [logTag, logLevel, logMessage] = Array.from(arguments);
+const logFunc = [console.debug, console.log, console.warn, console.error][logLevel];
+logFunc(logTag, '//', logMessage);
+`;
+
+        str = str.replaceAll(text, text + newCode);
         return str;
     },
 
