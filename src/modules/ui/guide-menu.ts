@@ -105,6 +105,12 @@ export class GuideMenu {
         buttons.push(GuideMenu.#BUTTONS.streamSetting);
         AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
 
+        // Reload stream
+        buttons.push(GuideMenu.#BUTTONS.reloadStream);
+
+        // Back to home
+        buttons.push(GuideMenu.#BUTTONS.backToHome);
+
         const $buttons = GuideMenu.#renderButtons(buttons);
         $btnQuit.insertAdjacentElement('afterend', $buttons);
 
@@ -117,11 +123,13 @@ export class GuideMenu {
         const where = (e as any).where as GuideMenuTab;
 
         if (where === GuideMenuTab.HOME) {
-            const $root = document.querySelector('#gamepass-dialog-root div[role=dialog]') as HTMLElement;
-            if (STATES.isPlaying) {
-                GuideMenu.#injectHomePlaying($root);
-            } else {
-                GuideMenu.#injectHome($root);
+            const $root = document.querySelector('#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]') as HTMLElement;
+            if ($root) {
+                if (STATES.isPlaying) {
+                    GuideMenu.#injectHomePlaying($root);
+                } else {
+                    GuideMenu.#injectHome($root);
+                }
             }
         }
     }
