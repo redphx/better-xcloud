@@ -143,6 +143,7 @@
   "sharpness": "Schärfe",
   "shortcut-keys": "Shortcut-Tasten",
   "show": "Anzeigen",
+  "show-controller-connection-status": "Verbindungsstatus des Controllers anzeigen",
   "show-game-art": "Poster des Spiels anzeigen",
   "show-hide": "Ein-/Ausblenden",
   "show-stats-on-startup": "Statistiken beim Start des Spiels anzeigen",

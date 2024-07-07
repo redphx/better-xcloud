@@ -147,6 +147,7 @@
   "sharpness": "Netteté",
   "shortcut-keys": "Touches de raccourci",
   "show": "Afficher",
+  "show-controller-connection-status": "Afficher l'état de la connexion de la manette",
   "show-game-art": "Afficher la couverture du jeu",
   "show-hide": "Afficher/masquer",
   "show-stats-on-startup": "Afficher les statistiques au démarrage de la partie",
