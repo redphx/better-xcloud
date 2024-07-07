@@ -7111,7 +7111,7 @@ class GuideMenu {
     if (!$btnQuit)
       return;
     const buttons = [];
-    buttons.push(GuideMenu.#BUTTONS.streamSetting), AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
+    buttons.push(GuideMenu.#BUTTONS.streamSetting), AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings), buttons.push(GuideMenu.#BUTTONS.reloadStream), buttons.push(GuideMenu.#BUTTONS.backToHome);
     const $buttons = GuideMenu.#renderButtons(buttons);
     $btnQuit.insertAdjacentElement("afterend", $buttons);
     const $btnXcloudHome = $root.querySelector("div[class^=HomeButtonWithDivider]");
@@ -7119,11 +7119,12 @@ class GuideMenu {
   }
   static async#onShown(e) {
     if (e.where === GuideMenuTab.HOME) {
-      const $root = document.querySelector("#gamepass-dialog-root div[role=dialog]");
-      if (STATES.isPlaying)
-        GuideMenu.#injectHomePlaying($root);
-      else
-        GuideMenu.#injectHome($root);
+      const $root = document.querySelector("#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]");
+      if ($root)
+        if (STATES.isPlaying)
+          GuideMenu.#injectHomePlaying($root);
+        else
+          GuideMenu.#injectHome($root);
     }
   }
   static observe() {
