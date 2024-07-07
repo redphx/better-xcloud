@@ -7,6 +7,7 @@ import type { PreferenceSetting, PreferenceSettings } from "@/types/preferences"
 import { AppInterface, STATES } from "@utils/global";
 import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 import { UserAgentProfile } from "@/enums/user-agent";
+import { UiSection } from "@/enums/ui-sections";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',
@@ -70,6 +71,7 @@ export enum PrefKey {
 
     UI_LAYOUT = 'ui_layout',
     UI_SCROLLBAR_HIDE = 'ui_scrollbar_hide',
+    UI_HIDE_SECTIONS = 'ui_hide_sections',
 
     UI_HOME_CONTEXT_MENU_DISABLED = 'ui_home_context_menu_disabled',
 
@@ -555,6 +557,20 @@ export class Preferences {
         [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
             label: t('disable-home-context-menu'),
             default: STATES.browser.capabilities.touch,
+        },
+
+        [PrefKey.UI_HIDE_SECTIONS]: {
+            label: t('hide-sections'),
+            default: [],
+            multipleOptions: {
+                [UiSection.NEWS]: t('section-news'),
+                [UiSection.FRIENDS]: t('section-play-with-friends'),
+                [UiSection.MOST_POPULAR]: t('section-most-popular'),
+                [UiSection.ALL_GAMES]: t('section-all-games'),
+            },
+            params: {
+                size: 4,
+            },
         },
 
         [PrefKey.BLOCK_SOCIAL_FEATURES]: {

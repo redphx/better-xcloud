@@ -96,6 +96,7 @@ const SETTINGS_UI = {
             PrefKey.HIDE_DOTS_ICON,
             PrefKey.REDUCE_ANIMATIONS,
             PrefKey.BLOCK_SOCIAL_FEATURES,
+            PrefKey.UI_HIDE_SECTIONS,
         ],
     },
 

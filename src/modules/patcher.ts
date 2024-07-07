@@ -13,6 +13,7 @@ import codeRemotePlayEnable from "./patches/remote-play-enable.js" with { type: 
 import codeRemotePlayKeepAlive from "./patches/remote-play-keep-alive.js" with { type: "text" };
 import codeVibrationAdjust from "./patches/vibration-adjust.js" with { type: "text" };
 import { FeatureGates } from "@/utils/feature-gates.js";
+import { UiSection } from "@/enums/ui-sections.js";
 
 type PatchArray = (keyof typeof PATCHES)[];
 
@@ -744,7 +745,7 @@ let PATCH_ORDERS: PatchArray = [
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
     getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && 'forceFortniteConsole',
 
-    getPref(PrefKey.BLOCK_SOCIAL_FEATURES) && 'ignorePlayWithFriendsSection',
+    getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS) && 'ignorePlayWithFriendsSection',
 
     ...(getPref(PrefKey.BLOCK_TRACKING) ? [
         'disableAiTrack',

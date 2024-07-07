@@ -1,17 +1,25 @@
 import { CE } from "@utils/html";
 import { PrefKey, getPref } from "@utils/preferences";
 import { renderStylus } from "@macros/build" with {type: "macro"};
+import { UiSection } from "@/enums/ui-sections";
 
 
 export function addCss() {
     const STYLUS_CSS = renderStylus();
     let css = STYLUS_CSS;
 
+    // Hide "Play with Friends" section
+    if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS)) {
+        css += `
+div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
+button[class*=SocialEmptyCard] {
+    display: none;
+}
+`;
+    }
+
     if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
         css += `
-/* Hide "Play with friends" section */
-div[class^=HomePage-module__bottomSpacing]:has(button[class*=SocialEmptyCard]),
-button[class*=SocialEmptyCard],
 /* Hide "Start a party" button in the Guide menu */
 #gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]
 {

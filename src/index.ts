@@ -33,6 +33,7 @@ import { NativeMkbHandler } from "./modules/mkb/native-mkb-handler";
 import { GuideMenu, GuideMenuTab } from "./modules/ui/guide-menu";
 import { StreamSettings } from "./modules/stream/stream-settings";
 import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
+import { UiSection } from "./enums/ui-sections";
 
 
 // Handle login page
@@ -100,7 +101,18 @@ window.addEventListener('load', e => {
             window.location.reload(true);
         }
     }, 3000);
+
 });
+
+// Hide "Play with Friends" skeleton section
+if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS)) {
+    document.addEventListener('readystatechange', e => {
+        if (document.readyState === 'interactive') {
+            const $parent = document.querySelector('div[class*=PlayWithFriendsSkeleton]')?.closest('div[class*=HomePage-module]') as HTMLElement;
+            $parent && ($parent.style.display = 'none');
+        }
+    })
+}
 
 window.BX_EXPOSED = BxExposed;
 
