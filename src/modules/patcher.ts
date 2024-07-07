@@ -703,6 +703,22 @@ true` + text;
         str = str.substring(0, index) + '|| true' + str.substring(index);
         return str;
     },
+
+    // Don't render Play With Friends sections
+    ignorePlayWithFriendsSection(str: string) {
+        let index = str.indexOf('location:"PlayWithFriendsRow",');
+        if (index === -1) {
+            return false;
+        }
+
+        index = str.indexOf('return', index - 50);
+        if (index === -1) {
+            return false;
+        }
+
+        str = str.substring(0, index) + 'return null;' + str.substring(index + 6);
+        return str;
+    }
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -727,6 +743,8 @@ let PATCH_ORDERS: PatchArray = [
     getPref(PrefKey.UI_LAYOUT) !== 'default' && 'websiteLayout',
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
     getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && 'forceFortniteConsole',
+
+    getPref(PrefKey.BLOCK_SOCIAL_FEATURES) && 'ignorePlayWithFriendsSection',
 
     ...(getPref(PrefKey.BLOCK_TRACKING) ? [
         'disableAiTrack',

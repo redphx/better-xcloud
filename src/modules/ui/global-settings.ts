@@ -95,12 +95,12 @@ const SETTINGS_UI = {
             !AppInterface && PrefKey.UI_SCROLLBAR_HIDE,
             PrefKey.HIDE_DOTS_ICON,
             PrefKey.REDUCE_ANIMATIONS,
+            PrefKey.BLOCK_SOCIAL_FEATURES,
         ],
     },
 
     [t('other')]: {
         items: [
-            PrefKey.BLOCK_SOCIAL_FEATURES,
             PrefKey.BLOCK_TRACKING,
         ],
     },
