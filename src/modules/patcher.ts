@@ -705,7 +705,7 @@ true` + text;
         return str;
     },
 
-    // Don't render Play With Friends sections
+    // Don't render "Play With Friends" sections
     ignorePlayWithFriendsSection(str: string) {
         let index = str.indexOf('location:"PlayWithFriendsRow",');
         if (index === -1) {
@@ -719,7 +719,25 @@ true` + text;
 
         str = str.substring(0, index) + 'return null;' + str.substring(index + 6);
         return str;
-    }
+    },
+
+    // Don't render "All Games" sections
+    ignoreAllGamesSection(str: string) {
+        let index = str.indexOf('className:"AllGamesRow-module__allGamesRowContainer');
+        if (index === -1) {
+            return false;
+        }
+
+        index = str.indexOf('grid:!0,', index);
+        index > -1 && (index = str.indexOf('(0,', index - 70));
+
+        if (index === -1) {
+            return false;
+        }
+
+        str = str.substring(0, index) + 'true ? null :' + str.substring(index);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -746,6 +764,7 @@ let PATCH_ORDERS: PatchArray = [
     getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && 'forceFortniteConsole',
 
     getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS) && 'ignorePlayWithFriendsSection',
+    getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.ALL_GAMES) && 'ignoreAllGamesSection',
 
     ...(getPref(PrefKey.BLOCK_TRACKING) ? [
         'disableAiTrack',

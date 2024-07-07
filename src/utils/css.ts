@@ -16,6 +16,11 @@ export function addCss() {
         selectorToHide.push('#BodyContent > div[class*=CarouselRow-module]');
     }
 
+    // Hide "All games" section
+    if (PREF_HIDE_SECTIONS.includes(UiSection.ALL_GAMES)) {
+        selectorToHide.push('#BodyContent div[class*=AllGamesRow-module__gridContainer]');
+    }
+
    // Hide "Start a party" button in the Guide menu
     if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES)) {
         selectorToHide.push('#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]');
