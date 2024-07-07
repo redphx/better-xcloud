@@ -565,7 +565,7 @@ export class Preferences {
             multipleOptions: {
                 [UiSection.NEWS]: t('section-news'),
                 [UiSection.FRIENDS]: t('section-play-with-friends'),
-                [UiSection.MOST_POPULAR]: t('section-most-popular'),
+                // [UiSection.MOST_POPULAR]: t('section-most-popular'),
                 [UiSection.ALL_GAMES]: t('section-all-games'),
             },
             params: {
