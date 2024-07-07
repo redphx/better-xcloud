@@ -27,7 +27,7 @@ export enum SettingElementType {
 export class SettingElement {
     static #renderOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any) {
         const $control = CE<HTMLSelectElement>('select', {
-                title: setting.label,
+                // title: setting.label,
                 tabindex: 0,
             }) as HTMLSelectElement;
         for (let value in setting.options) {
@@ -54,7 +54,7 @@ export class SettingElement {
 
     static #renderMultipleOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any, params: MultipleOptionsParams={}) {
         const $control = CE<HTMLSelectElement>('select', {
-                title: setting.label,
+                // title: setting.label,
                 multiple: true,
                 tabindex: 0,
             });

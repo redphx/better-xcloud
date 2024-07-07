@@ -569,7 +569,7 @@ export class Preferences {
                 [UiSection.ALL_GAMES]: t('section-all-games'),
             },
             params: {
-                size: 4,
+                size: 3,
             },
         },
 
