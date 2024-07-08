@@ -142,10 +142,10 @@ export class StreamStats {
                 this.#$fps!.textContent = stat.framesPerSecond || 0;
 
                 // Packets Lost
-                const packetsLost = stat.packetsLost;
+                const packetsLost = Math.max(0, stat.packetsLost);  // packetsLost can be negative, but we don't care about that
                 const packetsReceived = stat.packetsReceived;
                 const packetsLostPercentage = (packetsLost * 100 / ((packetsLost + packetsReceived) || 1)).toFixed(2);
-                this.#$pl!.textContent = packetsLostPercentage === '0.00' ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
+                this.#$pl!.textContent = packetsLostPercentage === '0.00' ? packetsLost.toString() : `${packetsLost} (${packetsLostPercentage}%)`;
 
                 // Frames dropped
                 const framesDropped = stat.framesDropped;
