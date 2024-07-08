@@ -738,6 +738,26 @@ true` + text;
         str = str.substring(0, index) + 'true ? null :' + str.substring(index);
         return str;
     },
+
+    // Override Storage.getSettings()
+    overrideStorageGetSettings(str: string) {
+        const text = '}getSetting(e){';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `
+// console.log('setting', this.baseStorageKey, e);
+if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
+    const settings = window.BX_EXPOSED.overrideSettings[this.baseStorageKey];
+    if (e in settings) {
+        return settings[e];
+    }
+}
+`;
+        str = str.replace(text, text + newCode);
+        return str;
+    }
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -758,6 +778,8 @@ let PATCH_ORDERS: PatchArray = [
     'exposeDialogRoutes',
 
     'enableTvRoutes',
+
+    'overrideStorageGetSettings',
 
     getPref(PrefKey.UI_LAYOUT) !== 'default' && 'websiteLayout',
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',

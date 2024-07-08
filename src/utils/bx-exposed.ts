@@ -109,4 +109,10 @@ export const BxExposed = {
 
     handleControllerShortcut: ControllerShortcut.handle,
     resetControllerShortcut: ControllerShortcut.reset,
+
+    overrideSettings: {
+        'Tv_settings': {
+            hasCompletedOnboarding: true,
+        },
+    },
 };
