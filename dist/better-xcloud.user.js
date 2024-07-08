@@ -911,8 +911,8 @@ class StreamStats {
     stats.forEach((stat) => {
       if (stat.type === "inbound-rtp" && stat.kind === "video") {
         this.#$fps.textContent = stat.framesPerSecond || 0;
-        const { packetsLost, packetsReceived } = stat, packetsLostPercentage = (packetsLost * 100 / (packetsLost + packetsReceived || 1)).toFixed(2);
-        this.#$pl.textContent = packetsLostPercentage === "0.00" ? packetsLost : `${packetsLost} (${packetsLostPercentage}%)`;
+        const packetsLost = Math.max(0, stat.packetsLost), packetsReceived = stat.packetsReceived, packetsLostPercentage = (packetsLost * 100 / (packetsLost + packetsReceived || 1)).toFixed(2);
+        this.#$pl.textContent = packetsLostPercentage === "0.00" ? packetsLost.toString() : `${packetsLost} (${packetsLostPercentage}%)`;
         const { framesDropped, framesReceived } = stat, framesDroppedPercentage = (framesDropped * 100 / (framesDropped + framesReceived || 1)).toFixed(2);
         if (this.#$fl.textContent = framesDroppedPercentage === "0.00" ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`, !this.#lastVideoStat) {
           this.#lastVideoStat = stat;
