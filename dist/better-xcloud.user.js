@@ -5847,7 +5847,8 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
       return !1;
     if (index = str2.indexOf("&&(0,", index - 100), index === -1)
       return !1;
-    return str2 = str2.substring(0, index) + "|| true" + str2.substring(index), str2;
+    const commaIndex = str2.indexOf(",", index - 10);
+    return str2 = str2.substring(0, commaIndex) + ",true" + str2.substring(index), str2;
   }
 }, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [

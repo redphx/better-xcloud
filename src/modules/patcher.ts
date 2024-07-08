@@ -759,6 +759,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         return str;
     },
 
+    // game-stream.js   24.16.4
     alwaysShowStreamHud(str: string) {
         let index = str.indexOf(',{onShowStreamMenu:');
         if (index === -1) {
@@ -770,7 +771,8 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
             return false;
         }
 
-        str = str.substring(0, index) + '|| true' + str.substring(index);
+        const commaIndex = str.indexOf(',', index - 10);
+        str = str.substring(0, commaIndex) + ',true' + str.substring(index);
         return str;
     },
 };
