@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.1.2
+// @version      5.1.3-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -134,7 +134,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.1.2", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.1.3-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   isPlaying: !1,
@@ -4289,7 +4289,12 @@ var BxExposed = {
     }
   },
   handleControllerShortcut: ControllerShortcut.handle,
-  resetControllerShortcut: ControllerShortcut.reset
+  resetControllerShortcut: ControllerShortcut.reset,
+  overrideSettings: {
+    Tv_settings: {
+      hasCompletedOnboarding: !0
+    }
+  }
 };
 
 // src/utils/region.ts
@@ -5820,6 +5825,20 @@ true` + ",this._connectionType=";
     if (index = str2.indexOf("grid:!0,", index), index > -1 && (index = str2.indexOf("(0,", index - 70)), index === -1)
       return !1;
     return str2 = str2.substring(0, index) + "true ? null :" + str2.substring(index), str2;
+  },
+  overrideStorageGetSettings(str2) {
+    if (!str2.includes("}getSetting(e){"))
+      return !1;
+    const newCode = `
+// console.log('setting', this.baseStorageKey, e);
+if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
+    const settings = window.BX_EXPOSED.overrideSettings[this.baseStorageKey];
+    if (e in settings) {
+        return settings[e];
+    }
+}
+`;
+    return str2 = str2.replace("}getSetting(e){", "}getSetting(e){" + newCode), str2;
   }
 }, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [
@@ -5835,6 +5854,7 @@ true` + ",this._connectionType=";
   "exposeStreamSession",
   "exposeDialogRoutes",
   "enableTvRoutes",
+  "overrideStorageGetSettings",
   getPref(PrefKey.UI_LAYOUT) !== "default" && "websiteLayout",
   getPref(PrefKey.LOCAL_CO_OP_ENABLED) && "supportLocalCoOp",
   getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && "forceFortniteConsole",
