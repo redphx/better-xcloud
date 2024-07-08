@@ -5839,6 +5839,14 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
 }
 `;
     return str2 = str2.replace("}getSetting(e){", "}getSetting(e){" + newCode), str2;
+  },
+  alwaysShowStreamHud(str2) {
+    let index = str2.indexOf(",{onShowStreamMenu:");
+    if (index === -1)
+      return !1;
+    if (index = str2.indexOf("&&(0,", index - 100), index === -1)
+      return !1;
+    return str2 = str2.substring(0, index) + "|| true" + str2.substring(index), str2;
   }
 }, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [
@@ -5883,6 +5891,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   "disableGamepadDisconnectedScreen",
   "patchStreamHud",
   "playVibration",
+  "alwaysShowStreamHud",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && !getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchAudioMediaStream",
   getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && getPref(PrefKey.STREAM_COMBINE_SOURCES) && "patchCombinedAudioVideoMediaStream",
   getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && "skipFeedbackDialog",

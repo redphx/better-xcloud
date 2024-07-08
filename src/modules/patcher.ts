@@ -757,7 +757,22 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
 `;
         str = str.replace(text, text + newCode);
         return str;
-    }
+    },
+
+    alwaysShowStreamHud(str: string) {
+        let index = str.indexOf(',{onShowStreamMenu:');
+        if (index === -1) {
+            return false;
+        }
+
+        index = str.indexOf('&&(0,', index - 100);
+        if (index === -1) {
+            return false;
+        }
+
+        str = str.substring(0, index) + '|| true' + str.substring(index);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -818,6 +833,8 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     'disableGamepadDisconnectedScreen',
     'patchStreamHud',
     'playVibration',
+
+    'alwaysShowStreamHud',
 
     // 'exposeEventTarget',
 
