@@ -4,6 +4,7 @@ import { parseArgs } from "node:util";
 import { sys } from "typescript";
 import txtScriptHeader from "./src/assets/header_script.txt" with { type: "text" };
 import txtMetaHeader from "./src/assets/header_meta.txt" with { type: "text" };
+import { assert } from "node:console";
 
 enum BuildTarget {
     ALL = 'all',
@@ -23,6 +24,8 @@ const postProcess = (str: string): string => {
 
     // Add ADDITIONAL CODE block
     str = str.replace('var DEFAULT_FLAGS', '\n/* ADDITIONAL CODE */\n\nvar DEFAULT_FLAGS');
+
+    assert(str.includes('/* ADDITIONAL CODE */'));
 
     return str;
 }
