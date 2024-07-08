@@ -132,11 +132,12 @@ export function setupSettingsUi() {
 
     const $wrapper = CE('div', {'class': 'bx-settings-wrapper'},
             CE('div', {'class': 'bx-settings-title-wrapper'},
-                CE('a', {
-                    'class': 'bx-settings-title',
-                    'href': 'https://github.com/redphx/better-xcloud/releases',
-                    'target': '_blank',
-                }, 'Better xCloud ' + SCRIPT_VERSION),
+                createButton({
+                    classes: ['bx-settings-title'],
+                    style: ButtonStyle.FOCUSABLE | ButtonStyle.GHOST,
+                    label: 'Better xCloud ' + SCRIPT_VERSION,
+                    url: 'https://github.com/redphx/better-xcloud/releases',
+                }),
                 createButton({
                     icon: BxIcon.QUESTION,
                     style: ButtonStyle.FOCUSABLE,

@@ -25,6 +25,7 @@ export const STATES: BxStates = {
     },
 
     userAgent: {
+        isTv: isTv,
         capabilities: {
             touch: userAgentHasTouchSupport,
         }

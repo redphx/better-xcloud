@@ -36,6 +36,7 @@ type BxStates = {
     };
 
     userAgent: {
+        isTv: boolean;
         capabilities: {
             touch: boolean;
         };

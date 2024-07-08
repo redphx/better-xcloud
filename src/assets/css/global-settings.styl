@@ -48,11 +48,17 @@
         text-decoration: none;
         font-weight: bold;
         display: block;
-        color: #5dc21e;
         flex: 1;
+        text-transform: none;
+
+        span {
+            color: #5dc21e !important;
+        }
 
         &:focus {
-            color: #83f73a;
+            span {
+                color: #83f73a !important;
+            }
         }
     }
 
