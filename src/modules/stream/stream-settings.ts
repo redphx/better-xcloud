@@ -240,6 +240,9 @@ export class StreamSettings {
 
     constructor() {
         this.#setupDialog();
+
+        // Hide dialog when the Guide menu is shown
+        window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, e => this.hide());
     }
 
     show(tabId?: string) {
