@@ -29,8 +29,8 @@ export class UserAgent {
     static #USER_AGENTS: PartialRecord<UserAgentProfile, string> = {
         [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
         [UserAgentProfile.MACOS_SAFARI]: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1',
-        [UserAgentProfile.SMARTTV_GENERIC]: `${window.navigator.userAgent} SmartTV ${SMART_TV_UNIQUE_ID}`,
-        [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36 ${SMART_TV_UNIQUE_ID}`,
+        [UserAgentProfile.SMART_TV_GENERIC]: `${window.navigator.userAgent} SmartTV`,
+        [UserAgentProfile.SMART_TV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36 ${SMART_TV_UNIQUE_ID}`,
         [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + ' OculusBrowser VR',
     }
 
