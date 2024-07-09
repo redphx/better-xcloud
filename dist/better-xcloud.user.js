@@ -18,8 +18,8 @@ var UserAgentProfile;
 (function(UserAgentProfile2) {
   UserAgentProfile2["WINDOWS_EDGE"] = "windows-edge";
   UserAgentProfile2["MACOS_SAFARI"] = "macos-safari";
-  UserAgentProfile2["SMARTTV_GENERIC"] = "smarttv-generic";
-  UserAgentProfile2["SMARTTV_TIZEN"] = "smarttv-tizen";
+  UserAgentProfile2["SMART_TV_GENERIC"] = "smarttv-generic";
+  UserAgentProfile2["SMART_TV_TIZEN"] = "smarttv-tizen";
   UserAgentProfile2["VR_OCULUS"] = "vr-oculus";
   UserAgentProfile2["DEFAULT"] = "default";
   UserAgentProfile2["CUSTOM"] = "custom";
@@ -63,8 +63,8 @@ class UserAgent {
   static #USER_AGENTS = {
     [UserAgentProfile.WINDOWS_EDGE]: `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
     [UserAgentProfile.MACOS_SAFARI]: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
-    [UserAgentProfile.SMARTTV_GENERIC]: `${window.navigator.userAgent} SmartTV ${SMART_TV_UNIQUE_ID}`,
-    [UserAgentProfile.SMARTTV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36 ${SMART_TV_UNIQUE_ID}`,
+    [UserAgentProfile.SMART_TV_GENERIC]: `${window.navigator.userAgent} SmartTV`,
+    [UserAgentProfile.SMART_TV_TIZEN]: `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36 ${SMART_TV_UNIQUE_ID}`,
     [UserAgentProfile.VR_OCULUS]: window.navigator.userAgent + " OculusBrowser VR"
   };
   static init() {
@@ -1468,8 +1468,8 @@ class Preferences {
         [UserAgentProfile.DEFAULT]: t("default"),
         [UserAgentProfile.WINDOWS_EDGE]: "Edge + Windows",
         [UserAgentProfile.MACOS_SAFARI]: "Safari + macOS",
-        [UserAgentProfile.SMARTTV_GENERIC]: "Smart TV",
-        [UserAgentProfile.SMARTTV_TIZEN]: "Samsung Smart TV",
+        [UserAgentProfile.SMART_TV_GENERIC]: "Smart TV",
+        [UserAgentProfile.SMART_TV_TIZEN]: "Samsung Smart TV",
         [UserAgentProfile.VR_OCULUS]: "Meta Quest VR",
         [UserAgentProfile.CUSTOM]: t("custom")
       }
@@ -3568,7 +3568,7 @@ class StreamSettings {
     }
   ];
   constructor() {
-    this.#setupDialog();
+    this.#setupDialog(), window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, (e) => this.hide());
   }
   show(tabId) {
     const $container = this.$container;
@@ -6187,13 +6187,7 @@ function setupSettingsUi() {
     target: "_blank",
     tabindex: 0
   }, `❤️ ${t("support-better-xcloud")}`);
-  $wrapper.appendChild($donationLink);
-  try {
-    const appVersion = document.querySelector("meta[name=gamepass-app-version]").content, appDate = new Date(document.querySelector("meta[name=gamepass-app-date]").content).toISOString().substring(0, 10);
-    $wrapper.appendChild(CE("div", { class: "bx-settings-app-version" }, `xCloud website version ${appVersion} (${appDate})`));
-  } catch (e) {
-  }
-  $container.appendChild($wrapper);
+  $wrapper.appendChild($donationLink), $container.appendChild($wrapper);
   const $pageContent = document.getElementById("PageContent");
   $pageContent?.parentNode?.insertBefore($container, $pageContent);
 }
