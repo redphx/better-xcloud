@@ -851,7 +851,7 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     ...(STATES.userAgent.capabilities.touch ? [
         getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'patchShowSensorControls',
         getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
-        (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) && 'disableTakRenderer',
+        (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF) || !STATES.userAgent.capabilities.touch) && 'disableTakRenderer',
         getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && 'patchTouchControlDefaultOpacity',
         'patchBabylonRendererClass',
     ] : []),
