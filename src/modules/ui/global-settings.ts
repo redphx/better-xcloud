@@ -428,6 +428,13 @@ export function setupSettingsUi() {
         }, `❤️ ${t('support-better-xcloud')}`);
     $wrapper.appendChild($donationLink);
 
+    // Show Game Pass app version
+    try {
+        const appVersion = (document.querySelector('meta[name=gamepass-app-version]') as HTMLMetaElement).content;
+        const appDate = new Date((document.querySelector('meta[name=gamepass-app-date]') as HTMLMetaElement).content).toISOString().substring(0, 10);
+        $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `xCloud website version ${appVersion} (${appDate})`));
+    } catch (e) {}
+
     $container.appendChild($wrapper);
 
     // Add Settings UI to the web page
