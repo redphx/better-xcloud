@@ -6187,7 +6187,13 @@ function setupSettingsUi() {
     target: "_blank",
     tabindex: 0
   }, `❤️ ${t("support-better-xcloud")}`);
-  $wrapper.appendChild($donationLink), $container.appendChild($wrapper);
+  $wrapper.appendChild($donationLink);
+  try {
+    const appVersion = document.querySelector("meta[name=gamepass-app-version]").content, appDate = new Date(document.querySelector("meta[name=gamepass-app-date]").content).toISOString().substring(0, 10);
+    $wrapper.appendChild(CE("div", { class: "bx-settings-app-version" }, `xCloud website version ${appVersion} (${appDate})`));
+  } catch (e) {
+  }
+  $container.appendChild($wrapper);
   const $pageContent = document.getElementById("PageContent");
   $pageContent?.parentNode?.insertBefore($container, $pageContent);
 }
