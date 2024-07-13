@@ -810,7 +810,7 @@ let PATCH_ORDERS: PatchArray = [
     'enableTvRoutes',
 
     'overrideStorageGetSettings',
-    'patchSetCurrentlyFocusedInteractable',
+    // 'patchSetCurrentlyFocusedInteractable',
 
     getPref(PrefKey.UI_LAYOUT) !== 'default' && 'websiteLayout',
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
