@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.1.1
+// @version      5.1.2-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -111,7 +111,7 @@ function deepClone(obj) {
     return obj;
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.1.1", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.1.2-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   isPlaying: !1,
@@ -4897,7 +4897,7 @@ var clearApplicationInsightsBuffers = function() {
       const port = options.consoleAddrs[ip];
       newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
     }
-  return newCandidates.push(newCandidate("a=end-of-candidates")), console.log(newCandidates), newCandidates;
+  return newCandidates.push(newCandidate("a=end-of-candidates")), BxLogger.info("ICE Candidates", newCandidates), newCandidates;
 };
 async function patchIceCandidates(request, consoleAddrs) {
   const response = await NATIVE_FETCH(request), text = await response.clone().text();
@@ -5025,6 +5025,8 @@ class XhomeInterceptor {
     const response = await NATIVE_FETCH(request), obj = await response.clone().json();
     console.log(obj);
     const serverDetails = obj.serverDetails;
+    if (serverDetails.ipAddress)
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = serverDetails.port;
     if (serverDetails.ipV4Address)
       XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
     if (serverDetails.ipV6Address)
@@ -6693,6 +6695,10 @@ function patchMeControl() {
         setDisplayMode: () => {
         },
         setMobileState: () => {
+        },
+        addEventListener: () => {
+        },
+        removeEventListener: () => {
         }
       }
     }
@@ -7156,13 +7162,17 @@ var unload = function() {
   if (getPref(PrefKey.MKB_ENABLED) && AppInterface)
     STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
 };
-if (window.location.pathname.includes("/auth/msa"))
-  throw window.addEventListener("load", (e) => {
-    window.location.search.includes("loggedIn") && window.setTimeout(() => {
-      const location2 = window.location;
-      location2.pathname.includes("/play") && location2.reload(!0);
-    }, 2000);
-  }), new Error("[Better xCloud] Refreshing the page after logging in");
+if (window.location.pathname.includes("/auth/msa")) {
+  const nativePushState = window.history.pushState;
+  throw window.history.pushState = function(...args) {
+    const url = args[2];
+    if (url && (url.startsWith("/play") || url.substring(6).startsWith("/play"))) {
+      window.stop(), window.location.href = "https://www.xbox.com" + url;
+      return;
+    }
+    return nativePushState.apply(this, arguments);
+  }, new Error("[Better xCloud] Refreshing the page after logging in");
+}
 BxLogger.info("readyState", document.readyState);
 if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
   window.stop();
