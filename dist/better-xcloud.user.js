@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.1.4-beta
+// @version      5.2.0-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -134,9 +134,10 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.1.4-beta", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.2.0-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
+  supportedRegion: !0,
   isPlaying: !1,
   appContext: {},
   serverRegions: {},
@@ -177,6 +178,7 @@ var BxEvent;
   BxEvent2["REMOTE_PLAY_READY"] = "bx-remote-play-ready";
   BxEvent2["REMOTE_PLAY_FAILED"] = "bx-remote-play-failed";
   BxEvent2["XCLOUD_SERVERS_READY"] = "bx-servers-ready";
+  BxEvent2["XCLOUD_SERVERS_UNAVAILABLE"] = "bx-servers-unavailable";
   BxEvent2["DATA_CHANNEL_CREATED"] = "bx-data-channel-created";
   BxEvent2["GAME_BAR_ACTION_ACTIVATED"] = "bx-game-bar-action-activated";
   BxEvent2["MICROPHONE_STATE_CHANGED"] = "bx-microphone-state-changed";
@@ -184,6 +186,7 @@ var BxEvent;
   BxEvent2["GAINNODE_VOLUME_CHANGED"] = "bx-gainnode-volume-changed";
   BxEvent2["POINTER_LOCK_REQUESTED"] = "bx-pointer-lock-requested";
   BxEvent2["POINTER_LOCK_EXITED"] = "bx-pointer-lock-exited";
+  BxEvent2["NAVIGATION_FOCUS_CHANGED"] = "bx-nav-focus-changed";
   BxEvent2["XCLOUD_DIALOG_SHOWN"] = "bx-xcloud-dialog-shown";
   BxEvent2["XCLOUD_DIALOG_DISMISSED"] = "bx-xcloud-dialog-dismissed";
   BxEvent2["XCLOUD_GUIDE_MENU_SHOWN"] = "bx-xcloud-guide-menu-shown";
@@ -350,6 +353,7 @@ var SUPPORTED_LANGUAGES = {
   "bottom-right": "Bottom-right",
   brightness: "Brightness",
   "browser-unsupported-feature": "Your browser doesn't support this feature",
+  "bypass-region-restriction": "Bypass region restriction",
   "can-stream-xbox-360-games": "Can stream Xbox 360 games",
   cancel: "Cancel",
   "cant-stream-xbox-360-games": "Can't stream Xbox 360 games",
@@ -576,6 +580,7 @@ var SUPPORTED_LANGUAGES = {
   unmuted: "Unmuted",
   "unsharp-masking": "Unsharp masking",
   "use-mouse-absolute-position": "Use mouse's absolute position",
+  "use-this-at-your-own-risk": "Use this at your own risk",
   "user-agent-profile": "User-Agent profile",
   "vertical-scroll-sensitivity": "Vertical scroll sensitivity",
   "vertical-sensitivity": "Vertical sensitivity",
@@ -661,7 +666,9 @@ class Translations {
     });
   }
 }
-var t = Translations.get;
+var t = Translations.get, ut = (text) => {
+  return BxLogger.warning("Untranslated text", text), text;
+};
 Translations.init();
 
 // src/utils/settings.ts
@@ -995,6 +1002,7 @@ var PrefKey;
   PrefKey2["CURRENT_VERSION"] = "version_current";
   PrefKey2["BETTER_XCLOUD_LOCALE"] = "bx_locale";
   PrefKey2["SERVER_REGION"] = "server_region";
+  PrefKey2["SERVER_BYPASS_RESTRICTION"] = "server_bypass_restriction";
   PrefKey2["PREFER_IPV6_SERVER"] = "prefer_ipv6_server";
   PrefKey2["STREAM_TARGET_RESOLUTION"] = "stream_target_resolution";
   PrefKey2["STREAM_PREFERRED_LOCALE"] = "stream_preferred_locale";
@@ -1078,6 +1086,11 @@ class Preferences {
     [PrefKey.SERVER_REGION]: {
       label: t("region"),
       default: "default"
+    },
+    [PrefKey.SERVER_BYPASS_RESTRICTION]: {
+      label: ut("Bypass region restriction"),
+      note: ut("⚠️ Use this at your own risk"),
+      default: !1
     },
     [PrefKey.STREAM_PREFERRED_LOCALE]: {
       label: t("preferred-game-language"),
@@ -4298,126 +4311,25 @@ var BxExposed = {
   }
 };
 
-// src/utils/region.ts
-function getPreferredServerRegion(shortName = !1) {
-  let preferredRegion = getPref(PrefKey.SERVER_REGION);
-  if (preferredRegion in STATES.serverRegions)
-    if (shortName && STATES.serverRegions[preferredRegion].shortName)
-      return STATES.serverRegions[preferredRegion].shortName;
-    else
-      return preferredRegion;
-  for (let regionName in STATES.serverRegions) {
-    const region = STATES.serverRegions[regionName];
-    if (!region.isDefault)
-      continue;
-    if (shortName && region.shortName)
-      return region.shortName;
-    else
-      return regionName;
-  }
-  return "???";
-}
+// src/enums/game-pass-gallery.ts
+var GamePassCloudGallery;
+(function(GamePassCloudGallery2) {
+  GamePassCloudGallery2["ALL"] = "29a81209-df6f-41fd-a528-2ae6b91f719c";
+  GamePassCloudGallery2["NATIVE_MKB"] = "8fa264dd-124f-4af3-97e8-596fcdf4b486";
+  GamePassCloudGallery2["TOUCH"] = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
+})(GamePassCloudGallery || (GamePassCloudGallery = {}));
 
-// src/modules/loading-screen.ts
-class LoadingScreen {
-  static #$bgStyle;
-  static #$waitTimeBox;
-  static #waitTimeInterval = null;
-  static #orgWebTitle;
-  static #secondsToString(seconds) {
-    const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60), mDisplay = m > 0 ? `${m}m` : "", sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
-    return mDisplay + sDisplay;
-  }
-  static setup() {
-    const titleInfo = STATES.currentStream.titleInfo;
-    if (!titleInfo)
-      return;
-    if (!LoadingScreen.#$bgStyle) {
-      const $bgStyle = CE("style");
-      document.documentElement.appendChild($bgStyle), LoadingScreen.#$bgStyle = $bgStyle;
-    }
-    if (LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide")
-      LoadingScreen.#hideRocket();
-  }
-  static #hideRocket() {
-    let $bgStyle = LoadingScreen.#$bgStyle;
-    const css = `
-#game-stream div[class*=RocketAnimation-module__container] > svg {
-    display: none;
-}
-
-#game-stream video[class*=RocketAnimationVideo-module__video] {
-    display: none;
-}
-`;
-    $bgStyle.textContent += css;
-  }
-  static #setBackground(imageUrl) {
-    let $bgStyle = LoadingScreen.#$bgStyle;
-    imageUrl = imageUrl + "?w=1920";
-    const css = `
-#game-stream {
-    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
-    background-color: transparent !important;
-    background-position: center center !important;
-    background-repeat: no-repeat !important;
-    background-size: cover !important;
-}
-
-#game-stream rect[width="800"] {
-    transition: opacity 0.3s ease-in-out !important;
-}
-`;
-    $bgStyle.textContent += css;
-    const bg = new Image;
-    bg.onload = (e) => {
-      $bgStyle.textContent += `
-#game-stream rect[width="800"] {
-    opacity: 0 !important;
-}
-`;
-    }, bg.src = imageUrl;
-  }
-  static setupWaitTime(waitTime) {
-    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue")
-      LoadingScreen.#hideRocket();
-    let secondsLeft = waitTime, $countDown, $estimated;
-    LoadingScreen.#orgWebTitle = document.title;
-    const endDate = new Date, timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
-    endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
-    let endDateStr = endDate.toISOString().slice(0, 19);
-    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
-    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-    if (!$waitTimeBox)
-      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.#$waitTimeBox = $waitTimeBox;
-    else
-      $waitTimeBox.classList.remove("bx-gone"), $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated"), $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
-    $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, LoadingScreen.#waitTimeInterval = window.setInterval(() => {
-      if (secondsLeft--, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, secondsLeft <= 0)
-        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
-    }, 1000);
-  }
-  static hide() {
-    if (LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
-      const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
-      $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
-        LoadingScreen.#$bgStyle.textContent += `
-#game-stream {
-    background: #000 !important;
-}
-`;
-      }), LoadingScreen.#$bgStyle.textContent += `
-#game-stream rect[width="800"] {
-    opacity: 1 !important;
-}
-`;
-    }
-    setTimeout(LoadingScreen.reset, 2000);
-  }
-  static reset() {
-    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = ""), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
-  }
-}
+// src/utils/feature-gates.ts
+var FeatureGates = {
+  PwaPrompt: !1,
+  EnableWifiWarnings: !1
+};
+if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED))
+  FeatureGates.EnableHomeContextMenu = !1;
+if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
+  FeatureGates.EnableGuideChatTab = !1;
+if (BX_FLAGS.FeatureGates)
+  FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
 
 // src/modules/ui/ui.ts
 function localRedirect(path) {
@@ -4439,1001 +4351,24 @@ function setupStreamUi() {
 }
 window.localRedirect = localRedirect;
 
-// src/modules/remote-play.ts
-var LOG_TAG4 = "RemotePlay", RemotePlayConsoleState;
-(function(RemotePlayConsoleState2) {
-  RemotePlayConsoleState2["ON"] = "On";
-  RemotePlayConsoleState2["OFF"] = "Off";
-  RemotePlayConsoleState2["STANDBY"] = "ConnectedStandby";
-  RemotePlayConsoleState2["UNKNOWN"] = "Unknown";
-})(RemotePlayConsoleState || (RemotePlayConsoleState = {}));
-
-class RemotePlay {
-  static XCLOUD_TOKEN;
-  static XHOME_TOKEN;
-  static #CONSOLES;
-  static #REGIONS;
-  static #STATE_LABELS = {
-    [RemotePlayConsoleState.ON]: t("powered-on"),
-    [RemotePlayConsoleState.OFF]: t("powered-off"),
-    [RemotePlayConsoleState.STANDBY]: t("standby"),
-    [RemotePlayConsoleState.UNKNOWN]: t("unknown")
-  };
-  static BASE_DEVICE_INFO = {
-    appInfo: {
-      env: {
-        clientAppId: window.location.host,
-        clientAppType: "browser",
-        clientAppVersion: "21.1.98",
-        clientSdkVersion: "8.5.3",
-        httpEnvironment: "prod",
-        sdkInstallId: ""
-      }
-    },
-    dev: {
-      displayInfo: {
-        dimensions: {
-          widthInPixels: 1920,
-          heightInPixels: 1080
-        },
-        pixelDensity: {
-          dpiX: 1,
-          dpiY: 1
-        }
-      },
-      hw: {
-        make: "Microsoft",
-        model: "unknown",
-        sdktype: "web"
-      },
-      os: {
-        name: "windows",
-        ver: "22631.2715",
-        platform: "desktop"
-      },
-      browser: {
-        browserName: "chrome",
-        browserVersion: "119.0"
-      }
-    }
-  };
-  static #$content;
-  static #initialize() {
-    if (RemotePlay.#$content)
-      return;
-    RemotePlay.#$content = CE("div", {}, t("getting-consoles-list")), RemotePlay.#getXhomeToken(() => {
-      RemotePlay.#getConsolesList(() => {
-        BxLogger.info(LOG_TAG4, "Consoles", RemotePlay.#CONSOLES), RemotePlay.#renderConsoles(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
-      });
-    });
-  }
-  static #renderConsoles() {
-    const $fragment = CE("div", { class: "bx-remote-play-container" });
-    if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
-      $fragment.appendChild(CE("span", {}, t("no-consoles-found"))), RemotePlay.#$content = CE("div", {}, $fragment);
-      return;
-    }
-    const $settingNote = CE("p", {}), resolutions = [1080, 720], currentResolution = getPref(PrefKey.REMOTE_PLAY_RESOLUTION), $resolutionGroup = CE("div", {});
-    for (let resolution of resolutions) {
-      const value = `${resolution}p`, id2 = `bx_radio_xhome_resolution_${resolution}`, $radio = CE("input", {
-        type: "radio",
-        value,
-        id: id2,
-        name: "bx_radio_xhome_resolution"
-      }, value);
-      $radio.addEventListener("change", (e) => {
-        const value2 = e.target.value;
-        $settingNote.textContent = value2 === "1080p" ? "✅ " + t("can-stream-xbox-360-games") : "❌ " + t("cant-stream-xbox-360-games"), setPref(PrefKey.REMOTE_PLAY_RESOLUTION, value2);
-      });
-      const $label = CE("label", {
-        for: id2,
-        class: "bx-remote-play-resolution"
-      }, $radio, `${resolution}p`);
-      if ($resolutionGroup.appendChild($label), currentResolution === value)
-        $radio.checked = !0, $radio.dispatchEvent(new Event("change"));
-    }
-    const $qualitySettings = CE("div", { class: "bx-remote-play-settings" }, CE("div", {}, CE("label", {}, t("target-resolution"), $settingNote), $resolutionGroup));
-    $fragment.appendChild($qualitySettings);
-    for (let con of RemotePlay.#CONSOLES) {
-      const $child = CE("div", { class: "bx-remote-play-device-wrapper" }, CE("div", { class: "bx-remote-play-device-info" }, CE("div", {}, CE("span", { class: "bx-remote-play-device-name" }, con.deviceName), CE("span", { class: "bx-remote-play-console-type" }, con.consoleType.replace("Xbox", ""))), CE("div", { class: "bx-remote-play-power-state" }, RemotePlay.#STATE_LABELS[con.powerState])), createButton({
-        classes: ["bx-remote-play-connect-button"],
-        label: t("console-connect"),
-        style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE,
-        onClick: (e) => {
-          RemotePlay.play(con.serverId);
-        }
-      }));
-      $fragment.appendChild($child);
-    }
-    $fragment.appendChild(createButton({
-      icon: BxIcon.QUESTION,
-      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
-      url: "https://better-xcloud.github.io/remote-play",
-      label: t("help")
-    })), RemotePlay.#$content = CE("div", {}, $fragment);
-  }
-  static #getXhomeToken(callback) {
-    if (RemotePlay.XHOME_TOKEN) {
-      callback();
-      return;
-    }
-    let GSSV_TOKEN;
-    try {
-      GSSV_TOKEN = JSON.parse(localStorage.getItem("xboxcom_xbl_user_info")).tokens["http://gssv.xboxlive.com/"].token;
-    } catch (e) {
-      for (let i = 0;i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (!key.startsWith("Auth.User."))
-          continue;
-        const json = JSON.parse(localStorage.getItem(key));
-        for (let token of json.tokens) {
-          if (!token.relyingParty.includes("gssv.xboxlive.com"))
-            continue;
-          GSSV_TOKEN = token.tokenData.token;
-          break;
-        }
-        break;
-      }
-    }
-    const request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
-      method: "POST",
-      body: JSON.stringify({
-        offeringId: "xhome",
-        token: GSSV_TOKEN
-      }),
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-      }
-    });
-    fetch(request).then((resp) => resp.json()).then((json) => {
-      RemotePlay.#REGIONS = json.offeringSettings.regions, RemotePlay.XHOME_TOKEN = json.gsToken, callback();
-    });
-  }
-  static async#getConsolesList(callback) {
-    if (RemotePlay.#CONSOLES) {
-      callback();
-      return;
-    }
-    const options = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${RemotePlay.XHOME_TOKEN}`
-      }
-    };
-    for (let region2 of RemotePlay.#REGIONS) {
-      try {
-        const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
-        RemotePlay.#CONSOLES = json.results, STATES.remotePlay.server = region2.baseUri, callback();
-      } catch (e) {
-      }
-      if (RemotePlay.#CONSOLES)
-        break;
-    }
-    if (!STATES.remotePlay.server)
-      RemotePlay.#CONSOLES = [];
-  }
-  static play(serverId, resolution) {
-    if (resolution)
-      setPref(PrefKey.REMOTE_PLAY_RESOLUTION, resolution);
-    STATES.remotePlay.config = {
-      serverId
-    }, window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, localRedirect("/launch/fortnite/BT5P2X999VH2#remote-play"), RemotePlay.detachPopup();
-  }
-  static preload() {
-    RemotePlay.#initialize();
-  }
-  static detachPopup() {
-    const $popup = document.querySelector(".bx-remote-play-popup");
-    $popup && $popup.remove();
-  }
-  static togglePopup(force = null) {
-    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED) || !RemotePlay.isReady()) {
-      Toast.show(t("getting-consoles-list"));
-      return;
-    }
-    if (RemotePlay.#initialize(), AppInterface && AppInterface.showRemotePlayDialog) {
-      AppInterface.showRemotePlayDialog(JSON.stringify(RemotePlay.#CONSOLES)), document.activeElement.blur();
-      return;
-    }
-    if (document.querySelector(".bx-remote-play-popup")) {
-      if (force === !1)
-        RemotePlay.#$content.classList.add("bx-gone");
-      else
-        RemotePlay.#$content.classList.toggle("bx-gone");
-      return;
-    }
-    const $header = document.querySelector("#gamepass-root header"), group = $header.firstElementChild.getAttribute("data-group");
-    RemotePlay.#$content.setAttribute("data-group", group), RemotePlay.#$content.classList.add("bx-remote-play-popup"), RemotePlay.#$content.classList.remove("bx-gone"), $header.insertAdjacentElement("afterend", RemotePlay.#$content);
-  }
-  static detect() {
-    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED))
-      return;
-    if (STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play"), STATES.remotePlay?.isPlaying)
-      window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
+// src/utils/region.ts
+function getPreferredServerRegion(shortName = !1) {
+  let preferredRegion = getPref(PrefKey.SERVER_REGION);
+  if (preferredRegion in STATES.serverRegions)
+    if (shortName && STATES.serverRegions[preferredRegion].shortName)
+      return STATES.serverRegions[preferredRegion].shortName;
     else
-      window.BX_REMOTE_PLAY_CONFIG = null;
-  }
-  static isReady() {
-    return RemotePlay.#CONSOLES !== null && RemotePlay.#CONSOLES.length > 0;
-  }
-}
-
-// src/modules/stream/stream-badges.ts
-var StreamBadge;
-(function(StreamBadge2) {
-  StreamBadge2["PLAYTIME"] = "playtime";
-  StreamBadge2["BATTERY"] = "battery";
-  StreamBadge2["DOWNLOAD"] = "in";
-  StreamBadge2["UPLOAD"] = "out";
-  StreamBadge2["SERVER"] = "server";
-  StreamBadge2["VIDEO"] = "video";
-  StreamBadge2["AUDIO"] = "audio";
-})(StreamBadge || (StreamBadge = {}));
-var StreamBadgeIcon = {
-  [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
-  [StreamBadge.VIDEO]: BxIcon.DISPLAY,
-  [StreamBadge.BATTERY]: BxIcon.BATTERY,
-  [StreamBadge.DOWNLOAD]: BxIcon.DOWNLOAD,
-  [StreamBadge.UPLOAD]: BxIcon.UPLOAD,
-  [StreamBadge.SERVER]: BxIcon.SERVER,
-  [StreamBadge.AUDIO]: BxIcon.AUDIO
-};
-
-class StreamBadges {
-  static instance;
-  static getInstance() {
-    if (!StreamBadges.instance)
-      StreamBadges.instance = new StreamBadges;
-    return StreamBadges.instance;
-  }
-  #ipv6 = !1;
-  #resolution = null;
-  #video = null;
-  #audio = null;
-  #region = "";
-  startBatteryLevel = 100;
-  startTimestamp = 0;
-  #$container;
-  #cachedDoms = {};
-  #interval;
-  #REFRESH_INTERVAL = 3000;
-  setRegion(region2) {
-    this.#region = region2;
-  }
-  #renderBadge(name, value, color) {
-    let $badge;
-    if (this.#cachedDoms[name])
-      return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
-    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === StreamBadge.BATTERY)
-      $badge.classList.add("bx-badge-battery");
-    return this.#cachedDoms[name] = $badge, $badge;
-  }
-  async#updateBadges(forceUpdate = !1) {
-    if (!this.#$container || !forceUpdate && !this.#$container.isConnected) {
-      this.#stop();
-      return;
-    }
-    let now = +new Date;
-    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
-    let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
-    if (STATES.browser.capabilities.batteryApi)
-      try {
-        const bm = await navigator.getBattery();
-        if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
-          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
-          batteryLevel += ` (${sign}${diffLevel}%)`;
-        }
-      } catch (e) {
-      }
-    const stats = await STATES.currentStream.peerConnection?.getStats();
-    let totalIn = 0, totalOut = 0;
-    stats.forEach((stat) => {
-      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
-        totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
-    });
-    const badges = {
-      [StreamBadge.DOWNLOAD]: totalIn ? this.#humanFileSize(totalIn) : null,
-      [StreamBadge.UPLOAD]: totalOut ? this.#humanFileSize(totalOut) : null,
-      [StreamBadge.PLAYTIME]: playtime,
-      [StreamBadge.BATTERY]: batteryLevel
-    };
-    let name;
-    for (name in badges) {
-      const value = badges[name];
-      if (value === null)
-        continue;
-      const $elm = this.#cachedDoms[name];
-      if ($elm && ($elm.lastElementChild.textContent = value), name === StreamBadge.BATTERY)
-        if (this.startBatteryLevel === 100 && batteryLevelInt === 100)
-          $elm.classList.add("bx-gone");
-        else
-          $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
-    }
-  }
-  async#start() {
-    await this.#updateBadges(!0), this.#stop(), this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
-  }
-  #stop() {
-    this.#interval && clearInterval(this.#interval), this.#interval = null;
-  }
-  #secondsToHm(seconds) {
-    let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
-    if (m === 60)
-      h += 1, m = 0;
-    const output = [];
-    return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
-  }
-  #humanFileSize(size) {
-    const units = ["B", "KB", "MB", "GB", "TB"], i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-    return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
-  }
-  async render() {
-    if (this.#$container)
-      return this.#start(), this.#$container;
-    await this.#getServerStats();
-    let video = "";
-    if (this.#resolution)
-      video = `${this.#resolution.height}p`;
-    if (this.#video) {
-      if (video && (video += "/"), video += this.#video.codec, this.#video.profile) {
-        const profile = this.#video.profile;
-        let quality = profile;
-        if (profile.startsWith("4d"))
-          quality = t("visual-quality-high");
-        else if (profile.startsWith("42e"))
-          quality = t("visual-quality-normal");
-        else if (profile.startsWith("420"))
-          quality = t("visual-quality-low");
-        video += ` (${quality})`;
-      }
-    }
-    let audio;
-    if (this.#audio) {
-      audio = this.#audio.codec;
-      const bitrate = this.#audio.bitrate / 1000;
-      audio += ` (${bitrate} kHz)`;
-    }
-    let batteryLevel = "";
-    if (STATES.browser.capabilities.batteryApi)
-      batteryLevel = "100%";
-    let server = this.#region;
-    server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
-    const BADGES = [
-      [StreamBadge.PLAYTIME, "1m", "#ff004d"],
-      [StreamBadge.BATTERY, batteryLevel, "#00b543"],
-      [StreamBadge.DOWNLOAD, this.#humanFileSize(0), "#29adff"],
-      [StreamBadge.UPLOAD, this.#humanFileSize(0), "#ff77a8"],
-      [StreamBadge.SERVER, server, "#ff6c24"],
-      video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
-      audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
-    ], $container = CE("div", { class: "bx-badges" });
-    return BADGES.forEach((item2) => {
-      if (!item2)
-        return;
-      const $badge = this.#renderBadge(...item2);
-      $container.appendChild($badge);
-    }), this.#$container = $container, await this.#start(), $container;
-  }
-  async#getServerStats() {
-    const stats = await STATES.currentStream.peerConnection.getStats(), allVideoCodecs = {};
-    let videoCodecId;
-    const allAudioCodecs = {};
-    let audioCodecId;
-    const allCandidates = {};
-    let candidateId;
-    if (stats.forEach((stat) => {
-      if (stat.type === "codec") {
-        const mimeType = stat.mimeType.split("/")[0];
-        if (mimeType === "video")
-          allVideoCodecs[stat.id] = stat;
-        else if (mimeType === "audio")
-          allAudioCodecs[stat.id] = stat;
-      } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
-        if (stat.kind === "video")
-          videoCodecId = stat.codecId;
-        else if (stat.kind === "audio")
-          audioCodecId = stat.codecId;
-      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
-        candidateId = stat.remoteCandidateId;
-      else if (stat.type === "remote-candidate")
-        allCandidates[stat.id] = stat.address;
-    }), videoCodecId) {
-      const videoStat = allVideoCodecs[videoCodecId], video = {
-        codec: videoStat.mimeType.substring(6)
-      };
-      if (video.codec === "H264") {
-        const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-        video.profile = match ? match[1] : null;
-      }
-      this.#video = video;
-    }
-    if (audioCodecId) {
-      const audioStat = allAudioCodecs[audioCodecId];
-      this.#audio = {
-        codec: audioStat.mimeType.substring(6),
-        bitrate: audioStat.clockRate
-      };
-    }
-    if (candidateId)
-      BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
-  }
-  static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-      const $video = e.$video, streamBadges = StreamBadges.getInstance();
-      streamBadges.#resolution = {
-        width: $video.videoWidth,
-        height: $video.videoHeight
-      }, streamBadges.startTimestamp = +new Date;
-      try {
-        STATES.browser.capabilities.batteryApi && navigator.getBattery().then((bm) => {
-          streamBadges.startBatteryLevel = Math.round(bm.level * 100);
-        });
-      } catch (e2) {
-      }
-    });
-  }
-}
-
-// src/enums/game-pass-gallery.ts
-var GamePassCloudGallery;
-(function(GamePassCloudGallery2) {
-  GamePassCloudGallery2["ALL"] = "29a81209-df6f-41fd-a528-2ae6b91f719c";
-  GamePassCloudGallery2["NATIVE_MKB"] = "8fa264dd-124f-4af3-97e8-596fcdf4b486";
-  GamePassCloudGallery2["TOUCH"] = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
-})(GamePassCloudGallery || (GamePassCloudGallery = {}));
-
-// src/utils/feature-gates.ts
-var FeatureGates = {
-  PwaPrompt: !1
-};
-if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED))
-  FeatureGates.EnableHomeContextMenu = !1;
-if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
-  FeatureGates.EnableGuideChatTab = !1;
-if (BX_FLAGS.FeatureGates)
-  FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
-
-// src/utils/network.ts
-var clearApplicationInsightsBuffers = function() {
-  window.sessionStorage.removeItem("AI_buffer"), window.sessionStorage.removeItem("AI_sentBuffer");
-}, clearDbLogs = function(dbName, table) {
-  const request = window.indexedDB.open(dbName);
-  request.onsuccess = (e) => {
-    const db = e.target.result;
-    try {
-      const objectStoreRequest = db.transaction(table, "readwrite").objectStore(table).clear();
-      objectStoreRequest.onsuccess = function() {
-        console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
-      };
-    } catch (ex) {
-    }
-  };
-}, clearAllLogs = function() {
-  clearApplicationInsightsBuffers(), clearDbLogs("StreamClientLogHandler", "logs"), clearDbLogs("XCloudAppLogs", "logs");
-}, updateIceCandidates = function(candidates, options) {
-  const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/), lst = [];
-  for (let item2 of candidates) {
-    if (item2.candidate == "a=end-of-candidates")
+      return preferredRegion;
+  for (let regionName in STATES.serverRegions) {
+    const region = STATES.serverRegions[regionName];
+    if (!region.isDefault)
       continue;
-    const groups = pattern.exec(item2.candidate).groups;
-    lst.push(groups);
-  }
-  if (options.preferIpv6Server)
-    lst.sort((a, b) => {
-      const firstIp = a.ip, secondIp = b.ip;
-      return !firstIp.includes(":") && secondIp.includes(":") ? 1 : -1;
-    });
-  const newCandidates = [];
-  let foundation = 1;
-  const newCandidate = (candidate) => {
-    return {
-      candidate,
-      messageType: "iceCandidate",
-      sdpMLineIndex: "0",
-      sdpMid: "0"
-    };
-  };
-  if (lst.forEach((item2) => {
-    item2.foundation = foundation, item2.priority = foundation == 1 ? 2130706431 : 1, newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`)), ++foundation;
-  }), options.consoleAddrs)
-    for (let ip in options.consoleAddrs) {
-      const port = options.consoleAddrs[ip];
-      newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
-    }
-  return newCandidates.push(newCandidate("a=end-of-candidates")), BxLogger.info("ICE Candidates", newCandidates), newCandidates;
-};
-async function patchIceCandidates(request, consoleAddrs) {
-  const response = await NATIVE_FETCH(request), text = await response.clone().text();
-  if (!text.length)
-    return response;
-  const options = {
-    preferIpv6Server: getPref(PrefKey.PREFER_IPV6_SERVER),
-    consoleAddrs
-  }, obj = JSON.parse(text);
-  let exchangeResponse = JSON.parse(obj.exchangeResponse);
-  return exchangeResponse = updateIceCandidates(exchangeResponse, options), obj.exchangeResponse = JSON.stringify(exchangeResponse), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
-}
-function interceptHttpRequests() {
-  let BLOCKED_URLS = [];
-  if (getPref(PrefKey.BLOCK_TRACKING))
-    clearAllLogs(), BLOCKED_URLS = BLOCKED_URLS.concat([
-      "https://arc.msn.com",
-      "https://browser.events.data.microsoft.com",
-      "https://dc.services.visualstudio.com",
-      "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
-    ]);
-  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
-    BLOCKED_URLS = BLOCKED_URLS.concat([
-      "https://peoplehub.xboxlive.com/users/me/people/social",
-      "https://peoplehub.xboxlive.com/users/me/people/recommendations",
-      "https://xblmessaging.xboxlive.com/network/xbox/users/me/inbox"
-    ]);
-  const xhrPrototype = XMLHttpRequest.prototype, nativeXhrOpen = xhrPrototype.open, nativeXhrSend = xhrPrototype.send;
-  xhrPrototype.open = function(method, url) {
-    return this._url = url, nativeXhrOpen.apply(this, arguments);
-  }, xhrPrototype.send = function(...arg) {
-    for (let blocked of BLOCKED_URLS)
-      if (this._url.startsWith(blocked)) {
-        if (blocked === "https://dc.services.visualstudio.com")
-          window.setTimeout(clearAllLogs, 1000);
-        return !1;
-      }
-    return nativeXhrSend.apply(this, arguments);
-  };
-  let gamepassAllGames = [];
-  window.BX_FETCH = window.fetch = async (request, init) => {
-    let url = typeof request === "string" ? request : request.url;
-    for (let blocked of BLOCKED_URLS) {
-      if (!url.startsWith(blocked))
-        continue;
-      return new Response('{"acc":1,"webResult":{}}', {
-        status: 200,
-        statusText: "200 OK"
-      });
-    }
-    if (url.endsWith("/play"))
-      BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
-    if (url.endsWith("/configuration"))
-      BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
-    if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation"))
-      try {
-        const response = await NATIVE_FETCH(request, init), json = await response.json();
-        if (json && json.exp && json.exp.treatments)
-          for (let key in FeatureGates)
-            json.exp.treatments[key] = FeatureGates[key];
-        return response.json = () => Promise.resolve(json), response;
-      } catch (e) {
-        console.log(e);
-      }
-    if (STATES.userAgent.capabilities.touch && url.includes("catalog.gamepass.com/sigls/")) {
-      const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
-      if (url.includes(GamePassCloudGallery.ALL))
-        for (let i = 1;i < obj.length; i++)
-          gamepassAllGames.push(obj[i].id);
-      else if (url.includes(GamePassCloudGallery.TOUCH))
-        try {
-          let customList = TouchController.getCustomList();
-          customList = customList.filter((id2) => gamepassAllGames.includes(id2));
-          const newCustomList = customList.map((item2) => ({ id: item2 }));
-          obj.push(...newCustomList);
-        } catch (e) {
-          console.log(e);
-        }
-      return response.json = () => Promise.resolve(obj), response;
-    }
-    if (BX_FLAGS.ForceNativeMkbTitles && url.includes("catalog.gamepass.com/sigls/") && url.includes(GamePassCloudGallery.NATIVE_MKB)) {
-      const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
-      try {
-        const newCustomList = BX_FLAGS.ForceNativeMkbTitles.map((item2) => ({ id: item2 }));
-        obj.push(...newCustomList);
-      } catch (e) {
-        console.log(e);
-      }
-      return response.json = () => Promise.resolve(obj), response;
-    }
-    let requestType;
-    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs"))
-      requestType = RequestType.XHOME;
+    if (shortName && region.shortName)
+      return region.shortName;
     else
-      requestType = RequestType.XCLOUD;
-    if (requestType === RequestType.XHOME)
-      return XhomeInterceptor.handle(request);
-    return XcloudInterceptor.handle(request, init);
-  };
-}
-var RequestType;
-(function(RequestType2) {
-  RequestType2["XCLOUD"] = "xcloud";
-  RequestType2["XHOME"] = "xhome";
-})(RequestType || (RequestType = {}));
-
-class XhomeInterceptor {
-  static #consoleAddrs = {};
-  static async#handleLogin(request) {
-    try {
-      const obj = await request.clone().json();
-      obj.offeringId = "xhome", request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
-        method: "POST",
-        body: JSON.stringify(obj),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-    } catch (e) {
-      alert(e), console.log(e);
-    }
-    return NATIVE_FETCH(request);
+      return regionName;
   }
-  static async#handleConfiguration(request) {
-    const response = await NATIVE_FETCH(request), obj = await response.clone().json();
-    console.log(obj);
-    const serverDetails = obj.serverDetails;
-    if (serverDetails.ipAddress)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = serverDetails.port;
-    if (serverDetails.ipV4Address)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
-    if (serverDetails.ipV6Address)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
-    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
-  }
-  static async#handleInputConfigs(request, opts) {
-    const response = await NATIVE_FETCH(request);
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "all")
-      return response;
-    const obj = await response.clone().json(), xboxTitleId = JSON.parse(opts.body).titleIds[0];
-    STATES.currentStream.xboxTitleId = xboxTitleId;
-    const inputConfigs = obj[0];
-    let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
-    if (!hasTouchSupport) {
-      const supportedInputTypes = inputConfigs.supportedInputTypes;
-      hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
-    }
-    if (hasTouchSupport)
-      TouchController.disable(), BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-        data: null
-      });
-    else
-      TouchController.enable(), TouchController.getCustomLayouts(xboxTitleId);
-    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
-  }
-  static async#handleTitles(request) {
-    const clone = request.clone(), headers = {};
-    for (let pair of clone.headers.entries())
-      headers[pair[0]] = pair[1];
-    headers.authorization = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
-    const index = request.url.indexOf(".xboxlive.com");
-    return request = new Request("https://wus.core.gssv-play-prod" + request.url.substring(index), {
-      method: clone.method,
-      body: await clone.text(),
-      headers
-    }), NATIVE_FETCH(request);
-  }
-  static async#handlePlay(request) {
-    const body = await request.clone().json(), newRequest = new Request(request, {
-      body: JSON.stringify(body)
-    });
-    return NATIVE_FETCH(newRequest);
-  }
-  static async handle(request) {
-    TouchController.disable();
-    const clone = request.clone(), headers = {};
-    for (let pair of clone.headers.entries())
-      headers[pair[0]] = pair[1];
-    headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
-    const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
-    if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === "720p")
-      deviceInfo.dev.os.name = "android";
-    headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
-    const opts = {
-      method: clone.method,
-      headers
-    };
-    if (clone.method === "POST")
-      opts.body = await clone.text();
-    let newUrl = request.url;
-    if (!newUrl.includes("/servers/home")) {
-      const index = request.url.indexOf(".xboxlive.com");
-      newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
-    }
-    request = new Request(newUrl, opts);
-    let url = typeof request === "string" ? request : request.url;
-    if (url.includes("/configuration"))
-      return XhomeInterceptor.#handleConfiguration(request);
-    else if (url.endsWith("/sessions/home/play"))
-      return XhomeInterceptor.#handlePlay(request);
-    else if (url.includes("inputconfigs"))
-      return XhomeInterceptor.#handleInputConfigs(request, opts);
-    else if (url.includes("/login/user"))
-      return XhomeInterceptor.#handleLogin(request);
-    else if (url.endsWith("/titles"))
-      return XhomeInterceptor.#handleTitles(request);
-    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
-      return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
-    return await NATIVE_FETCH(request);
-  }
-}
-
-class XcloudInterceptor {
-  static async#handleLogin(request, init) {
-    const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload(), RemotePlay.XCLOUD_TOKEN = obj.gsToken;
-    const serverEmojis = {
-      AustraliaEast: "🇦🇺",
-      AustraliaSouthEast: "🇦🇺",
-      BrazilSouth: "🇧🇷",
-      EastUS: "🇺🇸",
-      EastUS2: "🇺🇸",
-      JapanEast: "🇯🇵",
-      KoreaCentral: "🇰🇷",
-      MexicoCentral: "🇲🇽",
-      NorthCentralUs: "🇺🇸",
-      SouthCentralUS: "🇺🇸",
-      UKSouth: "🇬🇧",
-      WestEurope: "🇪🇺",
-      WestUS: "🇺🇸",
-      WestUS2: "🇺🇸"
-    }, serverRegex = /\/\/(\w+)\./;
-    for (let region3 of obj.offeringSettings.regions) {
-      const regionName = region3.name;
-      let shortName = region3.name, match = serverRegex.exec(region3.baseUri);
-      if (match) {
-        if (shortName = match[1], serverEmojis[regionName])
-          shortName = serverEmojis[regionName] + " " + shortName;
-      }
-      region3.shortName = shortName.toUpperCase(), STATES.serverRegions[region3.name] = Object.assign({}, region3);
-    }
-    BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
-    const preferredRegion = getPreferredServerRegion();
-    if (preferredRegion in STATES.serverRegions) {
-      const tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
-      tmp.isDefault = !0, obj.offeringSettings.regions = [tmp];
-    }
-    return response.json = () => Promise.resolve(obj), response;
-  }
-  static async#handlePlay(request, init) {
-    const PREF_STREAM_TARGET_RESOLUTION = getPref(PrefKey.STREAM_TARGET_RESOLUTION), PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url);
-    let badgeRegion = parsedUrl.host.split(".", 1)[0];
-    for (let regionName in STATES.serverRegions) {
-      const region3 = STATES.serverRegions[regionName];
-      if (parsedUrl.origin == region3.baseUri) {
-        badgeRegion = regionName;
-        break;
-      }
-    }
-    StreamBadges.getInstance().setRegion(badgeRegion);
-    const body = await request.clone().json();
-    if (PREF_STREAM_TARGET_RESOLUTION !== "auto") {
-      const osName = PREF_STREAM_TARGET_RESOLUTION === "720p" ? "android" : "windows";
-      body.settings.osName = osName;
-    }
-    if (PREF_STREAM_PREFERRED_LOCALE !== "default")
-      body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
-    const newRequest = new Request(request, {
-      body: JSON.stringify(body)
-    });
-    return NATIVE_FETCH(newRequest);
-  }
-  static async#handleWaitTime(request, init) {
-    const response = await NATIVE_FETCH(request, init);
-    if (getPref(PrefKey.UI_LOADING_SCREEN_WAIT_TIME)) {
-      const json = await response.clone().json();
-      if (json.estimatedAllocationTimeInSeconds > 0)
-        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
-    }
-    return response;
-  }
-  static async#handleConfiguration(request, init) {
-    if (request.method !== "GET")
-      return NATIVE_FETCH(request, init);
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all")
-      if (STATES.currentStream.titleInfo?.details.hasTouchSupport)
-        TouchController.disable();
-      else
-        TouchController.enable();
-    const response = await NATIVE_FETCH(request, init), text = await response.clone().text();
-    if (!text.length)
-      return response;
-    const obj = JSON.parse(text);
-    let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
-    overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
-    let overrideMkb = null;
-    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" || STATES.currentStream.titleInfo && BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId))
-      overrideMkb = !0;
-    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off")
-      overrideMkb = !1;
-    if (overrideMkb !== null)
-      overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
-        enableMouseInput: overrideMkb,
-        enableKeyboardInput: overrideMkb
-      });
-    if (TouchController.isEnabled())
-      overrides.inputConfiguration.enableTouchInput = !0, overrides.inputConfiguration.maxTouchPoints = 10;
-    if (getPref(PrefKey.AUDIO_MIC_ON_PLAYING))
-      overrides.audioConfiguration = overrides.audioConfiguration || {}, overrides.audioConfiguration.enableMicrophone = !0;
-    return obj.clientStreamingConfigOverrides = JSON.stringify(overrides), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
-  }
-  static async handle(request, init) {
-    let url = typeof request === "string" ? request : request.url;
-    if (url.endsWith("/v2/login/user"))
-      return XcloudInterceptor.#handleLogin(request, init);
-    else if (url.endsWith("/sessions/cloud/play"))
-      return XcloudInterceptor.#handlePlay(request, init);
-    else if (url.includes("xboxlive.com") && url.includes("/waittime/"))
-      return XcloudInterceptor.#handleWaitTime(request, init);
-    else if (url.endsWith("/configuration"))
-      return XcloudInterceptor.#handleConfiguration(request, init);
-    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
-      return patchIceCandidates(request);
-    return NATIVE_FETCH(request, init);
-  }
-}
-
-// src/utils/gamepad.ts
-function showGamepadToast(gamepad) {
-  if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
-    return;
-  BxLogger.info("Gamepad", gamepad);
-  let text = "🎮";
-  if (getPref(PrefKey.LOCAL_CO_OP_ENABLED))
-    text += ` #${gamepad.index + 1}`;
-  const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, "");
-  text += ` - ${gamepadId}`;
-  let status;
-  if (gamepad.connected)
-    status = (gamepad.vibrationActuator ? "✅" : "❌") + " " + t("vibration-status");
-  else
-    status = t("disconnected");
-  Toast.show(text, status, { instant: !1 });
-}
-
-// src/utils/css.ts
-function addCss() {
-  let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:36px;--bx-default-button-color:#2d3036;--bx-default-button-hover-color:#515863;--bx-default-button-disabled-color:#8e8e8e;--bx-primary-button-color:#008746;--bx-primary-button-hover-color:#04b358;--bx-primary-button-disabled-color:#448262;--bx-danger-button-color:#c10404;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-disabled-color:#a26c6c;--bx-toast-z-index:9999;--bx-dialog-z-index:9101;--bx-dialog-overlay-z-index:9100;--bx-remote-play-popup-z-index:9090;--bx-stats-bar-z-index:9010;--bx-stream-settings-z-index:9001;--bx-mkb-pointer-lock-msg-z-index:9000;--bx-stream-settings-overlay-z-index:8999;--bx-game-bar-z-index:8888;--bx-wait-time-box-z-index:100;--bx-screenshot-animation-z-index:1}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:600px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-button{background-color:var(--bx-default-button-color);user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:focus{outline:none !important}.bx-button:hover,.bx-button.bx-focusable:focus{background-color:var(--bx-default-button-hover-color)}.bx-button:disabled{cursor:default;background-color:var(--bx-default-button-disabled-color)}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:hover,.bx-button.bx-ghost.bx-focusable:focus{background-color:var(--bx-default-button-hover-color)}.bx-button.bx-primary{background-color:var(--bx-primary-button-color)}.bx-button.bx-primary:hover,.bx-button.bx-primary.bx-focusable:focus{background-color:var(--bx-primary-button-hover-color)}.bx-button.bx-primary:disabled{background-color:var(--bx-primary-button-disabled-color)}.bx-button.bx-danger{background-color:var(--bx-danger-button-color)}.bx-button.bx-danger:hover,.bx-button.bx-danger.bx-focusable:focus{background-color:var(--bx-danger-button-hover-color)}.bx-button.bx-danger:disabled{background-color:var(--bx-danger-button-disabled-color)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button svg:not(:only-child){margin-right:4px}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button.bx-focusable{position:relative}.bx-button.bx-focusable::after{border:2px solid transparent;border-radius:4px}.bx-button.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:0;left:0;right:0;bottom:0}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:46px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-settings-reload-button{margin-top:10px}.bx-settings-container{background-color:#151515;user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-normal-font)}@media (hover:hover){.bx-settings-wrapper a.bx-settings-title:hover{color:#83f73a}}.bx-settings-wrapper{width:450px;margin:auto;padding:12px 6px}@media screen and (max-width:450px){.bx-settings-wrapper{width:100%}}.bx-settings-wrapper *:focus{outline:none !important}.bx-settings-wrapper .bx-top-buttons .bx-button{display:block;margin-bottom:8px}.bx-settings-wrapper .bx-settings-title-wrapper{display:flex;margin-bottom:10px;align-items:center}.bx-settings-wrapper a.bx-settings-title{font-family:var(--bx-title-font);font-size:1.4rem;text-decoration:none;font-weight:bold;display:block;flex:1;text-transform:none}.bx-settings-wrapper a.bx-settings-title span{color:#5dc21e !important}.bx-settings-wrapper a.bx-settings-title:focus span{color:#83f73a !important}.bx-settings-wrapper a.bx-settings-update{display:block;color:#ff834b;text-decoration:none;margin-bottom:8px;text-align:center;background:#222;border-radius:4px;padding:4px}@media (hover:hover){.bx-settings-wrapper a.bx-settings-update:hover{color:#ff9869;text-decoration:underline}}.bx-settings-wrapper a.bx-settings-update:focus{color:#ff9869;text-decoration:underline}.bx-settings-group-label{font-weight:bold;display:block;font-size:1.1rem}.bx-settings-row{display:flex;padding:6px 12px;position:relative}.bx-settings-row label{flex:1;align-self:center;margin-bottom:0}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row input{align-self:center;accent-color:var(--bx-primary-button-color)}.bx-settings-row input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-row input[type=checkbox]:focus,.bx-settings-row select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-row:has(input:focus)::before,.bx-settings-row:has(select:focus)::before{content:' ';border-radius:4px;border:2px solid #fff;position:absolute;top:0;left:0;bottom:0}.bx-settings-group-label b,.bx-settings-row label b{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-group-label b{margin-bottom:8px}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px;color:#5dc21e}.bx-donation-link:hover{color:#6dd72b}.bx-donation-link:focus{text-decoration:underline}.bx-settings-custom-user-agent{display:block;width:100%}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-popup{width:100%;max-width:1920px;margin:auto;position:relative;height:.1px;overflow:visible;z-index:var(--bx-remote-play-popup-z-index)}.bx-remote-play-container{position:absolute;right:10px;top:0;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px;box-shadow:rgba(0,0,0,0.502) 0 0 12px 0}@media (min-width:480px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 32px)}}@media (min-width:768px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 48px)}}@media (min-width:1920px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 80px)}}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-settings span{font-weight:bold;font-size:18px;display:block;margin-bottom:8px;text-align:center}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:14px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-select select{display:none}.bx-select > div{display:inline-block;min-width:110px;text-align:center;margin:0 10px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 4px}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0}.bx-select button{border:none;width:24px;height:24px;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}.bx-select button.bx-inactive{pointer-events:none;opacity:.2}.bx-select button span{line-height:unset}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:14px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0 4px;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-stream-settings-dialog{display:flex;position:fixed;z-index:var(--bx-stream-settings-z-index);opacity:.98;user-select:none;-webkit-user-select:none}.bx-stream-settings-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-stream-settings-overlay-z-index)}.bx-stream-settings-overlay[data-is-playing="true"]{background:transparent}.bx-stream-settings-tabs{position:fixed;top:0;right:420px;display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:clip}.bx-stream-settings-tabs svg{width:32px;height:32px;padding:10px;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-stream-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-stream-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-stream-settings-tab-contents{flex-direction:column;position:fixed;right:0;top:0;bottom:0;padding:14px 14px 0;width:420px;background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay}.bx-stream-settings-tab-contents > div[data-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-stream-settings-tab-contents *:focus{outline:none !important}.bx-stream-settings-tab-contents h2{margin-bottom:8px;display:flex;align-item:center}.bx-stream-settings-tab-contents h2 span{display:inline-block;font-size:24px;font-weight:bold;text-transform:uppercase;text-align:left;flex:1;height:var(--bx-button-height);line-height:calc(var(--bx-button-height) + 4px);text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.bx-stream-settings-row{display:flex;border-bottom:1px solid rgba(64,64,64,0.502);margin-bottom:16px;padding-bottom:16px}.bx-stream-settings-row > label{font-size:16px;display:block;text-align:left;flex:1;align-self:center;margin-bottom:0 !important}.bx-stream-settings-row input{accent-color:var(--bx-primary-button-color)}.bx-stream-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-stream-settings-row select option:disabled{display:none}.bx-stream-settings-dialog-note{display:block;font-size:12px;font-weight:lighter;font-style:italic}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile{width:100%;height:36px;display:block;margin-bottom:10px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-note{font-size:14px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-stream-settings-z-index) + 1)}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}`;
-  const PREF_HIDE_SECTIONS = getPref(PrefKey.UI_HIDE_SECTIONS), selectorToHide = [];
-  if (PREF_HIDE_SECTIONS.includes(UiSection.NEWS))
-    selectorToHide.push("#BodyContent > div[class*=CarouselRow-module]");
-  if (PREF_HIDE_SECTIONS.includes(UiSection.ALL_GAMES))
-    selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]");
-  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
-    selectorToHide.push("#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]");
-  if (selectorToHide)
-    css += selectorToHide.join(",") + "{ display: none; }";
-  if (getPref(PrefKey.REDUCE_ANIMATIONS))
-    css += `
-div[class*=GameCard-module__gameTitleInnerWrapper],
-div[class*=GameCard-module__card],
-div[class*=ScrollArrows-module] {
-    transition: none !important;
-}
-`;
-  if (getPref(PrefKey.HIDE_DOTS_ICON))
-    css += `
-div[class*=Grip-module__container] {
-    visibility: hidden;
-}
-
-@media (hover: hover) {
-    button[class*=GripHandle-module__container]:hover div[class*=Grip-module__container] {
-        visibility: visible;
-    }
-}
-
-button[class*=GripHandle-module__container][aria-expanded=true] div[class*=Grip-module__container] {
-    visibility: visible;
-}
-
-button[class*=GripHandle-module__container][aria-expanded=false] {
-    background-color: transparent !important;
-}
-
-div[class*=StreamHUD-module__buttonsContainer] {
-    padding: 0px !important;
-}
-`;
-  if (css += `
-div[class*=StreamMenu-module__menu] {
-    min-width: 100vw !important;
-}
-`, getPref(PrefKey.STREAM_SIMPLIFY_MENU))
-    css += `
-div[class*=Menu-module__scrollable] {
-    --bxStreamMenuItemSize: 80px;
-    --streamMenuItemSize: calc(var(--bxStreamMenuItemSize) + 40px) !important;
-}
-
-.bx-badges {
-    top: calc(var(--streamMenuItemSize) - 20px);
-}
-
-body[data-media-type=tv] .bx-badges {
-    top: calc(var(--streamMenuItemSize) - 10px) !important;
-}
-
-button[class*=MenuItem-module__container] {
-    min-width: auto !important;
-    min-height: auto !important;
-    width: var(--bxStreamMenuItemSize) !important;
-    height: var(--bxStreamMenuItemSize) !important;
-}
-
-div[class*=MenuItem-module__label] {
-    display: none !important;
-}
-
-svg[class*=MenuItem-module__icon] {
-    width: 36px;
-    height: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-`;
-  else
-    css += `
-body[data-media-type=tv] .bx-badges {
-    top: calc(var(--streamMenuItemSize) + 30px);
-}
-
-body:not([data-media-type=tv]) .bx-badges {
-    top: calc(var(--streamMenuItemSize) + 20px);
-}
-
-body:not([data-media-type=tv]) button[class*=MenuItem-module__container] {
-    min-width: auto !important;
-    width: 100px !important;
-}
-
-body:not([data-media-type=tv]) button[class*=MenuItem-module__container]:nth-child(n+2) {
-    margin-left: 10px !important;
-}
-
-body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
-    margin-left: 8px !important;
-    margin-right: 8px !important;
-}
-`;
-  if (getPref(PrefKey.UI_SCROLLBAR_HIDE))
-    css += `
-html {
-    scrollbar-width: none;
-}
-
-body::-webkit-scrollbar {
-    display: none;
-}
-`;
-  const $style = CE("style", {}, css);
-  document.documentElement.appendChild($style);
-}
-function preloadFonts() {
-  const $link = CE("link", {
-    rel: "preload",
-    href: "https://redphx.github.io/better-xcloud/fonts/promptfont.otf",
-    as: "font",
-    type: "font/otf",
-    crossorigin: ""
-  });
-  document.querySelector("head")?.appendChild($link);
-}
-
-// src/modules/mkb/mouse-cursor-hider.ts
-class MouseCursorHider {
-  static #timeout;
-  static #cursorVisible = !0;
-  static show() {
-    document.body && (document.body.style.cursor = "unset"), MouseCursorHider.#cursorVisible = !0;
-  }
-  static hide() {
-    document.body && (document.body.style.cursor = "none"), MouseCursorHider.#timeout = null, MouseCursorHider.#cursorVisible = !1;
-  }
-  static onMouseMove(e) {
-    !MouseCursorHider.#cursorVisible && MouseCursorHider.show(), MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout), MouseCursorHider.#timeout = window.setTimeout(MouseCursorHider.hide, 3000);
-  }
-  static start() {
-    MouseCursorHider.show(), document.addEventListener("mousemove", MouseCursorHider.onMouseMove);
-  }
-  static stop() {
-    MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout), document.removeEventListener("mousemove", MouseCursorHider.onMouseMove), MouseCursorHider.show();
-  }
+  return "???";
 }
 
 // src/modules/patches/controller-shortcuts.js
@@ -5445,6 +4380,9 @@ var expose_stream_session_default = "window.BX_EXPOSED.streamSession = this;\n\n
 // src/modules/patches/local-co-op-enable.js
 var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
 
+// src/modules/patches/set-currently-focused-interactable.js
+var set_currently_focused_interactable_default = "e && BxEvent.dispatch(window, BxEvent.NAVIGATION_FOCUS_CHANGED, {element: e});\n";
+
 // src/modules/patches/remote-play-enable.js
 var remote_play_enable_default = "connectMode: window.BX_REMOTE_PLAY_CONFIG ? \"xhome-connect\" : \"cloud-connect\",\nremotePlayServerId: (window.BX_REMOTE_PLAY_CONFIG && window.BX_REMOTE_PLAY_CONFIG.serverId) || '',\n";
 
@@ -5455,7 +4393,7 @@ var remote_play_keep_alive_default = "const msg = JSON.parse(e);\nif (msg.reason
 var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity === 0) {\n    return void(0);\n}\n\nif (intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
 
 // src/modules/patcher.ts
-var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG5 = "Patcher", PATCHES = {
+var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG4 = "Patcher", PATCHES = {
   disableAiTrack(str2) {
     const index = str2.indexOf(".track=function(");
     if (index === -1)
@@ -5597,7 +4535,7 @@ logFunc(logTag, '//', logMessage);
   loadingEndingChunks(str2) {
     if (!str2.includes('"FamilySagaManager"'))
       return !1;
-    return BxLogger.info(LOG_TAG5, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str2;
+    return BxLogger.info(LOG_TAG4, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str2;
   },
   disableStreamGate(str2) {
     const index = str2.indexOf('case"partially-ready":');
@@ -5849,6 +4787,12 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
       return !1;
     const commaIndex = str2.indexOf(",", index - 10);
     return str2 = str2.substring(0, commaIndex) + ",true" + str2.substring(index), str2;
+  },
+  patchSetCurrentlyFocusedInteractable(str2) {
+    let index = str2.indexOf(".setCurrentlyFocusedInteractable=(");
+    if (index === -1)
+      return !1;
+    return index = str2.indexOf("{", index) + 1, str2 = str2.substring(0, index) + set_currently_focused_interactable_default + str2.substring(index), str2;
   }
 }, PATCH_ORDERS = [
   ...getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" ? [
@@ -5925,7 +4869,7 @@ class Patcher {
       if (!valid)
         return nativeBind.apply(this, arguments);
       if (PatcherCache.init(), typeof arguments[1] === "function")
-        BxLogger.info(LOG_TAG5, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
+        BxLogger.info(LOG_TAG4, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
       const orgFunc = this, newFunc = (a, item2) => {
         Patcher.patch(item2), orgFunc(a, item2);
       };
@@ -5955,7 +4899,7 @@ class Patcher {
         const patchedStr = PATCHES[patchName].call(null, str);
         if (!patchedStr)
           continue;
-        modified = !0, str = patchedStr, BxLogger.info(LOG_TAG5, `✅ ${patchName}`), appliedPatches.push(patchName), patchesToCheck.splice(patchIndex, 1), patchIndex--, PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
+        modified = !0, str = patchedStr, BxLogger.info(LOG_TAG4, `✅ ${patchName}`), appliedPatches.push(patchName), patchesToCheck.splice(patchIndex, 1), patchIndex--, PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
       }
       if (modified)
         item[1][id] = eval(str);
@@ -5985,9 +4929,9 @@ class PatcherCache {
   static checkSignature() {
     const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0, currentSig = PatcherCache.#getSignature();
     if (currentSig !== parseInt(storedSig))
-      BxLogger.warning(LOG_TAG5, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
+      BxLogger.warning(LOG_TAG4, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
     else
-      BxLogger.info(LOG_TAG5, "Signature unchanged");
+      BxLogger.info(LOG_TAG4, "Signature unchanged");
   }
   static #cleanupPatches(patches) {
     return patches.filter((item2) => {
@@ -6016,11 +4960,11 @@ class PatcherCache {
   static init() {
     if (PatcherCache.#isInitialized)
       return;
-    if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG5, PatcherCache.#CACHE), window.location.pathname.includes("/play/"))
+    if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG4, PatcherCache.#CACHE), window.location.pathname.includes("/play/"))
       PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
     else
       PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
-    PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG5, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG5, PLAYING_PATCH_ORDERS.slice(0));
+    PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG4, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG4, PLAYING_PATCH_ORDERS.slice(0));
   }
 }
 
@@ -6134,9 +5078,9 @@ function setupSettingsUi() {
           setPref(settingId, e.target.value), onChange(e);
         }), selectedValue = PREF_PREFERRED_REGION, setting.options = {};
         for (let regionName in STATES.serverRegions) {
-          const region4 = STATES.serverRegions[regionName];
-          let value = regionName, label = `${region4.shortName} - ${regionName}`;
-          if (region4.isDefault) {
+          const region2 = STATES.serverRegions[regionName];
+          let value = regionName, label = `${region2.shortName} - ${regionName}`;
+          if (region2.isDefault) {
             if (label += ` (${t("default")})`, value = "default", selectedValue === regionName)
               selectedValue = "default";
           }
@@ -6146,7 +5090,7 @@ function setupSettingsUi() {
           const label = setting.options[value], $option = CE("option", { value }, label);
           $control.appendChild($option);
         }
-        $control.value = selectedValue;
+        $control.disabled = Object.keys(STATES.serverRegions).length === 0, $control.value = selectedValue;
       } else if (settingId === PrefKey.BETTER_XCLOUD_LOCALE)
         $control = toPrefElement(settingId, (e) => {
           localStorage.setItem("better_xcloud_locale", e.target.value), onChange(e);
@@ -6201,6 +5145,7 @@ var SETTINGS_UI = {
   "Better xCloud": {
     items: [
       PrefKey.BETTER_XCLOUD_LOCALE,
+      PrefKey.SERVER_BYPASS_RESTRICTION,
       PrefKey.REMOTE_PLAY_ENABLED
     ]
   },
@@ -6286,48 +5231,1140 @@ var SETTINGS_UI = {
 };
 
 // src/modules/ui/header.ts
-var injectSettingsButton = function($parent) {
-  if (!$parent)
-    return;
-  const PREF_PREFERRED_REGION = getPreferredServerRegion(!0), PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION), $headerFragment = document.createDocumentFragment();
-  if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
-    const $remotePlayBtn = createButton({
-      classes: ["bx-header-remote-play-button"],
-      icon: BxIcon.REMOTE_PLAY,
-      title: t("remote-play"),
-      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
-      onClick: (e) => {
-        RemotePlay.togglePopup();
-      }
-    });
-    $headerFragment.appendChild($remotePlayBtn);
-  }
-  const $settingsBtn = createButton({
+class HeaderSection {
+  static #$remotePlayBtn = createButton({
+    classes: ["bx-header-remote-play-button", "bx-gone"],
+    icon: BxIcon.REMOTE_PLAY,
+    title: t("remote-play"),
+    style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+    onClick: (e) => {
+      RemotePlay.togglePopup();
+    }
+  });
+  static #$settingsBtn = createButton({
     classes: ["bx-header-settings-button"],
-    label: PREF_PREFERRED_REGION,
+    label: "???",
     style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
     onClick: (e) => {
       setupSettingsUi(), document.querySelector(".bx-settings-container").classList.toggle("bx-gone"), window.scrollTo(0, 0), document.activeElement && document.activeElement.blur();
     }
   });
-  if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION)
-    $settingsBtn.setAttribute("data-update-available", "true");
-  $headerFragment.appendChild($settingsBtn), $parent.appendChild($headerFragment);
-};
-function checkHeader() {
-  if (!document.querySelector(".bx-header-settings-button")) {
-    const $rightHeader = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
-    injectSettingsButton($rightHeader);
+  static #$buttonsWrapper = CE("div", {}, getPref(PrefKey.REMOTE_PLAY_ENABLED) ? HeaderSection.#$remotePlayBtn : null, HeaderSection.#$settingsBtn);
+  static #observer;
+  static #injectSettingsButton($parent) {
+    if (!$parent)
+      return;
+    const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION), $settingsBtn = HeaderSection.#$settingsBtn;
+    if ($settingsBtn.querySelector("span").textContent = getPreferredServerRegion(!0), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION)
+      $settingsBtn.setAttribute("data-update-available", "true");
+    $parent.appendChild(HeaderSection.#$buttonsWrapper);
+  }
+  static checkHeader() {
+    if (!document.querySelector(".bx-header-settings-button")) {
+      const $rightHeader = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
+      HeaderSection.#injectSettingsButton($rightHeader);
+    }
+  }
+  static showRemotePlayButton() {
+    HeaderSection.#$remotePlayBtn.classList.remove("bx-gone");
+  }
+  static watchHeader() {
+    const $header = document.querySelector("#PageContent header");
+    if (!$header)
+      return;
+    let timeout;
+    HeaderSection.#observer && HeaderSection.#observer.disconnect(), HeaderSection.#observer = new MutationObserver((mutationList) => {
+      timeout && clearTimeout(timeout), timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
+    }), HeaderSection.#observer.observe($header, { subtree: !0, childList: !0 }), HeaderSection.checkHeader();
   }
 }
-function watchHeader() {
-  const $header = document.querySelector("#PageContent header");
-  if (!$header)
+
+// src/modules/remote-play.ts
+var LOG_TAG5 = "RemotePlay", RemotePlayConsoleState;
+(function(RemotePlayConsoleState2) {
+  RemotePlayConsoleState2["ON"] = "On";
+  RemotePlayConsoleState2["OFF"] = "Off";
+  RemotePlayConsoleState2["STANDBY"] = "ConnectedStandby";
+  RemotePlayConsoleState2["UNKNOWN"] = "Unknown";
+})(RemotePlayConsoleState || (RemotePlayConsoleState = {}));
+
+class RemotePlay {
+  static XCLOUD_TOKEN;
+  static XHOME_TOKEN;
+  static #CONSOLES;
+  static #REGIONS;
+  static #STATE_LABELS = {
+    [RemotePlayConsoleState.ON]: t("powered-on"),
+    [RemotePlayConsoleState.OFF]: t("powered-off"),
+    [RemotePlayConsoleState.STANDBY]: t("standby"),
+    [RemotePlayConsoleState.UNKNOWN]: t("unknown")
+  };
+  static BASE_DEVICE_INFO = {
+    appInfo: {
+      env: {
+        clientAppId: window.location.host,
+        clientAppType: "browser",
+        clientAppVersion: "21.1.98",
+        clientSdkVersion: "8.5.3",
+        httpEnvironment: "prod",
+        sdkInstallId: ""
+      }
+    },
+    dev: {
+      displayInfo: {
+        dimensions: {
+          widthInPixels: 1920,
+          heightInPixels: 1080
+        },
+        pixelDensity: {
+          dpiX: 1,
+          dpiY: 1
+        }
+      },
+      hw: {
+        make: "Microsoft",
+        model: "unknown",
+        sdktype: "web"
+      },
+      os: {
+        name: "windows",
+        ver: "22631.2715",
+        platform: "desktop"
+      },
+      browser: {
+        browserName: "chrome",
+        browserVersion: "119.0"
+      }
+    }
+  };
+  static #$content;
+  static #initialize() {
+    if (RemotePlay.#$content)
+      return;
+    RemotePlay.#$content = CE("div", {}, t("getting-consoles-list")), RemotePlay.#getXhomeToken(() => {
+      RemotePlay.#getConsolesList(() => {
+        if (BxLogger.info(LOG_TAG5, "Consoles", RemotePlay.#CONSOLES), RemotePlay.#CONSOLES && RemotePlay.#CONSOLES.length > 0)
+          STATES.supportedRegion && HeaderSection.showRemotePlayButton();
+        RemotePlay.#renderConsoles(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+      });
+    });
+  }
+  static #renderConsoles() {
+    const $fragment = CE("div", { class: "bx-remote-play-container" });
+    if (!RemotePlay.#CONSOLES || RemotePlay.#CONSOLES.length === 0) {
+      $fragment.appendChild(CE("span", {}, t("no-consoles-found"))), RemotePlay.#$content = CE("div", {}, $fragment);
+      return;
+    }
+    const $settingNote = CE("p", {}), resolutions = [1080, 720], currentResolution = getPref(PrefKey.REMOTE_PLAY_RESOLUTION), $resolutionGroup = CE("div", {});
+    for (let resolution of resolutions) {
+      const value = `${resolution}p`, id2 = `bx_radio_xhome_resolution_${resolution}`, $radio = CE("input", {
+        type: "radio",
+        value,
+        id: id2,
+        name: "bx_radio_xhome_resolution"
+      }, value);
+      $radio.addEventListener("change", (e) => {
+        const value2 = e.target.value;
+        $settingNote.textContent = value2 === "1080p" ? "✅ " + t("can-stream-xbox-360-games") : "❌ " + t("cant-stream-xbox-360-games"), setPref(PrefKey.REMOTE_PLAY_RESOLUTION, value2);
+      });
+      const $label = CE("label", {
+        for: id2,
+        class: "bx-remote-play-resolution"
+      }, $radio, `${resolution}p`);
+      if ($resolutionGroup.appendChild($label), currentResolution === value)
+        $radio.checked = !0, $radio.dispatchEvent(new Event("change"));
+    }
+    const $qualitySettings = CE("div", { class: "bx-remote-play-settings" }, CE("div", {}, CE("label", {}, t("target-resolution"), $settingNote), $resolutionGroup));
+    $fragment.appendChild($qualitySettings);
+    for (let con of RemotePlay.#CONSOLES) {
+      const $child = CE("div", { class: "bx-remote-play-device-wrapper" }, CE("div", { class: "bx-remote-play-device-info" }, CE("div", {}, CE("span", { class: "bx-remote-play-device-name" }, con.deviceName), CE("span", { class: "bx-remote-play-console-type" }, con.consoleType.replace("Xbox", ""))), CE("div", { class: "bx-remote-play-power-state" }, RemotePlay.#STATE_LABELS[con.powerState])), createButton({
+        classes: ["bx-remote-play-connect-button"],
+        label: t("console-connect"),
+        style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE,
+        onClick: (e) => {
+          RemotePlay.play(con.serverId);
+        }
+      }));
+      $fragment.appendChild($child);
+    }
+    $fragment.appendChild(createButton({
+      icon: BxIcon.QUESTION,
+      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+      url: "https://better-xcloud.github.io/remote-play",
+      label: t("help")
+    })), RemotePlay.#$content = CE("div", {}, $fragment);
+  }
+  static #getXhomeToken(callback) {
+    if (RemotePlay.XHOME_TOKEN) {
+      callback();
+      return;
+    }
+    let GSSV_TOKEN;
+    try {
+      GSSV_TOKEN = JSON.parse(localStorage.getItem("xboxcom_xbl_user_info")).tokens["http://gssv.xboxlive.com/"].token;
+    } catch (e) {
+      for (let i = 0;i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key.startsWith("Auth.User."))
+          continue;
+        const json = JSON.parse(localStorage.getItem(key));
+        for (let token of json.tokens) {
+          if (!token.relyingParty.includes("gssv.xboxlive.com"))
+            continue;
+          GSSV_TOKEN = token.tokenData.token;
+          break;
+        }
+        break;
+      }
+    }
+    const request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
+      method: "POST",
+      body: JSON.stringify({
+        offeringId: "xhome",
+        token: GSSV_TOKEN
+      }),
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    });
+    fetch(request).then((resp) => resp.json()).then((json) => {
+      RemotePlay.#REGIONS = json.offeringSettings.regions, RemotePlay.XHOME_TOKEN = json.gsToken, callback();
+    });
+  }
+  static async#getConsolesList(callback) {
+    if (RemotePlay.#CONSOLES) {
+      callback();
+      return;
+    }
+    const options = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${RemotePlay.XHOME_TOKEN}`
+      }
+    };
+    for (let region3 of RemotePlay.#REGIONS) {
+      try {
+        const request = new Request(`${region3.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
+        RemotePlay.#CONSOLES = json.results, STATES.remotePlay.server = region3.baseUri, callback();
+      } catch (e) {
+      }
+      if (RemotePlay.#CONSOLES)
+        break;
+    }
+    if (!STATES.remotePlay.server)
+      RemotePlay.#CONSOLES = [];
+  }
+  static play(serverId, resolution) {
+    if (resolution)
+      setPref(PrefKey.REMOTE_PLAY_RESOLUTION, resolution);
+    STATES.remotePlay.config = {
+      serverId
+    }, window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, localRedirect("/launch/fortnite/BT5P2X999VH2#remote-play"), RemotePlay.detachPopup();
+  }
+  static preload() {
+    RemotePlay.#initialize();
+  }
+  static detachPopup() {
+    const $popup = document.querySelector(".bx-remote-play-popup");
+    $popup && $popup.remove();
+  }
+  static togglePopup(force = null) {
+    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED) || !RemotePlay.isReady()) {
+      Toast.show(t("getting-consoles-list"));
+      return;
+    }
+    if (RemotePlay.#initialize(), AppInterface && AppInterface.showRemotePlayDialog) {
+      AppInterface.showRemotePlayDialog(JSON.stringify(RemotePlay.#CONSOLES)), document.activeElement.blur();
+      return;
+    }
+    if (document.querySelector(".bx-remote-play-popup")) {
+      if (force === !1)
+        RemotePlay.#$content.classList.add("bx-gone");
+      else
+        RemotePlay.#$content.classList.toggle("bx-gone");
+      return;
+    }
+    const $header = document.querySelector("#gamepass-root header"), group = $header.firstElementChild.getAttribute("data-group");
+    RemotePlay.#$content.setAttribute("data-group", group), RemotePlay.#$content.classList.add("bx-remote-play-popup"), RemotePlay.#$content.classList.remove("bx-gone"), $header.insertAdjacentElement("afterend", RemotePlay.#$content);
+  }
+  static detect() {
+    if (!getPref(PrefKey.REMOTE_PLAY_ENABLED))
+      return;
+    if (STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play"), STATES.remotePlay?.isPlaying)
+      window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
+    else
+      window.BX_REMOTE_PLAY_CONFIG = null;
+  }
+  static isReady() {
+    return RemotePlay.#CONSOLES !== null && RemotePlay.#CONSOLES.length > 0;
+  }
+}
+
+// src/utils/xhome-interceptor.ts
+class XhomeInterceptor {
+  static #consoleAddrs = {};
+  static async#handleLogin(request) {
+    try {
+      const obj = await request.clone().json();
+      obj.offeringId = "xhome", request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
+        method: "POST",
+        body: JSON.stringify(obj),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+    } catch (e) {
+      alert(e), console.log(e);
+    }
+    return NATIVE_FETCH(request);
+  }
+  static async#handleConfiguration(request) {
+    const response = await NATIVE_FETCH(request), obj = await response.clone().json();
+    console.log(obj);
+    const serverDetails = obj.serverDetails;
+    if (serverDetails.ipAddress)
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = serverDetails.port;
+    if (serverDetails.ipV4Address)
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
+    if (serverDetails.ipV6Address)
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
+  }
+  static async#handleInputConfigs(request, opts) {
+    const response = await NATIVE_FETCH(request);
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== "all")
+      return response;
+    const obj = await response.clone().json(), xboxTitleId = JSON.parse(opts.body).titleIds[0];
+    STATES.currentStream.xboxTitleId = xboxTitleId;
+    const inputConfigs = obj[0];
+    let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
+    if (!hasTouchSupport) {
+      const supportedInputTypes = inputConfigs.supportedInputTypes;
+      hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
+    }
+    if (hasTouchSupport)
+      TouchController.disable(), BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+        data: null
+      });
+    else
+      TouchController.enable(), TouchController.getCustomLayouts(xboxTitleId);
+    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
+  }
+  static async#handleTitles(request) {
+    const clone = request.clone(), headers = {};
+    for (let pair of clone.headers.entries())
+      headers[pair[0]] = pair[1];
+    headers.authorization = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
+    const index = request.url.indexOf(".xboxlive.com");
+    return request = new Request("https://wus.core.gssv-play-prod" + request.url.substring(index), {
+      method: clone.method,
+      body: await clone.text(),
+      headers
+    }), NATIVE_FETCH(request);
+  }
+  static async#handlePlay(request) {
+    const body = await request.clone().json(), newRequest = new Request(request, {
+      body: JSON.stringify(body)
+    });
+    return NATIVE_FETCH(newRequest);
+  }
+  static async handle(request) {
+    TouchController.disable();
+    const clone = request.clone(), headers = {};
+    for (let pair of clone.headers.entries())
+      headers[pair[0]] = pair[1];
+    headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+    const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
+    if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === "720p")
+      deviceInfo.dev.os.name = "android";
+    headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
+    const opts = {
+      method: clone.method,
+      headers
+    };
+    if (clone.method === "POST")
+      opts.body = await clone.text();
+    let newUrl = request.url;
+    if (!newUrl.includes("/servers/home")) {
+      const index = request.url.indexOf(".xboxlive.com");
+      newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
+    }
+    request = new Request(newUrl, opts);
+    let url = typeof request === "string" ? request : request.url;
+    if (url.includes("/configuration"))
+      return XhomeInterceptor.#handleConfiguration(request);
+    else if (url.endsWith("/sessions/home/play"))
+      return XhomeInterceptor.#handlePlay(request);
+    else if (url.includes("inputconfigs"))
+      return XhomeInterceptor.#handleInputConfigs(request, opts);
+    else if (url.includes("/login/user"))
+      return XhomeInterceptor.#handleLogin(request);
+    else if (url.endsWith("/titles"))
+      return XhomeInterceptor.#handleTitles(request);
+    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
+      return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
+    return await NATIVE_FETCH(request);
+  }
+}
+
+// src/modules/loading-screen.ts
+class LoadingScreen {
+  static #$bgStyle;
+  static #$waitTimeBox;
+  static #waitTimeInterval = null;
+  static #orgWebTitle;
+  static #secondsToString(seconds) {
+    const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60), mDisplay = m > 0 ? `${m}m` : "", sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
+    return mDisplay + sDisplay;
+  }
+  static setup() {
+    const titleInfo = STATES.currentStream.titleInfo;
+    if (!titleInfo)
+      return;
+    if (!LoadingScreen.#$bgStyle) {
+      const $bgStyle = CE("style");
+      document.documentElement.appendChild($bgStyle), LoadingScreen.#$bgStyle = $bgStyle;
+    }
+    if (LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide")
+      LoadingScreen.#hideRocket();
+  }
+  static #hideRocket() {
+    let $bgStyle = LoadingScreen.#$bgStyle;
+    const css = `
+#game-stream div[class*=RocketAnimation-module__container] > svg {
+    display: none;
+}
+
+#game-stream video[class*=RocketAnimationVideo-module__video] {
+    display: none;
+}
+`;
+    $bgStyle.textContent += css;
+  }
+  static #setBackground(imageUrl) {
+    let $bgStyle = LoadingScreen.#$bgStyle;
+    imageUrl = imageUrl + "?w=1920";
+    const css = `
+#game-stream {
+    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
+    background-color: transparent !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: cover !important;
+}
+
+#game-stream rect[width="800"] {
+    transition: opacity 0.3s ease-in-out !important;
+}
+`;
+    $bgStyle.textContent += css;
+    const bg = new Image;
+    bg.onload = (e) => {
+      $bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 0 !important;
+}
+`;
+    }, bg.src = imageUrl;
+  }
+  static setupWaitTime(waitTime) {
+    if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === "hide-queue")
+      LoadingScreen.#hideRocket();
+    let secondsLeft = waitTime, $countDown, $estimated;
+    LoadingScreen.#orgWebTitle = document.title;
+    const endDate = new Date, timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
+    endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
+    let endDateStr = endDate.toISOString().slice(0, 19);
+    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
+    if (!$waitTimeBox)
+      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    else
+      $waitTimeBox.classList.remove("bx-gone"), $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated"), $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
+    $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, LoadingScreen.#waitTimeInterval = window.setInterval(() => {
+      if (secondsLeft--, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, secondsLeft <= 0)
+        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
+    }, 1000);
+  }
+  static hide() {
+    if (LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
+      const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
+      $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
+        LoadingScreen.#$bgStyle.textContent += `
+#game-stream {
+    background: #000 !important;
+}
+`;
+      }), LoadingScreen.#$bgStyle.textContent += `
+#game-stream rect[width="800"] {
+    opacity: 1 !important;
+}
+`;
+    }
+    setTimeout(LoadingScreen.reset, 2000);
+  }
+  static reset() {
+    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = ""), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
+  }
+}
+
+// src/modules/stream/stream-badges.ts
+var StreamBadge;
+(function(StreamBadge2) {
+  StreamBadge2["PLAYTIME"] = "playtime";
+  StreamBadge2["BATTERY"] = "battery";
+  StreamBadge2["DOWNLOAD"] = "in";
+  StreamBadge2["UPLOAD"] = "out";
+  StreamBadge2["SERVER"] = "server";
+  StreamBadge2["VIDEO"] = "video";
+  StreamBadge2["AUDIO"] = "audio";
+})(StreamBadge || (StreamBadge = {}));
+var StreamBadgeIcon = {
+  [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
+  [StreamBadge.VIDEO]: BxIcon.DISPLAY,
+  [StreamBadge.BATTERY]: BxIcon.BATTERY,
+  [StreamBadge.DOWNLOAD]: BxIcon.DOWNLOAD,
+  [StreamBadge.UPLOAD]: BxIcon.UPLOAD,
+  [StreamBadge.SERVER]: BxIcon.SERVER,
+  [StreamBadge.AUDIO]: BxIcon.AUDIO
+};
+
+class StreamBadges {
+  static instance;
+  static getInstance() {
+    if (!StreamBadges.instance)
+      StreamBadges.instance = new StreamBadges;
+    return StreamBadges.instance;
+  }
+  #ipv6 = !1;
+  #resolution = null;
+  #video = null;
+  #audio = null;
+  #region = "";
+  startBatteryLevel = 100;
+  startTimestamp = 0;
+  #$container;
+  #cachedDoms = {};
+  #interval;
+  #REFRESH_INTERVAL = 3000;
+  setRegion(region4) {
+    this.#region = region4;
+  }
+  #renderBadge(name, value, color) {
+    let $badge;
+    if (this.#cachedDoms[name])
+      return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
+    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === StreamBadge.BATTERY)
+      $badge.classList.add("bx-badge-battery");
+    return this.#cachedDoms[name] = $badge, $badge;
+  }
+  async#updateBadges(forceUpdate = !1) {
+    if (!this.#$container || !forceUpdate && !this.#$container.isConnected) {
+      this.#stop();
+      return;
+    }
+    let now = +new Date;
+    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
+    let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
+    if (STATES.browser.capabilities.batteryApi)
+      try {
+        const bm = await navigator.getBattery();
+        if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
+          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
+          batteryLevel += ` (${sign}${diffLevel}%)`;
+        }
+      } catch (e) {
+      }
+    const stats = await STATES.currentStream.peerConnection?.getStats();
+    let totalIn = 0, totalOut = 0;
+    stats.forEach((stat) => {
+      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
+        totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
+    });
+    const badges = {
+      [StreamBadge.DOWNLOAD]: totalIn ? this.#humanFileSize(totalIn) : null,
+      [StreamBadge.UPLOAD]: totalOut ? this.#humanFileSize(totalOut) : null,
+      [StreamBadge.PLAYTIME]: playtime,
+      [StreamBadge.BATTERY]: batteryLevel
+    };
+    let name;
+    for (name in badges) {
+      const value = badges[name];
+      if (value === null)
+        continue;
+      const $elm = this.#cachedDoms[name];
+      if ($elm && ($elm.lastElementChild.textContent = value), name === StreamBadge.BATTERY)
+        if (this.startBatteryLevel === 100 && batteryLevelInt === 100)
+          $elm.classList.add("bx-gone");
+        else
+          $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
+    }
+  }
+  async#start() {
+    await this.#updateBadges(!0), this.#stop(), this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
+  }
+  #stop() {
+    this.#interval && clearInterval(this.#interval), this.#interval = null;
+  }
+  #secondsToHm(seconds) {
+    let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
+    if (m === 60)
+      h += 1, m = 0;
+    const output = [];
+    return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
+  }
+  #humanFileSize(size) {
+    const units = ["B", "KB", "MB", "GB", "TB"], i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+    return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
+  }
+  async render() {
+    if (this.#$container)
+      return this.#start(), this.#$container;
+    await this.#getServerStats();
+    let video = "";
+    if (this.#resolution)
+      video = `${this.#resolution.height}p`;
+    if (this.#video) {
+      if (video && (video += "/"), video += this.#video.codec, this.#video.profile) {
+        const profile = this.#video.profile;
+        let quality = profile;
+        if (profile.startsWith("4d"))
+          quality = t("visual-quality-high");
+        else if (profile.startsWith("42e"))
+          quality = t("visual-quality-normal");
+        else if (profile.startsWith("420"))
+          quality = t("visual-quality-low");
+        video += ` (${quality})`;
+      }
+    }
+    let audio;
+    if (this.#audio) {
+      audio = this.#audio.codec;
+      const bitrate = this.#audio.bitrate / 1000;
+      audio += ` (${bitrate} kHz)`;
+    }
+    let batteryLevel = "";
+    if (STATES.browser.capabilities.batteryApi)
+      batteryLevel = "100%";
+    let server = this.#region;
+    server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
+    const BADGES = [
+      [StreamBadge.PLAYTIME, "1m", "#ff004d"],
+      [StreamBadge.BATTERY, batteryLevel, "#00b543"],
+      [StreamBadge.DOWNLOAD, this.#humanFileSize(0), "#29adff"],
+      [StreamBadge.UPLOAD, this.#humanFileSize(0), "#ff77a8"],
+      [StreamBadge.SERVER, server, "#ff6c24"],
+      video ? [StreamBadge.VIDEO, video, "#742f29"] : null,
+      audio ? [StreamBadge.AUDIO, audio, "#5f574f"] : null
+    ], $container = CE("div", { class: "bx-badges" });
+    return BADGES.forEach((item2) => {
+      if (!item2)
+        return;
+      const $badge = this.#renderBadge(...item2);
+      $container.appendChild($badge);
+    }), this.#$container = $container, await this.#start(), $container;
+  }
+  async#getServerStats() {
+    const stats = await STATES.currentStream.peerConnection.getStats(), allVideoCodecs = {};
+    let videoCodecId;
+    const allAudioCodecs = {};
+    let audioCodecId;
+    const allCandidates = {};
+    let candidateId;
+    if (stats.forEach((stat) => {
+      if (stat.type === "codec") {
+        const mimeType = stat.mimeType.split("/")[0];
+        if (mimeType === "video")
+          allVideoCodecs[stat.id] = stat;
+        else if (mimeType === "audio")
+          allAudioCodecs[stat.id] = stat;
+      } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
+        if (stat.kind === "video")
+          videoCodecId = stat.codecId;
+        else if (stat.kind === "audio")
+          audioCodecId = stat.codecId;
+      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
+        candidateId = stat.remoteCandidateId;
+      else if (stat.type === "remote-candidate")
+        allCandidates[stat.id] = stat.address;
+    }), videoCodecId) {
+      const videoStat = allVideoCodecs[videoCodecId], video = {
+        codec: videoStat.mimeType.substring(6)
+      };
+      if (video.codec === "H264") {
+        const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
+        video.profile = match ? match[1] : null;
+      }
+      this.#video = video;
+    }
+    if (audioCodecId) {
+      const audioStat = allAudioCodecs[audioCodecId];
+      this.#audio = {
+        codec: audioStat.mimeType.substring(6),
+        bitrate: audioStat.clockRate
+      };
+    }
+    if (candidateId)
+      BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
+  }
+  static setupEvents() {
+    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+      const $video = e.$video, streamBadges = StreamBadges.getInstance();
+      streamBadges.#resolution = {
+        width: $video.videoWidth,
+        height: $video.videoHeight
+      }, streamBadges.startTimestamp = +new Date;
+      try {
+        STATES.browser.capabilities.batteryApi && navigator.getBattery().then((bm) => {
+          streamBadges.startBatteryLevel = Math.round(bm.level * 100);
+        });
+      } catch (e2) {
+      }
+    });
+  }
+}
+
+// src/utils/xcloud-interceptor.ts
+class XcloudInterceptor {
+  static async#handleLogin(request, init) {
+    if (getPref(PrefKey.SERVER_BYPASS_RESTRICTION))
+      request.headers.set("X-Forwarded-For", "9.9.9.9");
+    const response = await NATIVE_FETCH(request, init);
+    if (response.status !== 200)
+      return BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE), response;
+    const obj = await response.clone().json();
+    RemotePlay.XCLOUD_TOKEN = obj.gsToken;
+    const serverEmojis = {
+      AustraliaEast: "🇦🇺",
+      AustraliaSouthEast: "🇦🇺",
+      BrazilSouth: "🇧🇷",
+      EastUS: "🇺🇸",
+      EastUS2: "🇺🇸",
+      JapanEast: "🇯🇵",
+      KoreaCentral: "🇰🇷",
+      MexicoCentral: "🇲🇽",
+      NorthCentralUs: "🇺🇸",
+      SouthCentralUS: "🇺🇸",
+      UKSouth: "🇬🇧",
+      WestEurope: "🇪🇺",
+      WestUS: "🇺🇸",
+      WestUS2: "🇺🇸"
+    }, serverRegex = /\/\/(\w+)\./;
+    for (let region5 of obj.offeringSettings.regions) {
+      const regionName = region5.name;
+      let shortName = region5.name, match = serverRegex.exec(region5.baseUri);
+      if (match) {
+        if (shortName = match[1], serverEmojis[regionName])
+          shortName = serverEmojis[regionName] + " " + shortName;
+      }
+      region5.shortName = shortName.toUpperCase(), STATES.serverRegions[region5.name] = Object.assign({}, region5);
+    }
+    BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
+    const preferredRegion = getPreferredServerRegion();
+    if (preferredRegion in STATES.serverRegions) {
+      const tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
+      tmp.isDefault = !0, obj.offeringSettings.regions = [tmp];
+    }
+    return response.json = () => Promise.resolve(obj), response;
+  }
+  static async#handlePlay(request, init) {
+    const PREF_STREAM_TARGET_RESOLUTION = getPref(PrefKey.STREAM_TARGET_RESOLUTION), PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url);
+    let badgeRegion = parsedUrl.host.split(".", 1)[0];
+    for (let regionName in STATES.serverRegions) {
+      const region5 = STATES.serverRegions[regionName];
+      if (parsedUrl.origin == region5.baseUri) {
+        badgeRegion = regionName;
+        break;
+      }
+    }
+    StreamBadges.getInstance().setRegion(badgeRegion);
+    const body = await request.clone().json();
+    if (PREF_STREAM_TARGET_RESOLUTION !== "auto") {
+      const osName = PREF_STREAM_TARGET_RESOLUTION === "720p" ? "android" : "windows";
+      body.settings.osName = osName;
+    }
+    if (PREF_STREAM_PREFERRED_LOCALE !== "default")
+      body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
+    const newRequest = new Request(request, {
+      body: JSON.stringify(body)
+    });
+    return NATIVE_FETCH(newRequest);
+  }
+  static async#handleWaitTime(request, init) {
+    const response = await NATIVE_FETCH(request, init);
+    if (getPref(PrefKey.UI_LOADING_SCREEN_WAIT_TIME)) {
+      const json = await response.clone().json();
+      if (json.estimatedAllocationTimeInSeconds > 0)
+        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
+    }
+    return response;
+  }
+  static async#handleConfiguration(request, init) {
+    if (request.method !== "GET")
+      return NATIVE_FETCH(request, init);
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === "all")
+      if (STATES.currentStream.titleInfo?.details.hasTouchSupport)
+        TouchController.disable();
+      else
+        TouchController.enable();
+    const response = await NATIVE_FETCH(request, init), text = await response.clone().text();
+    if (!text.length)
+      return response;
+    const obj = JSON.parse(text);
+    let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
+    overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
+    let overrideMkb = null;
+    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "on" || STATES.currentStream.titleInfo && BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId))
+      overrideMkb = !0;
+    if (getPref(PrefKey.NATIVE_MKB_ENABLED) === "off")
+      overrideMkb = !1;
+    if (overrideMkb !== null)
+      overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
+        enableMouseInput: overrideMkb,
+        enableKeyboardInput: overrideMkb
+      });
+    if (TouchController.isEnabled())
+      overrides.inputConfiguration.enableTouchInput = !0, overrides.inputConfiguration.maxTouchPoints = 10;
+    if (getPref(PrefKey.AUDIO_MIC_ON_PLAYING))
+      overrides.audioConfiguration = overrides.audioConfiguration || {}, overrides.audioConfiguration.enableMicrophone = !0;
+    return obj.clientStreamingConfigOverrides = JSON.stringify(overrides), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
+  }
+  static async handle(request, init) {
+    let url = typeof request === "string" ? request : request.url;
+    if (url.endsWith("/v2/login/user"))
+      return XcloudInterceptor.#handleLogin(request, init);
+    else if (url.endsWith("/sessions/cloud/play"))
+      return XcloudInterceptor.#handlePlay(request, init);
+    else if (url.includes("xboxlive.com") && url.includes("/waittime/"))
+      return XcloudInterceptor.#handleWaitTime(request, init);
+    else if (url.endsWith("/configuration"))
+      return XcloudInterceptor.#handleConfiguration(request, init);
+    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
+      return patchIceCandidates(request);
+    return NATIVE_FETCH(request, init);
+  }
+}
+
+// src/utils/network.ts
+var clearApplicationInsightsBuffers = function() {
+  window.sessionStorage.removeItem("AI_buffer"), window.sessionStorage.removeItem("AI_sentBuffer");
+}, clearDbLogs = function(dbName, table) {
+  const request = window.indexedDB.open(dbName);
+  request.onsuccess = (e) => {
+    const db = e.target.result;
+    try {
+      const objectStoreRequest = db.transaction(table, "readwrite").objectStore(table).clear();
+      objectStoreRequest.onsuccess = function() {
+        console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
+      };
+    } catch (ex) {
+    }
+  };
+}, clearAllLogs = function() {
+  clearApplicationInsightsBuffers(), clearDbLogs("StreamClientLogHandler", "logs"), clearDbLogs("XCloudAppLogs", "logs");
+}, updateIceCandidates = function(candidates, options) {
+  const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/), lst = [];
+  for (let item2 of candidates) {
+    if (item2.candidate == "a=end-of-candidates")
+      continue;
+    const groups = pattern.exec(item2.candidate).groups;
+    lst.push(groups);
+  }
+  if (options.preferIpv6Server)
+    lst.sort((a, b) => {
+      const firstIp = a.ip, secondIp = b.ip;
+      return !firstIp.includes(":") && secondIp.includes(":") ? 1 : -1;
+    });
+  const newCandidates = [];
+  let foundation = 1;
+  const newCandidate = (candidate) => {
+    return {
+      candidate,
+      messageType: "iceCandidate",
+      sdpMLineIndex: "0",
+      sdpMid: "0"
+    };
+  };
+  if (lst.forEach((item2) => {
+    item2.foundation = foundation, item2.priority = foundation == 1 ? 2130706431 : 1, newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`)), ++foundation;
+  }), options.consoleAddrs)
+    for (let ip in options.consoleAddrs) {
+      const port = options.consoleAddrs[ip];
+      newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
+    }
+  return newCandidates.push(newCandidate("a=end-of-candidates")), BxLogger.info("ICE Candidates", newCandidates), newCandidates;
+};
+async function patchIceCandidates(request, consoleAddrs) {
+  const response = await NATIVE_FETCH(request), text = await response.clone().text();
+  if (!text.length)
+    return response;
+  const options = {
+    preferIpv6Server: getPref(PrefKey.PREFER_IPV6_SERVER),
+    consoleAddrs
+  }, obj = JSON.parse(text);
+  let exchangeResponse = JSON.parse(obj.exchangeResponse);
+  return exchangeResponse = updateIceCandidates(exchangeResponse, options), obj.exchangeResponse = JSON.stringify(exchangeResponse), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
+}
+function interceptHttpRequests() {
+  let BLOCKED_URLS = [];
+  if (getPref(PrefKey.BLOCK_TRACKING))
+    clearAllLogs(), BLOCKED_URLS = BLOCKED_URLS.concat([
+      "https://arc.msn.com",
+      "https://browser.events.data.microsoft.com",
+      "https://dc.services.visualstudio.com",
+      "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
+    ]);
+  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
+    BLOCKED_URLS = BLOCKED_URLS.concat([
+      "https://peoplehub.xboxlive.com/users/me/people/social",
+      "https://peoplehub.xboxlive.com/users/me/people/recommendations",
+      "https://xblmessaging.xboxlive.com/network/xbox/users/me/inbox"
+    ]);
+  const xhrPrototype = XMLHttpRequest.prototype, nativeXhrOpen = xhrPrototype.open, nativeXhrSend = xhrPrototype.send;
+  xhrPrototype.open = function(method, url) {
+    return this._url = url, nativeXhrOpen.apply(this, arguments);
+  }, xhrPrototype.send = function(...arg) {
+    for (let blocked of BLOCKED_URLS)
+      if (this._url.startsWith(blocked)) {
+        if (blocked === "https://dc.services.visualstudio.com")
+          window.setTimeout(clearAllLogs, 1000);
+        return !1;
+      }
+    return nativeXhrSend.apply(this, arguments);
+  };
+  let gamepassAllGames = [];
+  window.BX_FETCH = window.fetch = async (request, init) => {
+    let url = typeof request === "string" ? request : request.url;
+    for (let blocked of BLOCKED_URLS) {
+      if (!url.startsWith(blocked))
+        continue;
+      return new Response('{"acc":1,"webResult":{}}', {
+        status: 200,
+        statusText: "200 OK"
+      });
+    }
+    if (url.endsWith("/play"))
+      BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+    if (url.endsWith("/configuration"))
+      BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+    if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation"))
+      try {
+        const response = await NATIVE_FETCH(request, init), json = await response.json();
+        if (json && json.exp && json.exp.treatments)
+          for (let key in FeatureGates)
+            json.exp.treatments[key] = FeatureGates[key];
+        return response.json = () => Promise.resolve(json), response;
+      } catch (e) {
+        console.log(e);
+      }
+    if (STATES.userAgent.capabilities.touch && url.includes("catalog.gamepass.com/sigls/")) {
+      const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
+      if (url.includes(GamePassCloudGallery.ALL))
+        for (let i = 1;i < obj.length; i++)
+          gamepassAllGames.push(obj[i].id);
+      else if (url.includes(GamePassCloudGallery.TOUCH))
+        try {
+          let customList = TouchController.getCustomList();
+          customList = customList.filter((id2) => gamepassAllGames.includes(id2));
+          const newCustomList = customList.map((item2) => ({ id: item2 }));
+          obj.push(...newCustomList);
+        } catch (e) {
+          console.log(e);
+        }
+      return response.json = () => Promise.resolve(obj), response;
+    }
+    if (BX_FLAGS.ForceNativeMkbTitles && url.includes("catalog.gamepass.com/sigls/") && url.includes(GamePassCloudGallery.NATIVE_MKB)) {
+      const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
+      try {
+        const newCustomList = BX_FLAGS.ForceNativeMkbTitles.map((item2) => ({ id: item2 }));
+        obj.push(...newCustomList);
+      } catch (e) {
+        console.log(e);
+      }
+      return response.json = () => Promise.resolve(obj), response;
+    }
+    let requestType;
+    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs"))
+      requestType = RequestType.XHOME;
+    else
+      requestType = RequestType.XCLOUD;
+    if (requestType === RequestType.XHOME)
+      return XhomeInterceptor.handle(request);
+    return XcloudInterceptor.handle(request, init);
+  };
+}
+var RequestType;
+(function(RequestType2) {
+  RequestType2["XCLOUD"] = "xcloud";
+  RequestType2["XHOME"] = "xhome";
+})(RequestType || (RequestType = {}));
+
+// src/utils/gamepad.ts
+function showGamepadToast(gamepad) {
+  if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
     return;
-  let timeout;
-  new MutationObserver((mutationList) => {
-    timeout && clearTimeout(timeout), timeout = window.setTimeout(checkHeader, 2000);
-  }).observe($header, { subtree: !0, childList: !0 }), checkHeader();
+  BxLogger.info("Gamepad", gamepad);
+  let text = "🎮";
+  if (getPref(PrefKey.LOCAL_CO_OP_ENABLED))
+    text += ` #${gamepad.index + 1}`;
+  const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, "");
+  text += ` - ${gamepadId}`;
+  let status;
+  if (gamepad.connected)
+    status = (gamepad.vibrationActuator ? "✅" : "❌") + " " + t("vibration-status");
+  else
+    status = t("disconnected");
+  Toast.show(text, status, { instant: !1 });
+}
+
+// src/utils/css.ts
+function addCss() {
+  let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:36px;--bx-default-button-color:#2d3036;--bx-default-button-hover-color:#515863;--bx-default-button-disabled-color:#8e8e8e;--bx-primary-button-color:#008746;--bx-primary-button-hover-color:#04b358;--bx-primary-button-disabled-color:#448262;--bx-danger-button-color:#c10404;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-disabled-color:#a26c6c;--bx-toast-z-index:9999;--bx-dialog-z-index:9101;--bx-dialog-overlay-z-index:9100;--bx-remote-play-popup-z-index:9090;--bx-stats-bar-z-index:9010;--bx-stream-settings-z-index:9001;--bx-mkb-pointer-lock-msg-z-index:9000;--bx-stream-settings-overlay-z-index:8999;--bx-game-bar-z-index:8888;--bx-wait-time-box-z-index:100;--bx-screenshot-animation-z-index:1}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:600px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-button{background-color:var(--bx-default-button-color);user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:focus{outline:none !important}.bx-button:hover,.bx-button.bx-focusable:focus{background-color:var(--bx-default-button-hover-color)}.bx-button:disabled{cursor:default;background-color:var(--bx-default-button-disabled-color)}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:hover,.bx-button.bx-ghost.bx-focusable:focus{background-color:var(--bx-default-button-hover-color)}.bx-button.bx-primary{background-color:var(--bx-primary-button-color)}.bx-button.bx-primary:hover,.bx-button.bx-primary.bx-focusable:focus{background-color:var(--bx-primary-button-hover-color)}.bx-button.bx-primary:disabled{background-color:var(--bx-primary-button-disabled-color)}.bx-button.bx-danger{background-color:var(--bx-danger-button-color)}.bx-button.bx-danger:hover,.bx-button.bx-danger.bx-focusable:focus{background-color:var(--bx-danger-button-hover-color)}.bx-button.bx-danger:disabled{background-color:var(--bx-danger-button-disabled-color)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button svg:not(:only-child){margin-right:4px}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button.bx-focusable{position:relative}.bx-button.bx-focusable::after{border:2px solid transparent;border-radius:4px}.bx-button.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:0;left:0;right:0;bottom:0}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:46px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-settings-reload-button{margin-top:10px}.bx-settings-container{background-color:#151515;user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-normal-font)}@media (hover:hover){.bx-settings-wrapper a.bx-settings-title:hover{color:#83f73a}}.bx-settings-wrapper{width:450px;margin:auto;padding:12px 6px}@media screen and (max-width:450px){.bx-settings-wrapper{width:100%}}.bx-settings-wrapper *:focus{outline:none !important}.bx-settings-wrapper .bx-top-buttons .bx-button{display:block;margin-bottom:8px}.bx-settings-wrapper .bx-settings-title-wrapper{display:flex;margin-bottom:10px;align-items:center}.bx-settings-wrapper a.bx-settings-title{font-family:var(--bx-title-font);font-size:1.4rem;text-decoration:none;font-weight:bold;display:block;flex:1;text-transform:none}.bx-settings-wrapper a.bx-settings-title span{color:#5dc21e !important}.bx-settings-wrapper a.bx-settings-title:focus span{color:#83f73a !important}.bx-settings-wrapper a.bx-settings-update{display:block;color:#ff834b;text-decoration:none;margin-bottom:8px;text-align:center;background:#222;border-radius:4px;padding:4px}@media (hover:hover){.bx-settings-wrapper a.bx-settings-update:hover{color:#ff9869;text-decoration:underline}}.bx-settings-wrapper a.bx-settings-update:focus{color:#ff9869;text-decoration:underline}.bx-settings-group-label{font-weight:bold;display:block;font-size:1.1rem}.bx-settings-row{display:flex;padding:6px 12px;position:relative}.bx-settings-row label{flex:1;align-self:center;margin-bottom:0}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row input{align-self:center;accent-color:var(--bx-primary-button-color)}.bx-settings-row input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-row input[type=checkbox]:focus,.bx-settings-row select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-row:has(input:focus)::before,.bx-settings-row:has(select:focus)::before{content:' ';border-radius:4px;border:2px solid #fff;position:absolute;top:0;left:0;bottom:0}.bx-settings-group-label b,.bx-settings-row label b{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-group-label b{margin-bottom:8px}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px;color:#5dc21e}.bx-donation-link:hover{color:#6dd72b}.bx-donation-link:focus{text-decoration:underline}.bx-settings-custom-user-agent{display:block;width:100%}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-popup{width:100%;max-width:1920px;margin:auto;position:relative;height:.1px;overflow:visible;z-index:var(--bx-remote-play-popup-z-index)}.bx-remote-play-container{position:absolute;right:10px;top:0;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px;box-shadow:rgba(0,0,0,0.502) 0 0 12px 0}@media (min-width:480px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 32px)}}@media (min-width:768px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 48px)}}@media (min-width:1920px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 80px)}}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-settings span{font-weight:bold;font-size:18px;display:block;margin-bottom:8px;text-align:center}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:14px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-select select{display:none}.bx-select > div{display:inline-block;min-width:110px;text-align:center;margin:0 10px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 4px}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0}.bx-select button{border:none;width:24px;height:24px;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}.bx-select button.bx-inactive{pointer-events:none;opacity:.2}.bx-select button span{line-height:unset}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:14px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0 4px;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-stream-settings-dialog{display:flex;position:fixed;z-index:var(--bx-stream-settings-z-index);opacity:.98;user-select:none;-webkit-user-select:none}.bx-stream-settings-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-stream-settings-overlay-z-index)}.bx-stream-settings-overlay[data-is-playing="true"]{background:transparent}.bx-stream-settings-tabs{position:fixed;top:0;right:420px;display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:clip}.bx-stream-settings-tabs svg{width:32px;height:32px;padding:10px;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-stream-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-stream-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-stream-settings-tab-contents{flex-direction:column;position:fixed;right:0;top:0;bottom:0;padding:14px 14px 0;width:420px;background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay}.bx-stream-settings-tab-contents > div[data-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-stream-settings-tab-contents *:focus{outline:none !important}.bx-stream-settings-tab-contents h2{margin-bottom:8px;display:flex;align-item:center}.bx-stream-settings-tab-contents h2 span{display:inline-block;font-size:24px;font-weight:bold;text-transform:uppercase;text-align:left;flex:1;height:var(--bx-button-height);line-height:calc(var(--bx-button-height) + 4px);text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.bx-stream-settings-row{display:flex;border-bottom:1px solid rgba(64,64,64,0.502);margin-bottom:16px;padding-bottom:16px}.bx-stream-settings-row > label{font-size:16px;display:block;text-align:left;flex:1;align-self:center;margin-bottom:0 !important}.bx-stream-settings-row input{accent-color:var(--bx-primary-button-color)}.bx-stream-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-stream-settings-row select option:disabled{display:none}.bx-stream-settings-dialog-note{display:block;font-size:12px;font-weight:lighter;font-style:italic}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-profile{width:100%;height:36px;display:block;margin-bottom:10px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-note{font-size:14px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-stream-settings-tab-contents div[data-group="shortcuts"] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-stream-settings-z-index) + 1)}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}`;
+  const PREF_HIDE_SECTIONS = getPref(PrefKey.UI_HIDE_SECTIONS), selectorToHide = [];
+  if (PREF_HIDE_SECTIONS.includes(UiSection.NEWS))
+    selectorToHide.push("#BodyContent > div[class*=CarouselRow-module]");
+  if (PREF_HIDE_SECTIONS.includes(UiSection.ALL_GAMES))
+    selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]");
+  if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
+    selectorToHide.push("#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]");
+  if (selectorToHide)
+    css += selectorToHide.join(",") + "{ display: none; }";
+  if (getPref(PrefKey.REDUCE_ANIMATIONS))
+    css += `
+div[class*=GameCard-module__gameTitleInnerWrapper],
+div[class*=GameCard-module__card],
+div[class*=ScrollArrows-module] {
+    transition: none !important;
+}
+`;
+  if (getPref(PrefKey.HIDE_DOTS_ICON))
+    css += `
+div[class*=Grip-module__container] {
+    visibility: hidden;
+}
+
+@media (hover: hover) {
+    button[class*=GripHandle-module__container]:hover div[class*=Grip-module__container] {
+        visibility: visible;
+    }
+}
+
+button[class*=GripHandle-module__container][aria-expanded=true] div[class*=Grip-module__container] {
+    visibility: visible;
+}
+
+button[class*=GripHandle-module__container][aria-expanded=false] {
+    background-color: transparent !important;
+}
+
+div[class*=StreamHUD-module__buttonsContainer] {
+    padding: 0px !important;
+}
+`;
+  if (css += `
+div[class*=StreamMenu-module__menu] {
+    min-width: 100vw !important;
+}
+`, getPref(PrefKey.STREAM_SIMPLIFY_MENU))
+    css += `
+div[class*=Menu-module__scrollable] {
+    --bxStreamMenuItemSize: 80px;
+    --streamMenuItemSize: calc(var(--bxStreamMenuItemSize) + 40px) !important;
+}
+
+.bx-badges {
+    top: calc(var(--streamMenuItemSize) - 20px);
+}
+
+body[data-media-type=tv] .bx-badges {
+    top: calc(var(--streamMenuItemSize) - 10px) !important;
+}
+
+button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    min-height: auto !important;
+    width: var(--bxStreamMenuItemSize) !important;
+    height: var(--bxStreamMenuItemSize) !important;
+}
+
+div[class*=MenuItem-module__label] {
+    display: none !important;
+}
+
+svg[class*=MenuItem-module__icon] {
+    width: 36px;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+`;
+  else
+    css += `
+body[data-media-type=tv] .bx-badges {
+    top: calc(var(--streamMenuItemSize) + 30px);
+}
+
+body:not([data-media-type=tv]) .bx-badges {
+    top: calc(var(--streamMenuItemSize) + 20px);
+}
+
+body:not([data-media-type=tv]) button[class*=MenuItem-module__container] {
+    min-width: auto !important;
+    width: 100px !important;
+}
+
+body:not([data-media-type=tv]) button[class*=MenuItem-module__container]:nth-child(n+2) {
+    margin-left: 10px !important;
+}
+
+body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+}
+`;
+  if (getPref(PrefKey.UI_SCROLLBAR_HIDE))
+    css += `
+html {
+    scrollbar-width: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+`;
+  const $style = CE("style", {}, css);
+  document.documentElement.appendChild($style);
+}
+function preloadFonts() {
+  const $link = CE("link", {
+    rel: "preload",
+    href: "https://redphx.github.io/better-xcloud/fonts/promptfont.otf",
+    as: "font",
+    type: "font/otf",
+    crossorigin: ""
+  });
+  document.querySelector("head")?.appendChild($link);
+}
+
+// src/modules/mkb/mouse-cursor-hider.ts
+class MouseCursorHider {
+  static #timeout;
+  static #cursorVisible = !0;
+  static show() {
+    document.body && (document.body.style.cursor = "unset"), MouseCursorHider.#cursorVisible = !0;
+  }
+  static hide() {
+    document.body && (document.body.style.cursor = "none"), MouseCursorHider.#timeout = null, MouseCursorHider.#cursorVisible = !1;
+  }
+  static onMouseMove(e) {
+    !MouseCursorHider.#cursorVisible && MouseCursorHider.show(), MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout), MouseCursorHider.#timeout = window.setTimeout(MouseCursorHider.hide, 3000);
+  }
+  static start() {
+    MouseCursorHider.show(), document.addEventListener("mousemove", MouseCursorHider.onMouseMove);
+  }
+  static stop() {
+    MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout), document.removeEventListener("mousemove", MouseCursorHider.onMouseMove), MouseCursorHider.show();
+  }
 }
 
 // src/utils/history.ts
@@ -6346,7 +6383,7 @@ function onHistoryChanged(e) {
   const $settings = document.querySelector(".bx-settings-container");
   if ($settings)
     $settings.classList.add("bx-gone");
-  RemotePlay.detachPopup(), LoadingScreen.reset(), window.setTimeout(checkHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+  RemotePlay.detachPopup(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
 
 // src/utils/preload-state.ts
@@ -7266,6 +7303,7 @@ var unload = function() {
     TouchController.setup();
   if (getPref(PrefKey.MKB_ENABLED) && AppInterface)
     STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
+  getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
 };
 if (window.location.pathname.includes("/auth/msa")) {
   const nativePushState = window.history.pushState;
@@ -7316,11 +7354,11 @@ window.addEventListener(BxEvent.POPSTATE, onHistoryChanged);
 window.addEventListener("popstate", onHistoryChanged);
 window.history.pushState = patchHistoryMethod("pushState");
 window.history.replaceState = patchHistoryMethod("replaceState");
+window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, (e) => {
+  STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000);
+});
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
-  if (document.querySelector("div[class^=UnsupportedMarketPage]"))
-    window.setTimeout(watchHeader, 2000);
-  else
-    watchHeader();
+  HeaderSection.watchHeader();
 });
 window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
   if (window.location.pathname.includes("/launch/")) {
@@ -7346,6 +7384,11 @@ window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
 });
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+});
+window.addEventListener(BxEvent.NAVIGATION_FOCUS_CHANGED, (e) => {
+  const $elm = e.element;
+  if ($elm.tagName === "BUTTON" && $elm.className.includes("MruGameCard") || $elm.tagName === "A" && $elm.className.includes("GameCard"))
+    console.dir($elm);
 });
 window.addEventListener(BxEvent.STREAM_STOPPED, unload);
 window.addEventListener("pagehide", (e) => {
