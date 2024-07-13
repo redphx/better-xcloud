@@ -344,6 +344,8 @@ export function setupSettingsUi() {
                     $control.appendChild($option);
                 }
 
+                $control.disabled = Object.keys(STATES.serverRegions).length === 0;
+
                 // Select preferred region
                 $control.value = selectedValue;
             } else {
