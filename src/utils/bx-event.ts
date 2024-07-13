@@ -38,6 +38,8 @@ export enum BxEvent {
     POINTER_LOCK_REQUESTED = 'bx-pointer-lock-requested',
     POINTER_LOCK_EXITED = 'bx-pointer-lock-exited',
 
+    NAVIGATION_FOCUS_CHANGED = 'bx-nav-focus-changed',
+
     // xCloud Dialog events
     XCLOUD_DIALOG_SHOWN = 'bx-xcloud-dialog-shown',
     XCLOUD_DIALOG_DISMISSED = 'bx-xcloud-dialog-dismissed',

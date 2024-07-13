@@ -186,6 +186,14 @@ window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
     BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
 
+window.addEventListener(BxEvent.NAVIGATION_FOCUS_CHANGED, e => {
+    const $elm = (e as any).element;
+    if (($elm.tagName === 'BUTTON' && $elm.className.includes('MruGameCard')) || ($elm.tagName === 'A' && $elm.className.includes('GameCard'))) {
+        console.dir($elm);
+    }
+});
+
+
 function unload() {
     if (!STATES.isPlaying) {
         return;

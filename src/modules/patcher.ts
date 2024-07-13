@@ -9,6 +9,7 @@ import { BxEvent } from "@/utils/bx-event";
 import codeControllerShortcuts from "./patches/controller-shortcuts.js" with { type: "text" };
 import codeExposeStreamSession from "./patches/expose-stream-session.js" with { type: "text" };
 import codeLocalCoOpEnable from "./patches/local-co-op-enable.js" with { type: "text" };
+import codeSetCurrentlyFocusedInteractable from "./patches/set-currently-focused-interactable.js" with { type: "text" };
 import codeRemotePlayEnable from "./patches/remote-play-enable.js" with { type: "text" };
 import codeRemotePlayKeepAlive from "./patches/remote-play-keep-alive.js" with { type: "text" };
 import codeVibrationAdjust from "./patches/vibration-adjust.js" with { type: "text" };
@@ -775,6 +776,18 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         str = str.substring(0, commaIndex) + ',true' + str.substring(index);
         return str;
     },
+
+    // 24225.js#4127, 24.17.11
+    patchSetCurrentlyFocusedInteractable(str: string) {
+        let index = str.indexOf('.setCurrentlyFocusedInteractable=(');
+        if (index === -1) {
+            return false;
+        }
+
+        index = str.indexOf('{', index) + 1;
+        str = str.substring(0, index) + codeSetCurrentlyFocusedInteractable + str.substring(index);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -797,6 +810,7 @@ let PATCH_ORDERS: PatchArray = [
     'enableTvRoutes',
 
     'overrideStorageGetSettings',
+    'patchSetCurrentlyFocusedInteractable',
 
     getPref(PrefKey.UI_LAYOUT) !== 'default' && 'websiteLayout',
     getPref(PrefKey.LOCAL_CO_OP_ENABLED) && 'supportLocalCoOp',
