@@ -1,5 +1,5 @@
 import { CE } from "@utils/html";
-import { SUPPORTED_LANGUAGES, t } from "@utils/translation";
+import { SUPPORTED_LANGUAGES, t, ut } from "@utils/translation";
 import { SettingElement, SettingElementType } from "@utils/settings";
 import { UserAgent } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
@@ -17,6 +17,8 @@ export enum PrefKey {
     BETTER_XCLOUD_LOCALE = 'bx_locale',
 
     SERVER_REGION = 'server_region',
+    SERVER_BYPASS_RESTRICTION = 'server_bypass_restriction',
+
     PREFER_IPV6_SERVER = 'prefer_ipv6_server',
     STREAM_TARGET_RESOLUTION = 'stream_target_resolution',
     STREAM_PREFERRED_LOCALE = 'stream_preferred_locale',
@@ -122,6 +124,12 @@ export class Preferences {
             label: t('region'),
             default: 'default',
         },
+        [PrefKey.SERVER_BYPASS_RESTRICTION]: {
+            label: ut('Bypass region restriction'),
+            note: ut('⚠️ Use this at your own risk'),
+            default: false,
+        },
+
         [PrefKey.STREAM_PREFERRED_LOCALE]: {
             label: t('preferred-game-language'),
             default: 'default',

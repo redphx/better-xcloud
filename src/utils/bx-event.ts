@@ -26,6 +26,7 @@ export enum BxEvent {
     REMOTE_PLAY_FAILED = 'bx-remote-play-failed',
 
     XCLOUD_SERVERS_READY = 'bx-servers-ready',
+    XCLOUD_SERVERS_UNAVAILABLE = 'bx-servers-unavailable',
 
     DATA_CHANNEL_CREATED = 'bx-data-channel-created',
 

@@ -24,6 +24,8 @@ interface NavigatorBattery extends Navigator {
 }
 
 type BxStates = {
+    supportedRegion: boolean;
+
     isPlaying: boolean;
     appContext: any | null;
     serverRegions: any;

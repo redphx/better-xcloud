@@ -13,6 +13,8 @@ const browserHasTouchSupport = 'ontouchstart' in window || navigator.maxTouchPoi
 const userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
 
 export const STATES: BxStates = {
+    supportedRegion: true,
+
     isPlaying: false,
     appContext: {},
     serverRegions: {},

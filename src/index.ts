@@ -125,13 +125,13 @@ window.addEventListener('popstate', onHistoryChanged);
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
 
+window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
+    STATES.supportedRegion = false;
+    window.setTimeout(watchHeader, 2000);
+});
+
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
-    // Start rendering UI
-    if (document.querySelector('div[class^=UnsupportedMarketPage]')) {
-        window.setTimeout(watchHeader, 2000);
-    } else {
-        watchHeader();
-    }
+    watchHeader();
 });
 
 window.addEventListener(BxEvent.STREAM_LOADING, e => {

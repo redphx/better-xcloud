@@ -12,7 +12,17 @@ import { getPreferredServerRegion } from "./region";
 export
 class XcloudInterceptor {
     static async #handleLogin(request: RequestInfo | URL, init?: RequestInit) {
+        if (getPref(PrefKey.SERVER_BYPASS_RESTRICTION)) {
+            (request as Request).headers.set('X-Forwarded-For', '9.9.9.9');
+        }
+
         const response = await NATIVE_FETCH(request, init);
+        if (response.status !== 200) {
+            // Unsupported region
+            BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE);
+            return response;
+        }
+
         const obj = await response.clone().json();
 
         // Preload Remote Play

@@ -15,6 +15,7 @@ const SETTINGS_UI = {
     'Better xCloud': {
         items: [
             PrefKey.BETTER_XCLOUD_LOCALE,
+            PrefKey.SERVER_BYPASS_RESTRICTION,
             PrefKey.REMOTE_PLAY_ENABLED,
         ],
     },
@@ -260,9 +261,9 @@ export function setupSettingsUi() {
             if (setting.experimental) {
                 settingLabel = '🧪 ' + settingLabel;
                 if (!settingNote) {
-                    settingNote = t('experimental')
+                    settingNote = t('experimental');
                 } else {
-                    settingNote = `${t('experimental')}: ${settingNote}`
+                    settingNote = `${t('experimental')}: ${settingNote}`;
                 }
             }
 
