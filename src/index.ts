@@ -37,13 +37,19 @@ import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
-    window.addEventListener('load', e => {
-            window.location.search.includes('loggedIn') && window.setTimeout(() => {
-                const location = window.location;
-                // @ts-ignore
-                location.pathname.includes('/play') && location.reload(true);
-            }, 2000);
-        });
+    const nativePushState = window.history['pushState'];
+    window.history['pushState'] = function(...args: any[]) {
+        const url = args[2];
+        if (url && (url.startsWith('/play') || url.substring(6).startsWith('/play'))) {
+            console.log('Redirecting to xbox.com/play');
+            window.stop();
+            window.location.href = 'https://www.xbox.com' + url;
+            return;
+        }
+
+        // @ts-ignore
+        return nativePushState.apply(this, arguments);
+    }
     // Stop processing the script
     throw new Error('[Better xCloud] Refreshing the page after logging in');
 }

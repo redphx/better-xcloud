@@ -161,6 +161,8 @@ export function patchMeControl() {
             API: {
                 setDisplayMode: () => {},
                 setMobileState: () => {},
+                addEventListener: () => {},
+                removeEventListener: () => {},
             },
         },
     };
