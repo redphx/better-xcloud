@@ -16,7 +16,6 @@ import { PrefKey, getPref } from "@utils/preferences";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
 import { TouchController } from "@modules/touch-controller";
-import { watchHeader } from "@modules/ui/header";
 import { checkForUpdate, disablePwa } from "@utils/utils";
 import { Patcher } from "@modules/patcher";
 import { RemotePlay } from "@modules/remote-play";
@@ -34,6 +33,7 @@ import { GuideMenu, GuideMenuTab } from "./modules/ui/guide-menu";
 import { StreamSettings } from "./modules/stream/stream-settings";
 import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
 import { UiSection } from "./enums/ui-sections";
+import { HeaderSection } from "./modules/ui/header";
 
 
 // Handle login page
@@ -127,11 +127,11 @@ window.history.replaceState = patchHistoryMethod('replaceState');
 
 window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
     STATES.supportedRegion = false;
-    window.setTimeout(watchHeader, 2000);
+    window.setTimeout(HeaderSection.watchHeader, 2000);
 });
 
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
-    watchHeader();
+    HeaderSection.watchHeader();
 });
 
 window.addEventListener(BxEvent.STREAM_LOADING, e => {
@@ -348,6 +348,9 @@ function main() {
         STATES.pointerServerPort = AppInterface.startPointerServer() || 9269;
         BxLogger.info('startPointerServer', 'Port', STATES.pointerServerPort.toString());
     }
+
+    // Preload Remote Play
+    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
 }
 
 main();

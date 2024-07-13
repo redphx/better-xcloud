@@ -1,7 +1,7 @@
 import { BxEvent } from "@utils/bx-event";
 import { LoadingScreen } from "@modules/loading-screen";
 import { RemotePlay } from "@modules/remote-play";
-import { checkHeader } from "@modules/ui/header";
+import { HeaderSection } from "@/modules/ui/header";
 
 export function patchHistoryMethod(type: 'pushState' | 'replaceState') {
     const orig = window.history[type];
@@ -34,7 +34,7 @@ export function onHistoryChanged(e: PopStateEvent) {
     RemotePlay.detachPopup();
 
     LoadingScreen.reset();
-    window.setTimeout(checkHeader, 2000);
+    window.setTimeout(HeaderSection.watchHeader, 2000);
 
     BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }

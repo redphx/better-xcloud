@@ -1,5 +1,5 @@
 import { SCRIPT_VERSION } from "@utils/global";
-import { createButton, ButtonStyle } from "@utils/html";
+import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
 import { PrefKey, getPref } from "@utils/preferences";
@@ -7,35 +7,20 @@ import { RemotePlay } from "@modules/remote-play";
 import { t } from "@utils/translation";
 import { setupSettingsUi } from "./global-settings";
 
+export class HeaderSection {
+    static #$remotePlayBtn = createButton({
+        classes: ['bx-header-remote-play-button', 'bx-gone'],
+        icon: BxIcon.REMOTE_PLAY,
+        title: t('remote-play'),
+        style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+        onClick: e => {
+            RemotePlay.togglePopup();
+        },
+    });
 
-function injectSettingsButton($parent?: HTMLElement) {
-    if (!$parent) {
-        return;
-    }
-
-    const PREF_PREFERRED_REGION = getPreferredServerRegion(true);
-    const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
-
-    const $headerFragment = document.createDocumentFragment();
-
-    // Remote Play button
-    if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
-        const $remotePlayBtn = createButton({
-            classes: ['bx-header-remote-play-button'],
-            icon: BxIcon.REMOTE_PLAY,
-            title: t('remote-play'),
-            style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
-            onClick: e => {
-                RemotePlay.togglePopup();
-            },
-        });
-        $headerFragment.appendChild($remotePlayBtn);
-    }
-
-    // Setup Settings button
-    const $settingsBtn = createButton({
+    static #$settingsBtn = createButton({
         classes: ['bx-header-settings-button'],
-        label: PREF_PREFERRED_REGION,
+        label: '???',
         style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
         onClick: e => {
             setupSettingsUi();
@@ -47,39 +32,57 @@ function injectSettingsButton($parent?: HTMLElement) {
         },
     });
 
-    // Show new update status
-    if (!SCRIPT_VERSION.includes('beta') && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
-        $settingsBtn.setAttribute('data-update-available', 'true');
+    static #$buttonsWrapper = CE('div', {},
+        getPref(PrefKey.REMOTE_PLAY_ENABLED) ? HeaderSection.#$remotePlayBtn : null,
+        HeaderSection.#$settingsBtn,
+    );
+
+    static #injectSettingsButton($parent?: HTMLElement) {
+        if (!$parent) {
+            return;
+        }
+
+        const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
+
+        // Setup Settings button
+        const $settingsBtn = HeaderSection.#$settingsBtn;
+        $settingsBtn.querySelector('span')!.textContent = getPreferredServerRegion(true);
+
+        // Show new update status
+        if (!SCRIPT_VERSION.includes('beta') && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
+            $settingsBtn.setAttribute('data-update-available', 'true');
+        }
+
+        // Add the Settings button to the web page
+        $parent.appendChild(HeaderSection.#$buttonsWrapper);
     }
 
-    // Add the Settings button to the web page
-    $headerFragment.appendChild($settingsBtn);
-    $parent.appendChild($headerFragment);
-}
+    static checkHeader() {
+        const $button = document.querySelector('.bx-header-settings-button');
 
-
-export function checkHeader() {
-    const $button = document.querySelector('.bx-header-settings-button');
-
-    if (!$button) {
-        const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
-        injectSettingsButton($rightHeader as HTMLElement);
-    }
-}
-
-
-export function watchHeader() {
-    const $header = document.querySelector('#PageContent header');
-    if (!$header) {
-        return;
+        if (!$button) {
+            const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
+            HeaderSection.#injectSettingsButton($rightHeader as HTMLElement);
+        }
     }
 
-    let timeout: number | null;
-    const observer = new MutationObserver(mutationList => {
-        timeout && clearTimeout(timeout);
-        timeout = window.setTimeout(checkHeader, 2000);
-    });
-    observer.observe($header, {subtree: true, childList: true});
+    static showRemotePlayButton() {
+        HeaderSection.#$remotePlayBtn.classList.remove('bx-gone');
+    }
 
-    checkHeader();
+    static watchHeader() {
+        const $header = document.querySelector('#PageContent header');
+        if (!$header) {
+            return;
+        }
+
+        let timeout: number | null;
+        const observer = new MutationObserver(mutationList => {
+            timeout && clearTimeout(timeout);
+            timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
+        });
+        observer.observe($header, {subtree: true, childList: true});
+
+        HeaderSection.checkHeader();
+    }
 }

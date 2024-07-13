@@ -7,6 +7,7 @@ import { getPref, PrefKey, setPref } from "@utils/preferences";
 import { t } from "@utils/translation";
 import { localRedirect } from "@modules/ui/ui";
 import { BxLogger } from "@utils/bx-logger";
+import { HeaderSection } from "./ui/header";
 
 const LOG_TAG = 'RemotePlay';
 
@@ -97,6 +98,10 @@ export class RemotePlay {
         RemotePlay.#getXhomeToken(() => {
             RemotePlay.#getConsolesList(() => {
                 BxLogger.info(LOG_TAG, 'Consoles', RemotePlay.#CONSOLES);
+                if (RemotePlay.#CONSOLES && RemotePlay.#CONSOLES.length > 0) {
+                    STATES.supportedRegion && HeaderSection.showRemotePlayButton();
+                }
+
                 RemotePlay.#renderConsoles();
                 BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
             });

@@ -25,9 +25,6 @@ class XcloudInterceptor {
 
         const obj = await response.clone().json();
 
-        // Preload Remote Play
-        getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
-
         // Store xCloud token
         RemotePlay.XCLOUD_TOKEN = obj.gsToken;
 
