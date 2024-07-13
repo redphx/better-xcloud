@@ -125,8 +125,8 @@ export class Preferences {
             default: 'default',
         },
         [PrefKey.SERVER_BYPASS_RESTRICTION]: {
-            label: ut('Bypass region restriction'),
-            note: ut('⚠️ Use this at your own risk'),
+            label: t('bypass-region-restriction'),
+            note: t('use-this-at-your-own-risk'),
             default: false,
         },
 
