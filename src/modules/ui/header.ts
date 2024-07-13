@@ -37,6 +37,8 @@ export class HeaderSection {
         HeaderSection.#$settingsBtn,
     );
 
+    static #observer: MutationObserver;
+
     static #injectSettingsButton($parent?: HTMLElement) {
         if (!$parent) {
             return;
@@ -77,11 +79,13 @@ export class HeaderSection {
         }
 
         let timeout: number | null;
-        const observer = new MutationObserver(mutationList => {
+
+        HeaderSection.#observer && HeaderSection.#observer.disconnect();
+        HeaderSection.#observer = new MutationObserver(mutationList => {
             timeout && clearTimeout(timeout);
             timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
         });
-        observer.observe($header, {subtree: true, childList: true});
+        HeaderSection.#observer.observe($header, {subtree: true, childList: true});
 
         HeaderSection.checkHeader();
     }
