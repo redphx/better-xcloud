@@ -1,5 +1,5 @@
 import { CE } from "@utils/html";
-import { SUPPORTED_LANGUAGES, t, ut } from "@utils/translation";
+import { SUPPORTED_LANGUAGES, t} from "@utils/translation";
 import { SettingElement, SettingElementType } from "@utils/settings";
 import { UserAgent } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
@@ -76,6 +76,7 @@ export enum PrefKey {
     UI_HIDE_SECTIONS = 'ui_hide_sections',
 
     UI_HOME_CONTEXT_MENU_DISABLED = 'ui_home_context_menu_disabled',
+    UI_GAME_CARD_SHOW_WAIT_TIME = 'ui_game_card_show_wait_time',
 
     VIDEO_PLAYER_TYPE = 'video_player_type',
     VIDEO_PROCESSING = 'video_processing',
@@ -579,6 +580,11 @@ export class Preferences {
             params: {
                 size: 3,
             },
+        },
+
+        [PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME]: {
+            label: t('show-wait-time-in-game-card'),
+            default: false,
         },
 
         [PrefKey.BLOCK_SOCIAL_FEATURES]: {

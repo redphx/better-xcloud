@@ -34,6 +34,7 @@ import { StreamSettings } from "./modules/stream/stream-settings";
 import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
 import { UiSection } from "./enums/ui-sections";
 import { HeaderSection } from "./modules/ui/header";
+import { GameTile } from "./modules/ui/game-tile";
 
 
 // Handle login page
@@ -185,14 +186,6 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
     BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
-
-window.addEventListener(BxEvent.NAVIGATION_FOCUS_CHANGED, e => {
-    const $elm = (e as any).element;
-    if (($elm.tagName === 'BUTTON' && $elm.className.includes('MruGameCard')) || ($elm.tagName === 'A' && $elm.className.includes('GameCard'))) {
-        console.dir($elm);
-    }
-});
-
 
 function unload() {
     if (!STATES.isPlaying) {
@@ -351,6 +344,9 @@ function main() {
 
     // Preload Remote Play
     getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+
+    // Show wait time in game card
+    getPref(PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME) && GameTile.setup();
 }
 
 main();

@@ -14,10 +14,12 @@ const userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
 
 export const STATES: BxStates = {
     supportedRegion: true,
+    serverRegions: {},
+    selectedRegion: {},
+    gsToken: '',
 
     isPlaying: false,
     appContext: {},
-    serverRegions: {},
 
     browser: {
         capabilities: {

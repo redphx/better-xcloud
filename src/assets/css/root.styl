@@ -132,3 +132,35 @@ div[class*=SupportedInputsBadge] {
         display: none;
     }
 }
+
+
+.bx-game-tile-wait-time {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background: #0000008c;
+    display: none;
+    border-radius: 0 0 4px 0;
+    align-items: center;
+    padding: 4px 8px;
+
+    a[class^=BaseItem-module__container]:focus &,
+    button[class^=BaseItem-module__container]:focus & {
+        display: flex;
+    }
+
+    svg {
+        width: 14px;
+        height: 16px;
+        margin-right: 2px;
+    }
+
+    span {
+        display: inline-block;
+        height: 16px;
+        line-height: 16px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+}

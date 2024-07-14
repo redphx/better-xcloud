@@ -90,6 +90,7 @@ const SETTINGS_UI = {
         items: [
             PrefKey.UI_LAYOUT,
             PrefKey.UI_HOME_CONTEXT_MENU_DISABLED,
+            PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME,
             PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS,
             PrefKey.STREAM_SIMPLIFY_MENU,
             PrefKey.SKIP_SPLASH_VIDEO,

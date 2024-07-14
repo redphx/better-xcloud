@@ -104,6 +104,16 @@ export const createButton = <T=HTMLButtonElement>(options: BxButton): T => {
     return $btn as T;
 }
 
+export function getReactProps($elm: HTMLElement): any | null {
+    for (const key in $elm) {
+        if (key.startsWith('__reactProps')) {
+            return ($elm as any)[key];
+        }
+    }
+
+    return null;
+}
+
 export function escapeHtml(html: string): string {
     const text = document.createTextNode(html);
     const $span = document.createElement('span');

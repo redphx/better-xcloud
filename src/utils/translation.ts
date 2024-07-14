@@ -212,6 +212,7 @@ const Texts = {
     "show-stats-on-startup": "Show stats when starting the game",
     "show-touch-controller": "Show touch controller",
     "show-wait-time": "Show the estimated wait time",
+    "show-wait-time-in-game-card": "Show wait time in game card",
     "simplify-stream-menu": "Simplify Stream's menu",
     "skip-splash-video": "Skip Xbox splash video",
     "slow": "Slow",

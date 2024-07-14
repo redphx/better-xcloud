@@ -25,10 +25,13 @@ interface NavigatorBattery extends Navigator {
 
 type BxStates = {
     supportedRegion: boolean;
+    serverRegions: any;
+    selectedRegion: any;
+    gsToken: string;
+
 
     isPlaying: boolean;
     appContext: any | null;
-    serverRegions: any;
 
     browser: {
         capabilities: {
@@ -71,6 +74,8 @@ type BxStates = {
 type DualEnum = {[index: string]: number} & {[index: number]: string};
 
 type XcloudTitleInfo = {
+    titleId: string,
+
     details: {
         productId: string;
         supportedInputTypes: InputType[];
@@ -87,6 +92,12 @@ type XcloudTitleInfo = {
         tileImageUrl: string;
     };
 };
+
+type XcloudWaitTimeInfo = Partial<{
+    estimatedAllocationTimeInSeconds: number,
+    estimatedProvisioningTimeInSeconds: number,
+    estimatedTotalWaitTimeInSeconds: number,
+}>;
 
 declare module '*.js';
 declare module '*.svg';

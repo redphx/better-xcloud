@@ -52,6 +52,10 @@ class XcloudInterceptor {
             const regionName = region.name as keyof typeof serverEmojis;
             let shortName = region.name;
 
+            if (region.isDefault) {
+                STATES.selectedRegion = Object.assign({}, region);
+            }
+
             let match = serverRegex.exec(region.baseUri);
             if (match) {
                 shortName = match[1];
@@ -72,7 +76,10 @@ class XcloudInterceptor {
             tmp.isDefault = true;
 
             obj.offeringSettings.regions = [tmp];
+            STATES.selectedRegion = tmp;
         }
+
+        STATES.gsToken = obj.gsToken;
 
         response.json = () => Promise.resolve(obj);
         return response;
