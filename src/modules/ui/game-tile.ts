@@ -15,7 +15,9 @@ export class GameTile {
         const output = [];
         h > 0 && output.push(`${h}h`);
         m > 0 && output.push(`${m}m`);
-        output.push(`${s}s`);
+        if (s > 0 || output.length === 0) {
+            output.push(`${s}s`);
+        }
 
         return output.join(' ');
     }
@@ -28,11 +30,11 @@ export class GameTile {
         if (info) {
             const waitTime = await api.getWaitTime(info.titleId);
             if (waitTime) {
-                totalWaitTime = waitTime.estimatedTotalWaitTimeInSeconds || 0;
+                totalWaitTime = waitTime.estimatedAllocationTimeInSeconds;
             }
         }
 
-        if (totalWaitTime && totalWaitTime == 10 && $elm.isConnected) {
+        if (typeof totalWaitTime === 'number' && $elm.isConnected) {
             const $div = CE('div', {'class': 'bx-game-tile-wait-time'},
                 createSvgIcon(BxIcon.PLAYTIME),
                 CE('span', {}, GameTile.#secondsToHms(totalWaitTime)),
