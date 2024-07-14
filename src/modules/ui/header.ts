@@ -38,6 +38,7 @@ export class HeaderSection {
     );
 
     static #observer: MutationObserver;
+    static #timeout: number | null;
 
     static #injectSettingsButton($parent?: HTMLElement) {
         if (!$parent) {
@@ -60,9 +61,7 @@ export class HeaderSection {
     }
 
     static checkHeader() {
-        const $button = document.querySelector('.bx-header-settings-button');
-
-        if (!$button) {
+        if (!HeaderSection.#$buttonsWrapper.isConnected) {
             const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
             HeaderSection.#injectSettingsButton($rightHeader as HTMLElement);
         }
@@ -78,12 +77,10 @@ export class HeaderSection {
             return;
         }
 
-        let timeout: number | null;
-
         HeaderSection.#observer && HeaderSection.#observer.disconnect();
         HeaderSection.#observer = new MutationObserver(mutationList => {
-            timeout && clearTimeout(timeout);
-            timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
+            HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout);
+            HeaderSection.#timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
         });
         HeaderSection.#observer.observe($header, {subtree: true, childList: true});
 
