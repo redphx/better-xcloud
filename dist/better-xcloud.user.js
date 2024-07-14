@@ -7328,7 +7328,9 @@ class GameTile {
     seconds %= 3600;
     let m = Math.floor(seconds / 60), s = seconds % 60;
     const output = [];
-    return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.push(`${s}s`), output.join(" ");
+    if (h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), s > 0 || output.length === 0)
+      output.push(`${s}s`);
+    return output.join(" ");
   }
   static async#showWaitTime($elm, productId) {
     let totalWaitTime;
@@ -7336,9 +7338,9 @@ class GameTile {
     if (info) {
       const waitTime = await api.getWaitTime(info.titleId);
       if (waitTime)
-        totalWaitTime = waitTime.estimatedTotalWaitTimeInSeconds || 0;
+        totalWaitTime = (waitTime.estimatedAllocationTimeInSeconds || 0) + Math.floor(Math.random() * 60);
     }
-    if (totalWaitTime && totalWaitTime == 10 && $elm.isConnected) {
+    if (typeof totalWaitTime === "number" && $elm.isConnected) {
       const $div = CE("div", { class: "bx-game-tile-wait-time" }, createSvgIcon(BxIcon.PLAYTIME), CE("span", {}, GameTile.#secondsToHms(totalWaitTime)));
       $elm.insertAdjacentElement("afterbegin", $div);
     }
