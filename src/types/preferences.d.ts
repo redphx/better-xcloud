@@ -1,5 +1,6 @@
 export type PreferenceSetting = {
     default: any;
+    optionsGroup?: string;
     options?: {[index: string]: string};
     multipleOptions?: {[index: string]: string};
     unsupported?: string | boolean;

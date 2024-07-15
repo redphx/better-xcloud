@@ -130,6 +130,7 @@ export class Preferences {
             label: t('bypass-region-restriction'),
             note: '⚠️ ' + t('use-this-at-your-own-risk'),
             default: 'off',
+            optionsGroup: t('region'),
             options: Object.assign({
                 'off': t('off'),
             }, BypassServers),

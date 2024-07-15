@@ -30,11 +30,20 @@ export class SettingElement {
                 // title: setting.label,
                 tabindex: 0,
             }) as HTMLSelectElement;
+
+        let $parent: HTMLElement;
+        if (setting.optionsGroup) {
+            $parent = CE('optgroup', {'label': setting.optionsGroup});
+            $control.appendChild($parent);
+        } else {
+            $parent = $control;
+        }
+
         for (let value in setting.options) {
             const label = setting.options[value];
 
             const $option = CE<HTMLOptionElement>('option', {value: value}, label);
-            $control.appendChild($option);
+            $parent.appendChild($option);
         }
 
         $control.value = currentValue;
