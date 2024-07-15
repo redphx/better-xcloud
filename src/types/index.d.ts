@@ -28,7 +28,7 @@ type BxStates = {
     serverRegions: any;
     selectedRegion: any;
     gsToken: string;
-
+    isSignedIn: boolean;
 
     isPlaying: boolean;
     appContext: any | null;

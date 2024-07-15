@@ -162,7 +162,7 @@ export function setupSettingsUi() {
     }
 
     // "Stream settings" button
-    topButtons.push(createButton({
+    (STATES.supportedRegion && STATES.isSignedIn) && topButtons.push(createButton({
         label: t('stream-settings'),
         icon: BxIcon.STREAM_SETTINGS,
         style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
@@ -228,6 +228,11 @@ export function setupSettingsUi() {
 
     // Render settings
     for (let groupLabel in SETTINGS_UI) {
+        // Don't render other settings when not signed in
+        if (groupLabel !== 'Better xCloud' && (!STATES.supportedRegion || !STATES.isSignedIn)) {
+            continue;
+        }
+
         const $group = CE('span', {'class': 'bx-settings-group-label'}, groupLabel);
 
         // Render note

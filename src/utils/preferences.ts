@@ -128,7 +128,7 @@ export class Preferences {
         },
         [PrefKey.SERVER_BYPASS_RESTRICTION]: {
             label: t('bypass-region-restriction'),
-            note: t('use-this-at-your-own-risk'),
+            note: '⚠️ ' + t('use-this-at-your-own-risk'),
             default: 'off',
             options: Object.assign({
                 'off': t('off'),

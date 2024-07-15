@@ -92,8 +92,8 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
     throw new Error('[Better xCloud] Executing workaround for Safari');
 }
 
-// Automatically reload the page when running into the "We are sorry..." error message
 window.addEventListener('load', e => {
+    // Automatically reload the page when running into the "We are sorry..." error message
     window.setTimeout(() => {
         if (document.body.classList.contains('legacyBackground')) {
             // Has error message -> reload page
@@ -102,18 +102,29 @@ window.addEventListener('load', e => {
             window.location.reload(true);
         }
     }, 3000);
-
 });
 
-// Hide "Play with Friends" skeleton section
-if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS)) {
-    document.addEventListener('readystatechange', e => {
-        if (document.readyState === 'interactive') {
-            const $parent = document.querySelector('div[class*=PlayWithFriendsSkeleton]')?.closest('div[class*=HomePage-module]') as HTMLElement;
-            $parent && ($parent.style.display = 'none');
-        }
-    })
-}
+document.addEventListener('readystatechange', e => {
+    if (document.readyState !== 'interactive') {
+        return;
+    }
+
+    STATES.isSignedIn = (window as any).xbcUser.isSignedIn;
+
+    if (STATES.isSignedIn) {
+        // Preload Remote Play
+        getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+    } else {
+        // Show Settings button in the header when not signed
+        HeaderSection.watchHeader();
+    }
+
+    // Hide "Play with Friends" skeleton section
+    if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS)) {
+        const $parent = document.querySelector('div[class*=PlayWithFriendsSkeleton]')?.closest('div[class*=HomePage-module]') as HTMLElement;
+        $parent && ($parent.style.display = 'none');
+    }
+})
 
 window.BX_EXPOSED = BxExposed;
 
@@ -341,9 +352,6 @@ function main() {
         STATES.pointerServerPort = AppInterface.startPointerServer() || 9269;
         BxLogger.info('startPointerServer', 'Port', STATES.pointerServerPort.toString());
     }
-
-    // Preload Remote Play
-    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
 
     // Show wait time in game card
     getPref(PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME) && GameTile.setup();

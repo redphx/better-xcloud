@@ -17,6 +17,7 @@ export const STATES: BxStates = {
     serverRegions: {},
     selectedRegion: {},
     gsToken: '',
+    isSignedIn: false,
 
     isPlaying: false,
     appContext: {},
