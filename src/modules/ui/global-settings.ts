@@ -381,7 +381,7 @@ export function setupSettingsUi() {
                 $control.setAttribute('tabindex', -1);
             }
 
-            const $label = CE('label', labelAttrs, settingLabel);
+            const $label = CE<HTMLLabelElement>('label', labelAttrs, settingLabel);
             if (settingNote) {
                 $label.appendChild(CE('b', {}, settingNote));
             }
@@ -397,7 +397,10 @@ export function setupSettingsUi() {
             } else {
                 $elm = CE('div', {'class': 'bx-settings-row', 'data-group': 0},
                     $label,
-                    CE('div', {class: 'bx-setting-control'}, $control),
+                    $control instanceof HTMLInputElement ? CE('label', {
+                        class: 'bx-setting-control',
+                        for: $label.getAttribute('for'),
+                    }, $control) : CE('div', {class: 'bx-setting-control'}, $control),
                 );
             }
 

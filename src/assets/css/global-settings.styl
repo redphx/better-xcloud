@@ -134,14 +134,19 @@
         }
     }
 
-    input[type=checkbox], select {
+    input[type=checkbox] {
+        cursor: pointer;
+    }
+
+    input[type=checkbox],
+    select {
         &:focus {
             filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
         }
     }
 
 
-    &:has(input:focus), &:has(select:focus) {
+    &:has(input:focus), &:has(select:focus), &:has(button:focus) {
         &::before {
             content: ' ';
             border-radius: 4px;

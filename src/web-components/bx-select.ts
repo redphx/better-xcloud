@@ -65,11 +65,18 @@ export class BxSelectElement {
                 content = $option.textContent || '';
 
                 if (content && $option.parentElement!.tagName === 'OPTGROUP') {
-                    content = ($option.parentElement as HTMLOptionElement).label + ' ❯ ' + content;
-                 }
-            }
+                    $label.innerHTML = '';
+                    const fragment = document.createDocumentFragment();
+                    fragment.appendChild(CE('span', {}, ($option.parentElement as HTMLOptGroupElement).label));
+                    fragment.appendChild(document.createTextNode(content));
 
-            $label.textContent = content;
+                    $label.appendChild(fragment);
+                } else {
+                    $label.textContent = content;
+                }
+            } else {
+                $label.textContent = content;
+            }
 
             // Hide checkbox when the selection is empty
             if (isMultiple) {
