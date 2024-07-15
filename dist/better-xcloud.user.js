@@ -141,6 +141,7 @@ var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.inclu
   serverRegions: {},
   selectedRegion: {},
   gsToken: "",
+  isSignedIn: !1,
   isPlaying: !1,
   appContext: {},
   browser: {
@@ -693,9 +694,14 @@ class SettingElement {
     const $control = CE("select", {
       tabindex: 0
     });
+    let $parent;
+    if (setting.optionsGroup)
+      $parent = CE("optgroup", { label: setting.optionsGroup }), $control.appendChild($parent);
+    else
+      $parent = $control;
     for (let value in setting.options) {
       const label = setting.options[value], $option = CE("option", { value }, label);
-      $control.appendChild($option);
+      $parent.appendChild($option);
     }
     return $control.value = currentValue, onChange && $control.addEventListener("input", (e) => {
       const target = e.target, value = setting.type && setting.type === "number" ? parseInt(target.value) : target.value;
@@ -1110,8 +1116,9 @@ class Preferences {
     },
     [PrefKey.SERVER_BYPASS_RESTRICTION]: {
       label: t("bypass-region-restriction"),
-      note: t("use-this-at-your-own-risk"),
+      note: "⚠️ " + t("use-this-at-your-own-risk"),
       default: "off",
+      optionsGroup: t("region"),
       options: Object.assign({
         off: t("off")
       }, BypassServers)
@@ -5022,7 +5029,7 @@ function setupSettingsUi() {
       style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
       url: "https://github.com/redphx/better-xcloud/releases/latest"
     }));
-  if (topButtons.push(createButton({
+  if (STATES.supportedRegion && STATES.isSignedIn && topButtons.push(createButton({
     label: t("stream-settings"),
     icon: BxIcon.STREAM_SETTINGS,
     style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
@@ -5059,6 +5066,8 @@ function setupSettingsUi() {
     }
   };
   for (let groupLabel in SETTINGS_UI) {
+    if (groupLabel !== "Better xCloud" && (!STATES.supportedRegion || !STATES.isSignedIn))
+      continue;
     const $group = CE("span", { class: "bx-settings-group-label" }, groupLabel);
     if (SETTINGS_UI[groupLabel].note) {
       const $note = CE("b", {}, SETTINGS_UI[groupLabel].note);
@@ -7451,7 +7460,7 @@ var unload = function() {
     TouchController.setup();
   if (getPref(PrefKey.MKB_ENABLED) && AppInterface)
     STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
-  getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload(), getPref(PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME) && GameTile.setup();
+  getPref(PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME) && GameTile.setup();
 };
 if (window.location.pathname.includes("/auth/msa")) {
   const nativePushState = window.history.pushState;
@@ -7490,13 +7499,18 @@ window.addEventListener("load", (e) => {
       window.stop(), window.location.reload(!0);
   }, 3000);
 });
-if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS))
-  document.addEventListener("readystatechange", (e) => {
-    if (document.readyState === "interactive") {
-      const $parent = document.querySelector("div[class*=PlayWithFriendsSkeleton]")?.closest("div[class*=HomePage-module]");
-      $parent && ($parent.style.display = "none");
-    }
-  });
+document.addEventListener("readystatechange", (e) => {
+  if (document.readyState !== "interactive")
+    return;
+  if (STATES.isSignedIn = window.xbcUser.isSignedIn, STATES.isSignedIn)
+    getPref(PrefKey.REMOTE_PLAY_ENABLED) && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+  else
+    HeaderSection.watchHeader();
+  if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS)) {
+    const $parent = document.querySelector("div[class*=PlayWithFriendsSkeleton]")?.closest("div[class*=HomePage-module]");
+    $parent && ($parent.style.display = "none");
+  }
+});
 window.BX_EXPOSED = BxExposed;
 window.addEventListener(BxEvent.POPSTATE, onHistoryChanged);
 window.addEventListener("popstate", onHistoryChanged);
