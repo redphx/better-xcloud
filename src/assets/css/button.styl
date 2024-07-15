@@ -83,24 +83,24 @@
         overflow: hidden;
         white-space: nowrap;
     }
+}
 
-    &.bx-focusable {
-        position: relative;
+.bx-focusable {
+    position: relative;
 
-        &::after {
-            border: 2px solid transparent;
-            border-radius: 4px;
-        }
+    &::after {
+        border: 2px solid transparent;
+        border-radius: 4px;
+    }
 
-        &:focus::after {
-            content: '';
-            border-color: white;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
+    &:focus::after {
+        content: '';
+        border-color: white;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
     }
 }
 

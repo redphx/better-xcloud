@@ -11,7 +11,6 @@ import { SoundShortcut } from "../shortcuts/shortcut-sound";
 import { TouchController } from "../touch-controller";
 import { VibrationManager } from "../vibration-manager";
 import { StreamStats } from "./stream-stats";
-import { BX_FLAGS } from "@/utils/bx-flags";
 import { BxSelectElement } from "@/web-components/bx-select";
 import { onChangeVideoPlayerType, updateVideoPlayer } from "./stream-settings-utils";
 
@@ -362,7 +361,8 @@ export class StreamSettings {
                     } else if (!setting.unsupported) {
                         $control = toPrefElement(pref, setting.onChange, setting.params);
 
-                        if ($control instanceof HTMLSelectElement && BX_FLAGS.ScriptUi === 'tv') {
+                        // Replace <select> with controller-friendly one
+                        if ($control instanceof HTMLSelectElement && getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
                             $control = BxSelectElement.wrap($control);
                         }
                     }

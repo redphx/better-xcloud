@@ -23,20 +23,32 @@ export class BxSelectElement {
         let $checkBox: HTMLInputElement;
         let $label: HTMLElement;
 
-        const $content = CE('div', {},
-            $checkBox = CE('input', {type: 'checkbox', id: $select.id + '_checkbox'}),
-            $label = CE('label', {for: $select.id + '_checkbox'}, ''),
-        );
+        let $content;
 
-        isMultiple && $checkBox.addEventListener('input', e => {
-            const $option = getOptionAtIndex(visibleIndex);
-            $option && ($option.selected = (e.target as HTMLInputElement).checked);
+        if (isMultiple) {
+            $content = CE('button', {
+                class: 'bx-select-value bx-focusable',
+                tabindex: 0,
+            },
+                $checkBox = CE('input', {type: 'checkbox'}),
+                $label = CE('span', {}, ''),
+            );
 
-            $select.dispatchEvent(new Event('input'));
-        });
+            $content.addEventListener('click', e => {
+                $checkBox.click();
+            });
 
-        // Only show checkbox in "multiple" <select>
-        $checkBox.classList.toggle('bx-gone', !isMultiple);
+            $checkBox.addEventListener('input', e => {
+                const $option = getOptionAtIndex(visibleIndex);
+                $option && ($option.selected = (e.target as HTMLInputElement).checked);
+
+                $select.dispatchEvent(new Event('input'));
+            });
+        } else {
+            $content = CE('div', {},
+                $label = CE('label', {for: $select.id + '_checkbox'}, ''),
+            );
+        }
 
         const getOptionAtIndex = (index: number): HTMLOptionElement | undefined => {
             return $select.querySelector(`option:nth-of-type(${visibleIndex + 1})`) as HTMLOptionElement;
@@ -51,22 +63,28 @@ export class BxSelectElement {
             let content = '';
             if ($option) {
                 content = $option.textContent || '';
+
+                if (content && $option.parentElement!.tagName === 'OPTGROUP') {
+                    content = ($option.parentElement as HTMLOptionElement).label + ' ❯ ' + content;
+                 }
             }
 
             $label.textContent = content;
 
             // Hide checkbox when the selection is empty
-            isMultiple && ($checkBox.checked = $option?.selected || false);
-            $checkBox.classList.toggle('bx-gone', !isMultiple || !content);
+            if (isMultiple) {
+                $checkBox.checked = $option?.selected || false;
+                $checkBox.classList.toggle('bx-gone', !content);
+            }
 
             const disablePrev = visibleIndex <= 0;
             const disableNext = visibleIndex === $select.querySelectorAll('option').length - 1;
 
             $btnPrev.classList.toggle('bx-inactive', disablePrev);
-            disablePrev && $btnNext.focus();
+            disablePrev && document.activeElement === $btnPrev && $btnNext.focus();
 
             $btnNext.classList.toggle('bx-inactive', disableNext);
-            disableNext && $btnPrev.focus();
+            disableNext && document.activeElement === $btnNext &&$btnPrev.focus();
         }
 
         const normalizeIndex = (index: number): number => {

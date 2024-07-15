@@ -1,19 +1,25 @@
 .bx-select {
+    display: flex;
+    align-items: center;
+
     select {
         display: none;
     }
 
-    > div {
-        display: inline-block;
+    > div, button.bx-select-value {
         min-width: 110px;
         text-align: center;
-        margin: 0 10px;
+        margin: 0 8px;
         line-height: 24px;
         vertical-align: middle;
         background: #fff;
         color: #000;
         border-radius: 4px;
-        padding: 2px 4px;
+        padding: 2px 8px;
+    }
+
+    > div {
+        display: inline-block;
 
         input {
             display: inline-block;
@@ -22,23 +28,55 @@
 
         label {
             margin-bottom: 0;
+            font-size: 14px;
         }
     }
 
-    button {
+    button.bx-select-value {
         border: none;
+        display: inline-flex;
+        cursor: pointer;
+        height: 30px;
+        align-items: center;
+
+        span {
+            flex: 1;
+            text-align: center;
+            display: inline-block;
+        }
+
+        input {
+            margin: 0 4px;
+            accent-color: var(--bx-primary-button-color);
+        }
+
+        &:hover,
+        &:focus {
+            input {
+                accent-color: var(--bx-danger-button-color);
+            }
+
+            &::after {
+                border-color: #4d4d4d !important;
+            }
+        }
+    }
+
+    button.bx-button {
+        border: none;
+        height: 30px;
         width: 24px;
-        height: 24px;
-        line-height: 24px;
+        padding: 0;
+        line-height: 30px;
         color: #fff;
         border-radius: 4px;
         font-weight: bold;
-        font-size: 14px;
+        font-size: 12px;
         font-family: var(--bx-monospaced-font);
 
         &.bx-inactive {
             pointer-events: none;
-            opacity: 0.2;
+            opacity: 0.1;
         }
 
         span {

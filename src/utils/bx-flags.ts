@@ -10,8 +10,6 @@ type BxFlags = Partial<{
     ForceNativeMkbTitles: string[];
     FeatureGates: {[key: string]: boolean} | null,
 
-    ScriptUi: 'default' | 'tv',
-
     IsSupportedTvBrowser: boolean,
 }>
 
@@ -27,8 +25,6 @@ const DEFAULT_FLAGS: BxFlags = {
 
     ForceNativeMkbTitles: [],
     FeatureGates: null,
-
-    ScriptUi: 'default',
 }
 
 export const BX_FLAGS: BxFlags = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});

@@ -7,7 +7,6 @@ import { getPref, Preferences, PrefKey, setPref, toPrefElement } from "@utils/pr
 import { t, Translations } from "@utils/translation";
 import { PatcherCache } from "../patcher";
 import { UserAgentProfile } from "@enums/user-agent";
-import { BX_FLAGS } from "@/utils/bx-flags";
 import { BxSelectElement } from "@/web-components/bx-select";
 import { StreamSettings } from "../stream/stream-settings";
 
@@ -16,6 +15,7 @@ const SETTINGS_UI = {
         items: [
             PrefKey.BETTER_XCLOUD_LOCALE,
             PrefKey.SERVER_BYPASS_RESTRICTION,
+            PrefKey.UI_CONTROLLER_FRIENDLY,
             PrefKey.REMOTE_PLAY_ENABLED,
         ],
     },
@@ -218,8 +218,8 @@ export function setupSettingsUi() {
             Translations.refreshCurrentLocale();
             await Translations.updateTranslations();
 
-            // Don't refresh the page on TV
-            if (BX_FLAGS.ScriptUi !== 'tv') {
+            // Don't refresh the page when using controller-friendly UI
+            if (!getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
                 $btnReload.textContent = t('settings-reloading');
                 $btnReload.click();
             }
@@ -388,15 +388,16 @@ export function setupSettingsUi() {
 
             let $elm: HTMLElement;
 
-            if ($control instanceof HTMLSelectElement && BX_FLAGS.ScriptUi === 'tv') {
+            if ($control instanceof HTMLSelectElement && getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
+                // Controller-friendly <select>
                 $elm = CE('div', {'class': 'bx-settings-row'},
                     $label,
-                    BxSelectElement.wrap($control),
+                    CE('div', {class: 'bx-setting-control', 'data-group': 0}, BxSelectElement.wrap($control)),
                 );
             } else {
-                $elm = CE('div', {'class': 'bx-settings-row'},
+                $elm = CE('div', {'class': 'bx-settings-row', 'data-group': 0},
                     $label,
-                    $control,
+                    CE('div', {class: 'bx-setting-control'}, $control),
                 );
             }
 

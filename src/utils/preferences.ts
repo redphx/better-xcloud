@@ -1,5 +1,5 @@
 import { CE } from "@utils/html";
-import { SUPPORTED_LANGUAGES, t} from "@utils/translation";
+import { SUPPORTED_LANGUAGES, t, ut} from "@utils/translation";
 import { SettingElement, SettingElementType } from "@utils/settings";
 import { UserAgent } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
@@ -72,6 +72,7 @@ export enum PrefKey {
     UI_LOADING_SCREEN_WAIT_TIME = 'ui_loading_screen_wait_time',
     UI_LOADING_SCREEN_ROCKET = 'ui_loading_screen_rocket',
 
+    UI_CONTROLLER_FRIENDLY = 'ui_controller_friendly',
     UI_LAYOUT = 'ui_layout',
     UI_SCROLLBAR_HIDE = 'ui_scrollbar_hide',
     UI_HIDE_SECTIONS = 'ui_hide_sections',
@@ -553,6 +554,12 @@ export class Preferences {
                 hide: t('rocket-always-hide'),
             },
         },
+
+        [PrefKey.UI_CONTROLLER_FRIENDLY]: {
+            label: ut('Controller-friendly UI'),
+            default: false,
+        },
+
         [PrefKey.UI_LAYOUT]: {
             label: t('layout'),
             default: 'default',
