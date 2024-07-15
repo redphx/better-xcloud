@@ -8,6 +8,7 @@ import { AppInterface, STATES } from "@utils/global";
 import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 import { UserAgentProfile } from "@/enums/user-agent";
 import { UiSection } from "@/enums/ui-sections";
+import { BypassServers } from "@/enums/bypass-servers";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',
@@ -128,7 +129,10 @@ export class Preferences {
         [PrefKey.SERVER_BYPASS_RESTRICTION]: {
             label: t('bypass-region-restriction'),
             note: t('use-this-at-your-own-risk'),
-            default: false,
+            default: 'off',
+            options: Object.assign({
+                'off': t('off'),
+            }, BypassServers),
         },
 
         [PrefKey.STREAM_PREFERRED_LOCALE]: {

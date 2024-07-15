@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.3.0
+// @version      5.3.1-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -134,7 +134,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.3.0", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.3.1-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -1001,6 +1001,19 @@ var UiSection;
   UiSection2["ALL_GAMES"] = "all-games";
 })(UiSection || (UiSection = {}));
 
+// src/enums/bypass-servers.ts
+var BypassServers = {
+  br: "Brazil",
+  jp: "Japan",
+  pl: "Poland",
+  us: "United States"
+}, BypassServerIps = {
+  br: "169.150.198.66",
+  jp: "138.199.21.239",
+  pl: "45.134.212.66",
+  us: "143.244.47.65"
+};
+
 // src/utils/preferences.ts
 var PrefKey;
 (function(PrefKey2) {
@@ -1098,7 +1111,10 @@ class Preferences {
     [PrefKey.SERVER_BYPASS_RESTRICTION]: {
       label: t("bypass-region-restriction"),
       note: t("use-this-at-your-own-risk"),
-      default: !1
+      default: "off",
+      options: Object.assign({
+        off: t("off")
+      }, BypassServers)
     },
     [PrefKey.STREAM_PREFERRED_LOCALE]: {
       label: t("preferred-game-language"),
@@ -5941,8 +5957,11 @@ class StreamBadges {
 // src/utils/xcloud-interceptor.ts
 class XcloudInterceptor {
   static async#handleLogin(request, init) {
-    if (getPref(PrefKey.SERVER_BYPASS_RESTRICTION))
-      request.headers.set("X-Forwarded-For", "9.9.9.9");
+    const bypassServer = getPref(PrefKey.SERVER_BYPASS_RESTRICTION);
+    if (bypassServer !== "off") {
+      const ip = BypassServerIps[bypassServer];
+      ip && request.headers.set("X-Forwarded-For", ip);
+    }
     const response = await NATIVE_FETCH(request, init);
     if (response.status !== 200)
       return BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE), response;

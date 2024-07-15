@@ -8,12 +8,15 @@ import { STATES } from "./global";
 import { patchIceCandidates } from "./network";
 import { getPref, PrefKey } from "./preferences";
 import { getPreferredServerRegion } from "./region";
+import { BypassServerIps } from "@/enums/bypass-servers";
 
 export
 class XcloudInterceptor {
     static async #handleLogin(request: RequestInfo | URL, init?: RequestInit) {
-        if (getPref(PrefKey.SERVER_BYPASS_RESTRICTION)) {
-            (request as Request).headers.set('X-Forwarded-For', '9.9.9.9');
+        const bypassServer = getPref(PrefKey.SERVER_BYPASS_RESTRICTION);
+        if (bypassServer !== 'off') {
+            const ip = BypassServerIps[bypassServer as keyof typeof BypassServerIps];
+            ip && (request as Request).headers.set('X-Forwarded-For', ip);
         }
 
         const response = await NATIVE_FETCH(request, init);
