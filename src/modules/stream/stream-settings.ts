@@ -329,7 +329,7 @@ export class StreamSettings {
 
         // Current element is setting -> Find the next one
         // Find parent
-        let $parent = $focusing.closest('.bx-stream-settings-row') || $focusing.closest('h2');
+        let $parent = $focusing.closest('[data-focus-container]');
 
         if (!$parent) {
             return;
@@ -507,7 +507,7 @@ export class StreamSettings {
                     continue;
                 }
 
-                $group.appendChild(CE('h2', {},
+                $group.appendChild(CE('h2', {'data-focus-container': 'true'},
                         CE('span', {}, settingGroup.label),
                         settingGroup.help_url && createButton({
                                 icon: BxIcon.QUESTION,
@@ -555,7 +555,11 @@ export class StreamSettings {
                     const label = Preferences.SETTINGS[pref as PrefKey]?.label || setting.label;
                     const note = Preferences.SETTINGS[pref as PrefKey]?.note || setting.note;
 
-                    const $content = CE('div', {'class': 'bx-stream-settings-row', 'data-type': settingGroup.group},
+                    const $content = CE('div', {
+                        class: 'bx-stream-settings-row',
+                        'data-type': settingGroup.group,
+                        'data-focus-container': 'true',
+                    },
                         CE('label', {for: `bx_setting_${pref}`},
                             label,
                             note && CE('div', {'class': 'bx-stream-settings-dialog-note'}, note),

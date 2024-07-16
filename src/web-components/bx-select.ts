@@ -54,7 +54,8 @@ export class BxSelectElement {
         }
 
         const getOptionAtIndex = (index: number): HTMLOptionElement | undefined => {
-            return $select.querySelector(`option:nth-of-type(${visibleIndex + 1})`) as HTMLOptionElement;
+            const options = Array.from($select.querySelectorAll('option'));
+            return options[index];
         }
 
         const render = () => {

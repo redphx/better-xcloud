@@ -11,6 +11,7 @@ import { PrefKey, getPref } from "@utils/preferences";
 import { SoundShortcut } from "./shortcuts/shortcut-sound";
 import { BxEvent } from "@/utils/bx-event";
 import { AppInterface } from "@/utils/global";
+import { BxSelectElement } from "@/web-components/bx-select";
 
 enum ShortcutAction {
     STREAM_SCREENSHOT_CAPTURE = 'stream-screenshot-capture',
@@ -211,6 +212,8 @@ export class ControllerShortcut {
     }
 
     static renderSettings() {
+        const PREF_CONTROLLER_FRIENDLY_UI = getPref(PrefKey.UI_CONTROLLER_FRIENDLY);
+
         // Read actions from localStorage
         ControllerShortcut.#ACTIONS = JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || '{}');
 
@@ -287,23 +290,23 @@ export class ControllerShortcut {
         }
 
         let $remap: HTMLElement;
-        let $selectProfile: HTMLSelectElement;
+        const $selectProfile = CE<HTMLSelectElement>('select', {class: 'bx-shortcut-profile', autocomplete: 'off'});
 
         const $container = CE('div', {'data-has-gamepad': 'false'},
             CE('div', {},
-                CE('p', {'class': 'bx-shortcut-note'}, t('controller-shortcuts-connect-note')),
+                CE('p', {class: 'bx-shortcut-note'}, t('controller-shortcuts-connect-note')),
             ),
 
             $remap = CE('div', {},
-                $selectProfile = CE('select', {'class': 'bx-shortcut-profile', autocomplete: 'off'}),
-                CE('p', {'class': 'bx-shortcut-note'},
-                    CE('span', {'class': 'bx-prompt'}, PrompFont.HOME),
+                PREF_CONTROLLER_FRIENDLY_UI ? CE('div', {'data-focus-container': 'true'}, BxSelectElement.wrap($selectProfile)) : $selectProfile,
+                CE('p', {class: 'bx-shortcut-note'},
+                    CE('span', {class: 'bx-prompt'}, PrompFont.HOME),
                     ': ' + t('controller-shortcuts-xbox-note'),
                 ),
             ),
         );
 
-        $selectProfile.addEventListener('change', e => {
+        $selectProfile.addEventListener('input', e => {
             ControllerShortcut.#switchProfile($selectProfile.value);
         });
 
@@ -314,38 +317,51 @@ export class ControllerShortcut {
             const button: unknown = $target.dataset.button;
             const action = $target.value as ShortcutAction;
 
-            const $fakeSelect = $target.previousElementSibling! as HTMLSelectElement;
-            let fakeText = '---';
-            if (action) {
-                const $selectedOption =  $target.options[$target.selectedIndex];
-                const $optGroup = $selectedOption.parentElement as HTMLOptGroupElement;
-                fakeText = $optGroup.label + ' ❯ ' + $selectedOption.text;
+            if (!PREF_CONTROLLER_FRIENDLY_UI) {
+                const $fakeSelect = $target.previousElementSibling! as HTMLSelectElement;
+                let fakeText = '---';
+                if (action) {
+                    const $selectedOption =  $target.options[$target.selectedIndex];
+                    const $optGroup = $selectedOption.parentElement as HTMLOptGroupElement;
+                    fakeText = $optGroup.label + ' ❯ ' + $selectedOption.text;
+                }
+                ($fakeSelect.firstElementChild as HTMLOptionElement).text = fakeText;
             }
-            ($fakeSelect.firstElementChild as HTMLOptionElement).text = fakeText;
 
             !(e as any).ignoreOnChange && ControllerShortcut.#updateAction(profile, button as GamepadKey, action);
         };
 
+
         // @ts-ignore
         for (const [button, prompt] of buttons) {
-            const $row = CE('div', {'class': 'bx-shortcut-row'});
+            const $row = CE('div', {
+                class: 'bx-shortcut-row',
+                'data-focus-container': 'true',
+            });
 
-            const $label = CE('label', {'class': 'bx-prompt'}, `${PrompFont.HOME} + ${prompt}`);
+            const $label = CE('label', {class: 'bx-prompt'}, `${PrompFont.HOME} + ${prompt}`);
 
-            const $div = CE('div', {'class': 'bx-shortcut-actions'});
+            const $div = CE('div', {class: 'bx-shortcut-actions'});
 
-            const $fakeSelect = CE<HTMLSelectElement>('select', {autocomplete: 'off'},
-                CE('option', {}, '---'),
-            );
-            $div.appendChild($fakeSelect);
+            if (!PREF_CONTROLLER_FRIENDLY_UI) {
+                const $fakeSelect = CE<HTMLSelectElement>('select', {autocomplete: 'off'},
+                    CE('option', {}, '---'),
+                );
+
+                $div.appendChild($fakeSelect);
+            }
 
             const $select = $baseSelect.cloneNode(true) as HTMLSelectElement;
             $select.dataset.button = button.toString();
-            $select.addEventListener('change', onActionChanged);
+            $select.addEventListener('input', onActionChanged);
 
             ControllerShortcut.#$selectActions[button] = $select;
 
-            $div.appendChild($select);
+            if (PREF_CONTROLLER_FRIENDLY_UI) {
+                $div.appendChild(BxSelectElement.wrap($select));
+            } else {
+                $div.appendChild($select);
+            }
 
             $row.appendChild($label);
             $row.appendChild($div);
