@@ -714,6 +714,7 @@ export class Preferences {
             default: 100,
             min: 0,
             max: 600,
+            steps: 20,
             params: {
                 suffix: '%',
                 ticks: 100,
@@ -772,6 +773,7 @@ export class Preferences {
             default: 80,
             min: 50,
             max: 100,
+            steps: 10,
             params: {
                 suffix: '%',
                 ticks: 10,

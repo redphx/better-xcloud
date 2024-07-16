@@ -1,3 +1,8 @@
+if (window.BX_EXPOSED.disableGamepadPolling) {
+    this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(4) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, 4);
+    return;
+}
+
 const currentGamepad = ${gamepadVar};
 
 // Share button on XS controller

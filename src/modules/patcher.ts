@@ -452,6 +452,17 @@ BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
         return str;
     },
 
+    patchGamepadPolling(str: string) {
+        let index = str.indexOf('.shouldHandleGamepadInput)())return void');
+        if (index === -1) {
+            return false;
+        }
+
+        index = str.indexOf('{', index - 20) + 1;
+        str = str.substring(0, index) + 'if (window.BX_EXPOSED.disableGamepadPolling) return;' + str.substring(index);
+        return str;
+    },
+
     patchXcloudTitleInfo(str: string) {
         const text = 'async cloudConnect';
         let index = str.indexOf(text);
@@ -803,6 +814,7 @@ let PATCH_ORDERS: PatchArray = [
     'disableStreamGate',
     'overrideSettings',
     'broadcastPollingMode',
+    getPref(PrefKey.UI_CONTROLLER_FRIENDLY) && 'patchGamepadPolling',
 
     'exposeStreamSession',
     'exposeDialogRoutes',

@@ -115,4 +115,6 @@ export const BxExposed = {
             hasCompletedOnboarding: true,
         },
     },
+
+    disableGamepadPolling: false,
 };
