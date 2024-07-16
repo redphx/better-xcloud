@@ -167,8 +167,8 @@ export class SettingElement {
         };
 
         const updateButtonsVisibility = () => {
-            $btnDec.classList.toggle('bx-hidden', controlValue === MIN);
-            $btnInc.classList.toggle('bx-hidden', controlValue === MAX);
+            $btnDec.classList.toggle('bx-inactive', controlValue === MIN);
+            $btnInc.classList.toggle('bx-inactive', controlValue === MAX);
         }
 
         const $wrapper = CE('div', {'class': 'bx-number-stepper', id: `bx_setting_${key}`},
@@ -200,10 +200,16 @@ export class SettingElement {
 
             $range.addEventListener('input', e => {
                 value = parseInt((e.target as HTMLInputElement).value);
+                const valueChanged = controlValue !== value;
+
+                if (!valueChanged) {
+                    return;
+                }
+
                 controlValue = value;
                 updateButtonsVisibility();
-
                 $text.textContent = renderTextValue(value);
+
                 !(e as any).ignoreOnChange && onChange && onChange(e, value);
             });
             $wrapper.appendChild($range);
@@ -234,10 +240,10 @@ export class SettingElement {
 
         if (options.disabled) {
             $btnInc.disabled = true;
-            $btnInc.classList.add('bx-hidden');
+            $btnInc.classList.add('bx-inactive');
 
             $btnDec.disabled = true;
-            $btnDec.classList.add('bx-hidden');
+            $btnDec.classList.add('bx-inactive');
             return $wrapper;
         }
 
