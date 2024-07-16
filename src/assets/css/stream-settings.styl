@@ -49,6 +49,11 @@
             background: #2f2f2f;
             border-color: #484848;
         }
+
+        &:focus {
+            border-color: #fff;
+            outline: none;
+        }
     }
 }
 
@@ -70,13 +75,14 @@
     box-shadow: 0px 0px 6px #000;
     overflow: overlay;
 
-    > div[data-group=mkb] {
+    > div[data-tab-group=mkb] {
         display: flex;
         flex-direction: column;
         height: 100%;
         overflow: hidden;
     }
 
+    &:focus,
     *:focus {
         outline: none !important;
     }
@@ -106,8 +112,23 @@
 .bx-stream-settings-row {
     display: flex;
     border-bottom: 1px solid #40404080;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
+    padding: 16px 8px;
+    border-left: 2px solid transparent;
+
+    &:hover, &:focus-within {
+        background-color: #242424;
+    }
+
+    input[type=checkbox],
+    select {
+        &:focus {
+            filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
+        }
+    }
+
+    &:has(input:focus), &:has(select:focus), &:has(button:focus) {
+        border-left-color: white;
+    }
 
     > label {
         font-size: 16px;
@@ -120,6 +141,10 @@
 
     input {
         accent-color: var(--bx-primary-button-color);
+
+        &:focus {
+            accent-color: var(--bx-danger-button-color);
+        }
     }
 
     select:disabled {
@@ -143,7 +168,7 @@
 }
 
 .bx-stream-settings-tab-contents {
-    div[data-group="shortcuts"] {
+    div[data-tab-group="shortcuts"] {
         > div {
             &[data-has-gamepad=true] {
                 > div:first-of-type {

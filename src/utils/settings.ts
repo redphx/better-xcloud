@@ -175,13 +175,15 @@ export class SettingElement {
                 $btnDec = CE('button', {
                         'data-type': 'dec',
                         type: 'button',
-                        tabindex: -1,
+                        class: options.hideSlider ? 'bx-focusable' : '',
+                        tabindex: options.hideSlider ? 0 : -1,
                     }, '-') as HTMLButtonElement,
                 $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
                 $btnInc = CE('button', {
                         'data-type': 'inc',
                         type: 'button',
-                        tabindex: -1,
+                        class: options.hideSlider ? 'bx-focusable' : '',
+                        tabindex: options.hideSlider ? 0 : -1,
                     }, '+') as HTMLButtonElement,
             );
 

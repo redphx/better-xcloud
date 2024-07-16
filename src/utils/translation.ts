@@ -371,6 +371,7 @@ export class Translations {
     static async updateTranslations(async=false) {
         // Don't have to download en-US
         if (Translations.#selectedLocale === Translations.#EN_US) {
+            localStorage.removeItem(Translations.#KEY_TRANSLATIONS);
             return;
         }
 

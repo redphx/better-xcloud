@@ -9,6 +9,7 @@ type BxButton = {
     title?: string;
     disabled?: boolean;
     onClick?: EventListener;
+    tabIndex?: number;
     attributes?: {[key: string]: any},
 }
 
@@ -94,6 +95,7 @@ export const createButton = <T=HTMLButtonElement>(options: BxButton): T => {
     options.title && $btn.setAttribute('title', options.title);
     options.disabled && (($btn as HTMLButtonElement).disabled = true);
     options.onClick && $btn.addEventListener('click', options.onClick);
+    typeof options.tabIndex === 'number' && ($btn.tabIndex = options.tabIndex!);
 
     for (const key in options.attributes) {
         if (!$btn.hasOwnProperty(key)) {

@@ -203,6 +203,8 @@ export function setupSettingsUi() {
         $wrapper.appendChild($div);
     }
 
+    let localeSwitchingTimeout: number | null;
+
     const onChange = async (e: Event) => {
         // Clear PatcherCache;
         PatcherCache.clear();
@@ -214,12 +216,17 @@ export function setupSettingsUi() {
         $btnHeaderSettings && $btnHeaderSettings.classList.add('bx-danger');
 
         if ((e.target as HTMLElement).id === 'bx_setting_' + PrefKey.BETTER_XCLOUD_LOCALE) {
-            // Update locale
-            Translations.refreshCurrentLocale();
-            await Translations.updateTranslations();
+            if (getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
+                localeSwitchingTimeout && window.clearTimeout(localeSwitchingTimeout);
+                localeSwitchingTimeout = window.setTimeout(() => {
+                    Translations.refreshCurrentLocale();
+                    Translations.updateTranslations();
+                }, 1000);
+            } else {
+                // Update locale
+                Translations.refreshCurrentLocale();
+                await Translations.updateTranslations();
 
-            // Don't refresh the page when using controller-friendly UI
-            if (!getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
                 $btnReload.textContent = t('settings-reloading');
                 $btnReload.click();
             }
@@ -390,9 +397,9 @@ export function setupSettingsUi() {
 
             if ($control instanceof HTMLSelectElement && getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
                 // Controller-friendly <select>
-                $elm = CE('div', {'class': 'bx-settings-row'},
+                $elm = CE('div', {'class': 'bx-settings-row', 'data-group': 0},
                     $label,
-                    CE('div', {class: 'bx-setting-control', 'data-group': 0}, BxSelectElement.wrap($control)),
+                    CE('div', {class: 'bx-setting-control'}, BxSelectElement.wrap($control)),
                 );
             } else {
                 $elm = CE('div', {'class': 'bx-settings-row', 'data-group': 0},

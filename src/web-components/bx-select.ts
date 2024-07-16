@@ -2,6 +2,9 @@ import { ButtonStyle, CE, createButton } from "@utils/html";
 
 export class BxSelectElement {
     static wrap($select: HTMLSelectElement) {
+        // Remove "tabindex" attribute from <select>
+        $select.removeAttribute('tabindex');
+
         const $btnPrev = createButton({
             label: '<',
             style: ButtonStyle.FOCUSABLE,
@@ -88,10 +91,10 @@ export class BxSelectElement {
             const disableNext = visibleIndex === $select.querySelectorAll('option').length - 1;
 
             $btnPrev.classList.toggle('bx-inactive', disablePrev);
-            disablePrev && document.activeElement === $btnPrev && $btnNext.focus();
+            // disablePrev && document.activeElement === $btnPrev && $btnNext.focus();
 
             $btnNext.classList.toggle('bx-inactive', disableNext);
-            disableNext && document.activeElement === $btnNext &&$btnPrev.focus();
+            // disableNext && document.activeElement === $btnNext &&$btnPrev.focus();
         }
 
         const normalizeIndex = (index: number): number => {

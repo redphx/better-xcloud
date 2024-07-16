@@ -17,11 +17,13 @@
 }
 
 .bx-settings-wrapper {
-    width: 450px;
+    min-width: 450px;
+    max-width: 600px;
     margin: auto;
     padding: 12px 6px;
 
     @media screen and (max-width: 450px) {
+        min-width: unset;
         width: 100%;
     }
 

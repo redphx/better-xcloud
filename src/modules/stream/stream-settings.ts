@@ -14,6 +14,19 @@ import { StreamStats } from "./stream-stats";
 import { BxSelectElement } from "@/web-components/bx-select";
 import { onChangeVideoPlayerType, updateVideoPlayer } from "./stream-settings-utils";
 
+enum FocusDirection {
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT,
+}
+
+enum FocusContainer {
+    OUTSIDE,
+    TABS,
+    SETTINGS,
+}
+
 export class StreamSettings {
     private static instance: StreamSettings;
 
@@ -26,6 +39,8 @@ export class StreamSettings {
     }
 
     private $container: HTMLElement | undefined;
+    private $tabs: HTMLElement | undefined;
+    private $settings: HTMLElement | undefined;
     private $overlay: HTMLElement | undefined;
 
     readonly SETTINGS_UI = [{
@@ -248,40 +263,207 @@ export class StreamSettings {
         const $container = this.$container!;
         // Select tab
         if (tabId) {
-            const $tab = $container.querySelector(`.bx-stream-settings-tabs svg[data-group=${tabId}]`);
+            const $tab = $container.querySelector(`.bx-stream-settings-tabs svg[data-tab-group=${tabId}]`);
             $tab && $tab.dispatchEvent(new Event('click'));
         }
 
+        // Show overlay
         this.$overlay!.classList.remove('bx-gone');
         this.$overlay!.dataset.isPlaying = STATES.isPlaying.toString();
 
+        // Show dialog
         $container.classList.remove('bx-gone');
+        // Lock scroll bar
         document.body.classList.add('bx-no-scroll');
+
+        if (getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
+            // Focus the first visible setting
+            this.#focusDirection(FocusDirection.DOWN);
+
+            // Add event listeners
+            $container.addEventListener('keydown', this);
+        }
 
         BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN);
     }
 
     hide() {
+        // Hide overlay
         this.$overlay!.classList.add('bx-gone');
+        // Hide dialog
         this.$container!.classList.add('bx-gone');
-
+        // Show scroll bar
         document.body.classList.remove('bx-no-scroll');
 
+        // Remove event listeners
+        this.$container!.removeEventListener('keydown', this);
+
         BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_DISMISSED);
+    }
+
+    #handleTabsNavigation($focusing: HTMLElement, direction: FocusDirection) {
+        if (direction === FocusDirection.UP || direction === FocusDirection.DOWN) {
+            let $sibling = $focusing;
+            const siblingProperty = direction === FocusDirection.UP ? 'previousElementSibling' : 'nextElementSibling';
+
+            while ($sibling[siblingProperty]) {
+                $sibling = $sibling[siblingProperty] as HTMLElement;
+                $sibling && $sibling.focus();
+                return;
+            }
+        } else if (direction === FocusDirection.RIGHT) {
+            this.#focusFirstVisibleSetting();
+        }
+    }
+
+    #handleSettingsNavigation($focusing: HTMLElement, direction: FocusDirection) {
+        // If current element's tabIndex property is not 0
+        if ($focusing.tabIndex !== 0) {
+            // Find first visible setting
+            const $childSetting = $focusing.querySelector('div[data-tab-group]:not(.bx-gone) [tabindex="0"]:not(a)') as HTMLElement;
+            if ($childSetting) {
+                $childSetting.focus();
+                return;
+            }
+        }
+
+        // Current element is setting -> Find the next one
+        // Find parent
+        let $parent = $focusing.closest('.bx-stream-settings-row') || $focusing.closest('h2');
+
+        if (!$parent) {
+            return;
+        }
+
+        // Find sibling setting
+        let $sibling = $parent;
+        if (direction === FocusDirection.UP || direction === FocusDirection.DOWN) {
+            const siblingProperty = direction === FocusDirection.UP ? 'previousElementSibling' : 'nextElementSibling';
+
+            while ($sibling[siblingProperty]) {
+                $sibling = $sibling[siblingProperty];
+                const $childSetting = $sibling.querySelector('[tabindex="0"]:last-of-type') as HTMLElement;
+                if ($childSetting) {
+                    $childSetting.focus();
+                    return;
+                }
+            }
+        } else if (direction === FocusDirection.LEFT || direction === FocusDirection.RIGHT) {
+            // Find all child elements with tabindex
+            const children = Array.from($parent.querySelectorAll('[tabindex="0"]'));
+            const index = children.indexOf($focusing);
+            let nextIndex;
+            if (direction === FocusDirection.LEFT) {
+                nextIndex = index - 1;
+            } else {
+                nextIndex = index + 1;
+            }
+
+            nextIndex = Math.max(-1, Math.min(nextIndex, children.length - 1));
+            if (nextIndex === -1) {
+                // Focus setting tabs
+                const $tab = this.$tabs!.querySelector('svg.bx-active') as HTMLElement;
+                $tab && $tab.focus();
+            } else if (nextIndex !== index) {
+                (children[nextIndex] as HTMLElement).focus();
+            }
+        }
+    }
+
+    #focusFirstVisibleSetting() {
+        // Focus the first visible tab content
+        const $tab = this.$settings!.querySelector('div[data-tab-group]:not(.bx-gone)') as HTMLElement;
+
+        if ($tab) {
+            // Focus on the first focusable setting
+            const $control = $tab.querySelector('[tabindex="0"]:not(a)') as HTMLElement;
+            if ($control) {
+                $control.focus();
+            } else {
+                // Focus tab
+                $tab.focus();
+            }
+        }
+    }
+
+    #focusDirection(direction: FocusDirection) {
+        const $tabs = this.$tabs!;
+        const $settings = this.$settings!;
+
+        // Get current focused element
+        let $focusing = document.activeElement as HTMLElement;
+
+        let focusContainer = FocusContainer.OUTSIDE;
+        if ($focusing) {
+            if ($settings.contains($focusing)) {
+                focusContainer = FocusContainer.SETTINGS;
+            } else if ($tabs.contains($focusing)) {
+                focusContainer = FocusContainer.TABS;
+            }
+        }
+
+        // If not focusing any element or the focused element is not inside the dialog
+        if (focusContainer === FocusContainer.OUTSIDE) {
+            this.#focusFirstVisibleSetting();
+            return;
+        } else if (focusContainer === FocusContainer.SETTINGS) {
+            this.#handleSettingsNavigation($focusing, direction);
+        } else if (focusContainer === FocusContainer.TABS) {
+            this.#handleTabsNavigation($focusing, direction);
+        }
+    }
+
+    handleEvent(event: Event) {
+        switch (event.type) {
+            case 'keydown':
+                const $target = event.target as HTMLElement;
+                const keyboardEvent = event as KeyboardEvent;
+                const keyCode = keyboardEvent.code;
+
+                if (keyCode === 'ArrowUp' || keyCode === 'ArrowDown') {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    this.#focusDirection(keyCode === 'ArrowUp' ? FocusDirection.UP : FocusDirection.DOWN);
+                } else if (keyCode === 'ArrowLeft' || keyCode === 'ArrowRight') {
+                    if (($target as any).type !== 'range') {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        this.#focusDirection(keyCode === 'ArrowLeft' ? FocusDirection.LEFT : FocusDirection.RIGHT);
+                    }
+                } else if (keyCode === 'Enter' || keyCode === 'Space') {
+                    if ($target instanceof SVGElement) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        $target.dispatchEvent(new Event('click'));
+                    }
+                } else if (keyCode === 'Escape') {
+                    this.hide();
+                }
+                break;
+        }
     }
 
     #setupDialog() {
         let $tabs: HTMLElement;
         let $settings: HTMLElement;
 
-        const $overlay = CE('div', {'class': 'bx-stream-settings-overlay bx-gone'});
+        const $overlay = CE('div', {class: 'bx-stream-settings-overlay bx-gone'});
         this.$overlay = $overlay;
 
-        const $container = CE('div', {'class': 'bx-stream-settings-dialog bx-gone'},
-                $tabs = CE('div', {'class': 'bx-stream-settings-tabs'}),
-                $settings = CE('div', {'class': 'bx-stream-settings-tab-contents'}),
+        const $container = CE('div', {class: 'bx-stream-settings-dialog bx-gone'},
+                $tabs = CE('div', {class: 'bx-stream-settings-tabs'}),
+                $settings = CE('div', {
+                    class: 'bx-stream-settings-tab-contents',
+                    tabindex: 10,
+                }),
             );
+
         this.$container = $container;
+        this.$tabs = $tabs;
+        this.$settings = $settings;
 
         // Close dialog when clicking on the overlay
         $overlay.addEventListener('click', e => {
@@ -296,10 +478,12 @@ export class StreamSettings {
             }
 
             const $svg = createSvgIcon(settingTab.icon);
+            $svg.tabIndex = 0;
+
             $svg.addEventListener('click', e => {
                 // Switch tab
                 for (const $child of Array.from($settings.children)) {
-                    if ($child.getAttribute('data-group') === settingTab.group) {
+                    if ($child.getAttribute('data-tab-group') === settingTab.group) {
                         $child.classList.remove('bx-gone');
                     } else {
                         $child.classList.add('bx-gone');
@@ -316,7 +500,7 @@ export class StreamSettings {
 
             $tabs.appendChild($svg);
 
-            const $group = CE('div', {'data-group': settingTab.group, 'class': 'bx-gone'});
+            const $group = CE('div', {'data-tab-group': settingTab.group, 'class': 'bx-gone'});
 
             for (const settingGroup of settingTab.items) {
                 if (!settingGroup) {
@@ -327,9 +511,10 @@ export class StreamSettings {
                         CE('span', {}, settingGroup.label),
                         settingGroup.help_url && createButton({
                                 icon: BxIcon.QUESTION,
-                                style: ButtonStyle.GHOST,
+                                style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
                                 url: settingGroup.help_url,
                                 title: t('help'),
+                                tabIndex: 0,
                             }),
                     ));
                 if (settingGroup.note) {
