@@ -1,5 +1,5 @@
 if (window.BX_EXPOSED.disableGamepadPolling) {
-    this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(4) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, 4);
+    this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(50) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, 50);
     return;
 }
 
