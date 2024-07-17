@@ -311,19 +311,17 @@ export class StreamSettings {
         // Lock scroll bar
         document.body.classList.add('bx-no-scroll');
 
-        if (getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
-            // Focus the first visible setting
-            this.#focusDirection(NavigationDirection.DOWN);
+        // Focus the first visible setting
+        this.#focusDirection(NavigationDirection.DOWN);
 
-            // Add event listeners
-            $container.addEventListener('keydown', this);
+        // Add event listeners
+        $container.addEventListener('keydown', this);
 
-            // Start gamepad polling
-            this.#startGamepadPolling();
+        // Start gamepad polling
+        this.#startGamepadPolling();
 
-            // Disable xCloud's navigation polling
-            (window as any).BX_EXPOSED.disableGamepadPolling = true;
-        }
+        // Disable xCloud's navigation polling
+        (window as any).BX_EXPOSED.disableGamepadPolling = true;
 
         BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN);
     }
