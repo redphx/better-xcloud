@@ -362,6 +362,10 @@ export class StreamSettings {
                     document.activeElement && document.activeElement.dispatchEvent(new MouseEvent('click'));
                 } else if (pressedButton === GamepadKey.B) {
                     this.hide();
+                } else if (pressedButton === GamepadKey.LB || pressedButton === GamepadKey.RB) {
+                    // Go to next/previous tab
+                    const $currentTab = this.$tabs!.querySelector('.bx-active') as HTMLElement;
+                    $currentTab && this.#handleTabsNavigation($currentTab, pressedButton === GamepadKey.LB ? FocusDirection.UP : FocusDirection.DOWN);
                 }
 
                 if (pressedButton === GamepadKey.UP) {
