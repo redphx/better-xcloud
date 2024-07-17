@@ -689,5 +689,8 @@ export class StreamSettings {
 
         document.documentElement.appendChild($overlay);
         document.documentElement.appendChild($container);
+
+        // Update video's settings
+        onChangeVideoPlayerType();
     }
 }

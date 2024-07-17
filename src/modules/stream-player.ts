@@ -68,7 +68,7 @@ export class StreamPlayer {
         const filters = [];
 
         const sharpness = this.#options.sharpness || 0;
-        if (sharpness != 0) {
+        if (this.#options.processing === StreamVideoProcessing.USM && sharpness != 0) {
             const level = (7 - ((sharpness / 2) - 1) * 0.5).toFixed(1); // 5, 5.5, 6, 6.5, 7
             const matrix = `0 -1 0 -1 ${level} -1 0 -1 0`;
             this.#$usmMatrix?.setAttributeNS(null, 'kernelMatrix', matrix);

@@ -82,6 +82,9 @@ export class BxSelectElement {
                 $label.textContent = content;
             }
 
+            // Add line-through on disabled option
+            $label.classList.toggle('bx-line-through', $option && $option.disabled);
+
             // Hide checkbox when the selection is empty
             if (isMultiple) {
                 $checkBox.checked = $option?.selected || false;
@@ -123,13 +126,16 @@ export class BxSelectElement {
 
         const observer = new MutationObserver((mutationList, observer) => {
             mutationList.forEach(mutation => {
-                mutation.type === 'childList' && render();
+                if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                    render();
+                }
             });
         });
 
         observer.observe($select, {
             subtree: true,
             childList: true,
+            attributes: true,
         });
 
         render();
