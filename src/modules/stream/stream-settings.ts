@@ -14,9 +14,10 @@ import { StreamStats } from "./stream-stats";
 import { BxSelectElement } from "@/web-components/bx-select";
 import { onChangeVideoPlayerType, updateVideoPlayer } from "./stream-settings-utils";
 import { GamepadKey } from "@/enums/mkb";
+import { EmulatedMkbHandler } from "../mkb/mkb-handler";
 
-enum FocusDirection {
-    UP,
+enum NavigationDirection {
+    UP = 1,
     RIGHT,
     DOWN,
     LEFT,
@@ -39,6 +40,8 @@ export class StreamSettings {
         return StreamSettings.instance;
     }
 
+    static readonly MAIN_CLASS = 'bx-stream-settings-dialog';
+
     private static readonly GAMEPAD_POLLING_INTERVAL = 50;
     private static readonly GAMEPAD_KEYS = [
         GamepadKey.UP,
@@ -50,6 +53,18 @@ export class StreamSettings {
         GamepadKey.LB,
         GamepadKey.RB,
     ];
+
+    private static readonly GAMEPAD_DIRECTION_MAP = {
+        [GamepadKey.UP]: NavigationDirection.UP,
+        [GamepadKey.DOWN]: NavigationDirection.DOWN,
+        [GamepadKey.LEFT]: NavigationDirection.LEFT,
+        [GamepadKey.RIGHT]: NavigationDirection.RIGHT,
+
+        [GamepadKey.LS_UP]: NavigationDirection.UP,
+        [GamepadKey.LS_DOWN]: NavigationDirection.DOWN,
+        [GamepadKey.LS_LEFT]: NavigationDirection.LEFT,
+        [GamepadKey.LS_RIGHT]: NavigationDirection.RIGHT,
+    };
 
     private gamepadPollingIntervalId: number | null = null;
     private gamepadLastButtons: Array<GamepadKey | null> = [];
@@ -275,6 +290,10 @@ export class StreamSettings {
         window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, e => this.hide());
     }
 
+    isShowing() {
+        return this.$container && !this.$container.classList.contains('bx-gone');
+    }
+
     show(tabId?: string) {
         const $container = this.$container!;
         // Select tab
@@ -294,7 +313,7 @@ export class StreamSettings {
 
         if (getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
             // Focus the first visible setting
-            this.#focusDirection(FocusDirection.DOWN);
+            this.#focusDirection(NavigationDirection.DOWN);
 
             // Add event listeners
             $container.addEventListener('keydown', this);
@@ -329,73 +348,110 @@ export class StreamSettings {
         BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_DISMISSED);
     }
 
+    #focusCurrentTab() {
+        const $currentTab = this.$tabs!.querySelector('.bx-active') as HTMLElement;
+        $currentTab && $currentTab.focus();
+    }
+
     #pollGamepad() {
         const gamepads = window.navigator.getGamepads();
 
-        let direction: FocusDirection | null = null;
+        let direction: NavigationDirection | null = null;
         for (const gamepad of gamepads) {
             if (!gamepad || !gamepad.connected) {
                 continue;
             }
 
+            // Ignore virtual controller
+            if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) {
+                continue;
+            }
+
+            const axes = gamepad.axes;
             const buttons = gamepad.buttons;
+
             let lastButton = this.gamepadLastButtons[gamepad.index];
-            let pressedButton: GamepadKey | undefined = undefined;
+            let pressedButton: GamepadKey | null = null;
+            let holdingButton: GamepadKey | null = null;
 
             for (const key of StreamSettings.GAMEPAD_KEYS) {
                 if (typeof lastButton === 'number') {
-                    // Key pressed
+                    // Key released
                     if (lastButton === key && !buttons[key].pressed) {
                         pressedButton = key;
                         break;
                     }
                 } else if (buttons[key].pressed) {
-                    this.gamepadLastButtons[gamepad.index] = key;
+                    // Key pressed
+                    holdingButton = key;
                     break;
                 }
             }
 
-            if (typeof pressedButton !== 'undefined') {
-                this.gamepadLastButtons[gamepad.index] = null;
+            if (holdingButton === null && pressedButton === null && axes && axes.length >= 2) {
+                // Check sticks
+                // LEFT left-right, LEFT up-down
 
-                if (pressedButton === GamepadKey.A) {
-                    document.activeElement && document.activeElement.dispatchEvent(new MouseEvent('click'));
-                } else if (pressedButton === GamepadKey.B) {
-                    this.hide();
-                } else if (pressedButton === GamepadKey.LB || pressedButton === GamepadKey.RB) {
-                    // Focus setting tabs
-                    const $currentTab = this.$tabs!.querySelector('.bx-active') as HTMLElement;
-                    $currentTab && $currentTab.focus();
-                }
+                if (typeof lastButton === 'number') {
+                    const releasedHorizontal = Math.abs(axes[0]) < 0.1 && (lastButton === GamepadKey.LS_LEFT || lastButton === GamepadKey.LS_RIGHT);
+                    const releasedVertical = Math.abs(axes[1]) < 0.1 && (lastButton === GamepadKey.LS_UP || lastButton === GamepadKey.LS_DOWN);
 
-                if (pressedButton === GamepadKey.UP) {
-                    direction = FocusDirection.UP;
-                } else if (pressedButton === GamepadKey.DOWN) {
-                    direction = FocusDirection.DOWN;
-                } else if (pressedButton === GamepadKey.LEFT) {
-                    direction = FocusDirection.LEFT;
-                } else if (pressedButton === GamepadKey.RIGHT) {
-                    direction = FocusDirection.RIGHT;
-                }
-
-                if (direction !== null) {
-                    let handled = false;
-                    if (document.activeElement instanceof HTMLInputElement && document.activeElement.type === 'range') {
-                        const $range = document.activeElement;
-                        if (direction === FocusDirection.LEFT || direction === FocusDirection.RIGHT) {
-                            $range.value = (parseInt($range.value) + parseInt($range.step) * (direction === FocusDirection.LEFT ? -1 : 1)).toString();
-                            $range.dispatchEvent(new InputEvent('input'));
-                            handled = true;
-                        }
+                    if (releasedHorizontal || releasedVertical) {
+                        pressedButton = lastButton;
                     }
-
-                    if (!handled) {
-                        this.#focusDirection(direction);
+                } else {
+                    if (axes[0] < -0.5) {
+                        holdingButton = GamepadKey.LS_LEFT;
+                    } else if (axes[0] > 0.5) {
+                        holdingButton = GamepadKey.LS_RIGHT;
+                    } else if (axes[1] < -0.5) {
+                        holdingButton = GamepadKey.LS_UP;
+                    } else if (axes[1] > 0.5) {
+                        holdingButton = GamepadKey.LS_DOWN;
                     }
                 }
+            }
 
+            if (holdingButton !== null) {
+                this.gamepadLastButtons[gamepad.index] = holdingButton;
+            }
+
+            if (pressedButton === null) {
+                continue;
+            }
+
+            this.gamepadLastButtons[gamepad.index] = null;
+
+            if (pressedButton === GamepadKey.A) {
+                document.activeElement && document.activeElement.dispatchEvent(new MouseEvent('click'));
+                return;
+            } else if (pressedButton === GamepadKey.B) {
+                this.hide();
+                return;
+            } else if (pressedButton === GamepadKey.LB || pressedButton === GamepadKey.RB) {
+                // Focus setting tabs
+                this.#focusCurrentTab();
                 return;
             }
+
+            direction = StreamSettings.GAMEPAD_DIRECTION_MAP[pressedButton as keyof typeof StreamSettings.GAMEPAD_DIRECTION_MAP];
+            if (direction) {
+                let handled = false;
+                if (document.activeElement instanceof HTMLInputElement && document.activeElement.type === 'range') {
+                    const $range = document.activeElement;
+                    if (direction === NavigationDirection.LEFT || direction === NavigationDirection.RIGHT) {
+                        $range.value = (parseInt($range.value) + parseInt($range.step) * (direction === NavigationDirection.LEFT ? -1 : 1)).toString();
+                        $range.dispatchEvent(new InputEvent('input'));
+                        handled = true;
+                    }
+                }
+
+                if (!handled) {
+                    this.#focusDirection(direction);
+                }
+            }
+
+            return;
         }
     }
 
@@ -412,22 +468,22 @@ export class StreamSettings {
         this.gamepadPollingIntervalId = null;
     }
 
-    #handleTabsNavigation($focusing: HTMLElement, direction: FocusDirection) {
-        if (direction === FocusDirection.UP || direction === FocusDirection.DOWN) {
+    #handleTabsNavigation($focusing: HTMLElement, direction: NavigationDirection) {
+        if (direction === NavigationDirection.UP || direction === NavigationDirection.DOWN) {
             let $sibling = $focusing;
-            const siblingProperty = direction === FocusDirection.UP ? 'previousElementSibling' : 'nextElementSibling';
+            const siblingProperty = direction === NavigationDirection.UP ? 'previousElementSibling' : 'nextElementSibling';
 
             while ($sibling[siblingProperty]) {
                 $sibling = $sibling[siblingProperty] as HTMLElement;
                 $sibling && $sibling.focus();
                 return;
             }
-        } else if (direction === FocusDirection.RIGHT) {
+        } else if (direction === NavigationDirection.RIGHT) {
             this.#focusFirstVisibleSetting();
         }
     }
 
-    #handleSettingsNavigation($focusing: HTMLElement, direction: FocusDirection) {
+    #handleSettingsNavigation($focusing: HTMLElement, direction: NavigationDirection) {
         // If current element's tabIndex property is not 0
         if ($focusing.tabIndex !== 0) {
             // Find first visible setting
@@ -448,8 +504,8 @@ export class StreamSettings {
 
         // Find sibling setting
         let $sibling = $parent;
-        if (direction === FocusDirection.UP || direction === FocusDirection.DOWN) {
-            const siblingProperty = direction === FocusDirection.UP ? 'previousElementSibling' : 'nextElementSibling';
+        if (direction === NavigationDirection.UP || direction === NavigationDirection.DOWN) {
+            const siblingProperty = direction === NavigationDirection.UP ? 'previousElementSibling' : 'nextElementSibling';
 
             while ($sibling[siblingProperty]) {
                 $sibling = $sibling[siblingProperty];
@@ -459,12 +515,12 @@ export class StreamSettings {
                     return;
                 }
             }
-        } else if (direction === FocusDirection.LEFT || direction === FocusDirection.RIGHT) {
+        } else if (direction === NavigationDirection.LEFT || direction === NavigationDirection.RIGHT) {
             // Find all child elements with tabindex
             const children = Array.from($parent.querySelectorAll('[tabindex="0"]'));
             const index = children.indexOf($focusing);
             let nextIndex;
-            if (direction === FocusDirection.LEFT) {
+            if (direction === NavigationDirection.LEFT) {
                 nextIndex = index - 1;
             } else {
                 nextIndex = index + 1;
@@ -497,7 +553,7 @@ export class StreamSettings {
         }
     }
 
-    #focusDirection(direction: FocusDirection) {
+    #focusDirection(direction: NavigationDirection) {
         const $tabs = this.$tabs!;
         const $settings = this.$settings!;
 
@@ -531,28 +587,34 @@ export class StreamSettings {
                 const keyboardEvent = event as KeyboardEvent;
                 const keyCode = keyboardEvent.code || keyboardEvent.key;
 
-                if (keyCode === 'ArrowUp' || keyCode === 'ArrowDown') {
-                    event.preventDefault();
-                    event.stopPropagation();
+                let handled = false;
 
-                    this.#focusDirection(keyCode === 'ArrowUp' ? FocusDirection.UP : FocusDirection.DOWN);
+                if (keyCode === 'ArrowUp' || keyCode === 'ArrowDown') {
+                    handled = true;
+                    this.#focusDirection(keyCode === 'ArrowUp' ? NavigationDirection.UP : NavigationDirection.DOWN);
                 } else if (keyCode === 'ArrowLeft' || keyCode === 'ArrowRight') {
                     if (($target as any).type !== 'range') {
-                        event.preventDefault();
-                        event.stopPropagation();
-
-                        this.#focusDirection(keyCode === 'ArrowLeft' ? FocusDirection.LEFT : FocusDirection.RIGHT);
+                        handled = true;
+                        this.#focusDirection(keyCode === 'ArrowLeft' ? NavigationDirection.LEFT : NavigationDirection.RIGHT);
                     }
                 } else if (keyCode === 'Enter' || keyCode === 'Space') {
                     if ($target instanceof SVGElement) {
-                        event.preventDefault();
-                        event.stopPropagation();
-
+                        handled = true;
                         $target.dispatchEvent(new Event('click'));
                     }
+                } else if (keyCode === 'Tab') {
+                    handled = true;
+                    this.#focusCurrentTab();
                 } else if (keyCode === 'Escape') {
+                    handled = true;
                     this.hide();
                 }
+
+                if (handled) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
                 break;
         }
     }
@@ -564,7 +626,7 @@ export class StreamSettings {
         const $overlay = CE('div', {class: 'bx-stream-settings-overlay bx-gone'});
         this.$overlay = $overlay;
 
-        const $container = CE('div', {class: 'bx-stream-settings-dialog bx-gone'},
+        const $container = CE('div', {class: StreamSettings.MAIN_CLASS + ' bx-gone'},
                 $tabs = CE('div', {class: 'bx-stream-settings-tabs'}),
                 $settings = CE('div', {
                     class: 'bx-stream-settings-tab-contents',
