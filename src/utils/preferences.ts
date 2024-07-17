@@ -644,7 +644,7 @@ export class Preferences {
             min: 0,
             max: 10,
             params: {
-                hideSlider: true,
+                exactTicks: 2,
                 customTextValue: (value: any) => {
                     value = parseInt(value);
                     return value === 0 ? t('off') : value.toString();
