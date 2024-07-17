@@ -814,7 +814,7 @@ let PATCH_ORDERS: PatchArray = [
     'disableStreamGate',
     'overrideSettings',
     'broadcastPollingMode',
-    getPref(PrefKey.UI_CONTROLLER_FRIENDLY) && 'patchGamepadPolling',
+    'patchGamepadPolling',
 
     'exposeStreamSession',
     'exposeDialogRoutes',

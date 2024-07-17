@@ -5120,7 +5120,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   "disableStreamGate",
   "overrideSettings",
   "broadcastPollingMode",
-  getPref(PrefKey.UI_CONTROLLER_FRIENDLY) && "patchGamepadPolling",
+  "patchGamepadPolling",
   "exposeStreamSession",
   "exposeDialogRoutes",
   "enableTvRoutes",
