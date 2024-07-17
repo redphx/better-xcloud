@@ -3717,7 +3717,7 @@ class StreamSettings {
           this.hide();
         else if (pressedButton === GamepadKey.LB || pressedButton === GamepadKey.RB) {
           const $currentTab = this.$tabs.querySelector(".bx-active");
-          $currentTab && this.#handleTabsNavigation($currentTab, pressedButton === GamepadKey.LB ? FocusDirection.UP : FocusDirection.DOWN);
+          $currentTab && $currentTab.focus();
         }
         if (pressedButton === GamepadKey.UP)
           direction = FocusDirection.UP;

@@ -363,9 +363,9 @@ export class StreamSettings {
                 } else if (pressedButton === GamepadKey.B) {
                     this.hide();
                 } else if (pressedButton === GamepadKey.LB || pressedButton === GamepadKey.RB) {
-                    // Go to next/previous tab
+                    // Focus setting tabs
                     const $currentTab = this.$tabs!.querySelector('.bx-active') as HTMLElement;
-                    $currentTab && this.#handleTabsNavigation($currentTab, pressedButton === GamepadKey.LB ? FocusDirection.UP : FocusDirection.DOWN);
+                    $currentTab && $currentTab.focus();
                 }
 
                 if (pressedButton === GamepadKey.UP) {
