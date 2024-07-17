@@ -43,11 +43,18 @@ export class GuideMenu {
             },
         }),
 
-        reloadStream: createButton({
+        reloadPage: createButton({
             label: t('reload-page'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
-                confirm(t('confirm-reload-stream')) && window.location.reload();
+                if (STATES.isPlaying) {
+                    confirm(t('confirm-reload-stream')) && window.location.reload();
+                } else {
+                    window.location.reload();
+                }
+
+                // Close all xCloud's dialogs
+                window.BX_EXPOSED.dialogRoutes.closeAll();
             },
         }),
 
@@ -88,6 +95,9 @@ export class GuideMenu {
             buttons.push(GuideMenu.#BUTTONS.closeApp);
         }
 
+        // Reload page
+        buttons.push(GuideMenu.#BUTTONS.reloadPage);
+
         const $buttons = GuideMenu.#renderButtons(buttons);
 
         const $lastDivider = $dividers[$dividers.length - 1];
@@ -105,8 +115,8 @@ export class GuideMenu {
         buttons.push(GuideMenu.#BUTTONS.streamSetting);
         AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
 
-        // Reload stream
-        buttons.push(GuideMenu.#BUTTONS.reloadStream);
+        // Reload page
+        buttons.push(GuideMenu.#BUTTONS.reloadPage);
 
         // Back to home
         buttons.push(GuideMenu.#BUTTONS.backToHome);
