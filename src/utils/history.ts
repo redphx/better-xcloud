@@ -2,6 +2,7 @@ import { BxEvent } from "@utils/bx-event";
 import { LoadingScreen } from "@modules/loading-screen";
 import { RemotePlay } from "@modules/remote-play";
 import { HeaderSection } from "@/modules/ui/header";
+import { StreamSettings } from "@/modules/stream/stream-settings";
 
 export function patchHistoryMethod(type: 'pushState' | 'replaceState') {
     const orig = window.history[type];
@@ -25,9 +26,15 @@ export function onHistoryChanged(e: PopStateEvent) {
 
     window.setTimeout(RemotePlay.detect, 10);
 
+    // Hide Global settings
     const $settings = document.querySelector('.bx-settings-container');
     if ($settings) {
         $settings.classList.add('bx-gone');
+    }
+
+    // Hide Stream settings
+    if (document.querySelector('.' + StreamSettings.MAIN_CLASS)) {
+        StreamSettings.getInstance().hide();
     }
 
     // Hide Remote Play popup
