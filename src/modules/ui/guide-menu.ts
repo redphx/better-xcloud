@@ -44,7 +44,7 @@ export class GuideMenu {
         }),
 
         reloadStream: createButton({
-            label: t('reload-stream'),
+            label: t('reload-page'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 confirm(t('confirm-reload-stream')) && window.location.reload();

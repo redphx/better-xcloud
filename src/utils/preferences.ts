@@ -1,5 +1,5 @@
 import { CE } from "@utils/html";
-import { SUPPORTED_LANGUAGES, t, ut} from "@utils/translation";
+import { SUPPORTED_LANGUAGES, t} from "@utils/translation";
 import { SettingElement, SettingElementType } from "@utils/settings";
 import { UserAgent } from "@utils/user-agent";
 import { StreamStat } from "@modules/stream/stream-stats";
@@ -556,7 +556,7 @@ export class Preferences {
         },
 
         [PrefKey.UI_CONTROLLER_FRIENDLY]: {
-            label: ut('Controller-friendly UI'),
+            label: t('controller-friendly-ui'),
             default: false,
         },
 

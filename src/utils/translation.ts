@@ -20,6 +20,7 @@ export const SUPPORTED_LANGUAGES = {
     'uk-UA': 'українська',
     'vi-VN': 'Tiếng Việt',
     'zh-CN': '中文(简体)',
+    'zh-TW': '中文(繁體)',
 };
 
 const Texts = {
@@ -69,6 +70,7 @@ const Texts = {
     "console-connect": "Connect",
     "contrast": "Contrast",
     "controller": "Controller",
+    "controller-friendly-ui": "Controller-friendly UI",
     "controller-shortcuts": "Controller shortcuts",
     "controller-shortcuts-connect-note": "Connect a controller to use this feature",
     "controller-shortcuts-xbox-note": "Button to open the Guide menu",
@@ -173,12 +175,13 @@ const Texts = {
         (e: any) => `Натисніть ${e.key} щоб перемкнути цю функцію`,
         (e: any) => `Nhấn ${e.key} để bật/tắt tính năng này`,
         (e: any) => `按下 ${e.key} 来切换此功能`,
+        (e: any) => `按下 ${e.key} 來啟用此功能`,
     ],
     "press-to-bind": "Press a key or do a mouse click to bind...",
     "prompt-preset-name": "Preset's name:",
     "reduce-animations": "Reduce UI animations",
     "region": "Region",
-    "reload-stream": "Reload stream",
+    "reload-page": "Reload page",
     "remote-play": "Remote Play",
     "rename": "Rename",
     "renderer": "Renderer",
@@ -269,6 +272,7 @@ const Texts = {
         (e: any) => `Розташування сенсорного керування від ${e.name}`,
         (e: any) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
         (e: any) => `由 ${e.name} 提供的虚拟按键样式`,
+        (e: any) => `觸控遊玩佈局由 ${e.name} 提供`,
     ],
     "touch-controller": "Touch controller",
     "transparent-background": "Transparent background",
