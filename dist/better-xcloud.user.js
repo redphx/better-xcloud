@@ -331,7 +331,8 @@ var SUPPORTED_LANGUAGES = {
   "tr-TR": "Türkçe",
   "uk-UA": "українська",
   "vi-VN": "Tiếng Việt",
-  "zh-CN": "中文(简体)"
+  "zh-CN": "中文(简体)",
+  "zh-TW": "中文(繁體)"
 }, Texts = {
   activate: "Activate",
   activated: "Activated",
@@ -379,6 +380,7 @@ var SUPPORTED_LANGUAGES = {
   "console-connect": "Connect",
   contrast: "Contrast",
   controller: "Controller",
+  "controller-friendly-ui": "Controller-friendly UI",
   "controller-shortcuts": "Controller shortcuts",
   "controller-shortcuts-connect-note": "Connect a controller to use this feature",
   "controller-shortcuts-xbox-note": "Button to open the Guide menu",
@@ -482,13 +484,14 @@ var SUPPORTED_LANGUAGES = {
     (e) => `Etkinleştirmek için ${e.key} tuşuna basın`,
     (e) => `Натисніть ${e.key} щоб перемкнути цю функцію`,
     (e) => `Nhấn ${e.key} để bật/tắt tính năng này`,
-    (e) => `按下 ${e.key} 来切换此功能`
+    (e) => `按下 ${e.key} 来切换此功能`,
+    (e) => `按下 ${e.key} 來啟用此功能`
   ],
   "press-to-bind": "Press a key or do a mouse click to bind...",
   "prompt-preset-name": "Preset's name:",
   "reduce-animations": "Reduce UI animations",
   region: "Region",
-  "reload-stream": "Reload stream",
+  "reload-page": "Reload page",
   "remote-play": "Remote Play",
   rename: "Rename",
   renderer: "Renderer",
@@ -578,7 +581,8 @@ var SUPPORTED_LANGUAGES = {
     (e) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
     (e) => `Розташування сенсорного керування від ${e.name}`,
     (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
-    (e) => `由 ${e.name} 提供的虚拟按键样式`
+    (e) => `由 ${e.name} 提供的虚拟按键样式`,
+    (e) => `觸控遊玩佈局由 ${e.name} 提供`
   ],
   "touch-controller": "Touch controller",
   "transparent-background": "Transparent background",
@@ -677,9 +681,7 @@ class Translations {
     });
   }
 }
-var t = Translations.get, ut = (text) => {
-  return BxLogger.warning("Untranslated text", text), text;
-};
+var t = Translations.get;
 Translations.init();
 
 // src/utils/settings.ts
@@ -1476,7 +1478,7 @@ class Preferences {
       }
     },
     [PrefKey.UI_CONTROLLER_FRIENDLY]: {
-      label: ut("Controller-friendly UI"),
+      label: t("controller-friendly-ui"),
       default: !1
     },
     [PrefKey.UI_LAYOUT]: {
@@ -3439,13 +3441,13 @@ function updateVideoPlayer() {
 window.addEventListener("resize", updateVideoPlayer);
 
 // src/modules/stream/stream-settings.ts
-var FocusDirection;
-(function(FocusDirection2) {
-  FocusDirection2[FocusDirection2["UP"] = 0] = "UP";
-  FocusDirection2[FocusDirection2["RIGHT"] = 1] = "RIGHT";
-  FocusDirection2[FocusDirection2["DOWN"] = 2] = "DOWN";
-  FocusDirection2[FocusDirection2["LEFT"] = 3] = "LEFT";
-})(FocusDirection || (FocusDirection = {}));
+var NavigationDirection;
+(function(NavigationDirection2) {
+  NavigationDirection2[NavigationDirection2["UP"] = 1] = "UP";
+  NavigationDirection2[NavigationDirection2["RIGHT"] = 2] = "RIGHT";
+  NavigationDirection2[NavigationDirection2["DOWN"] = 3] = "DOWN";
+  NavigationDirection2[NavigationDirection2["LEFT"] = 4] = "LEFT";
+})(NavigationDirection || (NavigationDirection = {}));
 var FocusContainer;
 (function(FocusContainer2) {
   FocusContainer2[FocusContainer2["OUTSIDE"] = 0] = "OUTSIDE";
@@ -3460,6 +3462,7 @@ class StreamSettings {
       StreamSettings.instance = new StreamSettings;
     return StreamSettings.instance;
   }
+  static MAIN_CLASS = "bx-stream-settings-dialog";
   static GAMEPAD_POLLING_INTERVAL = 50;
   static GAMEPAD_KEYS = [
     GamepadKey.UP,
@@ -3471,6 +3474,16 @@ class StreamSettings {
     GamepadKey.LB,
     GamepadKey.RB
   ];
+  static GAMEPAD_DIRECTION_MAP = {
+    [GamepadKey.UP]: NavigationDirection.UP,
+    [GamepadKey.DOWN]: NavigationDirection.DOWN,
+    [GamepadKey.LEFT]: NavigationDirection.LEFT,
+    [GamepadKey.RIGHT]: NavigationDirection.RIGHT,
+    [GamepadKey.LS_UP]: NavigationDirection.UP,
+    [GamepadKey.LS_DOWN]: NavigationDirection.DOWN,
+    [GamepadKey.LS_LEFT]: NavigationDirection.LEFT,
+    [GamepadKey.LS_RIGHT]: NavigationDirection.RIGHT
+  };
   gamepadPollingIntervalId = null;
   gamepadLastButtons = [];
   $container;
@@ -3679,18 +3692,23 @@ class StreamSettings {
   constructor() {
     this.#setupDialog(), window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, (e) => this.hide());
   }
+  isShowing() {
+    return this.$container && !this.$container.classList.contains("bx-gone");
+  }
   show(tabId) {
     const $container = this.$container;
     if (tabId) {
       const $tab = $container.querySelector(`.bx-stream-settings-tabs svg[data-tab-group=${tabId}]`);
       $tab && $tab.dispatchEvent(new Event("click"));
     }
-    if (this.$overlay.classList.remove("bx-gone"), this.$overlay.dataset.isPlaying = STATES.isPlaying.toString(), $container.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll"), getPref(PrefKey.UI_CONTROLLER_FRIENDLY))
-      this.#focusDirection(FocusDirection.DOWN), $container.addEventListener("keydown", this), this.#startGamepadPolling(), window.BX_EXPOSED.disableGamepadPolling = !0;
-    BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN);
+    this.$overlay.classList.remove("bx-gone"), this.$overlay.dataset.isPlaying = STATES.isPlaying.toString(), $container.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll"), this.#focusDirection(NavigationDirection.DOWN), $container.addEventListener("keydown", this), this.#startGamepadPolling(), window.BX_EXPOSED.disableGamepadPolling = !0, BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN);
   }
   hide() {
     this.$overlay.classList.add("bx-gone"), this.$container.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll"), this.$container.removeEventListener("keydown", this), this.#stopGamepadPolling(), window.BX_EXPOSED.disableGamepadPolling = !1, BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_DISMISSED);
+  }
+  #focusCurrentTab() {
+    const $currentTab = this.$tabs.querySelector(".bx-active");
+    $currentTab && $currentTab.focus();
   }
   #pollGamepad() {
     const gamepads = window.navigator.getGamepads();
@@ -3698,8 +3716,10 @@ class StreamSettings {
     for (let gamepad of gamepads) {
       if (!gamepad || !gamepad.connected)
         continue;
-      const buttons = gamepad.buttons;
-      let lastButton = this.gamepadLastButtons[gamepad.index], pressedButton = void 0;
+      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
+        continue;
+      const { axes, buttons } = gamepad;
+      let lastButton = this.gamepadLastButtons[gamepad.index], pressedButton = null, holdingButton = null;
       for (let key of StreamSettings.GAMEPAD_KEYS)
         if (typeof lastButton === "number") {
           if (lastButton === key && !buttons[key].pressed) {
@@ -3707,38 +3727,48 @@ class StreamSettings {
             break;
           }
         } else if (buttons[key].pressed) {
-          this.gamepadLastButtons[gamepad.index] = key;
+          holdingButton = key;
           break;
         }
-      if (typeof pressedButton !== "undefined") {
-        if (this.gamepadLastButtons[gamepad.index] = null, pressedButton === GamepadKey.A)
-          document.activeElement && document.activeElement.dispatchEvent(new MouseEvent("click"));
-        else if (pressedButton === GamepadKey.B)
-          this.hide();
-        else if (pressedButton === GamepadKey.LB || pressedButton === GamepadKey.RB) {
-          const $currentTab = this.$tabs.querySelector(".bx-active");
-          $currentTab && $currentTab.focus();
-        }
-        if (pressedButton === GamepadKey.UP)
-          direction = FocusDirection.UP;
-        else if (pressedButton === GamepadKey.DOWN)
-          direction = FocusDirection.DOWN;
-        else if (pressedButton === GamepadKey.LEFT)
-          direction = FocusDirection.LEFT;
-        else if (pressedButton === GamepadKey.RIGHT)
-          direction = FocusDirection.RIGHT;
-        if (direction !== null) {
-          let handled = !1;
-          if (document.activeElement instanceof HTMLInputElement && document.activeElement.type === "range") {
-            const $range = document.activeElement;
-            if (direction === FocusDirection.LEFT || direction === FocusDirection.RIGHT)
-              $range.value = (parseInt($range.value) + parseInt($range.step) * (direction === FocusDirection.LEFT ? -1 : 1)).toString(), $range.dispatchEvent(new InputEvent("input")), handled = !0;
-          }
-          if (!handled)
-            this.#focusDirection(direction);
-        }
+      if (holdingButton === null && pressedButton === null && axes && axes.length >= 2) {
+        if (typeof lastButton === "number") {
+          const releasedHorizontal = Math.abs(axes[0]) < 0.1 && (lastButton === GamepadKey.LS_LEFT || lastButton === GamepadKey.LS_RIGHT), releasedVertical = Math.abs(axes[1]) < 0.1 && (lastButton === GamepadKey.LS_UP || lastButton === GamepadKey.LS_DOWN);
+          if (releasedHorizontal || releasedVertical)
+            pressedButton = lastButton;
+        } else if (axes[0] < -0.5)
+          holdingButton = GamepadKey.LS_LEFT;
+        else if (axes[0] > 0.5)
+          holdingButton = GamepadKey.LS_RIGHT;
+        else if (axes[1] < -0.5)
+          holdingButton = GamepadKey.LS_UP;
+        else if (axes[1] > 0.5)
+          holdingButton = GamepadKey.LS_DOWN;
+      }
+      if (holdingButton !== null)
+        this.gamepadLastButtons[gamepad.index] = holdingButton;
+      if (pressedButton === null)
+        continue;
+      if (this.gamepadLastButtons[gamepad.index] = null, pressedButton === GamepadKey.A) {
+        document.activeElement && document.activeElement.dispatchEvent(new MouseEvent("click"));
+        return;
+      } else if (pressedButton === GamepadKey.B) {
+        this.hide();
+        return;
+      } else if (pressedButton === GamepadKey.LB || pressedButton === GamepadKey.RB) {
+        this.#focusCurrentTab();
         return;
       }
+      if (direction = StreamSettings.GAMEPAD_DIRECTION_MAP[pressedButton], direction) {
+        let handled = !1;
+        if (document.activeElement instanceof HTMLInputElement && document.activeElement.type === "range") {
+          const $range = document.activeElement;
+          if (direction === NavigationDirection.LEFT || direction === NavigationDirection.RIGHT)
+            $range.value = (parseInt($range.value) + parseInt($range.step) * (direction === NavigationDirection.LEFT ? -1 : 1)).toString(), $range.dispatchEvent(new InputEvent("input")), handled = !0;
+        }
+        if (!handled)
+          this.#focusDirection(direction);
+      }
+      return;
     }
   }
   #startGamepadPolling() {
@@ -3748,14 +3778,14 @@ class StreamSettings {
     this.gamepadLastButtons = [], this.gamepadPollingIntervalId && window.clearInterval(this.gamepadPollingIntervalId), this.gamepadPollingIntervalId = null;
   }
   #handleTabsNavigation($focusing, direction) {
-    if (direction === FocusDirection.UP || direction === FocusDirection.DOWN) {
+    if (direction === NavigationDirection.UP || direction === NavigationDirection.DOWN) {
       let $sibling = $focusing;
-      const siblingProperty = direction === FocusDirection.UP ? "previousElementSibling" : "nextElementSibling";
+      const siblingProperty = direction === NavigationDirection.UP ? "previousElementSibling" : "nextElementSibling";
       while ($sibling[siblingProperty]) {
         $sibling = $sibling[siblingProperty], $sibling && $sibling.focus();
         return;
       }
-    } else if (direction === FocusDirection.RIGHT)
+    } else if (direction === NavigationDirection.RIGHT)
       this.#focusFirstVisibleSetting();
   }
   #handleSettingsNavigation($focusing, direction) {
@@ -3770,8 +3800,8 @@ class StreamSettings {
     if (!$parent)
       return;
     let $sibling = $parent;
-    if (direction === FocusDirection.UP || direction === FocusDirection.DOWN) {
-      const siblingProperty = direction === FocusDirection.UP ? "previousElementSibling" : "nextElementSibling";
+    if (direction === NavigationDirection.UP || direction === NavigationDirection.DOWN) {
+      const siblingProperty = direction === NavigationDirection.UP ? "previousElementSibling" : "nextElementSibling";
       while ($sibling[siblingProperty]) {
         $sibling = $sibling[siblingProperty];
         const $childSetting = $sibling.querySelector('[tabindex="0"]:last-of-type');
@@ -3780,10 +3810,10 @@ class StreamSettings {
           return;
         }
       }
-    } else if (direction === FocusDirection.LEFT || direction === FocusDirection.RIGHT) {
+    } else if (direction === NavigationDirection.LEFT || direction === NavigationDirection.RIGHT) {
       const children = Array.from($parent.querySelectorAll('[tabindex="0"]')), index = children.indexOf($focusing);
       let nextIndex;
-      if (direction === FocusDirection.LEFT)
+      if (direction === NavigationDirection.LEFT)
         nextIndex = index - 1;
       else
         nextIndex = index + 1;
@@ -3825,16 +3855,21 @@ class StreamSettings {
     switch (event.type) {
       case "keydown":
         const $target = event.target, keyboardEvent = event, keyCode = keyboardEvent.code || keyboardEvent.key;
+        let handled = !1;
         if (keyCode === "ArrowUp" || keyCode === "ArrowDown")
-          event.preventDefault(), event.stopPropagation(), this.#focusDirection(keyCode === "ArrowUp" ? FocusDirection.UP : FocusDirection.DOWN);
+          handled = !0, this.#focusDirection(keyCode === "ArrowUp" ? NavigationDirection.UP : NavigationDirection.DOWN);
         else if (keyCode === "ArrowLeft" || keyCode === "ArrowRight") {
           if ($target.type !== "range")
-            event.preventDefault(), event.stopPropagation(), this.#focusDirection(keyCode === "ArrowLeft" ? FocusDirection.LEFT : FocusDirection.RIGHT);
+            handled = !0, this.#focusDirection(keyCode === "ArrowLeft" ? NavigationDirection.LEFT : NavigationDirection.RIGHT);
         } else if (keyCode === "Enter" || keyCode === "Space") {
           if ($target instanceof SVGElement)
-            event.preventDefault(), event.stopPropagation(), $target.dispatchEvent(new Event("click"));
-        } else if (keyCode === "Escape")
-          this.hide();
+            handled = !0, $target.dispatchEvent(new Event("click"));
+        } else if (keyCode === "Tab")
+          handled = !0, this.#focusCurrentTab();
+        else if (keyCode === "Escape")
+          handled = !0, this.hide();
+        if (handled)
+          event.preventDefault(), event.stopPropagation();
         break;
     }
   }
@@ -3842,7 +3877,7 @@ class StreamSettings {
     let $tabs, $settings;
     const $overlay = CE("div", { class: "bx-stream-settings-overlay bx-gone" });
     this.$overlay = $overlay;
-    const $container = CE("div", { class: "bx-stream-settings-dialog bx-gone" }, $tabs = CE("div", { class: "bx-stream-settings-tabs" }), $settings = CE("div", {
+    const $container = CE("div", { class: StreamSettings.MAIN_CLASS + " bx-gone" }, $tabs = CE("div", { class: "bx-stream-settings-tabs" }), $settings = CE("div", {
       class: "bx-stream-settings-tab-contents",
       tabindex: 10
     }));
@@ -4576,7 +4611,13 @@ var BxExposed = {
       hasCompletedOnboarding: !0
     }
   },
-  disableGamepadPolling: !1
+  disableGamepadPolling: !1,
+  backButtonPressed: () => {
+    const streamSettings = StreamSettings.getInstance();
+    if (streamSettings.isShowing())
+      return streamSettings.hide(), !0;
+    return !1;
+  }
 };
 
 // src/enums/game-pass-gallery.ts
@@ -6676,6 +6717,8 @@ function onHistoryChanged(e) {
   const $settings = document.querySelector(".bx-settings-container");
   if ($settings)
     $settings.classList.add("bx-gone");
+  if (document.querySelector("." + StreamSettings.MAIN_CLASS))
+    StreamSettings.getInstance().hide();
   RemotePlay.detachPopup(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
 
@@ -7484,11 +7527,15 @@ class GuideMenu {
         AppInterface.closeApp();
       }
     }),
-    reloadStream: createButton({
-      label: t("reload-stream"),
+    reloadPage: createButton({
+      label: t("reload-page"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
-        confirm(t("confirm-reload-stream")) && window.location.reload();
+        if (STATES.isPlaying)
+          confirm(t("confirm-reload-stream")) && window.location.reload();
+        else
+          window.location.reload();
+        window.BX_EXPOSED.dialogRoutes.closeAll();
       }
     }),
     backToHome: createButton({
@@ -7512,6 +7559,7 @@ class GuideMenu {
     const buttons = [];
     if (buttons.push(GuideMenu.#BUTTONS.streamSetting), AppInterface)
       buttons.push(GuideMenu.#BUTTONS.appSettings), buttons.push(GuideMenu.#BUTTONS.closeApp);
+    buttons.push(GuideMenu.#BUTTONS.reloadPage);
     const $buttons = GuideMenu.#renderButtons(buttons);
     $dividers[$dividers.length - 1].insertAdjacentElement("afterend", $buttons);
   }
@@ -7520,7 +7568,7 @@ class GuideMenu {
     if (!$btnQuit)
       return;
     const buttons = [];
-    buttons.push(GuideMenu.#BUTTONS.streamSetting), AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings), buttons.push(GuideMenu.#BUTTONS.reloadStream), buttons.push(GuideMenu.#BUTTONS.backToHome);
+    buttons.push(GuideMenu.#BUTTONS.streamSetting), AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings), buttons.push(GuideMenu.#BUTTONS.reloadPage), buttons.push(GuideMenu.#BUTTONS.backToHome);
     const $buttons = GuideMenu.#renderButtons(buttons);
     $btnQuit.insertAdjacentElement("afterend", $buttons);
     const $btnXcloudHome = $root.querySelector("div[class^=HomeButtonWithDivider]");
