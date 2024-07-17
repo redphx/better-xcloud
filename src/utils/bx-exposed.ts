@@ -4,6 +4,7 @@ import { deepClone, STATES } from "@utils/global";
 import { getPref, PrefKey } from "@utils/preferences";
 import { BxLogger } from "./bx-logger";
 import { BX_FLAGS } from "./bx-flags";
+import { StreamSettings } from "@/modules/stream/stream-settings";
 
 export enum InputType {
     CONTROLLER = 'Controller',
@@ -117,4 +118,14 @@ export const BxExposed = {
     },
 
     disableGamepadPolling: false,
+
+    backButtonPressed: () => {
+        const streamSettings = StreamSettings.getInstance();
+        if (streamSettings.isShowing()) {
+            streamSettings.hide();
+            return true;
+        }
+
+        return false;
+    },
 };
