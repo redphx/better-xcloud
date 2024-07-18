@@ -89,14 +89,14 @@ export class GuideMenu {
         // "Stream settings" button
         buttons.push(GuideMenu.#BUTTONS.streamSetting);
 
-        // "App settings" & "Close app" buttons
-        if (AppInterface) {
-            buttons.push(GuideMenu.#BUTTONS.appSettings);
-            buttons.push(GuideMenu.#BUTTONS.closeApp);
-        }
+        // "App settings" button
+        AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
 
-        // Reload page
+        // "Reload page" button
         buttons.push(GuideMenu.#BUTTONS.reloadPage);
+
+        // "Close app" buttons
+        AppInterface && buttons.push(GuideMenu.#BUTTONS.closeApp);
 
         const $buttons = GuideMenu.#renderButtons(buttons);
 
