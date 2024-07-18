@@ -22,7 +22,6 @@ export class BxSelectElement {
         });
 
         const isMultiple = $select.multiple;
-        let visibleIndex = $select.selectedIndex;
         let $checkBox: HTMLInputElement;
         let $label: HTMLElement;
 
@@ -42,7 +41,7 @@ export class BxSelectElement {
             });
 
             $checkBox.addEventListener('input', e => {
-                const $option = getOptionAtIndex(visibleIndex);
+                const $option = getOptionAtIndex($select.selectedIndex);
                 $option && ($option.selected = (e.target as HTMLInputElement).checked);
 
                 $select.dispatchEvent(new Event('input'));
@@ -61,7 +60,7 @@ export class BxSelectElement {
         const render = () => {
             // console.log('options', this.options, 'selectedIndices', this.selectedIndices, 'selectedOptions', this.selectedOptions);
 
-            visibleIndex = normalizeIndex(visibleIndex);
+            const visibleIndex = normalizeIndex($select.selectedIndex);
 
             const $option = getOptionAtIndex(visibleIndex);
             let content = '';
@@ -108,11 +107,10 @@ export class BxSelectElement {
         const onPrevNext = (e: Event) => {
             const goNext = e.target === $btnNext;
 
-            const currentIndex = visibleIndex;
+            const currentIndex = $select.selectedIndex;
             let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
             newIndex = normalizeIndex(newIndex);
 
-            visibleIndex = newIndex;
             if (!isMultiple && newIndex !== currentIndex) {
                 $select.selectedIndex = newIndex;
             }

@@ -324,6 +324,9 @@ export class StreamSettings {
         (window as any).BX_EXPOSED.disableGamepadPolling = true;
 
         BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN);
+
+        // Update video's settings
+        onChangeVideoPlayerType();
     }
 
     hide() {
@@ -772,8 +775,5 @@ export class StreamSettings {
 
         document.documentElement.appendChild($overlay);
         document.documentElement.appendChild($container);
-
-        // Update video's settings
-        onChangeVideoPlayerType();
     }
 }

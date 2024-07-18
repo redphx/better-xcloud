@@ -183,14 +183,14 @@ export class ControllerShortcut {
             $fragment.appendChild($option);
         }
 
+        $container.dataset.hasGamepad = hasGamepad.toString();
         if (hasGamepad) {
             $select.appendChild($fragment);
 
             $select.selectedIndex = 0;
-            $select.dispatchEvent(new Event('change'));
+            $select.dispatchEvent(new Event('input'));
         }
 
-        $container.dataset.hasGamepad = hasGamepad.toString();
     }
 
     static #switchProfile(profile: string) {
@@ -205,9 +205,9 @@ export class ControllerShortcut {
             const $select = ControllerShortcut.#$selectActions[button as GamepadKey]!;
             $select.value = actions[button] || '';
 
-            BxEvent.dispatch($select, 'change', {
-                    ignoreOnChange: true,
-                });
+            BxEvent.dispatch($select, 'input', {
+                ignoreOnChange: true,
+            });
         }
     }
 
