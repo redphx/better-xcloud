@@ -41,12 +41,11 @@ function createElement<T=HTMLElement>(elmName: string, props: {[index: string]: 
 
     for (let i = 2, size = arguments.length; i < size; i++) {
         const arg = arguments[i];
-        const argType = typeof arg;
 
-        if (argType === 'string' || argType === 'number') {
-            $elm.appendChild(document.createTextNode(arg));
-        } else if (arg) {
+        if (arg instanceof Node) {
             $elm.appendChild(arg);
+        } else if (arg !== null && typeof arg !== 'undefined') {
+            $elm.appendChild(document.createTextNode(arg));
         }
     }
 
