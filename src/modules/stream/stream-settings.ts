@@ -643,6 +643,15 @@ export class StreamSettings {
             this.hide();
         });
 
+        // Close dialog when not clicking on any child elements in the dialog
+        $container.addEventListener('click', e => {
+            if (e.target === $container) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.hide();
+            }
+        });
+
         for (const settingTab of this.SETTINGS_UI) {
             if (!settingTab) {
                 continue;
