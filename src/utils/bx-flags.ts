@@ -14,7 +14,7 @@ type BxFlags = Partial<{
 
     DeviceInfo: Partial<{
         deviceType: 'android' | 'android-tv' | 'webos' | 'unknown',
-        userAgent: string,
+        userAgent?: string,
     }>,
 }>
 
@@ -33,7 +33,6 @@ const DEFAULT_FLAGS: BxFlags = {
 
     DeviceInfo: {
         deviceType: 'unknown',
-        userAgent: window.navigator.userAgent,
     },
 }
 
@@ -41,5 +40,9 @@ export const BX_FLAGS: BxFlags = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS ||
 try {
     delete window.BX_FLAGS;
 } catch (e) {}
+
+if (!BX_FLAGS.DeviceInfo!.userAgent) {
+    BX_FLAGS.DeviceInfo!.userAgent = window.navigator.userAgent;
+}
 
 export const NATIVE_FETCH = window.fetch;

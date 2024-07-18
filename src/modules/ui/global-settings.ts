@@ -476,7 +476,7 @@ export function setupSettingsUi() {
     const $debugInfo = CE('div', {class: 'bx-debug-info'},
         createButton({
             label: 'Debug info',
-            style: ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH,
+            style: ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 console.log(e);
                 (e.target as HTMLElement).closest('button')?.nextElementSibling?.classList.toggle('bx-gone');
@@ -494,7 +494,7 @@ export function setupSettingsUi() {
                     }
                 },
             },
-        }, JSON.stringify(debugInfo, null, '  ')),
+        }, '```\n' + JSON.stringify(debugInfo, null, '  ') + '\n```'),
     );
     $wrapper.appendChild($debugInfo);
 
