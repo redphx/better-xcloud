@@ -11,6 +11,11 @@ type BxFlags = Partial<{
     FeatureGates: {[key: string]: boolean} | null,
 
     IsSupportedTvBrowser: boolean,
+
+    DeviceInfo: Partial<{
+        deviceType: 'android' | 'android-tv' | 'webos' | 'unknown',
+        userAgent: string,
+    }>,
 }>
 
 // Setup flags
@@ -25,6 +30,11 @@ const DEFAULT_FLAGS: BxFlags = {
 
     ForceNativeMkbTitles: [],
     FeatureGates: null,
+
+    DeviceInfo: {
+        deviceType: 'unknown',
+        userAgent: window.navigator.userAgent,
+    },
 }
 
 export const BX_FLAGS: BxFlags = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});

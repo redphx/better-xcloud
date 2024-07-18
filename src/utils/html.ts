@@ -35,7 +35,13 @@ function createElement<T=HTMLElement>(elmName: string, props: {[index: string]: 
         if (hasNs) {
             $elm.setAttributeNS(null, key, props[key]);
         } else {
-            $elm.setAttribute(key, props[key]);
+            if (key === 'on') {
+                for (const eventName in props[key]) {
+                    $elm.addEventListener(eventName, props[key][eventName]);
+                }
+            } else {
+                $elm.setAttribute(key, props[key]);
+            }
         }
     }
 

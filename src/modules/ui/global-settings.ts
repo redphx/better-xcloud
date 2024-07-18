@@ -1,4 +1,4 @@
-import { STATES, AppInterface, SCRIPT_VERSION } from "@utils/global";
+import { STATES, AppInterface, SCRIPT_VERSION, deepClone } from "@utils/global";
 import { CE, createButton, ButtonStyle } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
@@ -9,6 +9,8 @@ import { PatcherCache } from "../patcher";
 import { UserAgentProfile } from "@enums/user-agent";
 import { BxSelectElement } from "@/web-components/bx-select";
 import { StreamSettings } from "../stream/stream-settings";
+import { BX_FLAGS } from "@/utils/bx-flags";
+import { Toast } from "@/utils/toast";
 
 const SETTINGS_UI = {
     'Better xCloud': {
@@ -454,6 +456,47 @@ export function setupSettingsUi() {
         const appDate = new Date((document.querySelector('meta[name=gamepass-app-date]') as HTMLMetaElement).content).toISOString().substring(0, 10);
         $wrapper.appendChild(CE('div', {'class': 'bx-settings-app-version'}, `xCloud website version ${appVersion} (${appDate})`));
     } catch (e) {}
+
+    // Show Debug info
+    const debugInfo = deepClone(BX_FLAGS.DeviceInfo);
+    const debugSettings = [
+        PrefKey.STREAM_TARGET_RESOLUTION,
+        PrefKey.STREAM_CODEC_PROFILE,
+
+        PrefKey.VIDEO_PLAYER_TYPE,
+        PrefKey.VIDEO_PROCESSING,
+        PrefKey.VIDEO_SHARPNESS,
+    ];
+
+    debugInfo['settings'] = {};
+    for (const key of debugSettings) {
+        debugInfo['settings'][key] = getPref(key);
+    }
+
+    const $debugInfo = CE('div', {class: 'bx-debug-info'},
+        createButton({
+            label: 'Debug info',
+            style: ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH,
+            onClick: e => {
+                console.log(e);
+                (e.target as HTMLElement).closest('button')?.nextElementSibling?.classList.toggle('bx-gone');
+            },
+        }),
+        CE('pre', {
+            class: 'bx-gone',
+            on: {
+                click: async (e: Event) => {
+                    try {
+                        await navigator.clipboard.writeText((e.target as HTMLElement).innerText);
+                        Toast.show('Copied to clipboard', '', {instant: true});
+                    } catch (err) {
+                        console.error('Failed to copy: ', err);
+                    }
+                },
+            },
+        }, JSON.stringify(debugInfo, null, '  ')),
+    );
+    $wrapper.appendChild($debugInfo);
 
     $container.appendChild($wrapper);
 
