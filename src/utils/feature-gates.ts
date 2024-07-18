@@ -4,6 +4,8 @@ import { getPref, PrefKey } from "./preferences";
 export let FeatureGates: {[key: string]: boolean} = {
     'PwaPrompt': false,
     'EnableWifiWarnings': false,
+    'EnableUpdateRequiredPage': false,
+    'ShowForcedUpdateScreen': false,
 };
 
 // Disable context menu in Home page
