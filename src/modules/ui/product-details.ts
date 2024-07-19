@@ -28,7 +28,6 @@ export class ProductDetailsPage {
             // Find action buttons container
             const $container = document.querySelector('div[class*=ActionButtons-module__container]');
             if ($container) {
-                this.$btnShortcut.style.width = $container.getBoundingClientRect().width + 'px';
                 $container.parentElement?.appendChild(ProductDetailsPage.$btnShortcut);
             }
         }, 500);

@@ -67,10 +67,6 @@
         display: inline-block;
         width: 16px;
         height: var(--bx-button-height);
-
-        &:not(:only-child) {
-            margin-right: 10px;
-        }
     }
 
     span {
@@ -82,6 +78,10 @@
         color: #fff;
         overflow: hidden;
         white-space: nowrap;
+
+        &:not(:only-child) {
+            margin-left: 10px;
+        }
     }
 }
 
@@ -119,5 +119,12 @@ button.bx-inactive {
 }
 
 .bx-button-shortcut {
-    margin-top: 10px;
+    max-width: max-content;
+    margin: 10px 0 0 0;
+}
+
+@media (min-width: 568px) and (max-height: 480px) {
+    .bx-button-shortcut {
+        margin: 8px 0 0 10px;
+    }
 }
