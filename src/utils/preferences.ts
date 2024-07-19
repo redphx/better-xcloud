@@ -644,8 +644,8 @@ export class Preferences {
             default: 'default',
             options: {
                 'default': t('default'),
-                'high-performance': t('high-performance'),
                 'low-power': t('low-power'),
+                'high-performance': t('high-performance'),
             },
         },
         [PrefKey.VIDEO_SHARPNESS]: {
