@@ -529,14 +529,18 @@ export class StreamSettings {
                 const $childSetting = $sibling.querySelector('[tabindex="0"]:last-of-type') as HTMLElement;
                 if ($childSetting) {
                     $childSetting.focus();
-                    return;
+
+                    // Only stop when it was focused successfully
+                    if (document.activeElement === $childSetting) {
+                        return;
+                    }
                 }
             }
 
             // If it's the first/last item -> loop around
             // TODO: bugged if pseudo is "first-of-type" and the first setting is disabled
             const pseudo = direction === NavigationDirection.UP ? ':last-of-type' : '';
-            const $target = this.$settings!.querySelector(`div[data-tab-group]:not(.bx-gone) div[data-focus-container]${pseudo} [tabindex="0"]:not(:disabled):last-of-type`);
+            const $target = this.$settings!.querySelector(`div[data-tab-group]:not(.bx-gone) div[data-focus-container]:not(.bx-gone)${pseudo} [tabindex="0"]:not(:disabled):last-of-type`);
             $target && ($target as HTMLElement).focus();
         } else if (direction === NavigationDirection.LEFT || direction === NavigationDirection.RIGHT) {
             // Find all child elements with tabindex
