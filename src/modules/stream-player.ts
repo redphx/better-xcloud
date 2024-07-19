@@ -260,9 +260,20 @@ export class StreamPlayer {
         this.#resizePlayer();
     }
 
+    reloadPlayer() {
+        this.#cleanUpWebGL2Player();
+
+        this.#playerType = StreamPlayerType.VIDEO;
+        this.setPlayerType(StreamPlayerType.WEBGL2, false);
+    }
+
+    #cleanUpWebGL2Player() {
+        // Clean up WebGL2 Player
+        this.#webGL2Player?.destroy();
+        this.#webGL2Player = null;
+    }
+
     destroy() {
-         // Cleanup WebGL2 Player
-         this.#webGL2Player?.destroy();
-         this.#webGL2Player = null;
+        this.#cleanUpWebGL2Player();
     }
 }

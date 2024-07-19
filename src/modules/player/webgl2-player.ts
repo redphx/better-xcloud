@@ -1,6 +1,7 @@
 import vertClarityBoost from "./shaders/clarity_boost.vert" with { type: "text" };
 import fsClarityBoost from "./shaders/clarity_boost.fs" with { type: "text" };
 import { BxLogger } from "@/utils/bx-logger";
+import { getPref, PrefKey } from "@/utils/preferences";
 
 
 const LOG_TAG = 'WebGL2Player';
@@ -120,11 +121,13 @@ export class WebGL2Player {
     }
 
     #setupShaders() {
+        BxLogger.info(LOG_TAG, 'Setting up', getPref(PrefKey.VIDEO_POWER_PREFERENCE));
+
         const gl = this.#$canvas.getContext('webgl2', {
             isBx: true,
             antialias: true,
             alpha: false,
-            powerPreference: 'high-performance',
+            powerPreference: getPref(PrefKey.VIDEO_POWER_PREFERENCE),
         }) as WebGL2RenderingContext;
         this.#gl = gl;
 

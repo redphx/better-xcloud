@@ -8,6 +8,7 @@ export function onChangeVideoPlayerType() {
     const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE);
     const $videoProcessing = document.getElementById('bx_setting_video_processing') as HTMLSelectElement;
     const $videoSharpness = document.getElementById('bx_setting_video_sharpness') as HTMLElement;
+    const $videoPowerPreference = document.getElementById('bx_setting_video_power_preference') as HTMLElement;
 
     let isDisabled = false;
 
@@ -27,6 +28,9 @@ export function onChangeVideoPlayerType() {
 
     $videoProcessing.disabled = isDisabled;
     $videoSharpness.dataset.disabled = isDisabled.toString();
+
+    // Hide Power Preference setting if renderer isn't WebGL2
+    $videoPowerPreference.closest('.bx-stream-settings-row')!.classList.toggle('bx-gone', playerType !== StreamPlayerType.WEBGL2);
 
     updateVideoPlayer();
 }

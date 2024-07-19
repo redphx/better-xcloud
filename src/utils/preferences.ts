@@ -82,6 +82,7 @@ export enum PrefKey {
 
     VIDEO_PLAYER_TYPE = 'video_player_type',
     VIDEO_PROCESSING = 'video_processing',
+    VIDEO_POWER_PREFERENCE = 'video_power_preference',
     VIDEO_SHARPNESS = 'video_sharpness',
     VIDEO_RATIO = 'video_ratio',
     VIDEO_BRIGHTNESS = 'video_brightness',
@@ -635,6 +636,15 @@ export class Preferences {
             options: {
                 [StreamVideoProcessing.USM]: t('unsharp-masking'),
                 [StreamVideoProcessing.CAS]: t('amd-fidelity-cas'),
+            },
+        },
+        [PrefKey.VIDEO_POWER_PREFERENCE]: {
+            label: t('gpu-configuration'),
+            default: 'default',
+            options: {
+                'default': t('default'),
+                'high-performance': t('high-performance'),
+                'low-power': t('low-power'),
             },
         },
         [PrefKey.VIDEO_SHARPNESS]: {

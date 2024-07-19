@@ -113,6 +113,17 @@ export class StreamSettings {
                 pref: PrefKey.VIDEO_PROCESSING,
                 onChange: updateVideoPlayer,
             }, {
+                pref: PrefKey.VIDEO_POWER_PREFERENCE,
+                onChange: () => {
+                    const streamPlayer = STATES.currentStream.streamPlayer;
+                    if (!streamPlayer) {
+                        return;
+                    }
+
+                    streamPlayer.reloadPlayer();
+                    updateVideoPlayer();
+                },
+            }, {
                 pref: PrefKey.VIDEO_SHARPNESS,
                 onChange: updateVideoPlayer,
             }, {
