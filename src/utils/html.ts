@@ -50,7 +50,7 @@ function createElement<T=HTMLElement>(elmName: string, props: {[index: string]: 
 
         if (arg instanceof Node) {
             $elm.appendChild(arg);
-        } else if (arg !== null && typeof arg !== 'undefined') {
+        } else if (arg !== null && arg !== false && typeof arg !== 'undefined') {
             $elm.appendChild(document.createTextNode(arg));
         }
     }
