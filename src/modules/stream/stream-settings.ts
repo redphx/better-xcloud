@@ -534,8 +534,9 @@ export class StreamSettings {
             }
 
             // If it's the first/last item -> loop around
-            const pseudo = direction === NavigationDirection.UP ? 'last-of-type' : 'first-of-type';
-            const $target = this.$settings!.querySelector(`div[data-tab-group]:not(.bx-gone) div[data-focus-container]:${pseudo} [tabindex="0"]:last-of-type`);
+            // TODO: bugged if pseudo is "first-of-type" and the first setting is disabled
+            const pseudo = direction === NavigationDirection.UP ? ':last-of-type' : '';
+            const $target = this.$settings!.querySelector(`div[data-tab-group]:not(.bx-gone) div[data-focus-container]${pseudo} [tabindex="0"]:not(:disabled):last-of-type`);
             $target && ($target as HTMLElement).focus();
         } else if (direction === NavigationDirection.LEFT || direction === NavigationDirection.RIGHT) {
             // Find all child elements with tabindex
