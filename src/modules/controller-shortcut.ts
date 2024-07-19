@@ -207,6 +207,7 @@ export class ControllerShortcut {
 
             BxEvent.dispatch($select, 'input', {
                 ignoreOnChange: true,
+                manualTrigger: true,
             });
         }
     }

@@ -24,6 +24,7 @@ export class BxSelectElement {
         const isMultiple = $select.multiple;
         let $checkBox: HTMLInputElement;
         let $label: HTMLElement;
+        let visibleIndex = $select.selectedIndex;
 
         let $content;
 
@@ -41,7 +42,7 @@ export class BxSelectElement {
             });
 
             $checkBox.addEventListener('input', e => {
-                const $option = getOptionAtIndex($select.selectedIndex);
+                const $option = getOptionAtIndex(visibleIndex);
                 $option && ($option.selected = (e.target as HTMLInputElement).checked);
 
                 $select.dispatchEvent(new Event('input'));
@@ -57,11 +58,13 @@ export class BxSelectElement {
             return options[index];
         }
 
-        const render = () => {
+        const render = (e?: Event) => {
             // console.log('options', this.options, 'selectedIndices', this.selectedIndices, 'selectedOptions', this.selectedOptions);
+            if (e && (e as any).manualTrigger) {
+                visibleIndex = $select.selectedIndex;
+            }
 
-            const visibleIndex = normalizeIndex($select.selectedIndex);
-
+            visibleIndex = normalizeIndex(visibleIndex);
             const $option = getOptionAtIndex(visibleIndex);
             let content = '';
             if ($option) {
@@ -107,18 +110,23 @@ export class BxSelectElement {
         const onPrevNext = (e: Event) => {
             const goNext = e.target === $btnNext;
 
-            const currentIndex = $select.selectedIndex;
+            const currentIndex = visibleIndex;
             let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
             newIndex = normalizeIndex(newIndex);
 
+            visibleIndex = newIndex;
             if (!isMultiple && newIndex !== currentIndex) {
                 $select.selectedIndex = newIndex;
             }
 
-            $select.dispatchEvent(new Event('input'));
+            if (isMultiple) {
+                render();
+            } else {
+                $select.dispatchEvent(new Event('input'));
+            }
         };
 
-        $select.addEventListener('input', e => render());
+        $select.addEventListener('input', render);
         $btnPrev.addEventListener('click', onPrevNext);
         $btnNext.addEventListener('click', onPrevNext);
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.4.1
+// @version      5.4.2-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -138,7 +138,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.4.1", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.4.2-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -3388,7 +3388,7 @@ class BxSelectElement {
         tabindex: 0
       }
     }), isMultiple = $select.multiple;
-    let $checkBox, $label, $content;
+    let $checkBox, $label, visibleIndex = $select.selectedIndex, $content;
     if (isMultiple)
       $content = CE("button", {
         class: "bx-select-value bx-focusable",
@@ -3396,15 +3396,18 @@ class BxSelectElement {
       }, $checkBox = CE("input", { type: "checkbox" }), $label = CE("span", {}, "")), $content.addEventListener("click", (e) => {
         $checkBox.click();
       }), $checkBox.addEventListener("input", (e) => {
-        const $option = getOptionAtIndex($select.selectedIndex);
+        const $option = getOptionAtIndex(visibleIndex);
         $option && ($option.selected = e.target.checked), $select.dispatchEvent(new Event("input"));
       });
     else
       $content = CE("div", {}, $label = CE("label", { for: $select.id + "_checkbox" }, ""));
     const getOptionAtIndex = (index) => {
       return Array.from($select.querySelectorAll("option"))[index];
-    }, render = () => {
-      const visibleIndex = normalizeIndex($select.selectedIndex), $option = getOptionAtIndex(visibleIndex);
+    }, render = (e) => {
+      if (e && e.manualTrigger)
+        visibleIndex = $select.selectedIndex;
+      visibleIndex = normalizeIndex(visibleIndex);
+      const $option = getOptionAtIndex(visibleIndex);
       let content = "";
       if ($option)
         if (content = $option.textContent || "", content && $option.parentElement.tagName === "OPTGROUP") {
@@ -3422,13 +3425,16 @@ class BxSelectElement {
     }, normalizeIndex = (index) => {
       return Math.min(Math.max(index, 0), $select.querySelectorAll("option").length - 1);
     }, onPrevNext = (e) => {
-      const goNext = e.target === $btnNext, currentIndex = $select.selectedIndex;
+      const goNext = e.target === $btnNext, currentIndex = visibleIndex;
       let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
-      if (newIndex = normalizeIndex(newIndex), !isMultiple && newIndex !== currentIndex)
+      if (newIndex = normalizeIndex(newIndex), visibleIndex = newIndex, !isMultiple && newIndex !== currentIndex)
         $select.selectedIndex = newIndex;
-      $select.dispatchEvent(new Event("input"));
+      if (isMultiple)
+        render();
+      else
+        $select.dispatchEvent(new Event("input"));
     };
-    return $select.addEventListener("input", (e) => render()), $btnPrev.addEventListener("click", onPrevNext), $btnNext.addEventListener("click", onPrevNext), new MutationObserver((mutationList, observer2) => {
+    return $select.addEventListener("input", render), $btnPrev.addEventListener("click", onPrevNext), $btnNext.addEventListener("click", onPrevNext), new MutationObserver((mutationList, observer2) => {
       mutationList.forEach((mutation) => {
         if (mutation.type === "childList" || mutation.type === "attributes")
           render();
@@ -4509,7 +4515,8 @@ class ControllerShortcut {
     for (button in ControllerShortcut.#$selectActions) {
       const $select = ControllerShortcut.#$selectActions[button];
       $select.value = actions[button] || "", BxEvent.dispatch($select, "input", {
-        ignoreOnChange: !0
+        ignoreOnChange: !0,
+        manualTrigger: !0
       });
     }
   }
