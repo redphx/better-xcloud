@@ -76,6 +76,7 @@ const Texts = {
     "controller-shortcuts-xbox-note": "Button to open the Guide menu",
     "controller-vibration": "Controller vibration",
     "copy": "Copy",
+    "create-shortcut": "Create shortcut",
     "custom": "Custom",
     "deadzone-counterweight": "Deadzone counterweight",
     "decrease": "Decrease",

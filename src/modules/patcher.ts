@@ -1,4 +1,4 @@
-import { SCRIPT_VERSION, STATES } from "@utils/global";
+import { AppInterface, SCRIPT_VERSION, STATES } from "@utils/global";
 import { BX_FLAGS } from "@utils/bx-flags";
 import { getPref, PrefKey } from "@utils/preferences";
 import { VibrationManager } from "@modules/vibration-manager";
@@ -799,6 +799,22 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         str = str.substring(0, index) + codeSetCurrentlyFocusedInteractable + str.substring(index);
         return str;
     },
+
+    // product-details-page.js#2388, 24.17.20
+    detectProductDetailsPage(str: string) {
+        let index = str.indexOf('{location:"ProductDetailPage",');
+        if (index === -1) {
+            return false;
+        }
+
+        index = str.indexOf('return', index - 40);
+        if (index === -1) {
+            return false;
+        }
+
+        str = str.substring(0, index) + 'BxEvent.dispatch(window, BxEvent.XCLOUD_RENDERING_COMPONENT, {component: "product-details"});' + str.substring(index);
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -820,6 +836,7 @@ let PATCH_ORDERS: PatchArray = [
     'exposeDialogRoutes',
 
     'enableTvRoutes',
+    AppInterface && 'detectProductDetailsPage',
 
     'overrideStorageGetSettings',
     getPref(PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME) && 'patchSetCurrentlyFocusedInteractable',

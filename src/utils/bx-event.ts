@@ -48,6 +48,8 @@ export enum BxEvent {
     XCLOUD_GUIDE_MENU_SHOWN = 'bx-xcloud-guide-menu-shown',
 
     XCLOUD_POLLING_MODE_CHANGED = 'bx-xcloud-polling-mode-changed',
+
+    XCLOUD_RENDERING_COMPONENT = 'bx-xcloud-rendering-page',
 }
 
 export enum XcloudEvent {

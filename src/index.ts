@@ -35,6 +35,7 @@ import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
 import { UiSection } from "./enums/ui-sections";
 import { HeaderSection } from "./modules/ui/header";
 import { GameTile } from "./modules/ui/game-tile";
+import { ProductDetailsPage } from "./modules/ui/product-details";
 
 
 // Handle login page
@@ -196,6 +197,13 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
 
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
     BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+});
+
+window.addEventListener(BxEvent.XCLOUD_RENDERING_COMPONENT, e => {
+    const component = (e as any).component;
+    if (component === 'product-details') {
+        ProductDetailsPage.injectShortcutButton();
+    }
 });
 
 function unload() {
