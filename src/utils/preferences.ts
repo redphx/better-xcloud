@@ -9,6 +9,7 @@ import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 import { UserAgentProfile } from "@/enums/user-agent";
 import { UiSection } from "@/enums/ui-sections";
 import { BypassServers } from "@/enums/bypass-servers";
+import { BX_FLAGS } from "./bx-flags";
 
 export enum PrefKey {
     LAST_UPDATE_CHECK = 'version_last_check',
@@ -558,7 +559,7 @@ export class Preferences {
 
         [PrefKey.UI_CONTROLLER_FRIENDLY]: {
             label: t('controller-friendly-ui'),
-            default: false,
+            default: !STATES.browser.capabilities.touch || BX_FLAGS.DeviceInfo?.deviceType === "android-tv",
         },
 
         [PrefKey.UI_LAYOUT]: {
@@ -611,7 +612,7 @@ export class Preferences {
         [PrefKey.USER_AGENT_PROFILE]: {
             label: t('user-agent-profile'),
             note: '⚠️ ' + t('unexpected-behavior'),
-            default: 'default',
+            default: BX_FLAGS.DeviceInfo?.deviceType === 'android-tv' ? UserAgentProfile.VR_OCULUS : 'default',
             options: {
                 [UserAgentProfile.DEFAULT]: t('default'),
                 [UserAgentProfile.WINDOWS_EDGE]: 'Edge + Windows',
