@@ -97,10 +97,11 @@ export class BxSelectElement {
             const disableNext = visibleIndex === $select.querySelectorAll('option').length - 1;
 
             $btnPrev.classList.toggle('bx-inactive', disablePrev);
-            // disablePrev && document.activeElement === $btnPrev && $btnNext.focus();
-
             $btnNext.classList.toggle('bx-inactive', disableNext);
-            // disableNext && document.activeElement === $btnNext &&$btnPrev.focus();
+
+            // Focus the other button when reaching the beginning/end
+            disablePrev && !disableNext && document.activeElement === $btnPrev && $btnNext.focus();
+            disableNext && !disablePrev && document.activeElement === $btnNext && $btnPrev.focus();
         }
 
         const normalizeIndex = (index: number): number => {
