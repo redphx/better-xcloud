@@ -15,6 +15,10 @@ window.dispatchEvent(new Event(BxEvent.STREAM_SESSION_READY));
 // Patch updateDimensions() to make native touch work correctly with WebGL2
 let updateDimensionsStr = this.updateDimensions.toString();
 
+if (updateDimensionsStr.startsWith('function ')) {
+    updateDimensionsStr = updateDimensionsStr.substring(9);
+}
+
 // if(r){
 const renderTargetVar = updateDimensionsStr.match(/if\((\w+)\){/)[1];
 

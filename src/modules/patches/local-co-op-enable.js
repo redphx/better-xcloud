@@ -1,6 +1,10 @@
 let match;
 let onGamepadChangedStr = this.onGamepadChanged.toString();
 
+if (onGamepadChangedStr.startsWith('function ')) {
+    onGamepadChangedStr = onGamepadChangedStr.substring(9);
+}
+
 onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
 eval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);
 
