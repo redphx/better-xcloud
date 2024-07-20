@@ -350,7 +350,7 @@ var SUPPORTED_LANGUAGES = {
   "always-off": "Always off",
   "always-on": "Always on",
   "amd-fidelity-cas": "AMD FidelityFX CAS",
-  "android-app-settings": "Android app settings",
+  "app-settings": "App settings",
   apply: "Apply",
   "aspect-ratio": "Aspect ratio",
   "aspect-ratio-note": "Don't use with native touch games",
@@ -5377,7 +5377,7 @@ function setupSettingsUi() {
     }
   })), AppInterface)
     topButtons.push(createButton({
-      label: t("android-app-settings"),
+      label: t("app-settings"),
       icon: BxIcon.STREAM_SETTINGS,
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
@@ -5526,6 +5526,7 @@ function setupSettingsUi() {
     PrefKey.STREAM_CODEC_PROFILE,
     PrefKey.VIDEO_PLAYER_TYPE,
     PrefKey.VIDEO_PROCESSING,
+    PrefKey.VIDEO_POWER_PREFERENCE,
     PrefKey.VIDEO_SHARPNESS
   ];
   debugInfo.settings = {};
@@ -7607,7 +7608,7 @@ class GuideMenu {
       }
     }),
     appSettings: createButton({
-      label: t("android-app-settings"),
+      label: t("app-settings"),
       style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
       onClick: (e) => {
         window.BX_EXPOSED.dialogRoutes.closeAll(), AppInterface.openAppSettings && AppInterface.openAppSettings();

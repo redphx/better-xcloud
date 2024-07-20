@@ -465,6 +465,7 @@ export function setupSettingsUi() {
 
         PrefKey.VIDEO_PLAYER_TYPE,
         PrefKey.VIDEO_PROCESSING,
+        PrefKey.VIDEO_POWER_PREFERENCE,
         PrefKey.VIDEO_SHARPNESS,
     ];
 
