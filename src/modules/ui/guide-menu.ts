@@ -25,7 +25,7 @@ export class GuideMenu {
         }),
 
         appSettings: createButton({
-            label: t('android-app-settings'),
+            label: t('app-settings'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 // Close all xCloud's dialogs

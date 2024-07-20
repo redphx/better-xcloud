@@ -177,7 +177,7 @@ export function setupSettingsUi() {
     if (AppInterface) {
         // Show Android app settings button
         topButtons.push(createButton({
-            label: t('android-app-settings'),
+            label: t('app-settings'),
             icon: BxIcon.STREAM_SETTINGS,
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {

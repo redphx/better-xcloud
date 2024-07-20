@@ -31,7 +31,7 @@ const Texts = {
     "always-off": "Always off",
     "always-on": "Always on",
     "amd-fidelity-cas": "AMD FidelityFX CAS",
-    "android-app-settings": "Android app settings",
+    "app-settings": "App settings",
     "apply": "Apply",
     "aspect-ratio": "Aspect ratio",
     "aspect-ratio-note": "Don't use with native touch games",
