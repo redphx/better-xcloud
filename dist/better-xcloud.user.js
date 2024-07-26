@@ -4318,6 +4318,14 @@ true` + ",this._connectionType=";
       return !1;
     return str = str.substring(0, index) + "true ? null :" + str.substring(index), str;
   },
+  ignorePlayWithTouchSection(str) {
+    let index = str.indexOf('("Play_With_Touch"),');
+    if (index < 0)
+      return !1;
+    if (index = str.indexOf("const ", index - 100), index < 0)
+      return !1;
+    return str = str.substring(0, index) + "return null;" + str.substring(index), str;
+  },
   ignoreSiglSections(str) {
     let index = str.indexOf("SiglRow-module__heroCard___");
     if (index < 0)
@@ -4325,7 +4333,6 @@ true` + ",this._connectionType=";
     if (index = str.indexOf("const[", index - 300), index < 0)
       return !1;
     const PREF_HIDE_SECTIONS = getPref(PrefKey.UI_HIDE_SECTIONS), siglIds = [], sections = {
-      [UiSection.TOUCH]: GamePassCloudGallery.TOUCH,
       [UiSection.NATIVE_MKB]: GamePassCloudGallery.NATIVE_MKB,
       [UiSection.MOST_POPULAR]: GamePassCloudGallery.MOST_POPULAR
     };
@@ -4403,7 +4410,8 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   getPref(PrefKey.GAME_FORTNITE_FORCE_CONSOLE) && "forceFortniteConsole",
   getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS) && "ignorePlayWithFriendsSection",
   getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.ALL_GAMES) && "ignoreAllGamesSection",
-  (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.NATIVE_MKB) || getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.TOUCH)) && "ignoreSiglSections",
+  getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.TOUCH) && "ignorePlayWithTouchSection",
+  (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.NATIVE_MKB) || getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.MOST_POPULAR)) && "ignoreSiglSections",
   ...getPref(PrefKey.BLOCK_TRACKING) ? [
     "disableAiTrack",
     "disableTelemetry",
@@ -7088,6 +7096,8 @@ function addCss() {
     selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]");
   if (PREF_HIDE_SECTIONS.includes(UiSection.MOST_POPULAR))
     selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/popular"])');
+  if (PREF_HIDE_SECTIONS.includes(UiSection.TOUCH))
+    selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/touch"])');
   if (getPref(PrefKey.BLOCK_SOCIAL_FEATURES))
     selectorToHide.push("#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]");
   if (selectorToHide)
