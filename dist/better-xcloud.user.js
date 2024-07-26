@@ -7093,7 +7093,7 @@ function addCss() {
   if (PREF_HIDE_SECTIONS.includes(UiSection.NEWS))
     selectorToHide.push("#BodyContent > div[class*=CarouselRow-module]");
   if (PREF_HIDE_SECTIONS.includes(UiSection.ALL_GAMES))
-    selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]");
+    selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]"), selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__rowHeader]");
   if (PREF_HIDE_SECTIONS.includes(UiSection.MOST_POPULAR))
     selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/popular"])');
   if (PREF_HIDE_SECTIONS.includes(UiSection.TOUCH))
@@ -7588,7 +7588,7 @@ function patchRtcPeerConnection() {
       } catch (e) {
         BxLogger.error("setLocalDescription", e);
       }
-      return BxLogger.info("setLocalDescription", arguments[0].sdp), nativeSetLocalDescription.apply(this, arguments);
+      return nativeSetLocalDescription.apply(this, arguments);
     };
   }
   const OrgRTCPeerConnection = window.RTCPeerConnection;
