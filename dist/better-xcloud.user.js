@@ -269,6 +269,7 @@ window.BxLogger = BxLogger;
 var SUPPORTED_LANGUAGES = {
   "en-US": "English (United States)",
   "ca-CA": "Català",
+  "da-DK": "dansk",
   "de-DE": "Deutsch",
   "en-ID": "Bahasa Indonesia",
   "es-ES": "español (España)",
@@ -429,6 +430,7 @@ var SUPPORTED_LANGUAGES = {
   "press-key-to-toggle-mkb": [
     (e) => `Press ${e.key} to toggle this feature`,
     (e) => `Premeu ${e.key} per alternar aquesta funció`,
+    (e) => `Tryk på ${e.key} for at slå denne funktion til`,
     (e) => `${e.key}: Funktion an-/ausschalten`,
     (e) => `Tekan ${e.key} untuk mengaktifkan fitur ini`,
     (e) => `Pulsa ${e.key} para alternar esta función`,
@@ -465,7 +467,7 @@ var SUPPORTED_LANGUAGES = {
   saturation: "Saturation",
   save: "Save",
   screen: "Screen",
-  "screenshot-apply-filters": "Applies video filters to screenshots",
+  "screenshot-apply-filters": "Apply video filters to screenshots",
   "section-all-games": "All games",
   "section-most-popular": "Most popular",
   "section-native-mkb": "Play with mouse & keyboard",
@@ -476,8 +478,8 @@ var SUPPORTED_LANGUAGES = {
   "separate-touch-controller-note": "Touch controller is Player 1, Controller #1 is Player 2",
   server: "Server",
   settings: "Settings",
-  "settings-reload-note": "Settings in this tab only go into effect on the next page load",
   "settings-reload": "Reload page to reflect changes",
+  "settings-reload-note": "Settings in this tab only go into effect on the next page load",
   "settings-reloading": "Reloading...",
   sharpness: "Sharpness",
   "shortcut-keys": "Shortcut keys",
@@ -530,6 +532,7 @@ var SUPPORTED_LANGUAGES = {
   "touch-control-layout-by": [
     (e) => `Touch control layout by ${e.name}`,
     (e) => `Format del control tàctil per ${e.name}`,
+    (e) => `Touch-kontrol layout af ${e.name}`,
     (e) => `Touch-Steuerungslayout von ${e.name}`,
     (e) => `Tata letak Sentuhan layar oleh ${e.name}`,
     (e) => `Disposición del control táctil por ${e.nombre}`,

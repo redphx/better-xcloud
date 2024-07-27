@@ -5,6 +5,7 @@ export const SUPPORTED_LANGUAGES = {
     'en-US': 'English (United States)',
 
     'ca-CA': 'Català',
+    'da-DK': 'dansk',
     'de-DE': 'Deutsch',
     'en-ID': 'Bahasa Indonesia',
     'es-ES': 'español (España)',
@@ -167,6 +168,7 @@ const Texts = {
     "press-key-to-toggle-mkb": [
         (e: any) => `Press ${e.key} to toggle this feature`,
         (e: any) => `Premeu ${e.key} per alternar aquesta funció`,
+        (e: any) => `Tryk på ${e.key} for at slå denne funktion til`,
         (e: any) => `${e.key}: Funktion an-/ausschalten`,
         (e: any) => `Tekan ${e.key} untuk mengaktifkan fitur ini`,
         (e: any) => `Pulsa ${e.key} para alternar esta función`,
@@ -203,7 +205,7 @@ const Texts = {
     "saturation": "Saturation",
     "save": "Save",
     "screen": "Screen",
-    "screenshot-apply-filters": "Applies video filters to screenshots",
+    "screenshot-apply-filters": "Apply video filters to screenshots",
     "section-all-games": "All games",
     "section-most-popular": "Most popular",
     "section-native-mkb": "Play with mouse & keyboard",
@@ -214,8 +216,8 @@ const Texts = {
     "separate-touch-controller-note": "Touch controller is Player 1, Controller #1 is Player 2",
     "server": "Server",
     "settings": "Settings",
-    "settings-reload-note": "Settings in this tab only go into effect on the next page load",
     "settings-reload": "Reload page to reflect changes",
+    "settings-reload-note": "Settings in this tab only go into effect on the next page load",
     "settings-reloading": "Reloading...",
     "sharpness": "Sharpness",
     "shortcut-keys": "Shortcut keys",
@@ -268,6 +270,7 @@ const Texts = {
     "touch-control-layout-by": [
         (e: any) => `Touch control layout by ${e.name}`,
         (e: any) => `Format del control tàctil per ${e.name}`,
+        (e: any) => `Touch-kontrol layout af ${e.name}`,
         (e: any) => `Touch-Steuerungslayout von ${e.name}`,
         (e: any) => `Tata letak Sentuhan layar oleh ${e.name}`,
         (e: any) => `Disposición del control táctil por ${e.nombre}`,
