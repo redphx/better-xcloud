@@ -3289,7 +3289,7 @@ class TouchController {
     if (!layoutId)
       layoutId = TouchController.#customLayouts[xboxTitleId]?.default_layout || null;
     if (!layoutId) {
-      BxLogger.error(LOG_TAG2, "Invalid layoutId");
+      BxLogger.error(LOG_TAG2, "Invalid layoutId, show default controller"), TouchController.#enabled && TouchController.#showDefault();
       return;
     }
     const layoutChanged = TouchController.#currentLayoutId !== layoutId;

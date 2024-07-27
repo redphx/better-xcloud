@@ -202,7 +202,8 @@ export class TouchController {
         }
 
         if (!layoutId) {
-            BxLogger.error(LOG_TAG, 'Invalid layoutId');
+            BxLogger.error(LOG_TAG, 'Invalid layoutId, show default controller');
+            TouchController.#enabled && TouchController.#showDefault();
             return;
         }
 
