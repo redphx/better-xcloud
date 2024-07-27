@@ -11,3 +11,8 @@ const generatedCss = await (stylus(cssStr, {})
 export const renderStylus = () => {
     return generatedCss;
 };
+
+
+export const compressCss = async (css: string) => {
+	return await (stylus(css, {}).set('compress', true)).render();
+};

@@ -5,8 +5,9 @@ import { BxEvent } from "@utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import type { BaseGameBarAction } from "./action-base";
 import { STATES } from "@utils/global";
-import { PrefKey, getPref } from "@utils/preferences";
 import { MicrophoneAction } from "./action-microphone";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 
 export class GameBar {

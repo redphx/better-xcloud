@@ -1,19 +1,21 @@
 import { ControllerShortcut } from "@/modules/controller-shortcut";
 import { BxEvent } from "@utils/bx-event";
 import { deepClone, STATES } from "@utils/global";
-import { getPref, PrefKey } from "@utils/preferences";
 import { BxLogger } from "./bx-logger";
 import { BX_FLAGS } from "./bx-flags";
-import { StreamSettings } from "@/modules/stream/stream-settings";
+import { NavigationDialogManager } from "@/modules/ui/dialog/navigation-dialog";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
-export enum InputType {
+export enum SupportedInputType {
     CONTROLLER = 'Controller',
     MKB = 'MKB',
     CUSTOM_TOUCH_OVERLAY = 'CustomTouchOverlay',
     GENERIC_TOUCH = 'GenericTouch',
     NATIVE_TOUCH = 'NativeTouch',
     BATIVE_SENSOR = 'NativeSensor',
-}
+};
+export type SupportedInputTypeValue = (typeof SupportedInputType)[keyof typeof SupportedInputType];
 
 export const BxExposed = {
     getTitleInfo: () => STATES.currentStream.titleInfo,
@@ -25,15 +27,15 @@ export const BxExposed = {
         let supportedInputTypes = titleInfo.details.supportedInputTypes;
 
         if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId)) {
-            supportedInputTypes.push(InputType.MKB);
+            supportedInputTypes.push(SupportedInputType.MKB);
         }
 
         // Remove native MKB support on mobile browsers or by user's choice
         if (getPref(PrefKey.NATIVE_MKB_ENABLED) === 'off') {
-            supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.MKB);
+            supportedInputTypes = supportedInputTypes.filter(i => i !== SupportedInputType.MKB);
         }
 
-        titleInfo.details.hasMkbSupport = supportedInputTypes.includes(InputType.MKB);
+        titleInfo.details.hasMkbSupport = supportedInputTypes.includes(SupportedInputType.MKB);
 
         if (STATES.userAgent.capabilities.touch) {
             let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
@@ -55,21 +57,21 @@ export const BxExposed = {
 
             if (touchControllerAvailability === 'off') {
                 // Disable touch on all games (not native touch)
-                supportedInputTypes = supportedInputTypes.filter(i => i !== InputType.CUSTOM_TOUCH_OVERLAY && i !== InputType.GENERIC_TOUCH);
+                supportedInputTypes = supportedInputTypes.filter(i => i !== SupportedInputType.CUSTOM_TOUCH_OVERLAY && i !== SupportedInputType.GENERIC_TOUCH);
                 // Empty TABs
                 titleInfo.details.supportedTabs = [];
             }
 
             // Pre-check supported input types
-            titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH);
+            titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes(SupportedInputType.NATIVE_TOUCH);
             titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport ||
-                    supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY) ||
-                    supportedInputTypes.includes(InputType.GENERIC_TOUCH);
+                    supportedInputTypes.includes(SupportedInputType.CUSTOM_TOUCH_OVERLAY) ||
+                    supportedInputTypes.includes(SupportedInputType.GENERIC_TOUCH);
 
             if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === 'all') {
                 // Add generic touch support for non touch-supported games
                 titleInfo.details.hasFakeTouchSupport = true;
-                supportedInputTypes.push(InputType.GENERIC_TOUCH);
+                supportedInputTypes.push(SupportedInputType.GENERIC_TOUCH);
             }
         }
 
@@ -120,9 +122,9 @@ export const BxExposed = {
     disableGamepadPolling: false,
 
     backButtonPressed: () => {
-        const streamSettings = StreamSettings.getInstance();
-        if (streamSettings.isShowing()) {
-            streamSettings.hide();
+        const navigationDialogManager = NavigationDialogManager.getInstance();
+        if (navigationDialogManager.isShowing()) {
+            navigationDialogManager.hide();
             return true;
         }
 

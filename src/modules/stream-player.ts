@@ -1,9 +1,10 @@
 import { CE } from "@/utils/html";
 import { WebGL2Player } from "./player/webgl2-player";
-import { getPref, PrefKey } from "@/utils/preferences";
 import { Screenshot } from "@/utils/screenshot";
 import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 import { STATES } from "@/utils/global";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 export type StreamPlayerOptions = Partial<{
     processing: string,

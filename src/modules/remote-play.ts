@@ -3,15 +3,16 @@ import { CE, createButton, ButtonStyle } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { Toast } from "@utils/toast";
 import { BxEvent } from "@utils/bx-event";
-import { getPref, PrefKey, setPref } from "@utils/preferences";
 import { t } from "@utils/translation";
 import { localRedirect } from "@modules/ui/ui";
 import { BxLogger } from "@utils/bx-logger";
 import { HeaderSection } from "./ui/header";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref, setPref } from "@/utils/settings-storages/global-settings-storage";
 
 const LOG_TAG = 'RemotePlay';
 
-enum RemotePlayConsoleState {
+const enum RemotePlayConsoleState {
     ON = 'On',
     OFF = 'Off',
     STANDBY = 'ConnectedStandby',
@@ -53,8 +54,8 @@ export class RemotePlay {
             env: {
                 clientAppId: window.location.host,
                 clientAppType: 'browser',
-                clientAppVersion: '21.1.98',
-                clientSdkVersion: '8.5.3',
+                clientAppVersion: '24.17.36',
+                clientSdkVersion: '10.1.14',
                 httpEnvironment: 'prod',
                 sdkInstallId: '',
             },
@@ -82,7 +83,7 @@ export class RemotePlay {
             },
             browser: {
                 browserName: 'chrome',
-                browserVersion: '119.0',
+                browserVersion: '125.0',
             },
         },
     };

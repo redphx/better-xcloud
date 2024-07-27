@@ -1,3 +1,4 @@
+import type { BaseSettingsStore } from "./settings-storages/base-settings-storage";
 import { UserAgent } from "./user-agent";
 
 export const SCRIPT_VERSION = Bun.env.SCRIPT_VERSION!;
@@ -41,6 +42,8 @@ export const STATES: BxStates = {
 
     pointerServerPort: 9269,
 };
+
+export const STORAGE: {[key: string]: BaseSettingsStore} = {};
 
 export function deepClone(obj: any): any {
     if ('structuredClone' in window) {

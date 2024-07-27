@@ -2,7 +2,6 @@ import { MkbPreset } from "./mkb-preset";
 import { GamepadKey, MkbPresetKey, GamepadStick, MouseMapTo, WheelCode } from "@enums/mkb";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BxEvent } from "@utils/bx-event";
-import { PrefKey, getPref } from "@utils/preferences";
 import { Toast } from "@utils/toast";
 import { t } from "@utils/translation";
 import { LocalDb } from "@utils/local-db";
@@ -14,7 +13,10 @@ import { BxLogger } from "@utils/bx-logger";
 import { PointerClient } from "./pointer-client";
 import { NativeMkbHandler } from "./native-mkb-handler";
 import { MkbHandler, MouseDataProvider } from "./base-mkb-handler";
-import { StreamSettings } from "../stream/stream-settings";
+import { SettingsNavigationDialog } from "../ui/dialog/settings-dialog";
+import { NavigationDialogManager } from "../ui/dialog/navigation-dialog";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 const LOG_TAG = 'MkbHandler';
 
@@ -507,7 +509,10 @@ export class EmulatedMkbHandler extends MkbHandler {
                                 e.preventDefault();
                                 e.stopPropagation();
 
-                                StreamSettings.getInstance().show('mkb');
+                                // Show Settings dialog & focus the MKB tab
+                                const dialog = SettingsNavigationDialog.getInstance();
+                                dialog.focusTab('mkb');
+                                NavigationDialogManager.getInstance().show(dialog);
                             },
                         }),
                     ),

@@ -1,9 +1,9 @@
 import { t } from "@utils/translation";
 import { STATES } from "@utils/global";
-import { PrefKey, getPref, setPref } from "@utils/preferences";
 import { Toast } from "@utils/toast";
-import { BxEvent } from "@/utils/bx-event";
 import { ceilToNearest, floorToNearest } from "@/utils/utils";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref, setPref } from "@/utils/settings-storages/global-settings-storage";
 
 export class SoundShortcut {
     static adjustGainNodeVolume(amount: number): number {
@@ -27,14 +27,11 @@ export class SoundShortcut {
             newValue = currentValue + amount;
         }
 
-        newValue = setPref(PrefKey.AUDIO_VOLUME, newValue);
+        newValue = setPref(PrefKey.AUDIO_VOLUME, newValue, true);
         SoundShortcut.setGainNodeVolume(newValue);
 
         // Show toast
         Toast.show(`${t('stream')} ❯ ${t('volume')}`, newValue + '%', {instant: true});
-        BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
-                volume: newValue,
-            });
 
         return newValue;
     }
@@ -51,10 +48,7 @@ export class SoundShortcut {
             let targetValue: number;
             if (settingValue === 0) {  // settingValue is 0 => set to 100
                 targetValue = 100;
-                setPref(PrefKey.AUDIO_VOLUME, targetValue);
-                BxEvent.dispatch(window, BxEvent.GAINNODE_VOLUME_CHANGED, {
-                        volume: targetValue,
-                    });
+                setPref(PrefKey.AUDIO_VOLUME, targetValue, true);
             } else if (gainValue === 0) {  // is being muted => set to settingValue
                 targetValue = settingValue;
             } else {  // not being muted => mute

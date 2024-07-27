@@ -7,13 +7,18 @@ import { EmulatedMkbHandler } from "./mkb/mkb-handler";
 import { StreamStats } from "./stream/stream-stats";
 import { MicrophoneShortcut } from "./shortcuts/shortcut-microphone";
 import { StreamUiShortcut } from "./shortcuts/shortcut-stream-ui";
-import { PrefKey, getPref } from "@utils/preferences";
 import { SoundShortcut } from "./shortcuts/shortcut-sound";
 import { BxEvent } from "@/utils/bx-event";
 import { AppInterface } from "@/utils/global";
 import { BxSelectElement } from "@/web-components/bx-select";
+import { setNearby } from "@/utils/navigation-utils";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { SettingsNavigationDialog } from "./ui/dialog/settings-dialog";
 
-enum ShortcutAction {
+const enum ShortcutAction {
+    BETTER_XCLOUD_SETTINGS_SHOW = 'bx-settings-show',
+
     STREAM_SCREENSHOT_CAPTURE = 'stream-screenshot-capture',
 
     STREAM_MENU_SHOW = 'stream-menu-show',
@@ -42,7 +47,7 @@ export class ControllerShortcut {
     static #$selectActions: Partial<{[key in GamepadKey]: HTMLSelectElement}> = {};
     static #$container: HTMLElement;
 
-    static #ACTIONS: {[key: string]: (ShortcutAction | null)[]} = {};
+    static #ACTIONS: {[key: string]: (ShortcutAction | null)[]} | null = null;
 
     static reset(index: number) {
         ControllerShortcut.#buttonsCache[index] = [];
@@ -50,8 +55,12 @@ export class ControllerShortcut {
     }
 
     static handle(gamepad: Gamepad): boolean {
+        if (!ControllerShortcut.#ACTIONS) {
+            ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
+        }
+
         const gamepadIndex = gamepad.index;
-        const actions = ControllerShortcut.#ACTIONS[gamepad.id];
+        const actions = ControllerShortcut.#ACTIONS![gamepad.id];
         if (!actions) {
             return false;
         }
@@ -83,6 +92,10 @@ export class ControllerShortcut {
 
     static #runAction(action: ShortcutAction) {
         switch (action) {
+            case ShortcutAction.BETTER_XCLOUD_SETTINGS_SHOW:
+                SettingsNavigationDialog.getInstance().show();
+                break;
+
             case ShortcutAction.STREAM_SCREENSHOT_CAPTURE:
                 Screenshot.takeScreenshot();
                 break;
@@ -122,15 +135,16 @@ export class ControllerShortcut {
     }
 
     static #updateAction(profile: string, button: GamepadKey, action: ShortcutAction | null) {
-        if (!(profile in ControllerShortcut.#ACTIONS)) {
-            ControllerShortcut.#ACTIONS[profile] = [];
+        const actions = ControllerShortcut.#ACTIONS!;
+        if (!(profile in actions)) {
+            actions[profile] = [];
         }
 
         if (!action) {
             action = null;
         }
 
-        ControllerShortcut.#ACTIONS[profile][button] = action;
+        actions[profile][button] = action;
 
         // Remove empty profiles
         for (const key in ControllerShortcut.#ACTIONS) {
@@ -194,7 +208,7 @@ export class ControllerShortcut {
     }
 
     static #switchProfile(profile: string) {
-        let actions = ControllerShortcut.#ACTIONS[profile];
+        let actions = ControllerShortcut.#ACTIONS![profile];
         if (!actions) {
             actions = [];
         }
@@ -212,11 +226,15 @@ export class ControllerShortcut {
         }
     }
 
+    static #getActionsFromStorage() {
+        return JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || '{}');
+    }
+
     static renderSettings() {
         const PREF_CONTROLLER_FRIENDLY_UI = getPref(PrefKey.UI_CONTROLLER_FRIENDLY);
 
         // Read actions from localStorage
-        ControllerShortcut.#ACTIONS = JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || '{}');
+        ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
 
         const buttons: Map<GamepadKey, PrompFont> = new Map();
         buttons.set(GamepadKey.Y, PrompFont.Y);
@@ -242,6 +260,10 @@ export class ControllerShortcut {
         buttons.set(GamepadKey.R3, PrompFont.R3);
 
         const actions: {[key: string]: Partial<{[key in ShortcutAction]: string | string[]}>} = {
+            [t('better-xcloud')]: {
+                [ShortcutAction.BETTER_XCLOUD_SETTINGS_SHOW]: [t('settings'), t('show')],
+            },
+
             [t('device')]: AppInterface && {
                 [ShortcutAction.DEVICE_SOUND_TOGGLE]: [t('sound'), t('toggle')],
                 [ShortcutAction.DEVICE_VOLUME_INC]: [t('volume'), t('increase')],
@@ -261,7 +283,7 @@ export class ControllerShortcut {
                 [ShortcutAction.STREAM_MENU_SHOW]: [t('menu'), t('show')],
                 [ShortcutAction.STREAM_STATS_TOGGLE]: [t('stats'), t('show-hide')],
                 [ShortcutAction.STREAM_MICROPHONE_TOGGLE]: [t('microphone'), t('toggle')],
-            }
+            },
         };
 
         const $baseSelect = CE<HTMLSelectElement>('select', {autocomplete: 'off'}, CE('option', {value: ''}, '---'));
@@ -293,13 +315,24 @@ export class ControllerShortcut {
         let $remap: HTMLElement;
         const $selectProfile = CE<HTMLSelectElement>('select', {class: 'bx-shortcut-profile', autocomplete: 'off'});
 
-        const $container = CE('div', {'data-has-gamepad': 'false'},
+        const $profile = PREF_CONTROLLER_FRIENDLY_UI ? BxSelectElement.wrap($selectProfile) : $selectProfile;
+
+        const $container = CE('div', {
+            'data-has-gamepad': 'false',
+            _nearby: {
+                focus: $profile,
+            },
+        },
             CE('div', {},
                 CE('p', {class: 'bx-shortcut-note'}, t('controller-shortcuts-connect-note')),
             ),
 
             $remap = CE('div', {},
-                PREF_CONTROLLER_FRIENDLY_UI ? CE('div', {'data-focus-container': 'true'}, BxSelectElement.wrap($selectProfile)) : $selectProfile,
+                CE('div', {
+                    _nearby: {
+                        focus: $profile,
+                    },
+                }, $profile),
                 CE('p', {class: 'bx-shortcut-note'},
                     CE('span', {class: 'bx-prompt'}, PrompFont.HOME),
                     ': ' + t('controller-shortcuts-xbox-note'),
@@ -337,7 +370,6 @@ export class ControllerShortcut {
         for (const [button, prompt] of buttons) {
             const $row = CE('div', {
                 class: 'bx-shortcut-row',
-                'data-focus-container': 'true',
             });
 
             const $label = CE('label', {class: 'bx-prompt'}, `${PrompFont.HOME} + ${prompt}`);
@@ -359,9 +391,16 @@ export class ControllerShortcut {
             ControllerShortcut.#$selectActions[button] = $select;
 
             if (PREF_CONTROLLER_FRIENDLY_UI) {
-                $div.appendChild(BxSelectElement.wrap($select));
+                const $bxSelect = BxSelectElement.wrap($select);
+                $div.appendChild($bxSelect);
+                setNearby($row, {
+                    focus: $bxSelect,
+                });
             } else {
                 $div.appendChild($select);
+                setNearby($row, {
+                    focus: $select,
+                });
             }
 
             $row.appendChild($label);

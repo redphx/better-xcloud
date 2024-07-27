@@ -1,7 +1,8 @@
 import vertClarityBoost from "./shaders/clarity_boost.vert" with { type: "text" };
 import fsClarityBoost from "./shaders/clarity_boost.fs" with { type: "text" };
 import { BxLogger } from "@/utils/bx-logger";
-import { getPref, PrefKey } from "@/utils/preferences";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 
 const LOG_TAG = 'WebGL2Player';

@@ -1,6 +1,8 @@
 export enum UiSection {
-    NEWS = 'news',
+    ALL_GAMES = 'all-games',
     FRIENDS = 'friends',
     MOST_POPULAR = 'most-popular',
-    ALL_GAMES = 'all-games',
+    NATIVE_MKB = 'native-mkb',
+    NEWS = 'news',
+    TOUCH = 'touch',
 }

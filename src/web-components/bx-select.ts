@@ -1,3 +1,4 @@
+import type { NavigationElement } from "@/modules/ui/dialog/navigation-dialog";
 import { ButtonStyle, CE, createButton } from "@utils/html";
 
 export class BxSelectElement {
@@ -8,17 +9,11 @@ export class BxSelectElement {
         const $btnPrev = createButton({
             label: '<',
             style: ButtonStyle.FOCUSABLE,
-            attributes: {
-                tabindex: 0,
-            },
         });
 
         const $btnNext = createButton({
             label: '>',
             style: ButtonStyle.FOCUSABLE,
-            attributes: {
-                tabindex: 0,
-            },
         });
 
         const isMultiple = $select.multiple;
@@ -109,7 +104,11 @@ export class BxSelectElement {
         }
 
         const onPrevNext = (e: Event) => {
-            const goNext = e.target === $btnNext;
+            if (!e.target) {
+                return;
+            }
+
+            const goNext = (e.target as any).closest('button') === $btnNext;
 
             const currentIndex = visibleIndex;
             let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
@@ -147,11 +146,40 @@ export class BxSelectElement {
 
         render();
 
-        return CE('div', {class: 'bx-select'},
+        const $div = CE<NavigationElement>('div', {
+            class: 'bx-select',
+            _nearby: {
+                orientation: 'horizontal',
+                focus: $btnNext,
+            }
+        },
             $select,
             $btnPrev,
             $content,
             $btnNext,
         );
+
+        Object.defineProperty($div, 'value', {
+            get() {
+                return $select.value;
+            }
+        });
+
+        $div.addEventListener = function() {
+            // @ts-ignore
+            $select.addEventListener.apply($select, arguments);
+        };
+
+        $div.removeEventListener = function() {
+            // @ts-ignore
+            $select.removeEventListener.apply($select, arguments);
+        };
+
+        $div.dispatchEvent = function() {
+            // @ts-ignore
+            return $select.dispatchEvent.apply($select, arguments);
+        }
+
+        return $div;
     }
 }

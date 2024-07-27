@@ -1,5 +1,8 @@
 import type { PreferenceSetting } from "@/types/preferences";
 import { CE } from "@utils/html";
+import { setNearby } from "./navigation-utils";
+import type { PrefKey } from "@/enums/pref-keys";
+import type { BaseSettingsStore } from "./settings-storages/base-settings-storage";
 
 type MultipleOptionsParams = {
     size?: number;
@@ -50,7 +53,8 @@ export class SettingElement {
         onChange && $control.addEventListener('input', e => {
             const target = e.target as HTMLSelectElement;
             const value = (setting.type && setting.type === 'number') ? parseInt(target.value) : target.value;
-            onChange(e, value);
+
+            !(e as any).ignoreOnChange && onChange(e, value);
         });
 
         // Custom method
@@ -102,7 +106,8 @@ export class SettingElement {
         onChange && $control.addEventListener('input', (e: Event) => {
             const target = e.target as HTMLSelectElement
             const values = Array.from(target.selectedOptions).map(i => i.value);
-            onChange(e, values);
+
+            !(e as any).ignoreOnChange && onChange(e, values);
         });
 
         return $control;
@@ -117,7 +122,7 @@ export class SettingElement {
             const value = Math.max(setting.min!, Math.min(setting.max!, parseInt(target.value)));
             target.value = value.toString();
 
-            onChange(e, value);
+            !(e as any).ignoreOnChange && onChange(e, value);
         });
 
         return $control;
@@ -128,7 +133,7 @@ export class SettingElement {
         $control.checked = currentValue;
 
         onChange && $control.addEventListener('change', e => {
-            onChange(e, (e.target as HTMLInputElement).checked);
+            !(e as any).ignoreOnChange && onChange(e, (e.target as HTMLInputElement).checked);
         });
 
         return $control;
@@ -143,7 +148,7 @@ export class SettingElement {
         let $text: HTMLSpanElement;
         let $btnDec: HTMLButtonElement;
         let $btnInc: HTMLButtonElement;
-        let $range: HTMLInputElement;
+        let $range: HTMLInputElement | null = null;
 
         let controlValue = value;
 
@@ -187,6 +192,10 @@ export class SettingElement {
                     }, '+') as HTMLButtonElement,
             );
 
+        if (options.disabled) {
+            ($wrapper as any).disabled = true;
+        }
+
         if (!options.disabled && !options.hideSlider) {
             $range = CE('input', {
                     id: `bx_setting_${key}`,
@@ -212,6 +221,7 @@ export class SettingElement {
 
                 !(e as any).ignoreOnChange && onChange && onChange(e, value);
             });
+
             $wrapper.appendChild($range);
 
             if (options.ticks || options.exactTicks) {
@@ -277,7 +287,7 @@ export class SettingElement {
             $range && ($range.value = value.toString());
 
             isHolding = false;
-            onChange && onChange(e, value);
+            !(e as any).ignoreOnChange && onChange && onChange(e, value);
         }
 
         const onMouseDown = (e: PointerEvent) => {
@@ -322,6 +332,10 @@ export class SettingElement {
         $btnInc.addEventListener('pointerup', onMouseUp);
         $btnInc.addEventListener('contextmenu', onContextMenu);
 
+        setNearby($wrapper, {
+            focus: $range || $btnInc,
+        })
+
         return $wrapper;
     }
 
@@ -346,6 +360,36 @@ export class SettingElement {
         if (type === SettingElementType.OPTIONS || type === SettingElementType.MULTIPLE_OPTIONS) {
             ($control as HTMLSelectElement).name = $control.id;
         }
+
+        return $control;
+    }
+
+    static fromPref(key: PrefKey, storage: BaseSettingsStore, onChange: any, overrideParams={}) {
+        const definition = storage.getDefinition(key);
+        let currentValue = storage.getSetting(key);
+
+        let type;
+        if ('type' in definition) {
+            type = definition.type;
+        } else if ('options' in definition) {
+            type = SettingElementType.OPTIONS;
+        } else if ('multipleOptions' in definition) {
+            type = SettingElementType.MULTIPLE_OPTIONS;
+        } else if (typeof definition.default === 'number') {
+            type = SettingElementType.NUMBER;
+        } else {
+            type = SettingElementType.CHECKBOX;
+        }
+
+        const params = Object.assign(overrideParams, definition.params || {});
+        if (params.disabled) {
+            currentValue = definition.default;
+        }
+
+        const $control = SettingElement.render(type!, key as string, definition, currentValue, (e: any, value: any) => {
+            storage.setSetting(key, value);
+            onChange && onChange(e, value);
+        }, params);
 
         return $control;
     }

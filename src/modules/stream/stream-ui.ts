@@ -5,7 +5,7 @@ import { BxEvent } from "@utils/bx-event.ts";
 import { t } from "@utils/translation.ts";
 import { StreamBadges } from "./stream-badges.ts";
 import { StreamStats } from "./stream-stats.ts";
-import { StreamSettings } from "./stream-settings.ts";
+import { SettingsNavigationDialog } from "../ui/dialog/settings-dialog.ts";
 
 
 function cloneStreamHudButton($orgButton: HTMLElement, label: string, svgIcon: typeof BxIcon) {
@@ -123,11 +123,6 @@ export function injectStreamMenuButtons() {
                         return;
                     }
 
-                    // Hide Stream Settings dialog when closing HUD
-                    $btnCloseHud.addEventListener('click', e => {
-                        StreamSettings.getInstance().hide();
-                    });
-
                     // Create Refresh button from the Close button
                     const $btnRefresh = cloneCloseButton($btnCloseHud, BxIcon.REFRESH, 'bx-stream-refresh-button', () => {
                         confirm(t('confirm-reload-stream')) && window.location.reload();
@@ -178,13 +173,13 @@ export function injectStreamMenuButtons() {
 
                 // Create Stream Settings button
                 if (!$btnStreamSettings) {
-                    $btnStreamSettings = cloneStreamHudButton($orgButton, t('stream-settings'), BxIcon.STREAM_SETTINGS);
+                    $btnStreamSettings = cloneStreamHudButton($orgButton, t('better-xcloud'), BxIcon.BETTER_XCLOUD);
                     $btnStreamSettings.addEventListener('click', e => {
                         hideGripHandle();
                         e.preventDefault();
 
                         // Show Stream Settings dialog
-                        StreamSettings.getInstance().show();
+                        SettingsNavigationDialog.getInstance().show();
                     });
                 }
 

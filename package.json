@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.1.6",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.14.12",
     "@types/stylus": "^0.48.42",
     "stylus": "^0.63.0"
   },

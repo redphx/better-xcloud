@@ -5,7 +5,8 @@ import { MkbHandler } from "./base-mkb-handler";
 import { t } from "@/utils/translation";
 import { BxEvent } from "@/utils/bx-event";
 import { ButtonStyle, CE, createButton } from "@/utils/html";
-import { PrefKey, getPref } from "@/utils/preferences";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 type NativeMouseData = {
     X: number,

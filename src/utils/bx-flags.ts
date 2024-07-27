@@ -5,8 +5,6 @@ type BxFlags = Partial<{
     EnableXcloudLogging: boolean;
     SafariWorkaround: boolean;
 
-    UseDevTouchLayout: boolean;
-
     ForceNativeMkbTitles: string[];
     FeatureGates: {[key: string]: boolean} | null,
 
@@ -25,8 +23,6 @@ const DEFAULT_FLAGS: BxFlags = {
     PreloadUi: false,
     EnableXcloudLogging: false,
     SafariWorkaround: true,
-
-    UseDevTouchLayout: false,
 
     ForceNativeMkbTitles: [],
     FeatureGates: null,

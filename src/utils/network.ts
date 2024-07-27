@@ -1,6 +1,5 @@
 import { BxEvent } from "@utils/bx-event";
 import { BX_FLAGS, NATIVE_FETCH } from "@utils/bx-flags";
-import { PrefKey, getPref } from "@utils/preferences";
 import { TouchController } from "@modules/touch-controller";
 import { STATES } from "@utils/global";
 import { GamePassCloudGallery } from "../enums/game-pass-gallery";
@@ -8,11 +7,10 @@ import { FeatureGates } from "./feature-gates";
 import { BxLogger } from "./bx-logger";
 import { XhomeInterceptor } from "./xhome-interceptor";
 import { XcloudInterceptor } from "./xcloud-interceptor";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
-enum RequestType {
-    XCLOUD = 'xcloud',
-    XHOME = 'xhome',
-};
+type RequestType = 'xcloud' | 'xhome';
 
 function clearApplicationInsightsBuffers() {
     window.sessionStorage.removeItem('AI_buffer');
@@ -258,12 +256,12 @@ export function interceptHttpRequests() {
 
         let requestType: RequestType;
         if (url.includes('/sessions/home') || url.includes('xhome.') || (STATES.remotePlay.isPlaying && url.endsWith('/inputconfigs'))) {
-            requestType = RequestType.XHOME;
+            requestType = 'xhome';
         } else {
-            requestType = RequestType.XCLOUD;
+            requestType = 'xcloud';
         }
 
-        if (requestType === RequestType.XHOME) {
+        if (requestType === 'xhome') {
             return XhomeInterceptor.handle(request as Request);
         }
 

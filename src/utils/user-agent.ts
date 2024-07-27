@@ -1,5 +1,4 @@
 import { UserAgentProfile } from "@enums/user-agent";
-import { deepClone } from "./global";
 import { BX_FLAGS } from "./bx-flags";
 
 type UserAgentConfig = {
@@ -48,14 +47,14 @@ export class UserAgent {
     }
 
     static updateStorage(profile: UserAgentProfile, custom?: string) {
-        const clonedConfig = deepClone(UserAgent.#config);
-        clonedConfig.profile = profile;
+        const config = UserAgent.#config;
+        config.profile = profile;
 
-        if (typeof custom !== 'undefined') {
-            clonedConfig.custom = custom;
+        if (profile === UserAgentProfile.CUSTOM && typeof custom !== 'undefined') {
+            config.custom = custom;
         }
 
-        window.localStorage.setItem(UserAgent.STORAGE_KEY, JSON.stringify(clonedConfig));
+        window.localStorage.setItem(UserAgent.STORAGE_KEY, JSON.stringify(config));
     }
 
     static getDefault(): string {

@@ -1,8 +1,9 @@
 import { CE } from "@utils/html";
 import { getPreferredServerRegion } from "@utils/region";
-import { PrefKey, getPref } from "@utils/preferences";
 import { t } from "@utils/translation";
 import { STATES } from "@utils/global";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 export class LoadingScreen {
     static #$bgStyle: HTMLElement;

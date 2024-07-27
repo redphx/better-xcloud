@@ -11,8 +11,6 @@ import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { addCss, preloadFonts } from "@utils/css";
 import { Toast } from "@utils/toast";
-import { setupStreamUi } from "@modules/ui/ui";
-import { PrefKey, getPref } from "@utils/preferences";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
 import { TouchController } from "@modules/touch-controller";
@@ -30,12 +28,14 @@ import { GameBar } from "./modules/game-bar/game-bar";
 import { Screenshot } from "./utils/screenshot";
 import { NativeMkbHandler } from "./modules/mkb/native-mkb-handler";
 import { GuideMenu, GuideMenuTab } from "./modules/ui/guide-menu";
-import { StreamSettings } from "./modules/stream/stream-settings";
 import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
 import { UiSection } from "./enums/ui-sections";
 import { HeaderSection } from "./modules/ui/header";
 import { GameTile } from "./modules/ui/game-tile";
 import { ProductDetailsPage } from "./modules/ui/product-details";
+import { NavigationDialogManager } from "./modules/ui/dialog/navigation-dialog";
+import { PrefKey } from "./enums/pref-keys";
+import { getPref } from "./utils/settings-storages/global-settings-storage";
 
 
 // Handle login page
@@ -110,7 +110,7 @@ document.addEventListener('readystatechange', e => {
         return;
     }
 
-    STATES.isSignedIn = (window as any).xbcUser.isSignedIn;
+    STATES.isSignedIn = (window as any).xbcUser?.isSignedIn;
 
     if (STATES.isSignedIn) {
         // Preload Remote Play
@@ -125,6 +125,9 @@ document.addEventListener('readystatechange', e => {
         const $parent = document.querySelector('div[class*=PlayWithFriendsSkeleton]')?.closest('div[class*=HomePage-module]') as HTMLElement;
         $parent && ($parent.style.display = 'none');
     }
+
+    // Preload fonts
+    preloadFonts();
 })
 
 window.BX_EXPOSED = BxExposed;
@@ -159,9 +162,6 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
         STATES.currentStream.titleId = 'remote-play';
         STATES.currentStream.productId = '';
     }
-
-    // Setup UI
-    setupStreamUi();
 });
 
 // Setup loading screen
@@ -223,7 +223,7 @@ function unload() {
     window.BX_EXPOSED.shouldShowSensorControls = false;
     window.BX_EXPOSED.stopTakRendering = false;
 
-    StreamSettings.getInstance().hide();
+    NavigationDialogManager.getInstance().hide();
     StreamStats.getInstance().onStoppedPlaying();
 
     MouseCursorHider.stop();
@@ -325,10 +325,8 @@ function main() {
 
     // Setup UI
     addCss();
-    preloadFonts();
     Toast.setup();
     (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance();
-    BX_FLAGS.PreloadUi && setupStreamUi();
     Screenshot.setup();
 
     GuideMenu.observe();

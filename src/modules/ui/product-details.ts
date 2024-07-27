@@ -19,7 +19,7 @@ export class ProductDetailsPage {
     private static shortcutTimeoutId: number | null = null;
 
     static injectShortcutButton() {
-        if (!AppInterface || BX_FLAGS.DeviceInfo?.deviceType !== 'android') {
+        if (!AppInterface || BX_FLAGS.DeviceInfo!.deviceType !== 'android') {
             return;
         }
 

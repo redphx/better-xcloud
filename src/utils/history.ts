@@ -2,7 +2,7 @@ import { BxEvent } from "@utils/bx-event";
 import { LoadingScreen } from "@modules/loading-screen";
 import { RemotePlay } from "@modules/remote-play";
 import { HeaderSection } from "@/modules/ui/header";
-import { StreamSettings } from "@/modules/stream/stream-settings";
+import { NavigationDialogManager } from "@/modules/ui/dialog/navigation-dialog";
 
 export function patchHistoryMethod(type: 'pushState' | 'replaceState') {
     const orig = window.history[type];
@@ -32,10 +32,8 @@ export function onHistoryChanged(e: PopStateEvent) {
         $settings.classList.add('bx-gone');
     }
 
-    // Hide Stream settings
-    if (document.querySelector('.' + StreamSettings.MAIN_CLASS)) {
-        StreamSettings.getInstance().hide();
-    }
+    // Hide Navigation dialog
+    NavigationDialogManager.getInstance().hide();
 
     // Hide Remote Play popup
     RemotePlay.detachPopup();

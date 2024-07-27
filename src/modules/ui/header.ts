@@ -2,17 +2,18 @@ import { SCRIPT_VERSION } from "@utils/global";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
-import { PrefKey, getPref } from "@utils/preferences";
 import { RemotePlay } from "@modules/remote-play";
 import { t } from "@utils/translation";
-import { setupSettingsUi } from "./global-settings";
+import { SettingsNavigationDialog } from "./dialog/settings-dialog";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 export class HeaderSection {
     static #$remotePlayBtn = createButton({
         classes: ['bx-header-remote-play-button', 'bx-gone'],
         icon: BxIcon.REMOTE_PLAY,
         title: t('remote-play'),
-        style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+        style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.CIRCULAR,
         onClick: e => {
             RemotePlay.togglePopup();
         },
@@ -21,14 +22,9 @@ export class HeaderSection {
     static #$settingsBtn = createButton({
         classes: ['bx-header-settings-button'],
         label: '???',
-        style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
+        style: ButtonStyle.FROSTED | ButtonStyle.DROP_SHADOW | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
         onClick: e => {
-            setupSettingsUi();
-
-            const $settings = document.querySelector('.bx-settings-container')!;
-            $settings.classList.toggle('bx-gone');
-            window.scrollTo(0, 0);
-            document.activeElement && (document.activeElement as HTMLElement).blur();
+            SettingsNavigationDialog.getInstance().show();
         },
     });
 
@@ -49,7 +45,7 @@ export class HeaderSection {
 
         // Setup Settings button
         const $settingsBtn = HeaderSection.#$settingsBtn;
-        $settingsBtn.querySelector('span')!.textContent = getPreferredServerRegion(true);
+        $settingsBtn.querySelector('span')!.textContent = getPreferredServerRegion(true) || t('better-xcloud');
 
         // Show new update status
         if (!SCRIPT_VERSION.includes('beta') && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {

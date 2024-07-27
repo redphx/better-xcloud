@@ -2,21 +2,21 @@ import { BxEvent } from "@/utils/bx-event";
 import { AppInterface, STATES } from "@/utils/global";
 import { createButton, ButtonStyle, CE } from "@/utils/html";
 import { t } from "@/utils/translation";
-import { StreamSettings } from "../stream/stream-settings";
+import { SettingsNavigationDialog } from "./dialog/settings-dialog";
 
 export enum GuideMenuTab {
-    HOME,
+    HOME = 'home',
 }
 
 export class GuideMenu {
     static #BUTTONS = {
-        streamSetting: createButton({
-            label: t('stream-settings'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+        scriptSettings: createButton({
+            label: t('better-xcloud'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.PRIMARY,
             onClick: e => {
                 // Wait until the Guide dialog is closed
                 window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, e => {
-                    setTimeout(() => StreamSettings.getInstance().show(), 50);
+                    setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
                 }, {once: true});
 
                 // Close all xCloud's dialogs
@@ -86,8 +86,8 @@ export class GuideMenu {
 
         const buttons: HTMLElement[] = [];
 
-        // "Stream settings" button
-        buttons.push(GuideMenu.#BUTTONS.streamSetting);
+        // "Better xCloud" button
+        buttons.push(GuideMenu.#BUTTONS.scriptSettings);
 
         // "App settings" button
         AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
@@ -112,7 +112,7 @@ export class GuideMenu {
 
         const buttons: HTMLElement[] = [];
 
-        buttons.push(GuideMenu.#BUTTONS.streamSetting);
+        buttons.push(GuideMenu.#BUTTONS.scriptSettings);
         AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
 
         // Reload page

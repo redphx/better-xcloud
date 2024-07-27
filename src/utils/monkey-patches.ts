@@ -1,9 +1,10 @@
 import { BxEvent } from "@utils/bx-event";
-import { getPref, PrefKey } from "@utils/preferences";
 import { STATES } from "@utils/global";
 import { BxLogger } from "@utils/bx-logger";
 import { patchSdpBitrate, setCodecPreferences } from "./sdp";
 import { StreamPlayer, type StreamPlayerOptions } from "@/modules/stream-player";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 export function patchVideoApi() {
     const PREF_SKIP_SPLASH_VIDEO = getPref(PrefKey.SKIP_SPLASH_VIDEO);
@@ -98,8 +99,6 @@ export function patchRtcPeerConnection() {
             } catch (e) {
                 BxLogger.error('setLocalDescription', e);
             }
-
-            BxLogger.info('setLocalDescription', arguments[0].sdp);
 
             // @ts-ignore
             return nativeSetLocalDescription.apply(this, arguments);

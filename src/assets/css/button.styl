@@ -1,5 +1,10 @@
 .bx-button {
-    background-color: var(--bx-default-button-color);
+    --button-rgb: var(--bx-default-button-rgb);
+    --button-hover-rgb: var(--bx-default-button-hover-rgb);
+    --button-active-rgb: var(--bx-default-button-active-rgb);
+    --button-disabled-rgb: var(--bx-default-button-disabled-rgb);
+
+    background-color: unquote('rgb(var(--button-rgb))');
     user-select: none;
     -webkit-user-select: none;
     color: #fff;
@@ -14,53 +19,95 @@
     cursor: pointer;
     overflow: hidden;
 
+    &:not([disabled]):active {
+        background-color: unquote('rgb(var(--button-active-rgb))');
+    }
+
     &:focus {
         outline: none !important;
     }
 
-    &:hover, &.bx-focusable:focus {
-        background-color: var(--bx-default-button-hover-color);
+    &:not([disabled]):not(:active) {
+        &:hover, &.bx-focusable:focus {
+            background-color: unquote('rgb(var(--button-hover-rgb))');
+        }
     }
+
 
     &:disabled {
         cursor: default;
-        background-color: var(--bx-default-button-disabled-color);
+        background-color: unquote('rgb(var(--button-disabled-rgb))');
     }
 
     &.bx-ghost {
         background-color: transparent;
 
-        &:hover, &.bx-focusable:focus {
-            background-color: var(--bx-default-button-hover-color);
+        &:not([disabled]):not(:active) {
+            &:hover, &.bx-focusable:focus {
+                background-color: unquote('rgb(var(--button-hover-rgb))');
+            }
         }
     }
 
     &.bx-primary {
-        background-color: var(--bx-primary-button-color);
+        --button-rgb: var(--bx-primary-button-rgb);
 
-        &:hover, &.bx-focusable:focus {
-            background-color: var(--bx-primary-button-hover-color);
+        &:not([disabled]):active {
+            --button-active-rgb: var(--bx-primary-button-active-rgb);
+        }
+
+        &:not([disabled]):not(:active) {
+            &:hover, &.bx-focusable:focus {
+                --button-hover-rgb: var(--bx-primary-button-hover-rgb);
+            }
         }
 
         &:disabled {
-            background-color: var(--bx-primary-button-disabled-color);
+            --button-disabled-rgb: var(--bx-primary-button-disabled-rgb);
         }
     }
 
     &.bx-danger {
-        background-color: var(--bx-danger-button-color);
+        --button-rgb: var(--bx-danger-button-rgb);
 
-        &:hover, &.bx-focusable:focus {
-            background-color: var(--bx-danger-button-hover-color);
+        &:not([disabled]):active {
+            --button-active-rgb: var(--bx-danger-button-active-rgb);
+        }
+
+        &:not([disabled]):not(:active) {
+            &:hover, &.bx-focusable:focus {
+                --button-hover-rgb: var(--bx-danger-button-hover-rgb);
+            }
         }
 
         &:disabled {
-            background-color: var(--bx-danger-button-disabled-color);
+            --button-disabled-rgb: var(--bx-danger-button-disabled-rgb);
         }
+    }
+
+    &.bx-frosted {
+        --button-alpha: 0.2;
+        background-color: unquote('rgba(var(--button-rgb), var(--button-alpha))');
+        backdrop-filter: blur(4px) brightness(1.5);
+
+        &:not([disabled]):not(:active) {
+            &:hover, &.bx-focusable:focus {
+                background-color: unquote('rgba(var(--button-hover-rgb), var(--button-alpha))');
+            }
+        }
+    }
+
+    &.bx-drop-shadow {
+        box-shadow: 0 0 4px #00000080;
     }
 
     &.bx-tall {
         height: calc(var(--bx-button-height) * 1.5) !important;
+    }
+
+    &.bx-circular {
+        border-radius: var(--bx-button-height);
+        height: var(--bx-button-height);
     }
 
     svg {
@@ -87,20 +134,29 @@
 
 .bx-focusable {
     position: relative;
+    overflow: visible;
 
     &::after {
         border: 2px solid transparent;
-        border-radius: 4px;
+        border-radius: 10px;
     }
 
-    &:focus::after {
+    &:focus-visible::after {
+        offset = -6px;
+
         content: '';
         border-color: white;
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        top: offset;
+        left: offset;
+        right: offset;
+        bottom: offset;
+    }
+
+    &.bx-circular {
+        &::after {
+            border-radius: var(--bx-button-height);
+        }
     }
 }
 
@@ -121,6 +177,7 @@ button.bx-inactive {
 .bx-button-shortcut {
     max-width: max-content;
     margin: 10px 0 0 0;
+    overflow: hidden;
 }
 
 @media (min-width: 568px) and (max-height: 480px) {

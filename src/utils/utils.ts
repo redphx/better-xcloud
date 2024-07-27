@@ -1,7 +1,9 @@
-import { PrefKey, getPref, setPref } from "@utils/preferences";
 import { AppInterface, SCRIPT_VERSION } from "@utils/global";
 import { UserAgent } from "@utils/user-agent";
 import { Translations } from "./translation";
+import { Toast } from "./toast";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref, setPref } from "./settings-storages/global-settings-storage";
 
 /**
  * Check for update
@@ -94,4 +96,17 @@ export function floorToNearest(value: number, interval: number): number {
 
 export function roundToNearest(value: number, interval: number): number {
     return Math.round(value / interval) * interval;
+}
+
+export async function copyToClipboard(text: string, showToast=true): Promise<boolean> {
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast && Toast.show('Copied to clipboard', '', {instant: true});
+        return true;
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+        showToast && Toast.show('Failed to copy', '', {instant: true});
+    }
+
+    return false;
 }

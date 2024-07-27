@@ -1,11 +1,12 @@
 import { RemotePlay } from "@/modules/remote-play";
 import { TouchController } from "@/modules/touch-controller";
 import { BxEvent } from "./bx-event";
-import { InputType } from "./bx-exposed";
+import { SupportedInputType } from "./bx-exposed";
 import { NATIVE_FETCH } from "./bx-flags";
 import { STATES } from "./global";
-import { getPref, PrefKey } from "./preferences";
 import { patchIceCandidates } from "./network";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 export class XhomeInterceptor {
     static #consoleAddrs: {[index: string]: number} = {};
@@ -67,14 +68,14 @@ export class XhomeInterceptor {
         const obj = await response.clone().json() as any;
 
         const xboxTitleId = JSON.parse(opts.body).titleIds[0];
-        STATES.currentStream.xboxTitleId = xboxTitleId;
+        TouchController.setXboxTitleId(xboxTitleId);
 
         const inputConfigs = obj[0];
 
         let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
         if (!hasTouchSupport) {
             const supportedInputTypes = inputConfigs.supportedInputTypes;
-            hasTouchSupport = supportedInputTypes.includes(InputType.NATIVE_TOUCH) || supportedInputTypes.includes(InputType.CUSTOM_TOUCH_OVERLAY);
+            hasTouchSupport = supportedInputTypes.includes(SupportedInputType.NATIVE_TOUCH) || supportedInputTypes.includes(SupportedInputType.CUSTOM_TOUCH_OVERLAY);
         }
 
         if (hasTouchSupport) {
@@ -85,7 +86,7 @@ export class XhomeInterceptor {
             });
         } else {
             TouchController.enable();
-            TouchController.getCustomLayouts(xboxTitleId);
+            TouchController.requestCustomLayouts(xboxTitleId);
         }
 
         response.json = () => Promise.resolve(obj);

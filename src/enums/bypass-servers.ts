@@ -1,8 +1,10 @@
+import { t } from "@/utils/translation"
+
 export const BypassServers = {
-    'br': 'Brazil',
-    'jp': 'Japan',
-    'pl': 'Poland',
-    'us': 'United States',
+    'br': t('brazil'),
+    'jp': t('japan'),
+    'pl': t('poland'),
+    'us': t('united-states'),
 }
 
 export const BypassServerIps = {

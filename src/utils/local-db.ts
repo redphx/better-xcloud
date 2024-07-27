@@ -1,7 +1,8 @@
 import { MkbPreset } from "@modules/mkb/mkb-preset";
-import { PrefKey, setPref } from "@utils/preferences";
 import { t } from "@utils/translation";
 import type { MkbStoredPreset, MkbStoredPresets } from "@/types/mkb";
+import { PrefKey } from "@/enums/pref-keys";
+import { setPref } from "./settings-storages/global-settings-storage";
 
 export class LocalDb {
     static #instance: LocalDb;

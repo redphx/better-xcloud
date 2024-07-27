@@ -22,10 +22,19 @@ const postProcess = (str: string): string => {
     // Replace "globalThis." with "var";
     str = str.replaceAll('globalThis.', 'var ');
 
+    // Remove enum's inlining comments
+    str = str.replaceAll(/ \/\* [A-Z0-9_]+ \*\//g, '');
+
+    // Remove comments from import
+    str = str.replaceAll(/\/\/ src.*\n/g, '');
+
     // Add ADDITIONAL CODE block
     str = str.replace('var DEFAULT_FLAGS', '\n/* ADDITIONAL CODE */\n\nvar DEFAULT_FLAGS');
 
     assert(str.includes('/* ADDITIONAL CODE */'));
+    assert(str.includes('window.BX_EXPOSED = BxExposed'));
+    assert(str.includes('window.BxEvent = BxEvent'));
+    assert(str.includes('window.BX_FETCH = window.fetch'));
 
     return str;
 }

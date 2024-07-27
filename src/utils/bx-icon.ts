@@ -1,3 +1,5 @@
+import iconBetterXcloud from "@assets/svg/better-xcloud.svg" with { type: "text" };
+import iconClose from "@assets/svg/close.svg" with { type: "text" };
 import iconCommand from "@assets/svg/command.svg" with { type: "text" };
 import iconController from "@assets/svg/controller.svg" with { type: "text" };
 import iconCopy from "@assets/svg/copy.svg" with { type: "text" };
@@ -34,8 +36,10 @@ import iconUpload from "@assets/svg/upload.svg" with { type: "text" };
 
 
 export const BxIcon = {
+    BETTER_XCLOUD: iconBetterXcloud,
     STREAM_SETTINGS: iconStreamSettings,
     STREAM_STATS: iconStreamStats,
+    CLOSE: iconClose,
     COMMAND: iconCommand,
     CONTROLLER: iconController,
     CREATE_SHORTCUT: iconCreateShortcut,

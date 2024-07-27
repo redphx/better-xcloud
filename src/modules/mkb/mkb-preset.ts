@@ -1,9 +1,9 @@
 import { t } from "@utils/translation";
-import { SettingElementType } from "@utils/settings";
 import { GamepadKey, MouseButtonCode, MouseMapTo, MkbPresetKey } from "@enums/mkb";
 import { EmulatedMkbHandler } from "./mkb-handler";
 import type { MkbPresetData, MkbConvertedPresetData } from "@/types/mkb";
 import type { PreferenceSettings } from "@/types/preferences";
+import { SettingElementType } from "@/utils/setting-element";
 
 
 export class MkbPreset {

@@ -1,8 +1,9 @@
-import { PrefKey, getPref } from "@utils/preferences"
 import { BxEvent } from "@utils/bx-event"
 import { CE } from "@utils/html"
 import { t } from "@utils/translation"
 import { STATES } from "@utils/global"
+import { PrefKey } from "@/enums/pref-keys"
+import { getPref } from "@/utils/settings-storages/global-settings-storage"
 
 export enum StreamStat {
     PING = 'ping',

@@ -49,7 +49,6 @@ type BxStates = {
 
     currentStream: Partial<{
         titleId: string;
-        xboxTitleId: string;
         productId: string;
         titleInfo: XcloudTitleInfo;
 

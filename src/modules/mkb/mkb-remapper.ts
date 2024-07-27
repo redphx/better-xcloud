@@ -1,16 +1,17 @@
 import { CE, createButton, ButtonStyle } from "@utils/html";
 import { t } from "@utils/translation";
 import { Dialog } from "@modules/dialog";
-import { getPref, setPref, PrefKey } from "@utils/preferences";
 import { KeyHelper } from "./key-helper";
 import { MkbPreset } from "./mkb-preset";
 import { EmulatedMkbHandler } from "./mkb-handler";
 import { LocalDb } from "@utils/local-db";
 import { BxIcon } from "@utils/bx-icon";
-import { SettingElement } from "@utils/settings";
 import type { MkbPresetData, MkbStoredPresets } from "@/types/mkb";
 import { MkbPresetKey, GamepadKey, GamepadKeyName } from "@enums/mkb";
 import { deepClone } from "@utils/global";
+import { SettingElement } from "@/utils/setting-element";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref, setPref } from "@/utils/settings-storages/global-settings-storage";
 
 
 type MkbRemapperElements = {
@@ -317,7 +318,7 @@ export class MkbRemapper {
     render() {
         this.#$.wrapper = CE('div', {'class': 'bx-mkb-settings'});
 
-        this.#$.presetsSelect = CE<HTMLSelectElement>('select', {});
+        this.#$.presetsSelect = CE<HTMLSelectElement>('select', {tabindex: -1});
         this.#$.presetsSelect!.addEventListener('change', e => {
             this.#switchPreset(parseInt((e.target as HTMLSelectElement).value));
         });
@@ -336,80 +337,84 @@ export class MkbRemapper {
         };
 
         const $header = CE('div', {'class': 'bx-mkb-preset-tools'},
-                this.#$.presetsSelect,
-                // Rename button
-                createButton({
-                    title: t('rename'),
-                    icon: BxIcon.CURSOR_TEXT,
-                    onClick: e => {
-                        const preset = this.#getCurrentPreset();
+            this.#$.presetsSelect,
+            // Rename button
+            createButton({
+                title: t('rename'),
+                icon: BxIcon.CURSOR_TEXT,
+                tabIndex: -1,
+                onClick: e => {
+                    const preset = this.#getCurrentPreset();
 
-                        let newName = promptNewName(preset.name);
-                        if (!newName || newName === preset.name) {
+                    let newName = promptNewName(preset.name);
+                    if (!newName || newName === preset.name) {
+                        return;
+                    }
+
+                    // Update preset with new name
+                    preset.name = newName;
+                    LocalDb.INSTANCE.updatePreset(preset).then(id => this.#refresh());
+                },
+            }),
+
+            // New button
+            createButton({
+                    icon: BxIcon.NEW,
+                    title: t('new'),
+                    tabIndex: -1,
+                    onClick: e => {
+                        let newName = promptNewName('');
+                        if (!newName) {
                             return;
                         }
 
-                        // Update preset with new name
-                        preset.name = newName;
-                        LocalDb.INSTANCE.updatePreset(preset).then(id => this.#refresh());
+                        // Create new preset selected name
+                        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then(id => {
+                            this.#STATE.currentPresetId = id;
+                            this.#refresh();
+                        });
                     },
                 }),
 
-                // New button
-                createButton({
-                      icon: BxIcon.NEW,
-                      title: t('new'),
-                      onClick: e => {
-                          let newName = promptNewName('');
-                          if (!newName) {
-                              return;
-                          }
+            // Copy button
+            createButton({
+                icon: BxIcon.COPY,
+                title: t('copy'),
+                tabIndex: -1,
+                onClick: e => {
+                    const preset = this.#getCurrentPreset();
 
-                          // Create new preset selected name
-                          LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then(id => {
-                              this.#STATE.currentPresetId = id;
-                              this.#refresh();
-                          });
-                      },
-                    }),
+                    let newName = promptNewName(`${preset.name} (2)`);
+                    if (!newName) {
+                        return;
+                    }
 
-                // Copy button
-                createButton({
-                        icon: BxIcon.COPY,
-                        title: t('copy'),
-                        onClick: e => {
-                            const preset = this.#getCurrentPreset();
+                    // Create new preset selected name
+                    LocalDb.INSTANCE.newPreset(newName, preset.data).then(id => {
+                        this.#STATE.currentPresetId = id;
+                        this.#refresh();
+                    });
+                },
+            }),
 
-                            let newName = promptNewName(`${preset.name} (2)`);
-                            if (!newName) {
-                                return;
-                            }
+            // Delete button
+            createButton({
+                icon: BxIcon.TRASH,
+                style: ButtonStyle.DANGER,
+                title: t('delete'),
+                tabIndex: -1,
+                onClick: e => {
+                    if (!confirm(t('confirm-delete-preset'))) {
+                        return;
+                    }
 
-                            // Create new preset selected name
-                            LocalDb.INSTANCE.newPreset(newName, preset.data).then(id => {
-                                this.#STATE.currentPresetId = id;
-                                this.#refresh();
-                            });
-                        },
-                    }),
-
-                // Delete button
-                createButton({
-                        icon: BxIcon.TRASH,
-                        style: ButtonStyle.DANGER,
-                        title: t('delete'),
-                        onClick: e => {
-                            if (!confirm(t('confirm-delete-preset'))) {
-                                return;
-                            }
-
-                            LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then(id => {
-                                this.#STATE.currentPresetId = 0;
-                                this.#refresh();
-                            });
-                        },
-                    }),
-            );
+                    LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then(id => {
+                        this.#STATE.currentPresetId = 0;
+                        this.#refresh();
+                    });
+                },
+            }),
+        );
 
         this.#$.wrapper!.appendChild($header);
 
@@ -426,11 +431,11 @@ export class MkbRemapper {
             const $fragment = document.createDocumentFragment();
             for (let i = 0; i < keysPerButton; i++) {
                 $elm = CE('button', {
-                        type: 'button',
-                        'data-prompt': buttonPrompt,
-                        'data-button-index': buttonIndex,
-                        'data-key-slot': i,
-                    }, ' ');
+                    type: 'button',
+                    'data-prompt': buttonPrompt,
+                    'data-button-index': buttonIndex,
+                    'data-key-slot': i,
+                }, ' ');
 
                 $elm.addEventListener('mouseup', this.#onBindingKey);
                 $elm.addEventListener('contextmenu', this.#onContextMenu);
@@ -440,9 +445,9 @@ export class MkbRemapper {
             }
 
             const $keyRow = CE('div', {'class': 'bx-mkb-key-row'},
-                    CE('label', {'title': buttonName}, buttonPrompt),
-                    $fragment,
-                );
+                CE('label', {'title': buttonName}, buttonPrompt),
+                $fragment,
+            );
 
             $rows.appendChild($keyRow);
         }
@@ -460,10 +465,13 @@ export class MkbRemapper {
             const onChange = (e: Event, value: any) => {
                 (this.#STATE.editingPresetData!.mouse as any)[key] = value;
             };
-            const $row = CE('div', {'class': 'bx-stream-settings-row'},
-                    CE('label', {'for': `bx_setting_${key}`}, setting.label),
-                    $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params),
-                );
+            const $row = CE('label', {
+                class: 'bx-settings-row',
+                for: `bx_setting_${key}`
+            },
+                CE('span', {class: 'bx-settings-label'}, setting.label),
+                $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params),
+            );
 
             $mouseSettings.appendChild($row);
             this.#$.allMouseElements[key as MkbPresetKey] = $elm;
@@ -474,59 +482,63 @@ export class MkbRemapper {
 
         // Render action buttons
         const $actionButtons = CE('div', {'class': 'bx-mkb-action-buttons'},
-                CE('div', {},
-                   // Edit button
-                   createButton({
-                           label: t('edit'),
-                           onClick: e => this.#toggleEditing(true),
-                   }),
+            CE('div', {},
+                // Edit button
+                createButton({
+                    label: t('edit'),
+                    tabIndex: -1,
+                    onClick: e => this.#toggleEditing(true),
+                }),
 
-                   // Activate button
-                   this.#$.activateButton = createButton({
-                           label: t('activate'),
-                           style: ButtonStyle.PRIMARY,
-                           onClick: e => {
-                               setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
-                               EmulatedMkbHandler.getInstance().refreshPresetData();
+                // Activate button
+                this.#$.activateButton = createButton({
+                    label: t('activate'),
+                    style: ButtonStyle.PRIMARY,
+                    tabIndex: -1,
+                    onClick: e => {
+                        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, this.#STATE.currentPresetId);
+                        EmulatedMkbHandler.getInstance().refreshPresetData();
 
-                               this.#refresh();
-                           },
-                       }),
-                ),
+                        this.#refresh();
+                    },
+                }),
+            ),
 
-                CE('div', {},
-                   // Cancel button
-                   createButton({
-                           label: t('cancel'),
-                           style: ButtonStyle.GHOST,
-                           onClick: e => {
-                               // Restore preset
-                               this.#switchPreset(this.#STATE.currentPresetId);
-                               this.#toggleEditing(false);
-                           },
-                       }),
+            CE('div', {},
+                // Cancel button
+                createButton({
+                    label: t('cancel'),
+                    style: ButtonStyle.GHOST,
+                    tabIndex: -1,
+                    onClick: e => {
+                        // Restore preset
+                        this.#switchPreset(this.#STATE.currentPresetId);
+                        this.#toggleEditing(false);
+                    },
+                }),
 
-                   // Save button
-                   createButton({
-                           label: t('save'),
-                           style: ButtonStyle.PRIMARY,
-                           onClick: e => {
-                               const updatedPreset = deepClone(this.#getCurrentPreset());
-                               updatedPreset.data = this.#STATE.editingPresetData as MkbPresetData;
+                // Save button
+                createButton({
+                    label: t('save'),
+                    style: ButtonStyle.PRIMARY,
+                    tabIndex: -1,
+                    onClick: e => {
+                        const updatedPreset = deepClone(this.#getCurrentPreset());
+                        updatedPreset.data = this.#STATE.editingPresetData as MkbPresetData;
 
-                               LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
-                                   // If this is the default preset => refresh preset data
-                                   if (id === getPref(PrefKey.MKB_DEFAULT_PRESET_ID)) {
-                                       EmulatedMkbHandler.getInstance().refreshPresetData();
-                                   }
+                        LocalDb.INSTANCE.updatePreset(updatedPreset).then(id => {
+                            // If this is the default preset => refresh preset data
+                            if (id === getPref(PrefKey.MKB_DEFAULT_PRESET_ID)) {
+                                EmulatedMkbHandler.getInstance().refreshPresetData();
+                            }
 
-                                   this.#toggleEditing(false);
-                                   this.#refresh();
-                               });
-                           },
-                       }),
-                ),
-            );
+                            this.#toggleEditing(false);
+                            this.#refresh();
+                        });
+                    },
+                }),
+            ),
+        );
 
         this.#$.wrapper!.appendChild($actionButtons);
 

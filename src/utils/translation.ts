@@ -46,10 +46,12 @@ const Texts = {
     "badge-playtime": "Playtime",
     "badge-server": "Server",
     "badge-video": "Video",
+    "better-xcloud": "Better xCloud",
     "bitrate-audio-maximum": "Maximum audio bitrate",
     "bitrate-video-maximum": "Maximum video bitrate",
     "bottom-left": "Bottom-left",
     "bottom-right": "Bottom-right",
+    "brazil": "Brazil",
     "brightness": "Brightness",
     "browser-unsupported-feature": "Your browser doesn't support this feature",
     "bypass-region-restriction": "Bypass region restriction",
@@ -76,7 +78,7 @@ const Texts = {
     "controller-shortcuts-xbox-note": "Button to open the Guide menu",
     "controller-vibration": "Controller vibration",
     "copy": "Copy",
-    "create-shortcut": "Create shortcut",
+    "create-shortcut": "Shortcut",
     "custom": "Custom",
     "deadzone-counterweight": "Deadzone counterweight",
     "decrease": "Decrease",
@@ -110,7 +112,6 @@ const Texts = {
     "fortnite-force-console-version": "Fortnite: force console version",
     "game-bar": "Game Bar",
     "getting-consoles-list": "Getting the list of consoles...",
-    "gpu-configuration": "GPU configuration",
     "help": "Help",
     "hide": "Hide",
     "hide-idle-cursor": "Hide mouse cursor on idle",
@@ -124,7 +125,8 @@ const Texts = {
     "ignore": "Ignore",
     "import": "Import",
     "increase": "Increase",
-    "install-android": "Install Better xCloud app for Android",
+    "install-android": "Better xCloud app for Android",
+    "japan": "Japan",
     "keyboard-shortcuts": "Keyboard shortcuts",
     "language": "Language",
     "large": "Large",
@@ -154,6 +156,7 @@ const Texts = {
     "opacity": "Opacity",
     "other": "Other",
     "playing": "Playing",
+    "poland": "Poland",
     "position": "Position",
     "powered-off": "Powered off",
     "powered-on": "Powered on",
@@ -163,9 +166,9 @@ const Texts = {
     "press-esc-to-cancel": "Press Esc to cancel",
     "press-key-to-toggle-mkb": [
         (e: any) => `Press ${e.key} to toggle this feature`,
-        ,
+        (e: any) => `Premeu ${e.key} per alternar aquesta funció`,
         (e: any) => `${e.key}: Funktion an-/ausschalten`,
-        ,
+        (e: any) => `Tekan ${e.key} untuk mengaktifkan fitur ini`,
         (e: any) => `Pulsa ${e.key} para alternar esta función`,
         (e: any) => `Appuyez sur ${e.key} pour activer cette fonctionnalité`,
         (e: any) => `Premi ${e.key} per attivare questa funzionalità`,
@@ -174,7 +177,7 @@ const Texts = {
         (e: any) => `Naciśnij ${e.key} aby przełączyć tę funkcję`,
         (e: any) => `Pressione ${e.key} para alternar este recurso`,
         (e: any) => `Нажмите ${e.key} для переключения этой функции`,
-        ,
+        (e: any) => `กด ${e.key} เพื่อสลับคุณสมบัตินี้`,
         (e: any) => `Etkinleştirmek için ${e.key} tuşuna basın`,
         (e: any) => `Натисніть ${e.key} щоб перемкнути цю функцію`,
         (e: any) => `Nhấn ${e.key} để bật/tắt tính năng này`,
@@ -189,6 +192,7 @@ const Texts = {
     "remote-play": "Remote Play",
     "rename": "Rename",
     "renderer": "Renderer",
+    "renderer-configuration": "Renderer configuration",
     "right-click-to-unbind": "Right-click on a key to unbind it",
     "right-stick": "Right stick",
     "rocket-always-hide": "Always hide",
@@ -202,12 +206,15 @@ const Texts = {
     "screenshot-apply-filters": "Applies video filters to screenshots",
     "section-all-games": "All games",
     "section-most-popular": "Most popular",
+    "section-native-mkb": "Play with mouse & keyboard",
     "section-news": "News",
     "section-play-with-friends": "Play with friends",
+    "section-touch": "Play with touch",
     "separate-touch-controller": "Separate Touch controller & Controller #1",
     "separate-touch-controller-note": "Touch controller is Player 1, Controller #1 is Player 2",
     "server": "Server",
     "settings": "Settings",
+    "settings-reload-note": "Settings in this tab only go into effect on the next page load",
     "settings-reload": "Reload page to reflect changes",
     "settings-reloading": "Reloading...",
     "sharpness": "Sharpness",
@@ -271,7 +278,7 @@ const Texts = {
         (e: any) => `Układ sterowania dotykowego stworzony przez ${e.name}`,
         (e: any) => `Disposição de controle por toque feito por ${e.name}`,
         (e: any) => `Сенсорная раскладка по ${e.name}`,
-        ,
+        (e: any) => `รูปแบบการควบคุมแบบสัมผัสโดย ${e.name}`,
         (e: any) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
         (e: any) => `Розташування сенсорного керування від ${e.name}`,
         (e: any) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
@@ -282,6 +289,7 @@ const Texts = {
     "transparent-background": "Transparent background",
     "ui": "UI",
     "unexpected-behavior": "May cause unexpected behavior",
+    "united-states": "United States",
     "unknown": "Unknown",
     "unlimited": "Unlimited",
     "unmuted": "Unmuted",
@@ -320,14 +328,20 @@ export class Translations {
     static async init() {
         Translations.#enUsIndex = Translations.#supportedLocales.indexOf(Translations.#EN_US);
 
-        Translations.refreshCurrentLocale();
+        Translations.refreshLocale();
         await Translations.#loadTranslations();
     }
 
-    static refreshCurrentLocale() {
+    static refreshLocale(newLocale?: string) {
+        let locale;
+        if (newLocale) {
+            localStorage.setItem(Translations.#KEY_LOCALE, newLocale);
+            locale = newLocale;
+        } else {
+            locale = localStorage.getItem(Translations.#KEY_LOCALE);
+        }
         const supportedLocales = Translations.#supportedLocales;
 
-        let locale = localStorage.getItem(Translations.#KEY_LOCALE);
         if (!locale) {
             // Get browser's locale
             locale = window.navigator.language || Translations.#EN_US;
@@ -416,6 +430,10 @@ export class Translations {
                 window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations));
                 Translations.#foreignTranslations = translations;
             });
+    }
+
+    static switchLocale(locale: string) {
+        localStorage.setItem(Translations.#KEY_LOCALE, locale);
     }
 }
 

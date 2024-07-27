@@ -1,4 +1,6 @@
 import type { BxIcon } from "@utils/bx-icon";
+import { setNearby } from "./navigation-utils";
+import type { NavigationNearbyElements } from "@/modules/ui/dialog/navigation-dialog";
 
 type BxButton = {
     style?: number | string | ButtonStyle;
@@ -16,7 +18,13 @@ type BxButton = {
 type ButtonStyle = {[index: string]: number} & {[index: number]: string};
 
 // Quickly create a tree of elements without having to use innerHTML
-function createElement<T=HTMLElement>(elmName: string, props: {[index: string]: any}={}, ..._: any): T {
+type CreateElementOptions = {
+    [index: string]: any;
+    _nearby?: NavigationNearbyElements;
+};
+
+
+function createElement<T=HTMLElement>(elmName: string, props: CreateElementOptions={}, ..._: any): T {
     let $elm;
     const hasNs = 'xmlns' in props;
 
@@ -25,6 +33,11 @@ function createElement<T=HTMLElement>(elmName: string, props: {[index: string]: 
         delete props.xmlns;
     } else {
         $elm = document.createElement(elmName);
+    }
+
+    if (props['_nearby']) {
+        setNearby($elm, props['_nearby']);
+        delete props['_nearby'];
     }
 
     for (const key in props) {
@@ -71,10 +84,14 @@ export const ButtonStyle: DualEnum = {};
 ButtonStyle[ButtonStyle.PRIMARY = 1] = 'bx-primary';
 ButtonStyle[ButtonStyle.DANGER = 2] = 'bx-danger';
 ButtonStyle[ButtonStyle.GHOST = 4] = 'bx-ghost';
-ButtonStyle[ButtonStyle.FOCUSABLE = 8] = 'bx-focusable';
-ButtonStyle[ButtonStyle.FULL_WIDTH = 16] = 'bx-full-width';
-ButtonStyle[ButtonStyle.FULL_HEIGHT = 32] = 'bx-full-height';
-ButtonStyle[ButtonStyle.TALL = 64] = 'bx-tall';
+ButtonStyle[ButtonStyle.FROSTED = 8] = 'bx-frosted';
+ButtonStyle[ButtonStyle.DROP_SHADOW = 16] = 'bx-drop-shadow';
+ButtonStyle[ButtonStyle.FOCUSABLE = 32] = 'bx-focusable';
+ButtonStyle[ButtonStyle.FULL_WIDTH = 64] = 'bx-full-width';
+ButtonStyle[ButtonStyle.FULL_HEIGHT = 128] = 'bx-full-height';
+ButtonStyle[ButtonStyle.TALL = 256] = 'bx-tall';
+ButtonStyle[ButtonStyle.CIRCULAR = 512] = 'bx-circular';
+ButtonStyle[ButtonStyle.NORMAL_CASE = 1024] = 'bx-normal-case';
 
 const ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map(i => parseInt(i));
 
@@ -100,7 +117,7 @@ export const createButton = <T=HTMLButtonElement>(options: BxButton): T => {
     options.title && $btn.setAttribute('title', options.title);
     options.disabled && (($btn as HTMLButtonElement).disabled = true);
     options.onClick && $btn.addEventListener('click', options.onClick);
-    typeof options.tabIndex === 'number' && ($btn.tabIndex = options.tabIndex!);
+    $btn.tabIndex = typeof options.tabIndex === 'number' ? options.tabIndex : 0;
 
     for (const key in options.attributes) {
         if (!$btn.hasOwnProperty(key)) {

@@ -1,7 +1,8 @@
 import { CE } from "@utils/html";
-import { PrefKey, getPref } from "@utils/preferences";
-import { renderStylus } from "@macros/build" with {type: "macro"};
+import { compressCss, renderStylus } from "@macros/build" with {type: "macro"};
 import { UiSection } from "@/enums/ui-sections";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 
 export function addCss() {
@@ -19,6 +20,17 @@ export function addCss() {
     // Hide "All games" section
     if (PREF_HIDE_SECTIONS.includes(UiSection.ALL_GAMES)) {
         selectorToHide.push('#BodyContent div[class*=AllGamesRow-module__gridContainer]');
+        selectorToHide.push('#BodyContent div[class*=AllGamesRow-module__rowHeader]');
+    }
+
+    // Hide "Most popular" section
+    if (PREF_HIDE_SECTIONS.includes(UiSection.MOST_POPULAR)) {
+        selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/popular"])');
+    }
+
+    // Hide "Play with touch" section
+    if (PREF_HIDE_SECTIONS.includes(UiSection.TOUCH)) {
+        selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/touch"])');
     }
 
    // Hide "Start a party" button in the Guide menu
@@ -32,18 +44,18 @@ export function addCss() {
 
     // Reduce animations
     if (getPref(PrefKey.REDUCE_ANIMATIONS)) {
-        css += `
+        css += compressCss(`
 div[class*=GameCard-module__gameTitleInnerWrapper],
 div[class*=GameCard-module__card],
 div[class*=ScrollArrows-module] {
     transition: none !important;
 }
-`;
+`);
     }
 
     // Hide the top-left dots icon while playing
     if (getPref(PrefKey.HIDE_DOTS_ICON)) {
-        css += `
+        css += compressCss(`
 div[class*=Grip-module__container] {
     visibility: hidden;
 }
@@ -65,18 +77,18 @@ button[class*=GripHandle-module__container][aria-expanded=false] {
 div[class*=StreamHUD-module__buttonsContainer] {
     padding: 0px !important;
 }
-`;
+`);
     }
 
-    css += `
+    css += compressCss(`
 div[class*=StreamMenu-module__menu] {
     min-width: 100vw !important;
 }
-`;
+`);
 
     // Simplify Stream's menu
     if (getPref(PrefKey.STREAM_SIMPLIFY_MENU)) {
-        css += `
+        css += compressCss(`
 div[class*=Menu-module__scrollable] {
     --bxStreamMenuItemSize: 80px;
     --streamMenuItemSize: calc(var(--bxStreamMenuItemSize) + 40px) !important;
@@ -107,9 +119,9 @@ svg[class*=MenuItem-module__icon] {
     padding: 0 !important;
     margin: 0 !important;
 }
-`;
+`);
     } else {
-        css += `
+        css += compressCss(`
 body[data-media-type=tv] .bx-badges {
     top: calc(var(--streamMenuItemSize) + 30px);
 }
@@ -131,12 +143,12 @@ body:not([data-media-type=tv]) div[class*=MenuItem-module__label] {
     margin-left: 8px !important;
     margin-right: 8px !important;
 }
-`;
+`);
     }
 
     // Hide scrollbar
     if (getPref(PrefKey.UI_SCROLLBAR_HIDE)) {
-        css += `
+        css += compressCss(`
 html {
     scrollbar-width: none;
 }
@@ -144,7 +156,7 @@ html {
 body::-webkit-scrollbar {
     display: none;
 }
-`;
+`);
     }
 
     const $style = CE('style', {}, css);

@@ -1,5 +1,6 @@
+import { PrefKey } from "@/enums/pref-keys";
 import { BX_FLAGS } from "./bx-flags";
-import { getPref, PrefKey } from "./preferences";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 export let FeatureGates: {[key: string]: boolean} = {
     'PwaPrompt': false,

@@ -1,4 +1,4 @@
-enum TextColor {
+const enum TextColor {
     INFO = '#008746',
     WARNING = '#c1a404',
     ERROR = '#c10404',
@@ -19,7 +19,7 @@ export class BxLogger {
         BxLogger.#log(TextColor.ERROR, tag, ...args);
     }
 
-    static #log(color: TextColor, tag: string, ...args: any) {
+    static #log(color: string, tag: string, ...args: any) {
         console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, '//', ...args);
     }
 }

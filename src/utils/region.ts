@@ -1,8 +1,9 @@
-import { getPref, PrefKey } from "@utils/preferences";
 import { STATES } from "@utils/global";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 
-export function getPreferredServerRegion(shortName = false) {
+export function getPreferredServerRegion(shortName = false): string | null {
     let preferredRegion = getPref(PrefKey.SERVER_REGION);
     if (preferredRegion in STATES.serverRegions) {
         if (shortName && STATES.serverRegions[preferredRegion].shortName) {
@@ -25,5 +26,5 @@ export function getPreferredServerRegion(shortName = false) {
         }
     }
 
-    return '???';
+    return null;
 }

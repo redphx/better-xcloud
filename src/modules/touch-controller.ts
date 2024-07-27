@@ -1,13 +1,26 @@
-import { STATES } from "@utils/global";
 import { escapeHtml } from "@utils/html";
 import { Toast } from "@utils/toast";
 import { BxEvent } from "@utils/bx-event";
-import { BX_FLAGS, NATIVE_FETCH } from "@utils/bx-flags";
-import { getPref, PrefKey } from "@utils/preferences";
+import { NATIVE_FETCH } from "@utils/bx-flags";
 import { t } from "@utils/translation";
 import { BxLogger } from "@utils/bx-logger";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 const LOG_TAG = 'TouchController';
+
+type TouchControlLayout = {
+    name: string,
+    author: string,
+    content: any,
+};
+
+type TouchControlDefinition = {
+    name: string,
+    product_id: string,
+    default_layout: string,
+    layouts: Record<string, TouchControlLayout>,
+};
 
 export class TouchController {
     static readonly #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent('message', {
@@ -28,25 +41,40 @@ export class TouchController {
 
     static #$style: HTMLStyleElement;
 
-    static #enable = false;
+    static #enabled = false;
     static #dataChannel: RTCDataChannel | null;
 
-    static #customLayouts: {[index: string]: any} = {};
-    static #baseCustomLayouts: {[index: string]: any} = {};
+    static #customLayouts: Record<string, TouchControlDefinition | null> = {};
+    static #baseCustomLayouts: Record<string, Record<string, TouchControlLayout>> = {};
     static #currentLayoutId: string;
 
     static #customList: string[];
 
+    static #xboxTitleId: string | null = null;
+
+    static setXboxTitleId(xboxTitleId: string) {
+        TouchController.#xboxTitleId = xboxTitleId;
+    }
+
+    static getCustomLayouts() {
+        const xboxTitleId = TouchController.#xboxTitleId;
+        if (!xboxTitleId) {
+            return null;
+        }
+
+        return TouchController.#customLayouts[xboxTitleId];
+    }
+
     static enable() {
-        TouchController.#enable = true;
+        TouchController.#enabled = true;
     }
 
     static disable() {
-        TouchController.#enable = false;
+        TouchController.#enabled = false;
     }
 
     static isEnabled() {
-        return TouchController.#enable;
+        return TouchController.#enabled;
     }
 
     static #showDefault() {
@@ -70,8 +98,9 @@ export class TouchController {
     }
 
     static reset() {
-        TouchController.#enable = false;
+        TouchController.#enabled = false;
         TouchController.#dataChannel = null;
+        TouchController.#xboxTitleId = null;
 
         TouchController.#$style && (TouchController.#$style.textContent = '');
     }
@@ -83,12 +112,18 @@ export class TouchController {
     }
 
     static #dispatchLayouts(data: any) {
-        BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-            data: data,
-        });
+        // Load default layout
+        TouchController.applyCustomLayout(null, 1000);
+
+        BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
     };
 
-    static async getCustomLayouts(xboxTitleId: string, retries: number=1) {
+    static async requestCustomLayouts(retries: number=1) {
+        const xboxTitleId = TouchController.#xboxTitleId;
+        if (!xboxTitleId) {
+            return;
+        }
+
         if (xboxTitleId in TouchController.#customLayouts) {
             TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
             return;
@@ -102,7 +137,7 @@ export class TouchController {
             return;
         }
 
-        const baseUrl = `https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts${BX_FLAGS.UseDevTouchLayout ? '/dev' : ''}`;
+        const baseUrl = 'https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts';
         const url = `${baseUrl}/${xboxTitleId}.json`;
 
         // Get layout info
@@ -137,21 +172,37 @@ export class TouchController {
             window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
         } catch (e) {
             // Retry
-            TouchController.getCustomLayouts(xboxTitleId, retries + 1);
+            TouchController.requestCustomLayouts(retries + 1);
         }
     }
 
-    static loadCustomLayout(xboxTitleId: string, layoutId: string, delay: number=0) {
+    static applyCustomLayout(layoutId: string | null, delay: number=0) {
         // TODO: fix this
         if (!window.BX_EXPOSED.touchLayoutManager) {
             const listener = (e: Event) => {
                 window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-                if (TouchController.#enable) {
-                    TouchController.loadCustomLayout(xboxTitleId, layoutId, 0);
+                if (TouchController.#enabled) {
+                    TouchController.applyCustomLayout(layoutId, 0);
                 }
             };
             window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
 
+            return;
+        }
+
+        const xboxTitleId = TouchController.#xboxTitleId;
+        if (!xboxTitleId) {
+            BxLogger.error(LOG_TAG, 'Invalid xboxTitleId');
+            return;
+        }
+
+        if (!layoutId) {
+            // Get default layout ID from definition
+            layoutId = TouchController.#customLayouts[xboxTitleId]?.default_layout || null;
+        }
+
+        if (!layoutId) {
+            BxLogger.error(LOG_TAG, 'Invalid layoutId');
             return;
         }
 
@@ -161,7 +212,7 @@ export class TouchController {
         // Get layout data
         const layoutData = TouchController.#customLayouts[xboxTitleId];
         if (!xboxTitleId || !layoutId || !layoutData) {
-            TouchController.#enable && TouchController.#showDefault();
+            TouchController.#enabled && TouchController.#showDefault();
             return;
         }
 
@@ -223,7 +274,7 @@ export class TouchController {
 
             touchLayoutManager && touchLayoutManager.changeLayoutForScope({
                 type: 'showLayout',
-                scope: '' + STATES.currentStream?.xboxTitleId,
+                scope: '' + TouchController.#xboxTitleId,
                 subscope: 'base',
                 layout: {
                     id: 'System.Standard',
@@ -249,7 +300,7 @@ export class TouchController {
 
             // Apply touch controller's style
             let filter = '';
-            if (TouchController.#enable) {
+            if (TouchController.#enabled) {
                 if (PREF_STYLE_STANDARD === 'white') {
                     filter = 'grayscale(1) brightness(2)';
                 } else if (PREF_STYLE_STANDARD === 'muted') {
@@ -280,9 +331,9 @@ export class TouchController {
 
                 // Dispatch a message to display generic touch controller
                 if (msg.data.includes('touchcontrols/showtitledefault')) {
-                    if (TouchController.#enable) {
+                    if (TouchController.#enabled) {
                         if (focused) {
-                            TouchController.getCustomLayouts(STATES.currentStream?.xboxTitleId!);
+                            TouchController.requestCustomLayouts();
                         } else {
                             TouchController.#showDefault();
                         }
@@ -300,7 +351,7 @@ export class TouchController {
                             TouchController.#show();
                         }
 
-                        STATES.currentStream.xboxTitleId = parseInt(json.titleid, 16).toString();
+                        TouchController.setXboxTitleId(parseInt(json.titleid, 16).toString());
                     }
                 } catch (e) {
                     BxLogger.error(LOG_TAG, 'Load custom layout', e);

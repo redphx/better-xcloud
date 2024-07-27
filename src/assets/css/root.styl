@@ -1,3 +1,18 @@
+button_color(name, normal, hover, active, disabled)
+    prefix = unquote('--bx-' + name + '-button');
+    {prefix + '-color'}: normal;
+    {prefix + '-rgb'}: red(normal), green(normal), blue(normal);
+
+    {prefix + '-hover-color'}: hover;
+    {prefix + '-hover-rgb'}: red(hover), green(hover), blue(hover);
+
+    {prefix + '-active-color'}: active;
+    {prefix + '-active-rgb'}: red(active), green(active), blue(active);
+
+    {prefix + '-disabled-color'}: disabled;
+    {prefix + '-disabled-rgb'}: red(disabled), green(disabled), blue(disabled);
+
+
 :root {
     --bx-title-font: Bahnschrift, Arial, Helvetica, sans-serif;
     --bx-title-font-semibold: Bahnschrift Semibold, Arial, Helvetica, sans-serif;
@@ -7,27 +22,22 @@
 
     --bx-button-height: 40px;
 
-    --bx-default-button-color: #2d3036;
-    --bx-default-button-hover-color: #515863;
-    --bx-default-button-disabled-color: #8e8e8e;
-
-    --bx-primary-button-color: #008746;
-    --bx-primary-button-hover-color: #04b358;
-    --bx-primary-button-disabled-color: #448262;
-
-    --bx-danger-button-color: #c10404;
-    --bx-danger-button-hover-color: #e61d1d;
-    --bx-danger-button-disabled-color: #a26c6c;
+    button_color('default', #2d3036, #515863, #222428, #8e8e8e);
+    button_color('primary', #008746, #04b358, #044e2a, #448262);
+    button_color('danger', #c10404, #e61d1d, #a26c6c, #df5656);
 
     --bx-toast-z-index: 9999;
     --bx-dialog-z-index: 9101;
     --bx-dialog-overlay-z-index: 9100;
-    --bx-remote-play-popup-z-index: 9090;
     --bx-stats-bar-z-index: 9010;
-    --bx-stream-settings-z-index: 9001;
     --bx-mkb-pointer-lock-msg-z-index: 9000;
-    --bx-stream-settings-overlay-z-index: 8999;
-    --bx-game-bar-z-index: 8888;
+
+    --bx-navigation-dialog-z-index: 8999;
+    --bx-navigation-dialog-overlay-z-index: 8998;
+
+    --bx-remote-play-popup-z-index: 2000;
+
+    --bx-game-bar-z-index: 1000;
     --bx-wait-time-box-z-index: 100;
     --bx-screenshot-animation-z-index: 1;
 }
@@ -63,6 +73,14 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
 
 .bx-no-scroll {
     overflow: hidden !important;
+}
+
+.bx-hide-scroll-bar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 .bx-gone {
@@ -106,7 +124,11 @@ div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module
 }
 
 .bx-line-through {
-    text-decoration: line-through
+    text-decoration: line-through !important;
+}
+
+.bx-normal-case {
+    text-transform: none !important;
 }
 
 select[multiple] {

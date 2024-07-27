@@ -1,6 +1,4 @@
 import { CE } from "@utils/html";
-import { onChangeVideoPlayerType } from "../stream/stream-settings-utils";
-import { StreamSettings } from "../stream/stream-settings";
 
 
 export function localRedirect(path: string) {
@@ -25,11 +23,5 @@ export function localRedirect(path: string) {
     $pageContent.appendChild($anchor);
     $anchor.click();
 }
-
-export function setupStreamUi() {
-    StreamSettings.getInstance();
-    onChangeVideoPlayerType();
-}
-
 
 (window as any).localRedirect = localRedirect;

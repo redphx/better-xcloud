@@ -1,0 +1,18 @@
+.bx-navigation-dialog {
+    position: absolute;
+    z-index: var(--bx-navigation-dialog-z-index);
+}
+
+.bx-navigation-dialog-overlay {
+    position: fixed;
+    background: #0b0b0be3;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--bx-navigation-dialog-overlay-z-index);
+
+    &[data-is-playing="true"] {
+        background: transparent;
+    }
+}

@@ -1,6 +1,5 @@
 import { AppInterface, SCRIPT_VERSION, STATES } from "@utils/global";
 import { BX_FLAGS } from "@utils/bx-flags";
-import { getPref, PrefKey } from "@utils/preferences";
 import { VibrationManager } from "@modules/vibration-manager";
 import { BxLogger } from "@utils/bx-logger";
 import { hashCode, renderString } from "@utils/utils";
@@ -15,6 +14,9 @@ import codeRemotePlayKeepAlive from "./patches/remote-play-keep-alive.js" with {
 import codeVibrationAdjust from "./patches/vibration-adjust.js" with { type: "text" };
 import { FeatureGates } from "@/utils/feature-gates.js";
 import { UiSection } from "@/enums/ui-sections.js";
+import { PrefKey } from "@/enums/pref-keys.js";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { GamePassCloudGallery } from "@/enums/game-pass-gallery.js";
 
 type PatchArray = (keyof typeof PATCHES)[];
 
@@ -27,7 +29,7 @@ const PATCHES = {
     disableAiTrack(str: string) {
         const text = '.track=function(';
         const index = str.indexOf(text);
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -94,7 +96,7 @@ const PATCHES = {
     // Replace "/direct-connect" with "/play"
     remotePlayDirectConnectUrl(str: string) {
         const index = str.indexOf('/direct-connect');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -160,7 +162,7 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
 
     patchPollGamepads(str: string) {
         const index = str.indexOf('},this.pollGamepads=()=>{');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -231,7 +233,7 @@ logFunc(logTag, '//', logMessage);
     // Override website's settings
     overrideSettings(str: string) {
         const index = str.indexOf(',EnableStreamGate:');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -249,7 +251,7 @@ logFunc(logTag, '//', logMessage);
 
     disableGamepadDisconnectedScreen(str: string) {
         const index = str.indexOf('"GamepadDisconnected_Title",');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -286,7 +288,7 @@ logFunc(logTag, '//', logMessage);
     // Disable StreamGate
     disableStreamGate(str: string) {
         const index = str.indexOf('case"partially-ready":');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -316,7 +318,7 @@ window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
     patchBabylonRendererClass(str: string) {
         // ()=>{a.current.render(),h.current=window.requestAnimationFrame(l)
         let index = str.indexOf('.current.render(),');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -454,7 +456,7 @@ BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
 
     patchGamepadPolling(str: string) {
         let index = str.indexOf('.shouldHandleGamepadInput)())return void');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -466,7 +468,7 @@ BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
     patchXcloudTitleInfo(str: string) {
         const text = 'async cloudConnect';
         let index = str.indexOf(text);
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -488,7 +490,7 @@ BxLogger.info('patchXcloudTitleInfo', ${titleInfoVar});
     patchRemotePlayMkb(str: string) {
         const text = 'async homeConsoleConnect';
         let index = str.indexOf(text);
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -709,7 +711,7 @@ true` + text;
         index > -1 && (index = str.indexOf('return ', index));
         index > -1 && (index = str.indexOf('?', index));
 
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -720,12 +722,12 @@ true` + text;
     // Don't render "Play With Friends" sections
     ignorePlayWithFriendsSection(str: string) {
         let index = str.indexOf('location:"PlayWithFriendsRow",');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
         index = str.indexOf('return', index - 50);
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -736,18 +738,73 @@ true` + text;
     // Don't render "All Games" sections
     ignoreAllGamesSection(str: string) {
         let index = str.indexOf('className:"AllGamesRow-module__allGamesRowContainer');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
         index = str.indexOf('grid:!0,', index);
         index > -1 && (index = str.indexOf('(0,', index - 70));
 
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
         str = str.substring(0, index) + 'true ? null :' + str.substring(index);
+        return str;
+    },
+
+    // home-page.js
+    ignorePlayWithTouchSection(str: string) {
+        let index = str.indexOf('("Play_With_Touch"),');
+        if (index < 0) {
+            return false;
+        }
+
+        index = str.indexOf('const ', index - 100);
+        if (index < 0) {
+            return false;
+        }
+
+        str = str.substring(0, index) + 'return null;' + str.substring(index);
+        return str;
+    },
+
+    // home-page.js
+    ignoreSiglSections(str: string) {
+        let index = str.indexOf('SiglRow-module__heroCard___');
+        if (index < 0) {
+            return false;
+        }
+
+        index = str.indexOf('const[', index - 300);
+        if (index < 0) {
+            return false;
+        }
+
+        const PREF_HIDE_SECTIONS = getPref(PrefKey.UI_HIDE_SECTIONS) as UiSection[];
+        const siglIds: GamePassCloudGallery[] = [];
+
+        const sections: Partial<Record<UiSection, GamePassCloudGallery>> = {
+            [UiSection.NATIVE_MKB]: GamePassCloudGallery.NATIVE_MKB,
+            [UiSection.MOST_POPULAR]: GamePassCloudGallery.MOST_POPULAR,
+        };
+
+        PREF_HIDE_SECTIONS.forEach(section => {
+            const galleryId = sections[section];
+            galleryId && siglIds.push(galleryId);
+        });
+
+        const checkSyntax = siglIds.map(item => `siglId === "${item}"`).join(' || ');
+
+        const newCode = `
+if (e && e.id) {
+    const siglId = e.id;
+    if (${checkSyntax}) {
+        return null;
+    }
+}
+`;
+        str = str.substring(0, index) + newCode + str.substring(index);
         return str;
     },
 
@@ -774,12 +831,12 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     // game-stream.js   24.16.4
     alwaysShowStreamHud(str: string) {
         let index = str.indexOf(',{onShowStreamMenu:');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
         index = str.indexOf('&&(0,', index - 100);
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -791,7 +848,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     // 24225.js#4127, 24.17.11
     patchSetCurrentlyFocusedInteractable(str: string) {
         let index = str.indexOf('.setCurrentlyFocusedInteractable=(');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -803,12 +860,12 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     // product-details-page.js#2388, 24.17.20
     detectProductDetailsPage(str: string) {
         let index = str.indexOf('{location:"ProductDetailPage",');
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
         index = str.indexOf('return', index - 40);
-        if (index === -1) {
+        if (index < 0) {
             return false;
         }
 
@@ -847,6 +904,8 @@ let PATCH_ORDERS: PatchArray = [
 
     getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS) && 'ignorePlayWithFriendsSection',
     getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.ALL_GAMES) && 'ignoreAllGamesSection',
+    getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.TOUCH) && 'ignorePlayWithTouchSection',
+    (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.NATIVE_MKB) || getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.MOST_POPULAR)) && 'ignoreSiglSections',
 
     ...(getPref(PrefKey.BLOCK_TRACKING) ? [
         'disableAiTrack',
@@ -978,7 +1037,8 @@ export class Patcher {
             }
 
             const func = item[1][id];
-            let str = func.toString();
+            const funcStr = func.toString();
+            let patchedFuncStr = funcStr;
 
             let modified = false;
 
@@ -993,15 +1053,15 @@ export class Patcher {
                 }
 
                 // Check function against patch
-                const patchedStr = PATCHES[patchName].call(null, str);
+                const tmpStr = PATCHES[patchName].call(null, patchedFuncStr);
 
                 // Not patched
-                if (!patchedStr) {
+                if (!tmpStr) {
                     continue;
                 }
 
                 modified = true;
-                str = patchedStr;
+                patchedFuncStr = tmpStr;
 
                 BxLogger.info(LOG_TAG, `✅ ${patchName}`);
                 appliedPatches.push(patchName);
@@ -1014,7 +1074,13 @@ export class Patcher {
 
             // Apply patched functions
             if (modified) {
-                item[1][id] = eval(str);
+                try {
+                    item[1][id] = eval(patchedFuncStr);
+                } catch (e: unknown) {
+                    if (e instanceof Error) {
+                        BxLogger.error(LOG_TAG, 'Error', appliedPatches, e.message);
+                    }
+                }
             }
 
             // Save to cache

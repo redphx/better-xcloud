@@ -2,8 +2,9 @@ import { deepClone, STATES } from "@utils/global";
 import { BxLogger } from "./bx-logger";
 import { TouchController } from "@modules/touch-controller";
 import { GamePassCloudGallery } from "../enums/game-pass-gallery";
-import { getPref, PrefKey } from "./preferences";
 import { BX_FLAGS } from "./bx-flags";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 const LOG_TAG = 'PreloadState';
 

@@ -1,8 +1,9 @@
 import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 import { STATES } from "@utils/global";
-import { getPref, PrefKey, setPref } from "@utils/preferences";
 import { UserAgent } from "@utils/user-agent";
 import type { StreamPlayerOptions } from "../stream-player";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref, setPref } from "@/utils/settings-storages/global-settings-storage";
 
 export function onChangeVideoPlayerType() {
     const playerType = getPref(PrefKey.VIDEO_PLAYER_TYPE);
@@ -10,16 +11,22 @@ export function onChangeVideoPlayerType() {
     const $videoSharpness = document.getElementById('bx_setting_video_sharpness') as HTMLElement;
     const $videoPowerPreference = document.getElementById('bx_setting_video_power_preference') as HTMLElement;
 
+    if (!$videoProcessing) {
+        return;
+    }
+
     let isDisabled = false;
 
+    const $optCas = $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`) as HTMLOptionElement;
+
     if (playerType === StreamPlayerType.WEBGL2) {
-        ($videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`) as HTMLOptionElement).disabled = false;
+        $optCas && ($optCas.disabled = false);
     } else {
         // Only allow USM when player type is Video
         $videoProcessing.value = StreamVideoProcessing.USM;
         setPref(PrefKey.VIDEO_PROCESSING, StreamVideoProcessing.USM);
 
-        ($videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`) as HTMLOptionElement).disabled = true;
+        $optCas && ($optCas.disabled = true);
 
         if (UserAgent.isSafari()) {
             isDisabled = true;
@@ -30,7 +37,7 @@ export function onChangeVideoPlayerType() {
     $videoSharpness.dataset.disabled = isDisabled.toString();
 
     // Hide Power Preference setting if renderer isn't WebGL2
-    $videoPowerPreference.closest('.bx-stream-settings-row')!.classList.toggle('bx-gone', playerType !== StreamPlayerType.WEBGL2);
+    $videoPowerPreference.closest('.bx-settings-row')!.classList.toggle('bx-gone', playerType !== StreamPlayerType.WEBGL2);
 
     updateVideoPlayer();
 }

@@ -6,9 +6,10 @@ import { BxEvent } from "./bx-event";
 import { NATIVE_FETCH, BX_FLAGS } from "./bx-flags";
 import { STATES } from "./global";
 import { patchIceCandidates } from "./network";
-import { getPref, PrefKey } from "./preferences";
 import { getPreferredServerRegion } from "./region";
 import { BypassServerIps } from "@/enums/bypass-servers";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 export
 class XcloudInterceptor {
@@ -74,7 +75,7 @@ class XcloudInterceptor {
         BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
 
         const preferredRegion = getPreferredServerRegion();
-        if (preferredRegion in STATES.serverRegions) {
+        if (preferredRegion && preferredRegion in STATES.serverRegions) {
             const tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
             tmp.isDefault = true;
 

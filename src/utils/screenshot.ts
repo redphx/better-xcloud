@@ -1,7 +1,8 @@
 import { StreamPlayerType } from "@enums/stream-player";
 import { AppInterface, STATES } from "./global";
 import { CE } from "./html";
-import { getPref, PrefKey } from "./preferences";
+import { PrefKey } from "@/enums/pref-keys";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 
 export class Screenshot {
