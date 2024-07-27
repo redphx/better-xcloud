@@ -14,16 +14,15 @@
 // ==/UserScript==
 'use strict';
 // src/enums/user-agent.ts
-var UserAgentProfile;
-(function(UserAgentProfile2) {
-  UserAgentProfile2["WINDOWS_EDGE"] = "windows-edge";
-  UserAgentProfile2["MACOS_SAFARI"] = "macos-safari";
-  UserAgentProfile2["SMART_TV_GENERIC"] = "smarttv-generic";
-  UserAgentProfile2["SMART_TV_TIZEN"] = "smarttv-tizen";
-  UserAgentProfile2["VR_OCULUS"] = "vr-oculus";
-  UserAgentProfile2["DEFAULT"] = "default";
-  UserAgentProfile2["CUSTOM"] = "custom";
-})(UserAgentProfile || (UserAgentProfile = {}));
+var UserAgentProfile = {
+  WINDOWS_EDGE: "windows-edge",
+  MACOS_SAFARI: "macos-safari",
+  SMART_TV_GENERIC: "smarttv-generic",
+  SMART_TV_TIZEN: "smarttv-tizen",
+  VR_OCULUS: "vr-oculus",
+  DEFAULT: "default",
+  CUSTOM: "custom"
+};
 
 // src/utils/bx-flags.ts
 
@@ -396,12 +395,11 @@ var PrefKey;
 })(PrefKey || (PrefKey = {}));
 
 // src/utils/bx-logger.ts
-var TextColor;
-(function(TextColor2) {
-  TextColor2["INFO"] = "#008746";
-  TextColor2["WARNING"] = "#c1a404";
-  TextColor2["ERROR"] = "#c10404";
-})(TextColor || (TextColor = {}));
+var TextColor = {
+  INFO: "#008746",
+  WARNING: "#c1a404",
+  ERROR: "#c10404"
+};
 
 class BxLogger {
   static #PREFIX = "[BxC]";
@@ -824,15 +822,14 @@ var BypassServers = {
 };
 
 // src/enums/ui-sections.ts
-var UiSection;
-(function(UiSection2) {
-  UiSection2["ALL_GAMES"] = "all-games";
-  UiSection2["FRIENDS"] = "friends";
-  UiSection2["MOST_POPULAR"] = "most-popular";
-  UiSection2["NATIVE_MKB"] = "native-mkb";
-  UiSection2["NEWS"] = "news";
-  UiSection2["TOUCH"] = "touch";
-})(UiSection || (UiSection = {}));
+var UiSection = {
+  ALL_GAMES: "all-games",
+  FRIENDS: "friends",
+  MOST_POPULAR: "most-popular",
+  NATIVE_MKB: "native-mkb",
+  NEWS: "news",
+  TOUCH: "touch"
+};
 
 // src/modules/stream/stream-stats.ts
 var StreamStat;
@@ -3939,13 +3936,12 @@ if (BX_FLAGS.FeatureGates)
   FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
 
 // src/enums/game-pass-gallery.ts
-var GamePassCloudGallery;
-(function(GamePassCloudGallery2) {
-  GamePassCloudGallery2["ALL"] = "29a81209-df6f-41fd-a528-2ae6b91f719c";
-  GamePassCloudGallery2["MOST_POPULAR"] = "e7590b22-e299-44db-ae22-25c61405454c";
-  GamePassCloudGallery2["NATIVE_MKB"] = "8fa264dd-124f-4af3-97e8-596fcdf4b486";
-  GamePassCloudGallery2["TOUCH"] = "9c86f07a-f3e8-45ad-82a0-a1f759597059";
-})(GamePassCloudGallery || (GamePassCloudGallery = {}));
+var GamePassCloudGallery = {
+  ALL: "29a81209-df6f-41fd-a528-2ae6b91f719c",
+  MOST_POPULAR: "e7590b22-e299-44db-ae22-25c61405454c",
+  NATIVE_MKB: "8fa264dd-124f-4af3-97e8-596fcdf4b486",
+  TOUCH: "9c86f07a-f3e8-45ad-82a0-a1f759597059"
+};
 
 // src/modules/patcher.ts
 var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATCHES = {
@@ -5778,22 +5774,21 @@ class StreamUiShortcut {
 }
 
 // src/modules/controller-shortcut.ts
-var ShortcutAction;
-(function(ShortcutAction2) {
-  ShortcutAction2["BETTER_XCLOUD_SETTINGS_SHOW"] = "bx-settings-show";
-  ShortcutAction2["STREAM_SCREENSHOT_CAPTURE"] = "stream-screenshot-capture";
-  ShortcutAction2["STREAM_MENU_SHOW"] = "stream-menu-show";
-  ShortcutAction2["STREAM_STATS_TOGGLE"] = "stream-stats-toggle";
-  ShortcutAction2["STREAM_SOUND_TOGGLE"] = "stream-sound-toggle";
-  ShortcutAction2["STREAM_MICROPHONE_TOGGLE"] = "stream-microphone-toggle";
-  ShortcutAction2["STREAM_VOLUME_INC"] = "stream-volume-inc";
-  ShortcutAction2["STREAM_VOLUME_DEC"] = "stream-volume-dec";
-  ShortcutAction2["DEVICE_SOUND_TOGGLE"] = "device-sound-toggle";
-  ShortcutAction2["DEVICE_VOLUME_INC"] = "device-volume-inc";
-  ShortcutAction2["DEVICE_VOLUME_DEC"] = "device-volume-dec";
-  ShortcutAction2["DEVICE_BRIGHTNESS_INC"] = "device-brightness-inc";
-  ShortcutAction2["DEVICE_BRIGHTNESS_DEC"] = "device-brightness-dec";
-})(ShortcutAction || (ShortcutAction = {}));
+var ShortcutAction = {
+  BETTER_XCLOUD_SETTINGS_SHOW: "bx-settings-show",
+  STREAM_SCREENSHOT_CAPTURE: "stream-screenshot-capture",
+  STREAM_MENU_SHOW: "stream-menu-show",
+  STREAM_STATS_TOGGLE: "stream-stats-toggle",
+  STREAM_SOUND_TOGGLE: "stream-sound-toggle",
+  STREAM_MICROPHONE_TOGGLE: "stream-microphone-toggle",
+  STREAM_VOLUME_INC: "stream-volume-inc",
+  STREAM_VOLUME_DEC: "stream-volume-dec",
+  DEVICE_SOUND_TOGGLE: "device-sound-toggle",
+  DEVICE_VOLUME_INC: "device-volume-inc",
+  DEVICE_VOLUME_DEC: "device-volume-dec",
+  DEVICE_BRIGHTNESS_INC: "device-brightness-inc",
+  DEVICE_BRIGHTNESS_DEC: "device-brightness-dec"
+};
 
 class ControllerShortcut {
   static #STORAGE_KEY = "better_xcloud_controller_shortcuts";
@@ -6160,13 +6155,12 @@ class HeaderSection {
 }
 
 // src/modules/remote-play.ts
-var LOG_TAG5 = "RemotePlay", RemotePlayConsoleState;
-(function(RemotePlayConsoleState2) {
-  RemotePlayConsoleState2["ON"] = "On";
-  RemotePlayConsoleState2["OFF"] = "Off";
-  RemotePlayConsoleState2["STANDBY"] = "ConnectedStandby";
-  RemotePlayConsoleState2["UNKNOWN"] = "Unknown";
-})(RemotePlayConsoleState || (RemotePlayConsoleState = {}));
+var LOG_TAG5 = "RemotePlay", RemotePlayConsoleState = {
+  ON: "On",
+  OFF: "Off",
+  STANDBY: "ConnectedStandby",
+  UNKNOWN: "Unknown"
+};
 
 class RemotePlay {
   static XCLOUD_TOKEN;
@@ -6184,8 +6178,8 @@ class RemotePlay {
       env: {
         clientAppId: window.location.host,
         clientAppType: "browser",
-        clientAppVersion: "21.1.98",
-        clientSdkVersion: "8.5.3",
+        clientAppVersion: "24.17.36",
+        clientSdkVersion: "10.1.14",
         httpEnvironment: "prod",
         sdkInstallId: ""
       }
@@ -6213,7 +6207,7 @@ class RemotePlay {
       },
       browser: {
         browserName: "chrome",
-        browserVersion: "119.0"
+        browserVersion: "125.0"
       }
     }
   };
@@ -6589,17 +6583,15 @@ class LoadingScreen {
 }
 
 // src/modules/stream/stream-badges.ts
-var StreamBadge;
-(function(StreamBadge2) {
-  StreamBadge2["PLAYTIME"] = "playtime";
-  StreamBadge2["BATTERY"] = "battery";
-  StreamBadge2["DOWNLOAD"] = "in";
-  StreamBadge2["UPLOAD"] = "out";
-  StreamBadge2["SERVER"] = "server";
-  StreamBadge2["VIDEO"] = "video";
-  StreamBadge2["AUDIO"] = "audio";
-})(StreamBadge || (StreamBadge = {}));
-var StreamBadgeIcon = {
+var StreamBadge = {
+  PLAYTIME: "playtime",
+  BATTERY: "battery",
+  DOWNLOAD: "in",
+  UPLOAD: "out",
+  SERVER: "server",
+  VIDEO: "video",
+  AUDIO: "audio"
+}, StreamBadgeIcon = {
   [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
   [StreamBadge.VIDEO]: BxIcon.DISPLAY,
   [StreamBadge.BATTERY]: BxIcon.BATTERY,
@@ -7071,19 +7063,14 @@ function interceptHttpRequests() {
     }
     let requestType;
     if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs"))
-      requestType = RequestType.XHOME;
+      requestType = "xhome";
     else
-      requestType = RequestType.XCLOUD;
-    if (requestType === RequestType.XHOME)
+      requestType = "xcloud";
+    if (requestType === "xhome")
       return XhomeInterceptor.handle(request);
     return XcloudInterceptor.handle(request, init);
   };
 }
-var RequestType;
-(function(RequestType2) {
-  RequestType2["XCLOUD"] = "xcloud";
-  RequestType2["XHOME"] = "xhome";
-})(RequestType || (RequestType = {}));
 
 // src/utils/gamepad.ts
 function showGamepadToast(gamepad) {
@@ -7962,11 +7949,6 @@ class GameBar {
 }
 
 // src/modules/ui/guide-menu.ts
-var GuideMenuTab;
-(function(GuideMenuTab2) {
-  GuideMenuTab2[GuideMenuTab2["HOME"] = 0] = "HOME";
-})(GuideMenuTab || (GuideMenuTab = {}));
-
 class GuideMenu {
   static #BUTTONS = {
     scriptSettings: createButton({
@@ -8038,7 +8020,7 @@ class GuideMenu {
     $btnXcloudHome && ($btnXcloudHome.style.display = "none");
   }
   static async#onShown(e) {
-    if (e.where === GuideMenuTab.HOME) {
+    if (e.where === "home") {
       const $root = document.querySelector("#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]");
       if ($root)
         if (STATES.isPlaying)
@@ -8210,7 +8192,7 @@ var unload = function() {
                 for (index = 0;$elm = $elm?.previousElementSibling; index++)
                   ;
                 if (index === 0)
-                  BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: GuideMenuTab.HOME });
+                  BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: "home" });
               }
             }
           }
