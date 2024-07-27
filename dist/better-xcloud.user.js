@@ -4272,8 +4272,8 @@ class SettingsNavigationDialog extends NavigationDialog {
           classes: ["bx-settings-reload-button", "bx-gone"],
           style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
           onClick: (e) => {
-            const $target = e.target;
-            $target.disabled = !0, $target.textContent = t("settings-reloading"), window.location.reload();
+            const $target = e.target.closest("button");
+            $target.disabled = !0, $target.firstElementChild.textContent = t("settings-reloading"), window.location.reload();
           }
         }), topButtons.push(this.$btnGlobalReload), this.$noteGlobalReload = CE("span", {
           class: "bx-settings-reload-note"
