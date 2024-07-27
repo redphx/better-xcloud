@@ -1188,7 +1188,12 @@ class BaseSettingsStore {
   _settings;
   definitions;
   constructor(storageKey, definitions) {
-    this.storage = window.localStorage, this.storageKey = storageKey, this.definitions = definitions, this._settings = null;
+    this.storage = window.localStorage, this.storageKey = storageKey;
+    for (let settingId in definitions) {
+      const setting = definitions[settingId];
+      setting.ready && setting.ready.call(this, setting);
+    }
+    this.definitions = definitions, this._settings = null;
   }
   get settings() {
     if (this._settings)
