@@ -126,8 +126,10 @@ export class UserAgent {
         }
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
-        (window.navigator as any).orgUserAgentData = (window.navigator as any).userAgentData;
-        Object.defineProperty(window.navigator, 'userAgentData', {});
+        if ('userAgentData' in window.navigator) {
+            (window.navigator as any).orgUserAgentData = (window.navigator as any).userAgentData;
+            Object.defineProperty(window.navigator, 'userAgentData', {});
+        }
 
         // Override navigator.userAgent
         (window.navigator as any).orgUserAgent = window.navigator.userAgent;
