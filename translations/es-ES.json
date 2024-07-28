@@ -138,6 +138,7 @@
   "remote-play": "Reproducción remota",
   "rename": "Renombrar",
   "renderer": "Renderizado",
+  "renderer-configuration": "Configuración de renderizado",
   "right-click-to-unbind": "Clic derecho en una tecla para desvincularla",
   "right-stick": "Joystick derecho",
   "rocket-always-hide": "Ocultar siempre",
