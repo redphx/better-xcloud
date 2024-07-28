@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.5.0
+// @version      5.5.1-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -18,8 +18,6 @@
 
 var DEFAULT_FLAGS = {
   CheckForUpdate: !0,
-  PreloadRemotePlay: !0,
-  PreloadUi: !1,
   EnableXcloudLogging: !1,
   SafariWorkaround: !0,
   ForceNativeMkbTitles: [],
@@ -109,7 +107,9 @@ class UserAgent {
     let newUserAgent = UserAgent.get(profile);
     if (BX_FLAGS.IsSupportedTvBrowser)
       newUserAgent += ` SmartTV ${SMART_TV_UNIQUE_ID}`;
-    window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {}), window.navigator.orgUserAgent = window.navigator.userAgent, Object.defineProperty(window.navigator, "userAgent", {
+    if ("userAgentData" in window.navigator)
+      window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {});
+    window.navigator.orgUserAgent = window.navigator.userAgent, Object.defineProperty(window.navigator, "userAgent", {
       value: newUserAgent
     });
   }
@@ -122,7 +122,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.5.0", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.5.1-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -3661,11 +3661,6 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
 `;
     return str.replace(".AchievementUnlock:{", ".AchievementUnlock:{" + newCode);
   },
-  disableTrackEvent(str) {
-    if (!str.includes("this.trackEvent="))
-      return !1;
-    return str.replace("this.trackEvent=", "this.trackEvent=e=>{},this.uwuwu=");
-  },
   blockWebRtcStatsCollector(str) {
     if (!str.includes("this.shouldCollectStats=!0"))
       return !1;
@@ -4071,8 +4066,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     "disableTelemetry",
     "blockWebRtcStatsCollector",
     "disableIndexDbLogging",
-    "disableTelemetryProvider",
-    "disableTrackEvent"
+    "disableTelemetryProvider"
   ] : [],
   ...getPref("xhome_enabled") ? [
     "remotePlayKeepAlive",
@@ -7234,6 +7228,9 @@ function patchMeControl() {
   };
   window.MSA = new Proxy(MSA, MsaHandler), window.MeControl = new Proxy(MeControl, MeControlHandler);
 }
+function disableAdobeAudienceManager() {
+  window.adobe = Object.freeze({});
+}
 function patchCanvasContext() {
   const nativeGetContext = HTMLCanvasElement.prototype.getContext;
   HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
@@ -7789,7 +7786,9 @@ function waitForRootDialog() {
   observer.observe(document.documentElement, { subtree: !0, childList: !0 });
 }
 function main() {
-  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking") && patchMeControl(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), Toast.setup(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), getPref("controller_show_connection_status"))
+  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking"))
+    patchMeControl(), disableAdobeAudienceManager();
+  if (STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), Toast.setup(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), GuideMenu.observe(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), getPref("controller_show_connection_status"))
     window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
   if (getPref("xhome_enabled"))
     RemotePlay.detect();
@@ -7840,7 +7839,7 @@ document.addEventListener("readystatechange", (e) => {
   if (document.readyState !== "interactive")
     return;
   if (STATES.isSignedIn = window.xbcUser?.isSignedIn, STATES.isSignedIn)
-    getPref("xhome_enabled") && BX_FLAGS.PreloadRemotePlay && RemotePlay.preload();
+    getPref("xhome_enabled") && RemotePlay.preload();
   else
     HeaderSection.watchHeader();
   if (getPref("ui_hide_sections").includes("friends")) {
