@@ -89,14 +89,13 @@ const build = async (target: BuildTarget, version: string, config: any={}) => {
 
     // Check with ESLint
     const eslint = new ESLint();
-    eslint.lintFiles([path]).then((results: any) => {
-        results[0].messages.forEach((msg: any) => {
-            console.error(`${path}#${msg.line}: ${msg.message}`);
-        });
-
-        console.log(`---- [${target}] done in ${performance.now() - startTime} ms`);
-        console.log(`---- [${target}] ${new Date()}`);
+    const results = await eslint.lintFiles([path]);
+    results[0].messages.forEach((msg: any) => {
+        console.error(`${path}#${msg.line}: ${msg.message}`);
     });
+
+    console.log(`---- [${target}] done in ${performance.now() - startTime} ms`);
+    console.log(`---- [${target}] ${new Date()}`);
 }
 
 const buildTargets = [
@@ -123,9 +122,26 @@ if (!values['version']) {
     sys.exit(-1);
 }
 
-console.log('Building: ', values['version']);
+async function main() {
+    const config = {};
+    console.log('Building: ', values['version']);
+    for (const target of buildTargets) {
+        await build(target, values['version']!!, config);
+    }
 
-const config = {};
-for (const target of buildTargets) {
-    await build(target, values['version']!!, config);
+    console.log('\n** Press Enter to build or Esc to exit');
 }
+
+function onKeyPress(data: any) {
+    const keyCode = data[0];
+    if (keyCode === 13) {  // Enter key
+        main();
+    } else if (keyCode === 27) {  // Esc key
+        process.exit(0);
+    }
+}
+
+main();
+process.stdin.setRawMode(true);
+process.stdin.resume();
+process.stdin.on('data', onKeyPress);
