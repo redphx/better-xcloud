@@ -201,6 +201,14 @@ export function patchMeControl() {
     (window as any).MeControl = new Proxy(MeControl, MeControlHandler);
 }
 
+
+/**
+ * Disable Adobe Audience Manager (AAM)
+ */
+export function disableAdobeAudienceManager() {
+    (window as any).adobe = Object.freeze({});
+}
+
 /**
  * Use power-saving flags for touch control
  */

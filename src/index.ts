@@ -20,7 +20,7 @@ import { RemotePlay } from "@modules/remote-play";
 import { onHistoryChanged, patchHistoryMethod } from "@utils/history";
 import { VibrationManager } from "@modules/vibration-manager";
 import { overridePreloadState } from "@utils/preload-state";
-import { patchAudioContext, patchCanvasContext, patchMeControl, patchPointerLockApi, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
+import { disableAdobeAudienceManager, patchAudioContext, patchCanvasContext, patchMeControl, patchPointerLockApi, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
 import { AppInterface, STATES } from "@utils/global";
 import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
@@ -313,7 +313,11 @@ function main() {
     AppInterface && patchPointerLockApi();
 
     getPref(PrefKey.AUDIO_ENABLE_VOLUME_CONTROL) && patchAudioContext();
-    getPref(PrefKey.BLOCK_TRACKING) && patchMeControl();
+
+    if (getPref(PrefKey.BLOCK_TRACKING)) {
+        patchMeControl();
+        disableAdobeAudienceManager();
+    }
 
     STATES.userAgent.capabilities.touch && TouchController.updateCustomList();
     overridePreloadState();
