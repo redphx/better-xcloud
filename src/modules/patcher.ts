@@ -140,16 +140,6 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
         return str.replace(text, text + newCode);
     },
 
-    // Disable trackEvent() function
-    disableTrackEvent(str: string) {
-        const text = 'this.trackEvent=';
-        if (!str.includes(text)) {
-            return false;
-        }
-
-        return str.replace(text, 'this.trackEvent=e=>{},this.uwuwu=');
-    },
-
     // Block WebRTC stats collector
     blockWebRtcStatsCollector(str: string) {
         const text = 'this.shouldCollectStats=!0';
@@ -915,7 +905,6 @@ let PATCH_ORDERS: PatchArray = [
         'disableIndexDbLogging',
 
         'disableTelemetryProvider',
-        'disableTrackEvent',
     ] : []),
 
     ...(getPref(PrefKey.REMOTE_PLAY_ENABLED) ? [
