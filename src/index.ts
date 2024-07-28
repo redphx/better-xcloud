@@ -116,7 +116,7 @@ document.addEventListener('readystatechange', e => {
         // Preload Remote Play
         getPref(PrefKey.REMOTE_PLAY_ENABLED) && RemotePlay.preload();
     } else {
-        // Show Settings button in the header when not signed
+        // Show Settings button in the header when not signed in
         HeaderSection.watchHeader();
     }
 

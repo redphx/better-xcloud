@@ -5746,12 +5746,12 @@ class HeaderSection {
     HeaderSection.#$remotePlayBtn.classList.remove("bx-gone");
   }
   static watchHeader() {
-    const $header = document.querySelector("#PageContent header");
-    if (!$header)
+    let $root = document.querySelector("#PageContent header") || document.querySelector("#root");
+    if (!$root)
       return;
     HeaderSection.#observer && HeaderSection.#observer.disconnect(), HeaderSection.#observer = new MutationObserver((mutationList) => {
       HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout), HeaderSection.#timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
-    }), HeaderSection.#observer.observe($header, { subtree: !0, childList: !0 }), HeaderSection.checkHeader();
+    }), HeaderSection.#observer.observe($root, { subtree: !0, childList: !0 }), HeaderSection.checkHeader();
   }
 }
 

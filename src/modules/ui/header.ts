@@ -68,8 +68,8 @@ export class HeaderSection {
     }
 
     static watchHeader() {
-        const $header = document.querySelector('#PageContent header');
-        if (!$header) {
+        let $root = document.querySelector('#PageContent header') || document.querySelector('#root');
+        if (!$root) {
             return;
         }
 
@@ -78,7 +78,7 @@ export class HeaderSection {
             HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout);
             HeaderSection.#timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
         });
-        HeaderSection.#observer.observe($header, {subtree: true, childList: true});
+        HeaderSection.#observer.observe($root, {subtree: true, childList: true});
 
         HeaderSection.checkHeader();
     }
