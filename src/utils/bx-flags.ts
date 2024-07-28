@@ -1,7 +1,5 @@
 type BxFlags = Partial<{
     CheckForUpdate: boolean;
-    PreloadRemotePlay: boolean;
-    PreloadUi: boolean;
     EnableXcloudLogging: boolean;
     SafariWorkaround: boolean;
 
@@ -19,8 +17,6 @@ type BxFlags = Partial<{
 // Setup flags
 const DEFAULT_FLAGS: BxFlags = {
     CheckForUpdate: true,
-    PreloadRemotePlay: true,
-    PreloadUi: false,
     EnableXcloudLogging: false,
     SafariWorkaround: true,
 
