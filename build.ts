@@ -2,9 +2,12 @@
 import { readFile } from "node:fs/promises";
 import { parseArgs } from "node:util";
 import { sys } from "typescript";
+// @ts-ignore
 import txtScriptHeader from "./src/assets/header_script.txt" with { type: "text" };
+// @ts-ignore
 import txtMetaHeader from "./src/assets/header_meta.txt" with { type: "text" };
 import { assert } from "node:console";
+import { ESLint } from "eslint";
 
 enum BuildTarget {
     ALL = 'all',
@@ -80,10 +83,20 @@ const build = async (target: BuildTarget, version: string, config: any={}) => {
 
     // Save to script
     await Bun.write(path, scriptHeader + result);
-    console.log(`---- [${target}] done in ${performance.now() - startTime} ms`);
 
     // Create meta file
     await Bun.write(outDir + '/' + outputMetaName, txtMetaHeader.replace('[[VERSION]]', version));
+
+    // Check with ESLint
+    const eslint = new ESLint();
+    eslint.lintFiles([path]).then((results: any) => {
+        results[0].messages.forEach((msg: any) => {
+            console.error(`${path}#${msg.line}: ${msg.message}`);
+        });
+
+        console.log(`---- [${target}] done in ${performance.now() - startTime} ms`);
+        console.log(`---- [${target}] ${new Date()}`);
+    });
 }
 
 const buildTargets = [
