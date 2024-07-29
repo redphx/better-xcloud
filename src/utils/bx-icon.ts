@@ -23,6 +23,7 @@ import iconVirtualController from "@assets/svg/virtual-controller.svg" with { ty
 import iconCaretLeft from "@assets/svg/caret-left.svg" with { type: "text" };
 import iconCaretRight from "@assets/svg/caret-right.svg" with { type: "text" };
 import iconCamera from "@assets/svg/camera.svg" with { type: "text" };
+import iconCameraRecord from "@assets/svg/camera-record.svg" with { type: "text" };
 import iconMicrophone from "@assets/svg/microphone.svg" with { type: "text" };
 import iconMicrophoneMuted from "@assets/svg/microphone-slash.svg" with { type: "text" };
 
@@ -60,6 +61,7 @@ export const BxIcon = {
     CARET_LEFT: iconCaretLeft,
     CARET_RIGHT: iconCaretRight,
     SCREENSHOT: iconCamera,
+    RECORD: iconCameraRecord,
     TOUCH_CONTROL_ENABLE: iconTouchControlEnable,
     TOUCH_CONTROL_DISABLE: iconTouchControlDisable,
 

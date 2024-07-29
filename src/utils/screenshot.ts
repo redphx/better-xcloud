@@ -9,6 +9,14 @@ export class Screenshot {
     static #$canvas: HTMLCanvasElement;
     static #canvasContext: CanvasRenderingContext2D;
 
+    static #mediaRecorder: MediaRecorder | null = null;
+    static #recordedBlobs: Blob[] = [];
+    static #isRecording: boolean = false;
+
+    static get isRecording() {
+        return this.#isRecording;
+    }
+
     static setup() {
         if (Screenshot.#$canvas) {
             return;
@@ -95,5 +103,55 @@ export class Screenshot {
 
                 callback && callback();
             }, 'image/png');
+    }
+
+    static async startRecording() {
+        if (this.#isRecording) return;
+
+        const $video = STATES.currentStream.streamPlayer?.getPlayerElement();
+        if (!$video) return;
+
+        // Capture video stream from the video element
+        const videoStream = $video.captureStream();
+
+        // Add audio track(s) from the video element to the video stream
+        const audioTracks = videoStream.getAudioTracks();
+        if (audioTracks.length === 0) {
+            console.warn("No audio tracks found in the video stream");
+        }
+
+        const options = {
+            audioBitsPerSecond: 128000,
+            videoBitsPerSecond: 2500000,
+            mimeType: "video/mp4; codecs=\"avc1.42E01E, mp4a.40.2\"",
+          };
+
+        this.#mediaRecorder = new MediaRecorder(videoStream, options);
+
+        this.#mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) {
+                this.#recordedBlobs.push(event.data);
+            }
+        };
+        this.#mediaRecorder.onstop = () => {
+            const blob = new Blob(this.#recordedBlobs, { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            // Save the recorded video to a file or a designated location
+            // For example, you can create a new anchor element and simulate a click to download the video
+            const $anchor = CE('a', { download: 'recorded-video.mp4', href: url });
+            $anchor.click();
+            URL.revokeObjectURL(url);
+        };
+        this.#mediaRecorder.start();
+        this.#isRecording = true;
+    }
+
+    static stopRecording() {
+        if (!this.#isRecording) return;
+    
+        this.#mediaRecorder?.stop();
+        this.#mediaRecorder = null; // Reset the MediaRecorder instance
+        this.#recordedBlobs = []; // Reset the recorded blobs array
+        this.#isRecording = false;
     }
 }
