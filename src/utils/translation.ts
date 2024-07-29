@@ -252,6 +252,7 @@ const Texts = {
     "support-better-xcloud": "Support Better xCloud",
     "swap-buttons": "Swap buttons",
     "take-screenshot": "Take screenshot",
+    "take-recording": "Take Recording",
     "target-resolution": "Target resolution",
     "tc-all-games": "All games",
     "tc-all-white": "All white",
