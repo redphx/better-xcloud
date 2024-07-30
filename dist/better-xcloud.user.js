@@ -13,27 +13,6 @@
 // @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
 // ==/UserScript==
 "use strict";
-
-/* ADDITIONAL CODE */
-
-var DEFAULT_FLAGS = {
-  CheckForUpdate: !0,
-  EnableXcloudLogging: !1,
-  SafariWorkaround: !0,
-  ForceNativeMkbTitles: [],
-  FeatureGates: null,
-  DeviceInfo: {
-    deviceType: "unknown"
-  }
-}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
-try {
-  delete window.BX_FLAGS;
-} catch (e) {
-}
-if (!BX_FLAGS.DeviceInfo.userAgent)
-  BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
-var NATIVE_FETCH = window.fetch;
-
 var SMART_TV_UNIQUE_ID = "FC4A1DA2-711C-4E9C-BC7F-047AF8A672EA", CHROMIUM_VERSION = "123.0.0.0";
 if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
@@ -105,8 +84,6 @@ class UserAgent {
     if (profile === "default")
       return;
     let newUserAgent = UserAgent.get(profile);
-    if (BX_FLAGS.IsSupportedTvBrowser)
-      newUserAgent += ` SmartTV ${SMART_TV_UNIQUE_ID}`;
     if ("userAgentData" in window.navigator)
       window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {});
     window.navigator.orgUserAgent = window.navigator.userAgent, Object.defineProperty(window.navigator, "userAgent", {
@@ -168,6 +145,27 @@ var BxEvent;
   BxEvent.dispatch = dispatch;
 })(BxEvent ||= {});
 window.BxEvent = BxEvent;
+
+
+/* ADDITIONAL CODE */
+
+var DEFAULT_FLAGS = {
+  CheckForUpdate: !0,
+  EnableXcloudLogging: !1,
+  SafariWorkaround: !0,
+  ForceNativeMkbTitles: [],
+  FeatureGates: null,
+  DeviceInfo: {
+    deviceType: "unknown"
+  }
+}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+try {
+  delete window.BX_FLAGS;
+} catch (e) {
+}
+if (!BX_FLAGS.DeviceInfo.userAgent)
+  BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
+var NATIVE_FETCH = window.fetch;
 
 class NavigationUtils {
   static setNearby($elm, nearby) {
@@ -1487,7 +1485,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
     user_agent_profile: {
       label: t("user-agent-profile"),
       note: "⚠️ " + t("unexpected-behavior"),
-      default: BX_FLAGS.DeviceInfo.deviceType === "android-tv" ? "vr-oculus" : "default",
+      default: BX_FLAGS.DeviceInfo.deviceType === "android-tv" || BX_FLAGS.DeviceInfo.deviceType === "webos" ? "vr-oculus" : "default",
       options: {
         default: t("default"),
         "windows-edge": "Edge + Windows",
@@ -5990,11 +5988,13 @@ class XhomeInterceptor {
     console.log(obj);
     const serverDetails = obj.serverDetails;
     if (serverDetails.ipAddress)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = serverDetails.port;
-    if (serverDetails.ipV4Address)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = [serverDetails.port];
+    if (serverDetails.ipV4Address) {
+      const ports = new Set;
+      ports.add(serverDetails.ipV4Port), ports.add(9002), XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = Array.from(ports);
+    }
     if (serverDetails.ipV6Address)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = [serverDetails.ipV6Port];
     return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async#handleInputConfigs(request, opts) {
@@ -6550,10 +6550,9 @@ function updateIceCandidates(candidates, options) {
   if (lst.forEach((item2) => {
     item2.foundation = foundation, item2.priority = foundation == 1 ? 2130706431 : 1, newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`)), ++foundation;
   }), options.consoleAddrs)
-    for (let ip in options.consoleAddrs) {
-      const port = options.consoleAddrs[ip];
-      newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
-    }
+    for (let ip in options.consoleAddrs)
+      for (let port of options.consoleAddrs[ip])
+        newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
   return newCandidates.push(newCandidate("a=end-of-candidates")), BxLogger.info("ICE Candidates", newCandidates), newCandidates;
 }
 async function patchIceCandidates(request, consoleAddrs) {
