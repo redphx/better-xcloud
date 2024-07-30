@@ -44,11 +44,11 @@ function getSupportedCodecProfiles() {
         }
     }
 
-    if (hasHighCodec) {
-        if (!hasLowCodec && !hasNormalCodec) {
-            options.default = `${t('visual-quality-high')} (${t('default')})`;
+    if (hasLowCodec) {
+        if (!hasNormalCodec && !hasHighCodec) {
+            options.default = `${t('visual-quality-low')} (${t('default')})`;
         } else {
-            options.high = t('visual-quality-high');
+            options.low = t('visual-quality-low');
         }
     }
 
@@ -60,11 +60,11 @@ function getSupportedCodecProfiles() {
         }
     }
 
-    if (hasLowCodec) {
-        if (!hasNormalCodec && !hasHighCodec) {
-            options.default = `${t('visual-quality-low')} (${t('default')})`;
+    if (hasHighCodec) {
+        if (!hasLowCodec && !hasNormalCodec) {
+            options.default = `${t('visual-quality-high')} (${t('default')})`;
         } else {
-            options.low = t('visual-quality-low');
+            options.high = t('visual-quality-high');
         }
     }
 
@@ -140,8 +140,8 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: 'auto',
             options: {
                 auto: t('default'),
-                '1080p': '1080p',
                 '720p': '720p',
+                '1080p': '1080p',
             },
         },
         [PrefKey.STREAM_CODEC_PROFILE]: {
