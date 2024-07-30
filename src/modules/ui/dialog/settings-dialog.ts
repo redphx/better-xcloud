@@ -40,8 +40,8 @@ type SettingTabContentItem = Partial<{
 }>
 
 type SettingTabContent = {
-    group: 'general' | 'server' | 'stream' | 'game-bar' | 'co-op' | 'mkb' | 'touch-control' | 'loading-screen' | 'ui' | 'other' | 'advanced' | 'audio' | 'video' | 'controller' | 'native-mkb' | 'stats' | 'controller-shortcuts';
-    label: string;
+    group: 'general' | 'server' | 'stream' | 'game-bar' | 'co-op' | 'mkb' | 'touch-control' | 'loading-screen' | 'ui' | 'other' | 'advanced' | 'footer' | 'audio' | 'video' | 'controller' | 'native-mkb' | 'stats' | 'controller-shortcuts';
+    label?: string;
     note?: string | Text | null;
     unsupported?: boolean;
     helpUrl?: string;
@@ -274,7 +274,10 @@ export class SettingsNavigationDialog extends NavigationDialog {
                     });
                 },
             },
-
+        ],
+    }, {
+        group: 'footer',
+        items: [
             // Donation link
             ($parent) => {
                 $parent.appendChild(CE('a', {
@@ -321,7 +324,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
                 );
 
                 $parent.appendChild($debugInfo);
-            }
+            },
         ],
     }];
 
@@ -921,8 +924,8 @@ export class SettingsNavigationDialog extends NavigationDialog {
                 }
 
                 // Don't render other settings in unsupported regions
-                if (!this.renderFullSettings && settingTab.group === 'global' && settingTabContent.group !== 'general') {
-                    break;
+                if (!this.renderFullSettings && settingTab.group === 'global' && settingTabContent.group !== 'general' && settingTabContent.group !== 'footer') {
+                    continue;
                 }
 
                 let label = settingTabContent.label;
@@ -937,21 +940,23 @@ export class SettingsNavigationDialog extends NavigationDialog {
                     });
                 }
 
-                const $title = CE('h2', {
-                    _nearby: {
-                        orientation: 'horizontal',
-                    }
-                },
-                    CE('span', {}, label),
-                    settingTabContent.helpUrl && createButton({
-                            icon: BxIcon.QUESTION,
-                            style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
-                            url: settingTabContent.helpUrl,
-                            title: t('help'),
-                        }),
-                );
+                if (label) {
+                    const $title = CE('h2', {
+                        _nearby: {
+                            orientation: 'horizontal',
+                        }
+                    },
+                        CE('span', {}, label),
+                        settingTabContent.helpUrl && createButton({
+                                icon: BxIcon.QUESTION,
+                                style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+                                url: settingTabContent.helpUrl,
+                                title: t('help'),
+                            }),
+                    );
 
-                $tabContent.appendChild($title);
+                    $tabContent.appendChild($title);
+                }
 
                 // Add note
                 if (settingTabContent.note) {
