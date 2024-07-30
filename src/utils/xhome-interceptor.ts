@@ -40,21 +40,25 @@ export class XhomeInterceptor {
         const obj = await response.clone().json()
         console.log(obj);
 
+        const processPorts = (port: number): number[] => {
+            const ports = new Set<number>();
+            ports.add(port);
+            ports.add(9002);
+
+            return Array.from(ports);
+        };
+
         const serverDetails = obj.serverDetails;
         if (serverDetails.ipAddress) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = [serverDetails.port];
+            XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
         }
 
         if (serverDetails.ipV4Address) {
-            const ports = new Set<number>();
-            ports.add(serverDetails.ipV4Port);
-            ports.add(9002);
-
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = Array.from(ports);
+            XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
         }
 
         if (serverDetails.ipV6Address) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = [serverDetails.ipV6Port];
+            XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
         }
 
         response.json = () => Promise.resolve(obj);

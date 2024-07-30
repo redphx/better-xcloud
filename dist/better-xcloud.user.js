@@ -5986,15 +5986,16 @@ class XhomeInterceptor {
   static async#handleConfiguration(request) {
     const response = await NATIVE_FETCH(request), obj = await response.clone().json();
     console.log(obj);
-    const serverDetails = obj.serverDetails;
-    if (serverDetails.ipAddress)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = [serverDetails.port];
-    if (serverDetails.ipV4Address) {
+    const processPorts = (port) => {
       const ports = new Set;
-      ports.add(serverDetails.ipV4Port), ports.add(9002), XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = Array.from(ports);
-    }
+      return ports.add(port), ports.add(9002), Array.from(ports);
+    }, serverDetails = obj.serverDetails;
+    if (serverDetails.ipAddress)
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
+    if (serverDetails.ipV4Address)
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
     if (serverDetails.ipV6Address)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = [serverDetails.ipV6Port];
+      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
     return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async#handleInputConfigs(request, opts) {
