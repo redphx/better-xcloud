@@ -7,9 +7,10 @@ import { STATES } from "./global";
 import { patchIceCandidates } from "./network";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "./settings-storages/global-settings-storage";
+import type { RemotePlayConsoleAddresses } from "@/types/network";
 
 export class XhomeInterceptor {
-    static #consoleAddrs: {[index: string]: number} = {};
+    static #consoleAddrs: RemotePlayConsoleAddresses = {};
 
     static async #handleLogin(request: Request) {
         try {
@@ -41,15 +42,19 @@ export class XhomeInterceptor {
 
         const serverDetails = obj.serverDetails;
         if (serverDetails.ipAddress) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = serverDetails.port;
+            XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = [serverDetails.port];
         }
 
         if (serverDetails.ipV4Address) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = serverDetails.ipV4Port;
+            const ports = new Set<number>();
+            ports.add(serverDetails.ipV4Port);
+            ports.add(9002);
+
+            XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = Array.from(ports);
         }
 
         if (serverDetails.ipV6Address) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = serverDetails.ipV6Port;
+            XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = [serverDetails.ipV6Port];
         }
 
         response.json = () => Promise.resolve(obj);

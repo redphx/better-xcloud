@@ -9,6 +9,7 @@ import { XhomeInterceptor } from "./xhome-interceptor";
 import { XcloudInterceptor } from "./xcloud-interceptor";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "./settings-storages/global-settings-storage";
+import type { RemotePlayConsoleAddresses } from "@/types/network";
 
 type RequestType = 'xcloud' | 'xhome';
 
@@ -39,7 +40,7 @@ function clearAllLogs() {
     clearDbLogs('XCloudAppLogs', 'logs');
 }
 
-function updateIceCandidates(candidates: any, options: any) {
+function updateIceCandidates(candidates: any, options: {preferIpv6Server: boolean, consoleAddrs?: RemotePlayConsoleAddresses}) {
     const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/);
 
     const lst = [];
@@ -83,9 +84,9 @@ function updateIceCandidates(candidates: any, options: any) {
 
     if (options.consoleAddrs) {
         for (const ip in options.consoleAddrs) {
-            const port = options.consoleAddrs[ip];
-
-            newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
+            for (const port of options.consoleAddrs[ip]) {
+                newCandidates.push(newCandidate(`a=candidate:${newCandidates.length + 1} 1 UDP 1 ${ip} ${port} typ host`));
+            }
         }
     }
 
@@ -96,7 +97,7 @@ function updateIceCandidates(candidates: any, options: any) {
 }
 
 
-export async function patchIceCandidates(request: Request, consoleAddrs?: {[index: string]: number}) {
+export async function patchIceCandidates(request: Request, consoleAddrs?: RemotePlayConsoleAddresses) {
     const response = await NATIVE_FETCH(request);
     const text = await response.clone().text();
 
