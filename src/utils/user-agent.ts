@@ -1,5 +1,4 @@
 import { UserAgentProfile } from "@enums/user-agent";
-import { BX_FLAGS } from "./bx-flags";
 
 type UserAgentConfig = {
     profile: UserAgentProfile,
@@ -119,11 +118,6 @@ export class UserAgent {
         }
 
         let newUserAgent = UserAgent.get(profile);
-
-        // Pretend to be Tizen TV
-        if (BX_FLAGS.IsSupportedTvBrowser) {
-            newUserAgent += ` SmartTV ${SMART_TV_UNIQUE_ID}`;
-        }
 
         // Clear data of navigator.userAgentData, force xCloud to detect browser based on navigator.userAgent
         if ('userAgentData' in window.navigator) {

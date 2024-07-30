@@ -457,7 +457,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
 
         [PrefKey.UI_CONTROLLER_FRIENDLY]: {
             label: t('controller-friendly-ui'),
-            default: BX_FLAGS.DeviceInfo!.deviceType !== 'unknown',
+            default: BX_FLAGS.DeviceInfo.deviceType !== 'unknown',
         },
 
         [PrefKey.UI_LAYOUT]: {
@@ -512,7 +512,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         [PrefKey.USER_AGENT_PROFILE]: {
             label: t('user-agent-profile'),
             note: '⚠️ ' + t('unexpected-behavior'),
-            default: BX_FLAGS.DeviceInfo!.deviceType === 'android-tv' ? UserAgentProfile.VR_OCULUS : 'default',
+            default: (BX_FLAGS.DeviceInfo.deviceType === 'android-tv' || BX_FLAGS.DeviceInfo.deviceType === 'webos') ? UserAgentProfile.VR_OCULUS : 'default',
             options: {
                 [UserAgentProfile.DEFAULT]: t('default'),
                 [UserAgentProfile.WINDOWS_EDGE]: 'Edge + Windows',

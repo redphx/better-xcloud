@@ -1,4 +1,4 @@
-type BxFlags = Partial<{
+type BxFlags = {
     CheckForUpdate: boolean;
     EnableXcloudLogging: boolean;
     SafariWorkaround: boolean;
@@ -6,13 +6,11 @@ type BxFlags = Partial<{
     ForceNativeMkbTitles: string[];
     FeatureGates: {[key: string]: boolean} | null,
 
-    IsSupportedTvBrowser: boolean,
-
-    DeviceInfo: Partial<{
+    DeviceInfo: {
         deviceType: 'android' | 'android-tv' | 'webos' | 'unknown',
         userAgent?: string,
-    }>,
-}>
+    }
+}
 
 // Setup flags
 const DEFAULT_FLAGS: BxFlags = {
@@ -33,8 +31,8 @@ try {
     delete window.BX_FLAGS;
 } catch (e) {}
 
-if (!BX_FLAGS.DeviceInfo!.userAgent) {
-    BX_FLAGS.DeviceInfo!.userAgent = window.navigator.userAgent;
+if (!BX_FLAGS.DeviceInfo.userAgent) {
+    BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
 }
 
 export const NATIVE_FETCH = window.fetch;
