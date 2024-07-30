@@ -103,6 +103,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
                         style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
                         onClick: e => {
                             AppInterface.openAppSettings && AppInterface.openAppSettings();
+                            this.hide();
                         },
                     }));
                 } else {
