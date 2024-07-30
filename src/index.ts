@@ -36,6 +36,7 @@ import { ProductDetailsPage } from "./modules/ui/product-details";
 import { NavigationDialogManager } from "./modules/ui/dialog/navigation-dialog";
 import { PrefKey } from "./enums/pref-keys";
 import { getPref } from "./utils/settings-storages/global-settings-storage";
+import { compressCss } from "@macros/build" with {type: "macro"};
 
 
 // Handle login page
@@ -64,7 +65,7 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
     window.stop();
 
     // Show the reloading overlay
-    const css = `
+    const css = compressCss(`
 .bx-reload-overlay {
     position: fixed;
     top: 0;
@@ -78,7 +79,7 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     font-size: 1.3rem;
 }
-`;
+`);
     const $fragment = document.createDocumentFragment();
     $fragment.appendChild(CE('style', {}, css));
     $fragment.appendChild(CE('div', {'class': 'bx-reload-overlay'}, t('safari-failed-message')));
