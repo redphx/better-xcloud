@@ -13,6 +13,27 @@
 // @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
 // ==/UserScript==
 "use strict";
+
+/* ADDITIONAL CODE */
+
+var DEFAULT_FLAGS = {
+  CheckForUpdate: !0,
+  EnableXcloudLogging: !1,
+  SafariWorkaround: !0,
+  ForceNativeMkbTitles: [],
+  FeatureGates: null,
+  DeviceInfo: {
+    deviceType: "unknown"
+  }
+}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
+try {
+  delete window.BX_FLAGS;
+} catch (e) {
+}
+if (!BX_FLAGS.DeviceInfo.userAgent)
+  BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
+var NATIVE_FETCH = window.fetch;
+
 var SMART_TV_UNIQUE_ID = "FC4A1DA2-711C-4E9C-BC7F-047AF8A672EA", CHROMIUM_VERSION = "123.0.0.0";
 if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
@@ -35,7 +56,7 @@ class UserAgent {
   };
   static init() {
     if (UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY) || "{}"), !UserAgent.#config.profile)
-      UserAgent.#config.profile = "default";
+      UserAgent.#config.profile = BX_FLAGS.DeviceInfo.deviceType === "android-tv" || BX_FLAGS.DeviceInfo.deviceType === "webos" ? "vr-oculus" : "default";
     if (!UserAgent.#config.custom)
       UserAgent.#config.custom = "";
     UserAgent.spoof();
@@ -145,27 +166,6 @@ var BxEvent;
   BxEvent.dispatch = dispatch;
 })(BxEvent ||= {});
 window.BxEvent = BxEvent;
-
-
-/* ADDITIONAL CODE */
-
-var DEFAULT_FLAGS = {
-  CheckForUpdate: !0,
-  EnableXcloudLogging: !1,
-  SafariWorkaround: !0,
-  ForceNativeMkbTitles: [],
-  FeatureGates: null,
-  DeviceInfo: {
-    deviceType: "unknown"
-  }
-}, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
-try {
-  delete window.BX_FLAGS;
-} catch (e) {
-}
-if (!BX_FLAGS.DeviceInfo.userAgent)
-  BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
-var NATIVE_FETCH = window.fetch;
 
 class NavigationUtils {
   static setNearby($elm, nearby) {
@@ -5764,8 +5764,10 @@ class HeaderSection {
   }
   static checkHeader() {
     if (!HeaderSection.#$buttonsWrapper.isConnected) {
-      const $rightHeader = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
-      HeaderSection.#injectSettingsButton($rightHeader);
+      let $target = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
+      if (!$target)
+        $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
+      $target && HeaderSection.#injectSettingsButton($target);
     }
   }
   static showRemotePlayButton() {
@@ -7868,7 +7870,7 @@ window.addEventListener("popstate", onHistoryChanged);
 window.history.pushState = patchHistoryMethod("pushState");
 window.history.replaceState = patchHistoryMethod("replaceState");
 window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, (e) => {
-  STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000);
+  STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), SettingsNavigationDialog.getInstance().show();
 });
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
   HeaderSection.watchHeader();
