@@ -37,6 +37,7 @@ import { NavigationDialogManager } from "./modules/ui/dialog/navigation-dialog";
 import { PrefKey } from "./enums/pref-keys";
 import { getPref } from "./utils/settings-storages/global-settings-storage";
 import { compressCss } from "@macros/build" with {type: "macro"};
+import { SettingsNavigationDialog } from "./modules/ui/dialog/settings-dialog";
 
 
 // Handle login page
@@ -145,6 +146,9 @@ window.history.replaceState = patchHistoryMethod('replaceState');
 window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
     STATES.supportedRegion = false;
     window.setTimeout(HeaderSection.watchHeader, 2000);
+
+    // Open Settings dialog on Unsupported page
+    SettingsNavigationDialog.getInstance().show();
 });
 
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {

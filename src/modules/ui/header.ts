@@ -58,8 +58,11 @@ export class HeaderSection {
 
     static checkHeader() {
         if (!HeaderSection.#$buttonsWrapper.isConnected) {
-            const $rightHeader = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
-            HeaderSection.#injectSettingsButton($rightHeader as HTMLElement);
+            let $target = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
+            if (!$target) {
+                $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
+            }
+            $target && HeaderSection.#injectSettingsButton($target as HTMLElement);
         }
     }
 
