@@ -141,9 +141,8 @@
         border-radius: 10px;
     }
 
-    &:focus-visible::after {
+    &:focus::after {
         offset = -6px;
-
         content: '';
         border-color: white;
         position: absolute;
@@ -151,6 +150,13 @@
         left: offset;
         right: offset;
         bottom: offset;
+    }
+
+    body[data-input-mode=Touch] &,
+    body[data-input-mode=Mouse] & {
+        &:focus::after {
+            border-color: transparent !important;
+        }
     }
 
     &.bx-circular {
@@ -177,7 +183,7 @@ button.bx-inactive {
 .bx-button-shortcut {
     max-width: max-content;
     margin: 10px 0 0 0;
-    overflow: hidden;
+    flex: 1 0 auto;
 }
 
 @media (min-width: 568px) and (max-height: 480px) {
