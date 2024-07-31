@@ -26,20 +26,22 @@ button_color(name, normal, hover, active, disabled)
     button_color('primary', #008746, #04b358, #044e2a, #448262);
     button_color('danger', #c10404, #e61d1d, #a26c6c, #df5656);
 
-    --bx-toast-z-index: 9999;
-    --bx-dialog-z-index: 9101;
-    --bx-dialog-overlay-z-index: 9100;
-    --bx-stats-bar-z-index: 9010;
-    --bx-mkb-pointer-lock-msg-z-index: 9000;
+    --bx-fullscreen-text-z-index: 9999;
+    --bx-toast-z-index: 6000;
+    --bx-dialog-z-index: 5000;
 
-    --bx-navigation-dialog-z-index: 8999;
-    --bx-navigation-dialog-overlay-z-index: 8998;
+    --bx-dialog-overlay-z-index: 4020;
+    --bx-stats-bar-z-index: 4010;
+    --bx-mkb-pointer-lock-msg-z-index: 4000;
+
+    --bx-navigation-dialog-z-index: 3010;
+    --bx-navigation-dialog-overlay-z-index: 3000;
 
     --bx-remote-play-popup-z-index: 2000;
 
     --bx-game-bar-z-index: 1000;
     --bx-wait-time-box-z-index: 100;
-    --bx-screenshot-animation-z-index: 1;
+    --bx-screenshot-animation-z-index: 10;
 }
 
 @font-face {
@@ -189,4 +191,23 @@ div[class*=SupportedInputsBadge] {
         font-size: 12px;
         font-weight: bold;
     }
+}
+
+
+.bx-fullscreen-text {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #000000cc;
+    z-index: var(--bx-fullscreen-text-z-index);
+    line-height: 100vh;
+    color: #fff;
+    text-align: center;
+    font-weight: 400;
+    font-family: var(--bx-normal-font);
+    font-size: 1.3rem;
+    user-select: none;
+    -webkit-user-select: none;
 }

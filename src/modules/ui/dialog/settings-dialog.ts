@@ -24,6 +24,7 @@ import { PrefKey, StorageKey } from "@/enums/pref-keys";
 import { getPref, getPrefDefinition, setPref } from "@/utils/settings-storages/global-settings-storage";
 import { SettingElement } from "@/utils/setting-element";
 import type { SettingDefinition } from "@/types/setting-definition";
+import { FullscreenText } from "../fullscreen-text";
 
 
 type SettingTabContentItem = Partial<{
@@ -69,7 +70,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
     private $settings!: HTMLElement;
 
     private $btnReload!: HTMLElement;
-    private $btnGlobalReload!: HTMLElement;
+    private $btnGlobalReload!: HTMLButtonElement;
     private $noteGlobalReload!: HTMLElement;
 
     private renderFullSettings: boolean;
@@ -123,11 +124,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
                     classes: ['bx-settings-reload-button', 'bx-gone'],
                     style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
                     onClick: e => {
-                        const $target = (e.target as HTMLButtonElement).closest('button')!;
-                        $target.disabled = true;
-                        $target.firstElementChild!.textContent = t('settings-reloading');
-
-                        window.location.reload();
+                        this.reloadPage();
                     },
                 });
 
@@ -611,7 +608,13 @@ export class SettingsNavigationDialog extends NavigationDialog {
         }
     }
 
-    onUnmounted(): void {
+    private reloadPage() {
+        this.$btnGlobalReload.disabled = true;
+        this.$btnGlobalReload.firstElementChild!.textContent = t('settings-reloading');
+
+        this.hide();
+        FullscreenText.getInstance().show(t('settings-reloading'));
+        window.location.reload();
     }
 
     private renderTab(settingTab: SettingTab) {
@@ -855,8 +858,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
                         icon: BxIcon.REFRESH,
                         style: ButtonStyle.FOCUSABLE | ButtonStyle.DROP_SHADOW,
                         onClick: e => {
-                            window.location.reload();
-                            this.dialogManager.hide();
+                            this.reloadPage();
                         },
                     }),
 
