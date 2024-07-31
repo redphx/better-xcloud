@@ -1,4 +1,5 @@
 import { UserAgentProfile } from "@enums/user-agent";
+import { BX_FLAGS } from "./bx-flags";
 
 type UserAgentConfig = {
     profile: UserAgentProfile,
@@ -35,7 +36,7 @@ export class UserAgent {
     static init() {
         UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY)  || '{}') as UserAgentConfig;
         if (!UserAgent.#config.profile) {
-            UserAgent.#config.profile = UserAgentProfile.DEFAULT;
+            UserAgent.#config.profile = (BX_FLAGS.DeviceInfo.deviceType === 'android-tv' || BX_FLAGS.DeviceInfo.deviceType === 'webos') ? UserAgentProfile.VR_OCULUS : UserAgentProfile.DEFAULT;
         }
 
         if (!UserAgent.#config.custom) {
