@@ -750,7 +750,7 @@ true` + text;
             return false;
         }
 
-        index = str.indexOf('const ', index - 100);
+        index = str.indexOf('const ', index - 30);
         if (index < 0) {
             return false;
         }

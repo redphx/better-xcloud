@@ -3969,7 +3969,7 @@ true,this._connectionType=`;
     let index = str.indexOf('("Play_With_Touch"),');
     if (index < 0)
       return !1;
-    if (index = str.indexOf("const ", index - 100), index < 0)
+    if (index = str.indexOf("const ", index - 30), index < 0)
       return !1;
     return str = str.substring(0, index) + "return null;" + str.substring(index), str;
   },
