@@ -112,7 +112,7 @@ document.addEventListener('readystatechange', e => {
         return;
     }
 
-    STATES.isSignedIn = (window as any).xbcUser?.isSignedIn;
+    STATES.isSignedIn = !!((window as any).xbcUser?.isSignedIn);
 
     if (STATES.isSignedIn) {
         // Preload Remote Play
@@ -152,6 +152,7 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
 });
 
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
+    STATES.isSignedIn = true;
     HeaderSection.watchHeader();
 });
 

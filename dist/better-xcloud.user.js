@@ -7854,7 +7854,7 @@ window.addEventListener("load", (e) => {
 document.addEventListener("readystatechange", (e) => {
   if (document.readyState !== "interactive")
     return;
-  if (STATES.isSignedIn = window.xbcUser?.isSignedIn, STATES.isSignedIn)
+  if (STATES.isSignedIn = !!window.xbcUser?.isSignedIn, STATES.isSignedIn)
     getPref("xhome_enabled") && RemotePlay.preload();
   else
     HeaderSection.watchHeader();
@@ -7873,7 +7873,7 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, (e) => {
   STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), SettingsNavigationDialog.getInstance().show();
 });
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
-  HeaderSection.watchHeader();
+  STATES.isSignedIn = !0, HeaderSection.watchHeader();
 });
 window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
   if (window.location.pathname.includes("/launch/")) {
