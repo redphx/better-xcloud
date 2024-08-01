@@ -14,41 +14,12 @@ body:
     id: device_type
     attributes:
       label: Device
-      description: "Which device are you using?"
+      description: "Which device type is this feature for?"
       options:
+        - All devices
         - Phone/Tablet
-        - Laptop
         - Desktop
         - TV
-        - Other
-      multiple: false
-    validations:
-      required: true
-  - type: dropdown
-    id: os
-    attributes:
-      label: "Operating System"
-      description: "Which operating system is it running?"
-      options:
-        - Windows
-        - macOS
-        - Linux
-        - Android
-        - iOS/iPadOS
-        - Other
-      multiple: false
-    validations:
-      required: true
-  - type: dropdown
-    id: browser
-    attributes:
-      label: "Browser"
-      description: "Which browser are you using?"
-      options:
-        - Chrome/Edge/Chromium
-        - Kiwi Browser
-        - Safari
-        - Other
       multiple: false
     validations:
       required: true
