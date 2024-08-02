@@ -6,7 +6,7 @@ import { getPref } from "./settings-storages/global-settings-storage";
 
 
 export function addCss() {
-    const STYLUS_CSS = renderStylus();
+    const STYLUS_CSS = renderStylus() as unknown as string;
     let css = STYLUS_CSS;
 
     const PREF_HIDE_SECTIONS = getPref(PrefKey.UI_HIDE_SECTIONS);

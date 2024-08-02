@@ -3619,7 +3619,7 @@ var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATC
       return !1;
     if (PatcherUtils.indexOf(str, '"AppInsightsCore', index, 200) < 0)
       return !1;
-    return PatcherUtils.replaceWith(str, ".track=function(", ".track=function(e){},!!function(", index);
+    return PatcherUtils.replaceWith(str, index, ".track=function(", ".track=function(e){},!!function(");
   },
   disableTelemetry(str) {
     if (!str.includes(".disableTelemetry=function(){return!1}"))

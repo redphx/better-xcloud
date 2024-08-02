@@ -64,7 +64,7 @@ const PATCHES = {
             return false;
         }
 
-        return PatcherUtils.replaceWith(str, text, '.track=function(e){},!!function(', index);
+        return PatcherUtils.replaceWith(str, index, text, '.track=function(e){},!!function(');
     },
 
     // Set disableTelemetry() to true
