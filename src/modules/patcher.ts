@@ -892,6 +892,26 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         str = str.substring(0, index) + 'BxEvent.dispatch(window, BxEvent.XCLOUD_RENDERING_COMPONENT, {component: "product-details"});' + str.substring(index);
         return str;
     },
+
+    detectBrowserRouterReady(str: string) {
+        const text = 'BrowserRouter:()=>';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        let index = str.indexOf('{history:this.history,');
+        if (index < 0) {
+            return false;
+        }
+
+        index = PatcherUtils.lastIndexOf(str, 'return', index, 100);
+        if (index < 0) {
+            return false;
+        }
+
+        str = PatcherUtils.insertAt(str, index, 'window.BxEvent.dispatch(window, window.BxEvent.XCLOUD_ROUTER_HISTORY_READY, {history: this.history});');
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -902,6 +922,7 @@ let PATCH_ORDERS: PatchArray = [
         'exposeInputSink',
     ] : []),
 
+    'detectBrowserRouterReady',
     'patchRequestInfoCrash',
 
     'disableStreamGate',
@@ -1097,7 +1118,7 @@ export class Patcher {
                     item[1][id] = eval(patchedFuncStr);
                 } catch (e: unknown) {
                     if (e instanceof Error) {
-                        BxLogger.error(LOG_TAG, 'Error', appliedPatches, e.message);
+                        BxLogger.error(LOG_TAG, 'Error', appliedPatches, e.message, patchedFuncStr);
                     }
                 }
             }

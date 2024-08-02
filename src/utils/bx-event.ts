@@ -53,6 +53,8 @@ export namespace BxEvent {
 
     export const XCLOUD_RENDERING_COMPONENT = 'bx-xcloud-rendering-page';
 
+    export const XCLOUD_ROUTER_HISTORY_READY = 'bx-xcloud-router-history-ready';
+
     export function dispatch(target: Element | Window | null, eventName: string, data?: any) {
         if (!target) {
             return;
