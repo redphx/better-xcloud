@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.5.2
+// @version      5.5.3-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -120,7 +120,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.5.2", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.5.3-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -3592,14 +3592,34 @@ if (getPref("block_social_features"))
 if (BX_FLAGS.FeatureGates)
   FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
 
+class PatcherUtils {
+  static indexOf(txt, searchString, startIndex, maxRange) {
+    const index = txt.indexOf(searchString, startIndex);
+    if (index < 0 || maxRange && index - startIndex > maxRange)
+      return -1;
+    return index;
+  }
+  static lastIndexOf(txt, searchString, startIndex, maxRange) {
+    const index = txt.lastIndexOf(searchString, startIndex);
+    if (index < 0 || maxRange && startIndex - index > maxRange)
+      return -1;
+    return index;
+  }
+  static insertAt(txt, index, insertString) {
+    return txt.substring(0, index) + insertString + txt.substring(index);
+  }
+  static replaceWith(txt, index, fromString, toString) {
+    return txt.substring(0, index) + toString + txt.substring(index + fromString.length);
+  }
+}
 var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATCHES = {
   disableAiTrack(str) {
     const index = str.indexOf(".track=function(");
     if (index < 0)
       return !1;
-    if (str.substring(0, index + 200).includes('"AppInsightsCore'))
+    if (PatcherUtils.indexOf(str, '"AppInsightsCore', index, 200) < 0)
       return !1;
-    return str.substring(0, index) + ".track=function(e){},!!function(" + str.substring(index + ".track=function(".length);
+    return PatcherUtils.replaceWith(str, ".track=function(", ".track=function(e){},!!function(", index);
   },
   disableTelemetry(str) {
     if (!str.includes(".disableTelemetry=function(){return!1}"))
@@ -3953,31 +3973,33 @@ true,this._connectionType=`;
     let index = str.indexOf('location:"PlayWithFriendsRow",');
     if (index < 0)
       return !1;
-    if (index = str.indexOf("return", index - 50), index < 0)
+    if (index = PatcherUtils.lastIndexOf(str, "return", index, 50), index < 0)
       return !1;
-    return str = str.substring(0, index) + "return null;" + str.substring(index + 6), str;
+    return str = PatcherUtils.replaceWith(str, index, "return", "return null;"), str;
   },
   ignoreAllGamesSection(str) {
     let index = str.indexOf('className:"AllGamesRow-module__allGamesRowContainer');
     if (index < 0)
       return !1;
-    if (index = str.indexOf("grid:!0,", index), index > -1 && (index = str.indexOf("(0,", index - 70)), index < 0)
+    if (index = PatcherUtils.indexOf(str, "grid:!0,", index, 1500), index < 0)
       return !1;
-    return str = str.substring(0, index) + "true ? null :" + str.substring(index), str;
+    if (index = PatcherUtils.lastIndexOf(str, "(0,", index, 70), index < 0)
+      return !1;
+    return str = PatcherUtils.insertAt(str, index, "true ? null :"), str;
   },
   ignorePlayWithTouchSection(str) {
     let index = str.indexOf('("Play_With_Touch"),');
     if (index < 0)
       return !1;
-    if (index = str.indexOf("const ", index - 30), index < 0)
+    if (index = PatcherUtils.lastIndexOf(str, "const ", index, 30), index < 0)
       return !1;
-    return str = str.substring(0, index) + "return null;" + str.substring(index), str;
+    return str = PatcherUtils.insertAt(str, index, "return null;"), str;
   },
   ignoreSiglSections(str) {
     let index = str.indexOf("SiglRow-module__heroCard___");
     if (index < 0)
       return !1;
-    if (index = str.indexOf("const[", index - 300), index < 0)
+    if (index = PatcherUtils.lastIndexOf(str, "const[", index, 300), index < 0)
       return !1;
     const PREF_HIDE_SECTIONS = getPref("ui_hide_sections"), siglIds = [], sections = {
       "native-mkb": "8fa264dd-124f-4af3-97e8-596fcdf4b486",
@@ -3995,7 +4017,7 @@ if (e && e.id) {
     }
 }
 `;
-    return str = str.substring(0, index) + newCode + str.substring(index), str;
+    return str = PatcherUtils.insertAt(str, index, newCode), str;
   },
   overrideStorageGetSettings(str) {
     if (!str.includes("}getSetting(e){"))

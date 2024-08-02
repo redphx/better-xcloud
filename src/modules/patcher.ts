@@ -20,8 +20,35 @@ import { GamePassCloudGallery } from "@/enums/game-pass-gallery.js";
 
 type PatchArray = (keyof typeof PATCHES)[];
 
-const ENDING_CHUNKS_PATCH_NAME = 'loadingEndingChunks';
+class PatcherUtils {
+    static indexOf(txt: string, searchString: string, startIndex: number, maxRange: number): number {
+        const index = txt.indexOf(searchString, startIndex);
+        if (index < 0 || (maxRange && index - startIndex > maxRange)) {
+            return -1;
+        }
 
+        return index;
+    }
+
+    static lastIndexOf(txt: string, searchString: string, startIndex: number, maxRange: number): number {
+        const index = txt.lastIndexOf(searchString, startIndex);
+        if (index < 0 || (maxRange && startIndex - index > maxRange)) {
+            return -1;
+        }
+
+        return index;
+    }
+
+    static insertAt(txt: string, index: number, insertString: string): string {
+        return txt.substring(0, index) + insertString + txt.substring(index);
+    }
+
+    static replaceWith(txt: string, index: number, fromString: string, toString: string): string {
+        return txt.substring(0, index) + toString + txt.substring(index + fromString.length);
+    }
+}
+
+const ENDING_CHUNKS_PATCH_NAME = 'loadingEndingChunks';
 const LOG_TAG = 'Patcher';
 
 const PATCHES = {
@@ -33,11 +60,11 @@ const PATCHES = {
             return false;
         }
 
-        if (str.substring(0, index + 200).includes('"AppInsightsCore')) {
+        if (PatcherUtils.indexOf(str, '"AppInsightsCore', index, 200) < 0) {
             return false;
         }
 
-        return str.substring(0, index) + '.track=function(e){},!!function(' + str.substring(index + text.length);
+        return PatcherUtils.replaceWith(str, text, '.track=function(e){},!!function(', index);
     },
 
     // Set disableTelemetry() to true
@@ -716,12 +743,12 @@ true` + text;
             return false;
         }
 
-        index = str.indexOf('return', index - 50);
+        index = PatcherUtils.lastIndexOf(str, 'return', index, 50);
         if (index < 0) {
             return false;
         }
 
-        str = str.substring(0, index) + 'return null;' + str.substring(index + 6);
+        str = PatcherUtils.replaceWith(str, index, 'return', 'return null;');
         return str;
     },
 
@@ -732,14 +759,17 @@ true` + text;
             return false;
         }
 
-        index = str.indexOf('grid:!0,', index);
-        index > -1 && (index = str.indexOf('(0,', index - 70));
-
+        index = PatcherUtils.indexOf(str, 'grid:!0,', index, 1500);
         if (index < 0) {
             return false;
         }
 
-        str = str.substring(0, index) + 'true ? null :' + str.substring(index);
+        index = PatcherUtils.lastIndexOf(str, '(0,', index, 70);
+        if (index < 0) {
+            return false;
+        }
+
+        str = PatcherUtils.insertAt(str, index, 'true ? null :');
         return str;
     },
 
@@ -750,12 +780,12 @@ true` + text;
             return false;
         }
 
-        index = str.indexOf('const ', index - 30);
+        index = PatcherUtils.lastIndexOf(str, 'const ', index, 30);
         if (index < 0) {
             return false;
         }
 
-        str = str.substring(0, index) + 'return null;' + str.substring(index);
+        str = PatcherUtils.insertAt(str, index, 'return null;');
         return str;
     },
 
@@ -766,7 +796,7 @@ true` + text;
             return false;
         }
 
-        index = str.indexOf('const[', index - 300);
+        index = PatcherUtils.lastIndexOf(str, 'const[', index, 300);
         if (index < 0) {
             return false;
         }
@@ -794,7 +824,7 @@ if (e && e.id) {
     }
 }
 `;
-        str = str.substring(0, index) + newCode + str.substring(index);
+        str = PatcherUtils.insertAt(str, index, newCode);
         return str;
     },
 
