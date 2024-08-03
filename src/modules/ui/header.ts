@@ -57,13 +57,12 @@ export class HeaderSection {
     }
 
     static checkHeader() {
-        if (!HeaderSection.#$buttonsWrapper.isConnected) {
-            let $target = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
-            if (!$target) {
-                $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
-            }
-            $target && HeaderSection.#injectSettingsButton($target as HTMLElement);
+        let $target = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
+        if (!$target) {
+            $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
         }
+
+        $target && HeaderSection.#injectSettingsButton($target as HTMLElement);
     }
 
     static showRemotePlayButton() {
@@ -71,7 +70,7 @@ export class HeaderSection {
     }
 
     static watchHeader() {
-        let $root = document.querySelector('#PageContent header') || document.querySelector('#root');
+        const $root = document.querySelector('#PageContent header') || document.querySelector('#root');
         if (!$root) {
             return;
         }
