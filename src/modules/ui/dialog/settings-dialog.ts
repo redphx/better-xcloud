@@ -177,12 +177,6 @@ export class SettingsNavigationDialog extends NavigationDialog {
             PrefKey.STREAM_COMBINE_SOURCES,
         ],
     }, {
-        group: 'game-bar',
-        label: t('game-bar'),
-        items: [
-            PrefKey.GAME_BAR_POSITION,
-        ],
-    }, {
         group: 'co-op',
         label: t('local-co-op'),
         items: [
@@ -209,14 +203,6 @@ export class SettingsNavigationDialog extends NavigationDialog {
             PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM,
         ],
     }, {
-        group: 'loading-screen',
-        label: t('loading-screen'),
-        items: [
-            PrefKey.UI_LOADING_SCREEN_GAME_ART,
-            PrefKey.UI_LOADING_SCREEN_WAIT_TIME,
-            PrefKey.UI_LOADING_SCREEN_ROCKET,
-        ],
-    }, {
         group: 'ui',
         label: t('ui'),
         items: [
@@ -231,6 +217,20 @@ export class SettingsNavigationDialog extends NavigationDialog {
             PrefKey.REDUCE_ANIMATIONS,
             PrefKey.BLOCK_SOCIAL_FEATURES,
             PrefKey.UI_HIDE_SECTIONS,
+        ],
+    }, {
+        group: 'game-bar',
+        label: t('game-bar'),
+        items: [
+            PrefKey.GAME_BAR_POSITION,
+        ],
+    }, {
+        group: 'loading-screen',
+        label: t('loading-screen'),
+        items: [
+            PrefKey.UI_LOADING_SCREEN_GAME_ART,
+            PrefKey.UI_LOADING_SCREEN_WAIT_TIME,
+            PrefKey.UI_LOADING_SCREEN_ROCKET,
         ],
     }, {
         group: 'other',
