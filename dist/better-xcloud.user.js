@@ -813,6 +813,79 @@ class StreamStats {
   }
 }
 
+class BaseSettingsStore {
+  storage;
+  storageKey;
+  _settings;
+  definitions;
+  constructor(storageKey, definitions) {
+    this.storage = window.localStorage, this.storageKey = storageKey;
+    for (let settingId in definitions) {
+      const setting = definitions[settingId];
+      setting.ready && setting.ready.call(this, setting);
+    }
+    this.definitions = definitions, this._settings = null;
+  }
+  get settings() {
+    if (this._settings)
+      return this._settings;
+    const settings = JSON.parse(this.storage.getItem(this.storageKey) || "{}");
+    return this._settings = settings, settings;
+  }
+  getDefinition(key) {
+    if (!this.definitions[key]) {
+      const error = "Request invalid definition: " + key;
+      throw alert(error), Error(error);
+    }
+    return this.definitions[key];
+  }
+  getSetting(key) {
+    if (typeof key === "undefined") {
+      debugger;
+      return;
+    }
+    if (this.definitions[key].unsupported)
+      return this.definitions[key].default;
+    if (!(key in this.settings))
+      this.settings[key] = this.validateValue(key, null);
+    return this.settings[key];
+  }
+  setSetting(key, value, emitEvent = !1) {
+    return value = this.validateValue(key, value), this.settings[key] = value, this.saveSettings(), emitEvent && BxEvent.dispatch(window, BxEvent.SETTINGS_CHANGED, {
+      storageKey: this.storageKey,
+      settingKey: key,
+      settingValue: value
+    }), value;
+  }
+  saveSettings() {
+    this.storage.setItem(this.storageKey, JSON.stringify(this.settings));
+  }
+  validateValue(key, value) {
+    const def = this.definitions[key];
+    if (!def)
+      return value;
+    if (typeof value === "undefined" || value === null)
+      value = def.default;
+    if ("min" in def)
+      value = Math.max(def.min, value);
+    if ("max" in def)
+      value = Math.min(def.max, value);
+    if ("options" in def && !(value in def.options))
+      value = def.default;
+    else if ("multipleOptions" in def) {
+      if (value.length) {
+        const validOptions = Object.keys(def.multipleOptions);
+        value.forEach((item2, idx) => {
+          validOptions.indexOf(item2) === -1 && value.splice(idx, 1);
+        });
+      }
+      if (!value.length)
+        value = def.default;
+    }
+    return value;
+  }
+}
+
 class SettingElement {
   static #renderOptions(key, setting, currentValue, onChange) {
     const $control = CE("select", {
@@ -985,85 +1058,14 @@ class SettingElement {
       type = "number";
     else
       type = "checkbox";
-    const params = Object.assign(overrideParams, definition.params || {});
+    let params = {};
+    if ("params" in definition)
+      params = Object.assign(overrideParams, definition.params || {});
     if (params.disabled)
       currentValue = definition.default;
     return SettingElement.render(type, key, definition, currentValue, (e, value) => {
       storage.setSetting(key, value), onChange && onChange(e, value);
     }, params);
-  }
-}
-
-class BaseSettingsStore {
-  storage;
-  storageKey;
-  _settings;
-  definitions;
-  constructor(storageKey, definitions) {
-    this.storage = window.localStorage, this.storageKey = storageKey;
-    for (let settingId in definitions) {
-      const setting = definitions[settingId];
-      setting.ready && setting.ready.call(this, setting);
-    }
-    this.definitions = definitions, this._settings = null;
-  }
-  get settings() {
-    if (this._settings)
-      return this._settings;
-    const settings = JSON.parse(this.storage.getItem(this.storageKey) || "{}");
-    return this._settings = settings, settings;
-  }
-  getDefinition(key) {
-    if (!this.definitions[key]) {
-      const error = "Request invalid definition: " + key;
-      throw alert(error), Error(error);
-    }
-    return this.definitions[key];
-  }
-  getSetting(key) {
-    if (typeof key === "undefined") {
-      debugger;
-      return;
-    }
-    if (this.definitions[key].unsupported)
-      return this.definitions[key].default;
-    if (!(key in this.settings))
-      this.settings[key] = this.validateValue(key, null);
-    return this.settings[key];
-  }
-  setSetting(key, value, emitEvent = !1) {
-    return value = this.validateValue(key, value), this.settings[key] = value, this.saveSettings(), emitEvent && BxEvent.dispatch(window, BxEvent.SETTINGS_CHANGED, {
-      storageKey: this.storageKey,
-      settingKey: key,
-      settingValue: value
-    }), value;
-  }
-  saveSettings() {
-    this.storage.setItem(this.storageKey, JSON.stringify(this.settings));
-  }
-  validateValue(key, value) {
-    const def = this.definitions[key];
-    if (!def)
-      return value;
-    if (typeof value === "undefined" || value === null)
-      value = def.default;
-    if ("min" in def)
-      value = Math.max(def.min, value);
-    if ("max" in def)
-      value = Math.min(def.max, value);
-    if ("options" in def && !(value in def.options))
-      value = def.default;
-    else if ("multipleOptions" in def) {
-      if (value.length) {
-        const validOptions = Object.keys(def.multipleOptions);
-        value.forEach((item2, idx) => {
-          validOptions.indexOf(item2) === -1 && value.splice(idx, 1);
-        });
-      }
-      if (!value.length)
-        value = def.default;
-    }
-    return value;
   }
 }
 
@@ -4359,12 +4361,6 @@ class SettingsNavigationDialog extends NavigationDialog {
       "stream_combine_sources"
     ]
   }, {
-    group: "game-bar",
-    label: t("game-bar"),
-    items: [
-      "game_bar_position"
-    ]
-  }, {
     group: "co-op",
     label: t("local-co-op"),
     items: [
@@ -4391,14 +4387,6 @@ class SettingsNavigationDialog extends NavigationDialog {
       "stream_touch_controller_style_custom"
     ]
   }, {
-    group: "loading-screen",
-    label: t("loading-screen"),
-    items: [
-      "ui_loading_screen_game_art",
-      "ui_loading_screen_wait_time",
-      "ui_loading_screen_rocket"
-    ]
-  }, {
     group: "ui",
     label: t("ui"),
     items: [
@@ -4413,6 +4401,20 @@ class SettingsNavigationDialog extends NavigationDialog {
       "reduce_animations",
       "block_social_features",
       "ui_hide_sections"
+    ]
+  }, {
+    group: "game-bar",
+    label: t("game-bar"),
+    items: [
+      "game_bar_position"
+    ]
+  }, {
+    group: "loading-screen",
+    label: t("loading-screen"),
+    items: [
+      "ui_loading_screen_game_art",
+      "ui_loading_screen_wait_time",
+      "ui_loading_screen_rocket"
     ]
   }, {
     group: "other",
@@ -7800,7 +7802,7 @@ class StreamUiHandler {
     const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
     if (!$screen)
       return;
-    console.log("StreamUI", "observing"), new MutationObserver((mutationList) => {
+    new MutationObserver((mutationList) => {
       mutationList.forEach((item2) => {
         if (item2.type !== "childList")
           return;
