@@ -1,19 +1,42 @@
 export type SettingDefinition = {
     default: any;
-    optionsGroup?: string;
-    options?: {[index: string]: string};
-    multipleOptions?: {[index: string]: string};
-    unsupported?: string | boolean;
-    note?: string | HTMLElement;
-    type?: SettingElementType;
-    ready?: (setting: SettingDefinition) => void;
+} & Partial<{
+    label: string;
+    note: string | HTMLElement;
+    experimental: boolean;
+    unsupported: string | boolean;
+    ready: (setting: SettingDefinition) => void;
     // migrate?: (this: Preferences, savedPrefs: any, value: any) => void;
-    min?: number;
-    max?: number;
-    steps?: number;
-    experimental?: boolean;
-    params?: any;
-    label?: string;
-};
+}> & (
+    {} | {
+        options: {[index: string]: string};
+        optionsGroup?: string;
+    } | {
+        multipleOptions: {[index: string]: string};
+        params: MultipleOptionsParams;
+    } | {
+        type: SettingElementType.NUMBER_STEPPER;
+        min: number;
+        max: number;
+        params: NumberStepperParams;
+
+        steps?: number;
+    }
+);
 
 export type SettingDefinitions = {[index in PrefKey]: SettingDefinition};
+
+export type MultipleOptionsParams = Partial<{
+    size?: number;
+}>
+
+export type NumberStepperParams = Partial<{
+    suffix: string;
+    disabled: boolean;
+    hideSlider: boolean;
+
+    ticks: number;
+    exactTicks: number;
+
+    customTextValue: (value: any) => string | null;
+}>

@@ -3,21 +3,7 @@ import { CE } from "@utils/html";
 import { setNearby } from "./navigation-utils";
 import type { PrefKey } from "@/enums/pref-keys";
 import type { BaseSettingsStore } from "./settings-storages/base-settings-storage";
-
-type MultipleOptionsParams = {
-    size?: number;
-}
-
-type NumberStepperParams = {
-    suffix?: string;
-    disabled?: boolean;
-    hideSlider?: boolean;
-
-    ticks?: number;
-    exactTicks?: number;
-
-    customTextValue?: (value: any) => string | null;
-}
+import { type MultipleOptionsParams, type NumberStepperParams } from "@/types/setting-definition";
 
 export enum SettingElementType {
     OPTIONS = 'options',
@@ -381,7 +367,11 @@ export class SettingElement {
             type = SettingElementType.CHECKBOX;
         }
 
-        const params = Object.assign(overrideParams, definition.params || {});
+        let params: any = {};
+        if ('params' in definition) {
+            params = Object.assign(overrideParams, definition.params || {});
+        }
+
         if (params.disabled) {
             currentValue = definition.default;
         }

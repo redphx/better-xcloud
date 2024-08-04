@@ -5,14 +5,14 @@ import { UiSection } from "@/enums/ui-sections";
 import { UserAgentProfile } from "@/enums/user-agent";
 import { StreamStat } from "@/modules/stream/stream-stats";
 import type { PreferenceSetting } from "@/types/preferences";
-import type { SettingDefinitions } from "@/types/setting-definition";
+import { type SettingDefinitions } from "@/types/setting-definition";
 import { BX_FLAGS } from "../bx-flags";
 import { STATES, AppInterface, STORAGE } from "../global";
 import { CE } from "../html";
-import { SettingElementType } from "../setting-element";
 import { t, SUPPORTED_LANGUAGES } from "../translation";
 import { UserAgent } from "../user-agent";
 import { BaseSettingsStore as BaseSettingsStorage } from "./base-settings-storage";
+import { SettingElementType } from "../setting-element";
 
 
 function getSupportedCodecProfiles() {

@@ -215,7 +215,6 @@ export class StreamUiHandler {
             return;
         }
 
-        console.log('StreamUI', 'observing');
         const observer = new MutationObserver(mutationList => {
             mutationList.forEach(item => {
                 if (item.type !== 'childList') {
