@@ -22,7 +22,6 @@ import { VibrationManager } from "@modules/vibration-manager";
 import { overridePreloadState } from "@utils/preload-state";
 import { disableAdobeAudienceManager, patchAudioContext, patchCanvasContext, patchMeControl, patchPointerLockApi, patchRtcCodecs, patchRtcPeerConnection, patchVideoApi } from "@utils/monkey-patches";
 import { AppInterface, STATES } from "@utils/global";
-import { injectStreamMenuButtons } from "@modules/stream/stream-ui";
 import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
 import { Screenshot } from "./utils/screenshot";
@@ -38,6 +37,7 @@ import { PrefKey } from "./enums/pref-keys";
 import { getPref } from "./utils/settings-storages/global-settings-storage";
 import { compressCss } from "@macros/build" with {type: "macro"};
 import { SettingsNavigationDialog } from "./modules/ui/dialog/settings-dialog";
+import { StreamUiHandler } from "./modules/stream/stream-ui";
 
 
 // Handle login page
@@ -186,7 +186,7 @@ window.addEventListener(BxEvent.STREAM_STARTING, e => {
 
 window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     STATES.isPlaying = true;
-    injectStreamMenuButtons();
+    StreamUiHandler.observe();
 
     if (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') {
         const gameBar = GameBar.getInstance();
