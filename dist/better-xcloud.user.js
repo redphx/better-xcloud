@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.5.3
+// @version      5.5.4-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -120,7 +120,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.5.3", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.5.4-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -7767,25 +7767,30 @@ class StreamUiHandler {
     document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]")?.appendChild(await StreamBadges.getInstance().render());
   }
   static handleSystemMenu($streamHud) {
-    const streamStats = StreamStats.getInstance(), $gripHandle = $streamHud.querySelector("button[class^=GripHandle]"), hideGripHandle = () => {
+    const $gripHandle = $streamHud.querySelector("button[class^=GripHandle]");
+    if (!$gripHandle)
+      return;
+    const $orgButton = $streamHud.querySelector("div[class^=HUDButton]");
+    if (!$orgButton)
+      return;
+    const hideGripHandle = () => {
       if (!$gripHandle)
         return;
       $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
-    }, $orgButton = $streamHud.querySelector("div[class^=HUDButton]");
-    if (!$orgButton)
-      return;
+    };
     let $btnStreamSettings = StreamUiHandler.$btnStreamSettings;
     if (typeof $btnStreamSettings === "undefined")
       $btnStreamSettings = StreamUiHandler.cloneStreamHudButton($orgButton, t("better-xcloud"), BxIcon.BETTER_XCLOUD), $btnStreamSettings?.addEventListener("click", (e) => {
         hideGripHandle(), e.preventDefault(), SettingsNavigationDialog.getInstance().show();
-      });
+      }), StreamUiHandler.$btnStreamSettings = $btnStreamSettings;
+    const streamStats = StreamStats.getInstance();
     let $btnStreamStats = StreamUiHandler.$btnStreamStats;
     if (typeof $btnStreamStats === "undefined")
       $btnStreamStats = StreamUiHandler.cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats?.addEventListener("click", (e) => {
         hideGripHandle(), e.preventDefault(), streamStats.toggle();
         const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();
         $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn);
-      });
+      }), StreamUiHandler.$btnStreamStats = $btnStreamStats;
     const $btnParent = $orgButton.parentElement;
     if ($btnStreamSettings && $btnStreamStats) {
       const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();

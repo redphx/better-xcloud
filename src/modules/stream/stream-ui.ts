@@ -130,10 +130,17 @@ export class StreamUiHandler {
     }
 
     private static handleSystemMenu($streamHud: HTMLElement) {
-        const streamStats = StreamStats.getInstance();
-
         // Grip handle
         const $gripHandle = $streamHud.querySelector('button[class^=GripHandle]') as HTMLElement;
+        if (!$gripHandle) {
+            return;
+        }
+
+        // Get the last button
+        const $orgButton = $streamHud.querySelector('div[class^=HUDButton]') as HTMLElement;
+        if (!$orgButton) {
+            return;
+        }
 
         const hideGripHandle = () => {
             if (!$gripHandle) {
@@ -144,12 +151,6 @@ export class StreamUiHandler {
             $gripHandle.click();
             $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
             $gripHandle.click();
-        }
-
-        // Get the last button
-        const $orgButton = $streamHud.querySelector('div[class^=HUDButton]') as HTMLElement;
-        if (!$orgButton) {
-            return;
         }
 
         // Create Stream Settings button
@@ -163,9 +164,12 @@ export class StreamUiHandler {
                 // Show Stream Settings dialog
                 SettingsNavigationDialog.getInstance().show();
             });
+
+            StreamUiHandler.$btnStreamSettings = $btnStreamSettings;
         }
 
         // Create Stream Stats button
+        const streamStats = StreamStats.getInstance();
         let $btnStreamStats = StreamUiHandler.$btnStreamStats;
         if (typeof $btnStreamStats === 'undefined') {
             $btnStreamStats = StreamUiHandler.cloneStreamHudButton($orgButton, t('stream-stats'), BxIcon.STREAM_STATS);
@@ -179,6 +183,8 @@ export class StreamUiHandler {
                 const btnStreamStatsOn = (!streamStats.isHidden() && !streamStats.isGlancing());
                 $btnStreamStats!.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
             });
+
+            StreamUiHandler.$btnStreamStats = $btnStreamStats;
         }
 
         const $btnParent = $orgButton.parentElement!;
