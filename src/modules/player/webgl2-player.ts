@@ -124,7 +124,7 @@ export class WebGL2Player {
     #setupShaders() {
         BxLogger.info(LOG_TAG, 'Setting up', getPref(PrefKey.VIDEO_POWER_PREFERENCE));
 
-        const gl = this.#$canvas.getContext('webgl2', {
+        const gl = this.#$canvas.getContext('webgl', {
             isBx: true,
             antialias: true,
             alpha: false,
