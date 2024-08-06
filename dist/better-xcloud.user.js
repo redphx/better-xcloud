@@ -7713,8 +7713,7 @@ class StreamUiHandler {
   static $btnHome;
   static observer;
   static cloneStreamHudButton($btnOrg, label, svgIcon) {
-    const $streamHud = document.getElementById("StreamHud");
-    if (!$streamHud || !$btnOrg)
+    if (!$btnOrg)
       return null;
     const $container = $btnOrg.cloneNode(!0);
     let timeout;
@@ -7722,14 +7721,19 @@ class StreamUiHandler {
       const onTransitionStart = (e) => {
         if (e.propertyName !== "opacity")
           return;
-        timeout && clearTimeout(timeout), $container.style.pointerEvents = "none";
+        timeout && clearTimeout(timeout), e.target.style.pointerEvents = "none";
       }, onTransitionEnd = (e) => {
         if (e.propertyName !== "opacity")
           return;
-        if ($streamHud.style.left === "0px")
+        const $streamHud = e.target.closest("#StreamHud");
+        if (!$streamHud)
+          return;
+        if ($streamHud.style.left === "0px") {
+          const $target = e.target;
           timeout && clearTimeout(timeout), timeout = window.setTimeout(() => {
-            $container.style.pointerEvents = "auto";
+            $target.style.pointerEvents = "auto";
           }, 100);
+        }
       };
       $container.addEventListener("transitionstart", onTransitionStart), $container.addEventListener("transitionend", onTransitionEnd);
     }

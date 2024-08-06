@@ -16,8 +16,7 @@ export class StreamUiHandler {
     private static observer: MutationObserver | undefined;
 
     private static cloneStreamHudButton($btnOrg: HTMLElement, label: string, svgIcon: typeof BxIcon): HTMLElement | null {
-        const $streamHud = document.getElementById('StreamHud') as HTMLElement;
-        if (!$streamHud || !$btnOrg) {
+        if (!$btnOrg) {
             return null;
         }
 
@@ -32,7 +31,7 @@ export class StreamUiHandler {
                 }
 
                 timeout && clearTimeout(timeout);
-                $container.style.pointerEvents = 'none';
+                (e.target as HTMLElement).style.pointerEvents = 'none';
             };
 
             const onTransitionEnd = (e: TransitionEvent) => {
@@ -40,11 +39,17 @@ export class StreamUiHandler {
                     return;
                 }
 
+                const $streamHud = (e.target as HTMLElement).closest('#StreamHud') as HTMLElement;
+                if (!$streamHud) {
+                    return;
+                }
+
                 const left = $streamHud.style.left;
                 if (left === '0px') {
+                    const $target = e.target as HTMLElement;
                     timeout && clearTimeout(timeout);
                     timeout = window.setTimeout(() => {
-                        $container.style.pointerEvents = 'auto';
+                        $target.style.pointerEvents = 'auto';
                     }, 100);
                 }
             };
