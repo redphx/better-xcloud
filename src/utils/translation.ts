@@ -129,6 +129,7 @@ const Texts = {
     "install-android": "Better xCloud app for Android",
     "japan": "Japan",
     "keyboard-shortcuts": "Keyboard shortcuts",
+    "korea": "Korea",
     "language": "Language",
     "large": "Large",
     "layout": "Layout",
