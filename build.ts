@@ -27,6 +27,7 @@ const postProcess = (str: string): string => {
 
     // Remove enum's inlining comments
     str = str.replaceAll(/ \/\* [A-Z0-9_]+ \*\//g, '');
+    str = str.replaceAll('/* @__PURE__ */ ', '');
 
     // Remove comments from import
     str = str.replaceAll(/\/\/ src.*\n/g, '');

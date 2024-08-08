@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.1.6",
-    "@types/node": "^20.14.12",
+    "@types/node": "^20.14.14",
     "@types/stylus": "^0.48.42",
     "eslint": "^9.8.0",
     "eslint-plugin-compat": "^6.0.0",
