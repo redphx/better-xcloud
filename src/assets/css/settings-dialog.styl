@@ -245,10 +245,10 @@
 .bx-settings-row {
     display: flex;
     gap: 10px;
-    border-bottom: 1px solid #2c2c2e;
-    padding: 16px 8px;
+    padding: 16px 10px;
     margin: 0;
-    border-left: 2px solid transparent;
+    background: #2a2a2a;
+    border-bottom: 1px solid #343434;
 
     &:hover, &:focus-within {
         background-color: #242424;
@@ -265,9 +265,11 @@
         }
     }
 
+    /*
     &:has(input:focus), &:has(select:focus), &:has(button:focus) {
         border-left-color: white;
     }
+    */
 
     > span.bx-settings-label {
         font-size: 14px;
@@ -378,4 +380,27 @@
     font-style: italic;
     font-weight: normal;
     color: #828282;
+}
+
+.bx-settings-tab-contents {
+    > div {
+        // Label at the beginning
+        *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:has(+ .bx-settings-row) {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        // Label at the end
+        .bx-settings-row:not(:has(+ .bx-settings-row)) {
+            border: none;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        // Single label
+        *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)) {
+            border: none;
+            border-radius: 10px;
+        }
+    }
 }
