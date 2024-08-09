@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.5.4
+// @version      5.5.5-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -120,7 +120,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.5.4", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.5.5-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -389,6 +389,7 @@ var SUPPORTED_LANGUAGES = {
   "install-android": "Better xCloud app for Android",
   japan: "Japan",
   "keyboard-shortcuts": "Keyboard shortcuts",
+  korea: "Korea",
   language: "Language",
   large: "Large",
   layout: "Layout",
@@ -659,10 +660,12 @@ Translations.init();
 var BypassServers = {
   br: t("brazil"),
   jp: t("japan"),
+  kr: t("korea"),
   pl: t("poland"),
   us: t("united-states")
 }, BypassServerIps = {
   br: "169.150.198.66",
+  kr: "121.125.60.151",
   jp: "138.199.21.239",
   pl: "45.134.212.66",
   us: "143.244.47.65"
@@ -7811,7 +7814,7 @@ class StreamUiHandler {
     const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
     if (!$screen)
       return;
-    new MutationObserver((mutationList) => {
+    const observer = new MutationObserver((mutationList) => {
       mutationList.forEach((item2) => {
         if (item2.type !== "childList")
           return;
@@ -7837,7 +7840,8 @@ class StreamUiHandler {
           StreamUiHandler.handleSystemMenu($elm);
         });
       });
-    }).observe($screen, { subtree: !0, childList: !0 });
+    });
+    observer.observe($screen, { subtree: !0, childList: !0 }), StreamUiHandler.observer = observer;
   }
 }
 
