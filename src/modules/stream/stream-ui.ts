@@ -208,7 +208,7 @@ export class StreamUiHandler {
         $dotsButton.parentElement!.insertBefore($dotsButton, $dotsButton.parentElement!.firstElementChild);
     }
 
-    private static reset() {
+    static reset() {
         StreamUiHandler.$btnStreamSettings = undefined;
         StreamUiHandler.$btnStreamStats = undefined;
         StreamUiHandler.$btnRefresh = undefined;
@@ -273,5 +273,6 @@ export class StreamUiHandler {
         });
 
         observer.observe($screen, {subtree: true, childList: true});
+        StreamUiHandler.observer = observer;
     }
 }
