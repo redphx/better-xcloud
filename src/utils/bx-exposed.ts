@@ -128,6 +128,18 @@ export const BxExposed = {
             return true;
         }
 
+        const dict = {
+            bubbles: true,
+            cancelable: true,
+            key: 'XF86Back',
+            code: 'XF86Back',
+            keyCode: 4,
+            which: 4,
+        };
+
+        document.body.dispatchEvent(new KeyboardEvent('keydown', dict));
+        document.body.dispatchEvent(new KeyboardEvent('keyup', dict));
+
         return false;
     },
 };
