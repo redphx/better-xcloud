@@ -119,7 +119,7 @@ document.addEventListener('readystatechange', e => {
         getPref(PrefKey.REMOTE_PLAY_ENABLED) && RemotePlay.preload();
     } else {
         // Show Settings button in the header when not signed in
-        HeaderSection.watchHeader();
+        window.setTimeout(HeaderSection.watchHeader, 2000);
     }
 
     // Hide "Play with Friends" skeleton section
@@ -153,7 +153,7 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
 
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
     STATES.isSignedIn = true;
-    HeaderSection.watchHeader();
+    window.setTimeout(HeaderSection.watchHeader, 2000);
 });
 
 window.addEventListener(BxEvent.STREAM_LOADING, e => {

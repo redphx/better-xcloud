@@ -1,5 +1,5 @@
 import { SCRIPT_VERSION } from "@utils/global";
-import { createButton, ButtonStyle, CE } from "@utils/html";
+import { createButton, ButtonStyle, CE, isElementVisible } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
 import { RemotePlay } from "@modules/remote-play";
@@ -44,12 +44,16 @@ export class HeaderSection {
         const PREF_LATEST_VERSION = getPref(PrefKey.LATEST_VERSION);
 
         // Setup Settings button
-        const $settingsBtn = HeaderSection.#$settingsBtn;
-        $settingsBtn.querySelector('span')!.textContent = getPreferredServerRegion(true) || t('better-xcloud');
+        const $btnSettings = HeaderSection.#$settingsBtn;
+        if (isElementVisible(HeaderSection.#$buttonsWrapper)) {
+            return;
+        }
+
+        $btnSettings.querySelector('span')!.textContent = getPreferredServerRegion(true) || t('better-xcloud');
 
         // Show new update status
         if (!SCRIPT_VERSION.includes('beta') && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) {
-            $settingsBtn.setAttribute('data-update-available', 'true');
+            $btnSettings.setAttribute('data-update-available', 'true');
         }
 
         // Add the Settings button to the web page
@@ -74,6 +78,9 @@ export class HeaderSection {
         if (!$root) {
             return;
         }
+
+        HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout);
+        HeaderSection.#timeout = null;
 
         HeaderSection.#observer && HeaderSection.#observer.disconnect();
         HeaderSection.#observer = new MutationObserver(mutationList => {

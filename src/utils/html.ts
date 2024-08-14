@@ -146,5 +146,10 @@ export function escapeHtml(html: string): string {
     return $span.innerHTML;
 }
 
+export function isElementVisible($elm: HTMLElement): boolean {
+    const rect = $elm.getBoundingClientRect();
+    return !!rect.width && !!rect.height;
+}
+
 export const CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;

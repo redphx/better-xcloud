@@ -2,7 +2,7 @@ import { GamepadKey } from "@/enums/mkb";
 import { EmulatedMkbHandler } from "@/modules/mkb/mkb-handler";
 import { BxEvent } from "@/utils/bx-event";
 import { STATES } from "@/utils/global";
-import { CE } from "@/utils/html";
+import { CE, isElementVisible } from "@/utils/html";
 import { setNearby } from "@/utils/navigation-utils";
 
 export enum NavigationDirection {
@@ -519,11 +519,8 @@ export class NavigationDialogManager {
             return null;
         }
 
-        const rect = $elm.getBoundingClientRect();
-        const isVisible = !!rect.width && !!rect.height;
-
         // Ignore hidden element
-        if (!isVisible) {
+        if (!isElementVisible($elm)) {
             return null;
         }
 
