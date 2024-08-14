@@ -3810,9 +3810,11 @@ if (window.BX_EXPOSED.stopTakRendering) {
   disableTakRenderer(str) {
     if (!str.includes("const{TakRenderer:"))
       return !1;
-    let remotePlayCode = "";
-    if (getPref("stream_touch_controller") !== "off" && getPref("stream_touch_controller_auto_off"))
-      remotePlayCode = `
+    let autoOffCode = "";
+    if (getPref("stream_touch_controller") === "off")
+      autoOffCode = "return;";
+    else if (getPref("stream_touch_controller_auto_off"))
+      autoOffCode = `
 const gamepads = window.navigator.getGamepads();
 let gamepadFound = false;
 
@@ -3828,13 +3830,11 @@ if (gamepadFound) {
 }
 `;
     const newCode = `
-if (!!window.BX_REMOTE_PLAY_CONFIG) {
-    ${remotePlayCode}
-} else {
-    const titleInfo = window.BX_EXPOSED.getTitleInfo();
-    if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
-        return;
-    }
+${autoOffCode}
+
+const titleInfo = window.BX_EXPOSED.getTitleInfo();
+if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
+    return;
 }
 `;
     return str = str.replace("const{TakRenderer:", newCode + "const{TakRenderer:"), str;
@@ -5735,7 +5735,15 @@ var BxExposed = {
     const navigationDialogManager = NavigationDialogManager.getInstance();
     if (navigationDialogManager.isShowing())
       return navigationDialogManager.hide(), !0;
-    return !1;
+    const dict = {
+      bubbles: !0,
+      cancelable: !0,
+      key: "XF86Back",
+      code: "XF86Back",
+      keyCode: 4,
+      which: 4
+    };
+    return document.body.dispatchEvent(new KeyboardEvent("keydown", dict)), document.body.dispatchEvent(new KeyboardEvent("keyup", dict)), !1;
   }
 };
 
