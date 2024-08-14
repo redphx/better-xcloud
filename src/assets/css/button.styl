@@ -152,8 +152,8 @@
         bottom: offset;
     }
 
-    body[data-input-mode=Touch] &,
-    body[data-input-mode=Mouse] & {
+    html[data-active-input=touch] &,
+    html[data-active-input=mouse] & {
         &:focus::after {
             border-color: transparent !important;
         }
