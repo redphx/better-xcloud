@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.5.6
+// @version      5.5.7-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -120,7 +120,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.5.6", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.5.7-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -220,21 +220,21 @@ function isElementVisible($elm) {
   const rect = $elm.getBoundingClientRect();
   return !!rect.width && !!rect.height;
 }
-var CE = createElement, svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement, createSvgIcon = (icon) => {
+var ButtonStyleClass = {
+  [1]: "bx-primary",
+  [2]: "bx-danger",
+  [4]: "bx-ghost",
+  [8]: "bx-frosted",
+  [16]: "bx-drop-shadow",
+  [32]: "bx-focusable",
+  [64]: "bx-full-width",
+  [128]: "bx-full-height",
+  [256]: "bx-tall",
+  [512]: "bx-circular",
+  [1024]: "bx-normal-case"
+}, CE = createElement, svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement, createSvgIcon = (icon) => {
   return svgParser(icon.toString());
-}, ButtonStyle = {};
-ButtonStyle[ButtonStyle.PRIMARY = 1] = "bx-primary";
-ButtonStyle[ButtonStyle.DANGER = 2] = "bx-danger";
-ButtonStyle[ButtonStyle.GHOST = 4] = "bx-ghost";
-ButtonStyle[ButtonStyle.FROSTED = 8] = "bx-frosted";
-ButtonStyle[ButtonStyle.DROP_SHADOW = 16] = "bx-drop-shadow";
-ButtonStyle[ButtonStyle.FOCUSABLE = 32] = "bx-focusable";
-ButtonStyle[ButtonStyle.FULL_WIDTH = 64] = "bx-full-width";
-ButtonStyle[ButtonStyle.FULL_HEIGHT = 128] = "bx-full-height";
-ButtonStyle[ButtonStyle.TALL = 256] = "bx-tall";
-ButtonStyle[ButtonStyle.CIRCULAR = 512] = "bx-circular";
-ButtonStyle[ButtonStyle.NORMAL_CASE = 1024] = "bx-normal-case";
-var ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonStyle).length / 2).map((i) => parseInt(i)), createButton = (options) => {
+}, ButtonStyleIndices = Object.keys(ButtonStyleClass).map((i) => parseInt(i)), createButton = (options) => {
   let $btn;
   if (options.url)
     $btn = CE("a", { class: "bx-button" }), $btn.href = options.url, $btn.target = "_blank";
@@ -242,7 +242,7 @@ var ButtonStyleIndices = Object.keys(ButtonStyle).splice(0, Object.keys(ButtonSt
     $btn = CE("button", { class: "bx-button", type: "button" });
   const style = options.style || 0;
   style && ButtonStyleIndices.forEach((index) => {
-    style & index && $btn.classList.add(ButtonStyle[index]);
+    style & index && $btn.classList.add(ButtonStyleClass[index]);
   }), options.classes && $btn.classList.add(...options.classes), options.icon && $btn.appendChild(createSvgIcon(options.icon)), options.label && $btn.appendChild(CE("span", {}, options.label)), options.title && $btn.setAttribute("title", options.title), options.disabled && ($btn.disabled = !0), options.onClick && $btn.addEventListener("click", options.onClick), $btn.tabIndex = typeof options.tabIndex === "number" ? options.tabIndex : 0;
   for (let key in options.attributes)
     if (!$btn.hasOwnProperty(key))
@@ -658,7 +658,9 @@ class Translations {
     localStorage.setItem(Translations.#KEY_LOCALE, locale);
   }
 }
-var t = Translations.get;
+var t = Translations.get, ut = (text) => {
+  return BxLogger.warning("Untranslated text", text), text;
+};
 Translations.init();
 
 var BypassServers = {
@@ -820,6 +822,195 @@ class StreamStats {
   }
 }
 
+class SettingElement {
+  static #renderOptions(key, setting, currentValue, onChange) {
+    const $control = CE("select", {
+      tabindex: 0
+    });
+    let $parent;
+    if (setting.optionsGroup)
+      $parent = CE("optgroup", {
+        label: setting.optionsGroup
+      }), $control.appendChild($parent);
+    else
+      $parent = $control;
+    for (let value in setting.options) {
+      const label = setting.options[value], $option = CE("option", { value }, label);
+      $parent.appendChild($option);
+    }
+    return $control.value = currentValue, onChange && $control.addEventListener("input", (e) => {
+      const target = e.target, value = setting.type && setting.type === "number" ? parseInt(target.value) : target.value;
+      !e.ignoreOnChange && onChange(e, value);
+    }), $control.setValue = (value) => {
+      $control.value = value;
+    }, $control;
+  }
+  static #renderMultipleOptions(key, setting, currentValue, onChange, params = {}) {
+    const $control = CE("select", {
+      multiple: !0,
+      tabindex: 0
+    });
+    if (params && params.size)
+      $control.setAttribute("size", params.size.toString());
+    for (let value in setting.multipleOptions) {
+      const label = setting.multipleOptions[value], $option = CE("option", { value }, label);
+      $option.selected = currentValue.indexOf(value) > -1, $option.addEventListener("mousedown", function(e) {
+        e.preventDefault();
+        const target = e.target;
+        target.selected = !target.selected;
+        const $parent = target.parentElement;
+        $parent.focus(), BxEvent.dispatch($parent, "input");
+      }), $control.appendChild($option);
+    }
+    return $control.addEventListener("mousedown", function(e) {
+      const self = this, orgScrollTop = self.scrollTop;
+      window.setTimeout(() => self.scrollTop = orgScrollTop, 0);
+    }), $control.addEventListener("mousemove", (e) => e.preventDefault()), onChange && $control.addEventListener("input", (e) => {
+      const target = e.target, values = Array.from(target.selectedOptions).map((i) => i.value);
+      !e.ignoreOnChange && onChange(e, values);
+    }), $control;
+  }
+  static #renderNumber(key, setting, currentValue, onChange) {
+    const $control = CE("input", {
+      tabindex: 0,
+      type: "number",
+      min: setting.min,
+      max: setting.max
+    });
+    return $control.value = currentValue, onChange && $control.addEventListener("input", (e) => {
+      const target = e.target, value = Math.max(setting.min, Math.min(setting.max, parseInt(target.value)));
+      target.value = value.toString(), !e.ignoreOnChange && onChange(e, value);
+    }), $control;
+  }
+  static #renderCheckbox(key, setting, currentValue, onChange) {
+    const $control = CE("input", { type: "checkbox", tabindex: 0 });
+    return $control.checked = currentValue, onChange && $control.addEventListener("input", (e) => {
+      !e.ignoreOnChange && onChange(e, e.target.checked);
+    }), $control;
+  }
+  static #renderNumberStepper(key, setting, value, onChange, options = {}) {
+    options = options || {}, options.suffix = options.suffix || "", options.disabled = !!options.disabled, options.hideSlider = !!options.hideSlider;
+    let $text, $btnDec, $btnInc, $range = null, controlValue = value;
+    const { min: MIN, max: MAX } = setting, STEPS = Math.max(setting.steps || 1, 1), renderTextValue = (value2) => {
+      value2 = parseInt(value2);
+      let textContent = null;
+      if (options.customTextValue)
+        textContent = options.customTextValue(value2);
+      if (textContent === null)
+        textContent = value2.toString() + options.suffix;
+      return textContent;
+    }, updateButtonsVisibility = () => {
+      $btnDec.classList.toggle("bx-inactive", controlValue === MIN), $btnInc.classList.toggle("bx-inactive", controlValue === MAX);
+    }, $wrapper = CE("div", { class: "bx-number-stepper", id: `bx_setting_${key}` }, $btnDec = CE("button", {
+      "data-type": "dec",
+      type: "button",
+      class: options.hideSlider ? "bx-focusable" : "",
+      tabindex: options.hideSlider ? 0 : -1
+    }, "-"), $text = CE("span", {}, renderTextValue(value)), $btnInc = CE("button", {
+      "data-type": "inc",
+      type: "button",
+      class: options.hideSlider ? "bx-focusable" : "",
+      tabindex: options.hideSlider ? 0 : -1
+    }, "+"));
+    if (options.disabled)
+      return $btnInc.disabled = !0, $btnInc.classList.add("bx-inactive"), $btnDec.disabled = !0, $btnDec.classList.add("bx-inactive"), $wrapper.disabled = !0, $wrapper;
+    if ($range = CE("input", {
+      id: `bx_setting_${key}`,
+      type: "range",
+      min: MIN,
+      max: MAX,
+      value,
+      step: STEPS,
+      tabindex: 0
+    }), options.hideSlider && $range.classList.add("bx-gone"), $range.addEventListener("input", (e) => {
+      if (value = parseInt(e.target.value), controlValue === value)
+        return;
+      controlValue = value, updateButtonsVisibility(), $text.textContent = renderTextValue(value), !e.ignoreOnChange && onChange && onChange(e, value);
+    }), $wrapper.addEventListener("input", (e) => {
+      BxEvent.dispatch($range, "input");
+    }), $wrapper.appendChild($range), options.ticks || options.exactTicks) {
+      const markersId = `markers-${key}`, $markers = CE("datalist", { id: markersId });
+      if ($range.setAttribute("list", markersId), options.exactTicks) {
+        let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
+        if (start === MIN)
+          start += options.exactTicks;
+        for (let i = start;i < MAX; i += options.exactTicks)
+          $markers.appendChild(CE("option", { value: i }));
+      } else
+        for (let i = MIN + options.ticks;i < MAX; i += options.ticks)
+          $markers.appendChild(CE("option", { value: i }));
+      $wrapper.appendChild($markers);
+    }
+    updateButtonsVisibility();
+    let interval, isHolding = !1;
+    const onClick = (e) => {
+      if (isHolding) {
+        e.preventDefault(), isHolding = !1;
+        return;
+      }
+      const $btn = e.target;
+      let value2 = parseInt(controlValue);
+      if ($btn.dataset.type === "dec")
+        value2 = Math.max(MIN, value2 - STEPS);
+      else
+        value2 = Math.min(MAX, value2 + STEPS);
+      controlValue = value2, updateButtonsVisibility(), $text.textContent = renderTextValue(value2), $range && ($range.value = value2.toString()), isHolding = !1, !e.ignoreOnChange && onChange && onChange(e, value2);
+    }, onMouseDown = (e) => {
+      e.preventDefault(), isHolding = !0;
+      const args = arguments;
+      interval && clearInterval(interval), interval = window.setInterval(() => {
+        e.target && BxEvent.dispatch(e.target, "click", {
+          arguments: args
+        });
+      }, 200);
+    }, onMouseUp = (e) => {
+      e.preventDefault(), interval && clearInterval(interval), isHolding = !1;
+    }, onContextMenu = (e) => e.preventDefault();
+    return $wrapper.setValue = (value2) => {
+      $text.textContent = renderTextValue(value2), $range.value = value2;
+    }, $btnDec.addEventListener("click", onClick), $btnDec.addEventListener("pointerdown", onMouseDown), $btnDec.addEventListener("pointerup", onMouseUp), $btnDec.addEventListener("contextmenu", onContextMenu), $btnInc.addEventListener("click", onClick), $btnInc.addEventListener("pointerdown", onMouseDown), $btnInc.addEventListener("pointerup", onMouseUp), $btnInc.addEventListener("contextmenu", onContextMenu), setNearby($wrapper, {
+      focus: $range || $btnInc
+    }), $wrapper;
+  }
+  static #METHOD_MAP = {
+    ["options"]: SettingElement.#renderOptions,
+    ["multiple-options"]: SettingElement.#renderMultipleOptions,
+    ["number"]: SettingElement.#renderNumber,
+    ["number-stepper"]: SettingElement.#renderNumberStepper,
+    ["checkbox"]: SettingElement.#renderCheckbox
+  };
+  static render(type, key, setting, currentValue, onChange, options) {
+    const method = SettingElement.#METHOD_MAP[type], $control = method(...Array.from(arguments).slice(1));
+    if (type !== "number-stepper")
+      $control.id = `bx_setting_${key}`;
+    if (type === "options" || type === "multiple-options")
+      $control.name = $control.id;
+    return $control;
+  }
+  static fromPref(key, storage, onChange, overrideParams = {}) {
+    const definition = storage.getDefinition(key);
+    let currentValue = storage.getSetting(key), type;
+    if ("type" in definition)
+      type = definition.type;
+    else if ("options" in definition)
+      type = "options";
+    else if ("multipleOptions" in definition)
+      type = "multiple-options";
+    else if (typeof definition.default === "number")
+      type = "number";
+    else
+      type = "checkbox";
+    let params = {};
+    if ("params" in definition)
+      params = Object.assign(overrideParams, definition.params || {});
+    if (params.disabled)
+      currentValue = definition.default;
+    return SettingElement.render(type, key, definition, currentValue, (e, value) => {
+      storage.setSetting(key, value), onChange && onChange(e, value);
+    }, params);
+  }
+}
+
 class BaseSettingsStore {
   storage;
   storageKey;
@@ -891,188 +1082,25 @@ class BaseSettingsStore {
     }
     return value;
   }
-}
-
-class SettingElement {
-  static #renderOptions(key, setting, currentValue, onChange) {
-    const $control = CE("select", {
-      tabindex: 0
-    });
-    let $parent;
-    if (setting.optionsGroup)
-      $parent = CE("optgroup", { label: setting.optionsGroup }), $control.appendChild($parent);
-    else
-      $parent = $control;
-    for (let value in setting.options) {
-      const label = setting.options[value], $option = CE("option", { value }, label);
-      $parent.appendChild($option);
-    }
-    return $control.value = currentValue, onChange && $control.addEventListener("input", (e) => {
-      const target = e.target, value = setting.type && setting.type === "number" ? parseInt(target.value) : target.value;
-      !e.ignoreOnChange && onChange(e, value);
-    }), $control.setValue = (value) => {
-      $control.value = value;
-    }, $control;
+  getLabel(key) {
+    return this.definitions[key].label || key;
   }
-  static #renderMultipleOptions(key, setting, currentValue, onChange, params = {}) {
-    const $control = CE("select", {
-      multiple: !0,
-      tabindex: 0
-    });
-    if (params && params.size)
-      $control.setAttribute("size", params.size.toString());
-    for (let value in setting.multipleOptions) {
-      const label = setting.multipleOptions[value], $option = CE("option", { value }, label);
-      $option.selected = currentValue.indexOf(value) > -1, $option.addEventListener("mousedown", function(e) {
-        e.preventDefault();
-        const target = e.target;
-        target.selected = !target.selected;
-        const $parent = target.parentElement;
-        $parent.focus(), $parent.dispatchEvent(new Event("input"));
-      }), $control.appendChild($option);
-    }
-    return $control.addEventListener("mousedown", function(e) {
-      const self = this, orgScrollTop = self.scrollTop;
-      window.setTimeout(() => self.scrollTop = orgScrollTop, 0);
-    }), $control.addEventListener("mousemove", (e) => e.preventDefault()), onChange && $control.addEventListener("input", (e) => {
-      const target = e.target, values = Array.from(target.selectedOptions).map((i) => i.value);
-      !e.ignoreOnChange && onChange(e, values);
-    }), $control;
-  }
-  static #renderNumber(key, setting, currentValue, onChange) {
-    const $control = CE("input", { tabindex: 0, type: "number", min: setting.min, max: setting.max });
-    return $control.value = currentValue, onChange && $control.addEventListener("change", (e) => {
-      const target = e.target, value = Math.max(setting.min, Math.min(setting.max, parseInt(target.value)));
-      target.value = value.toString(), !e.ignoreOnChange && onChange(e, value);
-    }), $control;
-  }
-  static #renderCheckbox(key, setting, currentValue, onChange) {
-    const $control = CE("input", { type: "checkbox", tabindex: 0 });
-    return $control.checked = currentValue, onChange && $control.addEventListener("change", (e) => {
-      !e.ignoreOnChange && onChange(e, e.target.checked);
-    }), $control;
-  }
-  static #renderNumberStepper(key, setting, value, onChange, options = {}) {
-    options = options || {}, options.suffix = options.suffix || "", options.disabled = !!options.disabled, options.hideSlider = !!options.hideSlider;
-    let $text, $btnDec, $btnInc, $range = null, controlValue = value;
-    const { min: MIN, max: MAX } = setting, STEPS = Math.max(setting.steps || 1, 1), renderTextValue = (value2) => {
-      value2 = parseInt(value2);
-      let textContent = null;
-      if (options.customTextValue)
-        textContent = options.customTextValue(value2);
-      if (textContent === null)
-        textContent = value2.toString() + options.suffix;
-      return textContent;
-    }, updateButtonsVisibility = () => {
-      $btnDec.classList.toggle("bx-inactive", controlValue === MIN), $btnInc.classList.toggle("bx-inactive", controlValue === MAX);
-    }, $wrapper = CE("div", { class: "bx-number-stepper", id: `bx_setting_${key}` }, $btnDec = CE("button", {
-      "data-type": "dec",
-      type: "button",
-      class: options.hideSlider ? "bx-focusable" : "",
-      tabindex: options.hideSlider ? 0 : -1
-    }, "-"), $text = CE("span", {}, renderTextValue(value)), $btnInc = CE("button", {
-      "data-type": "inc",
-      type: "button",
-      class: options.hideSlider ? "bx-focusable" : "",
-      tabindex: options.hideSlider ? 0 : -1
-    }, "+"));
-    if (options.disabled)
-      $wrapper.disabled = !0;
-    if (!options.disabled && !options.hideSlider) {
-      if ($range = CE("input", {
-        id: `bx_setting_${key}`,
-        type: "range",
-        min: MIN,
-        max: MAX,
-        value,
-        step: STEPS,
-        tabindex: 0
-      }), $range.addEventListener("input", (e) => {
-        if (value = parseInt(e.target.value), controlValue === value)
-          return;
-        controlValue = value, updateButtonsVisibility(), $text.textContent = renderTextValue(value), !e.ignoreOnChange && onChange && onChange(e, value);
-      }), $wrapper.appendChild($range), options.ticks || options.exactTicks) {
-        const markersId = `markers-${key}`, $markers = CE("datalist", { id: markersId });
-        if ($range.setAttribute("list", markersId), options.exactTicks) {
-          let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
-          if (start === MIN)
-            start += options.exactTicks;
-          for (let i = start;i < MAX; i += options.exactTicks)
-            $markers.appendChild(CE("option", { value: i }));
-        } else
-          for (let i = MIN + options.ticks;i < MAX; i += options.ticks)
-            $markers.appendChild(CE("option", { value: i }));
-        $wrapper.appendChild($markers);
+  getValueText(key, value) {
+    const definition = this.definitions[key];
+    if (definition.type === "number-stepper") {
+      const params = definition.params;
+      if (params.customTextValue) {
+        const text = params.customTextValue(value);
+        if (text)
+          return text;
       }
+      return value.toString();
+    } else if ("options" in definition) {
+      const options = definition.options;
+      if (value in options)
+        return options[value];
     }
-    if (options.disabled)
-      return $btnInc.disabled = !0, $btnInc.classList.add("bx-inactive"), $btnDec.disabled = !0, $btnDec.classList.add("bx-inactive"), $wrapper;
-    updateButtonsVisibility();
-    let interval, isHolding = !1;
-    const onClick = (e) => {
-      if (isHolding) {
-        e.preventDefault(), isHolding = !1;
-        return;
-      }
-      const $btn = e.target;
-      let value2 = parseInt(controlValue);
-      if ($btn.dataset.type === "dec")
-        value2 = Math.max(MIN, value2 - STEPS);
-      else
-        value2 = Math.min(MAX, value2 + STEPS);
-      controlValue = value2, updateButtonsVisibility(), $text.textContent = renderTextValue(value2), $range && ($range.value = value2.toString()), isHolding = !1, !e.ignoreOnChange && onChange && onChange(e, value2);
-    }, onMouseDown = (e) => {
-      e.preventDefault(), isHolding = !0;
-      const args = arguments;
-      interval && clearInterval(interval), interval = window.setInterval(() => {
-        const event = new Event("click");
-        event.arguments = args, e.target?.dispatchEvent(event);
-      }, 200);
-    }, onMouseUp = (e) => {
-      e.preventDefault(), interval && clearInterval(interval), isHolding = !1;
-    }, onContextMenu = (e) => e.preventDefault();
-    return $wrapper.setValue = (value2) => {
-      controlValue = parseInt(value2), $text.textContent = renderTextValue(value2), $range && ($range.value = value2);
-    }, $btnDec.addEventListener("click", onClick), $btnDec.addEventListener("pointerdown", onMouseDown), $btnDec.addEventListener("pointerup", onMouseUp), $btnDec.addEventListener("contextmenu", onContextMenu), $btnInc.addEventListener("click", onClick), $btnInc.addEventListener("pointerdown", onMouseDown), $btnInc.addEventListener("pointerup", onMouseUp), $btnInc.addEventListener("contextmenu", onContextMenu), setNearby($wrapper, {
-      focus: $range || $btnInc
-    }), $wrapper;
-  }
-  static #METHOD_MAP = {
-    ["options"]: SettingElement.#renderOptions,
-    ["multiple-options"]: SettingElement.#renderMultipleOptions,
-    ["number"]: SettingElement.#renderNumber,
-    ["number-stepper"]: SettingElement.#renderNumberStepper,
-    ["checkbox"]: SettingElement.#renderCheckbox
-  };
-  static render(type, key, setting, currentValue, onChange, options) {
-    const method = SettingElement.#METHOD_MAP[type], $control = method(...Array.from(arguments).slice(1));
-    if (type !== "number-stepper")
-      $control.id = `bx_setting_${key}`;
-    if (type === "options" || type === "multiple-options")
-      $control.name = $control.id;
-    return $control;
-  }
-  static fromPref(key, storage, onChange, overrideParams = {}) {
-    const definition = storage.getDefinition(key);
-    let currentValue = storage.getSetting(key), type;
-    if ("type" in definition)
-      type = definition.type;
-    else if ("options" in definition)
-      type = "options";
-    else if ("multipleOptions" in definition)
-      type = "multiple-options";
-    else if (typeof definition.default === "number")
-      type = "number";
-    else
-      type = "checkbox";
-    let params = {};
-    if ("params" in definition)
-      params = Object.assign(overrideParams, definition.params || {});
-    if (params.disabled)
-      currentValue = definition.default;
-    return SettingElement.render(type, key, definition, currentValue, (e, value) => {
-      storage.setSetting(key, value), onChange && onChange(e, value);
-    }, params);
+    return value.toString();
   }
 }
 
@@ -1112,7 +1140,6 @@ function getSupportedCodecProfiles() {
       options.high = t("visual-quality-high");
   return options;
 }
-
 class GlobalSettingsStorage extends BaseSettingsStore {
   static DEFINITIONS = {
     version_last_check: {
@@ -1181,8 +1208,12 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       default: "auto",
       options: {
         auto: t("default"),
-        "720p": "720p",
-        "1080p": "1080p"
+        ["720p"]: "720p",
+        ["1080p"]: "1080p"
+      },
+      suggest: {
+        lowest: "720p",
+        highest: "1080p"
       }
     },
     stream_codec_profile: {
@@ -1190,9 +1221,13 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       default: "default",
       options: getSupportedCodecProfiles(),
       ready: (setting) => {
-        const options = setting.options;
-        if (Object.keys(options).length <= 1)
+        const options = setting.options, keys = Object.keys(options);
+        if (keys.length <= 1)
           setting.unsupported = !0, setting.note = "⚠️ " + t("browser-unsupported-feature");
+        setting.suggest = {
+          lowest: keys.length === 1 ? keys[0] : keys[1],
+          highest: keys[keys.length - 1]
+        };
       }
     },
     prefer_ipv6_server: {
@@ -1297,6 +1332,9 @@ class GlobalSettingsStorage extends BaseSettingsStore {
           else
             return (value / 1024000).toFixed(1) + " Mb/s";
         }
+      },
+      suggest: {
+        highest: 0
       }
     },
     game_bar_position: {
@@ -1511,6 +1549,10 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       options: {
         default: t("default"),
         webgl2: t("webgl2")
+      },
+      suggest: {
+        lowest: "default",
+        highest: "webgl2"
       }
     },
     video_processing: {
@@ -1519,6 +1561,10 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       options: {
         usm: t("unsharp-masking"),
         cas: t("amd-fidelity-cas")
+      },
+      suggest: {
+        lowest: "usm",
+        highest: "cas"
       }
     },
     video_power_preference: {
@@ -1528,6 +1574,9 @@ class GlobalSettingsStorage extends BaseSettingsStore {
         default: t("default"),
         "low-power": t("low-power"),
         "high-performance": t("high-performance")
+      },
+      suggest: {
+        highest: "low-power"
       }
     },
     video_sharpness: {
@@ -1541,6 +1590,10 @@ class GlobalSettingsStorage extends BaseSettingsStore {
         customTextValue: (value) => {
           return value = parseInt(value), value === 0 ? t("off") : value.toString();
         }
+      },
+      suggest: {
+        lowest: 0,
+        highest: 4
       }
     },
     video_ratio: {
@@ -1677,8 +1730,8 @@ class GlobalSettingsStorage extends BaseSettingsStore {
     xhome_resolution: {
       default: "1080p",
       options: {
-        "1080p": "1080p",
-        "720p": "720p"
+        ["1080p"]: "1080p",
+        ["720p"]: "720p"
       }
     },
     game_fortnite_force_console: {
@@ -2188,13 +2241,13 @@ class NativeMkbHandler extends MkbHandler {
   #initMessage() {
     if (!this.#$message)
       this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg" }, CE("div", {}, CE("p", {}, t("native-mkb")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "native" }, createButton({
-        style: ButtonStyle.PRIMARY | ButtonStyle.FULL_WIDTH | ButtonStyle.TALL,
+        style: 1 | 64 | 256,
         label: t("activate"),
         onClick: ((e) => {
           e.preventDefault(), e.stopPropagation(), this.toggle(!0);
         }).bind(this)
       }), createButton({
-        style: ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH,
+        style: 4 | 64,
         label: t("ignore"),
         onClick: (e) => {
           e.preventDefault(), e.stopPropagation(), this.#$message?.classList.add("bx-gone");
@@ -2783,7 +2836,7 @@ class Dialog {
     let $close;
     this.onClose = onClose, this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
       icon: BxIcon.QUESTION,
-      style: ButtonStyle.GHOST,
+      style: 4,
       title: t("help"),
       url: helpUrl
     })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close")))), $close && $close.addEventListener("click", (e) => {
@@ -3011,7 +3064,7 @@ class MkbRemapper {
       }
     }), createButton({
       icon: BxIcon.TRASH,
-      style: ButtonStyle.DANGER,
+      style: 2,
       title: t("delete"),
       tabIndex: -1,
       onClick: (e) => {
@@ -3058,21 +3111,21 @@ class MkbRemapper {
       onClick: (e) => this.#toggleEditing(!0)
     }), this.#$.activateButton = createButton({
       label: t("activate"),
-      style: ButtonStyle.PRIMARY,
+      style: 1,
       tabIndex: -1,
       onClick: (e) => {
         setPref("mkb_default_preset_id", this.#STATE.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.#refresh();
       }
     })), CE("div", {}, createButton({
       label: t("cancel"),
-      style: ButtonStyle.GHOST,
+      style: 4,
       tabIndex: -1,
       onClick: (e) => {
         this.#switchPreset(this.#STATE.currentPresetId), this.#toggleEditing(!1);
       }
     }), createButton({
       label: t("save"),
-      style: ButtonStyle.PRIMARY,
+      style: 1,
       tabIndex: -1,
       onClick: (e) => {
         const updatedPreset = deepClone(this.#getCurrentPreset());
@@ -3489,10 +3542,10 @@ class BxSelectElement {
     $select.removeAttribute("tabindex");
     const $btnPrev = createButton({
       label: "<",
-      style: ButtonStyle.FOCUSABLE
+      style: 32
     }), $btnNext = createButton({
       label: ">",
-      style: ButtonStyle.FOCUSABLE
+      style: 32
     }), isMultiple = $select.multiple;
     let $checkBox, $label, visibleIndex = $select.selectedIndex, $content;
     if (isMultiple)
@@ -3503,7 +3556,7 @@ class BxSelectElement {
         $checkBox.click();
       }), $checkBox.addEventListener("input", (e) => {
         const $option = getOptionAtIndex(visibleIndex);
-        $option && ($option.selected = e.target.checked), $select.dispatchEvent(new Event("input"));
+        $option && ($option.selected = e.target.checked), BxEvent.dispatch($select, "input");
       });
     else
       $content = CE("div", {}, $label = CE("label", { for: $select.id + "_checkbox" }, ""));
@@ -3540,7 +3593,7 @@ class BxSelectElement {
       if (isMultiple)
         render();
       else
-        $select.dispatchEvent(new Event("input"));
+        BxEvent.dispatch($select, "input");
     };
     $select.addEventListener("input", render), $btnPrev.addEventListener("click", onPrevNext), $btnNext.addEventListener("click", onPrevNext), new MutationObserver((mutationList, observer2) => {
       mutationList.forEach((mutation) => {
@@ -3569,6 +3622,11 @@ class BxSelectElement {
       $select.removeEventListener.apply($select, arguments);
     }, $div.dispatchEvent = function() {
       return $select.dispatchEvent.apply($select, arguments);
+    }, $div.setValue = (value) => {
+      if ("setValue" in $select)
+        $select.setValue(value);
+      else
+        $select.value = value;
     }, $div;
   }
 }
@@ -4292,7 +4350,16 @@ class SettingsNavigationDialog extends NavigationDialog {
   $btnReload;
   $btnGlobalReload;
   $noteGlobalReload;
+  $btnSuggestion;
   renderFullSettings;
+  suggestedSettings = {
+    recommended: {},
+    default: {},
+    lowest: {},
+    highest: {}
+  };
+  suggestedSettingLabels = {};
+  settingElements = {};
   TAB_GLOBAL_ITEMS = [{
     group: "general",
     label: t("better-xcloud"),
@@ -4303,14 +4370,14 @@ class SettingsNavigationDialog extends NavigationDialog {
         if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION)
           topButtons.push(createButton({
             label: `🌟 Version ${PREF_LATEST_VERSION} available`,
-            style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+            style: 1 | 32 | 64,
             url: "https://github.com/redphx/better-xcloud/releases/latest"
           }));
         if (AppInterface)
           topButtons.push(createButton({
             label: t("app-settings"),
             icon: BxIcon.STREAM_SETTINGS,
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            style: 64 | 32,
             onClick: (e) => {
               AppInterface.openAppSettings && AppInterface.openAppSettings(), this.hide();
             }
@@ -4318,19 +4385,23 @@ class SettingsNavigationDialog extends NavigationDialog {
         else if (UserAgent.getDefault().toLowerCase().includes("android"))
           topButtons.push(createButton({
             label: "🔥 " + t("install-android"),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            style: 64 | 32,
             url: "https://better-xcloud.github.io/android"
           }));
         this.$btnGlobalReload = createButton({
           label: t("settings-reload"),
           classes: ["bx-settings-reload-button", "bx-gone"],
-          style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+          style: 32 | 64,
           onClick: (e) => {
             this.reloadPage();
           }
         }), topButtons.push(this.$btnGlobalReload), this.$noteGlobalReload = CE("span", {
           class: "bx-settings-reload-note"
-        }, t("settings-reload-note")), topButtons.push(this.$noteGlobalReload);
+        }, t("settings-reload-note")), topButtons.push(this.$noteGlobalReload), this.$btnSuggestion = createButton({
+          label: ut("Suggest settings"),
+          style: 32 | 64,
+          onClick: this.renderSuggestions.bind(this)
+        }), topButtons.push(this.$btnSuggestion);
         const $div = CE("div", {
           class: "bx-top-buttons",
           _nearby: {
@@ -4477,7 +4548,7 @@ class SettingsNavigationDialog extends NavigationDialog {
         debugInfo.settings = JSON.parse(window.localStorage.getItem("better_xcloud") || "{}");
         const $debugInfo = CE("div", { class: "bx-debug-info" }, createButton({
           label: "Debug info",
-          style: ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+          style: 4 | 64 | 32,
           onClick: (e) => {
             e.target.closest("button")?.nextElementSibling?.classList.toggle("bx-gone");
           }
@@ -4734,6 +4805,61 @@ class SettingsNavigationDialog extends NavigationDialog {
   reloadPage() {
     this.$btnGlobalReload.disabled = !0, this.$btnGlobalReload.firstElementChild.textContent = t("settings-reloading"), this.hide(), FullscreenText.getInstance().show(t("settings-reloading")), window.location.reload();
   }
+  renderSuggestions(e) {
+    const $btnSuggest = e.target.closest("button");
+    let $content = $btnSuggest.nextElementSibling;
+    if ($content) {
+      $content.classList.toggle("bx-gone"), BxEvent.dispatch($content.querySelector("select"), "input");
+      return;
+    }
+    const $suggestedSettings = CE("div", { class: "bx-suggest-wrapper" }), $select = CE("select", {}, CE("option", { value: "lowest" }, ut("Lowest quality")), CE("option", { value: "highest" }, ut("Highest quality")));
+    $select.addEventListener("input", (e2) => {
+      const profile = $select.value;
+      if ($suggestedSettings.innerHTML = "", profile === "highest")
+        $suggestedSettings.appendChild(CE("div", { class: "bx-suggest-note" }, ut("⚠️ Your device may not be powerful enough to use these settings")));
+      const settings = this.suggestedSettings[profile];
+      let prefKey;
+      for (prefKey in settings) {
+        const currentValue = getPref(prefKey), suggestedValue = settings[prefKey], currentValueText = STORAGE.Global.getValueText(prefKey, currentValue);
+        let $child, $value;
+        if (currentValue === suggestedValue)
+          $value = currentValueText;
+        else {
+          const suggestedValueText = STORAGE.Global.getValueText(prefKey, suggestedValue);
+          $value = currentValueText + " → " + suggestedValueText;
+        }
+        $child = CE("div", {
+          class: `bx-suggest-row ${currentValue === suggestedValue ? "bx-suggest-ok" : "bx-suggest-change"}`
+        }, CE("div", {
+          class: "bx-suggest-label"
+        }, STORAGE.Global.getLabel(prefKey)), CE("div", {
+          class: "bx-suggest-value"
+        }, $value)), $suggestedSettings.appendChild($child);
+      }
+    }), BxEvent.dispatch($select, "input");
+    const $btnApply = createButton({
+      label: t("apply"),
+      style: 64 | 32,
+      onClick: (e2) => {
+        const profile = $select.value, settings = this.suggestedSettings[profile];
+        let prefKey;
+        for (prefKey in settings) {
+          const value = settings[prefKey], $control = this.settingElements[prefKey];
+          if ("setValue" in $control)
+            $control.setValue(value);
+          else
+            $control.value = value;
+          BxEvent.dispatch($control, "input", {
+            manualTrigger: !0
+          });
+        }
+        BxEvent.dispatch($select, "input"), console.log(this.settingElements);
+      }
+    });
+    $content = CE("div", {
+      class: "bx-suggest-box"
+    }, BxSelectElement.wrap($select), $suggestedSettings, $btnApply), $btnSuggest?.insertAdjacentElement("afterend", $content);
+  }
   renderTab(settingTab) {
     const $svg = createSvgIcon(settingTab.icon);
     return $svg.dataset.group = settingTab.group, $svg.tabIndex = 0, $svg.addEventListener("click", (e) => {
@@ -4818,12 +4944,20 @@ class SettingsNavigationDialog extends NavigationDialog {
       }
       if ($control instanceof HTMLSelectElement && getPref("ui_controller_friendly"))
         $control = BxSelectElement.wrap($control);
+      pref && (this.settingElements[pref] = $control);
     }
     let prefDefinition = null;
     if (pref)
       prefDefinition = getPrefDefinition(pref);
     let label = prefDefinition?.label || setting.label, note = prefDefinition?.note || setting.note;
-    if (prefDefinition?.experimental || setting.experimental)
+    const experimental = prefDefinition?.experimental || setting.experimental;
+    if (settingTabContent.label && setting.pref) {
+      if (!this.suggestedSettingLabels[settingTabContent.label])
+        this.suggestedSettingLabels[settingTabContent.label] = {};
+      if (this.suggestedSettingLabels[settingTabContent.label][setting.pref] = label, prefDefinition?.suggest)
+        typeof prefDefinition.suggest.lowest !== "undefined" && (this.suggestedSettings.lowest[setting.pref] = prefDefinition.suggest.lowest), typeof prefDefinition.suggest.highest !== "undefined" && (this.suggestedSettings.highest[setting.pref] = prefDefinition.suggest.highest);
+    }
+    if (experimental)
       if (label = "🧪 " + label, !note)
         note = t("experimental");
       else
@@ -4870,13 +5004,13 @@ class SettingsNavigationDialog extends NavigationDialog {
       }
     }), CE("div", {}, this.$btnReload = createButton({
       icon: BxIcon.REFRESH,
-      style: ButtonStyle.FOCUSABLE | ButtonStyle.DROP_SHADOW,
+      style: 32 | 16,
       onClick: (e) => {
         this.reloadPage();
       }
     }), createButton({
       icon: BxIcon.CLOSE,
-      style: ButtonStyle.FOCUSABLE | ButtonStyle.DROP_SHADOW,
+      style: 32 | 16,
       onClick: (e) => {
         this.dialogManager.hide();
       }
@@ -4917,7 +5051,7 @@ class SettingsNavigationDialog extends NavigationDialog {
           label += " " + SCRIPT_VERSION, label = createButton({
             label,
             url: "https://github.com/redphx/better-xcloud/releases",
-            style: ButtonStyle.NORMAL_CASE | ButtonStyle.FROSTED | ButtonStyle.FOCUSABLE
+            style: 1024 | 8 | 32
           });
         if (label) {
           const $title = CE("h2", {
@@ -4926,7 +5060,7 @@ class SettingsNavigationDialog extends NavigationDialog {
             }
           }, CE("span", {}, label), settingTabContent.helpUrl && createButton({
             icon: BxIcon.QUESTION,
-            style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+            style: 4 | 32,
             url: settingTabContent.helpUrl,
             title: t("help")
           }));
@@ -5354,14 +5488,14 @@ class EmulatedMkbHandler extends MkbHandler {
   #initMessage = () => {
     if (!this.#$message)
       this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("virtual-controller")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "virtual" }, createButton({
-        style: ButtonStyle.PRIMARY | ButtonStyle.TALL | ButtonStyle.FULL_WIDTH,
+        style: 1 | 256 | 64,
         label: t("activate"),
         onClick: ((e) => {
           e.preventDefault(), e.stopPropagation(), this.toggle(!0);
         }).bind(this)
       }), CE("div", {}, createButton({
         label: t("ignore"),
-        style: ButtonStyle.GHOST,
+        style: 4,
         onClick: (e) => {
           e.preventDefault(), e.stopPropagation(), this.toggle(!1), this.waitForMouseData(!1);
         }
@@ -5787,7 +5921,7 @@ class HeaderSection {
     classes: ["bx-header-remote-play-button", "bx-gone"],
     icon: BxIcon.REMOTE_PLAY,
     title: t("remote-play"),
-    style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.CIRCULAR,
+    style: 4 | 32 | 512,
     onClick: (e) => {
       RemotePlay.togglePopup();
     }
@@ -5795,7 +5929,7 @@ class HeaderSection {
   static #$settingsBtn = createButton({
     classes: ["bx-header-settings-button"],
     label: "???",
-    style: ButtonStyle.FROSTED | ButtonStyle.DROP_SHADOW | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_HEIGHT,
+    style: 8 | 16 | 32 | 128,
     onClick: (e) => {
       SettingsNavigationDialog.getInstance().show();
     }
@@ -5925,7 +6059,7 @@ class RemotePlay {
       const $child = CE("div", { class: "bx-remote-play-device-wrapper" }, CE("div", { class: "bx-remote-play-device-info" }, CE("div", {}, CE("span", { class: "bx-remote-play-device-name" }, con.deviceName), CE("span", { class: "bx-remote-play-console-type" }, con.consoleType.replace("Xbox", ""))), CE("div", { class: "bx-remote-play-power-state" }, RemotePlay.#STATE_LABELS[con.powerState])), createButton({
         classes: ["bx-remote-play-connect-button"],
         label: t("console-connect"),
-        style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE,
+        style: 1 | 32,
         onClick: (e) => {
           RemotePlay.play(con.serverId);
         }
@@ -5934,7 +6068,7 @@ class RemotePlay {
     }
     $fragment.appendChild(createButton({
       icon: BxIcon.QUESTION,
-      style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
+      style: 4 | 32,
       url: "https://better-xcloud.github.io/remote-play",
       label: t("help")
     })), RemotePlay.#$content = CE("div", {}, $fragment);
@@ -6753,7 +6887,7 @@ function showGamepadToast(gamepad) {
 }
 
 function addCss() {
-  let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:40px;--bx-default-button-color:#2d3036;--bx-default-button-rgb:45,48,54;--bx-default-button-hover-color:#515863;--bx-default-button-hover-rgb:81,88,99;--bx-default-button-active-color:#222428;--bx-default-button-active-rgb:34,36,40;--bx-default-button-disabled-color:#8e8e8e;--bx-default-button-disabled-rgb:142,142,142;--bx-primary-button-color:#008746;--bx-primary-button-rgb:0,135,70;--bx-primary-button-hover-color:#04b358;--bx-primary-button-hover-rgb:4,179,88;--bx-primary-button-active-color:#044e2a;--bx-primary-button-active-rgb:4,78,42;--bx-primary-button-disabled-color:#448262;--bx-primary-button-disabled-rgb:68,130,98;--bx-danger-button-color:#c10404;--bx-danger-button-rgb:193,4,4;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-hover-rgb:230,29,29;--bx-danger-button-active-color:#a26c6c;--bx-danger-button-active-rgb:162,108,108;--bx-danger-button-disabled-color:#df5656;--bx-danger-button-disabled-rgb:223,86,86;--bx-fullscreen-text-z-index:9999;--bx-toast-z-index:6000;--bx-dialog-z-index:5000;--bx-dialog-overlay-z-index:4020;--bx-stats-bar-z-index:4010;--bx-mkb-pointer-lock-msg-z-index:4000;--bx-navigation-dialog-z-index:3010;--bx-navigation-dialog-overlay-z-index:3000;--bx-remote-play-popup-z-index:2000;--bx-game-bar-z-index:1000;--bx-wait-time-box-z-index:100;--bx-screenshot-animation-z-index:10}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:600px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-hide-scroll-bar{scrollbar-width:none}.bx-hide-scroll-bar::-webkit-scrollbar{display:none}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}.bx-line-through{text-decoration:line-through !important}.bx-normal-case{text-transform:none !important}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-game-tile-wait-time{position:absolute;top:0;left:0;z-index:1;background:rgba(0,0,0,0.549);display:none;border-radius:0 0 4px 0;align-items:center;padding:4px 8px}a[class^=BaseItem-module__container]:focus .bx-game-tile-wait-time,button[class^=BaseItem-module__container]:focus .bx-game-tile-wait-time{display:flex}.bx-game-tile-wait-time svg{width:14px;height:16px;margin-right:2px}.bx-game-tile-wait-time span{display:inline-block;height:16px;line-height:16px;font-size:12px;font-weight:bold}.bx-fullscreen-text{position:fixed;top:0;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);z-index:var(--bx-fullscreen-text-z-index);line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:var(--bx-normal-font);font-size:1.3rem;user-select:none;-webkit-user-select:none}#root section[class*=DeviceCodePage-module__page]{margin-left:20px !important;margin-right:20px !important;margin-top:20px !important;max-width:800px !important}#root div[class*=DeviceCodePage-module__back]{display:none}.bx-button{--button-rgb:var(--bx-default-button-rgb);--button-hover-rgb:var(--bx-default-button-hover-rgb);--button-active-rgb:var(--bx-default-button-active-rgb);--button-disabled-rgb:var(--bx-default-button-disabled-rgb);background-color:rgb(var(--button-rgb));user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:not([disabled]):active{background-color:rgb(var(--button-active-rgb))}.bx-button:focus{outline:none !important}.bx-button:not([disabled]):not(:active):hover,.bx-button:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button:disabled{cursor:default;background-color:rgb(var(--button-disabled-rgb))}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:not([disabled]):not(:active):hover,.bx-button.bx-ghost:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button.bx-primary{--button-rgb:var(--bx-primary-button-rgb)}.bx-button.bx-primary:not([disabled]):active{--button-active-rgb:var(--bx-primary-button-active-rgb)}.bx-button.bx-primary:not([disabled]):not(:active):hover,.bx-button.bx-primary:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-primary-button-hover-rgb)}.bx-button.bx-primary:disabled{--button-disabled-rgb:var(--bx-primary-button-disabled-rgb)}.bx-button.bx-danger{--button-rgb:var(--bx-danger-button-rgb)}.bx-button.bx-danger:not([disabled]):active{--button-active-rgb:var(--bx-danger-button-active-rgb)}.bx-button.bx-danger:not([disabled]):not(:active):hover,.bx-button.bx-danger:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-danger-button-hover-rgb)}.bx-button.bx-danger:disabled{--button-disabled-rgb:var(--bx-danger-button-disabled-rgb)}.bx-button.bx-frosted{--button-alpha:.2;background-color:rgba(var(--button-rgb), var(--button-alpha));backdrop-filter:blur(4px) brightness(1.5)}.bx-button.bx-frosted:not([disabled]):not(:active):hover,.bx-button.bx-frosted:not([disabled]):not(:active).bx-focusable:focus{background-color:rgba(var(--button-hover-rgb), var(--button-alpha))}.bx-button.bx-drop-shadow{box-shadow:0 0 4px rgba(0,0,0,0.502)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button.bx-circular{border-radius:var(--bx-button-height);height:var(--bx-button-height)}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button span:not(:only-child){margin-left:10px}.bx-focusable{position:relative;overflow:visible}.bx-focusable::after{border:2px solid transparent;border-radius:10px}.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px}html[data-active-input=touch] .bx-focusable:focus::after,html[data-active-input=mouse] .bx-focusable:focus::after{border-color:transparent !important}.bx-focusable.bx-circular::after{border-radius:var(--bx-button-height)}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}button.bx-inactive{pointer-events:none;opacity:.2;background:transparent !important}.bx-button-shortcut{max-width:max-content;margin:10px 0 0 0;flex:1 0 auto}@media (min-width:568px) and (max-height:480px){.bx-button-shortcut{margin:8px 0 0 10px}}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:24px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-navigation-dialog{position:absolute;z-index:var(--bx-navigation-dialog-z-index)}.bx-navigation-dialog-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-navigation-dialog-overlay-z-index)}.bx-navigation-dialog-overlay[data-is-playing="true"]{background:transparent}.bx-settings-dialog{display:flex;position:fixed;top:0;right:0;bottom:0;opacity:.98;user-select:none;-webkit-user-select:none}.bx-settings-dialog .bx-focusable::after{border-radius:4px}.bx-settings-dialog .bx-focusable:focus::after{top:0;left:0;right:0;bottom:0}.bx-settings-dialog .bx-settings-reload-note{font-size:.8rem;display:block;padding:8px;font-style:italic;font-weight:normal;height:var(--bx-button-height)}.bx-settings-tabs-container{position:fixed;width:48px;max-height:100vh;display:flex;flex-direction:column}.bx-settings-tabs-container > div:last-of-type{display:flex;flex-direction:column;align-items:end}.bx-settings-tabs-container > div:last-of-type button{flex-shrink:0;border-top-right-radius:0;border-bottom-right-radius:0;margin-top:8px;height:unset;padding:8px 10px}.bx-settings-tabs-container > div:last-of-type button svg{width:16px;height:16px}.bx-settings-tabs{display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:overlay;flex:1}.bx-settings-tabs svg{width:24px;height:24px;padding:10px;flex-shrink:0;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-settings-tabs svg:focus{border-color:#fff;outline:none}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]{background:var(--bx-danger-button-color) !important}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]:hover{background:var(--bx-danger-button-hover-color) !important}.bx-settings-tab-contents{flex-direction:column;padding:10px;margin-left:48px;width:450px;max-width:calc(100vw - tabsWidth);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay;z-index:1}.bx-settings-tab-contents > div[data-tab-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-profile{width:100%;height:36px;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-note{margin-top:10px;font-size:14px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-settings-z-index) + 1)}.bx-settings-tab-contents:focus,.bx-settings-tab-contents *:focus{outline:none !important}.bx-settings-tab-contents .bx-top-buttons{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}.bx-settings-tab-contents .bx-top-buttons .bx-button{display:block}.bx-settings-tab-contents h2{margin:16px 0 8px 0;display:flex;align-items:center}.bx-settings-tab-contents h2:first-of-type{margin-top:0}.bx-settings-tab-contents h2 span{display:inline-block;font-size:20px;font-weight:bold;text-align:left;flex:1;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}@media (max-width:500px){.bx-settings-tab-contents{width:calc(100vw - 48px)}}.bx-settings-row{display:flex;gap:10px;padding:16px 10px;margin:0;background:#2a2a2a;border-bottom:1px solid #343434}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row:not(:has(> input[type=checkbox])){flex-wrap:wrap}.bx-settings-row input[type=checkbox]:focus,.bx-settings-row select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-row > span.bx-settings-label{font-size:14px;display:block;text-align:left;align-self:center;margin-bottom:0 !important}.bx-settings-row > span.bx-settings-label + *{margin:0 0 0 auto}.bx-settings-row input{accent-color:var(--bx-primary-button-color)}.bx-settings-row input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-row select option:disabled{display:none}.bx-settings-dialog-note{display:block;color:#afafb0;font-size:12px;font-weight:lighter;font-style:italic}.bx-settings-dialog-note:not(:has(a)){margin-top:4px}.bx-settings-dialog-note a{display:inline-block;padding:4px}.bx-settings-custom-user-agent{display:block;width:100%;padding:6px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px;color:#5dc21e}.bx-donation-link:hover{color:#6dd72b}.bx-donation-link:focus{text-decoration:underline}.bx-debug-info button{margin-top:10px}.bx-debug-info pre{margin-top:10px;cursor:copy;color:#fff;padding:8px;border:1px solid #2d2d2d;background:#212121;white-space:break-spaces;text-align:left}.bx-debug-info pre:hover{background:#272727}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-note-unsupported{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:has(+ .bx-settings-row){border-top-left-radius:10px;border-top-right-radius:10px}.bx-settings-tab-contents > div .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-radius:10px}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-popup{width:100%;max-width:1920px;margin:auto;position:relative;height:.1px;overflow:visible;z-index:var(--bx-remote-play-popup-z-index)}.bx-remote-play-container{position:absolute;right:10px;top:0;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px;box-shadow:rgba(0,0,0,0.502) 0 0 12px 0}@media (min-width:480px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 32px)}}@media (min-width:768px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 48px)}}@media (min-width:1920px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 80px)}}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-settings span{font-weight:bold;font-size:18px;display:block;margin-bottom:8px;text-align:center}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:14px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-select{display:flex;align-items:center;flex:0 1 auto}.bx-select select{display:none !important}.bx-select > div,.bx-select button.bx-select-value{min-width:110px;text-align:center;margin:0 8px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 8px;flex:1}.bx-select > div{display:inline-block}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0;font-size:14px;width:100%}.bx-select > div label span{display:block;font-size:10px;font-weight:bold;text-align:left;line-height:initial}.bx-select button.bx-select-value{border:none;display:inline-flex;cursor:pointer;min-height:30px;font-size:.9rem;align-items:center}.bx-select button.bx-select-value span{flex:1;text-align:center;display:inline-block}.bx-select button.bx-select-value input{margin:0 4px;accent-color:var(--bx-primary-button-color)}.bx-select button.bx-select-value:hover input,.bx-select button.bx-select-value:focus input{accent-color:var(--bx-danger-button-color)}.bx-select button.bx-select-value:hover::after,.bx-select button.bx-select-value:focus::after{border-color:#4d4d4d !important}.bx-select button.bx-button{border:none;height:24px;width:24px;padding:0;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:12px;font-family:var(--bx-monospaced-font);flex-shrink:0}.bx-select button.bx-button span{line-height:unset}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:12px;margin:0 4px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}`;
+  let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:40px;--bx-default-button-color:#2d3036;--bx-default-button-rgb:45,48,54;--bx-default-button-hover-color:#515863;--bx-default-button-hover-rgb:81,88,99;--bx-default-button-active-color:#222428;--bx-default-button-active-rgb:34,36,40;--bx-default-button-disabled-color:#8e8e8e;--bx-default-button-disabled-rgb:142,142,142;--bx-primary-button-color:#008746;--bx-primary-button-rgb:0,135,70;--bx-primary-button-hover-color:#04b358;--bx-primary-button-hover-rgb:4,179,88;--bx-primary-button-active-color:#044e2a;--bx-primary-button-active-rgb:4,78,42;--bx-primary-button-disabled-color:#448262;--bx-primary-button-disabled-rgb:68,130,98;--bx-danger-button-color:#c10404;--bx-danger-button-rgb:193,4,4;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-hover-rgb:230,29,29;--bx-danger-button-active-color:#a26c6c;--bx-danger-button-active-rgb:162,108,108;--bx-danger-button-disabled-color:#df5656;--bx-danger-button-disabled-rgb:223,86,86;--bx-fullscreen-text-z-index:9999;--bx-toast-z-index:6000;--bx-dialog-z-index:5000;--bx-dialog-overlay-z-index:4020;--bx-stats-bar-z-index:4010;--bx-mkb-pointer-lock-msg-z-index:4000;--bx-navigation-dialog-z-index:3010;--bx-navigation-dialog-overlay-z-index:3000;--bx-remote-play-popup-z-index:2000;--bx-game-bar-z-index:1000;--bx-wait-time-box-z-index:100;--bx-screenshot-animation-z-index:10}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:600px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-hide-scroll-bar{scrollbar-width:none}.bx-hide-scroll-bar::-webkit-scrollbar{display:none}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}.bx-line-through{text-decoration:line-through !important}.bx-normal-case{text-transform:none !important}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-game-tile-wait-time{position:absolute;top:0;left:0;z-index:1;background:rgba(0,0,0,0.549);display:none;border-radius:0 0 4px 0;align-items:center;padding:4px 8px}a[class^=BaseItem-module__container]:focus .bx-game-tile-wait-time,button[class^=BaseItem-module__container]:focus .bx-game-tile-wait-time{display:flex}.bx-game-tile-wait-time svg{width:14px;height:16px;margin-right:2px}.bx-game-tile-wait-time span{display:inline-block;height:16px;line-height:16px;font-size:12px;font-weight:bold}.bx-fullscreen-text{position:fixed;top:0;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);z-index:var(--bx-fullscreen-text-z-index);line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:var(--bx-normal-font);font-size:1.3rem;user-select:none;-webkit-user-select:none}#root section[class*=DeviceCodePage-module__page]{margin-left:20px !important;margin-right:20px !important;margin-top:20px !important;max-width:800px !important}#root div[class*=DeviceCodePage-module__back]{display:none}.bx-button{--button-rgb:var(--bx-default-button-rgb);--button-hover-rgb:var(--bx-default-button-hover-rgb);--button-active-rgb:var(--bx-default-button-active-rgb);--button-disabled-rgb:var(--bx-default-button-disabled-rgb);background-color:rgb(var(--button-rgb));user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:not([disabled]):active{background-color:rgb(var(--button-active-rgb))}.bx-button:focus{outline:none !important}.bx-button:not([disabled]):not(:active):hover,.bx-button:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button:disabled{cursor:default;background-color:rgb(var(--button-disabled-rgb))}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:not([disabled]):not(:active):hover,.bx-button.bx-ghost:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button.bx-primary{--button-rgb:var(--bx-primary-button-rgb)}.bx-button.bx-primary:not([disabled]):active{--button-active-rgb:var(--bx-primary-button-active-rgb)}.bx-button.bx-primary:not([disabled]):not(:active):hover,.bx-button.bx-primary:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-primary-button-hover-rgb)}.bx-button.bx-primary:disabled{--button-disabled-rgb:var(--bx-primary-button-disabled-rgb)}.bx-button.bx-danger{--button-rgb:var(--bx-danger-button-rgb)}.bx-button.bx-danger:not([disabled]):active{--button-active-rgb:var(--bx-danger-button-active-rgb)}.bx-button.bx-danger:not([disabled]):not(:active):hover,.bx-button.bx-danger:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-danger-button-hover-rgb)}.bx-button.bx-danger:disabled{--button-disabled-rgb:var(--bx-danger-button-disabled-rgb)}.bx-button.bx-frosted{--button-alpha:.2;background-color:rgba(var(--button-rgb), var(--button-alpha));backdrop-filter:blur(4px) brightness(1.5)}.bx-button.bx-frosted:not([disabled]):not(:active):hover,.bx-button.bx-frosted:not([disabled]):not(:active).bx-focusable:focus{background-color:rgba(var(--button-hover-rgb), var(--button-alpha))}.bx-button.bx-drop-shadow{box-shadow:0 0 4px rgba(0,0,0,0.502)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button.bx-circular{border-radius:var(--bx-button-height);height:var(--bx-button-height)}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button span:not(:only-child){margin-left:10px}.bx-focusable{position:relative;overflow:visible}.bx-focusable::after{border:2px solid transparent;border-radius:10px}.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px}html[data-active-input=touch] .bx-focusable:focus::after,html[data-active-input=mouse] .bx-focusable:focus::after{border-color:transparent !important}.bx-focusable.bx-circular::after{border-radius:var(--bx-button-height)}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}button.bx-inactive{pointer-events:none;opacity:.2;background:transparent !important}.bx-button-shortcut{max-width:max-content;margin:10px 0 0 0;flex:1 0 auto}@media (min-width:568px) and (max-height:480px){.bx-button-shortcut{margin:8px 0 0 10px}}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:24px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-navigation-dialog{position:absolute;z-index:var(--bx-navigation-dialog-z-index)}.bx-navigation-dialog-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-navigation-dialog-overlay-z-index)}.bx-navigation-dialog-overlay[data-is-playing="true"]{background:transparent}.bx-settings-dialog{display:flex;position:fixed;top:0;right:0;bottom:0;opacity:.98;user-select:none;-webkit-user-select:none}.bx-settings-dialog .bx-focusable::after{border-radius:4px}.bx-settings-dialog .bx-focusable:focus::after{top:0;left:0;right:0;bottom:0}.bx-settings-dialog .bx-settings-reload-note{font-size:.8rem;display:block;padding:8px;font-style:italic;font-weight:normal;height:var(--bx-button-height)}.bx-settings-tabs-container{position:fixed;width:48px;max-height:100vh;display:flex;flex-direction:column}.bx-settings-tabs-container > div:last-of-type{display:flex;flex-direction:column;align-items:end}.bx-settings-tabs-container > div:last-of-type button{flex-shrink:0;border-top-right-radius:0;border-bottom-right-radius:0;margin-top:8px;height:unset;padding:8px 10px}.bx-settings-tabs-container > div:last-of-type button svg{width:16px;height:16px}.bx-settings-tabs{display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:overlay;flex:1}.bx-settings-tabs svg{width:24px;height:24px;padding:10px;flex-shrink:0;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-settings-tabs svg:focus{border-color:#fff;outline:none}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]{background:var(--bx-danger-button-color) !important}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]:hover{background:var(--bx-danger-button-hover-color) !important}.bx-settings-tab-contents{flex-direction:column;padding:10px;margin-left:48px;width:450px;max-width:calc(100vw - tabsWidth);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay;z-index:1}.bx-settings-tab-contents > div[data-tab-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-profile{width:100%;height:36px;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-note{margin-top:10px;font-size:14px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-settings-z-index) + 1)}.bx-settings-tab-contents:focus,.bx-settings-tab-contents *:focus{outline:none !important}.bx-settings-tab-contents .bx-top-buttons{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}.bx-settings-tab-contents .bx-top-buttons .bx-button{display:block}.bx-settings-tab-contents h2{margin:16px 0 8px 0;display:flex;align-items:center}.bx-settings-tab-contents h2:first-of-type{margin-top:0}.bx-settings-tab-contents h2 span{display:inline-block;font-size:20px;font-weight:bold;text-align:left;flex:1;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}@media (max-width:500px){.bx-settings-tab-contents{width:calc(100vw - 48px)}}.bx-settings-row{display:flex;gap:10px;padding:16px 10px;margin:0;background:#2a2a2a;border-bottom:1px solid #343434}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row:not(:has(> input[type=checkbox])){flex-wrap:wrap}.bx-settings-row input[type=checkbox]:focus,.bx-settings-row select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-row > span.bx-settings-label{font-size:14px;display:block;text-align:left;align-self:center;margin-bottom:0 !important}.bx-settings-row > span.bx-settings-label + *{margin:0 0 0 auto}.bx-settings-row input{accent-color:var(--bx-primary-button-color)}.bx-settings-row input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-row select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-row select option:disabled{display:none}.bx-settings-dialog-note{display:block;color:#afafb0;font-size:12px;font-weight:lighter;font-style:italic}.bx-settings-dialog-note:not(:has(a)){margin-top:4px}.bx-settings-dialog-note a{display:inline-block;padding:4px}.bx-settings-custom-user-agent{display:block;width:100%;padding:6px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px;color:#5dc21e}.bx-donation-link:hover{color:#6dd72b}.bx-donation-link:focus{text-decoration:underline}.bx-debug-info button{margin-top:10px}.bx-debug-info pre{margin-top:10px;cursor:copy;color:#fff;padding:8px;border:1px solid #2d2d2d;background:#212121;white-space:break-spaces;text-align:left}.bx-debug-info pre:hover{background:#272727}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-note-unsupported{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:has(+ .bx-settings-row){border-top-left-radius:10px;border-top-right-radius:10px}.bx-settings-tab-contents > div .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-radius:10px}.bx-suggest-box{background:#161616;padding:10px;box-shadow:0 0 12px #0f0f0f inset;border-radius:10px}.bx-suggest-wrapper{display:flex;flex-direction:column;gap:10px;margin:10px}.bx-suggest-note{font-size:11px;color:#8c8c8c;font-style:italic;font-weight:100}.bx-suggest-row{overflow:overlay;border-radius:4px;margin:0 10px}.bx-suggest-row .bx-suggest-label{background:#323232;padding:4px;font-size:12px}.bx-suggest-row .bx-suggest-value{padding:6px;font-size:14px}.bx-suggest-row .bx-suggest-value.bx-suggest-change{background-color:var(--bx-warning-color)}.bx-suggest-row.bx-suggest-ok .bx-suggest-label{background-color:#008114}.bx-suggest-row.bx-suggest-ok .bx-suggest-value{background-color:#13a72a}.bx-suggest-row.bx-suggest-change .bx-suggest-label{background-color:#a65e08}.bx-suggest-row.bx-suggest-change .bx-suggest-value{background-color:#d57f18}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-popup{width:100%;max-width:1920px;margin:auto;position:relative;height:.1px;overflow:visible;z-index:var(--bx-remote-play-popup-z-index)}.bx-remote-play-container{position:absolute;right:10px;top:0;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px;box-shadow:rgba(0,0,0,0.502) 0 0 12px 0}@media (min-width:480px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 32px)}}@media (min-width:768px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 48px)}}@media (min-width:1920px) and (min-height:calc(480px + 1px)){.bx-remote-play-container{right:calc(env(safe-area-inset-right, 0px) + 80px)}}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-settings span{font-weight:bold;font-size:18px;display:block;margin-bottom:8px;text-align:center}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:14px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-select{display:flex;align-items:center;flex:0 1 auto}.bx-select select{display:none !important}.bx-select > div,.bx-select button.bx-select-value{min-width:110px;text-align:center;margin:0 8px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 8px;flex:1}.bx-select > div{display:inline-block}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0;font-size:14px;width:100%}.bx-select > div label span{display:block;font-size:10px;font-weight:bold;text-align:left;line-height:initial}.bx-select button.bx-select-value{border:none;display:inline-flex;cursor:pointer;min-height:30px;font-size:.9rem;align-items:center}.bx-select button.bx-select-value span{flex:1;text-align:center;display:inline-block}.bx-select button.bx-select-value input{margin:0 4px;accent-color:var(--bx-primary-button-color)}.bx-select button.bx-select-value:hover input,.bx-select button.bx-select-value:focus input{accent-color:var(--bx-danger-button-color)}.bx-select button.bx-select-value:hover::after,.bx-select button.bx-select-value:focus::after{border-color:#4d4d4d !important}.bx-select button.bx-button{border:none;height:24px;width:24px;padding:0;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:12px;font-family:var(--bx-monospaced-font);flex-shrink:0}.bx-select button.bx-button span{line-height:unset}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:12px;margin:0 4px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}`;
   const PREF_HIDE_SECTIONS = getPref("ui_hide_sections"), selectorToHide = [];
   if (PREF_HIDE_SECTIONS.includes("news"))
     selectorToHide.push("#BodyContent > div[class*=CarouselRow-module]");
@@ -7359,7 +7493,7 @@ class ScreenshotAction extends BaseGameBarAction {
       BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), Screenshot.takeScreenshot();
     };
     this.$content = createButton({
-      style: ButtonStyle.GHOST,
+      style: 4,
       icon: BxIcon.SCREENSHOT,
       title: t("take-screenshot"),
       onClick
@@ -7380,13 +7514,13 @@ class TouchControlAction extends BaseGameBarAction {
       let enabled = $parent.getAttribute("data-enabled", "true") === "true";
       $parent.setAttribute("data-enabled", (!enabled).toString()), TouchController.toggleVisibility(enabled);
     }, $btnEnable = createButton({
-      style: ButtonStyle.GHOST,
+      style: 4,
       icon: BxIcon.TOUCH_CONTROL_ENABLE,
       title: t("show-touch-controller"),
       onClick,
       classes: ["bx-activated"]
     }), $btnDisable = createButton({
-      style: ButtonStyle.GHOST,
+      style: 4,
       icon: BxIcon.TOUCH_CONTROL_DISABLE,
       title: t("hide-touch-controller"),
       onClick
@@ -7411,13 +7545,13 @@ class MicrophoneAction extends BaseGameBarAction {
       const enabled = MicrophoneShortcut.toggle(!1);
       this.$content.setAttribute("data-enabled", enabled.toString());
     }, $btnDefault = createButton({
-      style: ButtonStyle.GHOST,
+      style: 4,
       icon: BxIcon.MICROPHONE,
       title: t("show-touch-controller"),
       onClick,
       classes: ["bx-activated"]
     }), $btnMuted = createButton({
-      style: ButtonStyle.GHOST,
+      style: 4,
       icon: BxIcon.MICROPHONE_MUTED,
       title: t("hide-touch-controller"),
       onClick
@@ -7508,7 +7642,7 @@ class GuideMenu {
   static #BUTTONS = {
     scriptSettings: createButton({
       label: t("better-xcloud"),
-      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.PRIMARY,
+      style: 64 | 32 | 1,
       onClick: (e) => {
         window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, (e2) => {
           setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
@@ -7517,21 +7651,21 @@ class GuideMenu {
     }),
     appSettings: createButton({
       label: t("app-settings"),
-      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      style: 64 | 32,
       onClick: (e) => {
         window.BX_EXPOSED.dialogRoutes.closeAll(), AppInterface.openAppSettings && AppInterface.openAppSettings();
       }
     }),
     closeApp: createButton({
       label: t("close-app"),
-      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
+      style: 64 | 32 | 2,
       onClick: (e) => {
         AppInterface.closeApp();
       }
     }),
     reloadPage: createButton({
       label: t("reload-page"),
-      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      style: 64 | 32,
       onClick: (e) => {
         if (STATES.isPlaying)
           confirm(t("confirm-reload-stream")) && window.location.reload();
@@ -7542,7 +7676,7 @@ class GuideMenu {
     }),
     backToHome: createButton({
       label: t("back-to-home"),
-      style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+      style: 64 | 32,
       onClick: (e) => {
         confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
       }
@@ -7704,7 +7838,7 @@ class ProductDetailsPage {
     classes: ["bx-button-shortcut"],
     icon: BxIcon.CREATE_SHORTCUT,
     label: t("create-shortcut"),
-    style: ButtonStyle.FOCUSABLE,
+    style: 32,
     tabIndex: 0,
     onClick: (e) => {
       AppInterface && AppInterface.createShortcut(window.location.pathname.substring(6));
