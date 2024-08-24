@@ -1,0 +1,145 @@
+{
+  "$id": "https://better-xcloud.github.io/schemas/device.json",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "title": "Better xCloud: Device Schema",
+  "description": "",
+  "$defs": {
+    "EnumDeviceType": {
+      "enum": [
+        "android",
+        "android-tv",
+        "android-handheld",
+        "webos"
+      ]
+    },
+
+    "EnumProfile": {
+      "enum": [
+        "lowest",
+        "highest"
+      ]
+    },
+
+    "EnumStreamResolution": {
+      "enum": [
+        "default",
+        "720p",
+        "1080p"
+      ]
+    },
+
+    "EnumStreamCodecProfile": {
+      "enum": [
+        "default",
+        "low",
+        "normal",
+        "high"
+      ]
+    },
+
+    "EnumVideoPlayer": {
+      "enum": [
+        "default",
+        "webgl",
+        "webgl2"
+      ]
+    },
+
+    "EnumVideoPowerPreference": {
+      "enum": [
+        "default",
+        "low-power",
+        "high-performance"
+      ]
+    },
+
+    "EnumVideoProcessing": {
+      "enum": [
+        "usm",
+        "cas"
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "number"
+    },
+
+    "device_name": {
+      "type": "string"
+    },
+
+    "device_type": {
+      "type": "string"
+    },
+
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "app": {
+          "type": "object",
+          "additionalProperties": false
+        },
+        "script": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "_base": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/EnumProfile"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/EnumProfile"
+                  }
+                }
+              ]
+            },
+
+            "stream_target_resolution": {
+              "$ref": "#/$defs/EnumStreamResolution"
+            },
+
+            "stream_codec_profile": {
+              "$ref": "#/$defs/EnumStreamCodecProfile"
+            },
+
+            "bitrate_video_max": {
+              "type": "number"
+            },
+
+            "video_player_type": {
+              "$ref": "#/$defs/EnumVideoPlayer"
+            },
+
+            "video_power_preference": {
+              "$ref": "#/$defs/EnumVideoPowerPreference"
+            },
+
+            "video_processing": {
+              "$ref": "#/$defs/EnumVideoProcessing"
+            },
+
+            "video_sharpness": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "required": [
+        "script"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "device_name",
+    "device_type",
+    "settings"
+  ]
+}

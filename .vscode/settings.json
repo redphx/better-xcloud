@@ -1,0 +1,10 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "devices/*.json"
+      ],
+      "url": ".vscode/schemas/device.json"
+    }
+  ],
+}
