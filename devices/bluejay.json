@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "device_name": "Google Pixel 6a",
+  "device_type": "android",
+  "settings": {
+    "script": {
+      "_base": "highest"
+    }
+  }
+}
