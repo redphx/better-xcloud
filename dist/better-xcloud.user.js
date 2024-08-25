@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.5.7-beta
+// @version      5.6.0-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -138,7 +138,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.5.7-beta", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.6.0-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -1023,7 +1023,8 @@ class BaseSettingsStore {
   definitions;
   constructor(storageKey, definitions) {
     this.storage = window.localStorage, this.storageKey = storageKey;
-    for (let settingId in definitions) {
+    let settingId;
+    for (settingId in definitions) {
       const setting = definitions[settingId];
       setting.ready && setting.ready.call(this, setting);
     }
