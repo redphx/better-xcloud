@@ -4876,13 +4876,13 @@ class SettingsNavigationDialog extends NavigationDialog {
       }
       $btnSuggest.disabled = !1;
     }
-    const deviceType = BX_FLAGS.DeviceInfo.deviceType;
+    const hasRecommendedSettings = Object.keys(this.suggestedSettings.recommended).length > 0, deviceType = BX_FLAGS.DeviceInfo.deviceType;
     if (deviceType === "android-handheld")
       this.addDefaultSuggestedSetting("stream_touch_controller", "off"), this.addDefaultSuggestedSetting("controller_device_vibration", "on");
     else if (deviceType === "android")
       this.addDefaultSuggestedSetting("controller_device_vibration", "auto");
     this.generateDefaultSuggestedSettings();
-    const $suggestedSettings = CE("div", { class: "bx-suggest-wrapper" }), hasRecommendedSettings = Object.keys(this.suggestedSettings.recommended).length > 0, $select = CE("select", {}, hasRecommendedSettings && CE("option", { value: "recommended" }, ut("Recommended")), !hasRecommendedSettings && CE("option", { value: "highest" }, ut("Highest quality")), CE("option", { value: "default" }, t("default")), CE("option", { value: "lowest" }, ut("Lowest quality")));
+    const $suggestedSettings = CE("div", { class: "bx-suggest-wrapper" }), $select = CE("select", {}, hasRecommendedSettings && CE("option", { value: "recommended" }, ut("Recommended")), !hasRecommendedSettings && CE("option", { value: "highest" }, ut("Highest quality")), CE("option", { value: "default" }, t("default")), CE("option", { value: "lowest" }, ut("Lowest quality")));
     $select.addEventListener("input", (e2) => {
       const profile = $select.value;
       removeChildElements($suggestedSettings);
