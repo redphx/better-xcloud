@@ -4869,13 +4869,7 @@ class SettingsNavigationDialog extends NavigationDialog {
       }
     }
     let recommendedDevice = "";
-    if (BX_FLAGS.DeviceInfo = {
-      deviceType: "android",
-      androidInfo: {
-        osVersion: 14,
-        board: "kalama"
-      }
-    }, BX_FLAGS.DeviceInfo.deviceType.includes("android")) {
+    if (BX_FLAGS.DeviceInfo.deviceType.includes("android")) {
       if ($btnSuggest.disabled = !0, BX_FLAGS.DeviceInfo.androidInfo) {
         const deviceCode = BX_FLAGS.DeviceInfo.androidInfo.board;
         recommendedDevice = await this.getRecommendedSettings(deviceCode);
