@@ -4880,11 +4880,14 @@ class SettingsNavigationDialog extends NavigationDialog {
         recommendedDevice = await this.getRecommendedSettings(deviceCode);
       }
     }
+    recommendedDevice = await this.getRecommendedSettings("foster_e");
     const hasRecommendedSettings = Object.keys(this.suggestedSettings.recommended).length > 0, deviceType = BX_FLAGS.DeviceInfo.deviceType;
     if (deviceType === "android-handheld")
       this.addDefaultSuggestedSetting("stream_touch_controller", "off"), this.addDefaultSuggestedSetting("controller_device_vibration", "on");
     else if (deviceType === "android")
       this.addDefaultSuggestedSetting("controller_device_vibration", "auto");
+    else if (deviceType === "android-tv")
+      this.addDefaultSuggestedSetting("stream_touch_controller", "off");
     this.generateDefaultSuggestedSettings();
     const $suggestedSettings = CE("div", { class: "bx-suggest-wrapper" }), $select = CE("select", {}, hasRecommendedSettings && CE("option", { value: "recommended" }, ut("Recommended")), !hasRecommendedSettings && CE("option", { value: "highest" }, ut("Highest quality")), CE("option", { value: "default" }, t("default")), CE("option", { value: "lowest" }, ut("Lowest quality")));
     $select.addEventListener("input", (e2) => {
