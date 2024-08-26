@@ -1,0 +1,13 @@
+{
+    "schema_version": 1,
+    "device_name": "NVIDIA Shield TV (2015)",
+    "device_type": "android-tv",
+    "settings": {
+      "script": {
+        "_base": "highest",
+        "video_player_type": "default",
+        "video_processing": "usm",
+        "video_sharpness": 0
+      }
+    }
+  }
