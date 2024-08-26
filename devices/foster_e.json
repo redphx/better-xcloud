@@ -6,9 +6,9 @@
       "script": {
         "_base": "highest",
         "video_player_type": "default",
-        "video_processing": "usm",
         "video_power_preference": "default",
-        "video_sharpness": 0
+        "video_processing": "usm",
+        "video_sharpness": 1
       }
     }
   }
