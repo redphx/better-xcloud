@@ -390,8 +390,11 @@ var SUPPORTED_LANGUAGES = {
   "hide-system-menu-icon": "Hide System menu's icon",
   "hide-touch-controller": "Hide touch controller",
   "high-performance": "High performance",
+  "highest-quality": "Highest quality",
+  "highest-quality-note": "Your device may not be powerful enough to use these settings",
   "horizontal-scroll-sensitivity": "Horizontal scroll sensitivity",
   "horizontal-sensitivity": "Horizontal sensitivity",
+  "how-to-improve-app-performance": "How to improve app's performance",
   ignore: "Ignore",
   import: "Import",
   increase: "Increase",
@@ -406,6 +409,7 @@ var SUPPORTED_LANGUAGES = {
   "loading-screen": "Loading screen",
   "local-co-op": "Local co-op",
   "low-power": "Low power",
+  "lowest-quality": "Lowest quality",
   "map-mouse-to": "Map mouse to",
   "may-not-work-properly": "May not work properly!",
   menu: "Menu",
@@ -458,6 +462,28 @@ var SUPPORTED_LANGUAGES = {
   ],
   "press-to-bind": "Press a key or do a mouse click to bind...",
   "prompt-preset-name": "Preset's name:",
+  recommended: "Recommended",
+  "recommended-settings-for-device": [
+    (e) => `Recommended settings for ${e.device}`,
+    ,
+    ,
+    ,
+    ,
+    (e) => `Ajustes recomendados para ${e.device}`,
+    ,
+    (e) => `Configurazioni consigliate per ${e.device}`,
+    ,
+    (e) => `다음 기기에서 권장되는 설정: ${e.device}`,
+    ,
+    ,
+    ,
+    ,
+    ,
+    (e) => `Рекомендовані налаштування для ${e.device}`,
+    (e) => `Cấu hình được đề xuất cho ${e.device}`,
+    ,
+    ,
+  ],
   "reduce-animations": "Reduce UI animations",
   region: "Region",
   "reload-page": "Reload page",
@@ -519,6 +545,8 @@ var SUPPORTED_LANGUAGES = {
   "stream-settings": "Stream settings",
   "stream-stats": "Stream stats",
   stretch: "Stretch",
+  "suggest-settings": "Suggest settings",
+  "suggest-settings-link": "Suggest recommended settings for this device",
   "support-better-xcloud": "Support Better xCloud",
   "swap-buttons": "Swap buttons",
   "take-screenshot": "Take screenshot",
@@ -583,6 +611,7 @@ var SUPPORTED_LANGUAGES = {
   volume: "Volume",
   "wait-time-countdown": "Countdown",
   "wait-time-estimated": "Estimated finish time",
+  wallpaper: "Wallpaper",
   webgl2: "WebGL2"
 };
 
@@ -663,9 +692,7 @@ class Translations {
     localStorage.setItem(Translations.#KEY_LOCALE, locale);
   }
 }
-var t = Translations.get, ut = (text) => {
-  return BxLogger.warning("Untranslated text", text), text;
-};
+var t = Translations.get;
 Translations.init();
 
 var BypassServers = {
@@ -4406,7 +4433,7 @@ class SettingsNavigationDialog extends NavigationDialog {
         }, t("settings-reload-note")), topButtons.push(this.$noteGlobalReload), this.$btnSuggestion = CE("div", {
           class: "bx-suggest-toggler bx-focusable",
           tabindex: 0
-        }, CE("label", {}, ut("Suggest settings")), CE("span", {}, "❯")), this.$btnSuggestion.addEventListener("click", this.renderSuggestions.bind(this)), topButtons.push(this.$btnSuggestion);
+        }, CE("label", {}, t("suggest-settings")), CE("span", {}, "❯")), this.$btnSuggestion.addEventListener("click", this.renderSuggestions.bind(this)), topButtons.push(this.$btnSuggestion);
         const $div = CE("div", {
           class: "bx-top-buttons",
           _nearby: {
@@ -4880,7 +4907,6 @@ class SettingsNavigationDialog extends NavigationDialog {
         recommendedDevice = await this.getRecommendedSettings(deviceCode);
       }
     }
-    recommendedDevice = await this.getRecommendedSettings("foster_e");
     const hasRecommendedSettings = Object.keys(this.suggestedSettings.recommended).length > 0, deviceType = BX_FLAGS.DeviceInfo.deviceType;
     if (deviceType === "android-handheld")
       this.addDefaultSuggestedSetting("stream_touch_controller", "off"), this.addDefaultSuggestedSetting("controller_device_vibration", "on");
@@ -4889,16 +4915,16 @@ class SettingsNavigationDialog extends NavigationDialog {
     else if (deviceType === "android-tv")
       this.addDefaultSuggestedSetting("stream_touch_controller", "off");
     this.generateDefaultSuggestedSettings();
-    const $suggestedSettings = CE("div", { class: "bx-suggest-wrapper" }), $select = CE("select", {}, hasRecommendedSettings && CE("option", { value: "recommended" }, ut("Recommended")), !hasRecommendedSettings && CE("option", { value: "highest" }, ut("Highest quality")), CE("option", { value: "default" }, t("default")), CE("option", { value: "lowest" }, ut("Lowest quality")));
+    const $suggestedSettings = CE("div", { class: "bx-suggest-wrapper" }), $select = CE("select", {}, hasRecommendedSettings && CE("option", { value: "recommended" }, t("recommended")), !hasRecommendedSettings && CE("option", { value: "highest" }, t("highest-quality")), CE("option", { value: "default" }, t("default")), CE("option", { value: "lowest" }, t("lowest-quality")));
     $select.addEventListener("input", (e2) => {
       const profile = $select.value;
       removeChildElements($suggestedSettings);
       const fragment = document.createDocumentFragment();
       let note;
       if (profile === "recommended")
-        note = ut(`Recommended settings for ${recommendedDevice}`);
+        note = t("recommended-settings-for-device", { device: recommendedDevice });
       else if (profile === "highest")
-        note = ut("⚠️ Your device may not be powerful enough to use these settings");
+        note = "⚠️ " + t("highest-quality-note");
       note && fragment.appendChild(CE("div", { class: "bx-suggest-note" }, note));
       const settings = this.suggestedSettings[profile];
       let prefKey;
@@ -4963,12 +4989,17 @@ class SettingsNavigationDialog extends NavigationDialog {
       _nearby: {
         orientation: "vertical"
       }
-    }, BxSelectElement.wrap($select), $suggestedSettings, $btnApply, BX_FLAGS.DeviceInfo.deviceType.includes("android") && !hasRecommendedSettings && CE("a", {
+    }, BxSelectElement.wrap($select), $suggestedSettings, $btnApply, BX_FLAGS.DeviceInfo.deviceType.includes("android") && CE("a", {
+      class: "bx-suggest-link bx-focusable",
+      href: "https://better-xcloud.github.io/guide/android-webview-tweaks/",
+      target: "_blank",
+      tabindex: 0
+    }, t("how-to-improve-app-performance")), BX_FLAGS.DeviceInfo.deviceType.includes("android") && !hasRecommendedSettings && CE("a", {
       class: "bx-suggest-link bx-focusable",
       href: "https://github.com/redphx/better-xcloud-devices",
       target: "_blank",
       tabindex: 0
-    }, ut("Suggest recommended settings for this device"))), $btnSuggest?.insertAdjacentElement("afterend", $content);
+    }, t("suggest-settings-link"))), $btnSuggest?.insertAdjacentElement("afterend", $content);
   }
   renderTab(settingTab) {
     const $svg = createSvgIcon(settingTab.icon);
