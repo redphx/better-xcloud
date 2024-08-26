@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "device_name": "NVIDIA Shield TV (2015)",
-  "device_type": "android-tv",
+  "device_name": "Redmi Note 12",
+  "device_type": "android",
   "settings": {
     "script": {
       "_base": "highest",
       "video_player_type": "default",
       "video_power_preference": "default",
       "video_processing": "usm",
-      "video_sharpness": 1
+      "video_sharpness": 0
     }
   }
 }
