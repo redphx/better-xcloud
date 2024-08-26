@@ -1,6 +1,7 @@
 import type { PrefKey } from "@/enums/pref-keys";
-import type { SettingDefinitions } from "@/types/setting-definition";
+import type { NumberStepperParams, SettingDefinitions } from "@/types/setting-definition";
 import { BxEvent } from "../bx-event";
+import { SettingElementType } from "../setting-element";
 
 export class BaseSettingsStore {
     private storage: Storage;
@@ -12,7 +13,8 @@ export class BaseSettingsStore {
         this.storage = window.localStorage;
         this.storageKey = storageKey;
 
-        for (const settingId in definitions) {
+        let settingId: keyof typeof definitions
+        for (settingId in definitions) {
             const setting = definitions[settingId];
 
             /*
@@ -49,14 +51,14 @@ export class BaseSettingsStore {
         return this.definitions[key];
     }
 
-    getSetting(key: PrefKey) {
+    getSetting(key: PrefKey, checkUnsupported = true) {
         if (typeof key === 'undefined') {
             debugger;
             return;
         }
 
         // Return default value if the feature is not supported
-        if (this.definitions[key].unsupported) {
+        if (checkUnsupported && this.definitions[key].unsupported) {
             return this.definitions[key].default;
         }
 
@@ -120,5 +122,31 @@ export class BaseSettingsStore {
         }
 
         return value;
+    }
+
+    getLabel(key: PrefKey): string {
+        return this.definitions[key].label || key;
+    }
+
+    getValueText(key: PrefKey, value: any): string {
+        const definition = this.definitions[key];
+        if (definition.type === SettingElementType.NUMBER_STEPPER) {
+            const params = (definition as any).params as NumberStepperParams;
+            if (params.customTextValue) {
+                const text = params.customTextValue(value);
+                if (text) {
+                    return text;
+                }
+            }
+
+            return value.toString();
+        } else if ('options' in definition) {
+            const options = (definition as any).options;
+            if (value in options) {
+                return options[value];
+            }
+        }
+
+        return value.toString();
     }
 }

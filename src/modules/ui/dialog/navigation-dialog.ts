@@ -544,7 +544,7 @@ export class NavigationDialogManager {
         const children = Array.from($elm.children);
 
         // Search from right to left if the orientation is horizontal
-        const orientation = ($elm as NavigationElement).nearby?.orientation;
+        const orientation = ($elm as NavigationElement).nearby?.orientation || 'vertical';
         if (orientation === 'horizontal' || (orientation === 'vertical' && direction === NavigationDirection.UP)) {
             children.reverse();
         }

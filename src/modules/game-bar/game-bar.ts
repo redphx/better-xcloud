@@ -7,7 +7,7 @@ import type { BaseGameBarAction } from "./action-base";
 import { STATES } from "@utils/global";
 import { MicrophoneAction } from "./action-microphone";
 import { PrefKey } from "@/enums/pref-keys";
-import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { getPref, StreamTouchController } from "@/utils/settings-storages/global-settings-storage";
 
 
 export class GameBar {
@@ -42,7 +42,7 @@ export class GameBar {
 
         this.actions = [
             new ScreenshotAction(),
-            ...(STATES.userAgent.capabilities.touch && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'off') ? [new TouchControlAction()] : []),
+            ...(STATES.userAgent.capabilities.touch && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== StreamTouchController.OFF) ? [new TouchControlAction()] : []),
             new MicrophoneAction(),
         ];
 

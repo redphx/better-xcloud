@@ -9,7 +9,7 @@ import { patchIceCandidates } from "./network";
 import { getPreferredServerRegion } from "./region";
 import { BypassServerIps } from "@/enums/bypass-servers";
 import { PrefKey } from "@/enums/pref-keys";
-import { getPref } from "./settings-storages/global-settings-storage";
+import { getPref, StreamResolution, StreamTouchController } from "./settings-storages/global-settings-storage";
 
 export
 class XcloudInterceptor {
@@ -111,7 +111,7 @@ class XcloudInterceptor {
 
         // Force stream's resolution
         if (PREF_STREAM_TARGET_RESOLUTION !== 'auto') {
-            const osName = (PREF_STREAM_TARGET_RESOLUTION === '720p') ? 'android' : 'windows';
+            const osName = (PREF_STREAM_TARGET_RESOLUTION === StreamResolution.DIM_720P) ? 'android' : 'windows';
             body.settings.osName = osName;
         }
 
@@ -147,7 +147,7 @@ class XcloudInterceptor {
         }
 
         // Touch controller for all games
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all') {
+        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.ALL) {
             const titleInfo = STATES.currentStream.titleInfo;
             if (titleInfo?.details.hasTouchSupport) {
                 TouchController.disable();

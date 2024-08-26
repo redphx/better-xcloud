@@ -4,8 +4,7 @@ import { StreamPlayerType, StreamVideoProcessing } from "@/enums/stream-player";
 import { UiSection } from "@/enums/ui-sections";
 import { UserAgentProfile } from "@/enums/user-agent";
 import { StreamStat } from "@/modules/stream/stream-stats";
-import type { PreferenceSetting } from "@/types/preferences";
-import { type SettingDefinitions } from "@/types/setting-definition";
+import { type SettingDefinition, type SettingDefinitions } from "@/types/setting-definition";
 import { BX_FLAGS } from "../bx-flags";
 import { STATES, AppInterface, STORAGE } from "../global";
 import { CE } from "../html";
@@ -15,8 +14,33 @@ import { BaseSettingsStore as BaseSettingsStorage } from "./base-settings-storag
 import { SettingElementType } from "../setting-element";
 
 
+export const enum StreamResolution {
+    DIM_720P = '720p',
+    DIM_1080P = '1080p',
+}
+
+export const enum CodecProfile {
+    DEFAULT = 'default',
+    LOW = 'low',
+    NORMAL = 'normal',
+    HIGH = 'high',
+};
+
+export const enum StreamTouchController {
+    DEFAULT = 'default',
+    ALL = 'all',
+    OFF = 'off',
+}
+
+export const enum ControllerDeviceVibration {
+    ON = 'on',
+    AUTO = 'auto',
+    OFF = 'off',
+}
+
+
 function getSupportedCodecProfiles() {
-    const options: {[index: string]: string} = {
+    const options: PartialRecord<CodecProfile, string> = {
         default: t('default'),
     };
 
@@ -46,25 +70,25 @@ function getSupportedCodecProfiles() {
 
     if (hasLowCodec) {
         if (!hasNormalCodec && !hasHighCodec) {
-            options.default = `${t('visual-quality-low')} (${t('default')})`;
+            options[CodecProfile.DEFAULT] = `${t('visual-quality-low')} (${t('default')})`;
         } else {
-            options.low = t('visual-quality-low');
+            options[CodecProfile.LOW] = t('visual-quality-low');
         }
     }
 
     if (hasNormalCodec) {
         if (!hasLowCodec && !hasHighCodec) {
-            options.default = `${t('visual-quality-normal')} (${t('default')})`;
+            options[CodecProfile.DEFAULT] = `${t('visual-quality-normal')} (${t('default')})`;
         } else {
-            options.normal = t('visual-quality-normal');
+            options[CodecProfile.NORMAL] = t('visual-quality-normal');
         }
     }
 
     if (hasHighCodec) {
         if (!hasLowCodec && !hasNormalCodec) {
-            options.default = `${t('visual-quality-high')} (${t('default')})`;
+            options[CodecProfile.DEFAULT] = `${t('visual-quality-high')} (${t('default')})`;
         } else {
-            options.high = t('visual-quality-high');
+            options[CodecProfile.HIGH] = t('visual-quality-high');
         }
     }
 
@@ -140,25 +164,31 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: 'auto',
             options: {
                 auto: t('default'),
-                '720p': '720p',
-                '1080p': '1080p',
+                [StreamResolution.DIM_720P]: '720p',
+                [StreamResolution.DIM_1080P]: '1080p',
+            },
+            suggest: {
+                lowest: StreamResolution.DIM_720P,
+                highest: StreamResolution.DIM_1080P,
             },
         },
         [PrefKey.STREAM_CODEC_PROFILE]: {
             label: t('visual-quality'),
             default: 'default',
             options: getSupportedCodecProfiles(),
-            ready: (setting: PreferenceSetting) => {
-                const options: any = setting.options;
+            ready: (setting: SettingDefinition) => {
+                const options = (setting as any).options;
                 const keys = Object.keys(options);
 
                 if (keys.length <= 1) { // Unsupported
                     setting.unsupported = true;
                     setting.note = '⚠️ ' + t('browser-unsupported-feature');
-                } else {
-                    // Set default value to the best codec profile
-                    // setting.default = keys[keys.length - 1];
                 }
+
+                setting.suggest = {
+                    lowest: keys.length === 1 ? keys[0] : keys[1],
+                    highest: keys[keys.length - 1],
+                };
             },
         },
         [PrefKey.PREFER_IPV6_SERVER]: {
@@ -189,16 +219,16 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
 
         [PrefKey.STREAM_TOUCH_CONTROLLER]: {
             label: t('tc-availability'),
-            default: 'all',
+            default: StreamTouchController.ALL,
             options: {
-                default: t('default'),
-                all: t('tc-all-games'),
-                off: t('off'),
+                [StreamTouchController.DEFAULT]: t('default'),
+                [StreamTouchController.ALL]: t('tc-all-games'),
+                [StreamTouchController.OFF]: t('off'),
             },
             unsupported: !STATES.userAgent.capabilities.touch,
-            ready: (setting: PreferenceSetting) => {
+            ready: (setting: SettingDefinition) => {
                 if (setting.unsupported) {
-                    setting.default = 'default';
+                    setting.default = StreamTouchController.DEFAULT;
                 }
             },
         },
@@ -274,6 +304,9 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                     }
                 },
             },
+            suggest: {
+                highest: 0,
+            }
         },
 
         [PrefKey.GAME_BAR_POSITION]: {
@@ -318,11 +351,11 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
 
         [PrefKey.CONTROLLER_DEVICE_VIBRATION]: {
             label: t('device-vibration'),
-            default: 'off',
+            default: ControllerDeviceVibration.OFF,
             options: {
-                on: t('on'),
-                auto: t('device-vibration-not-using-gamepad'),
-                off: t('off'),
+                [ControllerDeviceVibration.ON]: t('on'),
+                [ControllerDeviceVibration.AUTO]: t('device-vibration-not-using-gamepad'),
+                [ControllerDeviceVibration.OFF]: t('off'),
             },
         },
 
@@ -346,7 +379,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 const userAgent = ((window.navigator as any).orgUserAgent || window.navigator.userAgent || '').toLowerCase();
                 return !AppInterface && userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
             })(),
-            ready: (setting: PreferenceSetting) => {
+            ready: (setting: SettingDefinition) => {
                 let note;
                 let url;
                 if (setting.unsupported) {
@@ -372,16 +405,15 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 on: t('on'),
                 off: t('off'),
             },
-            ready: (setting: PreferenceSetting) => {
+            ready: (setting: SettingDefinition) => {
                 if (AppInterface) {
-
                 } else if (UserAgent.isMobile()) {
                     setting.unsupported = true;
                     setting.default = 'off';
-                    delete setting.options!['default'];
-                    delete setting.options!['on'];
+                    delete (setting as any).options['default'];
+                    delete (setting as any).options['on'];
                 } else {
-                    delete setting.options!['on'];
+                    delete (setting as any).options['on'];
                 }
             },
         },
@@ -530,6 +562,10 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 [StreamPlayerType.VIDEO]: t('default'),
                 [StreamPlayerType.WEBGL2]: t('webgl2'),
             },
+            suggest: {
+                lowest: StreamPlayerType.VIDEO,
+                highest: StreamPlayerType.WEBGL2,
+            },
         },
         [PrefKey.VIDEO_PROCESSING]: {
             label: t('clarity-boost'),
@@ -537,6 +573,10 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             options: {
                 [StreamVideoProcessing.USM]: t('unsharp-masking'),
                 [StreamVideoProcessing.CAS]: t('amd-fidelity-cas'),
+            },
+            suggest: {
+                lowest: StreamVideoProcessing.USM,
+                highest: StreamVideoProcessing.CAS,
             },
         },
         [PrefKey.VIDEO_POWER_PREFERENCE]: {
@@ -546,6 +586,9 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 'default': t('default'),
                 'low-power': t('low-power'),
                 'high-performance': t('high-performance'),
+            },
+            suggest: {
+                highest: 'low-power',
             },
         },
         [PrefKey.VIDEO_SHARPNESS]: {
@@ -560,6 +603,10 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                     value = parseInt(value);
                     return value === 0 ? t('off') : value.toString();
                 },
+            },
+            suggest: {
+                lowest: 0,
+                highest: 4,
             },
         },
         [PrefKey.VIDEO_RATIO]: {
@@ -701,10 +748,10 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.REMOTE_PLAY_RESOLUTION]: {
-            default: '1080p',
+            default: StreamResolution.DIM_1080P,
             options: {
-                '1080p': '1080p',
-                '720p': '720p',
+                [StreamResolution.DIM_1080P]: '1080p',
+                [StreamResolution.DIM_720P]: '720p',
             },
         },
 

@@ -31,6 +31,42 @@
         font-weight: normal;
         height: var(--bx-button-height);
     }
+
+    input {
+        accent-color: var(--bx-primary-button-color);
+
+        &:focus {
+            accent-color: var(--bx-danger-button-color);
+        }
+    }
+
+    select:disabled {
+        -webkit-appearance: none;
+        background: transparent;
+        text-align-last: right;
+        border: none;
+        color: #fff;
+    }
+
+    select option:disabled {
+        display: none;
+    }
+
+    input[type=checkbox],
+    select {
+        &:focus {
+            filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
+        }
+    }
+
+    a {
+        color: #5dc21e;
+        text-decoration: none;
+
+        &:hover, &:focus {
+            color: #128112;
+        }
+    }
 }
 
 .bx-settings-tabs-container {
@@ -258,13 +294,6 @@
         flex-wrap: wrap;
     }
 
-    input[type=checkbox],
-    select {
-        &:focus {
-            filter: drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);
-        }
-    }
-
     /*
     &:has(input:focus), &:has(select:focus), &:has(button:focus) {
         border-left-color: white;
@@ -281,26 +310,6 @@
         + * {
             margin: 0 0 0 auto;
         }
-    }
-
-    input {
-        accent-color: var(--bx-primary-button-color);
-
-        &:focus {
-            accent-color: var(--bx-danger-button-color);
-        }
-    }
-
-    select:disabled {
-        -webkit-appearance: none;
-        background: transparent;
-        text-align-last: right;
-        border: none;
-        color: #fff;
-    }
-
-    select option:disabled {
-        display: none;
     }
 }
 
@@ -335,15 +344,6 @@
     line-height: 20px;
     font-size: 14px;
     margin-top: 10px;
-    color: #5dc21e;
-
-    &:hover {
-        color: #6dd72b;
-    }
-
-    &:focus {
-        text-decoration: underline;
-    }
 }
 
 .bx-debug-info {
@@ -401,6 +401,169 @@
         *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)) {
             border: none;
             border-radius: 10px;
+        }
+    }
+}
+
+.bx-suggest-toggler {
+    text-align: left;
+    display: flex;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #003861;
+
+    label {
+        flex: 1;
+        margin-bottom: 0;
+        padding: 10px;
+        background: #004f87;
+    }
+
+    span {
+        display: inline-block;
+        align-self: center;
+        padding: 10px;
+        width: 40px;
+        text-align: center;
+    }
+
+    &:hover, &:focus {
+        cursor: pointer;
+        background: #005da1;
+
+        label {
+            background: #006fbe;
+        }
+    }
+
+    &[bx-open] {
+        span {
+            transform: rotate(90deg);
+        }
+
+        &+ .bx-suggest-box {
+            display: block;
+        }
+    }
+}
+
+.bx-suggest-box {
+    display: none;
+    background: #161616;
+    padding: 10px;
+    box-shadow: 0px 0px 12px #0f0f0f inset;
+    border-radius: 10px;
+}
+
+.bx-suggest-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px;
+}
+
+.bx-suggest-note {
+    font-size: 11px;
+    color: #8c8c8c;
+    font-style: italic;
+    font-weight: 100;
+}
+
+.bx-suggest-link {
+    font-size: 12px;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.bx-suggest-row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    label {
+        flex: 1;
+        overflow: overlay;
+        border-radius: 4px;
+
+        .bx-suggest-label {
+            background: #323232;
+            padding: 4px 10px;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .bx-suggest-value {
+            padding: 6px;
+            font-size: 14px;
+
+            &.bx-suggest-change {
+                background-color: var(--bx-warning-color);
+            }
+        }
+    }
+
+    &.bx-suggest-ok {
+        input {
+            visibility: hidden;
+        }
+
+        .bx-suggest-label {
+            background-color: #008114;
+        }
+
+        .bx-suggest-value {
+            background-color: #13a72a;
+        }
+    }
+
+    &.bx-suggest-change {
+        .bx-suggest-label {
+            background-color: #a65e08;
+        }
+
+        .bx-suggest-value {
+            background-color: #d57f18;
+        }
+
+        &:hover {
+            label {
+                cursor: pointer;
+            }
+
+            .bx-suggest-label {
+                background-color: #995707;
+            }
+
+            .bx-suggest-value {
+                background-color: #bd7115;
+            }
+        }
+
+        // Unchecked setting
+        input:not(:checked) + label {
+            opacity: 0.5;
+
+            .bx-suggest-label {
+                background-color: #2a2a2a;
+            }
+
+            .bx-suggest-value {
+                background-color: #393939;
+            }
+        }
+
+        &:hover {
+            input:not(:checked) + label {
+                opacity: 1;
+
+                .bx-suggest-label {
+                    background-color: #202020;
+                }
+
+                .bx-suggest-value {
+                    background-color: #303030;
+                }
+            }
         }
     }
 }

@@ -5,7 +5,7 @@ import { BxLogger } from "./bx-logger";
 import { BX_FLAGS } from "./bx-flags";
 import { NavigationDialogManager } from "@/modules/ui/dialog/navigation-dialog";
 import { PrefKey } from "@/enums/pref-keys";
-import { getPref } from "./settings-storages/global-settings-storage";
+import { getPref, StreamTouchController } from "./settings-storages/global-settings-storage";
 
 export enum SupportedInputType {
     CONTROLLER = 'Controller',
@@ -41,7 +41,7 @@ export const BxExposed = {
             let touchControllerAvailability = getPref(PrefKey.STREAM_TOUCH_CONTROLLER);
 
             // Disable touch control when gamepad found
-            if (touchControllerAvailability !== 'off' && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
+            if (touchControllerAvailability !== StreamTouchController.OFF && getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
                 const gamepads = window.navigator.getGamepads();
                 let gamepadFound = false;
 
@@ -52,10 +52,10 @@ export const BxExposed = {
                     }
                 }
 
-                gamepadFound && (touchControllerAvailability = 'off');
+                gamepadFound && (touchControllerAvailability = StreamTouchController.OFF);
             }
 
-            if (touchControllerAvailability === 'off') {
+            if (touchControllerAvailability === StreamTouchController.OFF) {
                 // Disable touch on all games (not native touch)
                 supportedInputTypes = supportedInputTypes.filter(i => i !== SupportedInputType.CUSTOM_TOUCH_OVERLAY && i !== SupportedInputType.GENERIC_TOUCH);
                 // Empty TABs
@@ -68,7 +68,7 @@ export const BxExposed = {
                     supportedInputTypes.includes(SupportedInputType.CUSTOM_TOUCH_OVERLAY) ||
                     supportedInputTypes.includes(SupportedInputType.GENERIC_TOUCH);
 
-            if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === 'all') {
+            if (!titleInfo.details.hasTouchSupport && touchControllerAvailability === StreamTouchController.ALL) {
                 // Add generic touch support for non touch-supported games
                 titleInfo.details.hasFakeTouchSupport = true;
                 supportedInputTypes.push(SupportedInputType.GENERIC_TOUCH);

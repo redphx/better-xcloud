@@ -1,3 +1,5 @@
+import { BxLogger } from "./bx-logger";
+
 type BxFlags = {
     CheckForUpdate: boolean;
     EnableXcloudLogging: boolean;
@@ -7,8 +9,12 @@ type BxFlags = {
     FeatureGates: {[key: string]: boolean} | null,
 
     DeviceInfo: {
-        deviceType: 'android' | 'android-tv' | 'webos' | 'unknown',
+        deviceType: 'android' | 'android-tv' | 'android-handheld' | 'webos' | 'unknown',
         userAgent?: string,
+
+        androidInfo?: {
+            board: string,
+        },
     }
 }
 
@@ -34,5 +40,7 @@ try {
 if (!BX_FLAGS.DeviceInfo.userAgent) {
     BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
 }
+
+BxLogger.info('BxFlags', BX_FLAGS);
 
 export const NATIVE_FETCH = window.fetch;

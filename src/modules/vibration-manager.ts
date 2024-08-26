@@ -1,7 +1,7 @@
 import { AppInterface } from "@utils/global";
 import { BxEvent } from "@utils/bx-event";
 import { PrefKey } from "@/enums/pref-keys";
-import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { ControllerDeviceVibration, getPref } from "@/utils/settings-storages/global-settings-storage";
 
 const VIBRATION_DATA_MAP = {
     'gamepadIndex': 8,
@@ -69,9 +69,9 @@ export class VibrationManager {
         const value = getPref(PrefKey.CONTROLLER_DEVICE_VIBRATION);
         let enabled;
 
-        if (value === 'on') {
+        if (value === ControllerDeviceVibration.ON) {
             enabled = true;
-        } else if (value === 'auto') {
+        } else if (value === ControllerDeviceVibration.AUTO) {
             enabled = true;
             const gamepads = window.navigator.getGamepads();
             for (const gamepad of gamepads) {

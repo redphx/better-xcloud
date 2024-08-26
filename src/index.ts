@@ -34,7 +34,7 @@ import { GameTile } from "./modules/ui/game-tile";
 import { ProductDetailsPage } from "./modules/ui/product-details";
 import { NavigationDialogManager } from "./modules/ui/dialog/navigation-dialog";
 import { PrefKey } from "./enums/pref-keys";
-import { getPref } from "./utils/settings-storages/global-settings-storage";
+import { getPref, StreamTouchController } from "./utils/settings-storages/global-settings-storage";
 import { compressCss } from "@macros/build" with {type: "macro"};
 import { SettingsNavigationDialog } from "./modules/ui/dialog/settings-dialog";
 import { StreamUiHandler } from "./modules/stream/stream-ui";
@@ -359,7 +359,7 @@ function main() {
         RemotePlay.detect();
     }
 
-    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all') {
+    if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.ALL) {
         TouchController.setup();
     }
 

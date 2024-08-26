@@ -4,6 +4,7 @@ import { setNearby } from "./navigation-utils";
 import type { PrefKey } from "@/enums/pref-keys";
 import type { BaseSettingsStore } from "./settings-storages/base-settings-storage";
 import { type MultipleOptionsParams, type NumberStepperParams } from "@/types/setting-definition";
+import { BxEvent } from "./bx-event";
 
 export enum SettingElementType {
     OPTIONS = 'options',
@@ -13,16 +14,26 @@ export enum SettingElementType {
     CHECKBOX = 'checkbox',
 }
 
+interface BxBaseSettingElement {
+    setValue: (value: any) => void,
+}
+
+export interface BxHtmlSettingElement extends HTMLElement, BxBaseSettingElement {};
+
+export interface BxSelectSettingElement extends HTMLSelectElement, BxBaseSettingElement {}
+
 export class SettingElement {
-    static #renderOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any) {
-        const $control = CE<HTMLSelectElement>('select', {
+    static #renderOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any): BxSelectSettingElement {
+        const $control = CE<BxSelectSettingElement>('select', {
                 // title: setting.label,
                 tabindex: 0,
-            }) as HTMLSelectElement;
+            });
 
         let $parent: HTMLElement;
         if (setting.optionsGroup) {
-            $parent = CE('optgroup', {'label': setting.optionsGroup});
+            $parent = CE('optgroup', {
+                label: setting.optionsGroup,
+            });
             $control.appendChild($parent);
         } else {
             $parent = $control;
@@ -44,19 +55,20 @@ export class SettingElement {
         });
 
         // Custom method
-        ($control as any).setValue = (value: any) => {
+        $control.setValue = (value: any) => {
             $control.value = value;
         };
 
         return $control;
     }
 
-    static #renderMultipleOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any, params: MultipleOptionsParams={}) {
-        const $control = CE<HTMLSelectElement>('select', {
+    static #renderMultipleOptions(key: string, setting: PreferenceSetting, currentValue: any, onChange: any, params: MultipleOptionsParams={}): BxSelectSettingElement {
+        const $control = CE<BxSelectSettingElement>('select', {
                 // title: setting.label,
                 multiple: true,
                 tabindex: 0,
             });
+
         if (params && params.size) {
             $control.setAttribute('size', params.size.toString());
         }
@@ -75,7 +87,7 @@ export class SettingElement {
 
                 const $parent = target.parentElement!;
                 $parent.focus();
-                $parent.dispatchEvent(new Event('input'));
+                BxEvent.dispatch($parent, 'input');
             });
 
             $control.appendChild($option);
@@ -100,9 +112,15 @@ export class SettingElement {
     }
 
     static #renderNumber(key: string, setting: PreferenceSetting, currentValue: any, onChange: any) {
-        const $control = CE('input', {'tabindex': 0, 'type': 'number', 'min': setting.min, 'max': setting.max}) as HTMLInputElement;
+        const $control = CE<HTMLInputElement>('input', {
+            tabindex: 0,
+            type: 'number',
+            min: setting.min,
+            max: setting.max,
+        });
+
         $control.value = currentValue;
-        onChange && $control.addEventListener('change', (e: Event) => {
+        onChange && $control.addEventListener('input', (e: Event) => {
             const target = e.target as HTMLInputElement;
 
             const value = Math.max(setting.min!, Math.min(setting.max!, parseInt(target.value)));
@@ -118,7 +136,7 @@ export class SettingElement {
         const $control = CE('input', {'type': 'checkbox', 'tabindex': 0}) as HTMLInputElement;
         $control.checked = currentValue;
 
-        onChange && $control.addEventListener('change', e => {
+        onChange && $control.addEventListener('input', e => {
             !(e as any).ignoreOnChange && onChange(e, (e.target as HTMLInputElement).checked);
         });
 
@@ -162,77 +180,21 @@ export class SettingElement {
             $btnInc.classList.toggle('bx-inactive', controlValue === MAX);
         }
 
-        const $wrapper = CE('div', {'class': 'bx-number-stepper', id: `bx_setting_${key}`},
-                $btnDec = CE('button', {
-                        'data-type': 'dec',
-                        type: 'button',
-                        class: options.hideSlider ? 'bx-focusable' : '',
-                        tabindex: options.hideSlider ? 0 : -1,
-                    }, '-') as HTMLButtonElement,
-                $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
-                $btnInc = CE('button', {
-                        'data-type': 'inc',
-                        type: 'button',
-                        class: options.hideSlider ? 'bx-focusable' : '',
-                        tabindex: options.hideSlider ? 0 : -1,
-                    }, '+') as HTMLButtonElement,
-            );
-
-        if (options.disabled) {
-            ($wrapper as any).disabled = true;
-        }
-
-        if (!options.disabled && !options.hideSlider) {
-            $range = CE('input', {
-                    id: `bx_setting_${key}`,
-                    type: 'range',
-                    min: MIN,
-                    max: MAX,
-                    value: value,
-                    step: STEPS,
-                    tabindex: 0,
-                }) as HTMLInputElement;
-
-            $range.addEventListener('input', e => {
-                value = parseInt((e.target as HTMLInputElement).value);
-                const valueChanged = controlValue !== value;
-
-                if (!valueChanged) {
-                    return;
-                }
-
-                controlValue = value;
-                updateButtonsVisibility();
-                $text.textContent = renderTextValue(value);
-
-                !(e as any).ignoreOnChange && onChange && onChange(e, value);
-            });
-
-            $wrapper.appendChild($range);
-
-            if (options.ticks || options.exactTicks) {
-                const markersId = `markers-${key}`;
-                const $markers = CE('datalist', {'id': markersId});
-                $range.setAttribute('list', markersId);
-
-                if (options.exactTicks) {
-                    let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
-
-                    if (start === MIN) {
-                        start += options.exactTicks;
-                    }
-
-                    for (let i = start; i < MAX; i += options.exactTicks) {
-                        $markers.appendChild(CE<HTMLOptionElement>('option', {'value': i}));
-                    }
-                } else {
-                    for (let i = MIN + options.ticks!; i < MAX; i += options.ticks!) {
-                        $markers.appendChild(CE<HTMLOptionElement>('option', {'value': i}));
-                    }
-                }
-                $wrapper.appendChild($markers);
-            }
-        }
+        const $wrapper = CE<BxHtmlSettingElement>('div', {'class': 'bx-number-stepper', id: `bx_setting_${key}`},
+            $btnDec = CE('button', {
+                'data-type': 'dec',
+                type: 'button',
+                class: options.hideSlider ? 'bx-focusable' : '',
+                tabindex: options.hideSlider ? 0 : -1,
+            }, '-') as HTMLButtonElement,
+            $text = CE('span', {}, renderTextValue(value)) as HTMLSpanElement,
+            $btnInc = CE('button', {
+                'data-type': 'inc',
+                type: 'button',
+                class: options.hideSlider ? 'bx-focusable' : '',
+                tabindex: options.hideSlider ? 0 : -1,
+            }, '+') as HTMLButtonElement,
+        );
 
         if (options.disabled) {
             $btnInc.disabled = true;
@@ -240,7 +202,64 @@ export class SettingElement {
 
             $btnDec.disabled = true;
             $btnDec.classList.add('bx-inactive');
+
+            ($wrapper as any).disabled = true;
             return $wrapper;
+        }
+
+        $range = CE<HTMLInputElement>('input', {
+            id: `bx_setting_${key}`,
+            type: 'range',
+            min: MIN,
+            max: MAX,
+            value: value,
+            step: STEPS,
+            tabindex: 0,
+        });
+
+        options.hideSlider && $range.classList.add('bx-gone');
+
+        $range.addEventListener('input', e => {
+            value = parseInt((e.target as HTMLInputElement).value);
+            const valueChanged = controlValue !== value;
+
+            if (!valueChanged) {
+                return;
+            }
+
+            controlValue = value;
+            updateButtonsVisibility();
+            $text.textContent = renderTextValue(value);
+
+            !(e as any).ignoreOnChange && onChange && onChange(e, value);
+        });
+
+        $wrapper.addEventListener('input', e => {
+            BxEvent.dispatch($range, 'input');
+        });
+        $wrapper.appendChild($range);
+
+        if (options.ticks || options.exactTicks) {
+            const markersId = `markers-${key}`;
+            const $markers = CE('datalist', {'id': markersId});
+            $range.setAttribute('list', markersId);
+
+            if (options.exactTicks) {
+                let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
+
+                if (start === MIN) {
+                    start += options.exactTicks;
+                }
+
+                for (let i = start; i < MAX; i += options.exactTicks) {
+                    $markers.appendChild(CE<HTMLOptionElement>('option', {'value': i}));
+                }
+            } else {
+                for (let i = MIN + options.ticks!; i < MAX; i += options.ticks!) {
+                    $markers.appendChild(CE<HTMLOptionElement>('option', {'value': i}));
+                }
+            }
+            $wrapper.appendChild($markers);
         }
 
         updateButtonsVisibility();
@@ -278,16 +297,14 @@ export class SettingElement {
 
         const onMouseDown = (e: PointerEvent) => {
             e.preventDefault();
-
             isHolding = true;
 
             const args = arguments;
             interval && clearInterval(interval);
             interval = window.setInterval(() => {
-                const event = new Event('click');
-                (event as any).arguments = args;
-
-                e.target?.dispatchEvent(event);
+                e.target && BxEvent.dispatch(e.target as HTMLElement, 'click', {
+                    arguments: args,
+                });
             }, 200);
         };
 
@@ -301,11 +318,9 @@ export class SettingElement {
         const onContextMenu = (e: Event) => e.preventDefault();
 
         // Custom method
-        ($wrapper as any).setValue = (value: any) => {
-            controlValue = parseInt(value);
-
+        $wrapper.setValue = (value: any) => {
             $text.textContent = renderTextValue(value);
-            $range && ($range.value = value);
+            $range.value = value;
         };
 
         $btnDec.addEventListener('click', onClick);

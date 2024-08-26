@@ -1,5 +1,5 @@
 import { onChangeVideoPlayerType, updateVideoPlayer } from "@/modules/stream/stream-settings-utils";
-import { ButtonStyle, CE, createButton, createSvgIcon } from "@/utils/html";
+import { ButtonStyle, CE, createButton, createSvgIcon, removeChildElements } from "@/utils/html";
 import { NavigationDialog, NavigationDirection } from "./navigation-dialog";
 import { ControllerShortcut } from "@/modules/controller-shortcut";
 import { MkbRemapper } from "@/modules/mkb/mkb-remapper";
@@ -17,13 +17,13 @@ import { setNearby } from "@/utils/navigation-utils";
 import { PatcherCache } from "@/modules/patcher";
 import { UserAgentProfile } from "@/enums/user-agent";
 import { UserAgent } from "@/utils/user-agent";
-import { BX_FLAGS } from "@/utils/bx-flags";
+import { BX_FLAGS, NATIVE_FETCH } from "@/utils/bx-flags";
 import { copyToClipboard } from "@/utils/utils";
 import { GamepadKey } from "@/enums/mkb";
 import { PrefKey, StorageKey } from "@/enums/pref-keys";
-import { getPref, getPrefDefinition, setPref } from "@/utils/settings-storages/global-settings-storage";
-import { SettingElement } from "@/utils/setting-element";
-import type { SettingDefinition } from "@/types/setting-definition";
+import { ControllerDeviceVibration, getPref, getPrefDefinition, setPref, StreamTouchController } from "@/utils/settings-storages/global-settings-storage";
+import { SettingElement, type BxHtmlSettingElement } from "@/utils/setting-element";
+import type { RecommendedSettings, SettingDefinition, SuggestedSettingCategory as SuggestedSettingProfile } from "@/types/setting-definition";
 import { FullscreenText } from "../fullscreen-text";
 
 
@@ -72,8 +72,18 @@ export class SettingsNavigationDialog extends NavigationDialog {
     private $btnReload!: HTMLElement;
     private $btnGlobalReload!: HTMLButtonElement;
     private $noteGlobalReload!: HTMLElement;
+    private $btnSuggestion!: HTMLButtonElement;
 
     private renderFullSettings: boolean;
+
+    private suggestedSettings: Record<SuggestedSettingProfile, PartialRecord<PrefKey, any>> = {
+        recommended: {},
+        default: {},
+        lowest: {},
+        highest: {},
+    };
+    private suggestedSettingLabels: PartialRecord<PrefKey, string> = {};
+    private settingElements: PartialRecord<PrefKey, HTMLElement> = {};
 
     private readonly TAB_GLOBAL_ITEMS: Array<SettingTabContent | false> = [{
         group: 'general',
@@ -134,6 +144,17 @@ export class SettingsNavigationDialog extends NavigationDialog {
                     class: 'bx-settings-reload-note',
                 }, t('settings-reload-note'));
                 topButtons.push(this.$noteGlobalReload);
+
+                // Suggestion
+                this.$btnSuggestion = CE('div', {
+                    class: 'bx-suggest-toggler bx-focusable',
+                    tabindex: 0,
+                }, CE('label', {}, t('suggest-settings')),
+                    CE('span', {}, '❯'),
+                );
+                this.$btnSuggestion.addEventListener('click', this.renderSuggestions.bind(this));
+
+                topButtons.push(this.$btnSuggestion);
 
                 // Add buttons to parent
                 const $div = CE('div', {
@@ -306,7 +327,10 @@ export class SettingsNavigationDialog extends NavigationDialog {
                         label: 'Debug info',
                         style: ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
                         onClick: e => {
-                            (e.target as HTMLElement).closest('button')?.nextElementSibling?.classList.toggle('bx-gone');
+                            const $pre = (e.target as HTMLElement).closest('button')?.nextElementSibling!;
+
+                            $pre.classList.toggle('bx-gone');
+                            $pre.scrollIntoView();
                         },
                     }),
                     CE('pre', {
@@ -617,6 +641,291 @@ export class SettingsNavigationDialog extends NavigationDialog {
         window.location.reload();
     }
 
+    private async getRecommendedSettings(deviceCode: string): Promise<string | null> {
+        // Get recommended settings from GitHub
+        try {
+            const response = await NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/devices/${deviceCode.toLowerCase()}.json`);
+            const json = (await response.json()) as RecommendedSettings;
+            const recommended: PartialRecord<PrefKey, any> = {};
+
+            // Only supports schema version 1
+            if (json.schema_version !== 1) {
+                return null;
+            }
+
+            const scriptSettings = json.settings.script;
+
+            // Set base settings
+            if (scriptSettings._base) {
+                let base = typeof scriptSettings._base === 'string' ? [scriptSettings._base] : scriptSettings._base;
+                for (const profile of base) {
+                    Object.assign(recommended, this.suggestedSettings[profile]);
+                }
+
+                delete scriptSettings._base;
+            }
+
+            // Override settings
+            let key: Exclude<keyof typeof scriptSettings, '_base'>;
+            // @ts-ignore
+            for (key in scriptSettings) {
+                recommended[key] = scriptSettings[key];
+            }
+
+            // Update device type in BxFlags
+            BX_FLAGS.DeviceInfo.deviceType = json.device_type;
+
+            this.suggestedSettings.recommended = recommended;
+
+            return json.device_name;
+        } catch (e) {}
+
+        return null;
+    }
+
+    private addDefaultSuggestedSetting(prefKey: PrefKey, value: any) {
+        let key: keyof typeof this.suggestedSettings;
+        for (key in this.suggestedSettings) {
+            if (key !== 'default' && !(prefKey in this.suggestedSettings)) {
+                this.suggestedSettings[key][prefKey] = value;
+            }
+        }
+    }
+
+    private generateDefaultSuggestedSettings() {
+        let key: keyof typeof this.suggestedSettings;
+        for (key in this.suggestedSettings) {
+            if (key === 'default') {
+                continue;
+            }
+
+            let prefKey: PrefKey;
+            for (prefKey in this.suggestedSettings[key]) {
+                if (!(prefKey in this.suggestedSettings.default)) {
+                    this.suggestedSettings.default[prefKey] = getPrefDefinition(prefKey).default;
+                }
+            }
+        }
+    }
+
+    private async renderSuggestions(e: Event) {
+        const $btnSuggest = (e.target as HTMLElement).closest('div')!;
+        $btnSuggest.toggleAttribute('bx-open');
+
+        let $content = $btnSuggest.nextElementSibling as HTMLElement;
+        if ($content) {
+            BxEvent.dispatch($content.querySelector('select'), 'input');
+            return;
+        }
+
+        // Get labels
+        for (const settingTab of this.SETTINGS_UI) {
+            if (!settingTab || !settingTab.items) {
+                continue;
+            }
+
+            for (const settingTabContent of settingTab.items) {
+                if (!settingTabContent || !settingTabContent.items) {
+                    continue;
+                }
+
+                for (const setting of settingTabContent.items) {
+                    let prefKey: PrefKey | undefined;
+
+                    if (typeof setting === 'string') {
+                        prefKey = setting;
+                    } else if (typeof setting === 'object') {
+                        prefKey = setting.pref as PrefKey;
+                    }
+
+                    if (prefKey) {
+                        this.suggestedSettingLabels[prefKey] = settingTabContent.label;
+                    }
+                }
+            }
+        }
+
+        // Get recommended settings for Android devices
+        let recommendedDevice: string | null = '';
+
+        if (BX_FLAGS.DeviceInfo.deviceType.includes('android')) {
+            if (BX_FLAGS.DeviceInfo.androidInfo) {
+                const deviceCode = BX_FLAGS.DeviceInfo.androidInfo.board;
+                recommendedDevice = await this.getRecommendedSettings(deviceCode);
+            }
+        }
+        // recommendedDevice = await this.getRecommendedSettings('foster_e');
+
+        const hasRecommendedSettings = Object.keys(this.suggestedSettings.recommended).length > 0;
+
+        // Add some specific setings based on device type
+        const deviceType = BX_FLAGS.DeviceInfo.deviceType;
+        if (deviceType === 'android-handheld') {
+            // Disable touch
+            this.addDefaultSuggestedSetting(PrefKey.STREAM_TOUCH_CONTROLLER, StreamTouchController.OFF);
+            // Enable device vibration
+            this.addDefaultSuggestedSetting(PrefKey.CONTROLLER_DEVICE_VIBRATION, ControllerDeviceVibration.ON);
+        } else if (deviceType === 'android') {
+            // Enable device vibration
+            this.addDefaultSuggestedSetting(PrefKey.CONTROLLER_DEVICE_VIBRATION, ControllerDeviceVibration.AUTO);
+        } else if (deviceType === 'android-tv') {
+            // Disable touch
+            this.addDefaultSuggestedSetting(PrefKey.STREAM_TOUCH_CONTROLLER, StreamTouchController.OFF);
+        }
+
+        // Set value for Default profile
+        this.generateDefaultSuggestedSettings();
+
+        // Start rendering
+        const $suggestedSettings = CE('div', {class: 'bx-suggest-wrapper'});
+        const $select = CE<HTMLSelectElement>('select', {},
+            hasRecommendedSettings && CE('option', {value: 'recommended'}, t('recommended')),
+            !hasRecommendedSettings && CE('option', {value: 'highest'}, t('highest-quality')),
+            CE('option', {value: 'default'}, t('default')),
+            CE('option', {value: 'lowest'}, t('lowest-quality')),
+        );
+        $select.addEventListener('input', e => {
+            const profile = $select.value as SuggestedSettingProfile;
+
+            // Empty children
+            removeChildElements($suggestedSettings);
+            const fragment = document.createDocumentFragment();
+
+            let note: HTMLElement | string | undefined;
+            if (profile === 'recommended') {
+                note = t('recommended-settings-for-device', {device: recommendedDevice});
+            } else if (profile === 'highest') {
+                // Add note for "Highest quality" profile
+                note = '⚠️ ' + t('highest-quality-note');
+            }
+
+            note && fragment.appendChild(CE('div', {class: 'bx-suggest-note'}, note));
+
+            const settings = this.suggestedSettings[profile];
+            let prefKey: PrefKey;
+            for (prefKey in settings) {
+                const currentValue = getPref(prefKey, false);
+                const suggestedValue = settings[prefKey];
+                const currentValueText = STORAGE.Global.getValueText(prefKey, currentValue);
+                const isSameValue = currentValue === suggestedValue;
+
+                let $child: HTMLElement;
+                let $value: HTMLElement | string;
+                if (isSameValue) {
+                    // No changes
+                    $value = currentValueText;
+                } else {
+                    const suggestedValueText = STORAGE.Global.getValueText(prefKey, suggestedValue);
+                    $value = currentValueText + ' ➔ ' + suggestedValueText;
+                }
+
+                let $checkbox: HTMLInputElement;
+                const breadcrumb = this.suggestedSettingLabels[prefKey] + ' ❯ ' + STORAGE.Global.getLabel(prefKey);
+
+                $child = CE('div', {
+                    class: `bx-suggest-row ${isSameValue ? 'bx-suggest-ok' : 'bx-suggest-change'}`,
+                },
+                    $checkbox = CE('input', {
+                        type: 'checkbox',
+                        tabindex: 0,
+                        checked: true,
+                        id: `bx_suggest_${prefKey}`,
+                    }),
+                    CE('label', {
+                        for: `bx_suggest_${prefKey}`,
+                    },
+                        CE('div', {
+                            class: 'bx-suggest-label',
+                        }, breadcrumb),
+                        CE('div', {
+                            class: 'bx-suggest-value',
+                        }, $value),
+                    ),
+                );
+
+                if (isSameValue) {
+                    $checkbox.disabled = true;
+                    $checkbox.checked = true;
+                }
+
+                fragment.appendChild($child);
+            }
+
+            $suggestedSettings.appendChild(fragment);
+        });
+
+        BxEvent.dispatch($select, 'input');
+
+        const onClickApply = () => {
+            const profile = $select.value as SuggestedSettingProfile;
+            const settings = this.suggestedSettings[profile];
+
+            let prefKey: PrefKey;
+            for (prefKey in settings) {
+                const suggestedValue = settings[prefKey];
+                const $checkBox = $content.querySelector(`#bx_suggest_${prefKey}`) as HTMLInputElement;
+                if (!$checkBox.checked || $checkBox.disabled) {
+                    continue;
+                }
+
+                const $control = this.settingElements[prefKey] as HTMLElement;
+
+                // Set value directly if the control element is not available
+                if (!$control) {
+                    setPref(prefKey, suggestedValue);
+                    continue;
+                }
+
+                if ('setValue' in $control) {
+                    ($control as BxHtmlSettingElement).setValue(suggestedValue);
+                } else {
+                    ($control as HTMLInputElement).value = suggestedValue;
+                }
+
+                BxEvent.dispatch($control, 'input', {
+                    manualTrigger: true,
+                });
+            }
+
+            // Refresh suggested settings
+            BxEvent.dispatch($select, 'input');
+        };
+
+        // Apply button
+        const $btnApply = createButton({
+            label: t('apply'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            onClick: onClickApply,
+        });
+
+        $content = CE('div', {
+            class: 'bx-suggest-box',
+            _nearby: {
+                orientation: 'vertical',
+            }
+        },
+            BxSelectElement.wrap($select),
+            $suggestedSettings,
+            $btnApply,
+
+            BX_FLAGS.DeviceInfo.deviceType.includes('android') && CE('a', {
+                class: 'bx-suggest-link bx-focusable',
+                href: 'https://better-xcloud.github.io/guide/android-webview-tweaks/',
+                target: '_blank',
+                tabindex: 0,
+            }, t('how-to-improve-app-performance')),
+
+            BX_FLAGS.DeviceInfo.deviceType.includes('android') && !hasRecommendedSettings && CE('a', {
+                class: 'bx-suggest-link bx-focusable',
+                href: 'https://github.com/redphx/better-xcloud-devices',
+                target: '_blank',
+                tabindex: 0,
+            }, t('suggest-settings-link')),
+        );
+
+        $btnSuggest?.insertAdjacentElement('afterend', $content);
+    }
+
     private renderTab(settingTab: SettingTab) {
         const $svg = createSvgIcon(settingTab.icon as any);
         $svg.dataset.group = settingTab.group;
@@ -771,6 +1080,8 @@ export class SettingsNavigationDialog extends NavigationDialog {
             if ($control instanceof HTMLSelectElement && getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
                 $control = BxSelectElement.wrap($control);
             }
+
+            pref && (this.settingElements[pref] = $control);
         }
 
         let prefDefinition: SettingDefinition | null = null;
@@ -781,6 +1092,13 @@ export class SettingsNavigationDialog extends NavigationDialog {
         let label = prefDefinition?.label || setting.label;
         let note = prefDefinition?.note || setting.note;
         const experimental = prefDefinition?.experimental || setting.experimental;
+
+        if (settingTabContent.label && setting.pref) {
+            if (prefDefinition?.suggest) {
+                typeof prefDefinition.suggest.lowest !== 'undefined' && (this.suggestedSettings.lowest[setting.pref] = prefDefinition.suggest.lowest);
+                typeof prefDefinition.suggest.highest !== 'undefined' && (this.suggestedSettings.highest[setting.pref] = prefDefinition.suggest.highest);
+            }
+        }
 
         // Add Experimental text
         if (experimental) {

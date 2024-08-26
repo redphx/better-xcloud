@@ -1,4 +1,6 @@
 import type { NavigationElement } from "@/modules/ui/dialog/navigation-dialog";
+import { BxEvent } from "@/utils/bx-event";
+import type { BxSelectSettingElement } from "@/utils/setting-element";
 import { ButtonStyle, CE, createButton } from "@utils/html";
 
 export class BxSelectElement {
@@ -40,7 +42,7 @@ export class BxSelectElement {
                 const $option = getOptionAtIndex(visibleIndex);
                 $option && ($option.selected = (e.target as HTMLInputElement).checked);
 
-                $select.dispatchEvent(new Event('input'));
+                BxEvent.dispatch($select, 'input');
             });
         } else {
             $content = CE('div', {},
@@ -122,7 +124,7 @@ export class BxSelectElement {
             if (isMultiple) {
                 render();
             } else {
-                $select.dispatchEvent(new Event('input'));
+                BxEvent.dispatch($select, 'input');
             }
         };
 
@@ -178,7 +180,15 @@ export class BxSelectElement {
         $div.dispatchEvent = function() {
             // @ts-ignore
             return $select.dispatchEvent.apply($select, arguments);
-        }
+        };
+
+        ($div as any).setValue = (value: any) => {
+            if ('setValue' in $select) {
+                ($select as BxSelectSettingElement).setValue(value);
+            } else {
+                $select.value = value;
+            }
+        };
 
         return $div;
     }

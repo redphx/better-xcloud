@@ -1,7 +1,7 @@
 import { Screenshot } from "@utils/screenshot";
 import { GamepadKey } from "@enums/mkb";
 import { PrompFont } from "@enums/prompt-font";
-import { CE } from "@utils/html";
+import { CE, removeChildElements } from "@utils/html";
 import { t } from "@utils/translation";
 import { EmulatedMkbHandler } from "./mkb/mkb-handler";
 import { StreamStats } from "./stream/stream-stats";
@@ -174,9 +174,7 @@ export class ControllerShortcut {
         const $fragment = document.createDocumentFragment();
 
         // Remove old profiles
-        while ($select.firstElementChild) {
-            $select.firstElementChild.remove();
-        }
+        removeChildElements($select);
 
         const gamepads = navigator.getGamepads();
         let hasGamepad = false;

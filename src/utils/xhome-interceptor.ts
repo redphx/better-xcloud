@@ -6,7 +6,7 @@ import { NATIVE_FETCH } from "./bx-flags";
 import { STATES } from "./global";
 import { patchIceCandidates } from "./network";
 import { PrefKey } from "@/enums/pref-keys";
-import { getPref } from "./settings-storages/global-settings-storage";
+import { getPref, StreamResolution, StreamTouchController } from "./settings-storages/global-settings-storage";
 import type { RemotePlayConsoleAddresses } from "@/types/network";
 
 export class XhomeInterceptor {
@@ -70,7 +70,7 @@ export class XhomeInterceptor {
     static async #handleInputConfigs(request: Request | URL, opts: {[index: string]: any}) {
         const response = await NATIVE_FETCH(request);
 
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== 'all') {
+        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== StreamTouchController.ALL) {
             return response;
         }
 
@@ -150,7 +150,7 @@ export class XhomeInterceptor {
 
         // Patch resolution
         const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
-        if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === '720p') {
+        if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === StreamResolution.DIM_720P) {
             deviceInfo.dev.os.name = 'android';
         }
 

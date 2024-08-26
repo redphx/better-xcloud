@@ -15,7 +15,7 @@ import codeVibrationAdjust from "./patches/vibration-adjust.js" with { type: "te
 import { FeatureGates } from "@/utils/feature-gates.js";
 import { UiSection } from "@/enums/ui-sections.js";
 import { PrefKey } from "@/enums/pref-keys.js";
-import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { getPref, StreamTouchController } from "@/utils/settings-storages/global-settings-storage";
 import { GamePassCloudGallery } from "@/enums/game-pass-gallery.js";
 
 type PatchArray = (keyof typeof PATCHES)[];
@@ -393,7 +393,7 @@ if (window.BX_EXPOSED.stopTakRendering) {
         }
 
         let autoOffCode = '';
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off') {
+        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.OFF) {
             autoOffCode = 'return;';
         } else if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF)) {
             autoOffCode = `
@@ -450,7 +450,7 @@ e.guideUI = null;
 `;
 
         // Remove the TAK Edit button when the touch controller is disabled
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off') {
+        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.OFF) {
             newCode += 'e.canShowTakHUD = false;';
         }
 
@@ -804,7 +804,7 @@ true` + text;
         const PREF_HIDE_SECTIONS = getPref(PrefKey.UI_HIDE_SECTIONS) as UiSection[];
         const siglIds: GamePassCloudGallery[] = [];
 
-        const sections: Partial<Record<UiSection, GamePassCloudGallery>> = {
+        const sections: PartialRecord<UiSection, GamePassCloudGallery> = {
             [UiSection.NATIVE_MKB]: GamePassCloudGallery.NATIVE_MKB,
             [UiSection.MOST_POPULAR]: GamePassCloudGallery.MOST_POPULAR,
         };
@@ -991,9 +991,9 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     getPref(PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG) && 'skipFeedbackDialog',
 
     ...(STATES.userAgent.capabilities.touch ? [
-        getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'patchShowSensorControls',
-        getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'all' && 'exposeTouchLayoutManager',
-        (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === 'off' || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF) || !STATES.userAgent.capabilities.touch) && 'disableTakRenderer',
+        getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.ALL && 'patchShowSensorControls',
+        getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.ALL && 'exposeTouchLayoutManager',
+        (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.OFF || getPref(PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF) || !STATES.userAgent.capabilities.touch) && 'disableTakRenderer',
         getPref(PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY) !== 100 && 'patchTouchControlDefaultOpacity',
         'patchBabylonRendererClass',
     ] : []),

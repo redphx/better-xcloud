@@ -1,3 +1,19 @@
+import type { PrefKey } from "@/enums/pref-keys";
+import type { SettingElementType } from "@/utils/setting-element";
+
+export type SuggestedSettingCategory = 'recommended' | 'lowest' | 'highest' | 'default';
+export type RecommendedSettings = {
+    schema_version: 1,
+    device_name: string,
+    device_type: 'android' | 'android-tv' | 'android-handheld' | 'webos',
+    settings: {
+        app: any,
+        script: {
+            _base?: 'lowest' | 'highest',
+        } & PartialRecord<PrefKey, any>,
+    },
+};
+
 export type SettingDefinition = {
     default: any;
 } & Partial<{
@@ -5,7 +21,9 @@ export type SettingDefinition = {
     note: string | HTMLElement;
     experimental: boolean;
     unsupported: string | boolean;
+    suggest: PartialRecord<SuggestedSettingCategory, any>,
     ready: (setting: SettingDefinition) => void;
+    type: SettingElementType,
     // migrate?: (this: Preferences, savedPrefs: any, value: any) => void;
 }> & (
     {} | {

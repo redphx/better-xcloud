@@ -70,8 +70,6 @@ type BxStates = {
     pointerServerPort: number;
 }
 
-type DualEnum = {[index: string]: number} & {[index: number]: string};
-
 type XcloudTitleInfo = {
     titleId: string,
 
