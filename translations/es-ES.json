@@ -87,6 +87,8 @@
   "hide-system-menu-icon": "Ocultar el icono del menú del sistema",
   "hide-touch-controller": "Ocultar controles táctiles",
   "high-performance": "Rendimiento alto",
+  "highest-quality": "Calidad Alta",
+  "highest-quality-note": "Su dispositivo puede no ser lo suficientemente potente como para usar estos ajustes",
   "horizontal-scroll-sensitivity": "Sensibilidad horizontal",
   "horizontal-sensitivity": "Sensibilidad horizontal",
   "ignore": "Ignorar",
@@ -103,6 +105,7 @@
   "loading-screen": "Pantalla de carga",
   "local-co-op": "Co-op local",
   "low-power": "Energía baja",
+  "lowest-quality": "Calidad Baja",
   "map-mouse-to": "Mapear ratón a",
   "may-not-work-properly": "¡Puede que no funcione correctamente!",
   "menu": "Menú",
@@ -133,6 +136,7 @@
   "press-esc-to-cancel": "Presione Esc para cancelar",
   "press-to-bind": "Presione una tecla o haga un clic del ratón para enlazar...",
   "prompt-preset-name": "Nombre del preajuste:",
+  "recommended": "Recomendado",
   "reduce-animations": "Reduce las animaciones de la interfaz",
   "region": "Región",
   "reload-page": "Recargar página",
@@ -191,6 +195,8 @@
   "stream-settings": "Ajustes del stream",
   "stream-stats": "Estadísticas del stream",
   "stretch": "Estirado",
+  "suggest-settings": "Ajustes sugeridos",
+  "suggest-settings-link": "Ajustes recomendados para este dispositivo",
   "support-better-xcloud": "Apoyar a Better xCloud",
   "swap-buttons": "Intercambiar botones",
   "take-screenshot": "Capturar pantalla",
@@ -231,5 +237,6 @@
   "visual-quality-low": "Bajo",
   "volume": "Volumen",
   "wait-time-countdown": "Cuenta Regresiva",
-  "wait-time-estimated": "Tiempo estimado de finalización"
+  "wait-time-estimated": "Tiempo estimado de finalización",
+  "wallpaper": "Fondo de pantalla"
 }

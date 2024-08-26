@@ -87,6 +87,8 @@
   "hide-system-menu-icon": "Symbol des System-Menüs ausblenden",
   "hide-touch-controller": "Touch-Controller ausblenden",
   "high-performance": "Hohe Leistung",
+  "highest-quality": "Höchste Qualität",
+  "highest-quality-note": "Die Leistung des Geräts ist vielleicht nicht hoch genug, um diese Einstellungen zu verwenden",
   "horizontal-scroll-sensitivity": "Horizontale Scroll-Empfindlichkeit",
   "horizontal-sensitivity": "Horizontale Empfindlichkeit",
   "ignore": "Ignorieren",
@@ -100,6 +102,7 @@
   "loading-screen": "Ladebildschirm",
   "local-co-op": "Lokales Koop",
   "low-power": "Energie sparen",
+  "lowest-quality": "Niedrigste Qualität",
   "map-mouse-to": "Maus binden an",
   "may-not-work-properly": "Funktioniert evtl. nicht fehlerfrei!",
   "menu": "Menü",
@@ -128,6 +131,7 @@
   "press-esc-to-cancel": "Zum Abbrechen \"Esc\" drücken",
   "press-to-bind": "Zum Festlegen Taste drücken oder mit der Maus klicken...",
   "prompt-preset-name": "Name der Voreinstellung:",
+  "recommended": "Empfohlen",
   "reduce-animations": "Animationen reduzieren",
   "reload-page": "Seite neu laden",
   "rename": "Umbenennen",
@@ -180,6 +184,8 @@
   "stream-settings": "Stream Einstellungen",
   "stream-stats": "Stream Statistiken",
   "stretch": "Strecken",
+  "suggest-settings": "Einstellungen vorschlagen",
+  "suggest-settings-link": "Empfohlene Einstellungen für dieses Gerät vorschlagen",
   "support-better-xcloud": "\"Better xCloud\" unterstützen",
   "swap-buttons": "Tasten tauschen",
   "take-screenshot": "Screenshot aufnehmen",
@@ -219,5 +225,6 @@
   "visual-quality-low": "Niedrig",
   "visual-quality-normal": "Mittel",
   "volume": "Lautstärke",
-  "wait-time-estimated": "Geschätzte Endzeit"
+  "wait-time-estimated": "Geschätzte Endzeit",
+  "wallpaper": "Hintergrundbild"
 }

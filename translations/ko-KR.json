@@ -93,6 +93,8 @@
   "hide-system-menu-icon": "시스템 메뉴 아이콘 숨기기",
   "hide-touch-controller": "터치 컨트롤러 숨기기",
   "high-performance": "고성능",
+  "highest-quality": "최고 품질",
+  "highest-quality-note": "당신의 기기는 이 설정을 사용하기에 충분히 고성능이 아닐 수 있습니다",
   "horizontal-scroll-sensitivity": "수평 스크롤 감도",
   "horizontal-sensitivity": "수평 민감도",
   "ignore": "무시하기",
@@ -109,6 +111,7 @@
   "loading-screen": "로딩 화면",
   "local-co-op": "로컬 협동",
   "low-power": "저전력",
+  "lowest-quality": "최저 품질",
   "map-mouse-to": "마우스를 다음에 할당",
   "may-not-work-properly": "제대로 작동하지 않을 수 있음!",
   "menu": "메뉴",
@@ -140,6 +143,7 @@
   "press-esc-to-cancel": "ESC를 눌러 취소",
   "press-to-bind": "키를 누르거나 마우스를 클릭하여 할당하기",
   "prompt-preset-name": "프리셋 이름:",
+  "recommended": "권장됨",
   "reduce-animations": "인터페이스 애니메이션 감소",
   "region": "지역",
   "reload-page": "스트리밍 다시 불러오기",
@@ -200,6 +204,8 @@
   "stream-settings": "스트리밍 설정",
   "stream-stats": "통계",
   "stretch": "늘이기",
+  "suggest-settings": "설정 제안하기",
+  "suggest-settings-link": "이 기기의 권장 설정을 제안하기",
   "support-better-xcloud": "Better xCloud 후원",
   "swap-buttons": "버튼 바꾸기",
   "take-screenshot": "스크린샷 찍기",
@@ -240,5 +246,6 @@
   "visual-quality-normal": "보통",
   "volume": "음량",
   "wait-time-countdown": "카운트다운",
-  "wait-time-estimated": "예상 완료 시간"
+  "wait-time-estimated": "예상 완료 시간",
+  "wallpaper": "배경화면"
 }

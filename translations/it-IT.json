@@ -87,6 +87,8 @@
   "hide-system-menu-icon": "Nascondi icona del menu a tendina",
   "hide-touch-controller": "Nascondi il Controller Touch",
   "high-performance": "Alte prestazioni",
+  "highest-quality": "Massima qualità",
+  "highest-quality-note": "Il tuo dispositivo potrebbe non essere abbastanza potente per utilizzare queste impostazioni",
   "horizontal-scroll-sensitivity": "Sensibilità scorrimento orizzontale",
   "horizontal-sensitivity": "Sensibilità orizzontale",
   "ignore": "Ignora",
@@ -102,6 +104,7 @@
   "loading-screen": "Schermata di caricamento",
   "local-co-op": "Cooperativa locale",
   "low-power": "Basso consumo",
+  "lowest-quality": "Qualità più bassa",
   "map-mouse-to": "Usa il mouse come",
   "may-not-work-properly": "Potrebbe non funzionare correttamente!",
   "microphone": "Microfono",
@@ -132,6 +135,7 @@
   "press-esc-to-cancel": "Premi Esc per annullare",
   "press-to-bind": "Premi un tasto o fai un clic del mouse per associare...",
   "prompt-preset-name": "Nome del profilo:",
+  "recommended": "Consigliato",
   "reduce-animations": "Animazioni ridotte",
   "region": "Regione",
   "reload-page": "Ricarica lo streaming",
@@ -187,6 +191,8 @@
   "stream-settings": "Impostazioni dello streaming",
   "stream-stats": "Statistiche",
   "stretch": "Riempi",
+  "suggest-settings": "Configurazioni consigliate",
+  "suggest-settings-link": "Proponi le impostazioni consigliate per questo dispositivo",
   "support-better-xcloud": "Sostieni Better xCloud",
   "swap-buttons": "Inverti i pulsanti",
   "take-screenshot": "Cattura schermo",
@@ -226,5 +232,6 @@
   "visual-quality-high": "Alta",
   "visual-quality-low": "Bassa",
   "visual-quality-normal": "Normale",
-  "wait-time-estimated": "Tempo residuo stimato"
+  "wait-time-estimated": "Tempo residuo stimato",
+  "wallpaper": "Sfondo"
 }
