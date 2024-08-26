@@ -4821,7 +4821,11 @@ class SettingsNavigationDialog extends NavigationDialog {
         let base = typeof scriptSettings._base === "string" ? [scriptSettings._base] : scriptSettings._base;
         for (let profile of base)
           Object.assign(recommended, this.suggestedSettings[profile]);
+        delete scriptSettings._base;
       }
+      let key;
+      for (key in scriptSettings)
+        recommended[key] = scriptSettings[key];
       return BX_FLAGS.DeviceInfo.deviceType = json.device_type, this.suggestedSettings.recommended = recommended, json.device_name;
     } catch (e) {
     }
