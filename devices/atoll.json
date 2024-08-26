@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "device_name": "Logitech G Cloud",
+  "device_type": "android-handheld",
+  "settings": {
+    "script": {
+      "_base": "highest"
+    }
+  }
+}
