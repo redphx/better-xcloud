@@ -85,8 +85,10 @@ const build = async (target: BuildTarget, version: string, config: any={}) => {
     // Save to script
     await Bun.write(path, scriptHeader + result);
 
-    // Create meta file
-    await Bun.write(outDir + '/' + outputMetaName, txtMetaHeader.replace('[[VERSION]]', version));
+    // Create meta file (don't build if it's beta version)
+    if (!version.includes('beta')) {
+        await Bun.write(outDir + '/' + outputMetaName, txtMetaHeader.replace('[[VERSION]]', version));
+    }
 
     // Check with ESLint
     const eslint = new ESLint();
