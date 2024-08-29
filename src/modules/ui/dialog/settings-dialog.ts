@@ -913,7 +913,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
                 href: 'https://better-xcloud.github.io/guide/android-webview-tweaks/',
                 target: '_blank',
                 tabindex: 0,
-            }, t('how-to-improve-app-performance')),
+            }, '🤓 ' + t('how-to-improve-app-performance')),
 
             BX_FLAGS.DeviceInfo.deviceType.includes('android') && !hasRecommendedSettings && CE('a', {
                 class: 'bx-suggest-link bx-focusable',

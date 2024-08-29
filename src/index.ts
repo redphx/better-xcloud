@@ -38,6 +38,7 @@ import { getPref, StreamTouchController } from "./utils/settings-storages/global
 import { compressCss } from "@macros/build" with {type: "macro"};
 import { SettingsNavigationDialog } from "./modules/ui/dialog/settings-dialog";
 import { StreamUiHandler } from "./modules/stream/stream-ui";
+import { UserAgent } from "./utils/user-agent";
 
 
 // Handle login page
@@ -70,26 +71,65 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
 .bx-reload-overlay {
     position: fixed;
     top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
     background: #000000cc;
     z-index: 9999;
-    width: 100%;
-    line-height: 100vh;
     color: #fff;
     text-align: center;
     font-weight: 400;
     font-family: "Segoe UI", Arial, Helvetica, sans-serif;
     font-size: 1.3rem;
 }
+
+.bx-reload-overlay *:focus {
+    outline: none !important;
+}
+
+.bx-reload-overlay > div {
+    margin: 0 auto;
+}
+
+.bx-reload-overlay a {
+    text-decoration: none;
+    display: inline-block;
+    background: #107c10;
+    color: white;
+    border-radius: 4px;
+    padding: 6px;
+}
 `);
+
+    const isSafari = UserAgent.isSafari();
+    let $secondaryAction: HTMLElement;
+    if (isSafari) {
+        $secondaryAction = CE('p', {}, t('settings-reloading'));
+    } else {
+        $secondaryAction = CE('a', {
+            href: 'https://better-xcloud.github.io/troubleshooting',
+            target: '_blank',
+        }, '🤓 ' + t('how-to-fix'));
+    }
+
     const $fragment = document.createDocumentFragment();
     $fragment.appendChild(CE('style', {}, css));
-    $fragment.appendChild(CE('div', {'class': 'bx-reload-overlay'}, t('safari-failed-message')));
+    $fragment.appendChild(CE('div',{
+        class: 'bx-reload-overlay',
+    },
+        CE('div', {},
+            CE('p', {}, t('load-failed-message')),
+            $secondaryAction,
+        ),
+    ));
 
     document.documentElement.appendChild($fragment);
 
-    // Reload the page
+    // Reload the page if using Safari
     // @ts-ignore
-    window.location.reload(true);
+    isSafari && window.location.reload(true);
 
     // Stop processing the script
     throw new Error('[Better xCloud] Executing workaround for Safari');
