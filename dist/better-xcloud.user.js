@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.6.0
+// @version      5.6.1-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -138,7 +138,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.6.0", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.6.1-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -382,6 +382,7 @@ var SUPPORTED_LANGUAGES = {
   "fortnite-force-console-version": "Fortnite: force console version",
   "game-bar": "Game Bar",
   "getting-consoles-list": "Getting the list of consoles...",
+  guide: "Guide",
   help: "Help",
   hide: "Hide",
   "hide-idle-cursor": "Hide mouse cursor on idle",
@@ -394,6 +395,7 @@ var SUPPORTED_LANGUAGES = {
   "highest-quality-note": "Your device may not be powerful enough to use these settings",
   "horizontal-scroll-sensitivity": "Horizontal scroll sensitivity",
   "horizontal-sensitivity": "Horizontal sensitivity",
+  "how-to-fix": "How to fix",
   "how-to-improve-app-performance": "How to improve app's performance",
   ignore: "Ignore",
   import: "Import",
@@ -406,6 +408,7 @@ var SUPPORTED_LANGUAGES = {
   large: "Large",
   layout: "Layout",
   "left-stick": "Left stick",
+  "load-failed-message": "Failed to run Better xCloud",
   "loading-screen": "Loading screen",
   "local-co-op": "Local co-op",
   "low-power": "Low power",
@@ -467,22 +470,22 @@ var SUPPORTED_LANGUAGES = {
     (e) => `Recommended settings for ${e.device}`,
     ,
     ,
-    ,
+    (e) => `Empfohlene Einstellungen für ${e.device}`,
     ,
     (e) => `Ajustes recomendados para ${e.device}`,
-    ,
+    (e) => `Paramètres recommandés pour ${e.device}`,
     (e) => `Configurazioni consigliate per ${e.device}`,
-    ,
+    (e) => `${e.device} の推奨設定`,
     (e) => `다음 기기에서 권장되는 설정: ${e.device}`,
+    (e) => `Zalecane ustawienia dla ${e.device}`,
     ,
+    (e) => `Рекомендуемые настройки для ${e.device}`,
     ,
-    ,
-    ,
-    ,
+    (e) => `${e.device} için önerilen ayarlar`,
     (e) => `Рекомендовані налаштування для ${e.device}`,
     (e) => `Cấu hình được đề xuất cho ${e.device}`,
-    ,
-    ,
+    (e) => `${e.device} 的推荐设置`,
+    (e) => `${e.device} 推薦的設定`
   ],
   "reduce-animations": "Reduce UI animations",
   region: "Region",
@@ -497,7 +500,6 @@ var SUPPORTED_LANGUAGES = {
   "rocket-always-show": "Always show",
   "rocket-animation": "Rocket animation",
   "rocket-hide-queue": "Hide when queuing",
-  "safari-failed-message": "Failed to run Better xCloud. Retrying, please wait...",
   saturation: "Saturation",
   save: "Save",
   screen: "Screen",
@@ -4994,7 +4996,7 @@ class SettingsNavigationDialog extends NavigationDialog {
       href: "https://better-xcloud.github.io/guide/android-webview-tweaks/",
       target: "_blank",
       tabindex: 0
-    }, t("how-to-improve-app-performance")), BX_FLAGS.DeviceInfo.deviceType.includes("android") && !hasRecommendedSettings && CE("a", {
+    }, "🤓 " + t("how-to-improve-app-performance")), BX_FLAGS.DeviceInfo.deviceType.includes("android") && !hasRecommendedSettings && CE("a", {
       class: "bx-suggest-link bx-focusable",
       href: "https://github.com/redphx/better-xcloud-devices",
       target: "_blank",
@@ -8205,8 +8207,19 @@ if (window.location.pathname.includes("/auth/msa")) {
 BxLogger.info("readyState", document.readyState);
 if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
   window.stop();
-  const css2 = '.bx-reload-overlay{position:fixed;top:0;background:rgba(0,0,0,0.8);z-index:9999;width:100%;line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}', $fragment = document.createDocumentFragment();
-  throw $fragment.appendChild(CE("style", {}, '.bx-reload-overlay{position:fixed;top:0;background:rgba(0,0,0,0.8);z-index:9999;width:100%;line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}')), $fragment.appendChild(CE("div", { class: "bx-reload-overlay" }, t("safari-failed-message"))), document.documentElement.appendChild($fragment), window.location.reload(!0), new Error("[Better xCloud] Executing workaround for Safari");
+  const css2 = '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}', isSafari = UserAgent.isSafari();
+  let $secondaryAction;
+  if (isSafari)
+    $secondaryAction = CE("p", {}, t("settings-reloading"));
+  else
+    $secondaryAction = CE("a", {
+      href: "https://better-xcloud.github.io/troubleshooting",
+      target: "_blank"
+    }, "🤓 " + t("how-to-fix"));
+  const $fragment = document.createDocumentFragment();
+  throw $fragment.appendChild(CE("style", {}, '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}')), $fragment.appendChild(CE("div", {
+    class: "bx-reload-overlay"
+  }, CE("div", {}, CE("p", {}, t("load-failed-message")), $secondaryAction))), document.documentElement.appendChild($fragment), isSafari && window.location.reload(!0), new Error("[Better xCloud] Executing workaround for Safari");
 }
 window.addEventListener("load", (e) => {
   window.setTimeout(() => {
