@@ -14,6 +14,6 @@ export const renderStylus = async () => {
 };
 
 
-export const compressCss = async (css: string) => {
-    return await (stylus(css, {}).set('compress', true)).render();
+export const compressCss = (css: string) => {
+    return (stylus(css, {}).set('compress', true)).render();
 };

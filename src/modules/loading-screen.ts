@@ -4,6 +4,7 @@ import { t } from "@utils/translation";
 import { STATES } from "@utils/global";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { compressCss } from "@macros/build" with {type: "macro"};
 
 export class LoadingScreen {
     static #$bgStyle: HTMLElement;
@@ -43,7 +44,7 @@ export class LoadingScreen {
     static #hideRocket() {
         let $bgStyle = LoadingScreen.#$bgStyle;
 
-        const css = `
+        const css = compressCss(`
 #game-stream div[class*=RocketAnimation-module__container] > svg {
     display: none;
 }
@@ -51,8 +52,8 @@ export class LoadingScreen {
 #game-stream video[class*=RocketAnimationVideo-module__video] {
     display: none;
 }
-`;
-        $bgStyle.textContent += css;
+`);
+        $bgStyle.textContent! += css;
     }
 
     static #setBackground(imageUrl: string) {
@@ -62,9 +63,8 @@ export class LoadingScreen {
         // Limit max width to reduce image size
         imageUrl = imageUrl + '?w=1920';
 
-        const css = `
+        const css = compressCss(`
 #game-stream {
-    background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;
     background-color: transparent !important;
     background-position: center center !important;
     background-repeat: no-repeat !important;
@@ -74,16 +74,16 @@ export class LoadingScreen {
 #game-stream rect[width="800"] {
     transition: opacity 0.3s ease-in-out !important;
 }
-`;
-        $bgStyle.textContent += css;
+`) + `#game-stream {background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;}`;
+        $bgStyle.textContent! += css;
 
         const bg = new Image();
         bg.onload = e => {
-            $bgStyle.textContent += `
+            $bgStyle.textContent += compressCss(`
 #game-stream rect[width="800"] {
     opacity: 0 !important;
 }
-`;
+`);
         };
         bg.src = imageUrl;
     }
@@ -150,18 +150,18 @@ export class LoadingScreen {
         if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
             const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
             $rocketBg && $rocketBg.addEventListener('transitionend', e => {
-                LoadingScreen.#$bgStyle.textContent += `
+                LoadingScreen.#$bgStyle.textContent += compressCss(`
 #game-stream {
     background: #000 !important;
 }
-`;
+`);
             });
 
-            LoadingScreen.#$bgStyle.textContent += `
+            LoadingScreen.#$bgStyle.textContent += compressCss(`
 #game-stream rect[width="800"] {
     opacity: 1 !important;
 }
-`;
+`);
         }
 
         setTimeout(LoadingScreen.reset, 2000);
