@@ -12,7 +12,6 @@ import { getPref, StreamTouchController } from "@/utils/settings-storages/global
 
 export class GameBar {
     private static instance: GameBar;
-
     public static getInstance(): GameBar {
         if (!GameBar.instance) {
             GameBar.instance = new GameBar();
@@ -125,7 +124,7 @@ export class GameBar {
             return;
         }
 
-        this.$container.classList.remove('bx-offscreen', 'bx-hide');
+        this.$container.classList.remove('bx-offscreen', 'bx-hide' , 'bx-gone');
         this.$container.classList.add('bx-show');
 
         this.beginHideTimeout();
