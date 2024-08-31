@@ -41,6 +41,9 @@ export class GuideMenu {
             onClick: e => {
                 AppInterface.closeApp();
             },
+            attributes: {
+                'data-state': 'normal',
+            },
         }),
 
         reloadPage: createButton({
@@ -64,69 +67,63 @@ export class GuideMenu {
             onClick: e => {
                 confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
             },
+            attributes: {
+                'data-state': 'playing',
+            },
         }),
     }
 
-    static #renderButtons(buttons: HTMLElement[]) {
-        const $div = CE('div', {});
+    static #$renderedButtons: HTMLElement;
 
-        for (const $button of buttons) {
-            $div.appendChild($button);
+    static #renderButtons() {
+        if (GuideMenu.#$renderedButtons) {
+            return GuideMenu.#$renderedButtons;
         }
 
+        const $div = CE('div', {
+            class: 'bx-guide-home-buttons',
+        });
+
+        const buttons = [
+            GuideMenu.#BUTTONS.scriptSettings,
+            GuideMenu.#BUTTONS.reloadPage,
+            GuideMenu.#BUTTONS.backToHome,
+            AppInterface && GuideMenu.#BUTTONS.closeApp,
+        ];
+
+        for (const $button of buttons) {
+            $button && $div.appendChild($button);
+        }
+
+        GuideMenu.#$renderedButtons = $div;
         return $div;
     }
 
-    static #injectHome($root: HTMLElement) {
-        // Find the last divider
-        const $dividers = $root.querySelectorAll('div[class*=Divider-module__divider]');
-        if (!$dividers) {
-            return;
+    static #injectHome($root: HTMLElement, isPlaying = false) {
+        // Find the element to add buttons to
+        let $target: HTMLElement | null = null;
+        if (isPlaying) {
+            // Quit button
+            $target = $root.querySelector('a[class*=QuitGameButton]');
+
+            // Hide xCloud's Home button
+            const $btnXcloudHome = $root.querySelector('div[class^=HomeButtonWithDivider]') as HTMLElement;
+            $btnXcloudHome && ($btnXcloudHome.style.display = 'none');
+        } else {
+            // Last divider
+            const $dividers = $root.querySelectorAll('div[class*=Divider-module__divider]');
+            if ($dividers) {
+                $target = $dividers[$dividers.length - 1] as HTMLElement;
+            }
         }
 
-        const buttons: HTMLElement[] = [];
-
-        // "Better xCloud" button
-        buttons.push(GuideMenu.#BUTTONS.scriptSettings);
-
-        // "App settings" button
-        AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
-
-        // "Reload page" button
-        buttons.push(GuideMenu.#BUTTONS.reloadPage);
-
-        // "Close app" buttons
-        AppInterface && buttons.push(GuideMenu.#BUTTONS.closeApp);
-
-        const $buttons = GuideMenu.#renderButtons(buttons);
-
-        const $lastDivider = $dividers[$dividers.length - 1];
-        $lastDivider.insertAdjacentElement('afterend', $buttons);
-    }
-
-    static #injectHomePlaying($root: HTMLElement) {
-        const $btnQuit = $root.querySelector('a[class*=QuitGameButton]');
-        if (!$btnQuit) {
-            return;
+        if (!$target) {
+            return false;
         }
 
-        const buttons: HTMLElement[] = [];
-
-        buttons.push(GuideMenu.#BUTTONS.scriptSettings);
-        AppInterface && buttons.push(GuideMenu.#BUTTONS.appSettings);
-
-        // Reload page
-        buttons.push(GuideMenu.#BUTTONS.reloadPage);
-
-        // Back to home
-        buttons.push(GuideMenu.#BUTTONS.backToHome);
-
-        const $buttons = GuideMenu.#renderButtons(buttons);
-        $btnQuit.insertAdjacentElement('afterend', $buttons);
-
-        // Hide xCloud's Home button
-        const $btnXcloudHome = $root.querySelector('div[class^=HomeButtonWithDivider]') as HTMLElement;
-        $btnXcloudHome && ($btnXcloudHome.style.display = 'none');
+        const $buttons = GuideMenu.#renderButtons();
+        $buttons.dataset.isPlaying = isPlaying.toString();
+        $target.insertAdjacentElement('afterend', $buttons);
     }
 
     static async #onShown(e: Event) {
@@ -134,13 +131,7 @@ export class GuideMenu {
 
         if (where === GuideMenuTab.HOME) {
             const $root = document.querySelector('#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]') as HTMLElement;
-            if ($root) {
-                if (STATES.isPlaying) {
-                    GuideMenu.#injectHomePlaying($root);
-                } else {
-                    GuideMenu.#injectHome($root);
-                }
-            }
+            $root && GuideMenu.#injectHome($root, STATES.isPlaying);
         }
     }
 
