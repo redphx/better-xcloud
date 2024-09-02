@@ -8336,10 +8336,12 @@ window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
       return;
     if (msg.data.includes("/titleinfo")) {
       const json = JSON.parse(JSON.parse(msg.data).content), xboxTitleId = parseInt(json.titleid, 16);
-      if (STATES.currentStream.xboxTitleId = xboxTitleId, STATES.currentStream.titleSlug = "remote-play", STATES.remotePlay.isPlaying && json.focused) {
-        const productTitle = await XboxApi.getProductTitle(xboxTitleId);
-        if (productTitle)
-          STATES.currentStream.titleSlug = productTitleToSlug(productTitle);
+      if (STATES.currentStream.xboxTitleId = xboxTitleId, STATES.remotePlay.isPlaying) {
+        if (STATES.currentStream.titleSlug = "remote-play", json.focused) {
+          const productTitle = await XboxApi.getProductTitle(xboxTitleId);
+          if (productTitle)
+            STATES.currentStream.titleSlug = productTitleToSlug(productTitle);
+        }
       }
     }
   });
