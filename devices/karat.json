@@ -1,0 +1,14 @@
+{
+    "schema_version": 1,
+    "device_name": "Amazon Fire TV Stick 4k Max (2023)",
+    "device_type": "android-tv",
+    "settings": {
+      "script": {
+        "_base": "highest",
+        "video_player_type": "default",
+        "video_power_preference": "default",
+        "video_processing": "usm",
+        "video_sharpness": 0
+      }
+    }
+  }
