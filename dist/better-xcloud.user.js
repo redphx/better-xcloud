@@ -2266,7 +2266,7 @@ class NativeMkbHandler extends MkbHandler {
   #onPollingModeChanged = (e) => {
     if (!this.#$message)
       return;
-    if (e.mode === "None")
+    if (e.mode === "none")
       this.#$message.classList.remove("bx-offscreen");
     else
       this.#$message.classList.add("bx-offscreen");
@@ -3961,7 +3961,7 @@ e.guideUI = null;
     if (!str.includes(".setPollingMode=e=>{"))
       return !1;
     const newCode = `
-BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
+BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e.toLowerCase()});
 `;
     return str = str.replace(".setPollingMode=e=>{", ".setPollingMode=e=>{" + newCode), str;
   },
@@ -5625,7 +5625,7 @@ class EmulatedMkbHandler extends MkbHandler {
   #onPollingModeChanged = (e) => {
     if (!this.#$message)
       return;
-    if (e.mode === "None")
+    if (e.mode === "none")
       this.#$message.classList.remove("bx-offscreen");
     else
       this.#$message.classList.add("bx-offscreen");
@@ -7686,9 +7686,7 @@ class MicrophoneAction extends BaseGameBarAction {
 
 class TrueAchievements {
   static open() {
-    if (AppInterface)
-      ;
-    else {
+    {
       let xboxTitleId;
       xboxTitleId = STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
       let url = "https://www.trueachievements.com";
@@ -7759,7 +7757,7 @@ class GameBar {
         this.disable();
         return;
       }
-      e.mode !== "None" ? this.disable() : this.enable();
+      e.mode !== "none" ? this.disable() : this.enable();
     }).bind(this));
   }
   beginHideTimeout() {
