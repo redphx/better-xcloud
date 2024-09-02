@@ -35,6 +35,13 @@ const postProcess = (str: string): string => {
     // Add ADDITIONAL CODE block
     str = str.replace('var DEFAULT_FLAGS', '\n/* ADDITIONAL CODE */\n\nvar DEFAULT_FLAGS');
 
+    // Minify SVG
+    str = str.replaceAll(/= "(<svg.*)";/g, function(match) {
+        match = match.replaceAll(/\\n*\s*/g, '');
+        return match;
+    });
+
+
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
     assert(str.includes('window.BxEvent = BxEvent'));
