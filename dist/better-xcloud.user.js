@@ -7692,7 +7692,15 @@ class TrueAchievements {
   static $taLink = createButton({
     label: t("true-achievements"),
     url: "https://www.trueachievements.com",
-    style: 32 | 4 | 64 | 2048
+    style: 32 | 4 | 64 | 2048,
+    onClick: (e) => {
+      e.preventDefault();
+      const dataset = TrueAchievements.$taLink.dataset;
+      TrueAchievements.open(!0, dataset.xboxTitleId, dataset.id);
+    }
+  });
+  static $hiddenLink = CE("a", {
+    target: "_blank"
   });
   static injectAchievementDetailPage($parent) {
     const props = getReactProps($parent);
@@ -7707,23 +7715,24 @@ class TrueAchievements {
           break;
         }
       if (id2)
-        TrueAchievements.$taLink.href = `https://www.trueachievements.com/deeplink/${xboxTitleId}/${id2}`, $parent.appendChild(TrueAchievements.$taLink);
+        TrueAchievements.$taLink.dataset.xboxTitleId = xboxTitleId, TrueAchievements.$taLink.dataset.id = id2, TrueAchievements.$taLink.href = `https://www.trueachievements.com/deeplink/${xboxTitleId}/${id2}`, $parent.appendChild(TrueAchievements.$taLink);
     } catch (e) {
     }
   }
-  static open(xboxTitleId, id2) {
+  static open(override, xboxTitleId, id2) {
     if (!xboxTitleId)
       xboxTitleId = STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
+    if (AppInterface && AppInterface.openTrueAchievementsLink) {
+      AppInterface.openTrueAchievementsLink(override, xboxTitleId?.toString(), id2?.toString());
+      return;
+    }
     let url = "https://www.trueachievements.com";
     if (xboxTitleId)
       if (id2)
-        id2 = Math.max(1, id2 || 1), url += `/deeplink/${xboxTitleId}/${id2}`;
+        url += `/deeplink/${xboxTitleId}/${id2}`;
       else
         url += `/deeplink/${xboxTitleId}`;
-    CE("a", {
-      href: url,
-      target: "_blank"
-    }, "").click();
+    TrueAchievements.$hiddenLink.href = url, TrueAchievements.$hiddenLink.click();
   }
 }
 
@@ -7732,7 +7741,7 @@ class TrueAchievementsAction extends BaseGameBarAction {
   constructor() {
     super();
     const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), TrueAchievements.open();
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), TrueAchievements.open(!1);
     };
     this.$content = createButton({
       style: 4,
@@ -7862,7 +7871,7 @@ class GuideMenu {
       label: t("true-achievements"),
       style: 64 | 32,
       onClick: (e) => {
-        TrueAchievements.open(), window.BX_EXPOSED.dialogRoutes.closeAll();
+        TrueAchievements.open(!1), window.BX_EXPOSED.dialogRoutes.closeAll();
       }
     })
   };
