@@ -15,11 +15,11 @@ export class MicrophoneAction extends BaseGameBarAction {
         super();
 
         const onClick = (e: Event) => {
-                BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
 
-                const enabled = MicrophoneShortcut.toggle(false);
-                this.$content.setAttribute('data-enabled', enabled.toString());
-            };
+            const enabled = MicrophoneShortcut.toggle(false);
+            this.$content.setAttribute('data-enabled', enabled.toString());
+        };
 
         const $btnDefault = createButton({
             style: ButtonStyle.GHOST,

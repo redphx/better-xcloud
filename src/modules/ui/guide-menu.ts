@@ -3,6 +3,8 @@ import { AppInterface, STATES } from "@/utils/global";
 import { createButton, ButtonStyle, CE } from "@/utils/html";
 import { t } from "@/utils/translation";
 import { SettingsNavigationDialog } from "./dialog/settings-dialog";
+import { TrueAchievements } from "@/utils/true-achievements";
+import { BxIcon } from "@/utils/bx-icon";
 
 export enum GuideMenuTab {
     HOME = 'home',
@@ -24,31 +26,19 @@ export class GuideMenu {
             },
         }),
 
-        appSettings: createButton({
-            label: t('app-settings'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-            onClick: e => {
-                // Close all xCloud's dialogs
-                window.BX_EXPOSED.dialogRoutes.closeAll();
-
-                AppInterface.openAppSettings && AppInterface.openAppSettings();
-            },
-        }),
-
         closeApp: createButton({
-            label: t('close-app'),
+            icon: BxIcon.POWER,
+            title: t('close-app'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
             onClick: e => {
                 AppInterface.closeApp();
             },
-            attributes: {
-                'data-state': 'normal',
-            },
         }),
 
         reloadPage: createButton({
-            label: t('reload-page'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            icon: BxIcon.REFRESH,
+            title: t('reload-page'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.GHOST,
             onClick: e => {
                 if (STATES.isPlaying) {
                     confirm(t('confirm-reload-stream')) && window.location.reload();
@@ -62,13 +52,28 @@ export class GuideMenu {
         }),
 
         backToHome: createButton({
-            label: t('back-to-home'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            icon: BxIcon.HOME,
+            title: t('back-to-home'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.GHOST,
             onClick: e => {
                 confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
+
+                // Close all xCloud's dialogs
+                window.BX_EXPOSED.dialogRoutes.closeAll();
             },
             attributes: {
                 'data-state': 'playing',
+            },
+        }),
+
+        trueAchievements: createButton({
+            label: t('true-achievements'),
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+            onClick: e => {
+                TrueAchievements.open(false);
+
+                // Close all xCloud's dialogs
+                window.BX_EXPOSED.dialogRoutes.closeAll();
             },
         }),
     }
@@ -86,13 +91,28 @@ export class GuideMenu {
 
         const buttons = [
             GuideMenu.#BUTTONS.scriptSettings,
-            GuideMenu.#BUTTONS.reloadPage,
-            GuideMenu.#BUTTONS.backToHome,
-            AppInterface && GuideMenu.#BUTTONS.closeApp,
+            GuideMenu.#BUTTONS.trueAchievements,
+            [
+                GuideMenu.#BUTTONS.backToHome,
+                GuideMenu.#BUTTONS.reloadPage,
+                AppInterface && GuideMenu.#BUTTONS.closeApp,
+            ],
         ];
 
         for (const $button of buttons) {
-            $button && $div.appendChild($button);
+            if (!$button) {
+                continue;
+            }
+
+            if ($button instanceof HTMLElement) {
+                $div.appendChild($button);
+            } else if (Array.isArray($button)) {
+                const $wrapper = CE('div', {});
+                for (const $child of $button) {
+                    $child && $wrapper.appendChild($child);
+                }
+                $div.appendChild($wrapper);
+            }
         }
 
         GuideMenu.#$renderedButtons = $div;

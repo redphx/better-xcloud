@@ -1,4 +1,5 @@
 import iconBetterXcloud from "@assets/svg/better-xcloud.svg" with { type: "text" };
+import iconTrueAchievements from "@assets/svg/true-achievements.svg" with { type: "text" };
 import iconClose from "@assets/svg/close.svg" with { type: "text" };
 import iconCommand from "@assets/svg/command.svg" with { type: "text" };
 import iconController from "@assets/svg/controller.svg" with { type: "text" };
@@ -9,6 +10,7 @@ import iconDisplay from "@assets/svg/display.svg" with { type: "text" };
 import iconHome from "@assets/svg/home.svg" with { type: "text" };
 import iconNativeMkb from "@assets/svg/native-mkb.svg" with { type: "text" };
 import iconNew from "@assets/svg/new.svg" with { type: "text" };
+import iconPower from "@assets/svg/power.svg" with { type: "text" };
 import iconQuestion from "@assets/svg/question.svg" with { type: "text" };
 import iconRefresh from "@assets/svg/refresh.svg" with { type: "text" };
 import iconRemotePlay from "@assets/svg/remote-play.svg" with { type: "text" };
@@ -37,6 +39,7 @@ import iconUpload from "@assets/svg/upload.svg" with { type: "text" };
 
 export const BxIcon = {
     BETTER_XCLOUD: iconBetterXcloud,
+    TRUE_ACHIEVEMENTS: iconTrueAchievements,
     STREAM_SETTINGS: iconStreamSettings,
     STREAM_STATS: iconStreamStats,
     CLOSE: iconClose,
@@ -50,6 +53,7 @@ export const BxIcon = {
     COPY: iconCopy,
     TRASH: iconTrash,
     CURSOR_TEXT: iconCursorText,
+    POWER: iconPower,
     QUESTION: iconQuestion,
     REFRESH: iconRefresh,
     VIRTUAL_CONTROLLER: iconVirtualController,

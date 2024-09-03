@@ -465,7 +465,7 @@ e.guideUI = null;
         }
 
         const newCode = `
-BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e});
+BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e.toLowerCase()});
 `;
         str = str.replace(text, text + newCode);
         return str;

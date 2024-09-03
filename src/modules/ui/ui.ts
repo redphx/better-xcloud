@@ -11,7 +11,7 @@ export function localRedirect(path: string) {
 
     const $anchor = CE<HTMLAnchorElement>('a', {
             href: url,
-            class: 'bx-hidden bx-offscreen'
+            class: 'bx-hidden bx-offscreen',
         }, '');
     $anchor.addEventListener('click', e => {
         // Remove element after clicking on it

@@ -14,6 +14,7 @@ export enum ButtonStyle {
     TALL = 256,
     CIRCULAR = 512,
     NORMAL_CASE = 1024,
+    NORMAL_LINK = 2048,
 }
 
 const ButtonStyleClass = {
@@ -28,6 +29,7 @@ const ButtonStyleClass = {
     [ButtonStyle.TALL]: 'bx-tall',
     [ButtonStyle.CIRCULAR]: 'bx-circular',
     [ButtonStyle.NORMAL_CASE]: 'bx-normal-case',
+    [ButtonStyle.NORMAL_LINK]: 'bx-normal-link',
 }
 
 type BxButton = {

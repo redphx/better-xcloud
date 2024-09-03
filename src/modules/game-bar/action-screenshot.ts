@@ -12,16 +12,16 @@ export class ScreenshotAction extends BaseGameBarAction {
         super();
 
         const onClick = (e: Event) => {
-                BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-                Screenshot.takeScreenshot();
-            };
+            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+            Screenshot.takeScreenshot();
+        };
 
         this.$content = createButton({
-                style: ButtonStyle.GHOST,
-                icon: BxIcon.SCREENSHOT,
-                title: t('take-screenshot'),
-                onClick: onClick,
-            });
+            style: ButtonStyle.GHOST,
+            icon: BxIcon.SCREENSHOT,
+            title: t('take-screenshot'),
+            onClick: onClick,
+        });
     }
 
     render(): HTMLElement {

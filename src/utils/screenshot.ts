@@ -71,7 +71,7 @@ export class Screenshot {
         // Get data URL and pass to parent app
         if (AppInterface) {
             const data = $canvas.toDataURL('image/png').split(';base64,')[1];
-            AppInterface.saveScreenshot(currentStream.titleId, data);
+            AppInterface.saveScreenshot(currentStream.titleSlug, data);
 
             // Free screenshot from memory
             canvasContext.clearRect(0, 0, $canvas.width, $canvas.height);
@@ -84,7 +84,7 @@ export class Screenshot {
                 // Download screenshot
                 const now = +new Date;
                 const $anchor = CE<HTMLAnchorElement>('a', {
-                        'download': `${currentStream.titleId}-${now}.png`,
+                        'download': `${currentStream.titleSlug}-${now}.png`,
                         'href': URL.createObjectURL(blob!),
                     });
                 $anchor.click();

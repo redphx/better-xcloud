@@ -14,7 +14,7 @@ import { Toast } from "@utils/toast";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
 import { TouchController } from "@modules/touch-controller";
-import { checkForUpdate, disablePwa } from "@utils/utils";
+import { checkForUpdate, disablePwa, productTitleToSlug } from "@utils/utils";
 import { Patcher } from "@modules/patcher";
 import { RemotePlay } from "@modules/remote-play";
 import { onHistoryChanged, patchHistoryMethod } from "@utils/history";
@@ -39,6 +39,8 @@ import { compressCss } from "@macros/build" with {type: "macro"};
 import { SettingsNavigationDialog } from "./modules/ui/dialog/settings-dialog";
 import { StreamUiHandler } from "./modules/stream/stream-ui";
 import { UserAgent } from "./utils/user-agent";
+import { XboxApi } from "./utils/xbox-api";
+import { TrueAchievements } from "./utils/true-achievements";
 
 
 // Handle login page
@@ -198,15 +200,10 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
 
 window.addEventListener(BxEvent.STREAM_LOADING, e => {
     // Get title ID for screenshot's name
-    if (window.location.pathname.includes('/launch/')) {
-        const matches = /\/launch\/(?<title_id>[^\/]+)\/(?<product_id>\w+)/.exec(window.location.pathname);
-        if (matches?.groups) {
-            STATES.currentStream.titleId = matches.groups.title_id;
-            STATES.currentStream.productId = matches.groups.product_id;
-        }
+    if (window.location.pathname.includes('/launch/') && STATES.currentStream.titleInfo) {
+        STATES.currentStream.titleSlug = productTitleToSlug(STATES.currentStream.titleInfo.product.title);
     } else {
-        STATES.currentStream.titleId = 'remote-play';
-        STATES.currentStream.productId = '';
+        STATES.currentStream.titleSlug = 'remote-play';
     }
 });
 
@@ -252,6 +249,38 @@ window.addEventListener(BxEvent.XCLOUD_RENDERING_COMPONENT, e => {
     }
 });
 
+// Detect game change
+window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
+    const dataChannel = (e as any).dataChannel;
+    if (!dataChannel || dataChannel.label !== 'message') {
+        return;
+    }
+
+    dataChannel.addEventListener('message', async (msg: MessageEvent) => {
+        if (msg.origin === 'better-xcloud' || typeof msg.data !== 'string') {
+            return;
+        }
+
+        // Get xboxTitleId from message
+        if (msg.data.includes('/titleinfo')) {
+            const json = JSON.parse(JSON.parse(msg.data).content);
+            const xboxTitleId = parseInt(json.titleid, 16);
+            STATES.currentStream.xboxTitleId = xboxTitleId;
+
+            // Get titleSlug for Remote Play
+            if (STATES.remotePlay.isPlaying) {
+                STATES.currentStream.titleSlug = 'remote-play';
+                if (json.focused) {
+                    const productTitle = await XboxApi.getProductTitle(xboxTitleId);
+                    if (productTitle) {
+                        STATES.currentStream.titleSlug = productTitleToSlug(productTitle);
+                    }
+                }
+            }
+        }
+    });
+});
+
 function unload() {
     if (!STATES.isPlaying) {
         return;
@@ -288,7 +317,7 @@ window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, e => {
 
 
 function observeRootDialog($root: HTMLElement) {
-    let currentShown = false;
+    let beingShown = false;
 
     const observer = new MutationObserver(mutationList => {
         for (const mutation of mutationList) {
@@ -296,21 +325,28 @@ function observeRootDialog($root: HTMLElement) {
                 continue;
             }
 
+            console.log('added', mutation.addedNodes);
             if (mutation.addedNodes.length === 1) {
                 const $addedElm = mutation.addedNodes[0];
                 if ($addedElm instanceof HTMLElement && $addedElm.className) {
                     if ($addedElm.className.startsWith('NavigationAnimation') || $addedElm.className.startsWith('DialogRoutes') || $addedElm.className.startsWith('Dialog-module__container')) {
                         // Make sure it's Guide dialog
                         if (document.querySelector('#gamepass-dialog-root div[class*=GuideDialog]')) {
-                            // Find navigation bar
-                            const $selectedTab = $addedElm.querySelector('div[class^=NavigationMenu] button[aria-selected=true');
-                            if ($selectedTab) {
-                                let $elm: Element | null = $selectedTab;
-                                let index;
-                                for (index = 0; ($elm = $elm?.previousElementSibling); index++);
+                            // Achievement Details page
+                            const $achievDetailPage = $addedElm.querySelector('div[class*=AchievementDetailPage]');
+                            if ($achievDetailPage) {
+                                TrueAchievements.injectAchievementDetailPage($achievDetailPage as HTMLElement);
+                            } else {
+                                // Find navigation bar
+                                const $selectedTab = $addedElm.querySelector('div[class^=NavigationMenu] button[aria-selected=true');
+                                if ($selectedTab) {
+                                    let $elm: Element | null = $selectedTab;
+                                    let index;
+                                    for (index = 0; ($elm = $elm?.previousElementSibling); index++);
 
-                                if (index === 0) {
-                                    BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, {where: GuideMenuTab.HOME});
+                                    if (index === 0) {
+                                        BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, {where: GuideMenuTab.HOME});
+                                    }
                                 }
                             }
                         }
@@ -319,8 +355,8 @@ function observeRootDialog($root: HTMLElement) {
             }
 
             const shown = ($root.firstElementChild && $root.firstElementChild.childElementCount > 0) || false;
-            if (shown !== currentShown) {
-                currentShown = shown;
+            if (shown !== beingShown) {
+                beingShown = shown;
                 BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
             }
         }

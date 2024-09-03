@@ -8,6 +8,7 @@ import { STATES } from "@utils/global";
 import { MicrophoneAction } from "./action-microphone";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref, StreamTouchController } from "@/utils/settings-storages/global-settings-storage";
+import { TrueAchievementsAction } from "./action-true-achievements";
 
 
 export class GameBar {
@@ -42,6 +43,7 @@ export class GameBar {
         this.actions = [
             new ScreenshotAction(),
             ...(STATES.userAgent.capabilities.touch && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== StreamTouchController.OFF) ? [new TouchControlAction()] : []),
+            new TrueAchievementsAction(),
             new MicrophoneAction(),
         ];
 
@@ -92,7 +94,7 @@ export class GameBar {
 
             // Toggle Game bar
             const mode = (e as any).mode;
-            mode !== 'None' ? this.disable() : this.enable();
+            mode !== 'none' ? this.disable() : this.enable();
         }).bind(this));
     }
 

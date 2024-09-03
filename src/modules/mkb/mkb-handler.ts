@@ -459,7 +459,7 @@ export class EmulatedMkbHandler extends MkbHandler {
         }
 
         const mode = (e as any).mode;
-        if (mode === 'None') {
+        if (mode === 'none') {
             this.#$message.classList.remove('bx-offscreen');
         } else {
             this.#$message.classList.add('bx-offscreen');

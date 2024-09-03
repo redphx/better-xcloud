@@ -321,6 +321,7 @@ const Texts = {
     ],
     "touch-controller": "Touch controller",
     "transparent-background": "Transparent background",
+    "true-achievements": "TrueAchievements",
     "ui": "UI",
     "unexpected-behavior": "May cause unexpected behavior",
     "united-states": "United States",

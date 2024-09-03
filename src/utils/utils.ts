@@ -110,3 +110,12 @@ export async function copyToClipboard(text: string, showToast=true): Promise<boo
 
     return false;
 }
+
+export function productTitleToSlug(title: string): string {
+    return title.replace(/[;,/?:@&=+_`~$%#^*()!^\u2122\xae\xa9]/g, '')
+            .replace(/ {2,}/g, ' ')
+            .trim()
+            .substr(0, 50)
+            .replace(/ /g, '-')
+            .toLowerCase();
+}

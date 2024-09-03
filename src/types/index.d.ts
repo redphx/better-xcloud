@@ -48,9 +48,9 @@ type BxStates = {
     };
 
     currentStream: Partial<{
-        titleId: string;
-        productId: string;
+        titleSlug: string;
         titleInfo: XcloudTitleInfo;
+        xboxTitleId: number;
 
         streamPlayer: StreamPlayer | null;
 
@@ -65,6 +65,7 @@ type BxStates = {
         config: {
             serverId: string;
         };
+        titleId?: string;
     }>;
 
     pointerServerPort: number;
@@ -75,6 +76,7 @@ type XcloudTitleInfo = {
 
     details: {
         productId: string;
+        xboxTitleId: number;
         supportedInputTypes: InputType[];
         supportedTabs: any[];
         hasNativeTouchSupport: boolean;
@@ -84,6 +86,7 @@ type XcloudTitleInfo = {
     };
 
     product: {
+        title: string;
         heroImageUrl: string;
         titledHeroImageUrl: string;
         tileImageUrl: string;
@@ -118,3 +121,42 @@ type MkbMouseWheel = {
     vertical: number;
     horizontal: number;
 }
+
+type XboxAchievement = {
+    version: number;
+    id: string;
+    name: string;
+    gamerscore: number;
+    isSecret: boolean;
+    isUnlocked: boolean;
+    description: {
+        locked: string;
+        unlocked: string;
+    };
+
+    imageUrl: string,
+    requirements: Array<{
+        current: number;
+        target: number;
+        percentComplete: number;
+    }>;
+
+    percentComplete: 0,
+    rarity: {
+        currentCategory: string;
+        currentPercentage: number;
+    };
+
+    rewards: Array<{
+        value: number;
+        valueType: string;
+        type: string;
+    }>;
+
+    title: {
+        id: string;
+        scid: string;
+        productId: string;
+        name: string;
+    }
+};
