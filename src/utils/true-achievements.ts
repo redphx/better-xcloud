@@ -1,4 +1,3 @@
-import { BX_FLAGS } from "./bx-flags";
 import { AppInterface, STATES } from "./global";
 import { ButtonStyle, CE, createButton, getReactProps } from "./html";
 import { t } from "./translation";

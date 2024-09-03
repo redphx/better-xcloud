@@ -245,7 +245,7 @@ window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
 window.addEventListener(BxEvent.XCLOUD_RENDERING_COMPONENT, e => {
     const component = (e as any).component;
     if (component === 'product-details') {
-        ProductDetailsPage.injectShortcutButton();
+        ProductDetailsPage.injectButtons();
     }
 });
 
