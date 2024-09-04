@@ -3236,7 +3236,7 @@ async function copyToClipboard(text, showToast = !0) {
   return !1;
 }
 function productTitleToSlug(title) {
-  return title.replace(/[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g, "").replace(/ {2,}/g, " ").trim().substr(0, 50).replace(/ /g, "-").toLowerCase();
+  return title.replace(/[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g, "").replace(/\|/g, "-").replace(/ {2,}/g, " ").trim().substr(0, 50).replace(/ /g, "-").toLowerCase();
 }
 
 class SoundShortcut {
@@ -8107,7 +8107,7 @@ class ProductDetailsPage {
         const matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(window.location.pathname);
         if (!matches?.groups)
           return;
-        const titleSlug = matches.groups.titleSlug, productId = matches.groups.productId;
+        const titleSlug = matches.groups.titleSlug.replaceAll("%" + "7C", "-"), productId = matches.groups.productId;
         AppInterface.downloadWallpapers(titleSlug, productId);
       } catch (e2) {
       }
