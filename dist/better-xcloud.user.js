@@ -8057,24 +8057,45 @@ class GameTile {
 }
 
 class ProductDetailsPage {
-  static $btnShortcut = createButton({
+  static $btnShortcut = AppInterface && createButton({
     classes: ["bx-button-shortcut"],
     icon: BxIcon.CREATE_SHORTCUT,
     label: t("create-shortcut"),
     style: 32,
     tabIndex: 0,
     onClick: (e) => {
-      AppInterface && AppInterface.createShortcut(window.location.pathname.substring(6));
+      AppInterface.createShortcut(window.location.pathname.substring(6));
     }
   });
-  static shortcutTimeoutId = null;
-  static injectShortcutButton() {
-    if (!AppInterface || BX_FLAGS.DeviceInfo.deviceType !== "android")
+  static $btnWallpaper = AppInterface && createButton({
+    classes: ["bx-button-shortcut"],
+    icon: BxIcon.DOWNLOAD,
+    label: t("wallpaper"),
+    style: 32,
+    tabIndex: 0,
+    onClick: async (e) => {
+      try {
+        const matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(window.location.pathname);
+        if (!matches?.groups)
+          return;
+        const titleSlug = matches.groups.titleSlug, productId = matches.groups.productId;
+        AppInterface.downloadWallpapers(titleSlug, productId);
+      } catch (e2) {
+      }
+    }
+  });
+  static injectTimeoutId = null;
+  static injectButtons() {
+    if (!AppInterface)
       return;
-    ProductDetailsPage.shortcutTimeoutId && clearTimeout(ProductDetailsPage.shortcutTimeoutId), ProductDetailsPage.shortcutTimeoutId = window.setTimeout(() => {
+    ProductDetailsPage.injectTimeoutId && clearTimeout(ProductDetailsPage.injectTimeoutId), ProductDetailsPage.injectTimeoutId = window.setTimeout(() => {
       const $container = document.querySelector("div[class*=ActionButtons-module__container]");
-      if ($container)
-        $container.parentElement?.appendChild(ProductDetailsPage.$btnShortcut);
+      if ($container && $container.parentElement) {
+        const fragment = document.createDocumentFragment();
+        if (BX_FLAGS.DeviceInfo.deviceType === "android")
+          fragment.appendChild(ProductDetailsPage.$btnShortcut);
+        fragment.appendChild(ProductDetailsPage.$btnWallpaper), $container.parentElement.appendChild(fragment);
+      }
     }, 500);
   }
 }
@@ -8377,7 +8398,7 @@ window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
 });
 window.addEventListener(BxEvent.XCLOUD_RENDERING_COMPONENT, (e) => {
   if (e.component === "product-details")
-    ProductDetailsPage.injectShortcutButton();
+    ProductDetailsPage.injectButtons();
 });
 window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
   const dataChannel = e.dataChannel;
