@@ -13,6 +13,7 @@ export class TrueAchievements {
     }) as HTMLAnchorElement;
 
     static $button = createButton({
+        label: t('true-achievements'),
         title: t('true-achievements'),
         icon: BxIcon.TRUE_ACHIEVEMENTS,
         style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,

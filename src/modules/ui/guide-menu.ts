@@ -28,6 +28,7 @@ export class GuideMenu {
 
         closeApp: AppInterface && createButton({
             icon: BxIcon.POWER,
+            label: t('close-app'),
             title: t('close-app'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
             onClick: e => {
@@ -41,6 +42,7 @@ export class GuideMenu {
 
         reloadPage: createButton({
             icon: BxIcon.REFRESH,
+            label: t('reload-page'),
             title: t('reload-page'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
@@ -57,6 +59,7 @@ export class GuideMenu {
 
         backToHome: createButton({
             icon: BxIcon.HOME,
+            label: t('back-to-home'),
             title: t('back-to-home'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {

@@ -3,6 +3,22 @@
         display: flex;
         flex-direction: row;
         gap: 12px;
+
+        body[data-media-type=tv] & {
+            flex-direction: column;
+
+            button {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        body:not([data-media-type=tv]) & {
+            button {
+                span {
+                    display: none;
+                }
+            }
+        }
     }
 
     &[data-is-playing="true"] {
