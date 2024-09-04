@@ -1,4 +1,6 @@
 import { AppInterface } from "@utils/global";
+import { BxLogger } from "./bx-logger";
+import { BX_FLAGS } from "./bx-flags";
 
 
 export namespace BxEvent {
@@ -75,6 +77,8 @@ export namespace BxEvent {
 
         target.dispatchEvent(event);
         AppInterface && AppInterface.onEvent(eventName);
+
+        BX_FLAGS.Debug && BxLogger.warning('BxEvent', 'dispatch', eventName, data)
     }
 }
 

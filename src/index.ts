@@ -326,36 +326,18 @@ function observeRootDialog($root: HTMLElement) {
                 continue;
             }
 
-            console.log('added', mutation.addedNodes);
+            BX_FLAGS.Debug && BxLogger.warning('RootDialog', 'added', mutation.addedNodes);
             if (mutation.addedNodes.length === 1) {
                 const $addedElm = mutation.addedNodes[0];
                 if ($addedElm instanceof HTMLElement && $addedElm.className) {
-                    if ($addedElm.className.startsWith('NavigationAnimation') || $addedElm.className.startsWith('DialogRoutes') || $addedElm.className.startsWith('Dialog-module__container')) {
-                        // Make sure it's Guide dialog
-                        if (document.querySelector('#gamepass-dialog-root div[class*=GuideDialog]')) {
-                            // Achievement Details page
-                            const $achievDetailPage = $addedElm.querySelector('div[class*=AchievementDetailPage]');
-                            if ($achievDetailPage) {
-                                TrueAchievements.injectAchievementDetailPage($achievDetailPage as HTMLElement);
-                            } else {
-                                // Find navigation bar
-                                const $selectedTab = $addedElm.querySelector('div[class^=NavigationMenu] button[aria-selected=true');
-                                if ($selectedTab) {
-                                    let $elm: Element | null = $selectedTab;
-                                    let index;
-                                    for (index = 0; ($elm = $elm?.previousElementSibling); index++);
-
-                                    if (index === 0) {
-                                        BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, {where: GuideMenuTab.HOME});
-                                    }
-                                }
-                            }
-                        }
+                    // Make sure it's Guide dialog
+                    if ($root.querySelector('div[class*=GuideDialog]')) {
+                        GuideMenu.observe($addedElm);
                     }
                 }
             }
 
-            const shown = ($root.firstElementChild && $root.firstElementChild.childElementCount > 0) || false;
+            const shown = !!($root.firstElementChild && $root.firstElementChild.childElementCount > 0);
             if (shown !== beingShown) {
                 beingShown = shown;
                 BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
@@ -416,7 +398,7 @@ function main() {
     (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance();
     Screenshot.setup();
 
-    GuideMenu.observe();
+    GuideMenu.addEventListeners();
     StreamBadges.setupEvents();
     StreamStats.setupEvents();
     EmulatedMkbHandler.setupEvents();

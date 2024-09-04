@@ -42,7 +42,7 @@ export class GuideMenu {
         reloadPage: createButton({
             icon: BxIcon.REFRESH,
             title: t('reload-page'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.GHOST,
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 if (STATES.isPlaying) {
                     confirm(t('confirm-reload-stream')) && window.location.reload();
@@ -58,7 +58,7 @@ export class GuideMenu {
         backToHome: createButton({
             icon: BxIcon.HOME,
             title: t('back-to-home'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.GHOST,
+            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
             onClick: e => {
                 confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
 
@@ -67,17 +67,6 @@ export class GuideMenu {
             },
             attributes: {
                 'data-state': 'playing',
-            },
-        }),
-
-        trueAchievements: createButton({
-            label: t('true-achievements'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-            onClick: e => {
-                TrueAchievements.open(false);
-
-                // Close all xCloud's dialogs
-                window.BX_EXPOSED.dialogRoutes.closeAll();
             },
         }),
     }
@@ -95,8 +84,8 @@ export class GuideMenu {
 
         const buttons = [
             GuideMenu.#BUTTONS.scriptSettings,
-            GuideMenu.#BUTTONS.trueAchievements,
             [
+                TrueAchievements.$button,
                 GuideMenu.#BUTTONS.backToHome,
                 GuideMenu.#BUTTONS.reloadPage,
                 GuideMenu.#BUTTONS.closeApp,
@@ -159,7 +148,35 @@ export class GuideMenu {
         }
     }
 
-    static observe() {
+    static addEventListeners() {
         window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, GuideMenu.#onShown);
+    }
+
+    static observe($addedElm: HTMLElement) {
+        const className = $addedElm.className;
+        if (!className.startsWith('NavigationAnimation') &&
+                !className.startsWith('DialogRoutes') &&
+                !className.startsWith('Dialog-module__container')) {
+            return;
+        }
+
+        // Achievement Details page
+        const $achievDetailPage = $addedElm.querySelector('div[class*=AchievementDetailPage]');
+        if ($achievDetailPage) {
+            TrueAchievements.injectAchievementDetailPage($achievDetailPage as HTMLElement);
+            return;
+        }
+
+        // Find navigation bar
+        const $selectedTab = $addedElm.querySelector('div[class^=NavigationMenu] button[aria-selected=true');
+        if ($selectedTab) {
+            let $elm: Element | null = $selectedTab;
+            let index;
+            for (index = 0; ($elm = $elm?.previousElementSibling); index++);
+
+            if (index === 0) {
+                BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, {where: GuideMenuTab.HOME});
+            }
+        }
     }
 }

@@ -1,6 +1,8 @@
 import { BxLogger } from "./bx-logger";
 
 type BxFlags = {
+    Debug: boolean;
+
     CheckForUpdate: boolean;
     EnableXcloudLogging: boolean;
     SafariWorkaround: boolean;
@@ -20,6 +22,8 @@ type BxFlags = {
 
 // Setup flags
 const DEFAULT_FLAGS: BxFlags = {
+    Debug: false,
+
     CheckForUpdate: true,
     EnableXcloudLogging: false,
     SafariWorkaround: true,
