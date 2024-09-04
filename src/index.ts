@@ -281,12 +281,9 @@ window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, e => {
 });
 
 function unload() {
-    if (!STATES.isPlaying && !Object.keys(STATES.currentStream).length) {
+    if (!STATES.isPlaying) {
         return;
     }
-
-    STATES.isPlaying = false;
-    STATES.currentStream = {};
 
     // Stop MKB listeners
     EmulatedMkbHandler.getInstance().destroy();
@@ -295,6 +292,8 @@ function unload() {
     // Destroy StreamPlayer
     STATES.currentStream.streamPlayer?.destroy();
 
+    STATES.isPlaying = false;
+    STATES.currentStream = {};
     window.BX_EXPOSED.shouldShowSensorControls = false;
     window.BX_EXPOSED.stopTakRendering = false;
 
