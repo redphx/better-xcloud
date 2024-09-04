@@ -29,7 +29,7 @@ export class ProductDetailsPage {
                     return;
                 }
 
-                const titleSlug = matches.groups.titleSlug;
+                const titleSlug = matches.groups.titleSlug.replaceAll('\%' + '7C', '-');
                 const productId = matches.groups.productId;
                 AppInterface.downloadWallpapers(titleSlug, productId);
             } catch (e) {}

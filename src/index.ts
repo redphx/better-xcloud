@@ -26,7 +26,7 @@ import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
 import { Screenshot } from "./utils/screenshot";
 import { NativeMkbHandler } from "./modules/mkb/native-mkb-handler";
-import { GuideMenu, GuideMenuTab } from "./modules/ui/guide-menu";
+import { GuideMenu } from "./modules/ui/guide-menu";
 import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
 import { UiSection } from "./enums/ui-sections";
 import { HeaderSection } from "./modules/ui/header";
@@ -40,7 +40,6 @@ import { SettingsNavigationDialog } from "./modules/ui/dialog/settings-dialog";
 import { StreamUiHandler } from "./modules/stream/stream-ui";
 import { UserAgent } from "./utils/user-agent";
 import { XboxApi } from "./utils/xbox-api";
-import { TrueAchievements } from "./utils/true-achievements";
 
 
 // Handle login page
