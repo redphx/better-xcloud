@@ -140,6 +140,10 @@ export class SettingElement {
             !(e as any).ignoreOnChange && onChange(e, (e.target as HTMLInputElement).checked);
         });
 
+        ($control as any).setValue = (value: boolean) => {
+            $control.checked = !!value;
+        };
+
         return $control;
     }
 

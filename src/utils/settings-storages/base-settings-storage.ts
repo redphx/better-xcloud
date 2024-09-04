@@ -2,6 +2,7 @@ import type { PrefKey } from "@/enums/pref-keys";
 import type { NumberStepperParams, SettingDefinitions } from "@/types/setting-definition";
 import { BxEvent } from "../bx-event";
 import { SettingElementType } from "../setting-element";
+import { t } from "../translation";
 
 export class BaseSettingsStore {
     private storage: Storage;
@@ -145,6 +146,8 @@ export class BaseSettingsStore {
             if (value in options) {
                 return options[value];
             }
+        } else if (typeof value === 'boolean') {
+            return value ? t('on') : t('off')
         }
 
         return value.toString();
