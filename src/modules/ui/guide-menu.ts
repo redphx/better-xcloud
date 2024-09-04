@@ -26,12 +26,16 @@ export class GuideMenu {
             },
         }),
 
-        closeApp: createButton({
+        closeApp: AppInterface && createButton({
             icon: BxIcon.POWER,
             title: t('close-app'),
             style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
             onClick: e => {
                 AppInterface.closeApp();
+            },
+
+            attributes: {
+                'data-state': 'normal',
             },
         }),
 
@@ -95,7 +99,7 @@ export class GuideMenu {
             [
                 GuideMenu.#BUTTONS.backToHome,
                 GuideMenu.#BUTTONS.reloadPage,
-                AppInterface && GuideMenu.#BUTTONS.closeApp,
+                GuideMenu.#BUTTONS.closeApp,
             ],
         ];
 
