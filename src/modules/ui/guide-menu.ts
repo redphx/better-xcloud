@@ -88,7 +88,6 @@ export class GuideMenu {
         const buttons = [
             GuideMenu.#BUTTONS.scriptSettings,
             [
-                TrueAchievements.$button,
                 GuideMenu.#BUTTONS.backToHome,
                 GuideMenu.#BUTTONS.reloadPage,
                 GuideMenu.#BUTTONS.closeApp,
@@ -116,6 +115,11 @@ export class GuideMenu {
     }
 
     static #injectHome($root: HTMLElement, isPlaying = false) {
+        const $achievementsProgress = $root.querySelector('button[class*=AchievementsButton-module__progressBarContainer]');
+        if ($achievementsProgress) {
+            TrueAchievements.injectAchievementsProgress($achievementsProgress as HTMLElement);
+        }
+
         // Find the element to add buttons to
         let $target: HTMLElement | null = null;
         if (isPlaying) {
@@ -157,6 +161,12 @@ export class GuideMenu {
 
     static observe($addedElm: HTMLElement) {
         const className = $addedElm.className;
+
+        if (className.includes('AchievementsButton-module__progressBarContainer')) {
+            TrueAchievements.injectAchievementsProgress($addedElm);
+            return;
+        }
+
         if (!className.startsWith('NavigationAnimation') &&
                 !className.startsWith('DialogRoutes') &&
                 !className.startsWith('Dialog-module__container')) {

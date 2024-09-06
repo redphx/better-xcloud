@@ -180,3 +180,10 @@ export function clearFocus() {
         document.activeElement.blur();
     }
 }
+
+
+export function clearDataSet($elm: HTMLElement) {
+    Object.keys($elm.dataset).forEach(key => {
+        delete $elm.dataset[key];
+    });
+}

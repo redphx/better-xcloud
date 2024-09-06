@@ -1,6 +1,6 @@
 import { BxIcon } from "./bx-icon";
 import { AppInterface, STATES } from "./global";
-import { ButtonStyle, CE, createButton, getReactProps } from "./html";
+import { ButtonStyle, CE, clearDataSet, createButton, getReactProps } from "./html";
 import { t } from "./translation";
 
 export class TrueAchievements {
@@ -16,7 +16,7 @@ export class TrueAchievements {
         label: t('true-achievements'),
         title: t('true-achievements'),
         icon: BxIcon.TRUE_ACHIEVEMENTS,
-        style: ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
+        style: ButtonStyle.FOCUSABLE,
         onClick: TrueAchievements.onClick,
     }) as HTMLAnchorElement;
 
@@ -25,18 +25,67 @@ export class TrueAchievements {
 
         const dataset = TrueAchievements.$link.dataset;
         TrueAchievements.open(true, dataset.xboxTitleId, dataset.id);
+
+        // Close all xCloud's dialogs
+        window.BX_EXPOSED.dialogRoutes.closeAll();
     }
 
     private static $hiddenLink = CE<HTMLAnchorElement>('a', {
         target: '_blank',
     });
 
-    private static updateLinks(xboxTitleId?: string, id?: string) {
-        TrueAchievements.$link.dataset.xboxTitleId = xboxTitleId;
-        TrueAchievements.$link.dataset.id = id;
+    private static updateIds(xboxTitleId?: string, id?: string) {
+        const $link = TrueAchievements.$link;
+        const $button = TrueAchievements.$button;
 
-        TrueAchievements.$button.dataset.xboxTitleId = xboxTitleId;
-        TrueAchievements.$button.dataset.id = id;
+        clearDataSet($link);
+        clearDataSet($button);
+
+        if (xboxTitleId) {
+            $link.dataset.xboxTitleId = xboxTitleId;
+            $button.dataset.xboxTitleId = xboxTitleId;
+        }
+
+        if (id) {
+            $link.dataset.id = id;
+            $button.dataset.id = id;
+        }
+    }
+
+    static injectAchievementsProgress($elm: HTMLElement) {
+        const $parent = $elm.parentElement!;
+
+        // Wrap xCloud's element with our own
+        const $div = CE('div', {
+            class: 'bx-guide-home-achievements-progress',
+        }, $elm);
+
+        // Get xboxTitleId of the game
+        let xboxTitleId: string | number | undefined;
+        try {
+            const $container = $parent.closest('div[class*=AchievementsPreview-module__container]') as HTMLElement;
+            if ($container) {
+                const props = getReactProps($container);
+                xboxTitleId = props.children.props.data.data.xboxTitleId;
+            }
+        } catch (e) {}
+
+        if (!xboxTitleId) {
+            xboxTitleId = TrueAchievements.getStreamXboxTitleId();
+        }
+
+        if (typeof xboxTitleId !== 'undefined') {
+            xboxTitleId = xboxTitleId.toString();
+        }
+        TrueAchievements.updateIds(xboxTitleId);
+
+        if (document.documentElement.dataset.xdsPlatform === 'tv') {
+            $div.appendChild(TrueAchievements.$link);
+        } else {
+            $div.appendChild(TrueAchievements.$button);
+        }
+
+        $parent.appendChild($div);
     }
 
     static injectAchievementDetailPage($parent: HTMLElement) {
@@ -66,15 +115,19 @@ export class TrueAchievements {
 
             // Found achievement -> add TrueAchievements button
             if (id) {
-                TrueAchievements.updateLinks(xboxTitleId, id);
+                TrueAchievements.updateIds(xboxTitleId, id);
                 $parent.appendChild(TrueAchievements.$link);
             }
         } catch (e) {};
     }
 
+    private static getStreamXboxTitleId() : number | undefined {
+        return STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
+    }
+
     static open(override: boolean, xboxTitleId?: number | string, id?: number | string) {
         if (!xboxTitleId || xboxTitleId === 'undefined') {
-            xboxTitleId = STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
+            xboxTitleId = TrueAchievements.getStreamXboxTitleId();
         }
 
         if (AppInterface && AppInterface.openTrueAchievementsLink) {
@@ -84,10 +137,10 @@ export class TrueAchievements {
 
         let url = 'https://www.trueachievements.com';
         if (xboxTitleId) {
-            if (id && id !== 'undefined') {
-                url += `/deeplink/${xboxTitleId}/${id}`;
-            } else {
-                url += `/deeplink/${xboxTitleId}`;
+            url += `/deeplink/${xboxTitleId}`;
+
+            if (id) {
+                url += `/${id}`;
             }
         }
 

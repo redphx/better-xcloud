@@ -1,10 +1,40 @@
+.bx-guide-home-achievements-progress {
+    display: flex;
+    gap: 10px;
+    flex-direction: row;
+
+    .bx-button {
+        margin-bottom: 0 !important;
+    }
+
+    html[data-xds-platform=tv] & {
+        flex-direction: column;
+    }
+
+    html:not([data-xds-platform=tv]) & {
+        flex-direction: row;
+
+        > button:first-of-type {
+            flex: 1;
+        }
+
+        > button:last-of-type {
+            width: 40px;
+
+            span {
+                display: none;
+            }
+        }
+    }
+}
+
 .bx-guide-home-buttons {
     > div {
         display: flex;
         flex-direction: row;
         gap: 12px;
 
-        body[data-media-type=tv] & {
+        html[data-xds-platform=tv] & {
             flex-direction: column;
 
             button {
@@ -12,7 +42,7 @@
             }
         }
 
-        body:not([data-media-type=tv]) & {
+        html:not([data-xds-platform=tv]) & {
             button {
                 span {
                     display: none;
