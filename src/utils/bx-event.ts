@@ -37,6 +37,7 @@ export namespace BxEvent {
 
     export const GAME_BAR_ACTION_ACTIVATED = 'bx-game-bar-action-activated';
     export const MICROPHONE_STATE_CHANGED = 'bx-microphone-state-changed';
+    export const SPEAKER_STATE_CHANGED = 'bx-speaker-state-changed';
 
     export const CAPTURE_SCREENSHOT = 'bx-capture-screenshot';
 

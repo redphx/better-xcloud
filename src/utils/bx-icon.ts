@@ -14,6 +14,7 @@ import iconPower from "@assets/svg/power.svg" with { type: "text" };
 import iconQuestion from "@assets/svg/question.svg" with { type: "text" };
 import iconRefresh from "@assets/svg/refresh.svg" with { type: "text" };
 import iconRemotePlay from "@assets/svg/remote-play.svg" with { type: "text" };
+import iconSpeakerSlash from "@assets/svg/speaker-slash.svg" with { type: "text" };
 import iconStreamSettings from "@assets/svg/stream-settings.svg" with { type: "text" };
 import iconStreamStats from "@assets/svg/stream-stats.svg" with { type: "text" };
 import iconTouchControlDisable from "@assets/svg/touch-control-disable.svg" with { type: "text" };
@@ -64,6 +65,7 @@ export const BxIcon = {
     CARET_LEFT: iconCaretLeft,
     CARET_RIGHT: iconCaretRight,
     SCREENSHOT: iconCamera,
+    SPEAKER_MUTED: iconSpeakerSlash,
     TOUCH_CONTROL_ENABLE: iconTouchControlEnable,
     TOUCH_CONTROL_DISABLE: iconTouchControlDisable,
 

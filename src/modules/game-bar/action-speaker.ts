@@ -1,11 +1,11 @@
 import { BxEvent } from "@utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
-import { TouchController } from "@modules/touch-controller";
 import { BaseGameBarAction } from "./action-base";
-import { t } from "@utils/translation";
+import { SoundShortcut, SpeakerState } from "../shortcuts/shortcut-sound";
 
-export class TouchControlAction extends BaseGameBarAction {
+
+export class SpeakerAction extends BaseGameBarAction {
     $content: HTMLElement;
 
     constructor() {
@@ -13,35 +13,35 @@ export class TouchControlAction extends BaseGameBarAction {
 
         const onClick = (e: Event) => {
             BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-
-            const $parent = (e as any).target.closest('div[data-enabled]');
-            let enabled = $parent.getAttribute('data-enabled', 'true') === 'true';
-            $parent.setAttribute('data-enabled', (!enabled).toString());
-
-            TouchController.toggleVisibility(enabled);
+            SoundShortcut.muteUnmute();
         };
 
         const $btnEnable = createButton({
             style: ButtonStyle.GHOST,
-            icon: BxIcon.TOUCH_CONTROL_ENABLE,
-            title: t('show-touch-controller'),
+            icon: BxIcon.AUDIO,
             onClick: onClick,
         });
 
-        const $btnDisable = createButton({
+        const $btnMuted = createButton({
             style: ButtonStyle.GHOST,
-            icon: BxIcon.TOUCH_CONTROL_DISABLE,
-            title: t('hide-touch-controller'),
+            icon: BxIcon.SPEAKER_MUTED,
             onClick: onClick,
             classes: ['bx-activated'],
         });
 
         this.$content = CE('div', {},
             $btnEnable,
-            $btnDisable,
+            $btnMuted,
         );
 
         this.reset();
+
+        window.addEventListener(BxEvent.SPEAKER_STATE_CHANGED, e => {
+            const speakerState = (e as any).speakerState;
+            const enabled = speakerState === SpeakerState.ENABLED;
+
+            this.$content.dataset.enabled = enabled.toString();
+        });
     }
 
     render(): HTMLElement {
@@ -49,6 +49,6 @@ export class TouchControlAction extends BaseGameBarAction {
     }
 
     reset(): void {
-        this.$content.setAttribute('data-enabled', 'true');
+        this.$content.dataset.enabled = 'true';
     }
 }

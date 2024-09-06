@@ -9,6 +9,7 @@ import { MicrophoneAction } from "./action-microphone";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref, StreamTouchController } from "@/utils/settings-storages/global-settings-storage";
 import { TrueAchievementsAction } from "./action-true-achievements";
+import { SpeakerAction } from "./action-speaker";
 
 
 export class GameBar {
@@ -43,8 +44,9 @@ export class GameBar {
         this.actions = [
             new ScreenshotAction(),
             ...(STATES.userAgent.capabilities.touch && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== StreamTouchController.OFF) ? [new TouchControlAction()] : []),
-            new TrueAchievementsAction(),
+            new SpeakerAction(),
             new MicrophoneAction(),
+            new TrueAchievementsAction(),
         ];
 
         // Reverse the action list if Game Bar's position is on the right side

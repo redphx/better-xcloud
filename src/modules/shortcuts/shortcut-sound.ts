@@ -4,6 +4,12 @@ import { Toast } from "@utils/toast";
 import { ceilToNearest, floorToNearest } from "@/utils/utils";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref, setPref } from "@/utils/settings-storages/global-settings-storage";
+import { BxEvent } from "@/utils/bx-event";
+
+export enum SpeakerState {
+    ENABLED,
+    MUTED,
+}
 
 export class SoundShortcut {
     static adjustGainNodeVolume(amount: number): number {
@@ -64,6 +70,10 @@ export class SoundShortcut {
 
             SoundShortcut.setGainNodeVolume(targetValue);
             Toast.show(`${t('stream')} ❯ ${t('volume')}`, status, {instant: true});
+
+            BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
+                speakerState: targetValue === 0 ? SpeakerState.MUTED : SpeakerState.ENABLED,
+            })
             return;
         }
 
@@ -79,6 +89,10 @@ export class SoundShortcut {
 
             const status = $media.muted ? t('muted') : t('unmuted');
             Toast.show(`${t('stream')} ❯ ${t('volume')}`, status, {instant: true});
+
+            BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
+                speakerState: $media.muted ? SpeakerState.MUTED : SpeakerState.ENABLED,
+            })
         }
     }
 }

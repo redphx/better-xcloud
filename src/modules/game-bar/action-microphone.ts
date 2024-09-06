@@ -1,7 +1,6 @@
 import { BxEvent } from "@utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
-import { t } from "@utils/translation";
 import { BaseGameBarAction } from "./action-base";
 import { MicrophoneShortcut, MicrophoneState } from "../shortcuts/shortcut-microphone";
 
@@ -24,7 +23,6 @@ export class MicrophoneAction extends BaseGameBarAction {
         const $btnDefault = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.MICROPHONE,
-            title: t('show-touch-controller'),
             onClick: onClick,
             classes: ['bx-activated'],
         });
@@ -32,7 +30,6 @@ export class MicrophoneAction extends BaseGameBarAction {
         const $btnMuted = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.MICROPHONE_MUTED,
-            title: t('hide-touch-controller'),
             onClick: onClick,
         });
 
