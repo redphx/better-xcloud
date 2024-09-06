@@ -168,7 +168,7 @@ var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.inclu
 
 var BxEvent;
 ((BxEvent) => {
-  BxEvent.JUMP_BACK_IN_READY = "bx-jump-back-in-ready", BxEvent.POPSTATE = "bx-popstate", BxEvent.TITLE_INFO_READY = "bx-title-info-ready", BxEvent.SETTINGS_CHANGED = "bx-settings-changed", BxEvent.STREAM_LOADING = "bx-stream-loading", BxEvent.STREAM_STARTING = "bx-stream-starting", BxEvent.STREAM_STARTED = "bx-stream-started", BxEvent.STREAM_PLAYING = "bx-stream-playing", BxEvent.STREAM_STOPPED = "bx-stream-stopped", BxEvent.STREAM_ERROR_PAGE = "bx-stream-error-page", BxEvent.STREAM_WEBRTC_CONNECTED = "bx-stream-webrtc-connected", BxEvent.STREAM_WEBRTC_DISCONNECTED = "bx-stream-webrtc-disconnected", BxEvent.STREAM_SESSION_READY = "bx-stream-session-ready", BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED = "bx-custom-touch-layouts-loaded", BxEvent.TOUCH_LAYOUT_MANAGER_READY = "bx-touch-layout-manager-ready", BxEvent.REMOTE_PLAY_READY = "bx-remote-play-ready", BxEvent.REMOTE_PLAY_FAILED = "bx-remote-play-failed", BxEvent.XCLOUD_SERVERS_READY = "bx-servers-ready", BxEvent.XCLOUD_SERVERS_UNAVAILABLE = "bx-servers-unavailable", BxEvent.DATA_CHANNEL_CREATED = "bx-data-channel-created", BxEvent.GAME_BAR_ACTION_ACTIVATED = "bx-game-bar-action-activated", BxEvent.MICROPHONE_STATE_CHANGED = "bx-microphone-state-changed", BxEvent.CAPTURE_SCREENSHOT = "bx-capture-screenshot", BxEvent.POINTER_LOCK_REQUESTED = "bx-pointer-lock-requested", BxEvent.POINTER_LOCK_EXITED = "bx-pointer-lock-exited", BxEvent.NAVIGATION_FOCUS_CHANGED = "bx-nav-focus-changed", BxEvent.XCLOUD_DIALOG_SHOWN = "bx-xcloud-dialog-shown", BxEvent.XCLOUD_DIALOG_DISMISSED = "bx-xcloud-dialog-dismissed", BxEvent.XCLOUD_GUIDE_MENU_SHOWN = "bx-xcloud-guide-menu-shown", BxEvent.XCLOUD_POLLING_MODE_CHANGED = "bx-xcloud-polling-mode-changed", BxEvent.XCLOUD_RENDERING_COMPONENT = "bx-xcloud-rendering-component", BxEvent.XCLOUD_ROUTER_HISTORY_READY = "bx-xcloud-router-history-ready";
+  BxEvent.JUMP_BACK_IN_READY = "bx-jump-back-in-ready", BxEvent.POPSTATE = "bx-popstate", BxEvent.TITLE_INFO_READY = "bx-title-info-ready", BxEvent.SETTINGS_CHANGED = "bx-settings-changed", BxEvent.STREAM_LOADING = "bx-stream-loading", BxEvent.STREAM_STARTING = "bx-stream-starting", BxEvent.STREAM_STARTED = "bx-stream-started", BxEvent.STREAM_PLAYING = "bx-stream-playing", BxEvent.STREAM_STOPPED = "bx-stream-stopped", BxEvent.STREAM_ERROR_PAGE = "bx-stream-error-page", BxEvent.STREAM_WEBRTC_CONNECTED = "bx-stream-webrtc-connected", BxEvent.STREAM_WEBRTC_DISCONNECTED = "bx-stream-webrtc-disconnected", BxEvent.STREAM_SESSION_READY = "bx-stream-session-ready", BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED = "bx-custom-touch-layouts-loaded", BxEvent.TOUCH_LAYOUT_MANAGER_READY = "bx-touch-layout-manager-ready", BxEvent.REMOTE_PLAY_READY = "bx-remote-play-ready", BxEvent.REMOTE_PLAY_FAILED = "bx-remote-play-failed", BxEvent.XCLOUD_SERVERS_READY = "bx-servers-ready", BxEvent.XCLOUD_SERVERS_UNAVAILABLE = "bx-servers-unavailable", BxEvent.DATA_CHANNEL_CREATED = "bx-data-channel-created", BxEvent.GAME_BAR_ACTION_ACTIVATED = "bx-game-bar-action-activated", BxEvent.MICROPHONE_STATE_CHANGED = "bx-microphone-state-changed", BxEvent.SPEAKER_STATE_CHANGED = "bx-speaker-state-changed", BxEvent.CAPTURE_SCREENSHOT = "bx-capture-screenshot", BxEvent.POINTER_LOCK_REQUESTED = "bx-pointer-lock-requested", BxEvent.POINTER_LOCK_EXITED = "bx-pointer-lock-exited", BxEvent.NAVIGATION_FOCUS_CHANGED = "bx-nav-focus-changed", BxEvent.XCLOUD_DIALOG_SHOWN = "bx-xcloud-dialog-shown", BxEvent.XCLOUD_DIALOG_DISMISSED = "bx-xcloud-dialog-dismissed", BxEvent.XCLOUD_GUIDE_MENU_SHOWN = "bx-xcloud-guide-menu-shown", BxEvent.XCLOUD_POLLING_MODE_CHANGED = "bx-xcloud-polling-mode-changed", BxEvent.XCLOUD_RENDERING_COMPONENT = "bx-xcloud-rendering-component", BxEvent.XCLOUD_ROUTER_HISTORY_READY = "bx-xcloud-router-history-ready";
   function dispatch(target, eventName, data) {
     if (!target)
       return;
@@ -2800,6 +2800,8 @@ var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' strok
 
 var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g></svg>";
 
+var speaker_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' stroke='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M5.462 3.4c-.205-.23-.499-.363-.808-.363-.592 0-1.079.488-1.079 1.08a1.08 1.08 0 0 0 .289.736l4.247 4.672H2.504a2.17 2.17 0 0 0-2.16 2.16v8.637a2.17 2.17 0 0 0 2.16 2.16h6.107l9.426 7.33a1.08 1.08 0 0 0 .662.227c.592 0 1.08-.487 1.08-1.079v-6.601l5.679 6.247a1.08 1.08 0 0 0 .808.363c.592 0 1.08-.487 1.08-1.079a1.08 1.08 0 0 0-.29-.736L5.462 3.4zm-2.958 8.285h5.398v8.637H2.504v-8.637zM17.62 26.752l-7.558-5.878V11.67l7.558 8.313v6.769zm5.668-8.607c1.072-1.218 1.072-3.063 0-4.281a1.08 1.08 0 0 1-.293-.74c0-.592.487-1.079 1.079-1.079a1.08 1.08 0 0 1 .834.393 5.42 5.42 0 0 1 0 7.137 1.08 1.08 0 0 1-.81.365c-.593 0-1.08-.488-1.08-1.08 0-.263.096-.517.27-.715zM12.469 7.888c-.147-.19-.228-.423-.228-.663a1.08 1.08 0 0 1 .417-.853l5.379-4.184a1.08 1.08 0 0 1 .662-.227c.593 0 1.08.488 1.08 1.08v10.105c0 .593-.487 1.08-1.08 1.08s-1.079-.487-1.079-1.08V5.255l-3.636 2.834c-.469.362-1.153.273-1.515-.196v-.005zm19.187 8.115a10.79 10.79 0 0 1-2.749 7.199 1.08 1.08 0 0 1-.793.347c-.593 0-1.08-.487-1.08-1.079 0-.26.094-.511.264-.708 2.918-3.262 2.918-8.253 0-11.516-.184-.2-.287-.461-.287-.733 0-.592.487-1.08 1.08-1.08a1.08 1.08 0 0 1 .816.373 10.78 10.78 0 0 1 2.749 7.197z' fill-rule='nonzero'/></svg>";
+
 var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g></svg>";
 
 var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/></svg>";
@@ -2858,6 +2860,7 @@ var BxIcon = {
   CARET_LEFT: caret_left_default,
   CARET_RIGHT: caret_right_default,
   SCREENSHOT: camera_default,
+  SPEAKER_MUTED: speaker_slash_default,
   TOUCH_CONTROL_ENABLE: touch_control_enable_default,
   TOUCH_CONTROL_DISABLE: touch_control_disable_default,
   MICROPHONE: microphone_default,
@@ -3283,7 +3286,9 @@ class SoundShortcut {
         status = t("muted");
       else
         status = targetValue + "%";
-      SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
+      SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 }), BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
+        speakerState: targetValue === 0 ? 1 : 0
+      });
       return;
     }
     let $media;
@@ -3292,7 +3297,9 @@ class SoundShortcut {
     if ($media) {
       $media.muted = !$media.muted;
       const status = $media.muted ? t("muted") : t("unmuted");
-      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 });
+      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 }), BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
+        speakerState: $media.muted ? 1 : 0
+      });
     }
   }
 }
@@ -7649,13 +7656,13 @@ class TouchControlAction extends BaseGameBarAction {
       style: 4,
       icon: BxIcon.TOUCH_CONTROL_ENABLE,
       title: t("show-touch-controller"),
-      onClick,
-      classes: ["bx-activated"]
+      onClick
     }), $btnDisable = createButton({
       style: 4,
       icon: BxIcon.TOUCH_CONTROL_DISABLE,
       title: t("hide-touch-controller"),
-      onClick
+      onClick,
+      classes: ["bx-activated"]
     });
     this.$content = CE("div", {}, $btnEnable, $btnDisable), this.reset();
   }
@@ -7679,13 +7686,11 @@ class MicrophoneAction extends BaseGameBarAction {
     }, $btnDefault = createButton({
       style: 4,
       icon: BxIcon.MICROPHONE,
-      title: t("show-touch-controller"),
       onClick,
       classes: ["bx-activated"]
     }), $btnMuted = createButton({
       style: 4,
       icon: BxIcon.MICROPHONE_MUTED,
-      title: t("hide-touch-controller"),
       onClick
     });
     this.$content = CE("div", {}, $btnDefault, $btnMuted), this.reset(), window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
@@ -7807,6 +7812,35 @@ class TrueAchievementsAction extends BaseGameBarAction {
   }
 }
 
+class SpeakerAction extends BaseGameBarAction {
+  $content;
+  constructor() {
+    super();
+    const onClick = (e) => {
+      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), SoundShortcut.muteUnmute();
+    }, $btnEnable = createButton({
+      style: 4,
+      icon: BxIcon.AUDIO,
+      onClick
+    }), $btnMuted = createButton({
+      style: 4,
+      icon: BxIcon.SPEAKER_MUTED,
+      onClick,
+      classes: ["bx-activated"]
+    });
+    this.$content = CE("div", {}, $btnEnable, $btnMuted), this.reset(), window.addEventListener(BxEvent.SPEAKER_STATE_CHANGED, (e) => {
+      const enabled = e.speakerState === 0;
+      this.$content.dataset.enabled = enabled.toString();
+    });
+  }
+  render() {
+    return this.$content;
+  }
+  reset() {
+    this.$content.dataset.enabled = "true";
+  }
+}
+
 class GameBar {
   static instance;
   static getInstance() {
@@ -7825,8 +7859,9 @@ class GameBar {
     if (this.actions = [
       new ScreenshotAction,
       ...STATES.userAgent.capabilities.touch && getPref("stream_touch_controller") !== "off" ? [new TouchControlAction] : [],
-      new TrueAchievementsAction,
-      new MicrophoneAction
+      new SpeakerAction,
+      new MicrophoneAction,
+      new TrueAchievementsAction
     ], position === "bottom-right")
       this.actions.reverse();
     for (let action of this.actions)
