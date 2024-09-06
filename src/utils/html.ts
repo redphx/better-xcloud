@@ -174,3 +174,9 @@ export function removeChildElements($parent: HTMLElement) {
         $parent.firstElementChild.remove();
     }
 }
+
+export function clearFocus() {
+    if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+    }
+}

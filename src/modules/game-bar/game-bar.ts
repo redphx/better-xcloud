@@ -1,4 +1,4 @@
-import { CE, createSvgIcon } from "@utils/html";
+import { CE, clearFocus, createSvgIcon } from "@utils/html";
 import { ScreenshotAction } from "./action-screenshot";
 import { TouchControlAction } from "./action-touch-control";
 import { BxEvent } from "@utils/bx-event";
@@ -133,6 +133,9 @@ export class GameBar {
     }
 
     hideBar() {
+        // Stop focusing Game Bar
+        clearFocus();
+
         if (!this.$container) {
             return;
         }
