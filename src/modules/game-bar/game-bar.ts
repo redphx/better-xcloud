@@ -78,7 +78,7 @@ export class GameBar {
         $container.addEventListener('transitionend', e => {
             const classList = $container.classList;
             if (classList.contains('bx-hide')) {
-                classList.remove('bx-offscreen', 'bx-hide');
+                classList.remove('bx-hide');
                 classList.add('bx-offscreen');
             }
         });
@@ -135,6 +135,8 @@ export class GameBar {
     }
 
     hideBar() {
+        this.clearHideTimeout();
+
         // Stop focusing Game Bar
         clearFocus();
 
