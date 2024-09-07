@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.7.2
+// @version      5.7.3-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -139,7 +139,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.7.2", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.7.3-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -327,6 +327,7 @@ var SUPPORTED_LANGUAGES = {
   "badge-playtime": "Playtime",
   "badge-server": "Server",
   "badge-video": "Video",
+  "battery-saving": "Battery saving",
   "better-xcloud": "Better xCloud",
   "bitrate-audio-maximum": "Maximum audio bitrate",
   "bitrate-video-maximum": "Maximum video bitrate",
@@ -422,7 +423,6 @@ var SUPPORTED_LANGUAGES = {
   "load-failed-message": "Failed to run Better xCloud",
   "loading-screen": "Loading screen",
   "local-co-op": "Local co-op",
-  "low-power": "Low power",
   "lowest-quality": "Lowest quality",
   "map-mouse-to": "Map mouse to",
   "may-not-work-properly": "May not work properly!",
@@ -437,6 +437,27 @@ var SUPPORTED_LANGUAGES = {
   name: "Name",
   "native-mkb": "Native Mouse & Keyboard",
   new: "New",
+  "new-version-available": [
+    (e) => `Version ${e.version} available`,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    (e) => `Ver ${e.version} が利用可能です`,
+    (e) => `${e.version} 버전 사용가능`,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    (e) => `Đã có phiên bản ${e.version}`,
+    ,
+    ,
+  ],
   "no-consoles-found": "No consoles found",
   normal: "Normal",
   off: "Off",
@@ -479,7 +500,7 @@ var SUPPORTED_LANGUAGES = {
   recommended: "Recommended",
   "recommended-settings-for-device": [
     (e) => `Recommended settings for ${e.device}`,
-    ,
+    (e) => `Configuració recomanada per a ${e.device}`,
     ,
     (e) => `Empfohlene Einstellungen für ${e.device}`,
     ,
@@ -1622,7 +1643,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       default: "default",
       options: {
         default: t("default"),
-        "low-power": t("low-power"),
+        "low-power": t("battery-saving"),
         "high-performance": t("high-performance")
       },
       suggest: {
@@ -4197,6 +4218,14 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     if (index = PatcherUtils.lastIndexOf(str, "return", index, 100), index < 0)
       return !1;
     return str = PatcherUtils.insertAt(str, index, "window.BxEvent.dispatch(window, window.BxEvent.XCLOUD_ROUTER_HISTORY_READY, {history: this.history});"), str;
+  },
+  guideAchievementsDefaultLocked(str) {
+    let index = str.indexOf("FilterButton-module__container");
+    if (index >= 0 && (index = PatcherUtils.lastIndexOf(str, ".All", index, 150)), index < 0)
+      return !1;
+    if (str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), index = str.indexOf('"Guide_Achievements_Unlocked_Empty","Guide_Achievements_Locked_Empty"'), index >= 0 && (index = PatcherUtils.indexOf(str, ".All", index, 250)), index < 0)
+      return !1;
+    return str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), str;
   }
 }, PATCH_ORDERS = [
   ...getPref("native_mkb_enabled") === "on" ? [
@@ -4213,6 +4242,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   "patchGamepadPolling",
   "exposeStreamSession",
   "exposeDialogRoutes",
+  "guideAchievementsDefaultLocked",
   "enableTvRoutes",
   AppInterface && "detectProductDetailsPage",
   "overrideStorageGetSettings",
@@ -4433,12 +4463,17 @@ class SettingsNavigationDialog extends NavigationDialog {
     items: [
       ($parent) => {
         const PREF_LATEST_VERSION = getPref("version_latest"), topButtons = [];
-        if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION)
-          topButtons.push(createButton({
-            label: `🌟 Version ${PREF_LATEST_VERSION} available`,
-            style: 1 | 32 | 64,
-            url: "https://github.com/redphx/better-xcloud/releases/latest"
-          }));
+        if (!SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
+          const opts = {
+            label: "🌟 " + t("new-version-available", { version: PREF_LATEST_VERSION }),
+            style: 1 | 32 | 64
+          };
+          if (AppInterface && AppInterface.updateLatestScript)
+            opts.onClick = (e) => AppInterface.updateLatestScript();
+          else
+            opts.url = "https://github.com/redphx/better-xcloud/releases/latest";
+          topButtons.push(createButton(opts));
+        }
         if (AppInterface)
           topButtons.push(createButton({
             label: t("app-settings"),
@@ -7873,7 +7908,7 @@ class GameBar {
     }), window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this)), $container.addEventListener("pointerover", this.clearHideTimeout.bind(this)), $container.addEventListener("pointerout", this.beginHideTimeout.bind(this)), $container.addEventListener("transitionend", (e) => {
       const classList = $container.classList;
       if (classList.contains("bx-hide"))
-        classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen");
+        classList.remove("bx-hide"), classList.add("bx-offscreen");
     }), document.documentElement.appendChild($gameBar), this.$gameBar = $gameBar, this.$container = $container, getPref("game_bar_position") !== "off" && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e) => {
       if (!STATES.isPlaying) {
         this.disable();
@@ -7902,7 +7937,7 @@ class GameBar {
     this.$container.classList.remove("bx-offscreen", "bx-hide", "bx-gone"), this.$container.classList.add("bx-show"), this.beginHideTimeout();
   }
   hideBar() {
-    if (clearFocus(), !this.$container)
+    if (this.clearHideTimeout(), clearFocus(), !this.$container)
       return;
     this.$container.classList.remove("bx-show"), this.$container.classList.add("bx-hide");
   }
