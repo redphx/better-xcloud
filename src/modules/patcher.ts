@@ -912,6 +912,26 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         str = PatcherUtils.insertAt(str, index, 'window.BxEvent.dispatch(window, window.BxEvent.XCLOUD_ROUTER_HISTORY_READY, {history: this.history});');
         return str;
     },
+
+    // Set Achievements list's filter default to "Locked"
+    guideAchievementsDefaultLocked(str: string) {
+        let index = str.indexOf('FilterButton-module__container');
+        index >= 0 && (index = PatcherUtils.lastIndexOf(str, '.All', index, 150));
+        if (index < 0) {
+            return false;
+        }
+
+        str = PatcherUtils.replaceWith(str, index, '.All', '.Locked');
+
+        index = str.indexOf('"Guide_Achievements_Unlocked_Empty","Guide_Achievements_Locked_Empty"');
+        index >= 0 && (index = PatcherUtils.indexOf(str, '.All', index, 250));
+        if (index < 0) {
+            return false;
+        }
+
+        str = PatcherUtils.replaceWith(str, index, '.All', '.Locked');
+        return str;
+    }
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -932,6 +952,8 @@ let PATCH_ORDERS: PatchArray = [
 
     'exposeStreamSession',
     'exposeDialogRoutes',
+
+    'guideAchievementsDefaultLocked',
 
     'enableTvRoutes',
     AppInterface && 'detectProductDetailsPage',
