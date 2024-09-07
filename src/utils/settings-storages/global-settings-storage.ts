@@ -584,7 +584,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: 'default',
             options: {
                 'default': t('default'),
-                'low-power': t('low-power'),
+                'low-power': t('battery-saving'),
                 'high-performance': t('high-performance'),
             },
             suggest: {

@@ -32,7 +32,7 @@ const ButtonStyleClass = {
     [ButtonStyle.NORMAL_LINK]: 'bx-normal-link',
 }
 
-type BxButton = {
+export type BxButton = {
     style?: ButtonStyle;
     url?: string;
     classes?: string[];

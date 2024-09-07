@@ -1,5 +1,5 @@
 import { onChangeVideoPlayerType, updateVideoPlayer } from "@/modules/stream/stream-settings-utils";
-import { ButtonStyle, CE, createButton, createSvgIcon, removeChildElements } from "@/utils/html";
+import { ButtonStyle, CE, createButton, createSvgIcon, removeChildElements, type BxButton } from "@/utils/html";
 import { NavigationDialog, NavigationDirection } from "./navigation-dialog";
 import { ControllerShortcut } from "@/modules/controller-shortcut";
 import { MkbRemapper } from "@/modules/mkb/mkb-remapper";
@@ -97,12 +97,19 @@ export class SettingsNavigationDialog extends NavigationDialog {
 
                 // "New version available" button
                 if (!SCRIPT_VERSION.includes('beta') && PREF_LATEST_VERSION && PREF_LATEST_VERSION != SCRIPT_VERSION) {
-                    // Show new version indicator
-                    topButtons.push(createButton({
-                        label: `🌟 Version ${PREF_LATEST_VERSION} available`,
+                    // Show new version button
+                    const opts = {
+                        label: '🌟 ' + t('new-version-available', {version: PREF_LATEST_VERSION}),
                         style: ButtonStyle.PRIMARY | ButtonStyle.FOCUSABLE | ButtonStyle.FULL_WIDTH,
-                        url: 'https://github.com/redphx/better-xcloud/releases/latest',
-                    }));
+                    } as BxButton;
+
+                    if (AppInterface && AppInterface.updateLatestScript) {
+                        opts.onClick = e => AppInterface.updateLatestScript();
+                    } else {
+                        opts.url = 'https://github.com/redphx/better-xcloud/releases/latest';
+                    }
+
+                    topButtons.push(createButton(opts));
                 }
 
                 // Buttons for Android app
