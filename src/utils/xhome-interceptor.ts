@@ -42,7 +42,7 @@ export class XhomeInterceptor {
 
         const processPorts = (port: number): number[] => {
             const ports = new Set<number>();
-            ports.add(port);
+            port && ports.add(port);
             ports.add(9002);
 
             return Array.from(ports);
