@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.7.3
+// @version      5.7.4-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -139,7 +139,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.7.3", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.7.4-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -6330,10 +6330,12 @@ class RemotePlay {
     for (let region2 of RemotePlay.#REGIONS) {
       try {
         const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
+        if (json.results.length === 0)
+          continue;
         RemotePlay.#CONSOLES = json.results, STATES.remotePlay.server = region2.baseUri, callback();
       } catch (e) {
       }
-      if (RemotePlay.#CONSOLES)
+      if (RemotePlay.#CONSOLES && RemotePlay.#CONSOLES.length > 0)
         break;
     }
     if (!STATES.remotePlay.server)
@@ -6407,7 +6409,7 @@ class XhomeInterceptor {
     console.log(obj);
     const processPorts = (port) => {
       const ports = new Set;
-      return ports.add(port), ports.add(9002), Array.from(ports);
+      return port && ports.add(port), ports.add(9002), Array.from(ports);
     }, serverDetails = obj.serverDetails;
     if (serverDetails.ipAddress)
       XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
