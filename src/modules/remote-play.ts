@@ -267,6 +267,10 @@ export class RemotePlay {
                 const resp = await fetch(request);
 
                 const json = await resp.json();
+                if (json.results.length === 0) {
+                    continue;
+                }
+
                 RemotePlay.#CONSOLES = json.results;
 
                 // Store working server
@@ -275,7 +279,7 @@ export class RemotePlay {
                 callback();
             } catch (e) {}
 
-            if (RemotePlay.#CONSOLES) {
+            if (RemotePlay.#CONSOLES && RemotePlay.#CONSOLES.length > 0) {
                 break;
             }
         }
