@@ -254,6 +254,7 @@ export function patchPointerLockApi() {
     });
 
     // const nativeRequestPointerLock = HTMLElement.prototype.requestPointerLock;
+    // @ts-ignore
     HTMLElement.prototype.requestPointerLock = function() {
         pointerLockElement = document.documentElement;
         window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_REQUESTED));

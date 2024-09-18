@@ -1,6 +1,6 @@
 import { BxEvent } from "@utils/bx-event";
 import { LoadingScreen } from "@modules/loading-screen";
-import { RemotePlay } from "@modules/remote-play";
+import { RemotePlayManager } from "@/modules/remote-play-manager";
 import { HeaderSection } from "@/modules/ui/header";
 import { NavigationDialogManager } from "@/modules/ui/dialog/navigation-dialog";
 
@@ -24,7 +24,7 @@ export function onHistoryChanged(e: PopStateEvent) {
         return;
     }
 
-    window.setTimeout(RemotePlay.detect, 10);
+    window.setTimeout(RemotePlayManager.detect, 10);
 
     // Hide Global settings
     const $settings = document.querySelector('.bx-settings-container');
@@ -34,9 +34,6 @@ export function onHistoryChanged(e: PopStateEvent) {
 
     // Hide Navigation dialog
     NavigationDialogManager.getInstance().hide();
-
-    // Hide Remote Play popup
-    RemotePlay.detachPopup();
 
     LoadingScreen.reset();
     window.setTimeout(HeaderSection.watchHeader, 2000);

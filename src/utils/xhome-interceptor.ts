@@ -1,4 +1,3 @@
-import { RemotePlay } from "@/modules/remote-play";
 import { TouchController } from "@/modules/touch-controller";
 import { BxEvent } from "./bx-event";
 import { SupportedInputType } from "./bx-exposed";
@@ -8,6 +7,7 @@ import { patchIceCandidates } from "./network";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref, StreamResolution, StreamTouchController } from "./settings-storages/global-settings-storage";
 import type { RemotePlayConsoleAddresses } from "@/types/network";
+import { RemotePlayManager } from "@/modules/remote-play-manager";
 
 export class XhomeInterceptor {
     static #consoleAddrs: RemotePlayConsoleAddresses = {};
@@ -111,7 +111,7 @@ export class XhomeInterceptor {
         for (const pair of (clone.headers as any).entries()) {
             headers[pair[0]] = pair[1];
         }
-        headers.authorization = `Bearer ${RemotePlay.XCLOUD_TOKEN}`;
+        headers.authorization = `Bearer ${RemotePlayManager.getInstance().xcloudToken}`;
 
         const index = request.url.indexOf('.xboxlive.com');
         request = new Request('https://wus.core.gssv-play-prod' + request.url.substring(index), {
@@ -146,10 +146,10 @@ export class XhomeInterceptor {
             headers[pair[0]] = pair[1];
         }
         // Add xHome token to headers
-        headers.authorization = `Bearer ${RemotePlay.XHOME_TOKEN}`;
+        headers.authorization = `Bearer ${RemotePlayManager.getInstance().xhomeToken}`;
 
         // Patch resolution
-        const deviceInfo = RemotePlay.BASE_DEVICE_INFO;
+        const deviceInfo = RemotePlayManager.BASE_DEVICE_INFO;
         if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === StreamResolution.DIM_720P) {
             deviceInfo.dev.os.name = 'android';
         }

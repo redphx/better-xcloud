@@ -2,7 +2,7 @@ import { SCRIPT_VERSION } from "@utils/global";
 import { createButton, ButtonStyle, CE, isElementVisible } from "@utils/html";
 import { BxIcon } from "@utils/bx-icon";
 import { getPreferredServerRegion } from "@utils/region";
-import { RemotePlay } from "@modules/remote-play";
+import { RemotePlayManager } from "@/modules/remote-play-manager";
 import { t } from "@utils/translation";
 import { SettingsNavigationDialog } from "./dialog/settings-dialog";
 import { PrefKey } from "@/enums/pref-keys";
@@ -15,7 +15,7 @@ export class HeaderSection {
         title: t('remote-play'),
         style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE | ButtonStyle.CIRCULAR,
         onClick: e => {
-            RemotePlay.togglePopup();
+            RemotePlayManager.getInstance().togglePopup();
         },
     });
 

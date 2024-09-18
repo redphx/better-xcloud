@@ -1,5 +1,5 @@
 import { LoadingScreen } from "@modules/loading-screen";
-import { RemotePlay } from "@modules/remote-play";
+import { RemotePlayManager } from "@/modules/remote-play-manager";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { TouchController } from "@modules/touch-controller";
 import { BxEvent } from "./bx-event";
@@ -30,7 +30,7 @@ class XcloudInterceptor {
         const obj = await response.clone().json();
 
         // Store xCloud token
-        RemotePlay.XCLOUD_TOKEN = obj.gsToken;
+        RemotePlayManager.getInstance().xcloudToken = obj.gsToken;
 
         // Get server list
         const serverEmojis = {

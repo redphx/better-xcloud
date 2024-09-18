@@ -16,7 +16,7 @@ import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
 import { TouchController } from "@modules/touch-controller";
 import { checkForUpdate, disablePwa, productTitleToSlug } from "@utils/utils";
 import { Patcher } from "@modules/patcher";
-import { RemotePlay } from "@modules/remote-play";
+import { RemotePlayManager } from "@/modules/remote-play-manager";
 import { onHistoryChanged, patchHistoryMethod } from "@utils/history";
 import { VibrationManager } from "@modules/vibration-manager";
 import { overridePreloadState } from "@utils/preload-state";
@@ -157,7 +157,7 @@ document.addEventListener('readystatechange', e => {
 
     if (STATES.isSignedIn) {
         // Preload Remote Play
-        getPref(PrefKey.REMOTE_PLAY_ENABLED) && RemotePlay.preload();
+        getPref(PrefKey.REMOTE_PLAY_ENABLED) && RemotePlayManager.getInstance().initialize();
     } else {
         // Show Settings button in the header when not signed in
         window.setTimeout(HeaderSection.watchHeader, 2000);
@@ -413,7 +413,7 @@ function main() {
 
     // Preload Remote Play
     if (getPref(PrefKey.REMOTE_PLAY_ENABLED)) {
-        RemotePlay.detect();
+        RemotePlayManager.detect();
     }
 
     if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.ALL) {

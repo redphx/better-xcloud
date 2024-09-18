@@ -1,36 +1,16 @@
-.bx-remote-play-popup {
-    width: 100%;
-    max-width: 1920px;
-    margin: auto;
-    position: relative;
-    height: 0.1px;
-    overflow: visible;
-    z-index: var(--bx-remote-play-popup-z-index);
-}
-
 .bx-remote-play-container {
-    position: absolute;
-    right: 10px;
-    top: 0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    color: white;
     background: #1a1b1e;
     border-radius: 10px;
     width: 420px;
     max-width: calc(100vw - 20px);
     margin: 0 0 0 auto;
     padding: 20px;
-    box-shadow: #00000080 0px 0px 12px 0px;
-
-    @media (min-width:480px) and (min-height:calc(480px + 1px)) {
-        right: calc(env(safe-area-inset-right, 0px) + 32px);
-    }
-
-    @media (min-width:768px) and (min-height:calc(480px + 1px)) {
-        right: calc(env(safe-area-inset-right, 0px) + 48px);
-    }
-
-    @media (min-width:1920px) and (min-height:calc(480px + 1px)) {
-        right: calc(env(safe-area-inset-right, 0px) + 80px);
-    }
 
     > .bx-button {
         display: table;
@@ -120,4 +100,9 @@
 .bx-remote-play-connect-button {
     min-height: 100%;
     margin: 4px 0;
+}
+
+.bx-remote-play-buttons {
+    display: flex;
+    justify-content: space-between;
 }
