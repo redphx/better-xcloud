@@ -12,6 +12,46 @@ import { RemotePlayManager } from "@/modules/remote-play-manager";
 export class XhomeInterceptor {
     static #consoleAddrs: RemotePlayConsoleAddresses = {};
 
+    private static readonly BASE_DEVICE_INFO = {
+        appInfo: {
+            env: {
+                clientAppId: window.location.host,
+                clientAppType: 'browser',
+                clientAppVersion: '24.17.36',
+                clientSdkVersion: '10.1.14',
+                httpEnvironment: 'prod',
+                sdkInstallId: '',
+            },
+        },
+
+        dev: {
+            displayInfo: {
+                dimensions: {
+                    widthInPixels: 1920,
+                    heightInPixels: 1080,
+                },
+                pixelDensity: {
+                    dpiX: 1,
+                    dpiY: 1,
+                },
+            },
+            hw: {
+                make: 'Microsoft',
+                model: 'unknown',
+                sdktype: 'web',
+            },
+            os: {
+                name: 'windows',
+                ver: '22631.2715',
+                platform: 'desktop',
+            },
+            browser: {
+                browserName: 'chrome',
+                browserVersion: '125.0',
+            },
+        },
+    };
+
     static async #handleLogin(request: Request) {
         try {
             const clone = (request as Request).clone();
@@ -149,7 +189,7 @@ export class XhomeInterceptor {
         headers.authorization = `Bearer ${RemotePlayManager.getInstance().xhomeToken}`;
 
         // Patch resolution
-        const deviceInfo = RemotePlayManager.BASE_DEVICE_INFO;
+        const deviceInfo = XhomeInterceptor.BASE_DEVICE_INFO;
         if (getPref(PrefKey.REMOTE_PLAY_RESOLUTION) === StreamResolution.DIM_720P) {
             deviceInfo.dev.os.name = 'android';
         }

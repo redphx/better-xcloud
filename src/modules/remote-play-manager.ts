@@ -53,48 +53,6 @@ export class RemotePlayManager {
     private consoles!: Array<RemotePlayConsole>;
     private regions: Array<RemotePlayRegion> = [];
 
-    static readonly BASE_DEVICE_INFO = {
-        appInfo: {
-            env: {
-                clientAppId: window.location.host,
-                clientAppType: 'browser',
-                clientAppVersion: '24.17.36',
-                clientSdkVersion: '10.1.14',
-                httpEnvironment: 'prod',
-                sdkInstallId: '',
-            },
-        },
-        dev: {
-            displayInfo: {
-                dimensions: {
-                    widthInPixels: 1920,
-                    heightInPixels: 1080,
-                },
-                pixelDensity: {
-                    dpiX: 1,
-                    dpiY: 1,
-                },
-            },
-            hw: {
-                make: 'Microsoft',
-                model: 'unknown',
-                sdktype: 'web',
-            },
-            os: {
-                name: 'windows',
-                ver: '22631.2715',
-                platform: 'desktop',
-            },
-            browser: {
-                browserName: 'chrome',
-                browserVersion: '125.0',
-            },
-        },
-    };
-
-    constructor() {
-    }
-
     initialize() {
         if (this.isInitialized) {
             return;
@@ -206,11 +164,9 @@ export class RemotePlayManager {
 
                 // Store working server
                 STATES.remotePlay.server = region.baseUri;
-            } catch (e) {}
 
-            if (this.consoles) {
                 break;
-            }
+            } catch (e) {}
         }
 
         // None of the servers worked
@@ -270,7 +226,7 @@ export class RemotePlayManager {
         }
     }
 
-    private isReady() {
+    isReady() {
         return this.consoles !== null;
     }
 }
