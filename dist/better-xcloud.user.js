@@ -6235,7 +6235,6 @@ class RemotePlayNavigationDialog extends NavigationDialog {
       url: "https://better-xcloud.github.io/remote-play",
       label: t("help")
     }), createButton({
-      icon: BxIcon.CLOSE,
       style: 4 | 32,
       label: t("close")
     }))), this.$container = $fragment;
@@ -6265,46 +6264,6 @@ class RemotePlayManager {
   XHOME_TOKEN;
   consoles;
   regions = [];
-  static BASE_DEVICE_INFO = {
-    appInfo: {
-      env: {
-        clientAppId: window.location.host,
-        clientAppType: "browser",
-        clientAppVersion: "24.17.36",
-        clientSdkVersion: "10.1.14",
-        httpEnvironment: "prod",
-        sdkInstallId: ""
-      }
-    },
-    dev: {
-      displayInfo: {
-        dimensions: {
-          widthInPixels: 1920,
-          heightInPixels: 1080
-        },
-        pixelDensity: {
-          dpiX: 1,
-          dpiY: 1
-        }
-      },
-      hw: {
-        make: "Microsoft",
-        model: "unknown",
-        sdktype: "web"
-      },
-      os: {
-        name: "windows",
-        ver: "22631.2715",
-        platform: "desktop"
-      },
-      browser: {
-        browserName: "chrome",
-        browserVersion: "125.0"
-      }
-    }
-  };
-  constructor() {
-  }
   initialize() {
     if (this.isInitialized)
       return;
@@ -6374,17 +6333,15 @@ class RemotePlayManager {
         Authorization: `Bearer ${this.XHOME_TOKEN}`
       }
     };
-    for (let region2 of this.regions) {
+    for (let region2 of this.regions)
       try {
         const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
         if (json.results.length === 0)
           continue;
         this.consoles = json.results, STATES.remotePlay.server = region2.baseUri;
+        break;
       } catch (e) {
       }
-      if (this.consoles)
-        break;
-    }
     if (!STATES.remotePlay.server)
       this.consoles = [];
     callback();
@@ -6426,6 +6383,44 @@ class RemotePlayManager {
 
 class XhomeInterceptor {
   static #consoleAddrs = {};
+  static BASE_DEVICE_INFO = {
+    appInfo: {
+      env: {
+        clientAppId: window.location.host,
+        clientAppType: "browser",
+        clientAppVersion: "24.17.36",
+        clientSdkVersion: "10.1.14",
+        httpEnvironment: "prod",
+        sdkInstallId: ""
+      }
+    },
+    dev: {
+      displayInfo: {
+        dimensions: {
+          widthInPixels: 1920,
+          heightInPixels: 1080
+        },
+        pixelDensity: {
+          dpiX: 1,
+          dpiY: 1
+        }
+      },
+      hw: {
+        make: "Microsoft",
+        model: "unknown",
+        sdktype: "web"
+      },
+      os: {
+        name: "windows",
+        ver: "22631.2715",
+        platform: "desktop"
+      },
+      browser: {
+        browserName: "chrome",
+        browserVersion: "125.0"
+      }
+    }
+  };
   static async#handleLogin(request) {
     try {
       const obj = await request.clone().json();
@@ -6500,7 +6495,7 @@ class XhomeInterceptor {
     for (let pair of clone.headers.entries())
       headers[pair[0]] = pair[1];
     headers.authorization = `Bearer ${RemotePlayManager.getInstance().xhomeToken}`;
-    const deviceInfo = RemotePlayManager.BASE_DEVICE_INFO;
+    const deviceInfo = XhomeInterceptor.BASE_DEVICE_INFO;
     if (getPref("xhome_resolution") === "720p")
       deviceInfo.dev.os.name = "android";
     headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
