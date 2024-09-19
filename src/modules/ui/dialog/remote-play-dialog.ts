@@ -123,7 +123,6 @@ export class RemotePlayNavigationDialog extends NavigationDialog {
                 }),
 
                 createButton({
-                    icon: BxIcon.CLOSE,
                     style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
                     label: t('close'),
                 }),
