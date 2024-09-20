@@ -151,21 +151,40 @@ const PATCHES = {
         return str.replace(text, codeRemotePlayEnable);
     },
 
-    // Disable achievement toast in Remote Play
+    // Remote Play: Disable achievement toast
     remotePlayDisableAchievementToast(str: string) {
         const text = '.AchievementUnlock:{';
         if (!str.includes(text)) {
             return false;
         }
 
-        const newCode = `
-if (!!window.BX_REMOTE_PLAY_CONFIG) {
-    return;
-}
-`;
-
+        const newCode = `if (!!window.BX_REMOTE_PLAY_CONFIG) return;`;
         return str.replace(text, text + newCode);
     },
+
+    // Remote Play: Prevent adding "Fortnite" to the "Jump back in" list
+    remotePlayRecentlyUsedTitleIds(str: string) {
+        const text = '(e.data.recentlyUsedTitleIds)){';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `if (window.BX_REMOTE_PLAY_CONFIG) return;`;
+        return str.replace(text, text + newCode);
+    },
+
+    // Remote Play: change web page's title
+    /*
+    remotePlayWebTitle(str: string) {
+        const text = '"undefined"!==typeof e&&document.title!==e';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        const newCode = `if (window.BX_REMOTE_PLAY_CONFIG) { e = "${t('remote-play')} - ${t('better-xcloud')}"; }`;
+        return str.replace(text, newCode + text);
+    },
+    */
 
     // Block WebRTC stats collector
     blockWebRtcStatsCollector(str: string) {
@@ -984,6 +1003,7 @@ let PATCH_ORDERS: PatchArray = [
         'remotePlayKeepAlive',
         'remotePlayDirectConnectUrl',
         'remotePlayDisableAchievementToast',
+        'remotePlayRecentlyUsedTitleIds',
         STATES.userAgent.capabilities.touch && 'patchUpdateInputConfigurationAsync',
     ] : []),
 
