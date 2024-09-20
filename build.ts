@@ -41,6 +41,7 @@ const postProcess = (str: string): string => {
         return match;
     });
 
+    str = str.replaceAll('(e) => `', 'e => `');
 
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
