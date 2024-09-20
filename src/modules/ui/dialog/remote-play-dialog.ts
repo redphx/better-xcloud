@@ -125,6 +125,7 @@ export class RemotePlayNavigationDialog extends NavigationDialog {
                 createButton({
                     style: ButtonStyle.GHOST | ButtonStyle.FOCUSABLE,
                     label: t('close'),
+                    onClick: e => this.hide(),
                 }),
             ),
         );

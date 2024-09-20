@@ -80,7 +80,7 @@ export abstract class NavigationDialog {
     }
 
     handleGamepad(button: GamepadKey): boolean {
-        return true;
+        return false;
     }
 }
 

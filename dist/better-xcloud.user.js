@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.7.4
+// @version      5.7.5-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -139,7 +139,7 @@ function deepClone(obj) {
     return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.7.4", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.7.5-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -2507,7 +2507,7 @@ class NavigationDialog {
     return !1;
   }
   handleGamepad(button) {
-    return !0;
+    return !1;
   }
 }
 
@@ -6236,7 +6236,8 @@ class RemotePlayNavigationDialog extends NavigationDialog {
       label: t("help")
     }), createButton({
       style: 4 | 32,
-      label: t("close")
+      label: t("close"),
+      onClick: (e) => this.hide()
     }))), this.$container = $fragment;
   }
   getDialog() {
