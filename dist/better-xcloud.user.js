@@ -438,25 +438,25 @@ var SUPPORTED_LANGUAGES = {
   "native-mkb": "Native Mouse & Keyboard",
   new: "New",
   "new-version-available": [
-    (e) => `Version ${e.version} available`,
+    e => `Version ${e.version} available`,
+    ,
+    ,
+    e => `Version ${e.version} verfügbar`,
+    ,
+    e => `Versión ${e.version} disponible`,
+    e => `Version ${e.version} disponible`,
+    e => `Disponibile la versione ${e.version}`,
+    e => `Ver ${e.version} が利用可能です`,
+    e => `${e.version} 버전 사용가능`,
+    e => `Dostępna jest nowa wersja ${e.version}`,
+    e => `Versão ${e.version} disponível`,
     ,
     ,
     ,
-    ,
-    ,
-    ,
-    ,
-    (e) => `Ver ${e.version} が利用可能です`,
-    (e) => `${e.version} 버전 사용가능`,
-    ,
-    ,
-    ,
-    ,
-    ,
-    ,
-    (e) => `Đã có phiên bản ${e.version}`,
-    ,
-    ,
+    e => `Доступна версія ${e.version}`,
+    e => `Đã có phiên bản ${e.version}`,
+    e => `版本 ${e.version} 可供更新`,
+    e => `已可更新為 ${e.version} 版`
   ],
   "no-consoles-found": "No consoles found",
   normal: "Normal",
@@ -475,49 +475,49 @@ var SUPPORTED_LANGUAGES = {
   preset: "Preset",
   "press-esc-to-cancel": "Press Esc to cancel",
   "press-key-to-toggle-mkb": [
-    (e) => `Press ${e.key} to toggle this feature`,
-    (e) => `Premeu ${e.key} per alternar aquesta funció`,
-    (e) => `Tryk på ${e.key} for at slå denne funktion til`,
-    (e) => `${e.key}: Funktion an-/ausschalten`,
-    (e) => `Tekan ${e.key} untuk mengaktifkan fitur ini`,
-    (e) => `Pulsa ${e.key} para alternar esta función`,
-    (e) => `Appuyez sur ${e.key} pour activer cette fonctionnalité`,
-    (e) => `Premi ${e.key} per attivare questa funzionalità`,
-    (e) => `${e.key} でこの機能を切替`,
-    (e) => `${e.key} 키를 눌러 이 기능을 켜고 끄세요`,
-    (e) => `Naciśnij ${e.key} aby przełączyć tę funkcję`,
-    (e) => `Pressione ${e.key} para alternar este recurso`,
-    (e) => `Нажмите ${e.key} для переключения этой функции`,
-    (e) => `กด ${e.key} เพื่อสลับคุณสมบัตินี้`,
-    (e) => `Etkinleştirmek için ${e.key} tuşuna basın`,
-    (e) => `Натисніть ${e.key} щоб перемкнути цю функцію`,
-    (e) => `Nhấn ${e.key} để bật/tắt tính năng này`,
-    (e) => `按下 ${e.key} 来切换此功能`,
-    (e) => `按下 ${e.key} 來啟用此功能`
+    e => `Press ${e.key} to toggle this feature`,
+    e => `Premeu ${e.key} per alternar aquesta funció`,
+    e => `Tryk på ${e.key} for at slå denne funktion til`,
+    e => `${e.key}: Funktion an-/ausschalten`,
+    e => `Tekan ${e.key} untuk mengaktifkan fitur ini`,
+    e => `Pulsa ${e.key} para alternar esta función`,
+    e => `Appuyez sur ${e.key} pour activer cette fonctionnalité`,
+    e => `Premi ${e.key} per attivare questa funzionalità`,
+    e => `${e.key} でこの機能を切替`,
+    e => `${e.key} 키를 눌러 이 기능을 켜고 끄세요`,
+    e => `Naciśnij ${e.key} aby przełączyć tę funkcję`,
+    e => `Pressione ${e.key} para alternar este recurso`,
+    e => `Нажмите ${e.key} для переключения этой функции`,
+    e => `กด ${e.key} เพื่อสลับคุณสมบัตินี้`,
+    e => `Etkinleştirmek için ${e.key} tuşuna basın`,
+    e => `Натисніть ${e.key} щоб перемкнути цю функцію`,
+    e => `Nhấn ${e.key} để bật/tắt tính năng này`,
+    e => `按下 ${e.key} 来切换此功能`,
+    e => `按下 ${e.key} 來啟用此功能`
   ],
   "press-to-bind": "Press a key or do a mouse click to bind...",
   "prompt-preset-name": "Preset's name:",
   recommended: "Recommended",
   "recommended-settings-for-device": [
-    (e) => `Recommended settings for ${e.device}`,
-    (e) => `Configuració recomanada per a ${e.device}`,
+    e => `Recommended settings for ${e.device}`,
+    e => `Configuració recomanada per a ${e.device}`,
     ,
-    (e) => `Empfohlene Einstellungen für ${e.device}`,
+    e => `Empfohlene Einstellungen für ${e.device}`,
     ,
-    (e) => `Ajustes recomendados para ${e.device}`,
-    (e) => `Paramètres recommandés pour ${e.device}`,
-    (e) => `Configurazioni consigliate per ${e.device}`,
-    (e) => `${e.device} の推奨設定`,
-    (e) => `다음 기기에서 권장되는 설정: ${e.device}`,
-    (e) => `Zalecane ustawienia dla ${e.device}`,
+    e => `Ajustes recomendados para ${e.device}`,
+    e => `Paramètres recommandés pour ${e.device}`,
+    e => `Configurazioni consigliate per ${e.device}`,
+    e => `${e.device} の推奨設定`,
+    e => `다음 기기에서 권장되는 설정: ${e.device}`,
+    e => `Zalecane ustawienia dla ${e.device}`,
+    e => `Configurações recomendadas para ${e.device}`,
+    e => `Рекомендуемые настройки для ${e.device}`,
     ,
-    (e) => `Рекомендуемые настройки для ${e.device}`,
-    ,
-    (e) => `${e.device} için önerilen ayarlar`,
-    (e) => `Рекомендовані налаштування для ${e.device}`,
-    (e) => `Cấu hình được đề xuất cho ${e.device}`,
-    (e) => `${e.device} 的推荐设置`,
-    (e) => `${e.device} 推薦的設定`
+    e => `${e.device} için önerilen ayarlar`,
+    e => `Рекомендовані налаштування для ${e.device}`,
+    e => `Cấu hình được đề xuất cho ${e.device}`,
+    e => `${e.device} 的推荐设置`,
+    e => `${e.device} 推薦的設定`
   ],
   "reduce-animations": "Reduce UI animations",
   region: "Region",
@@ -600,25 +600,25 @@ var SUPPORTED_LANGUAGES = {
   "top-right": "Top-right",
   "touch-control-layout": "Touch control layout",
   "touch-control-layout-by": [
-    (e) => `Touch control layout by ${e.name}`,
-    (e) => `Format del control tàctil per ${e.name}`,
-    (e) => `Touch-kontrol layout af ${e.name}`,
-    (e) => `Touch-Steuerungslayout von ${e.name}`,
-    (e) => `Tata letak Sentuhan layar oleh ${e.name}`,
-    (e) => `Disposición del control táctil por ${e.nombre}`,
-    (e) => `Disposition du contrôleur tactile par ${e.name}`,
-    (e) => `Configurazione dei comandi su schermo creata da ${e.name}`,
-    (e) => `タッチ操作レイアウト作成者: ${e.name}`,
-    (e) => `${e.name} 제작, 터치 컨트롤 레이아웃`,
-    (e) => `Układ sterowania dotykowego stworzony przez ${e.name}`,
-    (e) => `Disposição de controle por toque feito por ${e.name}`,
-    (e) => `Сенсорная раскладка по ${e.name}`,
-    (e) => `รูปแบบการควบคุมแบบสัมผัสโดย ${e.name}`,
-    (e) => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
-    (e) => `Розташування сенсорного керування від ${e.name}`,
-    (e) => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
-    (e) => `由 ${e.name} 提供的虚拟按键样式`,
-    (e) => `觸控遊玩佈局由 ${e.name} 提供`
+    e => `Touch control layout by ${e.name}`,
+    e => `Format del control tàctil per ${e.name}`,
+    e => `Touch-kontrol layout af ${e.name}`,
+    e => `Touch-Steuerungslayout von ${e.name}`,
+    e => `Tata letak Sentuhan layar oleh ${e.name}`,
+    e => `Disposición del control táctil por ${e.nombre}`,
+    e => `Disposition du contrôleur tactile par ${e.name}`,
+    e => `Configurazione dei comandi su schermo creata da ${e.name}`,
+    e => `タッチ操作レイアウト作成者: ${e.name}`,
+    e => `${e.name} 제작, 터치 컨트롤 레이아웃`,
+    e => `Układ sterowania dotykowego stworzony przez ${e.name}`,
+    e => `Disposição de controle por toque feito por ${e.name}`,
+    e => `Сенсорная раскладка по ${e.name}`,
+    e => `รูปแบบการควบคุมแบบสัมผัสโดย ${e.name}`,
+    e => `${e.name} kişisinin dokunmatik kontrolcü tuş şeması`,
+    e => `Розташування сенсорного керування від ${e.name}`,
+    e => `Bố cục điều khiển cảm ứng tạo bởi ${e.name}`,
+    e => `由 ${e.name} 提供的虚拟按键样式`,
+    e => `觸控遊玩佈局由 ${e.name} 提供`
   ],
   "touch-controller": "Touch controller",
   "transparent-background": "Transparent background",
@@ -3448,13 +3448,13 @@ class TouchController {
     const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
     if (!layout)
       return;
-    let msg, html11 = !1;
+    let msg, html = !1;
     if (layout.author) {
       const author = `<b>${escapeHtml(layout.author)}</b>`;
-      msg = t("touch-control-layout-by", { name: author }), html11 = !0;
+      msg = t("touch-control-layout-by", { name: author }), html = !0;
     } else
       msg = t("touch-control-layout");
-    layoutChanged && Toast.show(msg, layout.name, { html: html11 }), window.setTimeout(() => {
+    layoutChanged && Toast.show(msg, layout.name, { html }), window.setTimeout(() => {
       window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope"), window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
         type: "showLayout",
         scope: xboxTitleId,
@@ -3767,20 +3767,23 @@ class PatcherUtils {
 }
 var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATCHES = {
   disableAiTrack(str) {
-    const index = str.indexOf(".track=function(");
+    let text = ".track=function(";
+    const index = str.indexOf(text);
     if (index < 0)
       return !1;
     if (PatcherUtils.indexOf(str, '"AppInsightsCore', index, 200) < 0)
       return !1;
-    return PatcherUtils.replaceWith(str, index, ".track=function(", ".track=function(e){},!!function(");
+    return PatcherUtils.replaceWith(str, index, text, ".track=function(e){},!!function(");
   },
   disableTelemetry(str) {
-    if (!str.includes(".disableTelemetry=function(){return!1}"))
+    let text = ".disableTelemetry=function(){return!1}";
+    if (!str.includes(text))
       return !1;
-    return str.replace(".disableTelemetry=function(){return!1}", ".disableTelemetry=function(){return!0}");
+    return str.replace(text, ".disableTelemetry=function(){return!0}");
   },
   disableTelemetryProvider(str) {
-    if (!str.includes("this.enableLightweightTelemetry=!"))
+    let text = "this.enableLightweightTelemetry=!";
+    if (!str.includes(text))
       return !1;
     const newCode = [
       "this.trackEvent",
@@ -3792,19 +3795,21 @@ var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATC
       "this.onTrackEvent",
       "()=>{}"
     ].join("=");
-    return str.replace("this.enableLightweightTelemetry=!", newCode + ";this.enableLightweightTelemetry=!");
+    return str.replace(text, newCode + ";" + text);
   },
   disableIndexDbLogging(str) {
-    if (!str.includes(",this.logsDb=new"))
+    let text = ",this.logsDb=new";
+    if (!str.includes(text))
       return !1;
     let newCode = ",this.log=()=>{}";
-    return str.replace(",this.logsDb=new", newCode + ",this.logsDb=new");
+    return str.replace(text, newCode + text);
   },
   websiteLayout(str) {
-    if (!str.includes('?"tv":"default"'))
+    let text = '?"tv":"default"';
+    if (!str.includes(text))
       return !1;
     const layout = getPref("ui_layout") === "tv" ? "tv" : "default";
-    return str.replace('?"tv":"default"', `?"${layout}":"${layout}"`);
+    return str.replace(text, `?"${layout}":"${layout}"`);
   },
   remotePlayDirectConnectUrl(str) {
     const index = str.indexOf("/direct-connect");
@@ -3813,29 +3818,36 @@ var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATC
     return str.replace(str.substring(index - 9, index + 15), "https://www.xbox.com/play");
   },
   remotePlayKeepAlive(str) {
-    if (!str.includes("onServerDisconnectMessage(e){"))
+    let text = "onServerDisconnectMessage(e){";
+    if (!str.includes(text))
       return !1;
-    return str = str.replace("onServerDisconnectMessage(e){", "onServerDisconnectMessage(e){" + remote_play_keep_alive_default), str;
+    return str = str.replace(text, text + remote_play_keep_alive_default), str;
   },
   remotePlayConnectMode(str) {
-    if (!str.includes('connectMode:"cloud-connect",'))
+    let text = 'connectMode:"cloud-connect",';
+    if (!str.includes(text))
       return !1;
-    return str.replace('connectMode:"cloud-connect",', remote_play_enable_default);
+    return str.replace(text, remote_play_enable_default);
   },
   remotePlayDisableAchievementToast(str) {
-    if (!str.includes(".AchievementUnlock:{"))
+    let text = ".AchievementUnlock:{";
+    if (!str.includes(text))
       return !1;
-    const newCode = `
-if (!!window.BX_REMOTE_PLAY_CONFIG) {
-    return;
-}
-`;
-    return str.replace(".AchievementUnlock:{", ".AchievementUnlock:{" + newCode);
+    const newCode = "if (!!window.BX_REMOTE_PLAY_CONFIG) return;";
+    return str.replace(text, text + newCode);
+  },
+  remotePlayRecentlyUsedTitleIds(str) {
+    let text = "(e.data.recentlyUsedTitleIds)){";
+    if (!str.includes(text))
+      return !1;
+    const newCode = "if (window.BX_REMOTE_PLAY_CONFIG) return;";
+    return str.replace(text, text + newCode);
   },
   blockWebRtcStatsCollector(str) {
-    if (!str.includes("this.shouldCollectStats=!0"))
+    let text = "this.shouldCollectStats=!0";
+    if (!str.includes(text))
       return !1;
-    return str.replace("this.shouldCollectStats=!0", "this.shouldCollectStats=!1");
+    return str.replace(text, "this.shouldCollectStats=!1");
   },
   patchPollGamepads(str) {
     const index = str.indexOf("},this.pollGamepads=()=>{");
@@ -3857,24 +3869,27 @@ if (!!window.BX_REMOTE_PLAY_CONFIG) {
     return str.substring(0, index) + codeBlock + str.substring(nextIndex);
   },
   enableXcloudLogger(str) {
-    if (!str.includes("this.telemetryProvider=e}log(e,t,r){"))
+    let text = "this.telemetryProvider=e}log(e,t,r){";
+    if (!str.includes(text))
       return !1;
     const newCode = `
 const [logTag, logLevel, logMessage] = Array.from(arguments);
 const logFunc = [console.debug, console.log, console.warn, console.error][logLevel];
 logFunc(logTag, '//', logMessage);
 `;
-    return str = str.replaceAll("this.telemetryProvider=e}log(e,t,r){", "this.telemetryProvider=e}log(e,t,r){" + newCode), str;
+    return str = str.replaceAll(text, text + newCode), str;
   },
   enableConsoleLogging(str) {
-    if (!str.includes("static isConsoleLoggingAllowed(){"))
+    let text = "static isConsoleLoggingAllowed(){";
+    if (!str.includes(text))
       return !1;
-    return str = str.replaceAll("static isConsoleLoggingAllowed(){", "static isConsoleLoggingAllowed(){return true;"), str;
+    return str = str.replaceAll(text, text + "return true;"), str;
   },
   playVibration(str) {
-    if (!str.includes("}playVibration(e){"))
+    let text = "}playVibration(e){";
+    if (!str.includes(text))
       return !1;
-    return VibrationManager.updateGlobalVars(), str = str.replaceAll("}playVibration(e){", "}playVibration(e){" + vibration_adjust_default), str;
+    return VibrationManager.updateGlobalVars(), str = str.replaceAll(text, text + vibration_adjust_default), str;
   },
   overrideSettings(str) {
     const index = str.indexOf(",EnableStreamGate:");
@@ -3894,13 +3909,15 @@ logFunc(logTag, '//', logMessage);
     return str = str.substring(0, constIndex) + "e.onClose();return null;" + str.substring(constIndex), str;
   },
   patchUpdateInputConfigurationAsync(str) {
-    if (!str.includes("async updateInputConfigurationAsync(e){"))
+    let text = "async updateInputConfigurationAsync(e){";
+    if (!str.includes(text))
       return !1;
     const newCode = "e.enableTouchInput = true;";
-    return str = str.replace("async updateInputConfigurationAsync(e){", "async updateInputConfigurationAsync(e){" + newCode), str;
+    return str = str.replace(text, text + newCode), str;
   },
   loadingEndingChunks(str) {
-    if (!str.includes('"FamilySagaManager"'))
+    let text = '"FamilySagaManager"';
+    if (!str.includes(text))
       return !1;
     return BxLogger.info(LOG_TAG3, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str;
   },
@@ -3912,14 +3929,15 @@ logFunc(logTag, '//', logMessage);
     return str = str.substring(0, bracketIndex) + "return 0;" + str.substring(bracketIndex), str;
   },
   exposeTouchLayoutManager(str) {
-    if (!str.includes("this._perScopeLayoutsStream=new"))
+    let text = "this._perScopeLayoutsStream=new";
+    if (!str.includes(text))
       return !1;
     const newCode = `
 true;
 window.BX_EXPOSED["touchLayoutManager"] = this;
 window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
 `;
-    return str = str.replace("this._perScopeLayoutsStream=new", newCode + "this._perScopeLayoutsStream=new"), str;
+    return str = str.replace(text, newCode + text), str;
   },
   patchBabylonRendererClass(str) {
     let index = str.indexOf(".current.render(),");
@@ -3941,19 +3959,22 @@ if (window.BX_EXPOSED.stopTakRendering) {
     return str = str.substring(0, index) + newCode + str.substring(index), str;
   },
   supportLocalCoOp(str) {
-    if (!str.includes("this.gamepadMappingsToSend=[],"))
+    let text = "this.gamepadMappingsToSend=[],";
+    if (!str.includes(text))
       return !1;
     const newCode = `true; ${local_co_op_enable_default}; true,`;
-    return str = str.replace("this.gamepadMappingsToSend=[],", "this.gamepadMappingsToSend=[]," + newCode), str;
+    return str = str.replace(text, text + newCode), str;
   },
   forceFortniteConsole(str) {
-    if (!str.includes("sendTouchInputEnabledMessage(e){"))
+    let text = "sendTouchInputEnabledMessage(e){";
+    if (!str.includes(text))
       return !1;
     const newCode = "window.location.pathname.includes('/launch/fortnite/') && (e = false);";
-    return str = str.replace("sendTouchInputEnabledMessage(e){", "sendTouchInputEnabledMessage(e){" + newCode), str;
+    return str = str.replace(text, text + newCode), str;
   },
   disableTakRenderer(str) {
-    if (!str.includes("const{TakRenderer:"))
+    let text = "const{TakRenderer:";
+    if (!str.includes(text))
       return !1;
     let autoOffCode = "";
     if (getPref("stream_touch_controller") === "off")
@@ -3982,15 +4003,17 @@ if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFak
     return;
 }
 `;
-    return str = str.replace("const{TakRenderer:", newCode + "const{TakRenderer:"), str;
+    return str = str.replace(text, newCode + text), str;
   },
   streamCombineSources(str) {
-    if (!str.includes("this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen"))
+    let text = "this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen";
+    if (!str.includes(text))
       return !1;
-    return str = str.replace("this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen", "this.useCombinedAudioVideoStream=true"), str;
+    return str = str.replace(text, "this.useCombinedAudioVideoStream=true"), str;
   },
   patchStreamHud(str) {
-    if (!str.includes("let{onCollapse"))
+    let text = "let{onCollapse";
+    if (!str.includes(text))
       return !1;
     let newCode = `
 // Expose onShowStreamMenu
@@ -4000,15 +4023,16 @@ e.guideUI = null;
 `;
     if (getPref("stream_touch_controller") === "off")
       newCode += "e.canShowTakHUD = false;";
-    return str = str.replace("let{onCollapse", newCode + "let{onCollapse"), str;
+    return str = str.replace(text, newCode + text), str;
   },
   broadcastPollingMode(str) {
-    if (!str.includes(".setPollingMode=e=>{"))
+    let text = ".setPollingMode=e=>{";
+    if (!str.includes(text))
       return !1;
     const newCode = `
 BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e.toLowerCase()});
 `;
-    return str = str.replace(".setPollingMode=e=>{", ".setPollingMode=e=>{" + newCode), str;
+    return str = str.replace(text, text + newCode), str;
   },
   patchGamepadPolling(str) {
     let index = str.indexOf(".shouldHandleGamepadInput)())return void");
@@ -4017,7 +4041,7 @@ BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e.toLowerCa
     return index = str.indexOf("{", index - 20) + 1, str = str.substring(0, index) + "if (window.BX_EXPOSED.disableGamepadPolling) return;" + str.substring(index), str;
   },
   patchXcloudTitleInfo(str) {
-    let index = str.indexOf("async cloudConnect");
+    let text = "async cloudConnect", index = str.indexOf(text);
     if (index < 0)
       return !1;
     let backetIndex = str.indexOf("{", index);
@@ -4028,7 +4052,7 @@ BxLogger.info('patchXcloudTitleInfo', ${titleInfoVar});
     return str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1), str;
   },
   patchRemotePlayMkb(str) {
-    let index = str.indexOf("async homeConsoleConnect");
+    let text = "async homeConsoleConnect", index = str.indexOf(text);
     if (index < 0)
       return !1;
     let backetIndex = str.indexOf("{", index);
@@ -4043,72 +4067,84 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
     return str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1), str;
   },
   patchAudioMediaStream(str) {
-    if (!str.includes(".srcObject=this.audioMediaStream,"))
+    let text = ".srcObject=this.audioMediaStream,";
+    if (!str.includes(text))
       return !1;
     const newCode = "window.BX_EXPOSED.setupGainNode(arguments[1], this.audioMediaStream),";
-    return str = str.replace(".srcObject=this.audioMediaStream,", ".srcObject=this.audioMediaStream," + newCode), str;
+    return str = str.replace(text, text + newCode), str;
   },
   patchCombinedAudioVideoMediaStream(str) {
-    if (!str.includes(".srcObject=this.combinedAudioVideoStream"))
+    let text = ".srcObject=this.combinedAudioVideoStream";
+    if (!str.includes(text))
       return !1;
     const newCode = ",window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)";
-    return str = str.replace(".srcObject=this.combinedAudioVideoStream", ".srcObject=this.combinedAudioVideoStream" + newCode), str;
+    return str = str.replace(text, text + newCode), str;
   },
   patchTouchControlDefaultOpacity(str) {
-    if (!str.includes("opacityMultiplier:1"))
+    let text = "opacityMultiplier:1";
+    if (!str.includes(text))
       return !1;
     const newCode = `opacityMultiplier: ${(getPref("stream_touch_controller_default_opacity") / 100).toFixed(1)}`;
-    return str = str.replace("opacityMultiplier:1", newCode), str;
+    return str = str.replace(text, newCode), str;
   },
   patchShowSensorControls(str) {
-    if (!str.includes("{shouldShowSensorControls:"))
+    let text = "{shouldShowSensorControls:";
+    if (!str.includes(text))
       return !1;
     const newCode = "{shouldShowSensorControls: (window.BX_EXPOSED && window.BX_EXPOSED.shouldShowSensorControls) ||";
-    return str = str.replace("{shouldShowSensorControls:", newCode), str;
+    return str = str.replace(text, newCode), str;
   },
   exposeStreamSession(str) {
-    if (!str.includes(",this._connectionType="))
+    let text = ",this._connectionType=";
+    if (!str.includes(text))
       return !1;
     const newCode = `;
 ${expose_stream_session_default}
-true,this._connectionType=`;
-    return str = str.replace(",this._connectionType=", newCode), str;
+true` + text;
+    return str = str.replace(text, newCode), str;
   },
   skipFeedbackDialog(str) {
-    if (!str.includes("&&this.shouldTransitionToFeedback("))
+    let text = "&&this.shouldTransitionToFeedback(";
+    if (!str.includes(text))
       return !1;
-    return str = str.replace("&&this.shouldTransitionToFeedback(", "&& false &&this.shouldTransitionToFeedback("), str;
+    return str = str.replace(text, "&& false " + text), str;
   },
   enableNativeMkb(str) {
-    if (!str.includes("e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;"))
+    let text = "e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;";
+    if (!str.includes(text))
       return !1;
-    return str = str.replace("e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;", "e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;return true;"), str;
+    return str = str.replace(text, text + "return true;"), str;
   },
   patchMouseAndKeyboardEnabled(str) {
-    if (!str.includes("get mouseAndKeyboardEnabled(){"))
+    let text = "get mouseAndKeyboardEnabled(){";
+    if (!str.includes(text))
       return !1;
-    return str = str.replace("get mouseAndKeyboardEnabled(){", "get mouseAndKeyboardEnabled(){return true;"), str;
+    return str = str.replace(text, text + "return true;"), str;
   },
   exposeInputSink(str) {
-    if (!str.includes("this.controlChannel=null,this.inputChannel=null"))
+    let text = "this.controlChannel=null,this.inputChannel=null";
+    if (!str.includes(text))
       return !1;
     const newCode = "window.BX_EXPOSED.inputSink = this;";
-    return str = str.replace("this.controlChannel=null,this.inputChannel=null", newCode + "this.controlChannel=null,this.inputChannel=null"), str;
+    return str = str.replace(text, newCode + text), str;
   },
   disableNativeRequestPointerLock(str) {
-    if (!str.includes("async requestPointerLock(){"))
+    let text = "async requestPointerLock(){";
+    if (!str.includes(text))
       return !1;
-    return str = str.replace("async requestPointerLock(){", "async requestPointerLock(){return;"), str;
+    return str = str.replace(text, text + "return;"), str;
   },
   patchRequestInfoCrash(str) {
-    if (!str.includes('if(!e)throw new Error("RequestInfo.origin is falsy");'))
+    let text = 'if(!e)throw new Error("RequestInfo.origin is falsy");';
+    if (!str.includes(text))
       return !1;
-    return str = str.replace('if(!e)throw new Error("RequestInfo.origin is falsy");', 'if (!e) e = "https://www.xbox.com";'), str;
+    return str = str.replace(text, 'if (!e) e = "https://www.xbox.com";'), str;
   },
   exposeDialogRoutes(str) {
-    if (!str.includes("return{goBack:function(){"))
+    let text = "return{goBack:function(){";
+    if (!str.includes(text))
       return !1;
-    return str = str.replace("return{goBack:function(){", "return window.BX_EXPOSED.dialogRoutes = {goBack:function(){"), str;
+    return str = str.replace(text, "return window.BX_EXPOSED.dialogRoutes = {goBack:function(){"), str;
   },
   enableTvRoutes(str) {
     let index = str.indexOf(".LoginDeviceCode.path,");
@@ -4173,7 +4209,8 @@ if (e && e.id) {
     return str = PatcherUtils.insertAt(str, index, newCode), str;
   },
   overrideStorageGetSettings(str) {
-    if (!str.includes("}getSetting(e){"))
+    let text = "}getSetting(e){";
+    if (!str.includes(text))
       return !1;
     const newCode = `
 // console.log('setting', this.baseStorageKey, e);
@@ -4184,7 +4221,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     }
 }
 `;
-    return str = str.replace("}getSetting(e){", "}getSetting(e){" + newCode), str;
+    return str = str.replace(text, text + newCode), str;
   },
   alwaysShowStreamHud(str) {
     let index = str.indexOf(",{onShowStreamMenu:");
@@ -4210,7 +4247,8 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     return str = str.substring(0, index) + 'BxEvent.dispatch(window, BxEvent.XCLOUD_RENDERING_COMPONENT, {component: "product-details"});' + str.substring(index), str;
   },
   detectBrowserRouterReady(str) {
-    if (!str.includes("BrowserRouter:()=>"))
+    let text = "BrowserRouter:()=>";
+    if (!str.includes(text))
       return !1;
     let index = str.indexOf("{history:this.history,");
     if (index < 0)
@@ -4265,6 +4303,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     "remotePlayKeepAlive",
     "remotePlayDirectConnectUrl",
     "remotePlayDisableAchievementToast",
+    "remotePlayRecentlyUsedTitleIds",
     STATES.userAgent.capabilities.touch && "patchUpdateInputConfigurationAsync"
   ] : [],
   ...BX_FLAGS.EnableXcloudLogging ? [
@@ -5710,8 +5749,8 @@ class EmulatedMkbHandler extends MkbHandler {
         label: t("edit"),
         onClick: (e) => {
           e.preventDefault(), e.stopPropagation();
-          const dialog2 = SettingsNavigationDialog.getInstance();
-          dialog2.focusTab("mkb"), NavigationDialogManager.getInstance().show(dialog2);
+          const dialog = SettingsNavigationDialog.getInstance();
+          dialog.focusTab("mkb"), NavigationDialogManager.getInstance().show(dialog);
         }
       }))));
     if (!this.#$message.isConnected)
@@ -6334,12 +6373,12 @@ class RemotePlayManager {
         Authorization: `Bearer ${this.XHOME_TOKEN}`
       }
     };
-    for (let region2 of this.regions)
+    for (let region of this.regions)
       try {
-        const request = new Request(`${region2.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
+        const request = new Request(`${region.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
         if (json.results.length === 0)
           continue;
-        this.consoles = json.results, STATES.remotePlay.server = region2.baseUri;
+        this.consoles = json.results, STATES.remotePlay.server = region.baseUri;
         break;
       } catch (e) {
       }
@@ -6625,8 +6664,8 @@ class StreamBadges {
   #cachedDoms = {};
   #interval;
   #REFRESH_INTERVAL = 3000;
-  setRegion(region3) {
-    this.#region = region3;
+  setRegion(region) {
+    this.#region = region;
   }
   #renderBadge(name, value, color) {
     let $badge;
@@ -6830,17 +6869,17 @@ class XcloudInterceptor {
       WestUS: "🇺🇸",
       WestUS2: "🇺🇸"
     }, serverRegex = /\/\/(\w+)\./;
-    for (let region4 of obj.offeringSettings.regions) {
-      const regionName = region4.name;
-      let shortName = region4.name;
-      if (region4.isDefault)
-        STATES.selectedRegion = Object.assign({}, region4);
-      let match = serverRegex.exec(region4.baseUri);
+    for (let region of obj.offeringSettings.regions) {
+      const regionName = region.name;
+      let shortName = region.name;
+      if (region.isDefault)
+        STATES.selectedRegion = Object.assign({}, region);
+      let match = serverRegex.exec(region.baseUri);
       if (match) {
         if (shortName = match[1], serverEmojis[regionName])
           shortName = serverEmojis[regionName] + " " + shortName;
       }
-      region4.shortName = shortName.toUpperCase(), STATES.serverRegions[region4.name] = Object.assign({}, region4);
+      region.shortName = shortName.toUpperCase(), STATES.serverRegions[region.name] = Object.assign({}, region);
     }
     BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
     const preferredRegion = getPreferredServerRegion();
@@ -6854,8 +6893,8 @@ class XcloudInterceptor {
     const PREF_STREAM_TARGET_RESOLUTION = getPref("stream_target_resolution"), PREF_STREAM_PREFERRED_LOCALE = getPref("stream_preferred_locale"), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url);
     let badgeRegion = parsedUrl.host.split(".", 1)[0];
     for (let regionName in STATES.serverRegions) {
-      const region4 = STATES.serverRegions[regionName];
-      if (parsedUrl.origin == region4.baseUri) {
+      const region = STATES.serverRegions[regionName];
+      if (parsedUrl.origin == region.baseUri) {
         badgeRegion = regionName;
         break;
       }
@@ -8495,7 +8534,7 @@ if (window.location.pathname.includes("/auth/msa")) {
 BxLogger.info("readyState", document.readyState);
 if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
   window.stop();
-  const css2 = '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}', isSafari = UserAgent.isSafari();
+  const css = '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}', isSafari = UserAgent.isSafari();
   let $secondaryAction;
   if (isSafari)
     $secondaryAction = CE("p", {}, t("settings-reloading"));
