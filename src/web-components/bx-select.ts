@@ -164,6 +164,10 @@ export class BxSelectElement {
         Object.defineProperty($div, 'value', {
             get() {
                 return $select.value;
+            },
+
+            set(value) {
+                ($div as any).setValue(value);
             }
         });
 

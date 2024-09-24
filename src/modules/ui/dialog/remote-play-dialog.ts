@@ -1,10 +1,12 @@
 import { ButtonStyle, CE, createButton } from "@/utils/html";
-import { NavigationDialog } from "./navigation-dialog";
+import { NavigationDialog, type NavigationElement } from "./navigation-dialog";
 import { PrefKey } from "@/enums/pref-keys";
 import { BxIcon } from "@/utils/bx-icon";
 import { getPref, setPref } from "@/utils/settings-storages/global-settings-storage";
 import { t } from "@/utils/translation";
 import { RemotePlayConsoleState, RemotePlayManager } from "@/modules/remote-play-manager";
+import { BxSelectElement } from "@/web-components/bx-select";
+import { BxEvent } from "@/utils/bx-event";
 
 
 export class RemotePlayNavigationDialog extends NavigationDialog {
@@ -35,48 +37,33 @@ export class RemotePlayNavigationDialog extends NavigationDialog {
 
         const $settingNote = CE('p', {});
 
-        const resolutions = [1080, 720];
         const currentResolution = getPref(PrefKey.REMOTE_PLAY_RESOLUTION);
-        const $resolutionGroup = CE('div', {});
+        let $resolutions : HTMLSelectElement | NavigationElement = CE<HTMLSelectElement>('select', {},
+            CE('option', {value: '1080p'}, '1080p'),
+            CE('option', {value: '720p'}, '720p'),
+        );
 
-        const onResolutionChange = (e: Event) => {
-            const value = (e.target as HTMLInputElement).value;
+        if (getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
+            $resolutions = BxSelectElement.wrap($resolutions as HTMLSelectElement);
+        }
+
+        $resolutions.addEventListener('input', (e: Event) => {
+            const value = (e.target as HTMLSelectElement).value;
 
             $settingNote.textContent = value === '1080p' ? '✅ ' + t('can-stream-xbox-360-games') : '❌ ' + t('cant-stream-xbox-360-games');
             setPref(PrefKey.REMOTE_PLAY_RESOLUTION, value);
-        };
+        });
 
-        for (const resolution of resolutions) {
-            const value = `${resolution}p`;
-            const id = `bx_radio_xhome_resolution_${resolution}`;
-
-            const $radio = CE<HTMLInputElement>('input', {
-                type: 'radio',
-                value: value,
-                id: id,
-                name: 'bx_radio_xhome_resolution',
-            }, value);
-
-            $radio.addEventListener('input', onResolutionChange);
-
-            const $label = CE('label', {
-                for: id,
-                class: 'bx-remote-play-resolution',
-            }, $radio, `${resolution}p`);
-
-            $resolutionGroup.appendChild($label);
-
-            if (currentResolution === value) {
-                $radio.checked = true;
-                $radio.dispatchEvent(new Event('input'));
-            }
-        }
+        ($resolutions as any).value = currentResolution;
+        BxEvent.dispatch($resolutions, 'input', {
+            manualTrigger: true,
+        });
 
         const $qualitySettings = CE('div', {
             class: 'bx-remote-play-settings',
         }, CE('div', {},
             CE('label', {}, t('target-resolution'), $settingNote),
-            $resolutionGroup,
+            $resolutions,
         ));
 
         $fragment.appendChild($qualitySettings);
