@@ -4530,7 +4530,7 @@ class SettingsNavigationDialog extends NavigationDialog {
           if (AppInterface && AppInterface.updateLatestScript)
             opts.onClick = (e) => AppInterface.updateLatestScript();
           else
-            opts.url = "https://github.com/redphx/better-xcloud/releases/latest";
+            opts.url = "https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js";
           topButtons.push(createButton(opts));
         }
         if (AppInterface)
