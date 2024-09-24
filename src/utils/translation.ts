@@ -2,7 +2,7 @@ import { NATIVE_FETCH } from "./bx-flags";
 import { BxLogger } from "./bx-logger";
 
 export const SUPPORTED_LANGUAGES = {
-    'en-US': 'English (United States)',
+    'en-US': 'English (US)',
 
     'ca-CA': 'Català',
     'da-DK': 'dansk',
