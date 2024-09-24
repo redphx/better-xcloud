@@ -1,9 +1,11 @@
 import { GamepadKey } from "@/enums/mkb";
+import { PrefKey } from "@/enums/pref-keys";
 import { EmulatedMkbHandler } from "@/modules/mkb/mkb-handler";
 import { BxEvent } from "@/utils/bx-event";
 import { STATES } from "@/utils/global";
 import { CE, isElementVisible } from "@/utils/html";
 import { setNearby } from "@/utils/navigation-utils";
+import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 export enum NavigationDirection {
     UP = 1,
@@ -154,6 +156,43 @@ export class NavigationDialogManager {
 
         // Hide dialog when the Guide menu is shown
         window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, e => this.hide());
+
+        // Calculate minimum width of controller-friendly <select> elements
+        if (getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
+            const observer = new MutationObserver(mutationList => {
+                if (mutationList.length === 0 || mutationList[0].addedNodes.length === 0) {
+                    return;
+                }
+
+                // Get dialog
+                const $dialog = mutationList[0].addedNodes[0];
+                if (!$dialog || !($dialog instanceof HTMLElement)) {
+                    return;
+                }
+
+                // Find un-calculated <select> elements
+                const $selects = $dialog.querySelectorAll('.bx-select:not([data-calculated]) select');
+                $selects.forEach($select => {
+                    const rect = $select.getBoundingClientRect();
+                    const $parent = $select.parentElement! as HTMLElement;
+                    $parent.dataset.calculated = 'true';
+
+                    let $label;
+                    let width = Math.ceil(rect.width);
+
+                    if (($select as HTMLSelectElement).multiple) {
+                        $label = $parent.querySelector('.bx-select-value') as HTMLElement;
+                        width += 15;  // Add checkbox's width
+                    } else {
+                        $label = $parent.querySelector('div') as HTMLElement;
+                    }
+
+                    // Set min-width
+                    $label.style.minWidth = width + 'px';
+                });
+            });
+            observer.observe(this.$container, {childList: true});
+        }
     }
 
     handleEvent(event: Event) {

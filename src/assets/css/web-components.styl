@@ -4,12 +4,16 @@
     flex: 0 1 auto;
 
     select {
-        display: none !important;
+        // Render offscreen instead of "display: none" so we could get its size
+        position: absolute !important;
+        top: -9999px !important;
+        left: -9999px !important;
+        visibility: hidden !important;
     }
 
     > div, button.bx-select-value {
-        min-width: 110px;
-        text-align: center;
+        min-width: 120px;
+        text-align: left;
         margin: 0 8px;
         line-height: 24px;
         vertical-align: middle;
@@ -53,7 +57,7 @@
 
         span {
             flex: 1;
-            text-align: center;
+            text-align: left;
             display: inline-block;
         }
 
