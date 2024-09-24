@@ -237,7 +237,7 @@ function escapeHtml(html) {
 }
 function isElementVisible($elm) {
   const rect = $elm.getBoundingClientRect();
-  return !!rect.width && !!rect.height;
+  return (rect.x >= 0 || rect.y >= 0) && !!rect.width && !!rect.height;
 }
 function removeChildElements($parent) {
   while ($parent.firstElementChild)

@@ -163,7 +163,7 @@ export function escapeHtml(html: string): string {
 
 export function isElementVisible($elm: HTMLElement): boolean {
     const rect = $elm.getBoundingClientRect();
-    return !!rect.width && !!rect.height;
+    return (rect.x >= 0 || rect.y >= 0) && !!rect.width && !!rect.height;
 }
 
 export const CTN = document.createTextNode.bind(document);
