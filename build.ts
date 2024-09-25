@@ -35,13 +35,43 @@ const postProcess = (str: string): string => {
     // Add ADDITIONAL CODE block
     str = str.replace('var DEFAULT_FLAGS', '\n/* ADDITIONAL CODE */\n\nvar DEFAULT_FLAGS');
 
-    // Minify SVG
-    str = str.replaceAll(/= "(<svg.*)";/g, function(match) {
-        match = match.replaceAll(/\\n*\s*/g, '');
-        return match;
+    str = str.replaceAll('(e) => `', 'e => `');
+
+    // Simplify object definitions
+    // {[1]: "a"} => {1: "a"}
+    str = str.replaceAll(/\[(\d+)\]: /g, '$1: ');
+    // {["a"]: 1, ["b-c"]: 2} => {a: 1, "b-c": 2}
+    str = str.replaceAll(/\["([^"]+)"\]: /g, function(match, p1) {
+        if (p1.includes('-') || p1.match(/^\d/)) {
+            p1 = `"${p1}"`;
+        }
+
+        return p1 + ': ';
     });
 
-    str = str.replaceAll('(e) => `', 'e => `');
+    // Minify SVG import code
+    const svgMap = {}
+    str = str.replaceAll(/var ([\w_]+) = ("<svg.*?");\n\n/g, function(match, p1, p2) {
+        // Remove new lines in SVG
+        p2 = p2.replaceAll(/\\n*\s*/g, '');
+
+        svgMap[p1] = p2;
+        return '';
+    });
+
+    for (const name in svgMap) {
+        str = str.replace(`: ${name}`, `: ${svgMap[name]}`);
+    }
+
+    // Collapse empty brackets
+    str = str.replaceAll(/\{[\s\n]+\}/g, '{}');
+
+    // Collapse single return
+    str = str.replaceAll(/\)\n\s+return/g, ') return');
+    str = str.replaceAll(/else\n\s+return/g, 'else return');
+
+    // Remove blank lines
+    str = str.replaceAll(/\n([\s]*)\n/g, "\n");
 
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
