@@ -44,7 +44,7 @@ export class LoadingScreen {
     static #hideRocket() {
         let $bgStyle = LoadingScreen.#$bgStyle;
 
-        const css = compressCss(`
+        $bgStyle.textContent! += compressCss(`
 #game-stream div[class*=RocketAnimation-module__container] > svg {
     display: none;
 }
@@ -53,7 +53,6 @@ export class LoadingScreen {
     display: none;
 }
 `);
-        $bgStyle.textContent! += css;
     }
 
     static #setBackground(imageUrl: string) {
@@ -63,7 +62,7 @@ export class LoadingScreen {
         // Limit max width to reduce image size
         imageUrl = imageUrl + '?w=1920';
 
-        const css = compressCss(`
+        $bgStyle.textContent! += compressCss(`
 #game-stream {
     background-color: transparent !important;
     background-position: center center !important;
@@ -75,7 +74,6 @@ export class LoadingScreen {
     transition: opacity 0.3s ease-in-out !important;
 }
 `) + `#game-stream {background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;}`;
-        $bgStyle.textContent! += css;
 
         const bg = new Image();
         bg.onload = e => {

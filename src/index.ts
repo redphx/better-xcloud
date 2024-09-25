@@ -67,8 +67,10 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
     // Stop loading
     window.stop();
 
-    // Show the reloading overlay
-    const css = compressCss(`
+    // We need to set it to an empty string first to work around Bun's bug
+    // https://github.com/oven-sh/bun/issues/12067
+    let css = '';
+    css += compressCss(`
 .bx-reload-overlay {
     position: fixed;
     top: 0;
@@ -115,6 +117,7 @@ if (BX_FLAGS.SafariWorkaround && document.readyState !== 'loading') {
         }, '🤓 ' + t('how-to-fix'));
     }
 
+    // Show the reloading overlay
     const $fragment = document.createDocumentFragment();
     $fragment.appendChild(CE('style', {}, css));
     $fragment.appendChild(CE('div',{
