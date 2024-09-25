@@ -44,15 +44,13 @@ var DEFAULT_FLAGS = {
 try {
   delete window.BX_FLAGS;
 } catch (e) {}
-if (!BX_FLAGS.DeviceInfo.userAgent)
-  BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
+if (!BX_FLAGS.DeviceInfo.userAgent) BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
 BxLogger.info("BxFlags", BX_FLAGS);
 var NATIVE_FETCH = window.fetch;
 var SMART_TV_UNIQUE_ID = "FC4A1DA2-711C-4E9C-BC7F-047AF8A672EA", CHROMIUM_VERSION = "123.0.0.0";
 if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
-  if (match)
-    CHROMIUM_VERSION = match[1];
+  if (match) CHROMIUM_VERSION = match[1];
 }
 class UserAgent {
   static STORAGE_KEY = "better_xcloud_user_agent";
@@ -68,16 +66,13 @@ class UserAgent {
     "vr-oculus": window.navigator.userAgent + " OculusBrowser VR"
   };
   static init() {
-    if (UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY) || "{}"), !UserAgent.#config.profile)
-      UserAgent.#config.profile = BX_FLAGS.DeviceInfo.deviceType === "android-tv" || BX_FLAGS.DeviceInfo.deviceType === "webos" ? "vr-oculus" : "default";
-    if (!UserAgent.#config.custom)
-      UserAgent.#config.custom = "";
+    if (UserAgent.#config = JSON.parse(window.localStorage.getItem(UserAgent.STORAGE_KEY) || "{}"), !UserAgent.#config.profile) UserAgent.#config.profile = BX_FLAGS.DeviceInfo.deviceType === "android-tv" || BX_FLAGS.DeviceInfo.deviceType === "webos" ? "vr-oculus" : "default";
+    if (!UserAgent.#config.custom) UserAgent.#config.custom = "";
     UserAgent.spoof();
   }
   static updateStorage(profile, custom) {
     const config = UserAgent.#config;
-    if (config.profile = profile, profile === "custom" && typeof custom !== "undefined")
-      config.custom = custom;
+    if (config.profile = profile, profile === "custom" && typeof custom !== "undefined") config.custom = custom;
     window.localStorage.setItem(UserAgent.STORAGE_KEY, JSON.stringify(config));
   }
   static getDefault() {
@@ -114,8 +109,7 @@ class UserAgent {
     const profile = UserAgent.#config.profile;
     if (profile === "default") return;
     let newUserAgent = UserAgent.get(profile);
-    if ("userAgentData" in window.navigator)
-      window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {});
+    if ("userAgentData" in window.navigator) window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {});
     window.navigator.orgUserAgent = window.navigator.userAgent, Object.defineProperty(window.navigator, "userAgent", {
       value: newUserAgent
     });
@@ -162,8 +156,7 @@ var BxEvent;
       return;
     }
     const event = new Event(eventName);
-    if (data)
-      for (let key in data)
+    if (data) for (let key in data)
         event[key] = data[key];
     target.dispatchEvent(event), AppInterface && AppInterface.onEvent(eventName), BX_FLAGS.Debug && BxLogger.warning("BxEvent", "dispatch", eventName, data);
   }
@@ -182,29 +175,20 @@ var setNearby = NavigationUtils.setNearby;
 function createElement(elmName, props = {}, ..._) {
   let $elm;
   const hasNs = "xmlns" in props;
-  if (hasNs)
-    $elm = document.createElementNS(props.xmlns, elmName), delete props.xmlns;
-  else
-    $elm = document.createElement(elmName);
-  if (props._nearby)
-    setNearby($elm, props._nearby), delete props._nearby;
+  if (hasNs) $elm = document.createElementNS(props.xmlns, elmName), delete props.xmlns;
+  else $elm = document.createElement(elmName);
+  if (props._nearby) setNearby($elm, props._nearby), delete props._nearby;
   for (let key in props) {
-    if ($elm.hasOwnProperty(key))
-      continue;
-    if (hasNs)
-      $elm.setAttributeNS(null, key, props[key]);
-    else if (key === "on")
-      for (let eventName in props[key])
+    if ($elm.hasOwnProperty(key)) continue;
+    if (hasNs) $elm.setAttributeNS(null, key, props[key]);
+    else if (key === "on") for (let eventName in props[key])
         $elm.addEventListener(eventName, props[key][eventName]);
-    else
-      $elm.setAttribute(key, props[key]);
+    else $elm.setAttribute(key, props[key]);
   }
   for (let i = 2, size = arguments.length;i < size; i++) {
     const arg = arguments[i];
-    if (arg instanceof Node)
-      $elm.appendChild(arg);
-    else if (arg !== null && arg !== !1 && typeof arg !== "undefined")
-      $elm.appendChild(document.createTextNode(arg));
+    if (arg instanceof Node) $elm.appendChild(arg);
+    else if (arg !== null && arg !== !1 && typeof arg !== "undefined") $elm.appendChild(document.createTextNode(arg));
   }
   return $elm;
 }
@@ -226,8 +210,7 @@ function removeChildElements($parent) {
     $parent.firstElementChild.remove();
 }
 function clearFocus() {
-  if (document.activeElement instanceof HTMLElement)
-    document.activeElement.blur();
+  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
 }
 function clearDataSet($elm) {
   Object.keys($elm.dataset).forEach((key) => {
@@ -251,17 +234,14 @@ var ButtonStyleClass = {
   return svgParser(icon.toString());
 }, ButtonStyleIndices = Object.keys(ButtonStyleClass).map((i) => parseInt(i)), createButton = (options) => {
   let $btn;
-  if (options.url)
-    $btn = CE("a", { class: "bx-button" }), $btn.href = options.url, $btn.target = "_blank";
-  else
-    $btn = CE("button", { class: "bx-button", type: "button" });
+  if (options.url) $btn = CE("a", { class: "bx-button" }), $btn.href = options.url, $btn.target = "_blank";
+  else $btn = CE("button", { class: "bx-button", type: "button" });
   const style = options.style || 0;
   style && ButtonStyleIndices.forEach((index) => {
     style & index && $btn.classList.add(ButtonStyleClass[index]);
   }), options.classes && $btn.classList.add(...options.classes), options.icon && $btn.appendChild(createSvgIcon(options.icon)), options.label && $btn.appendChild(CE("span", {}, options.label)), options.title && $btn.setAttribute("title", options.title), options.disabled && ($btn.disabled = !0), options.onClick && $btn.addEventListener("click", options.onClick), $btn.tabIndex = typeof options.tabIndex === "number" ? options.tabIndex : 0;
   for (let key in options.attributes)
-    if (!$btn.hasOwnProperty(key))
-      $btn.setAttribute(key, options.attributes[key]);
+    if (!$btn.hasOwnProperty(key)) $btn.setAttribute(key, options.attributes[key]);
   return $btn;
 }, CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
@@ -644,24 +624,19 @@ class Translations {
   }
   static refreshLocale(newLocale) {
     let locale;
-    if (newLocale)
-      localStorage.setItem(Translations.#KEY_LOCALE, newLocale), locale = newLocale;
-    else
-      locale = localStorage.getItem(Translations.#KEY_LOCALE);
+    if (newLocale) localStorage.setItem(Translations.#KEY_LOCALE, newLocale), locale = newLocale;
+    else locale = localStorage.getItem(Translations.#KEY_LOCALE);
     const supportedLocales = Translations.#supportedLocales;
     if (!locale) {
-      if (locale = window.navigator.language || Translations.#EN_US, supportedLocales.indexOf(locale) === -1)
-        locale = Translations.#EN_US;
+      if (locale = window.navigator.language || Translations.#EN_US, supportedLocales.indexOf(locale) === -1) locale = Translations.#EN_US;
       localStorage.setItem(Translations.#KEY_LOCALE, locale);
     }
     Translations.#selectedLocale = locale, Translations.#selectedLocaleIndex = supportedLocales.indexOf(locale);
   }
   static get(key, values) {
     let text = null;
-    if (Translations.#foreignTranslations && Translations.#selectedLocale !== Translations.#EN_US)
-      text = Translations.#foreignTranslations[key];
-    if (!text)
-      text = Texts[key] || alert(`Missing translation key: ${key}`);
+    if (Translations.#foreignTranslations && Translations.#selectedLocale !== Translations.#EN_US) text = Translations.#foreignTranslations[key];
+    if (!text) text = Texts[key] || alert(`Missing translation key: ${key}`);
     let translation;
     if (Array.isArray(text)) return translation = text[Translations.#selectedLocaleIndex] || text[Translations.#enUsIndex], translation(values);
     return translation = text, translation;
@@ -671,24 +646,20 @@ class Translations {
     try {
       Translations.#foreignTranslations = JSON.parse(window.localStorage.getItem(Translations.#KEY_TRANSLATIONS));
     } catch (e) {}
-    if (!Translations.#foreignTranslations)
-      await this.downloadTranslations(Translations.#selectedLocale);
+    if (!Translations.#foreignTranslations) await this.downloadTranslations(Translations.#selectedLocale);
   }
   static async updateTranslations(async = !1) {
     if (Translations.#selectedLocale === Translations.#EN_US) {
       localStorage.removeItem(Translations.#KEY_TRANSLATIONS);
       return;
     }
-    if (async)
-      Translations.downloadTranslationsAsync(Translations.#selectedLocale);
-    else
-      await Translations.downloadTranslations(Translations.#selectedLocale);
+    if (async) Translations.downloadTranslationsAsync(Translations.#selectedLocale);
+    else await Translations.downloadTranslations(Translations.#selectedLocale);
   }
   static async downloadTranslations(locale) {
     try {
       const translations = await (await NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/translations/${locale}.json`)).json();
-      if (localStorage.getItem(Translations.#KEY_LOCALE) === locale)
-        window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations)), Translations.#foreignTranslations = translations;
+      if (localStorage.getItem(Translations.#KEY_LOCALE) === locale) window.localStorage.setItem(Translations.#KEY_TRANSLATIONS, JSON.stringify(translations)), Translations.#foreignTranslations = translations;
       return !0;
     } catch (e) {
       debugger;
@@ -722,8 +693,7 @@ var BypassServers = {
 class StreamStats {
   static instance;
   static getInstance() {
-    if (!StreamStats.instance)
-      StreamStats.instance = new StreamStats;
+    if (!StreamStats.instance) StreamStats.instance = new StreamStats;
     return StreamStats.instance;
   }
   #timeoutId;
@@ -742,20 +712,16 @@ class StreamStats {
   }
   start(glancing = !1) {
     if (!this.isHidden() || glancing && this.isGlancing()) return;
-    if (this.#$container)
-      this.#$container.classList.remove("bx-gone"), this.#$container.dataset.display = glancing ? "glancing" : "fixed";
+    if (this.#$container) this.#$container.classList.remove("bx-gone"), this.#$container.dataset.display = glancing ? "glancing" : "fixed";
     this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval);
   }
   stop(glancing = !1) {
     if (glancing && !this.isGlancing()) return;
-    if (this.#timeoutId && clearTimeout(this.#timeoutId), this.#timeoutId = null, this.#lastVideoStat = null, this.#$container)
-      this.#$container.removeAttribute("data-display"), this.#$container.classList.add("bx-gone");
+    if (this.#timeoutId && clearTimeout(this.#timeoutId), this.#timeoutId = null, this.#lastVideoStat = null, this.#$container) this.#$container.removeAttribute("data-display"), this.#$container.classList.add("bx-gone");
   }
   toggle() {
-    if (this.isGlancing())
-      this.#$container && (this.#$container.dataset.display = "fixed");
-    else
-      this.isHidden() ? this.start() : this.stop();
+    if (this.isGlancing()) this.#$container && (this.#$container.dataset.display = "fixed");
+    else this.isHidden() ? this.start() : this.stop();
   }
   onStoppedPlaying() {
     this.stop(), this.quickGlanceStop(), this.hideSettingsUi();
@@ -768,11 +734,8 @@ class StreamStats {
     if (!$uiContainer) return;
     this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
       for (let record of mutationList)
-        if (record.attributeName && record.attributeName === "aria-expanded")
-          if (record.target.ariaExpanded === "true")
-            this.isHidden() && this.start(!0);
-          else
-            this.stop(!0);
+        if (record.attributeName && record.attributeName === "aria-expanded") if (record.target.ariaExpanded === "true") this.isHidden() && this.start(!0);
+          else this.stop(!0);
     }), this.#quickGlanceObserver.observe($uiContainer, {
       attributes: !0,
       attributeFilter: ["aria-expanded"],
@@ -803,17 +766,13 @@ class StreamStats {
         const lastStat = this.#lastVideoStat, timeDiff = stat.timestamp - lastStat.timestamp, bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
         this.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
         const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime, framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded, currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
-        if (isNaN(currentDecodeTime))
-          this.#$dt.textContent = "??ms";
-        else
-          this.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
-        if (PREF_STATS_CONDITIONAL_FORMATTING)
-          grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "", this.#$dt.dataset.grade = grade;
+        if (isNaN(currentDecodeTime)) this.#$dt.textContent = "??ms";
+        else this.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
+        if (PREF_STATS_CONDITIONAL_FORMATTING) grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "", this.#$dt.dataset.grade = grade;
         this.#lastVideoStat = stat;
       } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
         const roundTripTime = stat.currentRoundTripTime ? stat.currentRoundTripTime * 1000 : -1;
-        if (this.#$ping.textContent = roundTripTime === -1 ? "???" : roundTripTime.toString(), PREF_STATS_CONDITIONAL_FORMATTING)
-          grade = roundTripTime > 100 ? "bad" : roundTripTime > 75 ? "ok" : roundTripTime > 40 ? "good" : "", this.#$ping.dataset.grade = grade;
+        if (this.#$ping.textContent = roundTripTime === -1 ? "???" : roundTripTime.toString(), PREF_STATS_CONDITIONAL_FORMATTING) grade = roundTripTime > 100 ? "bad" : roundTripTime > 75 ? "ok" : roundTripTime > 40 ? "good" : "", this.#$ping.dataset.grade = grade;
       }
     });
     const lapsedTime = performance.now() - startTime;
@@ -824,8 +783,7 @@ class StreamStats {
     $container.dataset.stats = "[" + PREF_ITEMS.join("][") + "]", $container.dataset.position = PREF_POSITION, $container.dataset.transparent = PREF_TRANSPARENT, $container.style.opacity = PREF_OPACITY + "%", $container.style.fontSize = PREF_TEXT_SIZE;
   }
   hideSettingsUi() {
-    if (this.isGlancing() && !getPref("stats_quick_glance"))
-      this.stop();
+    if (this.isGlancing() && !getPref("stats_quick_glance")) this.stop();
   }
   #render() {
     const stats = {
@@ -849,10 +807,8 @@ class StreamStats {
   static setupEvents() {
     window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
       const PREF_STATS_QUICK_GLANCE = getPref("stats_quick_glance"), PREF_STATS_SHOW_WHEN_PLAYING = getPref("stats_show_when_playing"), streamStats = StreamStats.getInstance();
-      if (PREF_STATS_SHOW_WHEN_PLAYING)
-        streamStats.start();
-      else if (PREF_STATS_QUICK_GLANCE)
-        streamStats.quickGlanceSetup(), !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(!0);
+      if (PREF_STATS_SHOW_WHEN_PLAYING) streamStats.start();
+      else if (PREF_STATS_QUICK_GLANCE) streamStats.quickGlanceSetup(), !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(!0);
     });
   }
   static refreshStyles() {
@@ -865,12 +821,10 @@ class SettingElement {
       tabindex: 0
     });
     let $parent;
-    if (setting.optionsGroup)
-      $parent = CE("optgroup", {
+    if (setting.optionsGroup) $parent = CE("optgroup", {
         label: setting.optionsGroup
       }), $control.appendChild($parent);
-    else
-      $parent = $control;
+    else $parent = $control;
     for (let value in setting.options) {
       const label = setting.options[value], $option = CE("option", { value }, label);
       $parent.appendChild($option);
@@ -887,8 +841,7 @@ class SettingElement {
       multiple: !0,
       tabindex: 0
     });
-    if (params && params.size)
-      $control.setAttribute("size", params.size.toString());
+    if (params && params.size) $control.setAttribute("size", params.size.toString());
     for (let value in setting.multipleOptions) {
       const label = setting.multipleOptions[value], $option = CE("option", { value }, label);
       $option.selected = currentValue.indexOf(value) > -1, $option.addEventListener("mousedown", function(e) {
@@ -933,10 +886,8 @@ class SettingElement {
     const { min: MIN, max: MAX } = setting, STEPS = Math.max(setting.steps || 1, 1), renderTextValue = (value2) => {
       value2 = parseInt(value2);
       let textContent = null;
-      if (options.customTextValue)
-        textContent = options.customTextValue(value2);
-      if (textContent === null)
-        textContent = value2.toString() + options.suffix;
+      if (options.customTextValue) textContent = options.customTextValue(value2);
+      if (textContent === null) textContent = value2.toString() + options.suffix;
       return textContent;
     }, updateButtonsVisibility = () => {
       $btnDec.classList.toggle("bx-inactive", controlValue === MIN), $btnInc.classList.toggle("bx-inactive", controlValue === MAX);
@@ -969,12 +920,10 @@ class SettingElement {
       const markersId = `markers-${key}`, $markers = CE("datalist", { id: markersId });
       if ($range.setAttribute("list", markersId), options.exactTicks) {
         let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
-        if (start === MIN)
-          start += options.exactTicks;
+        if (start === MIN) start += options.exactTicks;
         for (let i = start;i < MAX; i += options.exactTicks)
           $markers.appendChild(CE("option", { value: i }));
-      } else
-        for (let i = MIN + options.ticks;i < MAX; i += options.ticks)
+      } else for (let i = MIN + options.ticks;i < MAX; i += options.ticks)
           $markers.appendChild(CE("option", { value: i }));
       $wrapper.appendChild($markers);
     }
@@ -987,10 +936,8 @@ class SettingElement {
       }
       const $btn = e.target;
       let value2 = parseInt(controlValue);
-      if ($btn.dataset.type === "dec")
-        value2 = Math.max(MIN, value2 - STEPS);
-      else
-        value2 = Math.min(MAX, value2 + STEPS);
+      if ($btn.dataset.type === "dec") value2 = Math.max(MIN, value2 - STEPS);
+      else value2 = Math.min(MAX, value2 + STEPS);
       controlValue = value2, updateButtonsVisibility(), $text.textContent = renderTextValue(value2), $range && ($range.value = value2.toString()), isHolding = !1, !e.ignoreOnChange && onChange && onChange(e, value2);
     }, onMouseDown = (e) => {
       e.preventDefault(), isHolding = !0;
@@ -1018,30 +965,21 @@ class SettingElement {
   };
   static render(type, key, setting, currentValue, onChange, options) {
     const method = SettingElement.#METHOD_MAP[type], $control = method(...Array.from(arguments).slice(1));
-    if (type !== "number-stepper")
-      $control.id = `bx_setting_${key}`;
-    if (type === "options" || type === "multiple-options")
-      $control.name = $control.id;
+    if (type !== "number-stepper") $control.id = `bx_setting_${key}`;
+    if (type === "options" || type === "multiple-options") $control.name = $control.id;
     return $control;
   }
   static fromPref(key, storage, onChange, overrideParams = {}) {
     const definition = storage.getDefinition(key);
     let currentValue = storage.getSetting(key), type;
-    if ("type" in definition)
-      type = definition.type;
-    else if ("options" in definition)
-      type = "options";
-    else if ("multipleOptions" in definition)
-      type = "multiple-options";
-    else if (typeof definition.default === "number")
-      type = "number";
-    else
-      type = "checkbox";
+    if ("type" in definition) type = definition.type;
+    else if ("options" in definition) type = "options";
+    else if ("multipleOptions" in definition) type = "multiple-options";
+    else if (typeof definition.default === "number") type = "number";
+    else type = "checkbox";
     let params = {};
-    if ("params" in definition)
-      params = Object.assign(overrideParams, definition.params || {});
-    if (params.disabled)
-      currentValue = definition.default;
+    if ("params" in definition) params = Object.assign(overrideParams, definition.params || {});
+    if (params.disabled) currentValue = definition.default;
     return SettingElement.render(type, key, definition, currentValue, (e, value) => {
       storage.setSetting(key, value), onChange && onChange(e, value);
     }, params);
@@ -1079,8 +1017,7 @@ class BaseSettingsStore {
       return;
     }
     if (checkUnsupported && this.definitions[key].unsupported) return this.definitions[key].default;
-    if (!(key in this.settings))
-      this.settings[key] = this.validateValue(key, null);
+    if (!(key in this.settings)) this.settings[key] = this.validateValue(key, null);
     return this.settings[key];
   }
   setSetting(key, value, emitEvent = !1) {
@@ -1096,14 +1033,10 @@ class BaseSettingsStore {
   validateValue(key, value) {
     const def = this.definitions[key];
     if (!def) return value;
-    if (typeof value === "undefined" || value === null)
-      value = def.default;
-    if ("min" in def)
-      value = Math.max(def.min, value);
-    if ("max" in def)
-      value = Math.min(def.max, value);
-    if ("options" in def && !(value in def.options))
-      value = def.default;
+    if (typeof value === "undefined" || value === null) value = def.default;
+    if ("min" in def) value = Math.max(def.min, value);
+    if ("max" in def) value = Math.min(def.max, value);
+    if ("options" in def && !(value in def.options)) value = def.default;
     else if ("multipleOptions" in def) {
       if (value.length) {
         const validOptions = Object.keys(def.multipleOptions);
@@ -1111,8 +1044,7 @@ class BaseSettingsStore {
           validOptions.indexOf(item2) === -1 && value.splice(idx, 1);
         });
       }
-      if (!value.length)
-        value = def.default;
+      if (!value.length) value = def.default;
     }
     return value;
   }
@@ -1143,31 +1075,18 @@ function getSupportedCodecProfiles() {
   let hasLowCodec = !1, hasNormalCodec = !1, hasHighCodec = !1;
   const codecs = RTCRtpReceiver.getCapabilities("video").codecs;
   for (let codec of codecs) {
-    if (codec.mimeType.toLowerCase() !== "video/h264" || !codec.sdpFmtpLine)
-      continue;
+    if (codec.mimeType.toLowerCase() !== "video/h264" || !codec.sdpFmtpLine) continue;
     const fmtp = codec.sdpFmtpLine.toLowerCase();
-    if (fmtp.includes("profile-level-id=4d"))
-      hasHighCodec = !0;
-    else if (fmtp.includes("profile-level-id=42e"))
-      hasNormalCodec = !0;
-    else if (fmtp.includes("profile-level-id=420"))
-      hasLowCodec = !0;
+    if (fmtp.includes("profile-level-id=4d")) hasHighCodec = !0;
+    else if (fmtp.includes("profile-level-id=42e")) hasNormalCodec = !0;
+    else if (fmtp.includes("profile-level-id=420")) hasLowCodec = !0;
   }
-  if (hasLowCodec)
-    if (!hasNormalCodec && !hasHighCodec)
-      options.default = `${t("visual-quality-low")} (${t("default")})`;
-    else
-      options.low = t("visual-quality-low");
-  if (hasNormalCodec)
-    if (!hasLowCodec && !hasHighCodec)
-      options.default = `${t("visual-quality-normal")} (${t("default")})`;
-    else
-      options.normal = t("visual-quality-normal");
-  if (hasHighCodec)
-    if (!hasLowCodec && !hasNormalCodec)
-      options.default = `${t("visual-quality-high")} (${t("default")})`;
-    else
-      options.high = t("visual-quality-high");
+  if (hasLowCodec) if (!hasNormalCodec && !hasHighCodec) options.default = `${t("visual-quality-low")} (${t("default")})`;
+    else options.low = t("visual-quality-low");
+  if (hasNormalCodec) if (!hasLowCodec && !hasHighCodec) options.default = `${t("visual-quality-normal")} (${t("default")})`;
+    else options.normal = t("visual-quality-normal");
+  if (hasHighCodec) if (!hasLowCodec && !hasNormalCodec) options.default = `${t("visual-quality-high")} (${t("default")})`;
+    else options.high = t("visual-quality-high");
   return options;
 }
 class GlobalSettingsStorage extends BaseSettingsStore {
@@ -1252,8 +1171,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       options: getSupportedCodecProfiles(),
       ready: (setting) => {
         const options = setting.options, keys = Object.keys(options);
-        if (keys.length <= 1)
-          setting.unsupported = !0, setting.note = "⚠️ " + t("browser-unsupported-feature");
+        if (keys.length <= 1) setting.unsupported = !0, setting.note = "⚠️ " + t("browser-unsupported-feature");
         setting.suggest = {
           lowest: keys.length === 1 ? keys[0] : keys[1],
           highest: keys[keys.length - 1]
@@ -1292,8 +1210,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       },
       unsupported: !STATES.userAgent.capabilities.touch,
       ready: (setting) => {
-        if (setting.unsupported)
-          setting.default = "default";
+        if (setting.unsupported) setting.default = "default";
       }
     },
     stream_touch_controller_auto_off: {
@@ -1423,10 +1340,8 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       })(),
       ready: (setting) => {
         let note, url;
-        if (setting.unsupported)
-          note = t("browser-unsupported-feature"), url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
-        else
-          note = t("mkb-disclaimer"), url = "https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer";
+        if (setting.unsupported) note = t("browser-unsupported-feature"), url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
+        else note = t("mkb-disclaimer"), url = "https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer";
         setting.note = CE("a", {
           href: url,
           target: "_blank"
@@ -1442,12 +1357,9 @@ class GlobalSettingsStorage extends BaseSettingsStore {
         off: t("off")
       },
       ready: (setting) => {
-        if (AppInterface)
-          ;
-        else if (UserAgent.isMobile())
-          setting.unsupported = !0, setting.default = "off", delete setting.options.default, delete setting.options.on;
-        else
-          delete setting.options.on;
+        if (AppInterface) ;
+        else if (UserAgent.isMobile()) setting.unsupported = !0, setting.default = "off", delete setting.options.default, delete setting.options.on;
+        else delete setting.options.on;
       }
     },
     native_mkb_scroll_x_sensitivity: {
@@ -1784,8 +1696,7 @@ class Screenshot {
   }
   static updateCanvasSize(width, height) {
     const $canvas = Screenshot.#$canvas;
-    if ($canvas)
-      $canvas.width = width, $canvas.height = height;
+    if ($canvas) $canvas.width = width, $canvas.height = height;
   }
   static updateCanvasFilters(filters) {
     Screenshot.#canvasContext.filter = filters;
@@ -1797,15 +1708,12 @@ class Screenshot {
     const currentStream = STATES.currentStream, streamPlayer = currentStream.streamPlayer, $canvas = Screenshot.#$canvas;
     if (!streamPlayer || !$canvas) return;
     let $player;
-    if (getPref("screenshot_apply_filters"))
-      $player = streamPlayer.getPlayerElement();
-    else
-      $player = streamPlayer.getPlayerElement("default");
+    if (getPref("screenshot_apply_filters")) $player = streamPlayer.getPlayerElement();
+    else $player = streamPlayer.getPlayerElement("default");
     if (!$player || !$player.isConnected) return;
     $player.parentElement.addEventListener("animationend", this.#onAnimationEnd, { once: !0 }), $player.parentElement.classList.add("bx-taking-screenshot");
     const canvasContext = Screenshot.#canvasContext;
-    if ($player instanceof HTMLCanvasElement)
-      streamPlayer.getWebGL2Player().drawFrame();
+    if ($player instanceof HTMLCanvasElement) streamPlayer.getWebGL2Player().drawFrame();
     if (canvasContext.drawImage($player, 0, 0, $canvas.width, $canvas.height), AppInterface) {
       const data = $canvas.toDataURL("image/png").split(";base64,")[1];
       AppInterface.saveScreenshot(currentStream.titleSlug, data), canvasContext.clearRect(0, 0, $canvas.width, $canvas.height), callback && callback();
@@ -1945,10 +1853,8 @@ class MkbPreset {
     const mouse = obj.mouse;
     mouse["sensitivity_x"] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY, mouse["sensitivity_y"] *= EmulatedMkbHandler.DEFAULT_PANNING_SENSITIVITY, mouse["deadzone_counterweight"] *= EmulatedMkbHandler.DEFAULT_DEADZONE_COUNTERWEIGHT;
     const mouseMapTo = MouseMapTo[mouse["map_to"]];
-    if (typeof mouseMapTo !== "undefined")
-      mouse["map_to"] = mouseMapTo;
-    else
-      mouse["map_to"] = MkbPreset.MOUSE_SETTINGS["map_to"].default;
+    if (typeof mouseMapTo !== "undefined") mouse["map_to"] = mouseMapTo;
+    else mouse["map_to"] = MkbPreset.MOUSE_SETTINGS["map_to"].default;
     return console.log(obj), obj;
   }
 }
@@ -1963,10 +1869,8 @@ class Toast {
   static show(msg, status, options = {}) {
     options = options || {};
     const args = Array.from(arguments);
-    if (options.instant)
-      Toast.#stack = [args], Toast.#showNext();
-    else
-      Toast.#stack.push(args), !Toast.#isShowing && Toast.#showNext();
+    if (options.instant) Toast.#stack = [args], Toast.#showNext();
+    else Toast.#stack.push(args), !Toast.#isShowing && Toast.#showNext();
   }
   static #showNext() {
     if (!Toast.#stack.length) {
@@ -1975,14 +1879,10 @@ class Toast {
     }
     Toast.#isShowing = !0, Toast.#timeout && clearTimeout(Toast.#timeout), Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
     const [msg, status, options] = Toast.#stack.shift();
-    if (options && options.html)
-      Toast.#$msg.innerHTML = msg;
-    else
-      Toast.#$msg.textContent = msg;
-    if (status)
-      Toast.#$status.classList.remove("bx-gone"), Toast.#$status.textContent = status;
-    else
-      Toast.#$status.classList.add("bx-gone");
+    if (options && options.html) Toast.#$msg.innerHTML = msg;
+    else Toast.#$msg.textContent = msg;
+    if (status) Toast.#$status.classList.remove("bx-gone"), Toast.#$status.textContent = status;
+    else Toast.#$status.classList.add("bx-gone");
     const classList = Toast.#$wrapper.classList;
     classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
   }
@@ -1994,16 +1894,14 @@ class Toast {
   static setup() {
     Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" })), Toast.#$wrapper.addEventListener("transitionend", (e) => {
       const classList = Toast.#$wrapper.classList;
-      if (classList.contains("bx-hide"))
-        classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.#showNext();
+      if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.#showNext();
     }), document.documentElement.appendChild(Toast.#$wrapper);
   }
 }
 class LocalDb {
   static #instance;
   static get INSTANCE() {
-    if (!LocalDb.#instance)
-      LocalDb.#instance = new LocalDb;
+    if (!LocalDb.#instance) LocalDb.#instance = new LocalDb;
     return LocalDb.#instance;
   }
   static DB_NAME = "BetterXcloud";
@@ -2108,21 +2006,14 @@ class KeyHelper {
   };
   static getKeyFromEvent(e) {
     let code, name;
-    if (e instanceof KeyboardEvent)
-      code = e.code || e.key;
+    if (e instanceof KeyboardEvent) code = e.code || e.key;
     else if (e instanceof WheelEvent) {
-      if (e.deltaY < 0)
-        code = "ScrollUp";
-      else if (e.deltaY > 0)
-        code = "ScrollDown";
-      else if (e.deltaX < 0)
-        code = "ScrollLeft";
-      else if (e.deltaX > 0)
-        code = "ScrollRight";
-    } else if (e instanceof MouseEvent)
-      code = "Mouse" + e.button;
-    if (code)
-      name = KeyHelper.codeToKeyName(code);
+      if (e.deltaY < 0) code = "ScrollUp";
+      else if (e.deltaY > 0) code = "ScrollDown";
+      else if (e.deltaX < 0) code = "ScrollLeft";
+      else if (e.deltaX > 0) code = "ScrollRight";
+    } else if (e instanceof MouseEvent) code = "Mouse" + e.button;
+    if (code) name = KeyHelper.codeToKeyName(code);
     return code ? { code, name } : null;
   }
   static codeToKeyName(code) {
@@ -2133,15 +2024,13 @@ var LOG_TAG = "PointerClient";
 class PointerClient {
   static instance;
   static getInstance() {
-    if (!PointerClient.instance)
-      PointerClient.instance = new PointerClient;
+    if (!PointerClient.instance) PointerClient.instance = new PointerClient;
     return PointerClient.instance;
   }
   #socket;
   #mkbHandler;
   start(port, mkbHandler) {
-    if (!port)
-      throw new Error("PointerServer port is 0");
+    if (!port) throw new Error("PointerServer port is 0");
     this.#mkbHandler = mkbHandler, this.#socket = new WebSocket(`ws://localhost:${port}`), this.#socket.binaryType = "arraybuffer", this.#socket.addEventListener("open", (event) => {
       BxLogger.info(LOG_TAG, "connected");
     }), this.#socket.addEventListener("error", (event) => {
@@ -2221,8 +2110,7 @@ class NativeMkbHandler extends MkbHandler {
   #inputSink;
   #$message;
   static getInstance() {
-    if (!NativeMkbHandler.instance)
-      NativeMkbHandler.instance = new NativeMkbHandler;
+    if (!NativeMkbHandler.instance) NativeMkbHandler.instance = new NativeMkbHandler;
     return NativeMkbHandler.instance;
   }
   #onKeyboardEvent(e) {
@@ -2239,17 +2127,14 @@ class NativeMkbHandler extends MkbHandler {
   }
   #onPollingModeChanged = (e) => {
     if (!this.#$message) return;
-    if (e.mode === "none")
-      this.#$message.classList.remove("bx-offscreen");
-    else
-      this.#$message.classList.add("bx-offscreen");
+    if (e.mode === "none") this.#$message.classList.remove("bx-offscreen");
+    else this.#$message.classList.add("bx-offscreen");
   };
   #onDialogShown = () => {
     document.pointerLockElement && document.exitPointerLock();
   };
   #initMessage() {
-    if (!this.#$message)
-      this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg" }, CE("div", {}, CE("p", {}, t("native-mkb")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "native" }, createButton({
+    if (!this.#$message) this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg" }, CE("div", {}, CE("p", {}, t("native-mkb")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "native" }, createButton({
         style: 1 | 64 | 256,
         label: t("activate"),
         onClick: ((e) => {
@@ -2262,8 +2147,7 @@ class NativeMkbHandler extends MkbHandler {
           e.preventDefault(), e.stopPropagation(), this.#$message?.classList.add("bx-gone");
         }
       })));
-    if (!this.#$message.isConnected)
-      document.documentElement.appendChild(this.#$message);
+    if (!this.#$message.isConnected) document.documentElement.appendChild(this.#$message);
   }
   handleEvent(event) {
     switch (event.type) {
@@ -2291,21 +2175,15 @@ class NativeMkbHandler extends MkbHandler {
     } catch (e) {
       Toast.show("Cannot enable Mouse & Keyboard feature");
     }
-    if (this.#mouseVerticalMultiply = getPref("native_mkb_scroll_y_sensitivity"), this.#mouseHorizontalMultiply = getPref("native_mkb_scroll_x_sensitivity"), window.addEventListener("keyup", this), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this), window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this), this.#initMessage(), AppInterface)
-      Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("native-mkb"), { html: !0 }), this.#$message?.classList.add("bx-gone");
-    else
-      this.#$message?.classList.remove("bx-gone");
+    if (this.#mouseVerticalMultiply = getPref("native_mkb_scroll_y_sensitivity"), this.#mouseHorizontalMultiply = getPref("native_mkb_scroll_x_sensitivity"), window.addEventListener("keyup", this), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this), window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this), this.#initMessage(), AppInterface) Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("native-mkb"), { html: !0 }), this.#$message?.classList.add("bx-gone");
+    else this.#$message?.classList.remove("bx-gone");
   }
   toggle(force) {
     let setEnable;
-    if (typeof force !== "undefined")
-      setEnable = force;
-    else
-      setEnable = !this.#enabled;
-    if (setEnable)
-      document.documentElement.requestPointerLock();
-    else
-      document.exitPointerLock();
+    if (typeof force !== "undefined") setEnable = force;
+    else setEnable = !this.#enabled;
+    if (setEnable) document.documentElement.requestPointerLock();
+    else document.exitPointerLock();
   }
   #updateInputConfigurationAsync(enabled) {
     window.BX_EXPOSED.streamSession.updateInputConfigurationAsync({
@@ -2335,10 +2213,8 @@ class NativeMkbHandler extends MkbHandler {
   }
   handleMouseClick(data) {
     const { pointerButton, pressed } = data;
-    if (pressed)
-      this.#mouseButtonsPressed |= pointerButton;
-    else
-      this.#mouseButtonsPressed ^= pointerButton;
+    if (pressed) this.#mouseButtonsPressed |= pointerButton;
+    else this.#mouseButtonsPressed ^= pointerButton;
     this.#mouseButtonsPressed = Math.max(0, this.#mouseButtonsPressed), this.#sendMouseInput({
       X: 0,
       Y: 0,
@@ -2349,10 +2225,8 @@ class NativeMkbHandler extends MkbHandler {
   }
   handleMouseWheel(data) {
     const { vertical, horizontal } = data;
-    if (this.#mouseWheelX = horizontal, this.#mouseHorizontalMultiply && this.#mouseHorizontalMultiply !== 1)
-      this.#mouseWheelX *= this.#mouseHorizontalMultiply;
-    if (this.#mouseWheelY = vertical, this.#mouseVerticalMultiply && this.#mouseVerticalMultiply !== 1)
-      this.#mouseWheelY *= this.#mouseVerticalMultiply;
+    if (this.#mouseWheelX = horizontal, this.#mouseHorizontalMultiply && this.#mouseHorizontalMultiply !== 1) this.#mouseWheelX *= this.#mouseHorizontalMultiply;
+    if (this.#mouseWheelY = vertical, this.#mouseVerticalMultiply && this.#mouseVerticalMultiply !== 1) this.#mouseWheelY *= this.#mouseVerticalMultiply;
     return this.#sendMouseInput({
       X: 0,
       Y: 0,
@@ -2389,10 +2263,8 @@ function onChangeVideoPlayerType() {
   if (!$videoProcessing) return;
   let isDisabled = !1;
   const $optCas = $videoProcessing.querySelector(`option[value=${"cas"}]`);
-  if (playerType === "webgl2")
-    $optCas && ($optCas.disabled = !1);
-  else if ($videoProcessing.value = "usm", setPref("video_processing", "usm"), $optCas && ($optCas.disabled = !0), UserAgent.isSafari())
-    isDisabled = !0;
+  if (playerType === "webgl2") $optCas && ($optCas.disabled = !1);
+  else if ($videoProcessing.value = "usm", setPref("video_processing", "usm"), $optCas && ($optCas.disabled = !0), UserAgent.isSafari()) isDisabled = !0;
   $videoProcessing.disabled = isDisabled, $videoSharpness.dataset.disabled = isDisabled.toString(), $videoPowerPreference.closest(".bx-settings-row").classList.toggle("bx-gone", playerType !== "webgl2"), updateVideoPlayer();
 }
 function updateVideoPlayer() {
@@ -2414,8 +2286,7 @@ class NavigationDialog {
     this.dialogManager = NavigationDialogManager.getInstance();
   }
   show() {
-    if (NavigationDialogManager.getInstance().show(this), !this.getFocusedElement())
-      this.focusIfNeeded();
+    if (NavigationDialogManager.getInstance().show(this), !this.getFocusedElement()) this.focusIfNeeded();
   }
   hide() {
     NavigationDialogManager.getInstance().hide();
@@ -2440,8 +2311,7 @@ class NavigationDialog {
 class NavigationDialogManager {
   static instance;
   static getInstance() {
-    if (!NavigationDialogManager.instance)
-      NavigationDialogManager.instance = new NavigationDialogManager;
+    if (!NavigationDialogManager.instance) NavigationDialogManager.instance = new NavigationDialogManager;
     return NavigationDialogManager.instance;
   }
   static GAMEPAD_POLLING_INTERVAL = 50;
@@ -2495,10 +2365,8 @@ class NavigationDialogManager {
           const rect = $select.getBoundingClientRect(), $parent = $select.parentElement;
           $parent.dataset.calculated = "true";
           let $label, width = Math.ceil(rect.width);
-          if ($select.multiple)
-            $label = $parent.querySelector(".bx-select-value"), width += 15;
-          else
-            $label = $parent.querySelector("div");
+          if ($select.multiple) $label = $parent.querySelector(".bx-select-value"), width += 15;
+          else $label = $parent.querySelector("div");
           $label.style.minWidth = width + "px";
         });
       }).observe(this.$container, { childList: !0 });
@@ -2512,18 +2380,13 @@ class NavigationDialogManager {
           event.preventDefault(), event.stopPropagation();
           return;
         }
-        if (keyCode === "ArrowUp" || keyCode === "ArrowDown")
-          handled = !0, this.focusDirection(keyCode === "ArrowUp" ? 1 : 3);
+        if (keyCode === "ArrowUp" || keyCode === "ArrowDown") handled = !0, this.focusDirection(keyCode === "ArrowUp" ? 1 : 3);
         else if (keyCode === "ArrowLeft" || keyCode === "ArrowRight") {
-          if (!($target instanceof HTMLInputElement && ($target.type === "text" || $target.type === "range")))
-            handled = !0, this.focusDirection(keyCode === "ArrowLeft" ? 4 : 2);
+          if (!($target instanceof HTMLInputElement && ($target.type === "text" || $target.type === "range"))) handled = !0, this.focusDirection(keyCode === "ArrowLeft" ? 4 : 2);
         } else if (keyCode === "Enter" || keyCode === "NumpadEnter" || keyCode === "Space") {
-          if (!($target instanceof HTMLInputElement && $target.type === "text"))
-            handled = !0, $target.dispatchEvent(new MouseEvent("click"));
-        } else if (keyCode === "Escape")
-          handled = !0, this.hide();
-        if (handled)
-          event.preventDefault(), event.stopPropagation();
+          if (!($target instanceof HTMLInputElement && $target.type === "text")) handled = !0, $target.dispatchEvent(new MouseEvent("click"));
+        } else if (keyCode === "Escape") handled = !0, this.hide();
+        if (handled) event.preventDefault(), event.stopPropagation();
         break;
     }
   }
@@ -2533,16 +2396,12 @@ class NavigationDialogManager {
   pollGamepad() {
     const gamepads = window.navigator.getGamepads();
     for (let gamepad of gamepads) {
-      if (!gamepad || !gamepad.connected)
-        continue;
-      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
-        continue;
+      if (!gamepad || !gamepad.connected) continue;
+      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) continue;
       const { axes, buttons } = gamepad;
       let releasedButton = null, heldButton = null, lastState = this.gamepadLastStates[gamepad.index], lastTimestamp, lastKey, lastKeyPressed;
-      if (lastState)
-        [lastTimestamp, lastKey, lastKeyPressed] = lastState;
-      if (lastTimestamp && lastTimestamp === gamepad.timestamp)
-        continue;
+      if (lastState) [lastTimestamp, lastKey, lastKeyPressed] = lastState;
+      if (lastTimestamp && lastTimestamp === gamepad.timestamp) continue;
       for (let key of NavigationDialogManager.GAMEPAD_KEYS)
         if (lastKey === key && !buttons[key].pressed) {
           releasedButton = key;
@@ -2554,22 +2413,15 @@ class NavigationDialogManager {
       if (heldButton === null && releasedButton === null && axes && axes.length >= 2) {
         if (lastKey) {
           const releasedHorizontal = Math.abs(axes[0]) < 0.1 && (lastKey === 102 || lastKey === 103), releasedVertical = Math.abs(axes[1]) < 0.1 && (lastKey === 100 || lastKey === 101);
-          if (releasedHorizontal || releasedVertical)
-            releasedButton = lastKey;
-          else
-            heldButton = lastKey;
-        } else if (axes[0] < -0.5)
-          heldButton = 102;
-        else if (axes[0] > 0.5)
-          heldButton = 103;
-        else if (axes[1] < -0.5)
-          heldButton = 100;
-        else if (axes[1] > 0.5)
-          heldButton = 101;
+          if (releasedHorizontal || releasedVertical) releasedButton = lastKey;
+          else heldButton = lastKey;
+        } else if (axes[0] < -0.5) heldButton = 102;
+        else if (axes[0] > 0.5) heldButton = 103;
+        else if (axes[1] < -0.5) heldButton = 100;
+        else if (axes[1] > 0.5) heldButton = 101;
       }
       if (heldButton !== null) {
-        if (this.gamepadLastStates[gamepad.index] = [gamepad.timestamp, heldButton, !1], this.clearGamepadHoldingInterval(), NavigationDialogManager.GAMEPAD_DIRECTION_MAP[heldButton])
-          this.gamepadHoldingIntervalId = window.setInterval(() => {
+        if (this.gamepadLastStates[gamepad.index] = [gamepad.timestamp, heldButton, !1], this.clearGamepadHoldingInterval(), NavigationDialogManager.GAMEPAD_DIRECTION_MAP[heldButton]) this.gamepadHoldingIntervalId = window.setInterval(() => {
             const lastState2 = this.gamepadLastStates[gamepad.index];
             if (lastState2) {
               if ([lastTimestamp, lastKey, lastKeyPressed] = lastState2, lastKey === heldButton) {
@@ -2603,19 +2455,16 @@ class NavigationDialogManager {
     if (!direction) return !1;
     if (document.activeElement instanceof HTMLInputElement && document.activeElement.type === "range") {
       const $range = document.activeElement;
-      if (direction === 4 || direction === 2)
-        $range.value = (parseInt($range.value) + parseInt($range.step) * (direction === 4 ? -1 : 1)).toString(), $range.dispatchEvent(new InputEvent("input")), handled = !0;
+      if (direction === 4 || direction === 2) $range.value = (parseInt($range.value) + parseInt($range.step) * (direction === 4 ? -1 : 1)).toString(), $range.dispatchEvent(new InputEvent("input")), handled = !0;
     }
-    if (!handled)
-      this.focusDirection(direction);
+    if (!handled) this.focusDirection(direction);
     return this.gamepadLastStates[gamepad.index] && (this.gamepadLastStates[gamepad.index][2] = !0), !0;
   }
   clearGamepadHoldingInterval() {
     this.gamepadHoldingIntervalId && window.clearInterval(this.gamepadHoldingIntervalId), this.gamepadHoldingIntervalId = null;
   }
   show(dialog) {
-    if (this.clearGamepadHoldingInterval(), BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN), window.BX_EXPOSED.disableGamepadPolling = !0, document.body.classList.add("bx-no-scroll"), this.$overlay.classList.remove("bx-gone"), STATES.isPlaying)
-      this.$overlay.classList.add("bx-invisible");
+    if (this.clearGamepadHoldingInterval(), BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_SHOWN), window.BX_EXPOSED.disableGamepadPolling = !0, document.body.classList.add("bx-no-scroll"), this.$overlay.classList.remove("bx-gone"), STATES.isPlaying) this.$overlay.classList.add("bx-invisible");
     this.unmountCurrentDialog(), this.dialog = dialog, dialog.onBeforeMount(), this.$container.appendChild(dialog.getContent()), dialog.onMounted(), this.$container.classList.remove("bx-gone"), this.$container.addEventListener("keydown", this), this.startGamepadPolling();
   }
   hide() {
@@ -2623,8 +2472,7 @@ class NavigationDialogManager {
   }
   focus($elm) {
     if (!$elm) return !1;
-    if ($elm.nearby && $elm.nearby.focus)
-      if ($elm.nearby.focus instanceof HTMLElement) return this.focus($elm.nearby.focus);
+    if ($elm.nearby && $elm.nearby.focus) if ($elm.nearby.focus instanceof HTMLElement) return this.focus($elm.nearby.focus);
       else return $elm.nearby.focus();
     return $elm.focus(), $elm === document.activeElement;
   }
@@ -2678,8 +2526,7 @@ class NavigationDialogManager {
       }
     }
     const children = Array.from($elm.children), orientation = $elm.nearby?.orientation || "vertical";
-    if (orientation === "horizontal" || orientation === "vertical" && direction === 1)
-      children.reverse();
+    if (orientation === "horizontal" || orientation === "vertical" && direction === 1) children.reverse();
     for (let $child of children) {
       if (!$child || !($child instanceof HTMLElement)) return null;
       const $target = this.findFocusableElement($child, direction);
@@ -2757,10 +2604,8 @@ class Dialog {
       onClose,
       helpUrl
     } = options, $overlay = document.querySelector(".bx-dialog-overlay");
-    if (!$overlay)
-      this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" }), this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$overlay);
-    else
-      this.$overlay = $overlay;
+    if (!$overlay) this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" }), this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$overlay);
+    else this.$overlay = $overlay;
     let $close;
     this.onClose = onClose, this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
       icon: BxIcon.QUESTION,
@@ -2772,8 +2617,7 @@ class Dialog {
     }), !title && this.$title.classList.add("bx-gone"), !content && this.$content.classList.add("bx-gone"), this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$dialog);
   }
   show(newOptions) {
-    if (document.activeElement && document.activeElement.blur(), newOptions && newOptions.title)
-      this.$title.querySelector("b").textContent = newOptions.title, this.$title.classList.remove("bx-gone");
+    if (document.activeElement && document.activeElement.blur(), newOptions && newOptions.title) this.$title.querySelector("b").textContent = newOptions.title, this.$title.classList.remove("bx-gone");
     this.$dialog.classList.remove("bx-gone"), this.$overlay.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
   }
   hide(e) {
@@ -2813,8 +2657,7 @@ class MkbRemapper {
   ];
   static #instance;
   static get INSTANCE() {
-    if (!MkbRemapper.#instance)
-      MkbRemapper.#instance = new MkbRemapper;
+    if (!MkbRemapper.#instance) MkbRemapper.#instance = new MkbRemapper;
     return MkbRemapper.#instance;
   }
   #STATE = {
@@ -2846,8 +2689,7 @@ class MkbRemapper {
     const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
     if ($elm.getAttribute("data-key-code") === key.code) return;
     for (let $otherElm of this.#$.allKeyElements)
-      if ($otherElm.getAttribute("data-key-code") === key.code)
-        this.#unbindKey($otherElm);
+      if ($otherElm.getAttribute("data-key-code") === key.code) this.#unbindKey($otherElm);
     this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.setAttribute("data-key-code", key.code);
   };
   #unbindKey = ($elm) => {
@@ -2861,8 +2703,7 @@ class MkbRemapper {
     e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
   };
   #onKeyDown = (e) => {
-    if (e.preventDefault(), e.stopPropagation(), this.#clearEventListeners(), e.code !== "Escape")
-      this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
+    if (e.preventDefault(), e.stopPropagation(), this.#clearEventListeners(), e.code !== "Escape") this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
     window.setTimeout(() => this.bindingDialog.hide(), 200);
   };
   #onBindingKey = (e) => {
@@ -2884,17 +2725,14 @@ class MkbRemapper {
     const presetData = this.#getCurrentPreset().data;
     for (let $elm of this.#$.allKeyElements) {
       const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot")), buttonKeys = presetData.mapping[buttonIndex];
-      if (buttonKeys && buttonKeys[keySlot])
-        $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]), $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
-      else
-        $elm.textContent = "", $elm.removeAttribute("data-key-code");
+      if (buttonKeys && buttonKeys[keySlot]) $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]), $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
+      else $elm.textContent = "", $elm.removeAttribute("data-key-code");
     }
     let key;
     for (key in this.#$.allMouseElements) {
       const $elm = this.#$.allMouseElements[key];
       let value = presetData.mouse[key];
-      if (typeof value === "undefined")
-        value = MkbPreset.MOUSE_SETTINGS[key].default;
+      if (typeof value === "undefined") value = MkbPreset.MOUSE_SETTINGS[key].default;
       "setValue" in $elm && $elm.setValue(value);
     }
     const activated = getPref("mkb_default_preset_id") === this.#STATE.currentPresetId;
@@ -2907,14 +2745,11 @@ class MkbRemapper {
       this.#STATE.presets = presets;
       const $fragment = document.createDocumentFragment();
       let defaultPresetId;
-      if (this.#STATE.currentPresetId === 0)
-        this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.#STATE.currentPresetId, setPref("mkb_default_preset_id", defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
-      else
-        defaultPresetId = getPref("mkb_default_preset_id");
+      if (this.#STATE.currentPresetId === 0) this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.#STATE.currentPresetId, setPref("mkb_default_preset_id", defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
+      else defaultPresetId = getPref("mkb_default_preset_id");
       for (let id2 in presets) {
         let name = presets[id2].name;
-        if (id2 === defaultPresetId)
-          name = "🎮 " + name;
+        if (id2 === defaultPresetId) name = "🎮 " + name;
         const $options = CE("option", { value: id2 }, name);
         $options.selected = parseInt(id2) === this.#STATE.currentPresetId, $fragment.appendChild($options);
       }
@@ -2924,17 +2759,13 @@ class MkbRemapper {
     });
   }
   #toggleEditing = (force) => {
-    if (this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing, this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing), this.#STATE.isEditing)
-      this.#STATE.editingPresetData = deepClone(this.#getCurrentPreset().data);
-    else
-      this.#STATE.editingPresetData = null;
+    if (this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing, this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing), this.#STATE.isEditing) this.#STATE.editingPresetData = deepClone(this.#getCurrentPreset().data);
+    else this.#STATE.editingPresetData = null;
     const childElements = this.#$.wrapper.querySelectorAll("select, button, input");
     for (let $elm of Array.from(childElements)) {
-      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons"))
-        continue;
+      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons")) continue;
       let disable = !this.#STATE.isEditing;
-      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools"))
-        disable = !disable;
+      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools")) disable = !disable;
       $elm.disabled = disable;
     }
   };
@@ -3049,8 +2880,7 @@ class MkbRemapper {
       onClick: (e) => {
         const updatedPreset = deepClone(this.#getCurrentPreset());
         updatedPreset.data = this.#STATE.editingPresetData, LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
-          if (id2 === getPref("mkb_default_preset_id"))
-            EmulatedMkbHandler.getInstance().refreshPresetData();
+          if (id2 === getPref("mkb_default_preset_id")) EmulatedMkbHandler.getInstance().refreshPresetData();
           this.#toggleEditing(!1), this.#refresh();
         });
       }
@@ -3068,8 +2898,7 @@ function checkForUpdate() {
 }
 function disablePwa() {
   if (!(window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase()) return;
-  if (!!AppInterface || UserAgent.isSafariMobile())
-    Object.defineProperty(window.navigator, "standalone", {
+  if (!!AppInterface || UserAgent.isSafariMobile()) Object.defineProperty(window.navigator, "standalone", {
       value: !0
     });
 }
@@ -3110,15 +2939,11 @@ class SoundShortcut {
     if (!getPref("audio_enable_volume_control")) return 0;
     const currentValue = getPref("audio_volume");
     let nearestValue;
-    if (amount > 0)
-      nearestValue = ceilToNearest(currentValue, amount);
-    else
-      nearestValue = floorToNearest(currentValue, -1 * amount);
+    if (amount > 0) nearestValue = ceilToNearest(currentValue, amount);
+    else nearestValue = floorToNearest(currentValue, -1 * amount);
     let newValue;
-    if (currentValue !== nearestValue)
-      newValue = nearestValue;
-    else
-      newValue = currentValue + amount;
+    if (currentValue !== nearestValue) newValue = nearestValue;
+    else newValue = currentValue + amount;
     return newValue = setPref("audio_volume", newValue, !0), SoundShortcut.setGainNodeVolume(newValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: !0 }), newValue;
   }
   static setGainNodeVolume(value) {
@@ -3128,25 +2953,19 @@ class SoundShortcut {
     if (getPref("audio_enable_volume_control") && STATES.currentStream.audioGainNode) {
       const gainValue = STATES.currentStream.audioGainNode.gain.value, settingValue = getPref("audio_volume");
       let targetValue;
-      if (settingValue === 0)
-        targetValue = 100, setPref("audio_volume", targetValue, !0);
-      else if (gainValue === 0)
-        targetValue = settingValue;
-      else
-        targetValue = 0;
+      if (settingValue === 0) targetValue = 100, setPref("audio_volume", targetValue, !0);
+      else if (gainValue === 0) targetValue = settingValue;
+      else targetValue = 0;
       let status;
-      if (targetValue === 0)
-        status = t("muted");
-      else
-        status = targetValue + "%";
+      if (targetValue === 0) status = t("muted");
+      else status = targetValue + "%";
       SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 }), BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
         speakerState: targetValue === 0 ? 1 : 0
       });
       return;
     }
     let $media;
-    if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media)
-      $media = document.querySelector("div[data-testid=media-container] video");
+    if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media) $media = document.querySelector("div[data-testid=media-container] video");
     if ($media) {
       $media.muted = !$media.muted;
       const status = $media.muted ? t("muted") : t("unmuted");
@@ -3231,10 +3050,8 @@ class TouchController {
       const json = await (await NATIVE_FETCH(url)).json(), layouts = {};
       json.layouts.forEach(async (layoutName) => {
         let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts)
-          baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        else
-          try {
+        if (layoutName in TouchController.#baseCustomLayouts) baseLayouts = TouchController.#baseCustomLayouts[layoutName];
+        else try {
             const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
             baseLayouts = (await (await NATIVE_FETCH(layoutUrl)).json()).layouts, TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
           } catch (e) {}
@@ -3247,8 +3064,7 @@ class TouchController {
   static applyCustomLayout(layoutId, delay = 0) {
     if (!window.BX_EXPOSED.touchLayoutManager) {
       const listener = (e) => {
-        if (window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener), TouchController.#enabled)
-          TouchController.applyCustomLayout(layoutId, 0);
+        if (window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener), TouchController.#enabled) TouchController.applyCustomLayout(layoutId, 0);
       };
       window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
       return;
@@ -3258,8 +3074,7 @@ class TouchController {
       BxLogger.error(LOG_TAG2, "Invalid xboxTitleId");
       return;
     }
-    if (!layoutId)
-      layoutId = TouchController.#customLayouts[xboxTitleId]?.default_layout || null;
+    if (!layoutId) layoutId = TouchController.#customLayouts[xboxTitleId]?.default_layout || null;
     if (!layoutId) {
       BxLogger.error(LOG_TAG2, "Invalid layoutId, show default controller"), TouchController.#enabled && TouchController.#showDefault();
       return;
@@ -3277,8 +3092,7 @@ class TouchController {
     if (layout.author) {
       const author = `<b>${escapeHtml(layout.author)}</b>`;
       msg = t("touch-control-layout-by", { name: author }), html = !0;
-    } else
-      msg = t("touch-control-layout");
+    } else msg = t("touch-control-layout");
     layoutChanged && Toast.show(msg, layout.name, { html }), window.setTimeout(() => {
       window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope"), window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
         type: "showLayout",
@@ -3322,16 +3136,11 @@ class TouchController {
       if (!dataChannel || dataChannel.label !== "message") return;
       let filter = "";
       if (TouchController.#enabled) {
-        if (PREF_STYLE_STANDARD === "white")
-          filter = "grayscale(1) brightness(2)";
-        else if (PREF_STYLE_STANDARD === "muted")
-          filter = "sepia(0.5)";
-      } else if (PREF_STYLE_CUSTOM === "muted")
-        filter = "sepia(0.5)";
-      if (filter)
-        $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      else
-        $style.textContent = "";
+        if (PREF_STYLE_STANDARD === "white") filter = "grayscale(1) brightness(2)";
+        else if (PREF_STYLE_STANDARD === "muted") filter = "sepia(0.5)";
+      } else if (PREF_STYLE_CUSTOM === "muted") filter = "sepia(0.5)";
+      if (filter) $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
+      else $style.textContent = "";
       TouchController.#dataChannel = dataChannel, dataChannel.addEventListener("open", () => {
         window.setTimeout(TouchController.#show, 1000);
       });
@@ -3339,18 +3148,14 @@ class TouchController {
       dataChannel.addEventListener("message", (msg) => {
         if (msg.origin === "better-xcloud" || typeof msg.data !== "string") return;
         if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enabled)
-            if (focused)
-              TouchController.requestCustomLayouts();
-            else
-              TouchController.#showDefault();
+          if (TouchController.#enabled) if (focused) TouchController.requestCustomLayouts();
+            else TouchController.#showDefault();
           return;
         }
         try {
           if (msg.data.includes("/titleinfo")) {
             const json = JSON.parse(JSON.parse(msg.data).content);
-            if (focused = json.focused, !json.focused)
-              TouchController.#show();
+            if (focused = json.focused, !json.focused) TouchController.#show();
             TouchController.setXboxTitleId(parseInt(json.titleid, 16).toString());
           }
         } catch (e2) {
@@ -3396,8 +3201,7 @@ class VibrationManager {
     stopVibration && window.navigator.vibrate(0);
     const value = getPref("controller_device_vibration");
     let enabled;
-    if (value === "on")
-      enabled = !0;
+    if (value === "on") enabled = !0;
     else if (value === "auto") {
       enabled = !0;
       const gamepads = window.navigator.getGamepads();
@@ -3406,8 +3210,7 @@ class VibrationManager {
           enabled = !1;
           break;
         }
-    } else
-      enabled = !1;
+    } else enabled = !1;
     window.BX_ENABLE_DEVICE_VIBRATION = enabled;
   }
   static #onMessage(e) {
@@ -3415,20 +3218,16 @@ class VibrationManager {
     if (typeof e !== "object" || !(e.data instanceof ArrayBuffer)) return;
     const dataView = new DataView(e.data);
     let offset = 0, messageType;
-    if (dataView.byteLength === 13)
-      messageType = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
-    else
-      messageType = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
+    if (dataView.byteLength === 13) messageType = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
+    else messageType = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
     if (!(messageType & 128)) return;
     const vibrationType = dataView.getUint8(offset);
     if (offset += Uint8Array.BYTES_PER_ELEMENT, vibrationType !== 0) return;
     const data = {};
     let key;
     for (key in VIBRATION_DATA_MAP)
-      if (VIBRATION_DATA_MAP[key] === 16)
-        data[key] = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
-      else
-        data[key] = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
+      if (VIBRATION_DATA_MAP[key] === 16) data[key] = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
+      else data[key] = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
     VibrationManager.#playDeviceVibration(data);
   }
   static initialSetup() {
@@ -3450,8 +3249,7 @@ class BxSelectElement {
       style: 32
     }), isMultiple = $select.multiple;
     let $checkBox, $label, visibleIndex = $select.selectedIndex, $content;
-    if (isMultiple)
-      $content = CE("button", {
+    if (isMultiple) $content = CE("button", {
         class: "bx-select-value bx-focusable",
         tabindex: 0
       }, $checkBox = CE("input", { type: "checkbox" }), $label = CE("span", {}, "")), $content.addEventListener("click", (e) => {
@@ -3460,27 +3258,21 @@ class BxSelectElement {
         const $option = getOptionAtIndex(visibleIndex);
         $option && ($option.selected = e.target.checked), BxEvent.dispatch($select, "input");
       });
-    else
-      $content = CE("div", {}, $label = CE("label", { for: $select.id + "_checkbox" }, ""));
+    else $content = CE("div", {}, $label = CE("label", { for: $select.id + "_checkbox" }, ""));
     const getOptionAtIndex = (index) => {
       return Array.from($select.querySelectorAll("option"))[index];
     }, render = (e) => {
-      if (e && e.manualTrigger)
-        visibleIndex = $select.selectedIndex;
+      if (e && e.manualTrigger) visibleIndex = $select.selectedIndex;
       visibleIndex = normalizeIndex(visibleIndex);
       const $option = getOptionAtIndex(visibleIndex);
       let content = "";
-      if ($option)
-        if (content = $option.textContent || "", content && $option.parentElement.tagName === "OPTGROUP") {
+      if ($option) if (content = $option.textContent || "", content && $option.parentElement.tagName === "OPTGROUP") {
           $label.innerHTML = "";
           const fragment = document.createDocumentFragment();
           fragment.appendChild(CE("span", {}, $option.parentElement.label)), fragment.appendChild(document.createTextNode(content)), $label.appendChild(fragment);
-        } else
-          $label.textContent = content;
-      else
-        $label.textContent = content;
-      if ($label.classList.toggle("bx-line-through", $option && $option.disabled), isMultiple)
-        $checkBox.checked = $option?.selected || !1, $checkBox.classList.toggle("bx-gone", !content);
+        } else $label.textContent = content;
+      else $label.textContent = content;
+      if ($label.classList.toggle("bx-line-through", $option && $option.disabled), isMultiple) $checkBox.checked = $option?.selected || !1, $checkBox.classList.toggle("bx-gone", !content);
       const disablePrev = visibleIndex <= 0, disableNext = visibleIndex === $select.querySelectorAll("option").length - 1;
       $btnPrev.classList.toggle("bx-inactive", disablePrev), $btnNext.classList.toggle("bx-inactive", disableNext), disablePrev && !disableNext && document.activeElement === $btnPrev && $btnNext.focus(), disableNext && !disablePrev && document.activeElement === $btnNext && $btnPrev.focus();
     }, normalizeIndex = (index) => {
@@ -3489,17 +3281,13 @@ class BxSelectElement {
       if (!e.target) return;
       const goNext = e.target.closest("button") === $btnNext, currentIndex = visibleIndex;
       let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
-      if (newIndex = normalizeIndex(newIndex), visibleIndex = newIndex, !isMultiple && newIndex !== currentIndex)
-        $select.selectedIndex = newIndex;
-      if (isMultiple)
-        render();
-      else
-        BxEvent.dispatch($select, "input");
+      if (newIndex = normalizeIndex(newIndex), visibleIndex = newIndex, !isMultiple && newIndex !== currentIndex) $select.selectedIndex = newIndex;
+      if (isMultiple) render();
+      else BxEvent.dispatch($select, "input");
     };
     $select.addEventListener("input", render), $btnPrev.addEventListener("click", onPrevNext), $btnNext.addEventListener("click", onPrevNext), new MutationObserver((mutationList, observer2) => {
       mutationList.forEach((mutation) => {
-        if (mutation.type === "childList" || mutation.type === "attributes")
-          render();
+        if (mutation.type === "childList" || mutation.type === "attributes") render();
       });
     }).observe($select, {
       subtree: !0,
@@ -3527,10 +3315,8 @@ class BxSelectElement {
     }, $div.dispatchEvent = function() {
       return $select.dispatchEvent.apply($select, arguments);
     }, $div.setValue = (value) => {
-      if ("setValue" in $select)
-        $select.setValue(value);
-      else
-        $select.value = value;
+      if ("setValue" in $select) $select.setValue(value);
+      else $select.value = value;
     }, $div;
   }
 }
@@ -3547,12 +3333,9 @@ var FeatureGates = {
   EnableUpdateRequiredPage: !1,
   ShowForcedUpdateScreen: !1
 };
-if (getPref("ui_home_context_menu_disabled"))
-  FeatureGates.EnableHomeContextMenu = !1;
-if (getPref("block_social_features"))
-  FeatureGates.EnableGuideChatTab = !1;
-if (BX_FLAGS.FeatureGates)
-  FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
+if (getPref("ui_home_context_menu_disabled")) FeatureGates.EnableHomeContextMenu = !1;
+if (getPref("block_social_features")) FeatureGates.EnableGuideChatTab = !1;
+if (BX_FLAGS.FeatureGates) FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
 class PatcherUtils {
   static indexOf(txt, searchString, startIndex, maxRange) {
     const index = txt.indexOf(searchString, startIndex);
@@ -3649,8 +3432,7 @@ var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATC
     const nextIndex = str.indexOf("setTimeout(this.pollGamepads", index);
     if (nextIndex === -1) return !1;
     let codeBlock = str.substring(index, nextIndex);
-    if (getPref("block_tracking"))
-      codeBlock = codeBlock.replaceAll("this.inputPollingIntervalStats.addValue", "");
+    if (getPref("block_tracking")) codeBlock = codeBlock.replaceAll("this.inputPollingIntervalStats.addValue", "");
     const match = codeBlock.match(/this\.gamepadTimestamps\.set\((\w+)\.index/);
     if (match) {
       const gamepadVar = match[1], newCode = renderString(controller_shortcuts_default, {
@@ -3754,10 +3536,8 @@ if (window.BX_EXPOSED.stopTakRendering) {
     let text = "const{TakRenderer:";
     if (!str.includes(text)) return !1;
     let autoOffCode = "";
-    if (getPref("stream_touch_controller") === "off")
-      autoOffCode = "return;";
-    else if (getPref("stream_touch_controller_auto_off"))
-      autoOffCode = `
+    if (getPref("stream_touch_controller") === "off") autoOffCode = "return;";
+    else if (getPref("stream_touch_controller_auto_off")) autoOffCode = `
 const gamepads = window.navigator.getGamepads();
 let gamepadFound = false;
 for (let gamepad of gamepads) {
@@ -3793,8 +3573,7 @@ window.BX_EXPOSED.showStreamMenu = e.onShowStreamMenu;
 // Restore the "..." button
 e.guideUI = null;
 `;
-    if (getPref("stream_touch_controller") === "off")
-      newCode += "e.canShowTakHUD = false;";
+    if (getPref("stream_touch_controller") === "off") newCode += "e.canShowTakHUD = false;";
     return str = str.replace(text, newCode + text), str;
   },
   broadcastPollingMode(str) {
@@ -4073,12 +3852,10 @@ class Patcher {
     Function.prototype.bind = function() {
       let valid = !1;
       if (this.name.length <= 2 && arguments.length === 2 && arguments[0] === null) {
-        if (arguments[1] === 0 || typeof arguments[1] === "function")
-          valid = !0;
+        if (arguments[1] === 0 || typeof arguments[1] === "function") valid = !0;
       }
       if (!valid) return nativeBind.apply(this, arguments);
-      if (PatcherCache.init(), typeof arguments[1] === "function")
-        BxLogger.info(LOG_TAG3, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
+      if (PatcherCache.init(), typeof arguments[1] === "function") BxLogger.info(LOG_TAG3, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
       const orgFunc = this, newFunc = (a, item2) => {
         Patcher.patch(item2), orgFunc(a, item2);
       };
@@ -4091,37 +3868,27 @@ class Patcher {
     for (let id in item[1]) {
       appliedPatches = [];
       const cachedPatches = PatcherCache.getPatches(id);
-      if (cachedPatches)
-        patchesToCheck = cachedPatches.slice(0), patchesToCheck.push(...PATCH_ORDERS);
-      else
-        patchesToCheck = PATCH_ORDERS.slice(0);
-      if (!patchesToCheck.length)
-        continue;
+      if (cachedPatches) patchesToCheck = cachedPatches.slice(0), patchesToCheck.push(...PATCH_ORDERS);
+      else patchesToCheck = PATCH_ORDERS.slice(0);
+      if (!patchesToCheck.length) continue;
       const func = item[1][id], funcStr = func.toString();
       let patchedFuncStr = funcStr, modified = !1;
       for (let patchIndex = 0;patchIndex < patchesToCheck.length; patchIndex++) {
         const patchName = patchesToCheck[patchIndex];
-        if (appliedPatches.indexOf(patchName) > -1)
-          continue;
-        if (!PATCHES[patchName])
-          continue;
+        if (appliedPatches.indexOf(patchName) > -1) continue;
+        if (!PATCHES[patchName]) continue;
         const tmpStr = PATCHES[patchName].call(null, patchedFuncStr);
-        if (!tmpStr)
-          continue;
+        if (!tmpStr) continue;
         modified = !0, patchedFuncStr = tmpStr, BxLogger.info(LOG_TAG3, `✅ ${patchName}`), appliedPatches.push(patchName), patchesToCheck.splice(patchIndex, 1), patchIndex--, PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
       }
-      if (modified)
-        try {
+      if (modified) try {
           item[1][id] = eval(patchedFuncStr);
         } catch (e) {
-          if (e instanceof Error)
-            BxLogger.error(LOG_TAG3, "Error", appliedPatches, e.message, patchedFuncStr);
+          if (e instanceof Error) BxLogger.error(LOG_TAG3, "Error", appliedPatches, e.message, patchedFuncStr);
         }
-      if (appliedPatches.length)
-        patchesMap[id] = appliedPatches;
+      if (appliedPatches.length) patchesMap[id] = appliedPatches;
     }
-    if (Object.keys(patchesMap).length)
-      PatcherCache.saveToCache(patchesMap);
+    if (Object.keys(patchesMap).length) PatcherCache.saveToCache(patchesMap);
   }
   static init() {
     Patcher.#patchFunctionBind();
@@ -4141,10 +3908,8 @@ class PatcherCache {
   }
   static checkSignature() {
     const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0, currentSig = PatcherCache.#getSignature();
-    if (currentSig !== parseInt(storedSig))
-      BxLogger.warning(LOG_TAG3, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
-    else
-      BxLogger.info(LOG_TAG3, "Signature unchanged");
+    if (currentSig !== parseInt(storedSig)) BxLogger.warning(LOG_TAG3, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
+    else BxLogger.info(LOG_TAG3, "Signature unchanged");
   }
   static #cleanupPatches(patches) {
     return patches.filter((item2) => {
@@ -4160,29 +3925,23 @@ class PatcherCache {
     for (let id2 in subCache) {
       const patchNames = subCache[id2];
       let data = PatcherCache.#CACHE[id2];
-      if (!data)
-        PatcherCache.#CACHE[id2] = patchNames;
-      else
-        for (let patchName of patchNames)
-          if (!data.includes(patchName))
-            data.push(patchName);
+      if (!data) PatcherCache.#CACHE[id2] = patchNames;
+      else for (let patchName of patchNames)
+          if (!data.includes(patchName)) data.push(patchName);
     }
     window.localStorage.setItem(PatcherCache.#KEY_CACHE, JSON.stringify(PatcherCache.#CACHE));
   }
   static init() {
     if (PatcherCache.#isInitialized) return;
-    if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG3, PatcherCache.#CACHE), window.location.pathname.includes("/play/"))
-      PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
-    else
-      PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
+    if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG3, PatcherCache.#CACHE), window.location.pathname.includes("/play/")) PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
+    else PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
     PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG3, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG3, PLAYING_PATCH_ORDERS.slice(0));
   }
 }
 class FullscreenText {
   static instance;
   static getInstance() {
-    if (!FullscreenText.instance)
-      FullscreenText.instance = new FullscreenText;
+    if (!FullscreenText.instance) FullscreenText.instance = new FullscreenText;
     return FullscreenText.instance;
   }
   $text;
@@ -4201,8 +3960,7 @@ class FullscreenText {
 class SettingsNavigationDialog extends NavigationDialog {
   static instance;
   static getInstance() {
-    if (!SettingsNavigationDialog.instance)
-      SettingsNavigationDialog.instance = new SettingsNavigationDialog;
+    if (!SettingsNavigationDialog.instance) SettingsNavigationDialog.instance = new SettingsNavigationDialog;
     return SettingsNavigationDialog.instance;
   }
   $container;
@@ -4233,14 +3991,11 @@ class SettingsNavigationDialog extends NavigationDialog {
             label: "🌟 " + t("new-version-available", { version: PREF_LATEST_VERSION }),
             style: 1 | 32 | 64
           };
-          if (AppInterface && AppInterface.updateLatestScript)
-            opts.onClick = (e) => AppInterface.updateLatestScript();
-          else
-            opts.url = "https://github.com/redphx/better-xcloud/releases/latest";
+          if (AppInterface && AppInterface.updateLatestScript) opts.onClick = (e) => AppInterface.updateLatestScript();
+          else opts.url = "https://github.com/redphx/better-xcloud/releases/latest";
           topButtons.push(createButton(opts));
         }
-        if (AppInterface)
-          topButtons.push(createButton({
+        if (AppInterface) topButtons.push(createButton({
             label: t("app-settings"),
             icon: BxIcon.STREAM_SETTINGS,
             style: 64 | 32,
@@ -4248,8 +4003,7 @@ class SettingsNavigationDialog extends NavigationDialog {
               AppInterface.openAppSettings && AppInterface.openAppSettings(), this.hide();
             }
           }));
-        else if (UserAgent.getDefault().toLowerCase().includes("android"))
-          topButtons.push(createButton({
+        else if (UserAgent.getDefault().toLowerCase().includes("android")) topButtons.push(createButton({
             label: "🔥 " + t("install-android"),
             style: 64 | 32,
             url: "https://better-xcloud.github.io/android"
@@ -4529,10 +4283,8 @@ class SettingsNavigationDialog extends NavigationDialog {
             for (let key in customLayouts.layouts) {
               const layout = customLayouts.layouts[key];
               let name;
-              if (layout.author)
-                name = `${layout.name} (${layout.author})`;
-              else
-                name = layout.name;
+              if (layout.author) name = `${layout.name} (${layout.author})`;
+              else name = layout.name;
               const $option = CE("option", { value: key }, name);
               $fragment.appendChild($option);
             }
@@ -4658,11 +4410,9 @@ class SettingsNavigationDialog extends NavigationDialog {
   }
   onMounted() {
     if (!this.renderFullSettings) return;
-    if (onChangeVideoPlayerType(), STATES.userAgent.capabilities.touch)
-      BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
+    if (onChangeVideoPlayerType(), STATES.userAgent.capabilities.touch) BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
     const $selectUserAgent = document.querySelector(`#bx_setting_${"user_agent_profile"}`);
-    if ($selectUserAgent)
-      $selectUserAgent.disabled = !0, BxEvent.dispatch($selectUserAgent, "input", {}), $selectUserAgent.disabled = !1;
+    if ($selectUserAgent) $selectUserAgent.disabled = !0, BxEvent.dispatch($selectUserAgent, "input", {}), $selectUserAgent.disabled = !1;
   }
   reloadPage() {
     this.$btnGlobalReload.disabled = !0, this.$btnGlobalReload.firstElementChild.textContent = t("settings-reloading"), this.hide(), FullscreenText.getInstance().show(t("settings-reloading")), window.location.reload();
@@ -4688,18 +4438,15 @@ class SettingsNavigationDialog extends NavigationDialog {
   addDefaultSuggestedSetting(prefKey, value) {
     let key;
     for (key in this.suggestedSettings)
-      if (key !== "default" && !(prefKey in this.suggestedSettings))
-        this.suggestedSettings[key][prefKey] = value;
+      if (key !== "default" && !(prefKey in this.suggestedSettings)) this.suggestedSettings[key][prefKey] = value;
   }
   generateDefaultSuggestedSettings() {
     let key;
     for (key in this.suggestedSettings) {
-      if (key === "default")
-        continue;
+      if (key === "default") continue;
       let prefKey;
       for (prefKey in this.suggestedSettings[key])
-        if (!(prefKey in this.suggestedSettings.default))
-          this.suggestedSettings.default[prefKey] = getPrefDefinition(prefKey).default;
+        if (!(prefKey in this.suggestedSettings.default)) this.suggestedSettings.default[prefKey] = getPrefDefinition(prefKey).default;
     }
   }
   async renderSuggestions(e) {
@@ -4711,19 +4458,14 @@ class SettingsNavigationDialog extends NavigationDialog {
       return;
     }
     for (let settingTab of this.SETTINGS_UI) {
-      if (!settingTab || !settingTab.items)
-        continue;
+      if (!settingTab || !settingTab.items) continue;
       for (let settingTabContent of settingTab.items) {
-        if (!settingTabContent || !settingTabContent.items)
-          continue;
+        if (!settingTabContent || !settingTabContent.items) continue;
         for (let setting of settingTabContent.items) {
           let prefKey;
-          if (typeof setting === "string")
-            prefKey = setting;
-          else if (typeof setting === "object")
-            prefKey = setting.pref;
-          if (prefKey)
-            this.suggestedSettingLabels[prefKey] = settingTabContent.label;
+          if (typeof setting === "string") prefKey = setting;
+          else if (typeof setting === "object") prefKey = setting.pref;
+          if (prefKey) this.suggestedSettingLabels[prefKey] = settingTabContent.label;
         }
       }
     }
@@ -4735,12 +4477,9 @@ class SettingsNavigationDialog extends NavigationDialog {
       }
     }
     const hasRecommendedSettings = Object.keys(this.suggestedSettings.recommended).length > 0, deviceType = BX_FLAGS.DeviceInfo.deviceType;
-    if (deviceType === "android-handheld")
-      this.addDefaultSuggestedSetting("stream_touch_controller", "off"), this.addDefaultSuggestedSetting("controller_device_vibration", "on");
-    else if (deviceType === "android")
-      this.addDefaultSuggestedSetting("controller_device_vibration", "auto");
-    else if (deviceType === "android-tv")
-      this.addDefaultSuggestedSetting("stream_touch_controller", "off");
+    if (deviceType === "android-handheld") this.addDefaultSuggestedSetting("stream_touch_controller", "off"), this.addDefaultSuggestedSetting("controller_device_vibration", "on");
+    else if (deviceType === "android") this.addDefaultSuggestedSetting("controller_device_vibration", "auto");
+    else if (deviceType === "android-tv") this.addDefaultSuggestedSetting("stream_touch_controller", "off");
     this.generateDefaultSuggestedSettings();
     const $suggestedSettings = CE("div", { class: "bx-suggest-wrapper" }), $select = CE("select", {}, hasRecommendedSettings && CE("option", { value: "recommended" }, t("recommended")), !hasRecommendedSettings && CE("option", { value: "highest" }, t("highest-quality")), CE("option", { value: "default" }, t("default")), CE("option", { value: "lowest" }, t("lowest-quality")));
     $select.addEventListener("input", (e2) => {
@@ -4748,18 +4487,15 @@ class SettingsNavigationDialog extends NavigationDialog {
       removeChildElements($suggestedSettings);
       const fragment = document.createDocumentFragment();
       let note;
-      if (profile === "recommended")
-        note = t("recommended-settings-for-device", { device: recommendedDevice });
-      else if (profile === "highest")
-        note = "⚠️ " + t("highest-quality-note");
+      if (profile === "recommended") note = t("recommended-settings-for-device", { device: recommendedDevice });
+      else if (profile === "highest") note = "⚠️ " + t("highest-quality-note");
       note && fragment.appendChild(CE("div", { class: "bx-suggest-note" }, note));
       const settings = this.suggestedSettings[profile];
       let prefKey;
       for (prefKey in settings) {
         const currentValue = getPref(prefKey, !1), suggestedValue = settings[prefKey], currentValueText = STORAGE.Global.getValueText(prefKey, currentValue), isSameValue = currentValue === suggestedValue;
         let $child, $value;
-        if (isSameValue)
-          $value = currentValueText;
+        if (isSameValue) $value = currentValueText;
         else {
           const suggestedValueText = STORAGE.Global.getValueText(prefKey, suggestedValue);
           $value = currentValueText + " ➔ " + suggestedValueText;
@@ -4790,17 +4526,14 @@ class SettingsNavigationDialog extends NavigationDialog {
       let prefKey;
       for (prefKey in settings) {
         const suggestedValue = settings[prefKey], $checkBox = $content.querySelector(`#bx_suggest_${prefKey}`);
-        if (!$checkBox.checked || $checkBox.disabled)
-          continue;
+        if (!$checkBox.checked || $checkBox.disabled) continue;
         const $control = this.settingElements[prefKey];
         if (!$control) {
           setPref(prefKey, suggestedValue);
           continue;
         }
-        if ("setValue" in $control)
-          $control.setValue(suggestedValue);
-        else
-          $control.value = suggestedValue;
+        if ("setValue" in $control) $control.setValue(suggestedValue);
+        else $control.value = suggestedValue;
         BxEvent.dispatch($control, "input", {
           manualTrigger: !0
         });
@@ -4832,10 +4565,8 @@ class SettingsNavigationDialog extends NavigationDialog {
     const $svg = createSvgIcon(settingTab.icon);
     return $svg.dataset.group = settingTab.group, $svg.tabIndex = 0, $svg.addEventListener("click", (e) => {
       for (let $child of Array.from(this.$settings.children))
-        if ($child.getAttribute("data-tab-group") === settingTab.group)
-          $child.classList.remove("bx-gone");
-        else
-          $child.classList.add("bx-gone");
+        if ($child.getAttribute("data-tab-group") === settingTab.group) $child.classList.remove("bx-gone");
+        else $child.classList.add("bx-gone");
       for (let $child of Array.from(this.$tabs.children))
         $child.classList.remove("bx-active");
       $svg.classList.add("bx-active");
@@ -4858,8 +4589,7 @@ class SettingsNavigationDialog extends NavigationDialog {
       const region = STATES.serverRegions[regionName];
       let value = regionName, label = `${region.shortName} - ${regionName}`;
       if (region.isDefault) {
-        if (label += ` (${t("default")})`, value = "default", selectedValue === regionName)
-          selectedValue = "default";
+        if (label += ` (${t("default")})`, value = "default", selectedValue === regionName) selectedValue = "default";
       }
       setting.options[value] = label;
     }
@@ -4870,34 +4600,26 @@ class SettingsNavigationDialog extends NavigationDialog {
     return $control.disabled = Object.keys(STATES.serverRegions).length === 0, $control.value = selectedValue, $control;
   }
   renderSettingRow(settingTab, $tabContent, settingTabContent, setting) {
-    if (typeof setting === "string")
-      setting = {
+    if (typeof setting === "string") setting = {
         pref: setting
       };
     const pref = setting.pref;
     let $control;
-    if (setting.content)
-      if (typeof setting.content === "function")
-        $control = setting.content.apply(this);
-      else
-        $control = setting.content;
+    if (setting.content) if (typeof setting.content === "function") $control = setting.content.apply(this);
+      else $control = setting.content;
     else if (!setting.unsupported) {
-      if (pref === "server_region")
-        $control = this.renderServerSetting(setting);
-      else if (pref === "bx_locale")
-        $control = SettingElement.fromPref(pref, STORAGE.Global, async (e) => {
+      if (pref === "server_region") $control = this.renderServerSetting(setting);
+      else if (pref === "bx_locale") $control = SettingElement.fromPref(pref, STORAGE.Global, async (e) => {
           const newLocale = e.target.value;
           if (getPref("ui_controller_friendly")) {
             let timeoutId = e.target.timeoutId;
             timeoutId && window.clearTimeout(timeoutId), e.target.timeoutId = window.setTimeout(() => {
               Translations.refreshLocale(newLocale), Translations.updateTranslations();
             }, 500);
-          } else
-            Translations.refreshLocale(newLocale), Translations.updateTranslations();
+          } else Translations.refreshLocale(newLocale), Translations.updateTranslations();
           this.onGlobalSettingChanged(e);
         });
-      else if (pref === "user_agent_profile")
-        $control = SettingElement.fromPref("user_agent_profile", STORAGE.Global, (e) => {
+      else if (pref === "user_agent_profile") $control = SettingElement.fromPref("user_agent_profile", STORAGE.Global, (e) => {
           const value = e.target.value;
           let isCustom = value === "custom", userAgent2 = UserAgent.get(value);
           UserAgent.updateStorage(value);
@@ -4906,28 +4628,21 @@ class SettingsNavigationDialog extends NavigationDialog {
         });
       else {
         let onChange = setting.onChange;
-        if (!onChange && settingTab.group === "global")
-          onChange = this.onGlobalSettingChanged.bind(this);
+        if (!onChange && settingTab.group === "global") onChange = this.onGlobalSettingChanged.bind(this);
         $control = SettingElement.fromPref(pref, STORAGE.Global, onChange, setting.params);
       }
-      if ($control instanceof HTMLSelectElement && getPref("ui_controller_friendly"))
-        $control = BxSelectElement.wrap($control);
+      if ($control instanceof HTMLSelectElement && getPref("ui_controller_friendly")) $control = BxSelectElement.wrap($control);
       pref && (this.settingElements[pref] = $control);
     }
     let prefDefinition = null;
-    if (pref)
-      prefDefinition = getPrefDefinition(pref);
+    if (pref) prefDefinition = getPrefDefinition(pref);
     let label = prefDefinition?.label || setting.label, note = prefDefinition?.note || setting.note;
     const experimental = prefDefinition?.experimental || setting.experimental;
     if (settingTabContent.label && setting.pref) {
-      if (prefDefinition?.suggest)
-        typeof prefDefinition.suggest.lowest !== "undefined" && (this.suggestedSettings.lowest[setting.pref] = prefDefinition.suggest.lowest), typeof prefDefinition.suggest.highest !== "undefined" && (this.suggestedSettings.highest[setting.pref] = prefDefinition.suggest.highest);
+      if (prefDefinition?.suggest) typeof prefDefinition.suggest.lowest !== "undefined" && (this.suggestedSettings.lowest[setting.pref] = prefDefinition.suggest.lowest), typeof prefDefinition.suggest.highest !== "undefined" && (this.suggestedSettings.highest[setting.pref] = prefDefinition.suggest.highest);
     }
-    if (experimental)
-      if (label = "🧪 " + label, !note)
-        note = t("experimental");
-      else
-        note = `${t("experimental")}: ${note}`;
+    if (experimental) if (label = "🧪 " + label, !note) note = t("experimental");
+      else note = `${t("experimental")}: ${note}`;
     let $label;
     const $row = CE("label", {
       class: "bx-settings-row",
@@ -4937,8 +4652,7 @@ class SettingsNavigationDialog extends NavigationDialog {
         orientation: "horizontal"
       }
     }, $label = CE("span", { class: "bx-settings-label" }, label, note && CE("div", { class: "bx-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control), $link = $label.querySelector("a");
-    if ($link)
-      $link.classList.add("bx-focusable"), setNearby($label, {
+    if ($link) $link.classList.add("bx-focusable"), setNearby($label, {
         focus: $link
       });
     $tabContent.appendChild($row), setting.onCreated && setting.onCreated(setting, $control);
@@ -4991,14 +4705,11 @@ class SettingsNavigationDialog extends NavigationDialog {
       }
     }));
     this.$container = $container, this.$tabs = $tabs, this.$settings = $settings, $container.addEventListener("click", (e) => {
-      if (e.target === $container)
-        e.preventDefault(), e.stopPropagation(), this.hide();
+      if (e.target === $container) e.preventDefault(), e.stopPropagation(), this.hide();
     });
     for (let settingTab of this.SETTINGS_UI) {
-      if (!settingTab)
-        continue;
-      if (settingTab.group !== "global" && !this.renderFullSettings)
-        continue;
+      if (!settingTab) continue;
+      if (settingTab.group !== "global" && !this.renderFullSettings) continue;
       const $svg = this.renderTab(settingTab);
       $tabs.appendChild($svg);
       const $tabContent = CE("div", {
@@ -5006,13 +4717,10 @@ class SettingsNavigationDialog extends NavigationDialog {
         "data-tab-group": settingTab.group
       });
       for (let settingTabContent of settingTab.items) {
-        if (settingTabContent === !1)
-          continue;
-        if (!this.renderFullSettings && settingTab.group === "global" && settingTabContent.group !== "general" && settingTabContent.group !== "footer")
-          continue;
+        if (settingTabContent === !1) continue;
+        if (!this.renderFullSettings && settingTab.group === "global" && settingTabContent.group !== "general" && settingTabContent.group !== "footer") continue;
         let label = settingTabContent.label;
-        if (label === t("better-xcloud"))
-          label += " " + SCRIPT_VERSION, label = createButton({
+        if (label === t("better-xcloud")) label += " " + SCRIPT_VERSION, label = createButton({
             label,
             url: "https://github.com/redphx/better-xcloud/releases",
             style: 1024 | 8 | 32
@@ -5032,22 +4740,18 @@ class SettingsNavigationDialog extends NavigationDialog {
         }
         if (settingTabContent.note) {
           let $note;
-          if (typeof settingTabContent.note === "string")
-            $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.note);
-          else
-            $note = settingTabContent.note;
+          if (typeof settingTabContent.note === "string") $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.note);
+          else $note = settingTabContent.note;
           $tabContent.appendChild($note);
         }
-        if (settingTabContent.unsupported)
-          continue;
+        if (settingTabContent.unsupported) continue;
         if (settingTabContent.content) {
           $tabContent.appendChild(settingTabContent.content);
           continue;
         }
         settingTabContent.items = settingTabContent.items || [];
         for (let setting of settingTabContent.items) {
-          if (setting === !1)
-            continue;
+          if (setting === !1) continue;
           if (typeof setting === "function") {
             setting.apply(this, [$tabContent]);
             continue;
@@ -5073,11 +4777,9 @@ class SettingsNavigationDialog extends NavigationDialog {
   focusVisibleSetting(type = "first") {
     const controls = Array.from(this.$settings.querySelectorAll("div[data-tab-group]:not(.bx-gone) > *"));
     if (!controls.length) return !1;
-    if (type === "last")
-      controls.reverse();
+    if (type === "last") controls.reverse();
     for (let $control of controls) {
-      if (!($control instanceof HTMLElement))
-        continue;
+      if (!($control instanceof HTMLElement)) continue;
       const $focusable = this.dialogManager.findFocusableElement($control);
       if ($focusable) {
         if (this.dialogManager.focus($focusable)) return !0;
@@ -5088,8 +4790,7 @@ class SettingsNavigationDialog extends NavigationDialog {
   focusVisibleTab(type = "first") {
     const tabs = Array.from(this.$tabs.querySelectorAll("svg:not(.bx-gone)"));
     if (!tabs.length) return !1;
-    if (type === "last")
-      tabs.reverse();
+    if (type === "last") tabs.reverse();
     for (let $tab of tabs)
       if (this.dialogManager.focus($tab)) return !0;
     return !1;
@@ -5099,26 +4800,22 @@ class SettingsNavigationDialog extends NavigationDialog {
     if (!$tabContent) return !1;
     let $header;
     const $focusing = document.activeElement;
-    if (!$focusing || !$tabContent.contains($focusing))
-      $header = $tabContent.querySelector("h2");
+    if (!$focusing || !$tabContent.contains($focusing)) $header = $tabContent.querySelector("h2");
     else {
       const $parent = $focusing.closest("[data-tab-group] > *"), siblingProperty = direction === "next" ? "nextSibling" : "previousSibling";
       let $tmp = $parent, times = 0;
       while (!0) {
-        if (!$tmp)
-          break;
+        if (!$tmp) break;
         if ($tmp.tagName === "H2") {
           if ($header = $tmp, !$tmp.nextElementSibling?.classList.contains("bx-note-unsupported")) {
-            if (++times, direction === "next" || times >= 2)
-              break;
+            if (++times, direction === "next" || times >= 2) break;
           }
         }
         $tmp = $tmp[siblingProperty];
       }
     }
     let $target;
-    if ($header)
-      $target = this.dialogManager.findNextTarget($header, 3, !1);
+    if ($header) $target = this.dialogManager.findNextTarget($header, 3, !1);
     if ($target) return this.dialogManager.focus($target);
     return !1;
   }
@@ -5221,16 +4918,14 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
       vertical: e.deltaY,
       horizontal: e.deltaX
     };
-    if (this.mkbHandler.handleMouseWheel(data))
-      e.preventDefault();
+    if (this.mkbHandler.handleMouseWheel(data)) e.preventDefault();
   };
   #disableContextMenu = (e) => e.preventDefault();
 }
 class EmulatedMkbHandler extends MkbHandler {
   static #instance;
   static getInstance() {
-    if (!EmulatedMkbHandler.#instance)
-      EmulatedMkbHandler.#instance = new EmulatedMkbHandler;
+    if (!EmulatedMkbHandler.#instance) EmulatedMkbHandler.#instance = new EmulatedMkbHandler;
     return EmulatedMkbHandler.#instance;
   }
   #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
@@ -5300,34 +4995,26 @@ class EmulatedMkbHandler extends MkbHandler {
       let [valueArr, axisIndex] = this.#STICK_MAP[buttonIndex];
       valueArr = valueArr, axisIndex = axisIndex;
       for (let i = valueArr.length - 1;i >= 0; i--)
-        if (valueArr[i] === buttonIndex)
-          valueArr.splice(i, 1);
+        if (valueArr[i] === buttonIndex) valueArr.splice(i, 1);
       pressed && valueArr.push(buttonIndex);
       let value;
-      if (valueArr.length)
-        value = this.#STICK_MAP[valueArr[valueArr.length - 1]][2];
-      else
-        value = 0;
+      if (valueArr.length) value = this.#STICK_MAP[valueArr[valueArr.length - 1]][2];
+      else value = 0;
       virtualGamepad.axes[axisIndex] = value;
-    } else
-      virtualGamepad.buttons[buttonIndex].pressed = pressed, virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
+    } else virtualGamepad.buttons[buttonIndex].pressed = pressed, virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
     virtualGamepad.timestamp = performance.now();
   };
   #onKeyboardEvent = (e) => {
     const isKeyDown = e.type === "keydown";
     if (e.code === "F8") {
-      if (!isKeyDown)
-        e.preventDefault(), this.toggle();
+      if (!isKeyDown) e.preventDefault(), this.toggle();
       return;
     }
     if (e.code === "Escape") {
       if (e.preventDefault(), this.#enabled && isKeyDown) {
-        if (this.#escKeyDownTime === -1)
-          this.#escKeyDownTime = performance.now();
-        else if (performance.now() - this.#escKeyDownTime >= 1000)
-          this.stop();
-      } else
-        this.#escKeyDownTime = -1;
+        if (this.#escKeyDownTime === -1) this.#escKeyDownTime = performance.now();
+        else if (performance.now() - this.#escKeyDownTime >= 1000) this.stop();
+      } else this.#escKeyDownTime = -1;
       return;
     }
     if (!this.#isPolling) return;
@@ -5343,10 +5030,8 @@ class EmulatedMkbHandler extends MkbHandler {
   };
   handleMouseClick = (data) => {
     let mouseButton;
-    if (typeof data.mouseButton !== "undefined")
-      mouseButton = data.mouseButton;
-    else if (typeof data.pointerButton !== "undefined")
-      mouseButton = PointerToMouseButton[data.pointerButton];
+    if (typeof data.mouseButton !== "undefined") mouseButton = data.mouseButton;
+    else if (typeof data.pointerButton !== "undefined") mouseButton = PointerToMouseButton[data.pointerButton];
     const keyCode = "Mouse" + mouseButton, key = {
       code: keyCode,
       name: KeyHelper.codeToKeyName(keyCode)
@@ -5362,44 +5047,33 @@ class EmulatedMkbHandler extends MkbHandler {
     this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout), this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 50);
     const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse["deadzone_counterweight"];
     let x = data.movementX * this.#CURRENT_PRESET_DATA.mouse["sensitivity_x"], y = data.movementY * this.#CURRENT_PRESET_DATA.mouse["sensitivity_y"], length = this.#vectorLength(x, y);
-    if (length !== 0 && length < deadzoneCounterweight)
-      x *= deadzoneCounterweight / length, y *= deadzoneCounterweight / length;
-    else if (length > EmulatedMkbHandler.MAXIMUM_STICK_RANGE)
-      x *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length, y *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length;
+    if (length !== 0 && length < deadzoneCounterweight) x *= deadzoneCounterweight / length, y *= deadzoneCounterweight / length;
+    else if (length > EmulatedMkbHandler.MAXIMUM_STICK_RANGE) x *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length, y *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length;
     const analog = mouseMapTo === 1 ? 0 : 1;
     this.#updateStick(analog, x, y);
   };
   handleMouseWheel = (data) => {
     let code = "";
-    if (data.vertical < 0)
-      code = "ScrollUp";
-    else if (data.vertical > 0)
-      code = "ScrollDown";
-    else if (data.horizontal < 0)
-      code = "ScrollLeft";
-    else if (data.horizontal > 0)
-      code = "ScrollRight";
+    if (data.vertical < 0) code = "ScrollUp";
+    else if (data.vertical > 0) code = "ScrollDown";
+    else if (data.horizontal < 0) code = "ScrollLeft";
+    else if (data.horizontal > 0) code = "ScrollRight";
     if (!code) return !1;
     const key = {
       code,
       name: KeyHelper.codeToKeyName(code)
     }, buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
     if (typeof buttonIndex === "undefined") return !1;
-    if (this.#prevWheelCode === null || this.#prevWheelCode === key.code)
-      this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout), this.#pressButton(buttonIndex, !0);
+    if (this.#prevWheelCode === null || this.#prevWheelCode === key.code) this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout), this.#pressButton(buttonIndex, !0);
     return this.#wheelStoppedTimeout = window.setTimeout(() => {
       this.#prevWheelCode = null, this.#pressButton(buttonIndex, !1);
     }, 20), !0;
   };
   toggle = (force) => {
-    if (typeof force !== "undefined")
-      this.#enabled = force;
-    else
-      this.#enabled = !this.#enabled;
-    if (this.#enabled)
-      document.body.requestPointerLock();
-    else
-      document.pointerLockElement && document.exitPointerLock();
+    if (typeof force !== "undefined") this.#enabled = force;
+    else this.#enabled = !this.#enabled;
+    if (this.#enabled) document.body.requestPointerLock();
+    else document.pointerLockElement && document.exitPointerLock();
   };
   #getCurrentPreset = () => {
     return new Promise((resolve) => {
@@ -5419,17 +5093,14 @@ class EmulatedMkbHandler extends MkbHandler {
   };
   #onPollingModeChanged = (e) => {
     if (!this.#$message) return;
-    if (e.mode === "none")
-      this.#$message.classList.remove("bx-offscreen");
-    else
-      this.#$message.classList.add("bx-offscreen");
+    if (e.mode === "none") this.#$message.classList.remove("bx-offscreen");
+    else this.#$message.classList.add("bx-offscreen");
   };
   #onDialogShown = () => {
     document.pointerLockElement && document.exitPointerLock();
   };
   #initMessage = () => {
-    if (!this.#$message)
-      this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("virtual-controller")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "virtual" }, createButton({
+    if (!this.#$message) this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("virtual-controller")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "virtual" }, createButton({
         style: 1 | 256 | 64,
         label: t("activate"),
         onClick: ((e) => {
@@ -5449,14 +5120,11 @@ class EmulatedMkbHandler extends MkbHandler {
           dialog.focusTab("mkb"), NavigationDialogManager.getInstance().show(dialog);
         }
       }))));
-    if (!this.#$message.isConnected)
-      document.documentElement.appendChild(this.#$message);
+    if (!this.#$message.isConnected) document.documentElement.appendChild(this.#$message);
   };
   #onPointerLockChange = () => {
-    if (document.pointerLockElement)
-      this.start();
-    else
-      this.stop();
+    if (document.pointerLockElement) this.start();
+    else this.stop();
   };
   #onPointerLockError = (e) => {
     console.log(e), this.stop();
@@ -5478,29 +5146,20 @@ class EmulatedMkbHandler extends MkbHandler {
     }
   }
   init = () => {
-    if (this.refreshPresetData(), this.#enabled = !1, AppInterface)
-      this.#mouseDataProvider = new WebSocketMouseDataProvider(this);
-    else
-      this.#mouseDataProvider = new PointerLockMouseDataProvider(this);
-    if (this.#mouseDataProvider.init(), window.addEventListener("keydown", this.#onKeyboardEvent), window.addEventListener("keyup", this.#onKeyboardEvent), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), AppInterface)
-      window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    else
-      document.addEventListener("pointerlockchange", this.#onPointerLockChange), document.addEventListener("pointerlockerror", this.#onPointerLockError);
-    if (this.#initMessage(), this.#$message?.classList.add("bx-gone"), AppInterface)
-      Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("virtual-controller"), { html: !0 }), this.waitForMouseData(!1);
-    else
-      this.waitForMouseData(!0);
+    if (this.refreshPresetData(), this.#enabled = !1, AppInterface) this.#mouseDataProvider = new WebSocketMouseDataProvider(this);
+    else this.#mouseDataProvider = new PointerLockMouseDataProvider(this);
+    if (this.#mouseDataProvider.init(), window.addEventListener("keydown", this.#onKeyboardEvent), window.addEventListener("keyup", this.#onKeyboardEvent), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), AppInterface) window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    else document.addEventListener("pointerlockchange", this.#onPointerLockChange), document.addEventListener("pointerlockerror", this.#onPointerLockError);
+    if (this.#initMessage(), this.#$message?.classList.add("bx-gone"), AppInterface) Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("virtual-controller"), { html: !0 }), this.waitForMouseData(!1);
+    else this.waitForMouseData(!0);
   };
   destroy = () => {
-    if (this.#isPolling = !1, this.#enabled = !1, this.stop(), this.waitForMouseData(!1), document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("keydown", this.#onKeyboardEvent), window.removeEventListener("keyup", this.#onKeyboardEvent), AppInterface)
-      window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    else
-      document.removeEventListener("pointerlockchange", this.#onPointerLockChange), document.removeEventListener("pointerlockerror", this.#onPointerLockError);
+    if (this.#isPolling = !1, this.#enabled = !1, this.stop(), this.waitForMouseData(!1), document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("keydown", this.#onKeyboardEvent), window.removeEventListener("keyup", this.#onKeyboardEvent), AppInterface) window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    else document.removeEventListener("pointerlockchange", this.#onPointerLockChange), document.removeEventListener("pointerlockerror", this.#onPointerLockError);
     window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), this.#mouseDataProvider?.destroy(), window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
   };
   start = () => {
-    if (!this.#enabled)
-      this.#enabled = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
+    if (!this.#enabled) this.#enabled = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
     this.#isPolling = !0, this.#escKeyDownTime = -1, this.#resetGamepad(), window.navigator.getGamepads = this.#patchedGetGamepads, this.waitForMouseData(!1), this.#mouseDataProvider?.start();
     const virtualGamepad = this.#getVirtualGamepad();
     virtualGamepad.connected = !0, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepadconnected", {
@@ -5510,8 +5169,7 @@ class EmulatedMkbHandler extends MkbHandler {
   stop = () => {
     this.#enabled = !1, this.#isPolling = !1, this.#escKeyDownTime = -1;
     const virtualGamepad = this.#getVirtualGamepad();
-    if (virtualGamepad.connected)
-      this.#resetGamepad(), virtualGamepad.connected = !1, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepaddisconnected", {
+    if (virtualGamepad.connected) this.#resetGamepad(), virtualGamepad.connected = !1, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepaddisconnected", {
         gamepad: virtualGamepad
       }), window.navigator.getGamepads = this.#nativeGetGamepads;
     this.waitForMouseData(!0), this.#mouseDataProvider?.stop();
@@ -5519,10 +5177,8 @@ class EmulatedMkbHandler extends MkbHandler {
   static setupEvents() {
     window.addEventListener(BxEvent.STREAM_PLAYING, () => {
       if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-        if (AppInterface && getPref("native_mkb_enabled") === "on")
-          AppInterface && NativeMkbHandler.getInstance().init();
-      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile()))
-        BxLogger.info(LOG_TAG4, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
+        if (AppInterface && getPref("native_mkb_enabled") === "on") AppInterface && NativeMkbHandler.getInstance().init();
+      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG4, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
     });
   }
 }
@@ -5555,8 +5211,7 @@ class ControllerShortcut {
     ControllerShortcut.#buttonsCache[index] = [], ControllerShortcut.#buttonsStatus[index] = [];
   }
   static handle(gamepad) {
-    if (!ControllerShortcut.#ACTIONS)
-      ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
+    if (!ControllerShortcut.#ACTIONS) ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
     const gamepadIndex = gamepad.index, actions = ControllerShortcut.#ACTIONS[gamepad.id];
     if (!actions) return !1;
     ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0), ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
@@ -5564,8 +5219,7 @@ class ControllerShortcut {
     let otherButtonPressed = !1;
     return gamepad.buttons.forEach((button, index) => {
       if (button.pressed && index !== 16) {
-        if (otherButtonPressed = !0, pressed[index] = !0, actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index])
-          setTimeout(() => ControllerShortcut.#runAction(actions[index]), 0);
+        if (otherButtonPressed = !0, pressed[index] = !0, actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) setTimeout(() => ControllerShortcut.#runAction(actions[index]), 0);
       }
     }), ControllerShortcut.#buttonsStatus[gamepadIndex] = pressed, otherButtonPressed;
   }
@@ -5606,10 +5260,8 @@ class ControllerShortcut {
   }
   static #updateAction(profile, button, action) {
     const actions = ControllerShortcut.#ACTIONS;
-    if (!(profile in actions))
-      actions[profile] = [];
-    if (!action)
-      action = null;
+    if (!(profile in actions)) actions[profile] = [];
+    if (!action) action = null;
     actions[profile][button] = action;
     for (let key in ControllerShortcut.#ACTIONS) {
       let empty = !0;
@@ -5618,8 +5270,7 @@ class ControllerShortcut {
           empty = !1;
           break;
         }
-      if (empty)
-        delete ControllerShortcut.#ACTIONS[key];
+      if (empty) delete ControllerShortcut.#ACTIONS[key];
     }
     window.localStorage.setItem(ControllerShortcut.#STORAGE_KEY, JSON.stringify(ControllerShortcut.#ACTIONS)), console.log(ControllerShortcut.#ACTIONS);
   }
@@ -5629,21 +5280,17 @@ class ControllerShortcut {
     const gamepads = navigator.getGamepads();
     let hasGamepad = !1;
     for (let gamepad of gamepads) {
-      if (!gamepad || !gamepad.connected)
-        continue;
-      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
-        continue;
+      if (!gamepad || !gamepad.connected) continue;
+      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) continue;
       hasGamepad = !0;
       const $option = CE("option", { value: gamepad.id }, gamepad.id);
       $fragment.appendChild($option);
     }
-    if ($container.dataset.hasGamepad = hasGamepad.toString(), hasGamepad)
-      $select.appendChild($fragment), $select.selectedIndex = 0, $select.dispatchEvent(new Event("input"));
+    if ($container.dataset.hasGamepad = hasGamepad.toString(), hasGamepad) $select.appendChild($fragment), $select.selectedIndex = 0, $select.dispatchEvent(new Event("input"));
   }
   static #switchProfile(profile) {
     let actions = ControllerShortcut.#ACTIONS[profile];
-    if (!actions)
-      actions = [];
+    if (!actions) actions = [];
     let button;
     for (button in ControllerShortcut.#$selectActions) {
       const $select = ControllerShortcut.#$selectActions[button];
@@ -5684,15 +5331,12 @@ class ControllerShortcut {
     }, $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
     for (let groupLabel in actions) {
       const items = actions[groupLabel];
-      if (!items)
-        continue;
+      if (!items) continue;
       const $optGroup = CE("optgroup", { label: groupLabel });
       for (let action in items) {
         let label = items[action];
-        if (!label)
-          continue;
-        if (Array.isArray(label))
-          label = label.join(" ❯ ");
+        if (!label) continue;
+        if (Array.isArray(label)) label = label.join(" ❯ ");
         const $option = CE("option", { value: action }, label);
         $optGroup.appendChild($option);
       }
@@ -5739,8 +5383,7 @@ class ControllerShortcut {
         $div.appendChild($bxSelect), setNearby($row, {
           focus: $bxSelect
         });
-      } else
-        $div.appendChild($select), setNearby($row, {
+      } else $div.appendChild($select), setNearby($row, {
           focus: $select
         });
       $row.appendChild($label), $row.appendChild($div), $remap.appendChild($row);
@@ -5753,10 +5396,8 @@ var BxExposed = {
   modifyTitleInfo: (titleInfo) => {
     titleInfo = deepClone(titleInfo);
     let supportedInputTypes = titleInfo.details.supportedInputTypes;
-    if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId))
-      supportedInputTypes.push("MKB");
-    if (getPref("native_mkb_enabled") === "off")
-      supportedInputTypes = supportedInputTypes.filter((i) => i !== "MKB");
+    if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId)) supportedInputTypes.push("MKB");
+    if (getPref("native_mkb_enabled") === "off") supportedInputTypes = supportedInputTypes.filter((i) => i !== "MKB");
     if (titleInfo.details.hasMkbSupport = supportedInputTypes.includes("MKB"), STATES.userAgent.capabilities.touch) {
       let touchControllerAvailability = getPref("stream_touch_controller");
       if (touchControllerAvailability !== "off" && getPref("stream_touch_controller_auto_off")) {
@@ -5769,20 +5410,16 @@ var BxExposed = {
           }
         gamepadFound && (touchControllerAvailability = "off");
       }
-      if (touchControllerAvailability === "off")
-        supportedInputTypes = supportedInputTypes.filter((i) => i !== "CustomTouchOverlay" && i !== "GenericTouch"), titleInfo.details.supportedTabs = [];
-      if (titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes("NativeTouch"), titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport || supportedInputTypes.includes("CustomTouchOverlay") || supportedInputTypes.includes("GenericTouch"), !titleInfo.details.hasTouchSupport && touchControllerAvailability === "all")
-        titleInfo.details.hasFakeTouchSupport = !0, supportedInputTypes.push("GenericTouch");
+      if (touchControllerAvailability === "off") supportedInputTypes = supportedInputTypes.filter((i) => i !== "CustomTouchOverlay" && i !== "GenericTouch"), titleInfo.details.supportedTabs = [];
+      if (titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes("NativeTouch"), titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport || supportedInputTypes.includes("CustomTouchOverlay") || supportedInputTypes.includes("GenericTouch"), !titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") titleInfo.details.hasFakeTouchSupport = !0, supportedInputTypes.push("GenericTouch");
     }
     return titleInfo.details.supportedInputTypes = supportedInputTypes, STATES.currentStream.titleInfo = titleInfo, BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY), titleInfo;
   },
   setupGainNode: ($media, audioStream) => {
-    if ($media instanceof HTMLAudioElement)
-      $media.muted = !0, $media.addEventListener("playing", (e) => {
+    if ($media instanceof HTMLAudioElement) $media.muted = !0, $media.addEventListener("playing", (e) => {
         $media.muted = !0, $media.pause();
       });
-    else
-      $media.muted = !0, $media.addEventListener("playing", (e) => {
+    else $media.muted = !0, $media.addEventListener("playing", (e) => {
         $media.muted = !0;
       });
     try {
@@ -5830,13 +5467,11 @@ function localRedirect(path) {
 window.localRedirect = localRedirect;
 function getPreferredServerRegion(shortName = !1) {
   let preferredRegion = getPref("server_region");
-  if (preferredRegion in STATES.serverRegions)
-    if (shortName && STATES.serverRegions[preferredRegion].shortName) return STATES.serverRegions[preferredRegion].shortName;
+  if (preferredRegion in STATES.serverRegions) if (shortName && STATES.serverRegions[preferredRegion].shortName) return STATES.serverRegions[preferredRegion].shortName;
     else return preferredRegion;
   for (let regionName in STATES.serverRegions) {
     const region = STATES.serverRegions[regionName];
-    if (!region.isDefault)
-      continue;
+    if (!region.isDefault) continue;
     if (shortName && region.shortName) return region.shortName;
     else return regionName;
   }
@@ -5867,14 +5502,12 @@ class HeaderSection {
     if (!$parent) return;
     const PREF_LATEST_VERSION = getPref("version_latest"), $btnSettings = HeaderSection.#$settingsBtn;
     if (isElementVisible(HeaderSection.#$buttonsWrapper)) return;
-    if ($btnSettings.querySelector("span").textContent = getPreferredServerRegion(!0) || t("better-xcloud"), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION)
-      $btnSettings.setAttribute("data-update-available", "true");
+    if ($btnSettings.querySelector("span").textContent = getPreferredServerRegion(!0) || t("better-xcloud"), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) $btnSettings.setAttribute("data-update-available", "true");
     $parent.appendChild(HeaderSection.#$buttonsWrapper);
   }
   static checkHeader() {
     let $target = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
-    if (!$target)
-      $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
+    if (!$target) $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
     $target && HeaderSection.#injectSettingsButton($target);
   }
   static showRemotePlayButton() {
@@ -5891,8 +5524,7 @@ class HeaderSection {
 class RemotePlayNavigationDialog extends NavigationDialog {
   static instance;
   static getInstance() {
-    if (!RemotePlayNavigationDialog.instance)
-      RemotePlayNavigationDialog.instance = new RemotePlayNavigationDialog;
+    if (!RemotePlayNavigationDialog.instance) RemotePlayNavigationDialog.instance = new RemotePlayNavigationDialog;
     return RemotePlayNavigationDialog.instance;
   }
   STATE_LABELS = {
@@ -5909,8 +5541,7 @@ class RemotePlayNavigationDialog extends NavigationDialog {
   setupDialog() {
     const $fragment = CE("div", { class: "bx-remote-play-container" }), $settingNote = CE("p", {}), currentResolution = getPref("xhome_resolution");
     let $resolutions = CE("select", {}, CE("option", { value: "1080p" }, "1080p"), CE("option", { value: "720p" }, "720p"));
-    if (getPref("ui_controller_friendly"))
-      $resolutions = BxSelectElement.wrap($resolutions);
+    if (getPref("ui_controller_friendly")) $resolutions = BxSelectElement.wrap($resolutions);
     $resolutions.addEventListener("input", (e) => {
       const value = e.target.value;
       $settingNote.textContent = value === "1080p" ? "✅ " + t("can-stream-xbox-360-games") : "❌ " + t("cant-stream-xbox-360-games"), setPref("xhome_resolution", value);
@@ -5962,8 +5593,7 @@ var LOG_TAG5 = "RemotePlay";
 class RemotePlayManager {
   static instance;
   static getInstance() {
-    if (!this.instance)
-      this.instance = new RemotePlayManager;
+    if (!this.instance) this.instance = new RemotePlayManager;
     return this.instance;
   }
   isInitialized = !1;
@@ -6002,12 +5632,10 @@ class RemotePlayManager {
     } catch (e) {
       for (let i = 0;i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (!key.startsWith("Auth.User."))
-          continue;
+        if (!key.startsWith("Auth.User.")) continue;
         const json = JSON.parse(localStorage.getItem(key));
         for (let token of json.tokens) {
-          if (!token.relyingParty.includes("gssv.xboxlive.com"))
-            continue;
+          if (!token.relyingParty.includes("gssv.xboxlive.com")) continue;
           GSSV_TOKEN = token.tokenData.token;
           break;
         }
@@ -6042,18 +5670,15 @@ class RemotePlayManager {
     for (let region of this.regions)
       try {
         const request = new Request(`${region.baseUri}/v6/servers/home?mr=50`, options), json = await (await fetch(request)).json();
-        if (json.results.length === 0)
-          continue;
+        if (json.results.length === 0) continue;
         this.consoles = json.results, STATES.remotePlay.server = region.baseUri;
         break;
       } catch (e) {}
-    if (!STATES.remotePlay.server)
-      this.consoles = [];
+    if (!STATES.remotePlay.server) this.consoles = [];
     callback();
   }
   play(serverId, resolution) {
-    if (resolution)
-      setPref("xhome_resolution", resolution);
+    if (resolution) setPref("xhome_resolution", resolution);
     STATES.remotePlay.config = {
       serverId
     }, window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, localRedirect("/launch/fortnite/BT5P2X999VH2#remote-play");
@@ -6075,10 +5700,8 @@ class RemotePlayManager {
   }
   static detect() {
     if (!getPref("xhome_enabled")) return;
-    if (STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play"), STATES.remotePlay?.isPlaying)
-      window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
-    else
-      window.BX_REMOTE_PLAY_CONFIG = null;
+    if (STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play"), STATES.remotePlay?.isPlaying) window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
+    else window.BX_REMOTE_PLAY_CONFIG = null;
   }
   isReady() {
     return this.consoles !== null;
@@ -6146,12 +5769,9 @@ class XhomeInterceptor {
       const ports = new Set;
       return port && ports.add(port), ports.add(9002), Array.from(ports);
     }, serverDetails = obj.serverDetails;
-    if (serverDetails.ipAddress)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
-    if (serverDetails.ipV4Address)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
-    if (serverDetails.ipV6Address)
-      XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
+    if (serverDetails.ipAddress) XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
+    if (serverDetails.ipV4Address) XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
+    if (serverDetails.ipV6Address) XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
     return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async#handleInputConfigs(request, opts) {
@@ -6165,12 +5785,10 @@ class XhomeInterceptor {
       const supportedInputTypes = inputConfigs.supportedInputTypes;
       hasTouchSupport = supportedInputTypes.includes("NativeTouch") || supportedInputTypes.includes("CustomTouchOverlay");
     }
-    if (hasTouchSupport)
-      TouchController.disable(), BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
+    if (hasTouchSupport) TouchController.disable(), BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
         data: null
       });
-    else
-      TouchController.enable(), TouchController.requestCustomLayouts(xboxTitleId);
+    else TouchController.enable(), TouchController.requestCustomLayouts(xboxTitleId);
     return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async#handleTitles(request) {
@@ -6198,15 +5816,13 @@ class XhomeInterceptor {
       headers[pair[0]] = pair[1];
     headers.authorization = `Bearer ${RemotePlayManager.getInstance().xhomeToken}`;
     const deviceInfo = XhomeInterceptor.BASE_DEVICE_INFO;
-    if (getPref("xhome_resolution") === "720p")
-      deviceInfo.dev.os.name = "android";
+    if (getPref("xhome_resolution") === "720p") deviceInfo.dev.os.name = "android";
     headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
     const opts = {
       method: clone.method,
       headers
     };
-    if (clone.method === "POST")
-      opts.body = await clone.text();
+    if (clone.method === "POST") opts.body = await clone.text();
     let newUrl = request.url;
     if (!newUrl.includes("/servers/home")) {
       const index = request.url.indexOf(".xboxlive.com");
@@ -6239,27 +5855,22 @@ class LoadingScreen {
       const $bgStyle = CE("style");
       document.documentElement.appendChild($bgStyle), LoadingScreen.#$bgStyle = $bgStyle;
     }
-    if (LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref("ui_loading_screen_rocket") === "hide")
-      LoadingScreen.#hideRocket();
+    if (LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref("ui_loading_screen_rocket") === "hide") LoadingScreen.#hideRocket();
   }
   static #hideRocket() {
     let $bgStyle = LoadingScreen.#$bgStyle;
-    const css = "#game-stream div[class*=RocketAnimation-module__container] > svg{display:none}#game-stream video[class*=RocketAnimationVideo-module__video]{display:none}";
     $bgStyle.textContent += "#game-stream div[class*=RocketAnimation-module__container] > svg{display:none}#game-stream video[class*=RocketAnimationVideo-module__video]{display:none}";
   }
   static #setBackground(imageUrl) {
     let $bgStyle = LoadingScreen.#$bgStyle;
-    imageUrl = imageUrl + "?w=1920";
-    const css = '#game-stream{background-color:transparent !important;background-position:center center !important;background-repeat:no-repeat !important;background-size:cover !important}#game-stream rect[width="800"]{transition:opacity .3s ease-in-out !important}' + `#game-stream {background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;}`;
-    $bgStyle.textContent += css;
+    imageUrl = imageUrl + "?w=1920", $bgStyle.textContent += '#game-stream{background-color:transparent !important;background-position:center center !important;background-repeat:no-repeat !important;background-size:cover !important}#game-stream rect[width="800"]{transition:opacity .3s ease-in-out !important}' + `#game-stream {background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;}`;
     const bg = new Image;
     bg.onload = (e) => {
       $bgStyle.textContent += '#game-stream rect[width="800"]{opacity:0 !important}';
     }, bg.src = imageUrl;
   }
   static setupWaitTime(waitTime) {
-    if (getPref("ui_loading_screen_rocket") === "hide-queue")
-      LoadingScreen.#hideRocket();
+    if (getPref("ui_loading_screen_rocket") === "hide-queue") LoadingScreen.#hideRocket();
     let secondsLeft = waitTime, $countDown, $estimated;
     LoadingScreen.#orgWebTitle = document.title;
     const endDate = new Date, timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
@@ -6267,13 +5878,10 @@ class LoadingScreen {
     let endDateStr = endDate.toISOString().slice(0, 19);
     endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
     let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-    if (!$waitTimeBox)
-      $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.#$waitTimeBox = $waitTimeBox;
-    else
-      $waitTimeBox.classList.remove("bx-gone"), $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated"), $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
+    if (!$waitTimeBox) $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    else $waitTimeBox.classList.remove("bx-gone"), $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated"), $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
     $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, LoadingScreen.#waitTimeInterval = window.setInterval(() => {
-      if (secondsLeft--, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, secondsLeft <= 0)
-        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
+      if (secondsLeft--, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, secondsLeft <= 0) LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
     }, 1000);
   }
   static hide() {
@@ -6301,8 +5909,7 @@ var StreamBadgeIcon = {
 class StreamBadges {
   static instance;
   static getInstance() {
-    if (!StreamBadges.instance)
-      StreamBadges.instance = new StreamBadges;
+    if (!StreamBadges.instance) StreamBadges.instance = new StreamBadges;
     return StreamBadges.instance;
   }
   #ipv6 = !1;
@@ -6322,8 +5929,7 @@ class StreamBadges {
   #renderBadge(name, value, color) {
     let $badge;
     if (this.#cachedDoms[name]) return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
-    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === "battery")
-      $badge.classList.add("bx-badge-battery");
+    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === "battery") $badge.classList.add("bx-badge-battery");
     return this.#cachedDoms[name] = $badge, $badge;
   }
   async#updateBadges(forceUpdate = !1) {
@@ -6334,8 +5940,7 @@ class StreamBadges {
     let now = +new Date;
     const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
     let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
-    if (STATES.browser.capabilities.batteryApi)
-      try {
+    if (STATES.browser.capabilities.batteryApi) try {
         const bm = await navigator.getBattery();
         if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
           const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
@@ -6345,8 +5950,7 @@ class StreamBadges {
     const stats = await STATES.currentStream.peerConnection?.getStats();
     let totalIn = 0, totalOut = 0;
     stats.forEach((stat) => {
-      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
-        totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
+      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
     });
     const badges = {
       in: totalIn ? this.#humanFileSize(totalIn) : null,
@@ -6357,14 +5961,10 @@ class StreamBadges {
     let name;
     for (name in badges) {
       const value = badges[name];
-      if (value === null)
-        continue;
+      if (value === null) continue;
       const $elm = this.#cachedDoms[name];
-      if ($elm && ($elm.lastElementChild.textContent = value), name === "battery")
-        if (this.startBatteryLevel === 100 && batteryLevelInt === 100)
-          $elm.classList.add("bx-gone");
-        else
-          $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
+      if ($elm && ($elm.lastElementChild.textContent = value), name === "battery") if (this.startBatteryLevel === 100 && batteryLevelInt === 100) $elm.classList.add("bx-gone");
+        else $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
     }
   }
   async#start() {
@@ -6375,8 +5975,7 @@ class StreamBadges {
   }
   #secondsToHm(seconds) {
     let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
-    if (m === 60)
-      h += 1, m = 0;
+    if (m === 60) h += 1, m = 0;
     const output = [];
     return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
   }
@@ -6388,18 +5987,14 @@ class StreamBadges {
     if (this.#$container) return this.#start(), this.#$container;
     await this.#getServerStats();
     let video = "";
-    if (this.#resolution)
-      video = `${this.#resolution.height}p`;
+    if (this.#resolution) video = `${this.#resolution.height}p`;
     if (this.#video) {
       if (video && (video += "/"), video += this.#video.codec, this.#video.profile) {
         const profile = this.#video.profile;
         let quality = profile;
-        if (profile.startsWith("4d"))
-          quality = t("visual-quality-high");
-        else if (profile.startsWith("42e"))
-          quality = t("visual-quality-normal");
-        else if (profile.startsWith("420"))
-          quality = t("visual-quality-low");
+        if (profile.startsWith("4d")) quality = t("visual-quality-high");
+        else if (profile.startsWith("42e")) quality = t("visual-quality-normal");
+        else if (profile.startsWith("420")) quality = t("visual-quality-low");
         video += ` (${quality})`;
       }
     }
@@ -6410,8 +6005,7 @@ class StreamBadges {
       audio += ` (${bitrate} kHz)`;
     }
     let batteryLevel = "";
-    if (STATES.browser.capabilities.batteryApi)
-      batteryLevel = "100%";
+    if (STATES.browser.capabilities.batteryApi) batteryLevel = "100%";
     let server = this.#region;
     server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
     const BADGES = [
@@ -6439,19 +6033,13 @@ class StreamBadges {
     if (stats.forEach((stat) => {
       if (stat.type === "codec") {
         const mimeType = stat.mimeType.split("/")[0];
-        if (mimeType === "video")
-          allVideoCodecs[stat.id] = stat;
-        else if (mimeType === "audio")
-          allAudioCodecs[stat.id] = stat;
+        if (mimeType === "video") allVideoCodecs[stat.id] = stat;
+        else if (mimeType === "audio") allAudioCodecs[stat.id] = stat;
       } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
-        if (stat.kind === "video")
-          videoCodecId = stat.codecId;
-        else if (stat.kind === "audio")
-          audioCodecId = stat.codecId;
-      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded")
-        candidateId = stat.remoteCandidateId;
-      else if (stat.type === "remote-candidate")
-        allCandidates[stat.id] = stat.address;
+        if (stat.kind === "video") videoCodecId = stat.codecId;
+        else if (stat.kind === "audio") audioCodecId = stat.codecId;
+      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") candidateId = stat.remoteCandidateId;
+      else if (stat.type === "remote-candidate") allCandidates[stat.id] = stat.address;
     }), videoCodecId) {
       const videoStat = allVideoCodecs[videoCodecId], video = {
         codec: videoStat.mimeType.substring(6)
@@ -6469,8 +6057,7 @@ class StreamBadges {
         bitrate: audioStat.clockRate
       };
     }
-    if (candidateId)
-      BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
+    if (candidateId) BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
   }
   static setupEvents() {
     window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
@@ -6517,12 +6104,10 @@ class XcloudInterceptor {
     for (let region of obj.offeringSettings.regions) {
       const regionName = region.name;
       let shortName = region.name;
-      if (region.isDefault)
-        STATES.selectedRegion = Object.assign({}, region);
+      if (region.isDefault) STATES.selectedRegion = Object.assign({}, region);
       let match = serverRegex.exec(region.baseUri);
       if (match) {
-        if (shortName = match[1], serverEmojis[regionName])
-          shortName = serverEmojis[regionName] + " " + shortName;
+        if (shortName = match[1], serverEmojis[regionName]) shortName = serverEmojis[regionName] + " " + shortName;
       }
       region.shortName = shortName.toUpperCase(), STATES.serverRegions[region.name] = Object.assign({}, region);
     }
@@ -6550,8 +6135,7 @@ class XcloudInterceptor {
       const osName = PREF_STREAM_TARGET_RESOLUTION === "720p" ? "android" : "windows";
       body.settings.osName = osName;
     }
-    if (PREF_STREAM_PREFERRED_LOCALE !== "default")
-      body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
+    if (PREF_STREAM_PREFERRED_LOCALE !== "default") body.settings.locale = PREF_STREAM_PREFERRED_LOCALE;
     const newRequest = new Request(request, {
       body: JSON.stringify(body)
     });
@@ -6561,37 +6145,28 @@ class XcloudInterceptor {
     const response = await NATIVE_FETCH(request, init);
     if (getPref("ui_loading_screen_wait_time")) {
       const json = await response.clone().json();
-      if (json.estimatedAllocationTimeInSeconds > 0)
-        LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
+      if (json.estimatedAllocationTimeInSeconds > 0) LoadingScreen.setupWaitTime(json.estimatedTotalWaitTimeInSeconds);
     }
     return response;
   }
   static async#handleConfiguration(request, init) {
     if (request.method !== "GET") return NATIVE_FETCH(request, init);
-    if (getPref("stream_touch_controller") === "all")
-      if (STATES.currentStream.titleInfo?.details.hasTouchSupport)
-        TouchController.disable();
-      else
-        TouchController.enable();
+    if (getPref("stream_touch_controller") === "all") if (STATES.currentStream.titleInfo?.details.hasTouchSupport) TouchController.disable();
+      else TouchController.enable();
     const response = await NATIVE_FETCH(request, init), text = await response.clone().text();
     if (!text.length) return response;
     const obj = JSON.parse(text);
     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
     overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
     let overrideMkb = null;
-    if (getPref("native_mkb_enabled") === "on" || STATES.currentStream.titleInfo && BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId))
-      overrideMkb = !0;
-    if (getPref("native_mkb_enabled") === "off")
-      overrideMkb = !1;
-    if (overrideMkb !== null)
-      overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
+    if (getPref("native_mkb_enabled") === "on" || STATES.currentStream.titleInfo && BX_FLAGS.ForceNativeMkbTitles?.includes(STATES.currentStream.titleInfo.details.productId)) overrideMkb = !0;
+    if (getPref("native_mkb_enabled") === "off") overrideMkb = !1;
+    if (overrideMkb !== null) overrides.inputConfiguration = Object.assign(overrides.inputConfiguration, {
         enableMouseInput: overrideMkb,
         enableKeyboardInput: overrideMkb
       });
-    if (TouchController.isEnabled())
-      overrides.inputConfiguration.enableTouchInput = !0, overrides.inputConfiguration.maxTouchPoints = 10;
-    if (getPref("audio_mic_on_playing"))
-      overrides.audioConfiguration = overrides.audioConfiguration || {}, overrides.audioConfiguration.enableMicrophone = !0;
+    if (TouchController.isEnabled()) overrides.inputConfiguration.enableTouchInput = !0, overrides.inputConfiguration.maxTouchPoints = 10;
+    if (getPref("audio_mic_on_playing")) overrides.audioConfiguration = overrides.audioConfiguration || {}, overrides.audioConfiguration.enableMicrophone = !0;
     return obj.clientStreamingConfigOverrides = JSON.stringify(overrides), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
   static async handle(request, init) {
@@ -6625,13 +6200,11 @@ function clearAllLogs() {
 function updateIceCandidates(candidates, options) {
   const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/), lst = [];
   for (let item2 of candidates) {
-    if (item2.candidate == "a=end-of-candidates")
-      continue;
+    if (item2.candidate == "a=end-of-candidates") continue;
     const groups = pattern.exec(item2.candidate).groups;
     lst.push(groups);
   }
-  if (options.preferIpv6Server)
-    lst.sort((a, b) => {
+  if (options.preferIpv6Server) lst.sort((a, b) => {
       const firstIp = a.ip, secondIp = b.ip;
       return !firstIp.includes(":") && secondIp.includes(":") ? 1 : -1;
     });
@@ -6665,15 +6238,13 @@ async function patchIceCandidates(request, consoleAddrs) {
 }
 function interceptHttpRequests() {
   let BLOCKED_URLS = [];
-  if (getPref("block_tracking"))
-    clearAllLogs(), BLOCKED_URLS = BLOCKED_URLS.concat([
+  if (getPref("block_tracking")) clearAllLogs(), BLOCKED_URLS = BLOCKED_URLS.concat([
       "https://arc.msn.com",
       "https://browser.events.data.microsoft.com",
       "https://dc.services.visualstudio.com",
       "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
     ]);
-  if (getPref("block_social_features"))
-    BLOCKED_URLS = BLOCKED_URLS.concat([
+  if (getPref("block_social_features")) BLOCKED_URLS = BLOCKED_URLS.concat([
       "https://peoplehub.xboxlive.com/users/me/people/social",
       "https://peoplehub.xboxlive.com/users/me/people/recommendations",
       "https://xblmessaging.xboxlive.com/network/xbox/users/me/inbox"
@@ -6684,8 +6255,7 @@ function interceptHttpRequests() {
   }, xhrPrototype.send = function(...arg) {
     for (let blocked of BLOCKED_URLS)
       if (this._url.startsWith(blocked)) {
-        if (blocked === "https://dc.services.visualstudio.com")
-          window.setTimeout(clearAllLogs, 1000);
+        if (blocked === "https://dc.services.visualstudio.com") window.setTimeout(clearAllLogs, 1000);
         return !1;
       }
     return nativeXhrSend.apply(this, arguments);
@@ -6694,22 +6264,17 @@ function interceptHttpRequests() {
   window.BX_FETCH = window.fetch = async (request, init) => {
     let url = typeof request === "string" ? request : request.url;
     for (let blocked of BLOCKED_URLS) {
-      if (!url.startsWith(blocked))
-        continue;
+      if (!url.startsWith(blocked)) continue;
       return new Response('{"acc":1,"webResult":{}}', {
         status: 200,
         statusText: "200 OK"
       });
     }
-    if (url.endsWith("/play"))
-      BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
-    if (url.endsWith("/configuration"))
-      BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
-    if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation"))
-      try {
+    if (url.endsWith("/play")) BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+    if (url.endsWith("/configuration")) BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+    if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation")) try {
         const response = await NATIVE_FETCH(request, init), json = await response.json();
-        if (json && json.exp && json.exp.treatments)
-          for (let key in FeatureGates)
+        if (json && json.exp && json.exp.treatments) for (let key in FeatureGates)
             json.exp.treatments[key] = FeatureGates[key];
         return response.json = () => Promise.resolve(json), response;
       } catch (e) {
@@ -6717,11 +6282,9 @@ function interceptHttpRequests() {
       }
     if (STATES.userAgent.capabilities.touch && url.includes("catalog.gamepass.com/sigls/")) {
       const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
-      if (url.includes("29a81209-df6f-41fd-a528-2ae6b91f719c"))
-        for (let i = 1;i < obj.length; i++)
+      if (url.includes("29a81209-df6f-41fd-a528-2ae6b91f719c")) for (let i = 1;i < obj.length; i++)
           gamepassAllGames.push(obj[i].id);
-      else if (url.includes("9c86f07a-f3e8-45ad-82a0-a1f759597059"))
-        try {
+      else if (url.includes("9c86f07a-f3e8-45ad-82a0-a1f759597059")) try {
           let customList = TouchController.getCustomList();
           customList = customList.filter((id2) => gamepassAllGames.includes(id2));
           const newCustomList = customList.map((item2) => ({ id: item2 }));
@@ -6742,10 +6305,8 @@ function interceptHttpRequests() {
       return response.json = () => Promise.resolve(obj), response;
     }
     let requestType;
-    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs"))
-      requestType = "xhome";
-    else
-      requestType = "xcloud";
+    if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs")) requestType = "xhome";
+    else requestType = "xcloud";
     if (requestType === "xhome") return XhomeInterceptor.handle(request);
     return XcloudInterceptor.handle(request, init);
   };
@@ -6754,42 +6315,28 @@ function showGamepadToast(gamepad) {
   if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) return;
   BxLogger.info("Gamepad", gamepad);
   let text = "🎮";
-  if (getPref("local_co_op_enabled"))
-    text += ` #${gamepad.index + 1}`;
+  if (getPref("local_co_op_enabled")) text += ` #${gamepad.index + 1}`;
   const gamepadId = gamepad.id.replace(/ \(.*?Vendor: \w+ Product: \w+\)$/, "");
   text += ` - ${gamepadId}`;
   let status;
-  if (gamepad.connected)
-    status = (gamepad.vibrationActuator ? "✅" : "❌") + " " + t("vibration-status");
-  else
-    status = t("disconnected");
+  if (gamepad.connected) status = (gamepad.vibrationActuator ? "✅" : "❌") + " " + t("vibration-status");
+  else status = t("disconnected");
   Toast.show(text, status, { instant: !1 });
 }
 function addCss() {
   let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:40px;--bx-default-button-color:#2d3036;--bx-default-button-rgb:45,48,54;--bx-default-button-hover-color:#515863;--bx-default-button-hover-rgb:81,88,99;--bx-default-button-active-color:#222428;--bx-default-button-active-rgb:34,36,40;--bx-default-button-disabled-color:#8e8e8e;--bx-default-button-disabled-rgb:142,142,142;--bx-primary-button-color:#008746;--bx-primary-button-rgb:0,135,70;--bx-primary-button-hover-color:#04b358;--bx-primary-button-hover-rgb:4,179,88;--bx-primary-button-active-color:#044e2a;--bx-primary-button-active-rgb:4,78,42;--bx-primary-button-disabled-color:#448262;--bx-primary-button-disabled-rgb:68,130,98;--bx-danger-button-color:#c10404;--bx-danger-button-rgb:193,4,4;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-hover-rgb:230,29,29;--bx-danger-button-active-color:#a26c6c;--bx-danger-button-active-rgb:162,108,108;--bx-danger-button-disabled-color:#df5656;--bx-danger-button-disabled-rgb:223,86,86;--bx-fullscreen-text-z-index:99999;--bx-toast-z-index:60000;--bx-dialog-z-index:50000;--bx-dialog-overlay-z-index:40200;--bx-stats-bar-z-index:40100;--bx-mkb-pointer-lock-msg-z-index:40000;--bx-navigation-dialog-z-index:30100;--bx-navigation-dialog-overlay-z-index:30000;--bx-game-bar-z-index:10000;--bx-screenshot-animation-z-index:9000;--bx-wait-time-box-z-index:1000}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:640px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-hide-scroll-bar{scrollbar-width:none}.bx-hide-scroll-bar::-webkit-scrollbar{display:none}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}.bx-line-through{text-decoration:line-through !important}.bx-normal-case{text-transform:none !important}.bx-normal-link{text-transform:none !important;text-align:left !important;font-weight:400 !important;font-family:var(--bx-normal-font) !important}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-game-tile-wait-time{position:absolute;top:0;left:0;z-index:1;background:rgba(0,0,0,0.549);display:flex;border-radius:4px 0 4px 0;align-items:center;padding:4px 8px}.bx-game-tile-wait-time svg{width:14px;height:16px;margin-right:2px}.bx-game-tile-wait-time span{display:inline-block;height:16px;line-height:16px;font-size:12px;font-weight:bold;margin-left:2px}.bx-fullscreen-text{position:fixed;top:0;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);z-index:var(--bx-fullscreen-text-z-index);line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:var(--bx-normal-font);font-size:1.3rem;user-select:none;-webkit-user-select:none}#root section[class*=DeviceCodePage-module__page]{margin-left:20px !important;margin-right:20px !important;margin-top:20px !important;max-width:800px !important}#root div[class*=DeviceCodePage-module__back]{display:none}.bx-button{--button-rgb:var(--bx-default-button-rgb);--button-hover-rgb:var(--bx-default-button-hover-rgb);--button-active-rgb:var(--bx-default-button-active-rgb);--button-disabled-rgb:var(--bx-default-button-disabled-rgb);background-color:rgb(var(--button-rgb));user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:not([disabled]):active{background-color:rgb(var(--button-active-rgb))}.bx-button:focus{outline:none !important}.bx-button:not([disabled]):not(:active):hover,.bx-button:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button:disabled{cursor:default;background-color:rgb(var(--button-disabled-rgb))}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:not([disabled]):not(:active):hover,.bx-button.bx-ghost:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button.bx-primary{--button-rgb:var(--bx-primary-button-rgb)}.bx-button.bx-primary:not([disabled]):active{--button-active-rgb:var(--bx-primary-button-active-rgb)}.bx-button.bx-primary:not([disabled]):not(:active):hover,.bx-button.bx-primary:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-primary-button-hover-rgb)}.bx-button.bx-primary:disabled{--button-disabled-rgb:var(--bx-primary-button-disabled-rgb)}.bx-button.bx-danger{--button-rgb:var(--bx-danger-button-rgb)}.bx-button.bx-danger:not([disabled]):active{--button-active-rgb:var(--bx-danger-button-active-rgb)}.bx-button.bx-danger:not([disabled]):not(:active):hover,.bx-button.bx-danger:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-danger-button-hover-rgb)}.bx-button.bx-danger:disabled{--button-disabled-rgb:var(--bx-danger-button-disabled-rgb)}.bx-button.bx-frosted{--button-alpha:.2;background-color:rgba(var(--button-rgb), var(--button-alpha));backdrop-filter:blur(4px) brightness(1.5)}.bx-button.bx-frosted:not([disabled]):not(:active):hover,.bx-button.bx-frosted:not([disabled]):not(:active).bx-focusable:focus{background-color:rgba(var(--button-hover-rgb), var(--button-alpha))}.bx-button.bx-drop-shadow{box-shadow:0 0 4px rgba(0,0,0,0.502)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button.bx-circular{border-radius:var(--bx-button-height);height:var(--bx-button-height)}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button span:not(:only-child){margin-left:10px}.bx-focusable{position:relative;overflow:visible}.bx-focusable::after{border:2px solid transparent;border-radius:10px}.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px}html[data-active-input=touch] .bx-focusable:focus::after,html[data-active-input=mouse] .bx-focusable:focus::after{border-color:transparent !important}.bx-focusable.bx-circular::after{border-radius:var(--bx-button-height)}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}button.bx-inactive{pointer-events:none;opacity:.2;background:transparent !important}.bx-button-shortcut{max-width:max-content;margin:10px 0 0 0;flex:1 0 auto}@media (min-width:568px) and (max-height:480px){.bx-button-shortcut{margin:8px 0 0 10px}}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:24px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-navigation-dialog{position:absolute;z-index:var(--bx-navigation-dialog-z-index);font-family:var(--bx-title-font)}.bx-navigation-dialog *:focus{outline:none !important}.bx-navigation-dialog-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-navigation-dialog-overlay-z-index)}.bx-navigation-dialog-overlay[data-is-playing="true"]{background:transparent}.bx-settings-dialog{display:flex;position:fixed;top:0;right:0;bottom:0;opacity:.98;user-select:none;-webkit-user-select:none}.bx-settings-dialog .bx-focusable::after{border-radius:4px}.bx-settings-dialog .bx-focusable:focus::after{top:0;left:0;right:0;bottom:0}.bx-settings-dialog .bx-settings-reload-note{font-size:.8rem;display:block;padding:8px;font-style:italic;font-weight:normal;height:var(--bx-button-height)}.bx-settings-dialog input{accent-color:var(--bx-primary-button-color)}.bx-settings-dialog input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-dialog select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-dialog select option:disabled{display:none}.bx-settings-dialog input[type=checkbox]:focus,.bx-settings-dialog select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-dialog a{color:#1c9d1c;text-decoration:none}.bx-settings-dialog a:hover,.bx-settings-dialog a:focus{color:#5dc21e}.bx-settings-tabs-container{position:fixed;width:48px;max-height:100vh;display:flex;flex-direction:column}.bx-settings-tabs-container > div:last-of-type{display:flex;flex-direction:column;align-items:end}.bx-settings-tabs-container > div:last-of-type button{flex-shrink:0;border-top-right-radius:0;border-bottom-right-radius:0;margin-top:8px;height:unset;padding:8px 10px}.bx-settings-tabs-container > div:last-of-type button svg{width:16px;height:16px}.bx-settings-tabs{display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:overlay;flex:1}.bx-settings-tabs svg{width:24px;height:24px;padding:10px;flex-shrink:0;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-settings-tabs svg:focus{border-color:#fff}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]{background:var(--bx-danger-button-color) !important}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]:hover{background:var(--bx-danger-button-hover-color) !important}.bx-settings-tab-contents{flex-direction:column;padding:10px;margin-left:48px;width:450px;max-width:calc(100vw - tabsWidth);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay;z-index:1}.bx-settings-tab-contents > div[data-tab-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-profile{width:100%;height:36px;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-note{margin-top:10px;font-size:14px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-settings-z-index) + 1)}.bx-settings-tab-contents .bx-top-buttons{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}.bx-settings-tab-contents .bx-top-buttons .bx-button{display:block}.bx-settings-tab-contents h2{margin:16px 0 8px 0;display:flex;align-items:center}.bx-settings-tab-contents h2:first-of-type{margin-top:0}.bx-settings-tab-contents h2 span{display:inline-block;font-size:20px;font-weight:bold;text-align:left;flex:1;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}@media (max-width:500px){.bx-settings-tab-contents{width:calc(100vw - 48px)}}.bx-settings-row{display:flex;gap:10px;padding:16px 10px;margin:0;background:#2a2a2a;border-bottom:1px solid #343434}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row:not(:has(> input[type=checkbox])){flex-wrap:wrap}.bx-settings-row > span.bx-settings-label{font-size:14px;display:block;text-align:left;align-self:center;margin-bottom:0 !important;flex:1}.bx-settings-row > span.bx-settings-label + *{margin:0 0 0 auto}.bx-settings-dialog-note{display:block;color:#afafb0;font-size:12px;font-weight:lighter;font-style:italic}.bx-settings-dialog-note:not(:has(a)){margin-top:4px}.bx-settings-dialog-note a{display:inline-block;padding:4px}.bx-settings-custom-user-agent{display:block;width:100%;padding:6px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px}.bx-debug-info button{margin-top:10px}.bx-debug-info pre{margin-top:10px;cursor:copy;color:#fff;padding:8px;border:1px solid #2d2d2d;background:#212121;white-space:break-spaces;text-align:left}.bx-debug-info pre:hover{background:#272727}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-note-unsupported{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:has(+ .bx-settings-row){border-top-left-radius:10px;border-top-right-radius:10px}.bx-settings-tab-contents > div .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-radius:10px}.bx-suggest-toggler{text-align:left;display:flex;border-radius:4px;overflow:hidden;background:#003861}.bx-suggest-toggler label{flex:1;margin-bottom:0;padding:10px;background:#004f87}.bx-suggest-toggler span{display:inline-block;align-self:center;padding:10px;width:40px;text-align:center}.bx-suggest-toggler:hover,.bx-suggest-toggler:focus{cursor:pointer;background:#005da1}.bx-suggest-toggler:hover label,.bx-suggest-toggler:focus label{background:#006fbe}.bx-suggest-toggler[bx-open] span{transform:rotate(90deg)}.bx-suggest-toggler[bx-open]+ .bx-suggest-box{display:block}.bx-suggest-box{display:none;background:#161616;padding:10px;box-shadow:0 0 12px #0f0f0f inset;border-radius:10px}.bx-suggest-wrapper{display:flex;flex-direction:column;gap:10px;margin:10px}.bx-suggest-note{font-size:11px;color:#8c8c8c;font-style:italic;font-weight:100}.bx-suggest-link{font-size:14px;display:inline-block;margin-top:4px;padding:4px}.bx-suggest-row{display:flex;flex-direction:row;gap:10px}.bx-suggest-row label{flex:1;overflow:overlay;border-radius:4px}.bx-suggest-row label .bx-suggest-label{background:#323232;padding:4px 10px;font-size:12px;text-align:left}.bx-suggest-row label .bx-suggest-value{padding:6px;font-size:14px}.bx-suggest-row label .bx-suggest-value.bx-suggest-change{background-color:var(--bx-warning-color)}.bx-suggest-row.bx-suggest-ok input{visibility:hidden}.bx-suggest-row.bx-suggest-ok .bx-suggest-label{background-color:#008114}.bx-suggest-row.bx-suggest-ok .bx-suggest-value{background-color:#13a72a}.bx-suggest-row.bx-suggest-change .bx-suggest-label{background-color:#a65e08}.bx-suggest-row.bx-suggest-change .bx-suggest-value{background-color:#d57f18}.bx-suggest-row.bx-suggest-change:hover label{cursor:pointer}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-label{background-color:#995707}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-value{background-color:#bd7115}.bx-suggest-row.bx-suggest-change input:not(:checked) + label{opacity:.5}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-label{background-color:#2a2a2a}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-value{background-color:#393939}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label{opacity:1}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-label{background-color:#202020}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-value{background-color:#303030}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:12px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-remote-play-buttons{display:flex;justify-content:space-between}.bx-select{display:flex;align-items:center;flex:0 1 auto}.bx-select select{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-select > div,.bx-select button.bx-select-value{min-width:120px;text-align:left;margin:0 8px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 8px;flex:1}.bx-select > div{display:inline-block}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0;font-size:14px;width:100%}.bx-select > div label span{display:block;font-size:10px;font-weight:bold;text-align:left;line-height:initial}.bx-select button.bx-select-value{border:none;display:inline-flex;cursor:pointer;min-height:30px;font-size:.9rem;align-items:center}.bx-select button.bx-select-value span{flex:1;text-align:left;display:inline-block}.bx-select button.bx-select-value input{margin:0 4px;accent-color:var(--bx-primary-button-color)}.bx-select button.bx-select-value:hover input,.bx-select button.bx-select-value:focus input{accent-color:var(--bx-danger-button-color)}.bx-select button.bx-select-value:hover::after,.bx-select button.bx-select-value:focus::after{border-color:#4d4d4d !important}.bx-select button.bx-button{border:none;height:24px;width:24px;padding:0;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:12px;font-family:var(--bx-monospaced-font);flex-shrink:0}.bx-select button.bx-button span{line-height:unset}.bx-guide-home-achievements-progress{display:flex;gap:10px;flex-direction:row}.bx-guide-home-achievements-progress .bx-button{margin-bottom:0 !important}html[data-xds-platform=tv] .bx-guide-home-achievements-progress{flex-direction:column}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress{flex-direction:row}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:first-of-type{flex:1}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type{width:40px}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type span{display:none}.bx-guide-home-buttons > div{display:flex;flex-direction:row;gap:12px}html[data-xds-platform=tv] .bx-guide-home-buttons > div{flex-direction:column}html[data-xds-platform=tv] .bx-guide-home-buttons > div button{margin-bottom:0 !important}html:not([data-xds-platform=tv]) .bx-guide-home-buttons > div button span{display:none}.bx-guide-home-buttons[data-is-playing="true"] button[data-state='normal']{display:none}.bx-guide-home-buttons[data-is-playing="false"] button[data-state='playing']{display:none}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:12px;margin:0 4px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}`;
   const PREF_HIDE_SECTIONS = getPref("ui_hide_sections"), selectorToHide = [];
-  if (PREF_HIDE_SECTIONS.includes("news"))
-    selectorToHide.push("#BodyContent > div[class*=CarouselRow-module]");
-  if (PREF_HIDE_SECTIONS.includes("all-games"))
-    selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]"), selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__rowHeader]");
-  if (PREF_HIDE_SECTIONS.includes("most-popular"))
-    selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/popular"])');
-  if (PREF_HIDE_SECTIONS.includes("touch"))
-    selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/touch"])');
-  if (getPref("block_social_features"))
-    selectorToHide.push("#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]");
-  if (selectorToHide)
-    css += selectorToHide.join(",") + "{ display: none; }";
-  if (getPref("reduce_animations"))
-    css += "div[class*=GameCard-module__gameTitleInnerWrapper],div[class*=GameCard-module__card],div[class*=ScrollArrows-module]{transition:none !important}";
-  if (getPref("hide_dots_icon"))
-    css += "div[class*=Grip-module__container]{visibility:hidden}@media (hover:hover){button[class*=GripHandle-module__container]:hover div[class*=Grip-module__container]{visibility:visible}}button[class*=GripHandle-module__container][aria-expanded=true] div[class*=Grip-module__container]{visibility:visible}button[class*=GripHandle-module__container][aria-expanded=false]{background-color:transparent !important}div[class*=StreamHUD-module__buttonsContainer]{padding:0 !important}";
-  if (css += "div[class*=StreamMenu-module__menu]{min-width:100vw !important}", getPref("stream_simplify_menu"))
-    css += "div[class*=Menu-module__scrollable]{--bxStreamMenuItemSize:80px;--streamMenuItemSize:calc(var(--bxStreamMenuItemSize) + 40px) !important}.bx-badges{top:calc(var(--streamMenuItemSize) - 20px)}body[data-media-type=tv] .bx-badges{top:calc(var(--streamMenuItemSize) - 10px) !important}button[class*=MenuItem-module__container]{min-width:auto !important;min-height:auto !important;width:var(--bxStreamMenuItemSize) !important;height:var(--bxStreamMenuItemSize) !important}div[class*=MenuItem-module__label]{display:none !important}svg[class*=MenuItem-module__icon]{width:36px;height:100% !important;padding:0 !important;margin:0 !important}";
-  else
-    css += "body[data-media-type=tv] .bx-badges{top:calc(var(--streamMenuItemSize) + 30px)}body:not([data-media-type=tv]) .bx-badges{top:calc(var(--streamMenuItemSize) + 20px)}body:not([data-media-type=tv]) button[class*=MenuItem-module__container]{min-width:auto !important;width:100px !important}body:not([data-media-type=tv]) button[class*=MenuItem-module__container]:nth-child(n+2){margin-left:10px !important}body:not([data-media-type=tv]) div[class*=MenuItem-module__label]{margin-left:8px !important;margin-right:8px !important}";
-  if (getPref("ui_scrollbar_hide"))
-    css += "html{scrollbar-width:none}body::-webkit-scrollbar{display:none}";
+  if (PREF_HIDE_SECTIONS.includes("news")) selectorToHide.push("#BodyContent > div[class*=CarouselRow-module]");
+  if (PREF_HIDE_SECTIONS.includes("all-games")) selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]"), selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__rowHeader]");
+  if (PREF_HIDE_SECTIONS.includes("most-popular")) selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/popular"])');
+  if (PREF_HIDE_SECTIONS.includes("touch")) selectorToHide.push('#BodyContent div[class*=HomePage-module__bottomSpacing]:has(a[href="/play/gallery/touch"])');
+  if (getPref("block_social_features")) selectorToHide.push("#gamepass-dialog-root div[class^=AchievementsPreview-module__container] + button[class*=HomeLandingPage-module__button]");
+  if (selectorToHide) css += selectorToHide.join(",") + "{ display: none; }";
+  if (getPref("reduce_animations")) css += "div[class*=GameCard-module__gameTitleInnerWrapper],div[class*=GameCard-module__card],div[class*=ScrollArrows-module]{transition:none !important}";
+  if (getPref("hide_dots_icon")) css += "div[class*=Grip-module__container]{visibility:hidden}@media (hover:hover){button[class*=GripHandle-module__container]:hover div[class*=Grip-module__container]{visibility:visible}}button[class*=GripHandle-module__container][aria-expanded=true] div[class*=Grip-module__container]{visibility:visible}button[class*=GripHandle-module__container][aria-expanded=false]{background-color:transparent !important}div[class*=StreamHUD-module__buttonsContainer]{padding:0 !important}";
+  if (css += "div[class*=StreamMenu-module__menu]{min-width:100vw !important}", getPref("stream_simplify_menu")) css += "div[class*=Menu-module__scrollable]{--bxStreamMenuItemSize:80px;--streamMenuItemSize:calc(var(--bxStreamMenuItemSize) + 40px) !important}.bx-badges{top:calc(var(--streamMenuItemSize) - 20px)}body[data-media-type=tv] .bx-badges{top:calc(var(--streamMenuItemSize) - 10px) !important}button[class*=MenuItem-module__container]{min-width:auto !important;min-height:auto !important;width:var(--bxStreamMenuItemSize) !important;height:var(--bxStreamMenuItemSize) !important}div[class*=MenuItem-module__label]{display:none !important}svg[class*=MenuItem-module__icon]{width:36px;height:100% !important;padding:0 !important;margin:0 !important}";
+  else css += "body[data-media-type=tv] .bx-badges{top:calc(var(--streamMenuItemSize) + 30px)}body:not([data-media-type=tv]) .bx-badges{top:calc(var(--streamMenuItemSize) + 20px)}body:not([data-media-type=tv]) button[class*=MenuItem-module__container]{min-width:auto !important;width:100px !important}body:not([data-media-type=tv]) button[class*=MenuItem-module__container]:nth-child(n+2){margin-left:10px !important}body:not([data-media-type=tv]) div[class*=MenuItem-module__label]{margin-left:8px !important;margin-right:8px !important}";
+  if (getPref("ui_scrollbar_hide")) css += "html{scrollbar-width:none}body::-webkit-scrollbar{display:none}";
   const $style = CE("style", {}, css);
   document.documentElement.appendChild($style);
 }
@@ -6834,8 +6381,7 @@ function onHistoryChanged(e) {
   if (e && e.arguments && e.arguments[0] && e.arguments[0].origin === "better-xcloud") return;
   window.setTimeout(RemotePlayManager.detect, 10);
   const $settings = document.querySelector(".bx-settings-container");
-  if ($settings)
-    $settings.classList.add("bx-gone");
+  if ($settings) $settings.classList.add("bx-gone");
   NavigationDialogManager.getInstance().hide(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
 function overridePreloadState() {
@@ -6851,21 +6397,18 @@ function overridePreloadState() {
       } catch (e) {
         BxLogger.error(LOG_TAG6, e);
       }
-      if (STATES.userAgent.capabilities.touch)
-        try {
+      if (STATES.userAgent.capabilities.touch) try {
           const sigls = state.xcloud.sigls;
           if ("9c86f07a-f3e8-45ad-82a0-a1f759597059" in sigls) {
             let customList = TouchController.getCustomList();
             const allGames = sigls["29a81209-df6f-41fd-a528-2ae6b91f719c"].data.products;
             customList = customList.filter((id2) => allGames.includes(id2)), sigls["9c86f07a-f3e8-45ad-82a0-a1f759597059"]?.data.products.push(...customList);
           }
-          if (BX_FLAGS.ForceNativeMkbTitles && "8fa264dd-124f-4af3-97e8-596fcdf4b486" in sigls)
-            sigls["8fa264dd-124f-4af3-97e8-596fcdf4b486"]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
+          if (BX_FLAGS.ForceNativeMkbTitles && "8fa264dd-124f-4af3-97e8-596fcdf4b486" in sigls) sigls["8fa264dd-124f-4af3-97e8-596fcdf4b486"]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
         } catch (e) {
           BxLogger.error(LOG_TAG6, e);
         }
-      if (getPref("ui_home_context_menu_disabled"))
-        try {
+      if (getPref("ui_home_context_menu_disabled")) try {
           state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = !1;
         } catch (e) {
           BxLogger.error(LOG_TAG6, e);
@@ -6879,15 +6422,13 @@ function setCodecPreferences(sdp, preferredCodec) {
   const h264Pattern = /a=fmtp:(\d+).*profile-level-id=([0-9a-f]{6})/g, profilePrefix = preferredCodec === "high" ? "4d" : preferredCodec === "low" ? "420" : "42e", preferredCodecIds = [], matches = sdp.matchAll(h264Pattern) || [];
   for (let match of matches) {
     const id2 = match[1];
-    if (match[2].startsWith(profilePrefix))
-      preferredCodecIds.push(id2);
+    if (match[2].startsWith(profilePrefix)) preferredCodecIds.push(id2);
   }
   if (!preferredCodecIds.length) return sdp;
   const lines = sdp.split("\r\n");
   for (let lineIndex = 0;lineIndex < lines.length; lineIndex++) {
     const line = lines[lineIndex];
-    if (!line.startsWith("m=video"))
-      continue;
+    if (!line.startsWith("m=video")) continue;
     const tmp = line.trim().split(" ");
     let ids = tmp.slice(3);
     ids = ids.filter((item2) => !preferredCodecIds.includes(item2)), ids = preferredCodecIds.concat(ids), lines[lineIndex] = tmp.slice(0, 3).concat(ids).join(" ");
@@ -6904,19 +6445,16 @@ function patchSdpBitrate(sdp, video, audio) {
   };
   for (let lineNumber = 0;lineNumber < lines.length; lineNumber++) {
     let media = "", line = lines[lineNumber];
-    if (!line.startsWith("m="))
-      continue;
+    if (!line.startsWith("m=")) continue;
     for (let m of mediaSet)
       if (line.startsWith(`m=${m}`)) {
         media = m, mediaSet.delete(media);
         break;
       }
-    if (!media)
-      continue;
+    if (!media) continue;
     const bLine = `b=AS:${bitrate[media]}`;
     while (lineNumber++, lineNumber < lines.length) {
-      if (line = lines[lineNumber], line.startsWith("i=") || line.startsWith("c="))
-        continue;
+      if (line = lines[lineNumber], line.startsWith("i=") || line.startsWith("c=")) continue;
       if (line.startsWith("b=AS:")) {
         lines[lineNumber] = bLine;
         break;
@@ -6986,8 +6524,7 @@ class WebGL2Player {
         if (this.#stopped) return;
         this.drawFrame(), this.#animFrameId = $video.requestVideoFrameCallback(animate);
       }, this.#animFrameId = $video.requestVideoFrameCallback(animate);
-    } else
-      animate = () => {
+    } else animate = () => {
         if (this.#stopped) return;
         this.drawFrame(), this.#animFrameId = requestAnimationFrame(animate);
       }, this.#animFrameId = requestAnimationFrame(animate);
@@ -7006,8 +6543,7 @@ class WebGL2Player {
     const fShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fShader, clarity_boost_default2), gl.compileShader(fShader);
     const program = gl.createProgram();
-    if (this.#program = program, gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), gl.useProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS))
-      console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
+    if (this.#program = program, gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), gl.useProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS)) console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
     this.updateCanvas();
     const buffer = gl.createBuffer();
     this.#resources.push(buffer), gl.bindBuffer(gl.ARRAY_BUFFER, buffer), gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
@@ -7032,10 +6568,8 @@ class WebGL2Player {
   }
   stop() {
     if (BxLogger.info(LOG_TAG7, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
-      if ("requestVideoFrameCallback" in HTMLVideoElement.prototype)
-        this.#$video.cancelVideoFrameCallback(this.#animFrameId);
-      else
-        cancelAnimationFrame(this.#animFrameId);
+      if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.#$video.cancelVideoFrameCallback(this.#animFrameId);
+      else cancelAnimationFrame(this.#animFrameId);
       this.#animFrameId = null;
     }
   }
@@ -7045,18 +6579,13 @@ class WebGL2Player {
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       for (let resource of this.#resources)
-        if (resource instanceof WebGLProgram)
-          gl.useProgram(null), gl.deleteProgram(resource);
-        else if (resource instanceof WebGLShader)
-          gl.deleteShader(resource);
-        else if (resource instanceof WebGLTexture)
-          gl.deleteTexture(resource);
-        else if (resource instanceof WebGLBuffer)
-          gl.deleteBuffer(resource);
+        if (resource instanceof WebGLProgram) gl.useProgram(null), gl.deleteProgram(resource);
+        else if (resource instanceof WebGLShader) gl.deleteShader(resource);
+        else if (resource instanceof WebGLTexture) gl.deleteTexture(resource);
+        else if (resource instanceof WebGLBuffer) gl.deleteBuffer(resource);
       this.#gl = null;
     }
-    if (this.#$canvas.isConnected)
-      this.#$canvas.parentElement?.removeChild(this.#$canvas);
+    if (this.#$canvas.isConnected) this.#$canvas.parentElement?.removeChild(this.#$canvas);
     this.#$canvas.width = 1, this.#$canvas.height = 1;
   }
 }
@@ -7098,48 +6627,35 @@ class StreamPlayer {
       this.#$usmMatrix?.setAttributeNS(null, "kernelMatrix", matrix), filters.push("url(#bx-filter-usm)");
     }
     const saturation = this.#options.saturation || 100;
-    if (saturation != 100)
-      filters.push(`saturate(${saturation}%)`);
+    if (saturation != 100) filters.push(`saturate(${saturation}%)`);
     const contrast = this.#options.contrast || 100;
-    if (contrast != 100)
-      filters.push(`contrast(${contrast}%)`);
+    if (contrast != 100) filters.push(`contrast(${contrast}%)`);
     const brightness = this.#options.brightness || 100;
-    if (brightness != 100)
-      filters.push(`brightness(${brightness}%)`);
+    if (brightness != 100) filters.push(`brightness(${brightness}%)`);
     return filters.join(" ");
   }
   #resizePlayer() {
     const PREF_RATIO = getPref("video_ratio"), $video = this.#$video, isNativeTouchGame = STATES.currentStream.titleInfo?.details.hasNativeTouchSupport;
     let $webGL2Canvas;
-    if (this.#playerType == "webgl2")
-      $webGL2Canvas = this.#webGL2Player?.getCanvas();
+    if (this.#playerType == "webgl2") $webGL2Canvas = this.#webGL2Player?.getCanvas();
     let targetWidth, targetHeight, targetObjectFit;
     if (PREF_RATIO.includes(":")) {
       const tmp = PREF_RATIO.split(":"), videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
       let width = 0, height = 0;
       const parentRect = $video.parentElement.getBoundingClientRect();
-      if (parentRect.width / parentRect.height > videoRatio)
-        height = parentRect.height, width = height * videoRatio;
-      else
-        width = parentRect.width, height = width / videoRatio;
+      if (parentRect.width / parentRect.height > videoRatio) height = parentRect.height, width = height * videoRatio;
+      else width = parentRect.width, height = width / videoRatio;
       width = Math.ceil(Math.min(parentRect.width, width)), height = Math.ceil(Math.min(parentRect.height, height)), $video.dataset.width = width.toString(), $video.dataset.height = height.toString(), targetWidth = `${width}px`, targetHeight = `${height}px`, targetObjectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
-    } else
-      targetWidth = "100%", targetHeight = "100%", targetObjectFit = PREF_RATIO, $video.dataset.width = window.innerWidth.toString(), $video.dataset.height = window.innerHeight.toString();
-    if ($video.style.width = targetWidth, $video.style.height = targetHeight, $video.style.objectFit = targetObjectFit, $webGL2Canvas)
-      $webGL2Canvas.style.width = targetWidth, $webGL2Canvas.style.height = targetHeight, $webGL2Canvas.style.objectFit = targetObjectFit;
-    if (isNativeTouchGame && this.#playerType == "webgl2")
-      window.BX_EXPOSED.streamSession.updateDimensions();
+    } else targetWidth = "100%", targetHeight = "100%", targetObjectFit = PREF_RATIO, $video.dataset.width = window.innerWidth.toString(), $video.dataset.height = window.innerHeight.toString();
+    if ($video.style.width = targetWidth, $video.style.height = targetHeight, $video.style.objectFit = targetObjectFit, $webGL2Canvas) $webGL2Canvas.style.width = targetWidth, $webGL2Canvas.style.height = targetHeight, $webGL2Canvas.style.objectFit = targetObjectFit;
+    if (isNativeTouchGame && this.#playerType == "webgl2") window.BX_EXPOSED.streamSession.updateDimensions();
   }
   setPlayerType(type, refreshPlayer = !1) {
-    if (this.#playerType !== type)
-      if (type === "webgl2") {
-        if (!this.#webGL2Player)
-          this.#webGL2Player = new WebGL2Player(this.#$video);
-        else
-          this.#webGL2Player.resume();
+    if (this.#playerType !== type) if (type === "webgl2") {
+        if (!this.#webGL2Player) this.#webGL2Player = new WebGL2Player(this.#$video);
+        else this.#webGL2Player.resume();
         this.#$videoCss.textContent = "", this.#$video.classList.add("bx-pixel");
-      } else
-        this.#webGL2Player?.stop(), this.#$video.classList.remove("bx-pixel");
+      } else this.#webGL2Player?.stop(), this.#$video.classList.remove("bx-pixel");
     this.#playerType = type, refreshPlayer && this.refreshPlayer();
   }
   setOptions(options, refreshPlayer = !1) {
@@ -7149,8 +6665,7 @@ class StreamPlayer {
     this.#options = Object.assign(this.#options, options), refreshPlayer && this.refreshPlayer();
   }
   getPlayerElement(playerType) {
-    if (typeof playerType === "undefined")
-      playerType = this.#playerType;
+    if (typeof playerType === "undefined") playerType = this.#playerType;
     if (playerType === "webgl2") return this.#webGL2Player?.getCanvas();
     return this.#$video;
   }
@@ -7160,20 +6675,15 @@ class StreamPlayer {
   refreshPlayer() {
     if (this.#playerType === "webgl2") {
       const options = this.#options, webGL2Player = this.#webGL2Player;
-      if (options.processing === "usm")
-        webGL2Player.setFilter(1);
-      else
-        webGL2Player.setFilter(2);
+      if (options.processing === "usm") webGL2Player.setFilter(1);
+      else webGL2Player.setFilter(2);
       Screenshot.updateCanvasFilters("none"), webGL2Player.setSharpness(options.sharpness || 0), webGL2Player.setSaturation(options.saturation || 100), webGL2Player.setContrast(options.contrast || 100), webGL2Player.setBrightness(options.brightness || 100);
     } else {
       let filters = this.#getVideoPlayerFilterStyle(), videoCss = "";
-      if (filters)
-        videoCss += `filter: ${filters} !important;`;
-      if (getPref("screenshot_apply_filters"))
-        Screenshot.updateCanvasFilters(filters);
+      if (filters) videoCss += `filter: ${filters} !important;`;
+      if (getPref("screenshot_apply_filters")) Screenshot.updateCanvasFilters(filters);
       let css = "";
-      if (videoCss)
-        css = `#game-stream video { ${videoCss} }`;
+      if (videoCss) css = `#game-stream video { ${videoCss} }`;
       this.#$videoCss.textContent = css;
     }
     this.#resizePlayer();
@@ -7208,8 +6718,7 @@ function patchVideoApi() {
       return nativePlay.apply(this);
     }
     const $parent = this.parentElement;
-    if (!this.src && $parent.dataset.testid === "media-container")
-      this.addEventListener("loadedmetadata", showFunc, { once: !0 });
+    if (!this.src && $parent.dataset.testid === "media-container") this.addEventListener("loadedmetadata", showFunc, { once: !0 });
     return nativePlay.apply(this);
   };
 }
@@ -7229,11 +6738,9 @@ function patchRtcPeerConnection() {
   if (codec !== "default" || maxVideoBitrate > 0) {
     const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;
     RTCPeerConnection.prototype.setLocalDescription = function(description) {
-      if (codec !== "default")
-        arguments[0].sdp = setCodecPreferences(arguments[0].sdp, codec);
+      if (codec !== "default") arguments[0].sdp = setCodecPreferences(arguments[0].sdp, codec);
       try {
-        if (maxVideoBitrate > 0 && description)
-          arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
+        if (maxVideoBitrate > 0 && description) arguments[0].sdp = patchSdpBitrate(arguments[0].sdp, Math.round(maxVideoBitrate / 1000));
       } catch (e) {
         BxLogger.error("setLocalDescription", e);
       }
@@ -7251,8 +6758,7 @@ function patchRtcPeerConnection() {
 function patchAudioContext() {
   const OrgAudioContext = window.AudioContext, nativeCreateGain = OrgAudioContext.prototype.createGain;
   window.AudioContext = function(options) {
-    if (options && options.latencyHint)
-      options.latencyHint = 0;
+    if (options && options.latencyHint) options.latencyHint = 0;
     const ctx = new OrgAudioContext(options);
     return BxLogger.info("patchAudioContext", ctx, options), ctx.createGain = function() {
       const gainNode = nativeCreateGain.apply(this);
@@ -7280,8 +6786,7 @@ function patchMeControl() {
       return target[prop];
     },
     set(obj, prop, value) {
-      if (prop === "MeControl" && value.Config)
-        value.Config = Object.assign(value.Config, overrideConfigs);
+      if (prop === "MeControl" && value.Config) value.Config = Object.assign(value.Config, overrideConfigs);
       return obj[prop] = value, !0;
     }
   }, MeControlHandler = {
@@ -7289,8 +6794,7 @@ function patchMeControl() {
       return target[prop];
     },
     set(obj, prop, value) {
-      if (prop === "Config")
-        value = Object.assign(value, overrideConfigs);
+      if (prop === "Config") value = Object.assign(value, overrideConfigs);
       return obj[prop] = value, !0;
     }
   };
@@ -7304,8 +6808,7 @@ function patchCanvasContext() {
   HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
     if (contextType.includes("webgl")) {
       if (contextAttributes = contextAttributes || {}, !contextAttributes.isBx) {
-        if (contextAttributes.antialias = !1, contextAttributes.powerPreference === "high-performance")
-          contextAttributes.powerPreference = "low-power";
+        if (contextAttributes.antialias = !1, contextAttributes.powerPreference === "high-performance") contextAttributes.powerPreference = "low-power";
       }
     }
     return nativeGetContext.apply(this, [contextType, contextAttributes]);
@@ -7440,10 +6943,8 @@ class TrueAchievements {
   });
   static updateIds(xboxTitleId, id2) {
     const { $link, $button } = TrueAchievements;
-    if (clearDataSet($link), clearDataSet($button), xboxTitleId)
-      $link.dataset.xboxTitleId = xboxTitleId, $button.dataset.xboxTitleId = xboxTitleId;
-    if (id2)
-      $link.dataset.id = id2, $button.dataset.id = id2;
+    if (clearDataSet($link), clearDataSet($button), xboxTitleId) $link.dataset.xboxTitleId = xboxTitleId, $button.dataset.xboxTitleId = xboxTitleId;
+    if (id2) $link.dataset.id = id2, $button.dataset.id = id2;
   }
   static injectAchievementsProgress($elm) {
     const $parent = $elm.parentElement, $div = CE("div", {
@@ -7452,17 +6953,12 @@ class TrueAchievements {
     let xboxTitleId;
     try {
       const $container = $parent.closest("div[class*=AchievementsPreview-module__container]");
-      if ($container)
-        xboxTitleId = getReactProps($container).children.props.data.data.xboxTitleId;
+      if ($container) xboxTitleId = getReactProps($container).children.props.data.data.xboxTitleId;
     } catch (e) {}
-    if (!xboxTitleId)
-      xboxTitleId = TrueAchievements.getStreamXboxTitleId();
-    if (typeof xboxTitleId !== "undefined")
-      xboxTitleId = xboxTitleId.toString();
-    if (TrueAchievements.updateIds(xboxTitleId), document.documentElement.dataset.xdsPlatform === "tv")
-      $div.appendChild(TrueAchievements.$link);
-    else
-      $div.appendChild(TrueAchievements.$button);
+    if (!xboxTitleId) xboxTitleId = TrueAchievements.getStreamXboxTitleId();
+    if (typeof xboxTitleId !== "undefined") xboxTitleId = xboxTitleId.toString();
+    if (TrueAchievements.updateIds(xboxTitleId), document.documentElement.dataset.xdsPlatform === "tv") $div.appendChild(TrueAchievements.$link);
+    else $div.appendChild(TrueAchievements.$button);
     $parent.appendChild($div);
   }
   static injectAchievementDetailPage($parent) {
@@ -7476,24 +6972,21 @@ class TrueAchievements {
           id2 = achiev.id, xboxTitleId = achiev.title.id;
           break;
         }
-      if (id2)
-        TrueAchievements.updateIds(xboxTitleId, id2), $parent.appendChild(TrueAchievements.$link);
+      if (id2) TrueAchievements.updateIds(xboxTitleId, id2), $parent.appendChild(TrueAchievements.$link);
     } catch (e) {}
   }
   static getStreamXboxTitleId() {
     return STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
   }
   static open(override, xboxTitleId, id2) {
-    if (!xboxTitleId || xboxTitleId === "undefined")
-      xboxTitleId = TrueAchievements.getStreamXboxTitleId();
+    if (!xboxTitleId || xboxTitleId === "undefined") xboxTitleId = TrueAchievements.getStreamXboxTitleId();
     if (AppInterface && AppInterface.openTrueAchievementsLink) {
       AppInterface.openTrueAchievementsLink(override, xboxTitleId?.toString(), id2?.toString());
       return;
     }
     let url = "https://www.trueachievements.com";
     if (xboxTitleId) {
-      if (url += `/deeplink/${xboxTitleId}`, id2)
-        url += `/${id2}`;
+      if (url += `/deeplink/${xboxTitleId}`, id2) url += `/${id2}`;
     }
     TrueAchievements.$hiddenLink.href = url, TrueAchievements.$hiddenLink.click();
   }
@@ -7547,8 +7040,7 @@ class SpeakerAction extends BaseGameBarAction {
 class GameBar {
   static instance;
   static getInstance() {
-    if (!GameBar.instance)
-      GameBar.instance = new GameBar;
+    if (!GameBar.instance) GameBar.instance = new GameBar;
     return GameBar.instance;
   }
   static VISIBLE_DURATION = 2000;
@@ -7574,8 +7066,7 @@ class GameBar {
       $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
     }), window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this)), $container.addEventListener("pointerover", this.clearHideTimeout.bind(this)), $container.addEventListener("pointerout", this.beginHideTimeout.bind(this)), $container.addEventListener("transitionend", (e) => {
       const classList = $container.classList;
-      if (classList.contains("bx-hide"))
-        classList.remove("bx-hide"), classList.add("bx-offscreen");
+      if (classList.contains("bx-hide")) classList.remove("bx-hide"), classList.add("bx-offscreen");
     }), document.documentElement.appendChild($gameBar), this.$gameBar = $gameBar, this.$container = $container, getPref("game_bar_position") !== "off" && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e) => {
       if (!STATES.isPlaying) {
         this.disable();
@@ -7640,10 +7131,8 @@ class GuideMenu {
       title: t("reload-page"),
       style: 64 | 32,
       onClick: (e) => {
-        if (STATES.isPlaying)
-          confirm(t("confirm-reload-stream")) && window.location.reload();
-        else
-          window.location.reload();
+        if (STATES.isPlaying) confirm(t("confirm-reload-stream")) && window.location.reload();
+        else window.location.reload();
         window.BX_EXPOSED.dialogRoutes.closeAll();
       }
     }),
@@ -7674,10 +7163,8 @@ class GuideMenu {
       ]
     ];
     for (let $button of buttons) {
-      if (!$button)
-        continue;
-      if ($button instanceof HTMLElement)
-        $div.appendChild($button);
+      if (!$button) continue;
+      if ($button instanceof HTMLElement) $div.appendChild($button);
       else if (Array.isArray($button)) {
         const $wrapper = CE("div", {});
         for (let $child of $button)
@@ -7689,8 +7176,7 @@ class GuideMenu {
   }
   static #injectHome($root, isPlaying = !1) {
     const $achievementsProgress = $root.querySelector("button[class*=AchievementsButton-module__progressBarContainer]");
-    if ($achievementsProgress)
-      TrueAchievements.injectAchievementsProgress($achievementsProgress);
+    if ($achievementsProgress) TrueAchievements.injectAchievementsProgress($achievementsProgress);
     let $target = null;
     if (isPlaying) {
       $target = $root.querySelector("a[class*=QuitGameButton]");
@@ -7698,8 +7184,7 @@ class GuideMenu {
       $btnXcloudHome && ($btnXcloudHome.style.display = "none");
     } else {
       const $dividers = $root.querySelectorAll("div[class*=Divider-module__divider]");
-      if ($dividers)
-        $target = $dividers[$dividers.length - 1];
+      if ($dividers) $target = $dividers[$dividers.length - 1];
     }
     if (!$target) return !1;
     const $buttons = GuideMenu.#renderButtons();
@@ -7731,16 +7216,14 @@ class GuideMenu {
       let $elm = $selectedTab, index;
       for (index = 0;$elm = $elm?.previousElementSibling; index++)
         ;
-      if (index === 0)
-        BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: "home" });
+      if (index === 0) BxEvent.dispatch(window, BxEvent.XCLOUD_GUIDE_MENU_SHOWN, { where: "home" });
     }
   }
 }
 class XcloudApi {
   static instance;
   static getInstance() {
-    if (!XcloudApi.instance)
-      XcloudApi.instance = new XcloudApi;
+    if (!XcloudApi.instance) XcloudApi.instance = new XcloudApi;
     return XcloudApi.instance;
   }
   #CACHE_TITLES = {};
@@ -7792,8 +7275,7 @@ class GameTile {
     seconds %= 3600;
     let m = Math.floor(seconds / 60), s = seconds % 60;
     const output = [];
-    if (h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), s > 0 || output.length === 0)
-      output.push(`${s}s`);
+    if (h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), s > 0 || output.length === 0) output.push(`${s}s`);
     return output.join(" ");
   }
   static async#showWaitTime($elm, productId) {
@@ -7803,8 +7285,7 @@ class GameTile {
     const api = XcloudApi.getInstance(), info = await api.getTitleInfo(productId);
     if (info) {
       const waitTime = await api.getWaitTime(info.titleId);
-      if (waitTime)
-        totalWaitTime = waitTime.estimatedAllocationTimeInSeconds;
+      if (waitTime) totalWaitTime = waitTime.estimatedAllocationTimeInSeconds;
     }
     if (typeof totalWaitTime === "number" && isElementVisible($elm)) {
       const $div = CE("div", { class: "bx-game-tile-wait-time" }, createSvgIcon(BxIcon.PLAYTIME), CE("span", {}, GameTile.#secondsToHms(totalWaitTime)));
@@ -7821,17 +7302,12 @@ class GameTile {
     try {
       if ($elm.tagName === "BUTTON" && $elm.className.includes("MruGameCard") || $elm.tagName === "A" && $elm.className.includes("GameCard")) {
         let props = getReactProps($elm.parentElement);
-        if (Array.isArray(props.children))
-          productId = props.children[0].props.productId;
-        else
-          productId = props.children.props.productId;
+        if (Array.isArray(props.children)) productId = props.children[0].props.productId;
+        else productId = props.children.props.productId;
       } else if ($elm.tagName === "A" && $elm.className.includes("GameItem")) {
         let props = getReactProps($elm.parentElement);
-        if (props = props.children.props, props.location !== "NonStreamableGameItem")
-          if ("productId" in props)
-            productId = props.productId;
-          else
-            productId = props.children.props.productId;
+        if (props = props.children.props, props.location !== "NonStreamableGameItem") if ("productId" in props) productId = props.productId;
+          else productId = props.children.props.productId;
       }
     } catch (e) {}
     return productId;
@@ -7841,8 +7317,7 @@ class GameTile {
       const $elm = e.element;
       if (($elm.className || "").includes("MruGameCard")) {
         const $ol = $elm.closest("ol");
-        if ($ol && !$ol.hasWaitTime)
-          $ol.hasWaitTime = !0, $ol.querySelectorAll("button[class*=MruGameCard]").forEach(($elm2) => {
+        if ($ol && !$ol.hasWaitTime) $ol.hasWaitTime = !0, $ol.querySelectorAll("button[class*=MruGameCard]").forEach(($elm2) => {
             const productId = GameTile.#findProductId($elm2);
             productId && GameTile.#showWaitTime($elm2, productId);
           });
@@ -7886,8 +7361,7 @@ class ProductDetailsPage {
       const $container = document.querySelector("div[class*=ActionButtons-module__container]");
       if ($container && $container.parentElement) {
         const fragment = document.createDocumentFragment();
-        if (BX_FLAGS.DeviceInfo.deviceType === "android")
-          fragment.appendChild(ProductDetailsPage.$btnShortcut);
+        if (BX_FLAGS.DeviceInfo.deviceType === "android") fragment.appendChild(ProductDetailsPage.$btnShortcut);
         fragment.appendChild(ProductDetailsPage.$btnWallpaper), $container.parentElement.appendChild(fragment);
       }
     }, 500);
@@ -7937,16 +7411,13 @@ class StreamUiHandler {
     const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
     if (!$btnCloseHud) return;
     let { $btnRefresh, $btnHome } = StreamUiHandler;
-    if (typeof $btnRefresh === "undefined")
-      $btnRefresh = StreamUiHandler.cloneCloseButton($btnCloseHud, BxIcon.REFRESH, "bx-stream-refresh-button", () => {
+    if (typeof $btnRefresh === "undefined") $btnRefresh = StreamUiHandler.cloneCloseButton($btnCloseHud, BxIcon.REFRESH, "bx-stream-refresh-button", () => {
         confirm(t("confirm-reload-stream")) && window.location.reload();
       });
-    if (typeof $btnHome === "undefined")
-      $btnHome = StreamUiHandler.cloneCloseButton($btnCloseHud, BxIcon.HOME, "bx-stream-home-button", () => {
+    if (typeof $btnHome === "undefined") $btnHome = StreamUiHandler.cloneCloseButton($btnCloseHud, BxIcon.HOME, "bx-stream-home-button", () => {
         confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
       });
-    if ($btnRefresh && $btnHome)
-      $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh), $btnRefresh.insertAdjacentElement("afterend", $btnHome);
+    if ($btnRefresh && $btnHome) $btnCloseHud.insertAdjacentElement("afterend", $btnRefresh), $btnRefresh.insertAdjacentElement("afterend", $btnHome);
     document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]")?.appendChild(await StreamBadges.getInstance().render());
   }
   static handleSystemMenu($streamHud) {
@@ -7959,14 +7430,12 @@ class StreamUiHandler {
       $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
     };
     let $btnStreamSettings = StreamUiHandler.$btnStreamSettings;
-    if (typeof $btnStreamSettings === "undefined")
-      $btnStreamSettings = StreamUiHandler.cloneStreamHudButton($orgButton, t("better-xcloud"), BxIcon.BETTER_XCLOUD), $btnStreamSettings?.addEventListener("click", (e) => {
+    if (typeof $btnStreamSettings === "undefined") $btnStreamSettings = StreamUiHandler.cloneStreamHudButton($orgButton, t("better-xcloud"), BxIcon.BETTER_XCLOUD), $btnStreamSettings?.addEventListener("click", (e) => {
         hideGripHandle(), e.preventDefault(), SettingsNavigationDialog.getInstance().show();
       }), StreamUiHandler.$btnStreamSettings = $btnStreamSettings;
     const streamStats = StreamStats.getInstance();
     let $btnStreamStats = StreamUiHandler.$btnStreamStats;
-    if (typeof $btnStreamStats === "undefined")
-      $btnStreamStats = StreamUiHandler.cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats?.addEventListener("click", (e) => {
+    if (typeof $btnStreamStats === "undefined") $btnStreamStats = StreamUiHandler.cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats?.addEventListener("click", (e) => {
         hideGripHandle(), e.preventDefault(), streamStats.toggle();
         const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();
         $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn);
@@ -8002,8 +7471,7 @@ class StreamUiHandler {
             StreamUiHandler.handleStreamMenu();
             return;
           }
-          if (className.startsWith("Overlay-module_") || className.startsWith("InProgressScreen"))
-            $elm = $elm.querySelector("#StreamHud");
+          if (className.startsWith("Overlay-module_") || className.startsWith("InProgressScreen")) $elm = $elm.querySelector("#StreamHud");
           if (!$elm || ($elm.id || "") !== "StreamHud") return;
           StreamUiHandler.handleSystemMenu($elm);
         });
@@ -8031,26 +7499,22 @@ function observeRootDialog($root) {
   let beingShown = !1;
   new MutationObserver((mutationList) => {
     for (let mutation of mutationList) {
-      if (mutation.type !== "childList")
-        continue;
+      if (mutation.type !== "childList") continue;
       if (BX_FLAGS.Debug && BxLogger.warning("RootDialog", "added", mutation.addedNodes), mutation.addedNodes.length === 1) {
         const $addedElm = mutation.addedNodes[0];
         if ($addedElm instanceof HTMLElement && $addedElm.className) {
-          if ($root.querySelector("div[class*=GuideDialog]"))
-            GuideMenu.observe($addedElm);
+          if ($root.querySelector("div[class*=GuideDialog]")) GuideMenu.observe($addedElm);
         }
       }
       const shown = !!($root.firstElementChild && $root.firstElementChild.childElementCount > 0);
-      if (shown !== beingShown)
-        beingShown = shown, BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
+      if (shown !== beingShown) beingShown = shown, BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
     }
   }).observe($root, { subtree: !0, childList: !0 });
 }
 function waitForRootDialog() {
   const observer = new MutationObserver((mutationList) => {
     for (let mutation of mutationList) {
-      if (mutation.type !== "childList")
-        continue;
+      if (mutation.type !== "childList") continue;
       const $target = mutation.target;
       if ($target.id && $target.id === "gamepass-dialog-root") {
         observer.disconnect(), observeRootDialog($target);
@@ -8061,16 +7525,11 @@ function waitForRootDialog() {
   observer.observe(document.documentElement, { subtree: !0, childList: !0 });
 }
 function main() {
-  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking"))
-    patchMeControl(), disableAdobeAudienceManager();
-  if (STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), Toast.setup(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), GuideMenu.addEventListeners(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), getPref("controller_show_connection_status"))
-    window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
-  if (getPref("xhome_enabled"))
-    RemotePlayManager.detect();
-  if (getPref("stream_touch_controller") === "all")
-    TouchController.setup();
-  if (getPref("mkb_enabled") && AppInterface)
-    STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
+  if (waitForRootDialog(), patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
+  if (STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), addCss(), Toast.setup(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), GuideMenu.addEventListeners(), StreamBadges.setupEvents(), StreamStats.setupEvents(), EmulatedMkbHandler.setupEvents(), Patcher.init(), disablePwa(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
+  if (getPref("xhome_enabled")) RemotePlayManager.detect();
+  if (getPref("stream_touch_controller") === "all") TouchController.setup();
+  if (getPref("mkb_enabled") && AppInterface) STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
   getPref("ui_game_card_show_wait_time") && GameTile.setup();
 }
 if (window.location.pathname.includes("/auth/msa")) {
@@ -8087,32 +7546,29 @@ if (window.location.pathname.includes("/auth/msa")) {
 BxLogger.info("readyState", document.readyState);
 if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
   window.stop();
-  const css = '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}', isSafari = UserAgent.isSafari();
+  let css = "";
+  css += '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}';
+  const isSafari = UserAgent.isSafari();
   let $secondaryAction;
-  if (isSafari)
-    $secondaryAction = CE("p", {}, t("settings-reloading"));
-  else
-    $secondaryAction = CE("a", {
+  if (isSafari) $secondaryAction = CE("p", {}, t("settings-reloading"));
+  else $secondaryAction = CE("a", {
       href: "https://better-xcloud.github.io/troubleshooting",
       target: "_blank"
     }, "🤓 " + t("how-to-fix"));
   const $fragment = document.createDocumentFragment();
-  throw $fragment.appendChild(CE("style", {}, '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}')), $fragment.appendChild(CE("div", {
+  throw $fragment.appendChild(CE("style", {}, css)), $fragment.appendChild(CE("div", {
     class: "bx-reload-overlay"
   }, CE("div", {}, CE("p", {}, t("load-failed-message")), $secondaryAction))), document.documentElement.appendChild($fragment), isSafari && window.location.reload(!0), new Error("[Better xCloud] Executing workaround for Safari");
 }
 window.addEventListener("load", (e) => {
   window.setTimeout(() => {
-    if (document.body.classList.contains("legacyBackground"))
-      window.stop(), window.location.reload(!0);
+    if (document.body.classList.contains("legacyBackground")) window.stop(), window.location.reload(!0);
   }, 3000);
 });
 document.addEventListener("readystatechange", (e) => {
   if (document.readyState !== "interactive") return;
-  if (STATES.isSignedIn = !!window.xbcUser?.isSignedIn, STATES.isSignedIn)
-    getPref("xhome_enabled") && RemotePlayManager.getInstance().initialize();
-  else
-    window.setTimeout(HeaderSection.watchHeader, 2000);
+  if (STATES.isSignedIn = !!window.xbcUser?.isSignedIn, STATES.isSignedIn) getPref("xhome_enabled") && RemotePlayManager.getInstance().initialize();
+  else window.setTimeout(HeaderSection.watchHeader, 2000);
   if (getPref("ui_hide_sections").includes("friends")) {
     const $parent = document.querySelector("div[class*=PlayWithFriendsSkeleton]")?.closest("div[class*=HomePage-module]");
     $parent && ($parent.style.display = "none");
@@ -8131,15 +7587,12 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
   STATES.isSignedIn = !0, window.setTimeout(HeaderSection.watchHeader, 2000);
 });
 window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
-  if (window.location.pathname.includes("/launch/") && STATES.currentStream.titleInfo)
-    STATES.currentStream.titleSlug = productTitleToSlug(STATES.currentStream.titleInfo.product.title);
-  else
-    STATES.currentStream.titleSlug = "remote-play";
+  if (window.location.pathname.includes("/launch/") && STATES.currentStream.titleInfo) STATES.currentStream.titleSlug = productTitleToSlug(STATES.currentStream.titleInfo.product.title);
+  else STATES.currentStream.titleSlug = "remote-play";
 });
 getPref("ui_loading_screen_game_art") && window.addEventListener(BxEvent.TITLE_INFO_READY, LoadingScreen.setup);
 window.addEventListener(BxEvent.STREAM_STARTING, (e) => {
-  if (LoadingScreen.hide(), !getPref("mkb_enabled") && getPref("mkb_hide_idle_cursor"))
-    MouseCursorHider.start(), MouseCursorHider.hide();
+  if (LoadingScreen.hide(), !getPref("mkb_enabled") && getPref("mkb_hide_idle_cursor")) MouseCursorHider.start(), MouseCursorHider.hide();
 });
 window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
   if (STATES.isPlaying = !0, StreamUiHandler.observe(), getPref("game_bar_position") !== "off") {
@@ -8153,8 +7606,7 @@ window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
 window.addEventListener(BxEvent.XCLOUD_RENDERING_COMPONENT, (e) => {
-  if (e.component === "product-details")
-    ProductDetailsPage.injectButtons();
+  if (e.component === "product-details") ProductDetailsPage.injectButtons();
 });
 window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
   const dataChannel = e.dataChannel;
@@ -8166,8 +7618,7 @@ window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
       if (STATES.currentStream.xboxTitleId = xboxTitleId, STATES.remotePlay.isPlaying) {
         if (STATES.currentStream.titleSlug = "remote-play", json.focused) {
           const productTitle = await XboxApi.getProductTitle(xboxTitleId);
-          if (productTitle)
-            STATES.currentStream.titleSlug = productTitleToSlug(productTitle);
+          if (productTitle) STATES.currentStream.titleSlug = productTitleToSlug(productTitle);
         }
       }
     }
