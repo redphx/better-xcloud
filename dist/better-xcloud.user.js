@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.7.6
+// @version      5.7.7-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -29,10 +29,7 @@ class BxLogger {
   }
 }
 window.BxLogger = BxLogger;
-
-
 /* ADDITIONAL CODE */
-
 var DEFAULT_FLAGS = {
   Debug: !1,
   CheckForUpdate: !0,
@@ -46,20 +43,17 @@ var DEFAULT_FLAGS = {
 }, BX_FLAGS = Object.assign(DEFAULT_FLAGS, window.BX_FLAGS || {});
 try {
   delete window.BX_FLAGS;
-} catch (e) {
-}
+} catch (e) {}
 if (!BX_FLAGS.DeviceInfo.userAgent)
   BX_FLAGS.DeviceInfo.userAgent = window.navigator.userAgent;
 BxLogger.info("BxFlags", BX_FLAGS);
 var NATIVE_FETCH = window.fetch;
-
 var SMART_TV_UNIQUE_ID = "FC4A1DA2-711C-4E9C-BC7F-047AF8A672EA", CHROMIUM_VERSION = "123.0.0.0";
 if (!!window.chrome || window.navigator.userAgent.includes("Chrome")) {
   const match = window.navigator.userAgent.match(/\s(?:Chrome|Edg)\/([\d\.]+)/);
   if (match)
     CHROMIUM_VERSION = match[1];
 }
-
 class UserAgent {
   static STORAGE_KEY = "better_xcloud_user_agent";
   static #config;
@@ -101,28 +95,24 @@ class UserAgent {
     }
   }
   static isSafari() {
-    if (this.#isSafari !== null)
-      return this.#isSafari;
+    if (this.#isSafari !== null) return this.#isSafari;
     const userAgent = UserAgent.getDefault().toLowerCase();
     let result = userAgent.includes("safari") && !userAgent.includes("chrom");
     return this.#isSafari = result, result;
   }
   static isSafariMobile() {
-    if (this.#isSafariMobile !== null)
-      return this.#isSafariMobile;
+    if (this.#isSafariMobile !== null) return this.#isSafariMobile;
     const userAgent = UserAgent.getDefault().toLowerCase(), result = this.isSafari() && userAgent.includes("mobile");
     return this.#isSafariMobile = result, result;
   }
   static isMobile() {
-    if (this.#isMobile !== null)
-      return this.#isMobile;
+    if (this.#isMobile !== null) return this.#isMobile;
     const userAgent = UserAgent.getDefault().toLowerCase(), result = /iphone|ipad|android/.test(userAgent);
     return this.#isMobile = result, result;
   }
   static spoof() {
     const profile = UserAgent.#config.profile;
-    if (profile === "default")
-      return;
+    if (profile === "default") return;
     let newUserAgent = UserAgent.get(profile);
     if ("userAgentData" in window.navigator)
       window.navigator.orgUserAgentData = window.navigator.userAgentData, Object.defineProperty(window.navigator, "userAgentData", {});
@@ -131,15 +121,12 @@ class UserAgent {
     });
   }
 }
-
 function deepClone(obj) {
-  if ("structuredClone" in window)
-    return structuredClone(obj);
-  if (!obj)
-    return {};
+  if ("structuredClone" in window) return structuredClone(obj);
+  if (!obj) return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.7.6", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.7.7-beta", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -165,13 +152,11 @@ var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.inclu
   remotePlay: {},
   pointerServerPort: 9269
 }, STORAGE = {};
-
 var BxEvent;
 ((BxEvent) => {
   BxEvent.JUMP_BACK_IN_READY = "bx-jump-back-in-ready", BxEvent.POPSTATE = "bx-popstate", BxEvent.TITLE_INFO_READY = "bx-title-info-ready", BxEvent.SETTINGS_CHANGED = "bx-settings-changed", BxEvent.STREAM_LOADING = "bx-stream-loading", BxEvent.STREAM_STARTING = "bx-stream-starting", BxEvent.STREAM_STARTED = "bx-stream-started", BxEvent.STREAM_PLAYING = "bx-stream-playing", BxEvent.STREAM_STOPPED = "bx-stream-stopped", BxEvent.STREAM_ERROR_PAGE = "bx-stream-error-page", BxEvent.STREAM_WEBRTC_CONNECTED = "bx-stream-webrtc-connected", BxEvent.STREAM_WEBRTC_DISCONNECTED = "bx-stream-webrtc-disconnected", BxEvent.STREAM_SESSION_READY = "bx-stream-session-ready", BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED = "bx-custom-touch-layouts-loaded", BxEvent.TOUCH_LAYOUT_MANAGER_READY = "bx-touch-layout-manager-ready", BxEvent.REMOTE_PLAY_READY = "bx-remote-play-ready", BxEvent.REMOTE_PLAY_FAILED = "bx-remote-play-failed", BxEvent.XCLOUD_SERVERS_READY = "bx-servers-ready", BxEvent.XCLOUD_SERVERS_UNAVAILABLE = "bx-servers-unavailable", BxEvent.DATA_CHANNEL_CREATED = "bx-data-channel-created", BxEvent.GAME_BAR_ACTION_ACTIVATED = "bx-game-bar-action-activated", BxEvent.MICROPHONE_STATE_CHANGED = "bx-microphone-state-changed", BxEvent.SPEAKER_STATE_CHANGED = "bx-speaker-state-changed", BxEvent.CAPTURE_SCREENSHOT = "bx-capture-screenshot", BxEvent.POINTER_LOCK_REQUESTED = "bx-pointer-lock-requested", BxEvent.POINTER_LOCK_EXITED = "bx-pointer-lock-exited", BxEvent.NAVIGATION_FOCUS_CHANGED = "bx-nav-focus-changed", BxEvent.XCLOUD_DIALOG_SHOWN = "bx-xcloud-dialog-shown", BxEvent.XCLOUD_DIALOG_DISMISSED = "bx-xcloud-dialog-dismissed", BxEvent.XCLOUD_GUIDE_MENU_SHOWN = "bx-xcloud-guide-menu-shown", BxEvent.XCLOUD_POLLING_MODE_CHANGED = "bx-xcloud-polling-mode-changed", BxEvent.XCLOUD_RENDERING_COMPONENT = "bx-xcloud-rendering-component", BxEvent.XCLOUD_ROUTER_HISTORY_READY = "bx-xcloud-router-history-ready";
   function dispatch(target, eventName, data) {
-    if (!target)
-      return;
+    if (!target) return;
     if (!eventName) {
       alert("BxEvent.dispatch(): eventName is null");
       return;
@@ -185,7 +170,6 @@ var BxEvent;
   BxEvent.dispatch = dispatch;
 })(BxEvent ||= {});
 window.BxEvent = BxEvent;
-
 class NavigationUtils {
   static setNearby($elm, nearby) {
     $elm.nearby = $elm.nearby || {};
@@ -195,7 +179,6 @@ class NavigationUtils {
   }
 }
 var setNearby = NavigationUtils.setNearby;
-
 function createElement(elmName, props = {}, ..._) {
   let $elm;
   const hasNs = "xmlns" in props;
@@ -227,8 +210,7 @@ function createElement(elmName, props = {}, ..._) {
 }
 function getReactProps($elm) {
   for (let key in $elm)
-    if (key.startsWith("__reactProps"))
-      return $elm[key];
+    if (key.startsWith("__reactProps")) return $elm[key];
   return null;
 }
 function escapeHtml(html) {
@@ -253,18 +235,18 @@ function clearDataSet($elm) {
   });
 }
 var ButtonStyleClass = {
-  [1]: "bx-primary",
-  [2]: "bx-danger",
-  [4]: "bx-ghost",
-  [8]: "bx-frosted",
-  [16]: "bx-drop-shadow",
-  [32]: "bx-focusable",
-  [64]: "bx-full-width",
-  [128]: "bx-full-height",
-  [256]: "bx-tall",
-  [512]: "bx-circular",
-  [1024]: "bx-normal-case",
-  [2048]: "bx-normal-link"
+  1: "bx-primary",
+  2: "bx-danger",
+  4: "bx-ghost",
+  8: "bx-frosted",
+  16: "bx-drop-shadow",
+  32: "bx-focusable",
+  64: "bx-full-width",
+  128: "bx-full-height",
+  256: "bx-tall",
+  512: "bx-circular",
+  1024: "bx-normal-case",
+  2048: "bx-normal-link"
 }, CE = createElement, svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement, createSvgIcon = (icon) => {
   return svgParser(icon.toString());
 }, ButtonStyleIndices = Object.keys(ButtonStyleClass).map((i) => parseInt(i)), createButton = (options) => {
@@ -283,7 +265,6 @@ var ButtonStyleClass = {
   return $btn;
 }, CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
-
 var SUPPORTED_LANGUAGES = {
   "en-US": "English (US)",
   "ca-CA": "Català",
@@ -649,7 +630,6 @@ var SUPPORTED_LANGUAGES = {
   wallpaper: "Wallpaper",
   webgl2: "WebGL2"
 };
-
 class Translations {
   static #EN_US = "en-US";
   static #KEY_LOCALE = "better_xcloud_locale";
@@ -683,17 +663,14 @@ class Translations {
     if (!text)
       text = Texts[key] || alert(`Missing translation key: ${key}`);
     let translation;
-    if (Array.isArray(text))
-      return translation = text[Translations.#selectedLocaleIndex] || text[Translations.#enUsIndex], translation(values);
+    if (Array.isArray(text)) return translation = text[Translations.#selectedLocaleIndex] || text[Translations.#enUsIndex], translation(values);
     return translation = text, translation;
   }
   static async#loadTranslations() {
-    if (Translations.#selectedLocale === Translations.#EN_US)
-      return;
+    if (Translations.#selectedLocale === Translations.#EN_US) return;
     try {
       Translations.#foreignTranslations = JSON.parse(window.localStorage.getItem(Translations.#KEY_TRANSLATIONS));
-    } catch (e) {
-    }
+    } catch (e) {}
     if (!Translations.#foreignTranslations)
       await this.downloadTranslations(Translations.#selectedLocale);
   }
@@ -729,7 +706,6 @@ class Translations {
 }
 var t = Translations.get;
 Translations.init();
-
 var BypassServers = {
   br: t("brazil"),
   jp: t("japan"),
@@ -743,7 +719,6 @@ var BypassServers = {
   pl: "45.134.212.66",
   us: "143.244.47.65"
 };
-
 class StreamStats {
   static instance;
   static getInstance() {
@@ -766,15 +741,13 @@ class StreamStats {
     this.#render();
   }
   start(glancing = !1) {
-    if (!this.isHidden() || glancing && this.isGlancing())
-      return;
+    if (!this.isHidden() || glancing && this.isGlancing()) return;
     if (this.#$container)
       this.#$container.classList.remove("bx-gone"), this.#$container.dataset.display = glancing ? "glancing" : "fixed";
     this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval);
   }
   stop(glancing = !1) {
-    if (glancing && !this.isGlancing())
-      return;
+    if (glancing && !this.isGlancing()) return;
     if (this.#timeoutId && clearTimeout(this.#timeoutId), this.#timeoutId = null, this.#lastVideoStat = null, this.#$container)
       this.#$container.removeAttribute("data-display"), this.#$container.classList.add("bx-gone");
   }
@@ -790,11 +763,9 @@ class StreamStats {
   isHidden = () => this.#$container && this.#$container.classList.contains("bx-gone");
   isGlancing = () => this.#$container && this.#$container.dataset.display === "glancing";
   quickGlanceSetup() {
-    if (!STATES.isPlaying || this.#quickGlanceObserver)
-      return;
+    if (!STATES.isPlaying || this.#quickGlanceObserver) return;
     const $uiContainer = document.querySelector("div[data-testid=ui-container]");
-    if (!$uiContainer)
-      return;
+    if (!$uiContainer) return;
     this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
       for (let record of mutationList)
         if (record.attributeName && record.attributeName === "aria-expanded")
@@ -858,12 +829,12 @@ class StreamStats {
   }
   #render() {
     const stats = {
-      ["ping"]: [t("stat-ping"), this.#$ping = CE("span", {}, "0")],
-      ["fps"]: [t("stat-fps"), this.#$fps = CE("span", {}, "0")],
-      ["btr"]: [t("stat-bitrate"), this.#$br = CE("span", {}, "0 Mbps")],
-      ["dt"]: [t("stat-decode-time"), this.#$dt = CE("span", {}, "0ms")],
-      ["pl"]: [t("stat-packets-lost"), this.#$pl = CE("span", {}, "0")],
-      ["fl"]: [t("stat-frames-lost"), this.#$fl = CE("span", {}, "0")]
+      ping: [t("stat-ping"), this.#$ping = CE("span", {}, "0")],
+      fps: [t("stat-fps"), this.#$fps = CE("span", {}, "0")],
+      btr: [t("stat-bitrate"), this.#$br = CE("span", {}, "0 Mbps")],
+      dt: [t("stat-decode-time"), this.#$dt = CE("span", {}, "0ms")],
+      pl: [t("stat-packets-lost"), this.#$pl = CE("span", {}, "0")],
+      fl: [t("stat-frames-lost"), this.#$fl = CE("span", {}, "0")]
     }, $barFragment = document.createDocumentFragment();
     let statKey;
     for (statKey in stats) {
@@ -888,7 +859,6 @@ class StreamStats {
     StreamStats.getInstance().refreshStyles();
   }
 }
-
 class SettingElement {
   static #renderOptions(key, setting, currentValue, onChange) {
     const $control = CE("select", {
@@ -981,8 +951,7 @@ class SettingElement {
       class: options.hideSlider ? "bx-focusable" : "",
       tabindex: options.hideSlider ? 0 : -1
     }, "+"));
-    if (options.disabled)
-      return $btnInc.disabled = !0, $btnInc.classList.add("bx-inactive"), $btnDec.disabled = !0, $btnDec.classList.add("bx-inactive"), $wrapper.disabled = !0, $wrapper;
+    if (options.disabled) return $btnInc.disabled = !0, $btnInc.classList.add("bx-inactive"), $btnDec.disabled = !0, $btnDec.classList.add("bx-inactive"), $wrapper.disabled = !0, $wrapper;
     if ($range = CE("input", {
       id: `bx_setting_${key}`,
       type: "range",
@@ -992,8 +961,7 @@ class SettingElement {
       step: STEPS,
       tabindex: 0
     }), options.hideSlider && $range.classList.add("bx-gone"), $range.addEventListener("input", (e) => {
-      if (value = parseInt(e.target.value), controlValue === value)
-        return;
+      if (value = parseInt(e.target.value), controlValue === value) return;
       controlValue = value, updateButtonsVisibility(), $text.textContent = renderTextValue(value), !e.ignoreOnChange && onChange && onChange(e, value);
     }), $wrapper.addEventListener("input", (e) => {
       BxEvent.dispatch($range, "input");
@@ -1042,11 +1010,11 @@ class SettingElement {
     }), $wrapper;
   }
   static #METHOD_MAP = {
-    ["options"]: SettingElement.#renderOptions,
-    ["multiple-options"]: SettingElement.#renderMultipleOptions,
-    ["number"]: SettingElement.#renderNumber,
-    ["number-stepper"]: SettingElement.#renderNumberStepper,
-    ["checkbox"]: SettingElement.#renderCheckbox
+    options: SettingElement.#renderOptions,
+    "multiple-options": SettingElement.#renderMultipleOptions,
+    number: SettingElement.#renderNumber,
+    "number-stepper": SettingElement.#renderNumberStepper,
+    checkbox: SettingElement.#renderCheckbox
   };
   static render(type, key, setting, currentValue, onChange, options) {
     const method = SettingElement.#METHOD_MAP[type], $control = method(...Array.from(arguments).slice(1));
@@ -1079,7 +1047,6 @@ class SettingElement {
     }, params);
   }
 }
-
 class BaseSettingsStore {
   storage;
   storageKey;
@@ -1095,8 +1062,7 @@ class BaseSettingsStore {
     this.definitions = definitions, this._settings = null;
   }
   get settings() {
-    if (this._settings)
-      return this._settings;
+    if (this._settings) return this._settings;
     const settings = JSON.parse(this.storage.getItem(this.storageKey) || "{}");
     return this._settings = settings, settings;
   }
@@ -1112,8 +1078,7 @@ class BaseSettingsStore {
       debugger;
       return;
     }
-    if (checkUnsupported && this.definitions[key].unsupported)
-      return this.definitions[key].default;
+    if (checkUnsupported && this.definitions[key].unsupported) return this.definitions[key].default;
     if (!(key in this.settings))
       this.settings[key] = this.validateValue(key, null);
     return this.settings[key];
@@ -1130,8 +1095,7 @@ class BaseSettingsStore {
   }
   validateValue(key, value) {
     const def = this.definitions[key];
-    if (!def)
-      return value;
+    if (!def) return value;
     if (typeof value === "undefined" || value === null)
       value = def.default;
     if ("min" in def)
@@ -1161,26 +1125,21 @@ class BaseSettingsStore {
       const params = definition.params;
       if (params.customTextValue) {
         const text = params.customTextValue(value);
-        if (text)
-          return text;
+        if (text) return text;
       }
       return value.toString();
     } else if ("options" in definition) {
       const options = definition.options;
-      if (value in options)
-        return options[value];
-    } else if (typeof value === "boolean")
-      return value ? t("on") : t("off");
+      if (value in options) return options[value];
+    } else if (typeof value === "boolean") return value ? t("on") : t("off");
     return value.toString();
   }
 }
-
 function getSupportedCodecProfiles() {
   const options = {
     default: t("default")
   };
-  if (!("getCapabilities" in RTCRtpReceiver))
-    return options;
+  if (!("getCapabilities" in RTCRtpReceiver)) return options;
   let hasLowCodec = !1, hasNormalCodec = !1, hasHighCodec = !1;
   const codecs = RTCRtpReceiver.getCapabilities("video").codecs;
   for (let codec of codecs) {
@@ -1279,8 +1238,8 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       default: "auto",
       options: {
         auto: t("default"),
-        ["720p"]: "720p",
-        ["1080p"]: "1080p"
+        "720p": "720p",
+        "1080p": "1080p"
       },
       suggest: {
         lowest: "720p",
@@ -1327,9 +1286,9 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       label: t("tc-availability"),
       default: "all",
       options: {
-        ["default"]: t("default"),
-        ["all"]: t("tc-all-games"),
-        ["off"]: t("off")
+        default: t("default"),
+        all: t("tc-all-games"),
+        off: t("off")
       },
       unsupported: !STATES.userAgent.capabilities.touch,
       ready: (setting) => {
@@ -1398,10 +1357,8 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       params: {
         exactTicks: 5120000,
         customTextValue: (value) => {
-          if (value = parseInt(value), value === 0)
-            return t("unlimited");
-          else
-            return (value / 1024000).toFixed(1) + " Mb/s";
+          if (value = parseInt(value), value === 0) return t("unlimited");
+          else return (value / 1024000).toFixed(1) + " Mb/s";
         }
       },
       suggest: {
@@ -1440,9 +1397,9 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       label: t("device-vibration"),
       default: "off",
       options: {
-        ["on"]: t("on"),
-        ["auto"]: t("device-vibration-not-using-gamepad"),
-        ["off"]: t("off")
+        on: t("on"),
+        auto: t("device-vibration-not-using-gamepad"),
+        off: t("off")
       }
     },
     controller_vibration_intensity: {
@@ -1503,8 +1460,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       params: {
         exactTicks: 2000,
         customTextValue: (value) => {
-          if (!value)
-            return t("default");
+          if (!value) return t("default");
           return (value / 100).toFixed(1) + "x";
         }
       }
@@ -1519,8 +1475,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       params: {
         exactTicks: 2000,
         customTextValue: (value) => {
-          if (!value)
-            return t("default");
+          if (!value) return t("default");
           return (value / 100).toFixed(1) + "x";
         }
       }
@@ -1801,8 +1756,8 @@ class GlobalSettingsStorage extends BaseSettingsStore {
     xhome_resolution: {
       default: "1080p",
       options: {
-        ["1080p"]: "1080p",
-        ["720p"]: "720p"
+        "1080p": "1080p",
+        "720p": "720p"
       }
     },
     game_fortnite_force_console: {
@@ -1817,13 +1772,11 @@ class GlobalSettingsStorage extends BaseSettingsStore {
 }
 var globalSettings = new GlobalSettingsStorage, getPrefDefinition = globalSettings.getDefinition.bind(globalSettings), getPref = globalSettings.getSetting.bind(globalSettings), setPref = globalSettings.setSetting.bind(globalSettings);
 STORAGE.Global = globalSettings;
-
 class Screenshot {
   static #$canvas;
   static #canvasContext;
   static setup() {
-    if (Screenshot.#$canvas)
-      return;
+    if (Screenshot.#$canvas) return;
     Screenshot.#$canvas = CE("canvas", { class: "bx-gone" }), Screenshot.#canvasContext = Screenshot.#$canvas.getContext("2d", {
       alpha: !1,
       willReadFrequently: !1
@@ -1842,15 +1795,13 @@ class Screenshot {
   }
   static takeScreenshot(callback) {
     const currentStream = STATES.currentStream, streamPlayer = currentStream.streamPlayer, $canvas = Screenshot.#$canvas;
-    if (!streamPlayer || !$canvas)
-      return;
+    if (!streamPlayer || !$canvas) return;
     let $player;
     if (getPref("screenshot_apply_filters"))
       $player = streamPlayer.getPlayerElement();
     else
       $player = streamPlayer.getPlayerElement("default");
-    if (!$player || !$player.isConnected)
-      return;
+    if (!$player || !$player.isConnected) return;
     $player.parentElement.addEventListener("animationend", this.#onAnimationEnd, { once: !0 }), $player.parentElement.classList.add("bx-taking-screenshot");
     const canvasContext = Screenshot.#canvasContext;
     if ($player instanceof HTMLCanvasElement)
@@ -1869,33 +1820,32 @@ class Screenshot {
     }, "image/png");
   }
 }
-
 var GamepadKeyName = {
-  [0]: ["A", "⇓"],
-  [1]: ["B", "⇒"],
-  [2]: ["X", "⇐"],
-  [3]: ["Y", "⇑"],
-  [4]: ["LB", "↘"],
-  [5]: ["RB", "↙"],
-  [6]: ["LT", "↖"],
-  [7]: ["RT", "↗"],
-  [8]: ["Select", "⇺"],
-  [9]: ["Start", "⇻"],
-  [16]: ["Home", ""],
-  [12]: ["D-Pad Up", "≻"],
-  [13]: ["D-Pad Down", "≽"],
-  [14]: ["D-Pad Left", "≺"],
-  [15]: ["D-Pad Right", "≼"],
-  [10]: ["L3", "↺"],
-  [100]: ["Left Stick Up", "↾"],
-  [101]: ["Left Stick Down", "⇂"],
-  [102]: ["Left Stick Left", "↼"],
-  [103]: ["Left Stick Right", "⇀"],
-  [11]: ["R3", "↻"],
-  [200]: ["Right Stick Up", "↿"],
-  [201]: ["Right Stick Down", "⇃"],
-  [202]: ["Right Stick Left", "↽"],
-  [203]: ["Right Stick Right", "⇁"]
+  0: ["A", "⇓"],
+  1: ["B", "⇒"],
+  2: ["X", "⇐"],
+  3: ["Y", "⇑"],
+  4: ["LB", "↘"],
+  5: ["RB", "↙"],
+  6: ["LT", "↖"],
+  7: ["RT", "↗"],
+  8: ["Select", "⇺"],
+  9: ["Start", "⇻"],
+  16: ["Home", ""],
+  12: ["D-Pad Up", "≻"],
+  13: ["D-Pad Down", "≽"],
+  14: ["D-Pad Left", "≺"],
+  15: ["D-Pad Right", "≼"],
+  10: ["L3", "↺"],
+  100: ["Left Stick Up", "↾"],
+  101: ["Left Stick Down", "⇂"],
+  102: ["Left Stick Left", "↼"],
+  103: ["Left Stick Right", "⇀"],
+  11: ["R3", "↻"],
+  200: ["Right Stick Up", "↿"],
+  201: ["Right Stick Down", "⇃"],
+  202: ["Right Stick Left", "↽"],
+  203: ["Right Stick Right", "⇁"]
 };
 var MouseMapTo;
 ((MouseMapTo2) => {
@@ -1903,7 +1853,6 @@ var MouseMapTo;
   MouseMapTo2[MouseMapTo2.LS = 1] = "LS";
   MouseMapTo2[MouseMapTo2.RS = 2] = "RS";
 })(MouseMapTo ||= {});
-
 class MkbPreset {
   static MOUSE_SETTINGS = {
     map_to: {
@@ -2003,7 +1952,6 @@ class MkbPreset {
     return console.log(obj), obj;
   }
 }
-
 class Toast {
   static #$wrapper;
   static #$msg;
@@ -2051,7 +1999,6 @@ class Toast {
     }), document.documentElement.appendChild(Toast.#$wrapper);
   }
 }
-
 class LocalDb {
   static #instance;
   static get INSTANCE() {
@@ -2130,8 +2077,7 @@ class LocalDb {
   }
   getPresets() {
     return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#count(table)).then(([table, count]) => {
-      if (count > 0)
-        return new Promise((resolve) => {
+      if (count > 0) return new Promise((resolve) => {
           this.#getAll(table).then(([table2, items]) => {
             const presets = {};
             items.forEach((item2) => presets[item2.id] = item2), resolve(presets);
@@ -2149,7 +2095,6 @@ class LocalDb {
     });
   }
 }
-
 class KeyHelper {
   static #NON_PRINTABLE_KEYS = {
     Backquote: "`",
@@ -2184,7 +2129,6 @@ class KeyHelper {
     return KeyHelper.#NON_PRINTABLE_KEYS[code] || code.startsWith("Key") && code.substring(3) || code.startsWith("Digit") && code.substring(5) || code.startsWith("Numpad") && "Numpad " + code.substring(6) || code.startsWith("Arrow") && "Arrow " + code.substring(5) || code.endsWith("Lock") && code.replace("Lock", " Lock") || code.endsWith("Left") && "Left " + code.replace("Left", "") || code.endsWith("Right") && "Right " + code.replace("Right", "") || code;
   }
 }
-
 var LOG_TAG = "PointerClient";
 class PointerClient {
   static instance;
@@ -2254,22 +2198,17 @@ class PointerClient {
   stop() {
     try {
       this.#socket?.close();
-    } catch (e) {
-    }
+    } catch (e) {}
     this.#socket = null;
   }
 }
-
 class MouseDataProvider {
   mkbHandler;
   constructor(handler) {
     this.mkbHandler = handler;
   }
 }
-
-class MkbHandler {
-}
-
+class MkbHandler {}
 class NativeMkbHandler extends MkbHandler {
   static instance;
   #pointerClient;
@@ -2299,8 +2238,7 @@ class NativeMkbHandler extends MkbHandler {
     AppInterface.releasePointerCapture(), this.stop();
   }
   #onPollingModeChanged = (e) => {
-    if (!this.#$message)
-      return;
+    if (!this.#$message) return;
     if (e.mode === "none")
       this.#$message.classList.remove("bx-offscreen");
     else
@@ -2429,8 +2367,7 @@ class NativeMkbHandler extends MkbHandler {
   setHorizontalScrollMultiplier(horizontal) {
     this.#mouseHorizontalMultiply = horizontal;
   }
-  waitForMouseData(enabled) {
-  }
+  waitForMouseData(enabled) {}
   isEnabled() {
     return this.#enabled;
   }
@@ -2447,11 +2384,9 @@ class NativeMkbHandler extends MkbHandler {
     });
   }
 }
-
 function onChangeVideoPlayerType() {
   const playerType = getPref("video_player_type"), $videoProcessing = document.getElementById("bx_setting_video_processing"), $videoSharpness = document.getElementById("bx_setting_video_sharpness"), $videoPowerPreference = document.getElementById("bx_setting_video_power_preference");
-  if (!$videoProcessing)
-    return;
+  if (!$videoProcessing) return;
   let isDisabled = !1;
   const $optCas = $videoProcessing.querySelector(`option[value=${"cas"}]`);
   if (playerType === "webgl2")
@@ -2462,8 +2397,7 @@ function onChangeVideoPlayerType() {
 }
 function updateVideoPlayer() {
   const streamPlayer = STATES.currentStream.streamPlayer;
-  if (!streamPlayer)
-    return;
+  if (!streamPlayer) return;
   const options = {
     processing: getPref("video_processing"),
     sharpness: getPref("video_sharpness"),
@@ -2474,7 +2408,6 @@ function updateVideoPlayer() {
   streamPlayer.setPlayerType(getPref("video_player_type")), streamPlayer.updateOptions(options), streamPlayer.refreshPlayer();
 }
 window.addEventListener("resize", updateVideoPlayer);
-
 class NavigationDialog {
   dialogManager;
   constructor() {
@@ -2489,20 +2422,14 @@ class NavigationDialog {
   }
   getFocusedElement() {
     const $activeElement = document.activeElement;
-    if (!$activeElement)
-      return null;
-    if (this.$container.contains($activeElement))
-      return $activeElement;
+    if (!$activeElement) return null;
+    if (this.$container.contains($activeElement)) return $activeElement;
     return null;
   }
-  onBeforeMount() {
-  }
-  onMounted() {
-  }
-  onBeforeUnmount() {
-  }
-  onUnmounted() {
-  }
+  onBeforeMount() {}
+  onMounted() {}
+  onBeforeUnmount() {}
+  onUnmounted() {}
   handleKeyPress(key) {
     return !1;
   }
@@ -2510,7 +2437,6 @@ class NavigationDialog {
     return !1;
   }
 }
-
 class NavigationDialogManager {
   static instance;
   static getInstance() {
@@ -2543,12 +2469,12 @@ class NavigationDialogManager {
   };
   static SIBLING_PROPERTY_MAP = {
     horizontal: {
-      [4]: "previousElementSibling",
-      [2]: "nextElementSibling"
+      4: "previousElementSibling",
+      2: "nextElementSibling"
     },
     vertical: {
-      [1]: "previousElementSibling",
-      [3]: "nextElementSibling"
+      1: "previousElementSibling",
+      3: "nextElementSibling"
     }
   };
   gamepadPollingIntervalId = null;
@@ -2562,11 +2488,9 @@ class NavigationDialogManager {
       e.preventDefault(), e.stopPropagation(), this.hide();
     }), document.documentElement.appendChild(this.$overlay), this.$container = CE("div", { class: "bx-navigation-dialog bx-gone" }), document.documentElement.appendChild(this.$container), window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, (e) => this.hide()), getPref("ui_controller_friendly"))
       new MutationObserver((mutationList) => {
-        if (mutationList.length === 0 || mutationList[0].addedNodes.length === 0)
-          return;
+        if (mutationList.length === 0 || mutationList[0].addedNodes.length === 0) return;
         const $dialog = mutationList[0].addedNodes[0];
-        if (!$dialog || !($dialog instanceof HTMLElement))
-          return;
+        if (!$dialog || !($dialog instanceof HTMLElement)) return;
         $dialog.querySelectorAll(".bx-select:not([data-calculated]) select").forEach(($select) => {
           const rect = $select.getBoundingClientRect(), $parent = $select.parentElement;
           $parent.dataset.calculated = "true";
@@ -2661,8 +2585,7 @@ class NavigationDialogManager {
         this.clearGamepadHoldingInterval();
         continue;
       }
-      if (this.gamepadLastStates[gamepad.index] = null, lastKeyPressed)
-        return;
+      if (this.gamepadLastStates[gamepad.index] = null, lastKeyPressed) return;
       if (releasedButton === 0) {
         document.activeElement && document.activeElement.dispatchEvent(new MouseEvent("click"));
         return;
@@ -2670,17 +2593,14 @@ class NavigationDialogManager {
         this.hide();
         return;
       }
-      if (this.handleGamepad(gamepad, releasedButton))
-        return;
+      if (this.handleGamepad(gamepad, releasedButton)) return;
     }
   }
   handleGamepad(gamepad, key) {
     let handled = this.dialog?.handleGamepad(key);
-    if (handled)
-      return !0;
+    if (handled) return !0;
     let direction = NavigationDialogManager.GAMEPAD_DIRECTION_MAP[key];
-    if (!direction)
-      return !1;
+    if (!direction) return !1;
     if (document.activeElement instanceof HTMLInputElement && document.activeElement.type === "range") {
       const $range = document.activeElement;
       if (direction === 4 || direction === 2)
@@ -2702,19 +2622,15 @@ class NavigationDialogManager {
     this.clearGamepadHoldingInterval(), document.body.classList.remove("bx-no-scroll"), BxEvent.dispatch(window, BxEvent.XCLOUD_DIALOG_DISMISSED), this.$overlay.classList.add("bx-gone"), this.$overlay.classList.remove("bx-invisible"), this.$container.classList.add("bx-gone"), this.$container.removeEventListener("keydown", this), this.stopGamepadPolling(), this.unmountCurrentDialog(), window.BX_EXPOSED.disableGamepadPolling = !1;
   }
   focus($elm) {
-    if (!$elm)
-      return !1;
+    if (!$elm) return !1;
     if ($elm.nearby && $elm.nearby.focus)
-      if ($elm.nearby.focus instanceof HTMLElement)
-        return this.focus($elm.nearby.focus);
-      else
-        return $elm.nearby.focus();
+      if ($elm.nearby.focus instanceof HTMLElement) return this.focus($elm.nearby.focus);
+      else return $elm.nearby.focus();
     return $elm.focus(), $elm === document.activeElement;
   }
   getOrientation($elm) {
     const nearby = $elm.nearby || {};
-    if (nearby.selfOrientation)
-      return nearby.selfOrientation;
+    if (nearby.selfOrientation) return nearby.selfOrientation;
     let orientation, $current = $elm.parentElement;
     while ($current !== this.$container) {
       const tmp = $current.nearby?.orientation;
@@ -2729,10 +2645,8 @@ class NavigationDialogManager {
     }), orientation;
   }
   findNextTarget($focusing, direction, checkParent = !1, checked = []) {
-    if (!$focusing || $focusing === this.$container)
-      return null;
-    if (checked.includes($focusing))
-      return null;
+    if (!$focusing || $focusing === this.$container) return null;
+    if (checked.includes($focusing)) return null;
     checked.push($focusing);
     let $target = $focusing;
     const $parent = $target.parentElement, nearby = $target.nearby || {}, orientation = this.getOrientation($target);
@@ -2742,45 +2656,34 @@ class NavigationDialogManager {
       while ($sibling[siblingProperty]) {
         $sibling = $sibling[siblingProperty];
         const $focusable = this.findFocusableElement($sibling, direction);
-        if ($focusable)
-          return $focusable;
+        if ($focusable) return $focusable;
       }
     }
     if (nearby.loop) {
-      if (nearby.loop(direction))
-        return null;
+      if (nearby.loop(direction)) return null;
     }
-    if (checkParent)
-      return this.findNextTarget($parent, direction, checkParent, checked);
+    if (checkParent) return this.findNextTarget($parent, direction, checkParent, checked);
     return null;
   }
   findFocusableElement($elm, direction) {
-    if (!$elm)
-      return null;
-    if (!!$elm.disabled)
-      return null;
-    if (!isElementVisible($elm))
-      return null;
-    if ($elm.tabIndex > -1)
-      return $elm;
+    if (!$elm) return null;
+    if (!!$elm.disabled) return null;
+    if (!isElementVisible($elm)) return null;
+    if ($elm.tabIndex > -1) return $elm;
     const focus = $elm.nearby?.focus;
     if (focus) {
-      if (focus instanceof HTMLElement)
-        return this.findFocusableElement(focus, direction);
+      if (focus instanceof HTMLElement) return this.findFocusableElement(focus, direction);
       else if (typeof focus === "function") {
-        if (focus())
-          return document.activeElement;
+        if (focus()) return document.activeElement;
       }
     }
     const children = Array.from($elm.children), orientation = $elm.nearby?.orientation || "vertical";
     if (orientation === "horizontal" || orientation === "vertical" && direction === 1)
       children.reverse();
     for (let $child of children) {
-      if (!$child || !($child instanceof HTMLElement))
-        return null;
+      if (!$child || !($child instanceof HTMLElement)) return null;
       const $target = this.findFocusableElement($child, direction);
-      if ($target)
-        return $target;
+      if ($target) return $target;
     }
     return null;
   }
@@ -2792,11 +2695,9 @@ class NavigationDialogManager {
   }
   focusDirection(direction) {
     const dialog = this.dialog;
-    if (!dialog)
-      return;
+    if (!dialog) return;
     const $focusing = dialog.getFocusedElement();
-    if (!$focusing || !this.findFocusableElement($focusing, direction))
-      return dialog.focusIfNeeded(), null;
+    if (!$focusing || !this.findFocusableElement($focusing, direction)) return dialog.focusIfNeeded(), null;
     const $target = this.findNextTarget($focusing, direction, !0);
     this.focus($target);
   }
@@ -2805,112 +2706,42 @@ class NavigationDialogManager {
     dialog && dialog.onBeforeUnmount(), this.$container.firstChild?.remove(), dialog && dialog.onUnmounted(), this.dialog = null;
   }
 }
-
-var better_xcloud_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-miterlimit='2' stroke-width='2' viewBox='0 0 32 32'><path d='M16.001 7.236h-2.328c-.443 0-1.941-.851-2.357-.905-.824-.106-1.684 0-2.489.176a13.04 13.04 0 0 0-3.137 1.14c-.392.275-.677.668-.866 1.104v.03l-3.302 8.963-.015.015c-.288.867-.553 3.75-.5 4.279a4.89 4.89 0 0 0 1.022 2.55c.654.823 3.71 1.364 4.057 1.016l4.462-4.475c.185-.186 1.547-.706 2.01-.706h6.884c.463 0 1.825.52 2.01.706l4.462 4.475c.347.348 3.403-.193 4.057-1.016a4.89 4.89 0 0 0 1.022-2.55c.053-.529-.212-3.412-.5-4.279l-.015-.015-3.302-8.963v-.03c-.189-.436-.474-.829-.866-1.104a13.04 13.04 0 0 0-3.137-1.14c-.805-.176-1.665-.282-2.489-.176-.416.054-1.914.905-2.357.905h-2.328' fill='none' stroke='#fff'/><path d='M8.172 12.914H6.519c-.235 0-.315.267-.335.452l-.052.578c0 .193.033.384.054.576.023.202.091.511.355.511h1.631l-.001 1.652c0 .234.266.315.452.335l.578.052c.193 0 .384-.033.576-.054.203-.023.511-.091.511-.355V15.03l1.652.001c.234 0 .315-.266.335-.452l.052-.578c-.001-.193-.033-.385-.055-.577-.022-.202-.09-.51-.354-.51h-1.632v-1.652c0-.234-.266-.315-.453-.335l-.577-.052c-.193 0-.385.033-.577.054-.202.023-.51.091-.51.355v1.631m16.546 2.994h-3.487c-.206 0-.413-.043-.604-.121-.177-.072-.339-.183-.476-.316-.149-.144-.259-.315-.341-.504-.156-.361-.172-.788-.032-1.157a1.57 1.57 0 0 1 .459-.641c.106-.089.223-.164.349-.222a1.52 1.52 0 0 1 .423-.123c.167-.024.338-.02.504.012a1.83 1.83 0 0 1 .455-.482 1.62 1.62 0 0 1 .522-.252c.307-.089.651-.09.959-.003a1.75 1.75 0 0 1 1.009.764 1.83 1.83 0 0 1 .251.721c.156 0 .312.031.456.09a1.24 1.24 0 0 1 .372.248c.091.087.165.19.221.302a1.19 1.19 0 0 1-.173 1.299c-.119.132-.276.239-.441.305a1.17 1.17 0 0 1-.426.08z' fill='#fff' stroke='none'/></svg>";
-
-var true_achievements_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' stroke='nons' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M2.497 14.127c.781-6.01 5.542-10.849 11.551-11.708V0C6.634.858.858 6.712 0 14.127h2.497zM17.952 2.419V0C25.366.858 31.142 6.712 32 14.127h-2.497c-.781-6.01-5.542-10.849-11.551-11.708zM2.497 17.873c.781 6.01 5.542 10.849 11.551 11.708V32C6.634 31.142.858 25.288 0 17.873h2.497zm27.006 0H32C31.142 25.288 25.366 31.142 17.952 32v-2.419c6.009-.859 10.77-5.698 11.551-11.708zm-19.2-4.527h2.028a.702.702 0 1 0 0-1.404h-2.107a1.37 1.37 0 0 1-1.326-1.327V9.21a.7.7 0 0 0-.703-.703c-.387 0-.703.316-.703.7v1.408c.079 1.483 1.25 2.731 2.811 2.731zm2.809 7.337h-2.888a1.37 1.37 0 0 1-1.326-1.327v-4.917c0-.387-.316-.703-.7-.703a.7.7 0 0 0-.706.703v4.917a2.77 2.77 0 0 0 2.732 2.732h2.81c.387 0 .702-.316.702-.7.078-.393-.234-.705-.624-.705zM25.6 19.2a.7.7 0 0 0-.702-.702c-.387 0-.703.316-.703.699v.081c0 .702-.546 1.326-1.248 1.326H19.98c-.702-.078-1.248-.624-1.248-1.326v-.312c0-.78.624-1.327 1.326-1.327h2.811a2.77 2.77 0 0 0 2.731-2.732v-.312a2.68 2.68 0 0 0-2.576-2.732h-4.76a.702.702 0 1 0 0 1.405h4.526a1.37 1.37 0 0 1 1.327 1.327v.234c0 .781-.624 1.327-1.327 1.327h-2.81a2.77 2.77 0 0 0-2.731 2.732v.312a2.77 2.77 0 0 0 2.731 2.732h2.967a2.74 2.74 0 0 0 2.575-2.732s.078.078.078 0z'/></svg>";
-
-var close_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M29.928,2.072L2.072,29.928'/><path d='M29.928,29.928L2.072,2.072'/></svg>";
-
-var command_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M25.425 1.5c2.784 0 5.075 2.291 5.075 5.075s-2.291 5.075-5.075 5.075H20.35V6.575c0-2.784 2.291-5.075 5.075-5.075zM11.65 11.65H6.575C3.791 11.65 1.5 9.359 1.5 6.575S3.791 1.5 6.575 1.5s5.075 2.291 5.075 5.075v5.075zm8.7 8.7h5.075c2.784 0 5.075 2.291 5.075 5.075S28.209 30.5 25.425 30.5s-5.075-2.291-5.075-5.075V20.35zM6.575 30.5c-2.784 0-5.075-2.291-5.075-5.075s2.291-5.075 5.075-5.075h5.075v5.075c0 2.784-2.291 5.075-5.075 5.075z'/><path d='M11.65 11.65h8.7v8.7h-8.7z'/></svg>";
-
-var controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/></svg>";
-
-var copy_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/></svg>";
-
-var create_shortcut_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M13.253 3.639c0-.758-.615-1.373-1.373-1.373H3.639c-.758 0-1.373.615-1.373 1.373v8.241c0 .758.615 1.373 1.373 1.373h8.241c.758 0 1.373-.615 1.373-1.373V3.639zm0 16.481c0-.758-.615-1.373-1.373-1.373H3.639c-.758 0-1.373.615-1.373 1.373v8.241c0 .758.615 1.373 1.373 1.373h8.241c.758 0 1.373-.615 1.373-1.373V20.12zm16.481 0c0-.758-.615-1.373-1.373-1.373H20.12c-.758 0-1.373.615-1.373 1.373v8.241c0 .758.615 1.373 1.373 1.373h8.241c.758 0 1.373-.615 1.373-1.373V20.12zM19.262 7.76h9.957'/><path d='M24.24 2.781v9.957'/></svg>";
-
-var cursor_text_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/></svg>";
-
-var display_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/></svg>";
-
-var home_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M12.217 30.503V20.414h7.567v10.089h10.089V15.37a1.26 1.26 0 0 0-.369-.892L16.892 1.867a1.26 1.26 0 0 0-1.784 0L2.497 14.478a1.26 1.26 0 0 0-.369.892v15.133h10.089z'/></svg>";
-
-var native_mkb_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g stroke-width='2.1'><path d='m15.817 6h-10.604c-2.215 0-4.013 1.798-4.013 4.013v12.213c0 2.215 1.798 4.013 4.013 4.013h11.21'/><path d='m5.698 20.617h1.124m-1.124-4.517h7.9m-7.881-4.5h7.9m-2.3 9h2.2'/></g><g stroke-width='2.13'><path d='m30.805 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.4c0 3.919 3.182 7.1 7.1 7.1s7.1-3.181 7.1-7.1z'/><path d='m23.705 14.715v-4.753'/></g></svg>";
-
-var new_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/></svg>";
-
-var power_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 2.445v12.91m7.746-11.619C27.631 6.27 30.2 10.37 30.2 15.355c0 7.79-6.41 14.2-14.2 14.2s-14.2-6.41-14.2-14.2c0-4.985 2.569-9.085 6.454-11.619'/></svg>";
-
-var question_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g></svg>";
-
-var refresh_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M23.247 12.377h7.247V5.13'/><path d='M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772'/></svg>";
-
-var remote_play_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g></svg>";
-
-var speaker_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' stroke='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M5.462 3.4c-.205-.23-.499-.363-.808-.363-.592 0-1.079.488-1.079 1.08a1.08 1.08 0 0 0 .289.736l4.247 4.672H2.504a2.17 2.17 0 0 0-2.16 2.16v8.637a2.17 2.17 0 0 0 2.16 2.16h6.107l9.426 7.33a1.08 1.08 0 0 0 .662.227c.592 0 1.08-.487 1.08-1.079v-6.601l5.679 6.247a1.08 1.08 0 0 0 .808.363c.592 0 1.08-.487 1.08-1.079a1.08 1.08 0 0 0-.29-.736L5.462 3.4zm-2.958 8.285h5.398v8.637H2.504v-8.637zM17.62 26.752l-7.558-5.878V11.67l7.558 8.313v6.769zm5.668-8.607c1.072-1.218 1.072-3.063 0-4.281a1.08 1.08 0 0 1-.293-.74c0-.592.487-1.079 1.079-1.079a1.08 1.08 0 0 1 .834.393 5.42 5.42 0 0 1 0 7.137 1.08 1.08 0 0 1-.81.365c-.593 0-1.08-.488-1.08-1.08 0-.263.096-.517.27-.715zM12.469 7.888c-.147-.19-.228-.423-.228-.663a1.08 1.08 0 0 1 .417-.853l5.379-4.184a1.08 1.08 0 0 1 .662-.227c.593 0 1.08.488 1.08 1.08v10.105c0 .593-.487 1.08-1.08 1.08s-1.079-.487-1.079-1.08V5.255l-3.636 2.834c-.469.362-1.153.273-1.515-.196v-.005zm19.187 8.115a10.79 10.79 0 0 1-2.749 7.199 1.08 1.08 0 0 1-.793.347c-.593 0-1.08-.487-1.08-1.079 0-.26.094-.511.264-.708 2.918-3.262 2.918-8.253 0-11.516-.184-.2-.287-.461-.287-.733 0-.592.487-1.08 1.08-1.08a1.08 1.08 0 0 1 .816.373 10.78 10.78 0 0 1 2.749 7.197z' fill-rule='nonzero'/></svg>";
-
-var stream_settings_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g></svg>";
-
-var stream_stats_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/></svg>";
-
-var touch_control_disable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><g fill='none' stroke='#fff'><path d='M6.021 5.021l20 22' stroke-width='2'/><path d='M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971' stroke-miterlimit='1.5' stroke-width='2.083'/></g><path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/><path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/><circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/></svg>";
-
-var touch_control_enable_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><path d='M30.021 9.448a.89.89 0 0 0-.889-.889H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h26.223a.89.89 0 0 0 .889-.888V9.448z' fill='none' stroke='#fff' stroke-width='2.083'/><path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/><path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/><circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/></svg>";
-
-var trash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/></svg>";
-
-var virtual_controller_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g stroke-width='2.06'><path d='M8.417 13.218h4.124'/><path d='M10.479 11.155v4.125'/><path d='M12.787 19.404L7.36 25.565a3.61 3.61 0 0 1-2.551 1.056A3.63 3.63 0 0 1 1.2 23.013c0-.21.018-.42.055-.626l2.108-10.845C3.923 8.356 6.714 6.007 9.949 6h5.192'/></g><g stroke-width='2.11'><path d='M30.8 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.421c0 3.919 3.181 7.1 7.1 7.1s7.1-3.181 7.1-7.1V13.1z'/><path d='M23.7 14.724V9.966'/></g></svg>";
-
-var caret_left_default = "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><path d='M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z'/></svg>";
-
-var caret_right_default = "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><path d='M2.685 1.924l6 13.649c.119.27.119.578 0 .849l-6 13.649c-.234.533-.857.775-1.389.541s-.775-.857-.541-1.389l5.813-13.225L.755 2.773c-.234-.533.008-1.155.541-1.389s1.155.008 1.389.541z'/></svg>";
-
-var camera_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g transform='matrix(.150985 0 0 .150985 -3.32603 -2.72209)' fill='none' stroke='#fff' stroke-width='16'><path d='M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z'/><circle cx='128' cy='132' r='36'/></g></svg>";
-
-var microphone_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662'/></svg>";
-
-var microphone_slash_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662'/><path d='M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562'/></svg>";
-
-var battery_full_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke-miterlimit='2' viewBox='0 0 32 32'><path d='M24.774 6.71H3.097C1.398 6.71 0 8.108 0 9.806v12.387c0 1.699 1.398 3.097 3.097 3.097h21.677c1.699 0 3.097-1.398 3.097-3.097V9.806c0-1.699-1.398-3.097-3.097-3.097zm1.032 15.484a1.04 1.04 0 0 1-1.032 1.032H3.097a1.04 1.04 0 0 1-1.032-1.032V9.806a1.04 1.04 0 0 1 1.032-1.032h21.677a1.04 1.04 0 0 1 1.032 1.032v12.387zm-2.065-10.323v8.258a1.04 1.04 0 0 1-1.032 1.032H5.161a1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032H22.71a1.04 1.04 0 0 1 1.032 1.032zm8.258 0v8.258a1.04 1.04 0 0 1-1.032 1.032 1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032A1.04 1.04 0 0 1 32 11.871z' fill-rule='nonzero'/></svg>";
-
-var clock_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g transform='matrix(.150026 0 0 .150026 -3.20332 -3.20332)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='96'/><path d='M128 72v56h56'/></g></svg>";
-
-var cloud_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M9.773 16c0-5.694 4.685-10.379 10.379-10.379S30.53 10.306 30.53 16s-4.685 10.379-10.379 10.379H8.735c-3.982-.005-7.256-3.283-7.256-7.265s3.28-7.265 7.265-7.265c.606 0 1.21.076 1.797.226' fill='none' stroke='#fff' stroke-width='2.076'/></svg>";
-
-var download_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 19.955V1.5m14.5 18.455v9.227c0 .723-.595 1.318-1.318 1.318H2.818c-.723 0-1.318-.595-1.318-1.318v-9.227'/><path d='M22.591 13.364L16 19.955l-6.591-6.591'/></svg>";
-
-var speaker_high_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M8.964 21.417h-6.5a1.09 1.09 0 0 1-1.083-1.083v-8.667a1.09 1.09 0 0 1 1.083-1.083h6.5L18.714 3v26l-9.75-7.583z'/><path d='M8.964 10.583v10.833m15.167-8.28a4.35 4.35 0 0 1 0 5.728M28.149 9.5a9.79 9.79 0 0 1 0 13'/></svg>";
-
-var upload_default = "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 19.905V1.682m14.318 18.223v9.112a1.31 1.31 0 0 1-1.302 1.302H2.983a1.31 1.31 0 0 1-1.302-1.302v-9.112'/><path d='M9.492 8.19L16 1.682l6.508 6.508'/></svg>";
-
 var BxIcon = {
-  BETTER_XCLOUD: better_xcloud_default,
-  TRUE_ACHIEVEMENTS: true_achievements_default,
-  STREAM_SETTINGS: stream_settings_default,
-  STREAM_STATS: stream_stats_default,
-  CLOSE: close_default,
-  COMMAND: command_default,
-  CONTROLLER: controller_default,
-  CREATE_SHORTCUT: create_shortcut_default,
-  DISPLAY: display_default,
-  HOME: home_default,
-  NATIVE_MKB: native_mkb_default,
-  NEW: new_default,
-  COPY: copy_default,
-  TRASH: trash_default,
-  CURSOR_TEXT: cursor_text_default,
-  POWER: power_default,
-  QUESTION: question_default,
-  REFRESH: refresh_default,
-  VIRTUAL_CONTROLLER: virtual_controller_default,
-  REMOTE_PLAY: remote_play_default,
-  CARET_LEFT: caret_left_default,
-  CARET_RIGHT: caret_right_default,
-  SCREENSHOT: camera_default,
-  SPEAKER_MUTED: speaker_slash_default,
-  TOUCH_CONTROL_ENABLE: touch_control_enable_default,
-  TOUCH_CONTROL_DISABLE: touch_control_disable_default,
-  MICROPHONE: microphone_default,
-  MICROPHONE_MUTED: microphone_slash_default,
-  BATTERY: battery_full_default,
-  PLAYTIME: clock_default,
-  SERVER: cloud_default,
-  DOWNLOAD: download_default,
-  UPLOAD: upload_default,
-  AUDIO: speaker_high_default
+  BETTER_XCLOUD: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-miterlimit='2' stroke-width='2' viewBox='0 0 32 32'><path d='M16.001 7.236h-2.328c-.443 0-1.941-.851-2.357-.905-.824-.106-1.684 0-2.489.176a13.04 13.04 0 0 0-3.137 1.14c-.392.275-.677.668-.866 1.104v.03l-3.302 8.963-.015.015c-.288.867-.553 3.75-.5 4.279a4.89 4.89 0 0 0 1.022 2.55c.654.823 3.71 1.364 4.057 1.016l4.462-4.475c.185-.186 1.547-.706 2.01-.706h6.884c.463 0 1.825.52 2.01.706l4.462 4.475c.347.348 3.403-.193 4.057-1.016a4.89 4.89 0 0 0 1.022-2.55c.053-.529-.212-3.412-.5-4.279l-.015-.015-3.302-8.963v-.03c-.189-.436-.474-.829-.866-1.104a13.04 13.04 0 0 0-3.137-1.14c-.805-.176-1.665-.282-2.489-.176-.416.054-1.914.905-2.357.905h-2.328' fill='none' stroke='#fff'/><path d='M8.172 12.914H6.519c-.235 0-.315.267-.335.452l-.052.578c0 .193.033.384.054.576.023.202.091.511.355.511h1.631l-.001 1.652c0 .234.266.315.452.335l.578.052c.193 0 .384-.033.576-.054.203-.023.511-.091.511-.355V15.03l1.652.001c.234 0 .315-.266.335-.452l.052-.578c-.001-.193-.033-.385-.055-.577-.022-.202-.09-.51-.354-.51h-1.632v-1.652c0-.234-.266-.315-.453-.335l-.577-.052c-.193 0-.385.033-.577.054-.202.023-.51.091-.51.355v1.631m16.546 2.994h-3.487c-.206 0-.413-.043-.604-.121-.177-.072-.339-.183-.476-.316-.149-.144-.259-.315-.341-.504-.156-.361-.172-.788-.032-1.157a1.57 1.57 0 0 1 .459-.641c.106-.089.223-.164.349-.222a1.52 1.52 0 0 1 .423-.123c.167-.024.338-.02.504.012a1.83 1.83 0 0 1 .455-.482 1.62 1.62 0 0 1 .522-.252c.307-.089.651-.09.959-.003a1.75 1.75 0 0 1 1.009.764 1.83 1.83 0 0 1 .251.721c.156 0 .312.031.456.09a1.24 1.24 0 0 1 .372.248c.091.087.165.19.221.302a1.19 1.19 0 0 1-.173 1.299c-.119.132-.276.239-.441.305a1.17 1.17 0 0 1-.426.08z' fill='#fff' stroke='none'/></svg>",
+  TRUE_ACHIEVEMENTS: "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' stroke='nons' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M2.497 14.127c.781-6.01 5.542-10.849 11.551-11.708V0C6.634.858.858 6.712 0 14.127h2.497zM17.952 2.419V0C25.366.858 31.142 6.712 32 14.127h-2.497c-.781-6.01-5.542-10.849-11.551-11.708zM2.497 17.873c.781 6.01 5.542 10.849 11.551 11.708V32C6.634 31.142.858 25.288 0 17.873h2.497zm27.006 0H32C31.142 25.288 25.366 31.142 17.952 32v-2.419c6.009-.859 10.77-5.698 11.551-11.708zm-19.2-4.527h2.028a.702.702 0 1 0 0-1.404h-2.107a1.37 1.37 0 0 1-1.326-1.327V9.21a.7.7 0 0 0-.703-.703c-.387 0-.703.316-.703.7v1.408c.079 1.483 1.25 2.731 2.811 2.731zm2.809 7.337h-2.888a1.37 1.37 0 0 1-1.326-1.327v-4.917c0-.387-.316-.703-.7-.703a.7.7 0 0 0-.706.703v4.917a2.77 2.77 0 0 0 2.732 2.732h2.81c.387 0 .702-.316.702-.7.078-.393-.234-.705-.624-.705zM25.6 19.2a.7.7 0 0 0-.702-.702c-.387 0-.703.316-.703.699v.081c0 .702-.546 1.326-1.248 1.326H19.98c-.702-.078-1.248-.624-1.248-1.326v-.312c0-.78.624-1.327 1.326-1.327h2.811a2.77 2.77 0 0 0 2.731-2.732v-.312a2.68 2.68 0 0 0-2.576-2.732h-4.76a.702.702 0 1 0 0 1.405h4.526a1.37 1.37 0 0 1 1.327 1.327v.234c0 .781-.624 1.327-1.327 1.327h-2.81a2.77 2.77 0 0 0-2.731 2.732v.312a2.77 2.77 0 0 0 2.731 2.732h2.967a2.74 2.74 0 0 0 2.575-2.732s.078.078.078 0z'/></svg>",
+  STREAM_SETTINGS: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g transform='matrix(.142357 0 0 .142357 -2.22021 -2.22164)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='40'/><path d='M130.05 206.11h-4L94 224c-12.477-4.197-24.049-10.711-34.11-19.2l-.12-36c-.71-1.12-1.38-2.25-2-3.41L25.9 147.24a99.16 99.16 0 0 1 0-38.46l31.84-18.1c.65-1.15 1.32-2.29 2-3.41l.16-36C69.951 42.757 81.521 36.218 94 32l32 17.89h4L162 32c12.477 4.197 24.049 10.711 34.11 19.2l.12 36c.71 1.12 1.38 2.25 2 3.41l31.85 18.14a99.16 99.16 0 0 1 0 38.46l-31.84 18.1c-.65 1.15-1.32 2.29-2 3.41l-.16 36A104.59 104.59 0 0 1 162 224l-31.95-17.89z'/></g></svg>",
+  STREAM_STATS: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M1.181 24.55v-3.259c0-8.19 6.576-14.952 14.767-14.98H16c8.13 0 14.819 6.69 14.819 14.819v3.42c0 .625-.515 1.14-1.14 1.14H2.321c-.625 0-1.14-.515-1.14-1.14z'/><path d='M16 6.311v4.56M12.58 25.69l9.12-12.54m4.559 5.7h4.386m-29.266 0H5.74'/></svg>",
+  CLOSE: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M29.928,2.072L2.072,29.928'/><path d='M29.928,29.928L2.072,2.072'/></svg>",
+  COMMAND: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M25.425 1.5c2.784 0 5.075 2.291 5.075 5.075s-2.291 5.075-5.075 5.075H20.35V6.575c0-2.784 2.291-5.075 5.075-5.075zM11.65 11.65H6.575C3.791 11.65 1.5 9.359 1.5 6.575S3.791 1.5 6.575 1.5s5.075 2.291 5.075 5.075v5.075zm8.7 8.7h5.075c2.784 0 5.075 2.291 5.075 5.075S28.209 30.5 25.425 30.5s-5.075-2.291-5.075-5.075V20.35zM6.575 30.5c-2.784 0-5.075-2.291-5.075-5.075s2.291-5.075 5.075-5.075h5.075v5.075c0 2.784-2.291 5.075-5.075 5.075z'/><path d='M11.65 11.65h8.7v8.7h-8.7z'/></svg>",
+  CONTROLLER: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M19.193 12.807h3.193m-13.836 0h4.257'/><path d='M10.678 10.678v4.257'/><path d='M13.061 19.193l-5.602 6.359c-.698.698-1.646 1.09-2.633 1.09-2.044 0-3.725-1.682-3.725-3.725a3.73 3.73 0 0 1 .056-.646l2.177-11.194a6.94 6.94 0 0 1 6.799-5.721h11.722c3.795 0 6.918 3.123 6.918 6.918s-3.123 6.918-6.918 6.918h-8.793z'/><path d='M18.939 19.193l5.602 6.359c.698.698 1.646 1.09 2.633 1.09 2.044 0 3.725-1.682 3.725-3.725a3.73 3.73 0 0 0-.056-.646l-2.177-11.194'/></svg>",
+  CREATE_SHORTCUT: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M13.253 3.639c0-.758-.615-1.373-1.373-1.373H3.639c-.758 0-1.373.615-1.373 1.373v8.241c0 .758.615 1.373 1.373 1.373h8.241c.758 0 1.373-.615 1.373-1.373V3.639zm0 16.481c0-.758-.615-1.373-1.373-1.373H3.639c-.758 0-1.373.615-1.373 1.373v8.241c0 .758.615 1.373 1.373 1.373h8.241c.758 0 1.373-.615 1.373-1.373V20.12zm16.481 0c0-.758-.615-1.373-1.373-1.373H20.12c-.758 0-1.373.615-1.373 1.373v8.241c0 .758.615 1.373 1.373 1.373h8.241c.758 0 1.373-.615 1.373-1.373V20.12zM19.262 7.76h9.957'/><path d='M24.24 2.781v9.957'/></svg>",
+  DISPLAY: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M1.238 21.119c0 1.928 1.565 3.493 3.493 3.493H27.27c1.928 0 3.493-1.565 3.493-3.493V5.961c0-1.928-1.565-3.493-3.493-3.493H4.731c-1.928 0-3.493 1.565-3.493 3.493v15.158zm19.683 8.413H11.08'/></svg>",
+  HOME: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M12.217 30.503V20.414h7.567v10.089h10.089V15.37a1.26 1.26 0 0 0-.369-.892L16.892 1.867a1.26 1.26 0 0 0-1.784 0L2.497 14.478a1.26 1.26 0 0 0-.369.892v15.133h10.089z'/></svg>",
+  NATIVE_MKB: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g stroke-width='2.1'><path d='m15.817 6h-10.604c-2.215 0-4.013 1.798-4.013 4.013v12.213c0 2.215 1.798 4.013 4.013 4.013h11.21'/><path d='m5.698 20.617h1.124m-1.124-4.517h7.9m-7.881-4.5h7.9m-2.3 9h2.2'/></g><g stroke-width='2.13'><path d='m30.805 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.4c0 3.919 3.182 7.1 7.1 7.1s7.1-3.181 7.1-7.1z'/><path d='m23.705 14.715v-4.753'/></g></svg>",
+  NEW: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M26.875 30.5H5.125c-.663 0-1.208-.545-1.208-1.208V2.708c0-.663.545-1.208 1.208-1.208h14.5l8.458 8.458v19.333c0 .663-.545 1.208-1.208 1.208z'/><path d='M19.625 1.5v8.458h8.458m-15.708 9.667h7.25'/><path d='M16 16v7.25'/></svg>",
+  COPY: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M1.498 6.772h23.73v23.73H1.498zm5.274-5.274h23.73v23.73'/></svg>",
+  TRASH: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M29.5 6.182h-27m9.818 7.363v9.818m7.364-9.818v9.818'/><path d='M27.045 6.182V29.5c0 .673-.554 1.227-1.227 1.227H6.182c-.673 0-1.227-.554-1.227-1.227V6.182m17.181 0V3.727a2.47 2.47 0 0 0-2.455-2.455h-7.364a2.47 2.47 0 0 0-2.455 2.455v2.455'/></svg>",
+  CURSOR_TEXT: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><path d='M16 7.3a5.83 5.83 0 0 1 5.8-5.8h2.9m0 29h-2.9a5.83 5.83 0 0 1-5.8-5.8'/><path d='M7.3 30.5h2.9a5.83 5.83 0 0 0 5.8-5.8V7.3a5.83 5.83 0 0 0-5.8-5.8H7.3'/><path d='M11.65 16h8.7'/></svg>",
+  POWER: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 2.445v12.91m7.746-11.619C27.631 6.27 30.2 10.37 30.2 15.355c0 7.79-6.41 14.2-14.2 14.2s-14.2-6.41-14.2-14.2c0-4.985 2.569-9.085 6.454-11.619'/></svg>",
+  QUESTION: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><g transform='matrix(.256867 0 0 .256867 -16.878964 -18.049342)'><circle cx='128' cy='180' r='12' fill='#fff'/><path d='M128 144v-8c17.67 0 32-12.54 32-28s-14.33-28-32-28-32 12.54-32 28v4' fill='none' stroke='#fff' stroke-width='16'/></g></svg>",
+  REFRESH: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M23.247 12.377h7.247V5.13'/><path d='M23.911 25.663a13.29 13.29 0 0 1-9.119 3.623C7.504 29.286 1.506 23.289 1.506 16S7.504 2.713 14.792 2.713a13.29 13.29 0 0 1 9.395 3.891l6.307 5.772'/></svg>",
+  VIRTUAL_CONTROLLER: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g stroke-width='2.06'><path d='M8.417 13.218h4.124'/><path d='M10.479 11.155v4.125'/><path d='M12.787 19.404L7.36 25.565a3.61 3.61 0 0 1-2.551 1.056A3.63 3.63 0 0 1 1.2 23.013c0-.21.018-.42.055-.626l2.108-10.845C3.923 8.356 6.714 6.007 9.949 6h5.192'/></g><g stroke-width='2.11'><path d='M30.8 13.1c0-3.919-3.181-7.1-7.1-7.1s-7.1 3.181-7.1 7.1v6.421c0 3.919 3.181 7.1 7.1 7.1s7.1-3.181 7.1-7.1V13.1z'/><path d='M23.7 14.724V9.966'/></g></svg>",
+  REMOTE_PLAY: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='4' viewBox='0 0 32 32'><g transform='matrix(.492308 0 0 .581818 -14.7692 -11.6364)'><clipPath id='A'><path d='M30 20h65v55H30z'/></clipPath><g clip-path='url(#A)'><g transform='matrix(.395211 0 0 .334409 11.913 7.01124)'><g transform='matrix(.555556 0 0 .555556 57.8889 -20.2417)' fill='none' stroke='#fff' stroke-width='13.88'><path d='M200 140.564c-42.045-33.285-101.955-33.285-144 0M168 165c-23.783-17.3-56.217-17.3-80 0'/></g><g transform='matrix(-.555556 0 0 -.555556 200.111 262.393)'><g transform='matrix(1 0 0 1 0 11.5642)'><path d='M200 129c-17.342-13.728-37.723-21.795-58.636-24.198C111.574 101.378 80.703 109.444 56 129' fill='none' stroke='#fff' stroke-width='13.88'/></g><path d='M168 165c-23.783-17.3-56.217-17.3-80 0' fill='none' stroke='#fff' stroke-width='13.88'/></g><g transform='matrix(.75 0 0 .75 32 32)'><path d='M24 72h208v93.881H24z' fill='none' stroke='#fff' stroke-linejoin='miter' stroke-width='9.485'/><circle cx='188' cy='128' r='12' stroke-width='10' transform='matrix(.708333 0 0 .708333 71.8333 12.8333)'/><path d='M24.358 103.5h110' fill='none' stroke='#fff' stroke-linecap='butt' stroke-width='10.282'/></g></g></g></g></svg>",
+  CARET_LEFT: "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><path d='M6.755 1.924l-6 13.649c-.119.27-.119.578 0 .849l6 13.649c.234.533.857.775 1.389.541s.775-.857.541-1.389L2.871 15.997 8.685 2.773c.234-.533-.008-1.155-.541-1.389s-1.155.008-1.389.541z'/></svg>",
+  CARET_RIGHT: "<svg xmlns='http://www.w3.org/2000/svg' width='100%' stroke='#fff' fill='#fff' height='100%' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><path d='M2.685 1.924l6 13.649c.119.27.119.578 0 .849l-6 13.649c-.234.533-.857.775-1.389.541s-.775-.857-.541-1.389l5.813-13.225L.755 2.773c-.234-.533.008-1.155.541-1.389s1.155.008 1.389.541z'/></svg>",
+  SCREENSHOT: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g transform='matrix(.150985 0 0 .150985 -3.32603 -2.72209)' fill='none' stroke='#fff' stroke-width='16'><path d='M208 208H48c-8.777 0-16-7.223-16-16V80c0-8.777 7.223-16 16-16h32l16-24h64l16 24h32c8.777 0 16 7.223 16 16v112c0 8.777-7.223 16-16 16z'/><circle cx='128' cy='132' r='36'/></g></svg>",
+  SPEAKER_MUTED: "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' stroke='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M5.462 3.4c-.205-.23-.499-.363-.808-.363-.592 0-1.079.488-1.079 1.08a1.08 1.08 0 0 0 .289.736l4.247 4.672H2.504a2.17 2.17 0 0 0-2.16 2.16v8.637a2.17 2.17 0 0 0 2.16 2.16h6.107l9.426 7.33a1.08 1.08 0 0 0 .662.227c.592 0 1.08-.487 1.08-1.079v-6.601l5.679 6.247a1.08 1.08 0 0 0 .808.363c.592 0 1.08-.487 1.08-1.079a1.08 1.08 0 0 0-.29-.736L5.462 3.4zm-2.958 8.285h5.398v8.637H2.504v-8.637zM17.62 26.752l-7.558-5.878V11.67l7.558 8.313v6.769zm5.668-8.607c1.072-1.218 1.072-3.063 0-4.281a1.08 1.08 0 0 1-.293-.74c0-.592.487-1.079 1.079-1.079a1.08 1.08 0 0 1 .834.393 5.42 5.42 0 0 1 0 7.137 1.08 1.08 0 0 1-.81.365c-.593 0-1.08-.488-1.08-1.08 0-.263.096-.517.27-.715zM12.469 7.888c-.147-.19-.228-.423-.228-.663a1.08 1.08 0 0 1 .417-.853l5.379-4.184a1.08 1.08 0 0 1 .662-.227c.593 0 1.08.488 1.08 1.08v10.105c0 .593-.487 1.08-1.08 1.08s-1.079-.487-1.079-1.08V5.255l-3.636 2.834c-.469.362-1.153.273-1.515-.196v-.005zm19.187 8.115a10.79 10.79 0 0 1-2.749 7.199 1.08 1.08 0 0 1-.793.347c-.593 0-1.08-.487-1.08-1.079 0-.26.094-.511.264-.708 2.918-3.262 2.918-8.253 0-11.516-.184-.2-.287-.461-.287-.733 0-.592.487-1.08 1.08-1.08a1.08 1.08 0 0 1 .816.373 10.78 10.78 0 0 1 2.749 7.197z' fill-rule='nonzero'/></svg>",
+  TOUCH_CONTROL_ENABLE: "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><path d='M30.021 9.448a.89.89 0 0 0-.889-.889H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h26.223a.89.89 0 0 0 .889-.888V9.448z' fill='none' stroke='#fff' stroke-width='2.083'/><path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/><path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/><circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/></svg>",
+  TOUCH_CONTROL_DISABLE: "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' viewBox='0 0 32 32' fill-rule='evenodd' stroke-linejoin='round' stroke-miterlimit='2'><g fill='none' stroke='#fff'><path d='M6.021 5.021l20 22' stroke-width='2'/><path d='M8.735 8.559H2.909a.89.89 0 0 0-.889.889v13.146a.89.89 0 0 0 .889.888h19.34m4.289 0h2.594a.89.89 0 0 0 .889-.888V9.448a.89.89 0 0 0-.889-.889H12.971' stroke-miterlimit='1.5' stroke-width='2.083'/></g><path d='M8.147 11.981l-.053-.001-.054.001c-.55.028-.988.483-.988 1.04v6c0 .575.467 1.042 1.042 1.042l.053-.001c.55-.028.988-.484.988-1.04v-6a1.04 1.04 0 0 0-.988-1.04z'/><path d='M11.147 14.981l-.054-.001h-6a1.04 1.04 0 1 0 0 2.083h6c.575 0 1.042-.467 1.042-1.042a1.04 1.04 0 0 0-.988-1.04z'/><circle cx='25.345' cy='18.582' r='2.561' fill='none' stroke='#fff' stroke-width='1.78' transform='matrix(1.17131 0 0 1.17131 -5.74235 -5.74456)'/></svg>",
+  MICROPHONE: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M21.368 6.875A5.37 5.37 0 0 0 16 1.507a5.37 5.37 0 0 0-5.368 5.368v8.588A5.37 5.37 0 0 0 16 20.831a5.37 5.37 0 0 0 5.368-5.368V6.875zM16 25.125v5.368m9.662-15.03c0 5.3-4.362 9.662-9.662 9.662s-9.662-4.362-9.662-9.662'/></svg>",
+  MICROPHONE_MUTED: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 25.125v5.368M5.265 4.728l21.471 23.618m-4.789-5.267c-1.698 1.326-3.793 2.047-5.947 2.047-5.3 0-9.662-4.362-9.662-9.662'/><path d='M25.662 15.463a9.62 9.62 0 0 1-.978 4.242m-5.64.187c-.895.616-1.957.943-3.043.939-2.945 0-5.368-2.423-5.368-5.368v-4.831m.442-5.896A5.38 5.38 0 0 1 16 1.507c2.945 0 5.368 2.423 5.368 5.368v8.588c0 .188-.01.375-.03.562'/></svg>",
+  BATTERY: "<svg xmlns='http://www.w3.org/2000/svg' fill='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' stroke-miterlimit='2' viewBox='0 0 32 32'><path d='M24.774 6.71H3.097C1.398 6.71 0 8.108 0 9.806v12.387c0 1.699 1.398 3.097 3.097 3.097h21.677c1.699 0 3.097-1.398 3.097-3.097V9.806c0-1.699-1.398-3.097-3.097-3.097zm1.032 15.484a1.04 1.04 0 0 1-1.032 1.032H3.097a1.04 1.04 0 0 1-1.032-1.032V9.806a1.04 1.04 0 0 1 1.032-1.032h21.677a1.04 1.04 0 0 1 1.032 1.032v12.387zm-2.065-10.323v8.258a1.04 1.04 0 0 1-1.032 1.032H5.161a1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032H22.71a1.04 1.04 0 0 1 1.032 1.032zm8.258 0v8.258a1.04 1.04 0 0 1-1.032 1.032 1.04 1.04 0 0 1-1.032-1.032v-8.258a1.04 1.04 0 0 1 1.032-1.032A1.04 1.04 0 0 1 32 11.871z' fill-rule='nonzero'/></svg>",
+  PLAYTIME: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><g transform='matrix(.150026 0 0 .150026 -3.20332 -3.20332)' fill='none' stroke='#fff' stroke-width='16'><circle cx='128' cy='128' r='96'/><path d='M128 72v56h56'/></g></svg>",
+  SERVER: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M9.773 16c0-5.694 4.685-10.379 10.379-10.379S30.53 10.306 30.53 16s-4.685 10.379-10.379 10.379H8.735c-3.982-.005-7.256-3.283-7.256-7.265s3.28-7.265 7.265-7.265c.606 0 1.21.076 1.797.226' fill='none' stroke='#fff' stroke-width='2.076'/></svg>",
+  DOWNLOAD: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 19.955V1.5m14.5 18.455v9.227c0 .723-.595 1.318-1.318 1.318H2.818c-.723 0-1.318-.595-1.318-1.318v-9.227'/><path d='M22.591 13.364L16 19.955l-6.591-6.591'/></svg>",
+  UPLOAD: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 19.905V1.682m14.318 18.223v9.112a1.31 1.31 0 0 1-1.302 1.302H2.983a1.31 1.31 0 0 1-1.302-1.302v-9.112'/><path d='M9.492 8.19L16 1.682l6.508 6.508'/></svg>",
+  AUDIO: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M8.964 21.417h-6.5a1.09 1.09 0 0 1-1.083-1.083v-8.667a1.09 1.09 0 0 1 1.083-1.083h6.5L18.714 3v26l-9.75-7.583z'/><path d='M8.964 10.583v10.833m15.167-8.28a4.35 4.35 0 0 1 0 5.728M28.149 9.5a9.79 9.79 0 0 1 0 13'/></svg>"
 };
-
 class Dialog {
   $dialog;
   $title;
@@ -2952,7 +2783,6 @@ class Dialog {
     this.$dialog.classList.toggle("bx-gone"), this.$overlay.classList.toggle("bx-gone");
   }
 }
-
 class MkbRemapper {
   #BUTTON_ORDERS = [
     12,
@@ -3014,8 +2844,7 @@ class MkbRemapper {
   };
   #bindKey = ($elm, key) => {
     const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    if ($elm.getAttribute("data-key-code") === key.code)
-      return;
+    if ($elm.getAttribute("data-key-code") === key.code) return;
     for (let $otherElm of this.#$.allKeyElements)
       if ($otherElm.getAttribute("data-key-code") === key.code)
         this.#unbindKey($otherElm);
@@ -3037,13 +2866,11 @@ class MkbRemapper {
     window.setTimeout(() => this.bindingDialog.hide(), 200);
   };
   #onBindingKey = (e) => {
-    if (!this.#STATE.isEditing || e.button !== 0)
-      return;
+    if (!this.#STATE.isEditing || e.button !== 0) return;
     console.log(e), this.#$.currentBindingKey = e.target, window.addEventListener("keydown", this.#onKeyDown), window.addEventListener("mousedown", this.#onMouseDown), window.addEventListener("wheel", this.#onWheel), this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
   };
   #onContextMenu = (e) => {
-    if (e.preventDefault(), !this.#STATE.isEditing)
-      return;
+    if (e.preventDefault(), !this.#STATE.isEditing) return;
     this.#unbindKey(e.target);
   };
   #getPreset = (presetId) => {
@@ -3118,8 +2945,7 @@ class MkbRemapper {
     const promptNewName = (value) => {
       let newName = "";
       while (!newName) {
-        if (newName = prompt(t("prompt-preset-name"), value), newName === null)
-          return !1;
+        if (newName = prompt(t("prompt-preset-name"), value), newName === null) return !1;
         newName = newName.trim();
       }
       return newName ? newName : !1;
@@ -3130,8 +2956,7 @@ class MkbRemapper {
       onClick: (e) => {
         const preset = this.#getCurrentPreset();
         let newName = promptNewName(preset.name);
-        if (!newName || newName === preset.name)
-          return;
+        if (!newName || newName === preset.name) return;
         preset.name = newName, LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
       }
     }), createButton({
@@ -3140,8 +2965,7 @@ class MkbRemapper {
       tabIndex: -1,
       onClick: (e) => {
         let newName = promptNewName("");
-        if (!newName)
-          return;
+        if (!newName) return;
         LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
           this.#STATE.currentPresetId = id2, this.#refresh();
         });
@@ -3153,8 +2977,7 @@ class MkbRemapper {
       onClick: (e) => {
         const preset = this.#getCurrentPreset();
         let newName = promptNewName(`${preset.name} (2)`);
-        if (!newName)
-          return;
+        if (!newName) return;
         LocalDb.INSTANCE.newPreset(newName, preset.data).then((id2) => {
           this.#STATE.currentPresetId = id2, this.#refresh();
         });
@@ -3165,8 +2988,7 @@ class MkbRemapper {
       title: t("delete"),
       tabIndex: -1,
       onClick: (e) => {
-        if (!confirm(t("confirm-delete-preset")))
-          return;
+        if (!confirm(t("confirm-delete-preset"))) return;
         LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id2) => {
           this.#STATE.currentPresetId = 0, this.#refresh();
         });
@@ -3236,20 +3058,16 @@ class MkbRemapper {
     return this.#$.wrapper.appendChild($actionButtons), this.#toggleEditing(!1), this.#refresh(), this.#$.wrapper;
   }
 }
-
 function checkForUpdate() {
-  if (SCRIPT_VERSION.includes("beta"))
-    return;
+  if (SCRIPT_VERSION.includes("beta")) return;
   const CHECK_INTERVAL_SECONDS = 7200, currentVersion = getPref("version_current"), lastCheck = getPref("version_last_check"), now = Math.round(+new Date / 1000);
-  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS)
-    return;
+  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) return;
   setPref("version_last_check", now), fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
     setPref("version_latest", json.tag_name.substring(1)), setPref("version_current", SCRIPT_VERSION);
   }), Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
 }
 function disablePwa() {
-  if (!(window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase())
-    return;
+  if (!(window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase()) return;
   if (!!AppInterface || UserAgent.isSafariMobile())
     Object.defineProperty(window.navigator, "standalone", {
       value: !0
@@ -3266,8 +3084,7 @@ function hashCode(str) {
 function renderString(str, obj) {
   return str.replace(/\$\{.+?\}/g, (match) => {
     const key = match.substring(2, match.length - 1);
-    if (key in obj)
-      return obj[key];
+    if (key in obj) return obj[key];
     return match;
   });
 }
@@ -3288,11 +3105,9 @@ async function copyToClipboard(text, showToast = !0) {
 function productTitleToSlug(title) {
   return title.replace(/[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g, "").replace(/\|/g, "-").replace(/ {2,}/g, " ").trim().substr(0, 50).replace(/ /g, "-").toLowerCase();
 }
-
 class SoundShortcut {
   static adjustGainNodeVolume(amount) {
-    if (!getPref("audio_enable_volume_control"))
-      return 0;
+    if (!getPref("audio_enable_volume_control")) return 0;
     const currentValue = getPref("audio_volume");
     let nearestValue;
     if (amount > 0)
@@ -3341,9 +3156,7 @@ class SoundShortcut {
     }
   }
 }
-
 var LOG_TAG2 = "TouchController";
-
 class TouchController {
   static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
     data: JSON.stringify({
@@ -3366,8 +3179,7 @@ class TouchController {
   }
   static getCustomLayouts() {
     const xboxTitleId = TouchController.#xboxTitleId;
-    if (!xboxTitleId)
-      return null;
+    if (!xboxTitleId) return null;
     return TouchController.#customLayouts[xboxTitleId];
   }
   static enable() {
@@ -3389,8 +3201,7 @@ class TouchController {
     document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
   }
   static toggleVisibility(status) {
-    if (!TouchController.#dataChannel)
-      return;
+    if (!TouchController.#dataChannel) return;
     status ? TouchController.#hide() : TouchController.#show();
   }
   static reset() {
@@ -3406,8 +3217,7 @@ class TouchController {
   }
   static async requestCustomLayouts(retries = 1) {
     const xboxTitleId = TouchController.#xboxTitleId;
-    if (!xboxTitleId)
-      return;
+    if (!xboxTitleId) return;
     if (xboxTitleId in TouchController.#customLayouts) {
       TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
       return;
@@ -3427,8 +3237,7 @@ class TouchController {
           try {
             const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
             baseLayouts = (await (await NATIVE_FETCH(layoutUrl)).json()).layouts, TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
-          } catch (e) {
-          }
+          } catch (e) {}
         Object.assign(layouts, baseLayouts);
       }), json.layouts = layouts, TouchController.#customLayouts[xboxTitleId] = json, window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
     } catch (e) {
@@ -3463,8 +3272,7 @@ class TouchController {
       return;
     }
     const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout)
-      return;
+    if (!layout) return;
     let msg, html = !1;
     if (layout.author) {
       const author = `<b>${escapeHtml(layout.author)}</b>`;
@@ -3511,8 +3319,7 @@ class TouchController {
     const PREF_STYLE_STANDARD = getPref("stream_touch_controller_style_standard"), PREF_STYLE_CUSTOM = getPref("stream_touch_controller_style_custom");
     window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
       const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message")
-        return;
+      if (!dataChannel || dataChannel.label !== "message") return;
       let filter = "";
       if (TouchController.#enabled) {
         if (PREF_STYLE_STANDARD === "white")
@@ -3530,8 +3337,7 @@ class TouchController {
       });
       let focused = !1;
       dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string")
-          return;
+        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") return;
         if (msg.data.includes("touchcontrols/showtitledefault")) {
           if (TouchController.#enabled)
             if (focused)
@@ -3554,7 +3360,6 @@ class TouchController {
     });
   }
 }
-
 var VIBRATION_DATA_MAP = {
   gamepadIndex: 8,
   leftMotorPercent: 8,
@@ -3563,7 +3368,6 @@ var VIBRATION_DATA_MAP = {
   rightTriggerMotorPercent: 8,
   durationMs: 16
 };
-
 class VibrationManager {
   static #playDeviceVibration(data) {
     if (AppInterface) {
@@ -3607,21 +3411,17 @@ class VibrationManager {
     window.BX_ENABLE_DEVICE_VIBRATION = enabled;
   }
   static #onMessage(e) {
-    if (!window.BX_ENABLE_DEVICE_VIBRATION)
-      return;
-    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer))
-      return;
+    if (!window.BX_ENABLE_DEVICE_VIBRATION) return;
+    if (typeof e !== "object" || !(e.data instanceof ArrayBuffer)) return;
     const dataView = new DataView(e.data);
     let offset = 0, messageType;
     if (dataView.byteLength === 13)
       messageType = dataView.getUint16(offset, !0), offset += Uint16Array.BYTES_PER_ELEMENT;
     else
       messageType = dataView.getUint8(offset), offset += Uint8Array.BYTES_PER_ELEMENT;
-    if (!(messageType & 128))
-      return;
+    if (!(messageType & 128)) return;
     const vibrationType = dataView.getUint8(offset);
-    if (offset += Uint8Array.BYTES_PER_ELEMENT, vibrationType !== 0)
-      return;
+    if (offset += Uint8Array.BYTES_PER_ELEMENT, vibrationType !== 0) return;
     const data = {};
     let key;
     for (key in VIBRATION_DATA_MAP)
@@ -3634,13 +3434,11 @@ class VibrationManager {
   static initialSetup() {
     window.addEventListener("gamepadconnected", (e) => VibrationManager.updateGlobalVars()), window.addEventListener("gamepaddisconnected", (e) => VibrationManager.updateGlobalVars()), VibrationManager.updateGlobalVars(!1), window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
       const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "input")
-        return;
+      if (!dataChannel || dataChannel.label !== "input") return;
       dataChannel.addEventListener("message", VibrationManager.#onMessage);
     });
   }
 }
-
 class BxSelectElement {
   static wrap($select) {
     $select.removeAttribute("tabindex");
@@ -3688,8 +3486,7 @@ class BxSelectElement {
     }, normalizeIndex = (index) => {
       return Math.min(Math.max(index, 0), $select.querySelectorAll("option").length - 1);
     }, onPrevNext = (e) => {
-      if (!e.target)
-        return;
+      if (!e.target) return;
       const goNext = e.target.closest("button") === $btnNext, currentIndex = visibleIndex;
       let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
       if (newIndex = normalizeIndex(newIndex), visibleIndex = newIndex, !isMultiple && newIndex !== currentIndex)
@@ -3737,21 +3534,13 @@ class BxSelectElement {
     }, $div;
   }
 }
-
 var controller_shortcuts_default = "if (window.BX_EXPOSED.disableGamepadPolling) {\n    this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(50) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, 50);\n    return;\n}\n\nconst currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    let intervalMs = 0;\n    let hijack = false;\n\n    if (btnHome.pressed) {\n        hijack = true;\n        intervalMs = 16;\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                shortcutPressed: 0,\n                timestamp: currentGamepad.timestamp,\n            };\n        }\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        hijack = true;\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                GamepadIndex: currentGamepad.index,\n                A: 0,\n                B: 0,\n                X: 0,\n                Y: 0,\n                LeftShoulder: 0,\n                RightShoulder: 0,\n                LeftTrigger: 0,\n                RightTrigger: 0,\n                View: 0,\n                Menu: 0,\n                LeftThumb: 0,\n                RightThumb: 0,\n                DPadUp: 0,\n                DPadDown: 0,\n                DPadLeft: 0,\n                DPadRight: 0,\n                Nexus: 1,\n                LeftThumbXAxis: 0,\n                LeftThumbYAxis: 0,\n                RightThumbXAxis: 0,\n                RightThumbYAxis: 0,\n                PhysicalPhysicality: 0,\n                VirtualPhysicality: 0,\n                Dirty: true,\n                Virtual: false,\n            }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n        } else {\n            intervalMs = 4;\n        }\n    }\n\n    if (hijack && intervalMs) {\n        // Listen to next button press\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    }\n}\n";
-
 var expose_stream_session_default = "window.BX_EXPOSED.streamSession = this;\n\nconst orgSetMicrophoneState = this.setMicrophoneState.bind(this);\nthis.setMicrophoneState = state => {\n    orgSetMicrophoneState(state);\n\n    const evt = new Event(BxEvent.MICROPHONE_STATE_CHANGED);\n    evt.microphoneState = state;\n\n    window.dispatchEvent(evt);\n};\n\nwindow.dispatchEvent(new Event(BxEvent.STREAM_SESSION_READY));\n\n// Patch updateDimensions() to make native touch work correctly with WebGL2\nlet updateDimensionsStr = this.updateDimensions.toString();\n\nif (updateDimensionsStr.startsWith('function ')) {\n    updateDimensionsStr = updateDimensionsStr.substring(9);\n}\n\n// if(r){\nconst renderTargetVar = updateDimensionsStr.match(/if\\((\\w+)\\){/)[1];\n\nupdateDimensionsStr = updateDimensionsStr.replaceAll(renderTargetVar + '.scroll', 'scroll');\n\nupdateDimensionsStr = updateDimensionsStr.replace(`if(${renderTargetVar}){`, `\nif (${renderTargetVar}) {\n    const scrollWidth = ${renderTargetVar}.dataset.width ? parseInt(${renderTargetVar}.dataset.width) : ${renderTargetVar}.scrollWidth;\n    const scrollHeight = ${renderTargetVar}.dataset.height ? parseInt(${renderTargetVar}.dataset.height) : ${renderTargetVar}.scrollHeight;\n`);\n\neval(`this.updateDimensions = function ${updateDimensionsStr}`);\n";
-
 var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nif (onGamepadChangedStr.startsWith('function ')) {\n    onGamepadChangedStr = onGamepadChangedStr.substring(9);\n}\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
-
 var set_currently_focused_interactable_default = "e && BxEvent.dispatch(window, BxEvent.NAVIGATION_FOCUS_CHANGED, {element: e});\n";
-
 var remote_play_enable_default = "connectMode: window.BX_REMOTE_PLAY_CONFIG ? \"xhome-connect\" : \"cloud-connect\",\nremotePlayServerId: (window.BX_REMOTE_PLAY_CONFIG && window.BX_REMOTE_PLAY_CONFIG.serverId) || '',\n";
-
 var remote_play_keep_alive_default = "const msg = JSON.parse(e);\nif (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {\n    try {\n        this.sendKeepAlive();\n        return;\n    } catch (ex) { console.log(ex); }\n}\n";
-
 var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity === 0) {\n    return void(0);\n}\n\nif (intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
-
 var FeatureGates = {
   PwaPrompt: !1,
   EnableWifiWarnings: !1,
@@ -3764,18 +3553,15 @@ if (getPref("block_social_features"))
   FeatureGates.EnableGuideChatTab = !1;
 if (BX_FLAGS.FeatureGates)
   FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
-
 class PatcherUtils {
   static indexOf(txt, searchString, startIndex, maxRange) {
     const index = txt.indexOf(searchString, startIndex);
-    if (index < 0 || maxRange && index - startIndex > maxRange)
-      return -1;
+    if (index < 0 || maxRange && index - startIndex > maxRange) return -1;
     return index;
   }
   static lastIndexOf(txt, searchString, startIndex, maxRange) {
     const index = txt.lastIndexOf(searchString, startIndex);
-    if (index < 0 || maxRange && startIndex - index > maxRange)
-      return -1;
+    if (index < 0 || maxRange && startIndex - index > maxRange) return -1;
     return index;
   }
   static insertAt(txt, index, insertString) {
@@ -3789,22 +3575,18 @@ var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATC
   disableAiTrack(str) {
     let text = ".track=function(";
     const index = str.indexOf(text);
-    if (index < 0)
-      return !1;
-    if (PatcherUtils.indexOf(str, '"AppInsightsCore', index, 200) < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (PatcherUtils.indexOf(str, '"AppInsightsCore', index, 200) < 0) return !1;
     return PatcherUtils.replaceWith(str, index, text, ".track=function(e){},!!function(");
   },
   disableTelemetry(str) {
     let text = ".disableTelemetry=function(){return!1}";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str.replace(text, ".disableTelemetry=function(){return!0}");
   },
   disableTelemetryProvider(str) {
     let text = "this.enableLightweightTelemetry=!";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = [
       "this.trackEvent",
       "this.trackPageView",
@@ -3819,63 +3601,53 @@ var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATC
   },
   disableIndexDbLogging(str) {
     let text = ",this.logsDb=new";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     let newCode = ",this.log=()=>{}";
     return str.replace(text, newCode + text);
   },
   websiteLayout(str) {
     let text = '?"tv":"default"';
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const layout = getPref("ui_layout") === "tv" ? "tv" : "default";
     return str.replace(text, `?"${layout}":"${layout}"`);
   },
   remotePlayDirectConnectUrl(str) {
     const index = str.indexOf("/direct-connect");
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     return str.replace(str.substring(index - 9, index + 15), "https://www.xbox.com/play");
   },
   remotePlayKeepAlive(str) {
     let text = "onServerDisconnectMessage(e){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, text + remote_play_keep_alive_default), str;
   },
   remotePlayConnectMode(str) {
     let text = 'connectMode:"cloud-connect",';
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str.replace(text, remote_play_enable_default);
   },
   remotePlayDisableAchievementToast(str) {
     let text = ".AchievementUnlock:{";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = "if (!!window.BX_REMOTE_PLAY_CONFIG) return;";
     return str.replace(text, text + newCode);
   },
   remotePlayRecentlyUsedTitleIds(str) {
     let text = "(e.data.recentlyUsedTitleIds)){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = "if (window.BX_REMOTE_PLAY_CONFIG) return;";
     return str.replace(text, text + newCode);
   },
   blockWebRtcStatsCollector(str) {
     let text = "this.shouldCollectStats=!0";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str.replace(text, "this.shouldCollectStats=!1");
   },
   patchPollGamepads(str) {
     const index = str.indexOf("},this.pollGamepads=()=>{");
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     const nextIndex = str.indexOf("setTimeout(this.pollGamepads", index);
-    if (nextIndex === -1)
-      return !1;
+    if (nextIndex === -1) return !1;
     let codeBlock = str.substring(index, nextIndex);
     if (getPref("block_tracking"))
       codeBlock = codeBlock.replaceAll("this.inputPollingIntervalStats.addValue", "");
@@ -3890,8 +3662,7 @@ var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATC
   },
   enableXcloudLogger(str) {
     let text = "this.telemetryProvider=e}log(e,t,r){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = `
 const [logTag, logLevel, logMessage] = Array.from(arguments);
 const logFunc = [console.debug, console.log, console.warn, console.error][logLevel];
@@ -3901,20 +3672,17 @@ logFunc(logTag, '//', logMessage);
   },
   enableConsoleLogging(str) {
     let text = "static isConsoleLoggingAllowed(){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replaceAll(text, text + "return true;"), str;
   },
   playVibration(str) {
     let text = "}playVibration(e){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return VibrationManager.updateGlobalVars(), str = str.replaceAll(text, text + vibration_adjust_default), str;
   },
   overrideSettings(str) {
     const index = str.indexOf(",EnableStreamGate:");
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     const endIndex = str.indexOf("},", index);
     let newSettings = JSON.stringify(FeatureGates);
     newSettings = newSettings.substring(1, newSettings.length - 1);
@@ -3923,35 +3691,30 @@ logFunc(logTag, '//', logMessage);
   },
   disableGamepadDisconnectedScreen(str) {
     const index = str.indexOf('"GamepadDisconnected_Title",');
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     const constIndex = str.indexOf("const", index - 30);
     return str = str.substring(0, constIndex) + "e.onClose();return null;" + str.substring(constIndex), str;
   },
   patchUpdateInputConfigurationAsync(str) {
     let text = "async updateInputConfigurationAsync(e){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = "e.enableTouchInput = true;";
     return str = str.replace(text, text + newCode), str;
   },
   loadingEndingChunks(str) {
     let text = '"FamilySagaManager"';
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return BxLogger.info(LOG_TAG3, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str;
   },
   disableStreamGate(str) {
     const index = str.indexOf('case"partially-ready":');
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     const bracketIndex = str.indexOf("=>{", index - 150) + 3;
     return str = str.substring(0, bracketIndex) + "return 0;" + str.substring(bracketIndex), str;
   },
   exposeTouchLayoutManager(str) {
     let text = "this._perScopeLayoutsStream=new";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = `
 true;
 window.BX_EXPOSED["touchLayoutManager"] = this;
@@ -3961,17 +3724,14 @@ window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
   },
   patchBabylonRendererClass(str) {
     let index = str.indexOf(".current.render(),");
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     index -= 1;
     const newCode = `
 if (window.BX_EXPOSED.stopTakRendering) {
     try {
         document.getElementById('BabylonCanvasContainer-main')?.parentElement.classList.add('bx-offscreen');
-
         ${str[index]}.current.dispose();
     } catch (e) {}
-
     window.BX_EXPOSED.stopTakRendering = false;
     return;
 }
@@ -3980,22 +3740,19 @@ if (window.BX_EXPOSED.stopTakRendering) {
   },
   supportLocalCoOp(str) {
     let text = "this.gamepadMappingsToSend=[],";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = `true; ${local_co_op_enable_default}; true,`;
     return str = str.replace(text, text + newCode), str;
   },
   forceFortniteConsole(str) {
     let text = "sendTouchInputEnabledMessage(e){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = "window.location.pathname.includes('/launch/fortnite/') && (e = false);";
     return str = str.replace(text, text + newCode), str;
   },
   disableTakRenderer(str) {
     let text = "const{TakRenderer:";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     let autoOffCode = "";
     if (getPref("stream_touch_controller") === "off")
       autoOffCode = "return;";
@@ -4003,21 +3760,18 @@ if (window.BX_EXPOSED.stopTakRendering) {
       autoOffCode = `
 const gamepads = window.navigator.getGamepads();
 let gamepadFound = false;
-
 for (let gamepad of gamepads) {
     if (gamepad && gamepad.connected) {
         gamepadFound = true;
         break;
     }
 }
-
 if (gamepadFound) {
     return;
 }
 `;
     const newCode = `
 ${autoOffCode}
-
 const titleInfo = window.BX_EXPOSED.getTitleInfo();
 if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
     return;
@@ -4027,14 +3781,12 @@ if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFak
   },
   streamCombineSources(str) {
     let text = "this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, "this.useCombinedAudioVideoStream=true"), str;
   },
   patchStreamHud(str) {
     let text = "let{onCollapse";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     let newCode = `
 // Expose onShowStreamMenu
 window.BX_EXPOSED.showStreamMenu = e.onShowStreamMenu;
@@ -4047,8 +3799,7 @@ e.guideUI = null;
   },
   broadcastPollingMode(str) {
     let text = ".setPollingMode=e=>{";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = `
 BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e.toLowerCase()});
 `;
@@ -4056,14 +3807,12 @@ BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e.toLowerCa
   },
   patchGamepadPolling(str) {
     let index = str.indexOf(".shouldHandleGamepadInput)())return void");
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     return index = str.indexOf("{", index - 20) + 1, str = str.substring(0, index) + "if (window.BX_EXPOSED.disableGamepadPolling) return;" + str.substring(index), str;
   },
   patchXcloudTitleInfo(str) {
     let text = "async cloudConnect", index = str.indexOf(text);
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     let backetIndex = str.indexOf("{", index);
     const titleInfoVar = str.substring(index, backetIndex).match(/\(([^)]+)\)/)[1].split(",")[0], newCode = `
 ${titleInfoVar} = window.BX_EXPOSED.modifyTitleInfo(${titleInfoVar});
@@ -4073,8 +3822,7 @@ BxLogger.info('patchXcloudTitleInfo', ${titleInfoVar});
   },
   patchRemotePlayMkb(str) {
     let text = "async homeConsoleConnect", index = str.indexOf(text);
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     let backetIndex = str.indexOf("{", index);
     const configsVar = str.substring(index, backetIndex).match(/\(([^)]+)\)/)[1].split(",")[1], newCode = `
 Object.assign(${configsVar}.inputConfiguration, {
@@ -4088,36 +3836,31 @@ BxLogger.info('patchRemotePlayMkb', ${configsVar});
   },
   patchAudioMediaStream(str) {
     let text = ".srcObject=this.audioMediaStream,";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = "window.BX_EXPOSED.setupGainNode(arguments[1], this.audioMediaStream),";
     return str = str.replace(text, text + newCode), str;
   },
   patchCombinedAudioVideoMediaStream(str) {
     let text = ".srcObject=this.combinedAudioVideoStream";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = ",window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)";
     return str = str.replace(text, text + newCode), str;
   },
   patchTouchControlDefaultOpacity(str) {
     let text = "opacityMultiplier:1";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = `opacityMultiplier: ${(getPref("stream_touch_controller_default_opacity") / 100).toFixed(1)}`;
     return str = str.replace(text, newCode), str;
   },
   patchShowSensorControls(str) {
     let text = "{shouldShowSensorControls:";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = "{shouldShowSensorControls: (window.BX_EXPOSED && window.BX_EXPOSED.shouldShowSensorControls) ||";
     return str = str.replace(text, newCode), str;
   },
   exposeStreamSession(str) {
     let text = ",this._connectionType=";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = `;
 ${expose_stream_session_default}
 true` + text;
@@ -4125,91 +3868,72 @@ true` + text;
   },
   skipFeedbackDialog(str) {
     let text = "&&this.shouldTransitionToFeedback(";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, "&& false " + text), str;
   },
   enableNativeMkb(str) {
     let text = "e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, text + "return true;"), str;
   },
   patchMouseAndKeyboardEnabled(str) {
     let text = "get mouseAndKeyboardEnabled(){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, text + "return true;"), str;
   },
   exposeInputSink(str) {
     let text = "this.controlChannel=null,this.inputChannel=null";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = "window.BX_EXPOSED.inputSink = this;";
     return str = str.replace(text, newCode + text), str;
   },
   disableNativeRequestPointerLock(str) {
     let text = "async requestPointerLock(){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, text + "return;"), str;
   },
   patchRequestInfoCrash(str) {
     let text = 'if(!e)throw new Error("RequestInfo.origin is falsy");';
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, 'if (!e) e = "https://www.xbox.com";'), str;
   },
   exposeDialogRoutes(str) {
     let text = "return{goBack:function(){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     return str = str.replace(text, "return window.BX_EXPOSED.dialogRoutes = {goBack:function(){"), str;
   },
   enableTvRoutes(str) {
     let index = str.indexOf(".LoginDeviceCode.path,");
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     const match = /render:.*?jsx\)\(([^,]+),/.exec(str.substring(index, index + 100));
-    if (!match)
-      return !1;
+    if (!match) return !1;
     const funcName = match[1];
-    if (index = str.indexOf(`const ${funcName}=e=>{`), index > -1 && (index = str.indexOf("return ", index)), index > -1 && (index = str.indexOf("?", index)), index < 0)
-      return !1;
+    if (index = str.indexOf(`const ${funcName}=e=>{`), index > -1 && (index = str.indexOf("return ", index)), index > -1 && (index = str.indexOf("?", index)), index < 0) return !1;
     return str = str.substring(0, index) + "|| true" + str.substring(index), str;
   },
   ignorePlayWithFriendsSection(str) {
     let index = str.indexOf('location:"PlayWithFriendsRow",');
-    if (index < 0)
-      return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "return", index, 50), index < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (index = PatcherUtils.lastIndexOf(str, "return", index, 50), index < 0) return !1;
     return str = PatcherUtils.replaceWith(str, index, "return", "return null;"), str;
   },
   ignoreAllGamesSection(str) {
     let index = str.indexOf('className:"AllGamesRow-module__allGamesRowContainer');
-    if (index < 0)
-      return !1;
-    if (index = PatcherUtils.indexOf(str, "grid:!0,", index, 1500), index < 0)
-      return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "(0,", index, 70), index < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (index = PatcherUtils.indexOf(str, "grid:!0,", index, 1500), index < 0) return !1;
+    if (index = PatcherUtils.lastIndexOf(str, "(0,", index, 70), index < 0) return !1;
     return str = PatcherUtils.insertAt(str, index, "true ? null :"), str;
   },
   ignorePlayWithTouchSection(str) {
     let index = str.indexOf('("Play_With_Touch"),');
-    if (index < 0)
-      return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "const ", index, 30), index < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (index = PatcherUtils.lastIndexOf(str, "const ", index, 30), index < 0) return !1;
     return str = PatcherUtils.insertAt(str, index, "return null;"), str;
   },
   ignoreSiglSections(str) {
     let index = str.indexOf("SiglRow-module__heroCard___");
-    if (index < 0)
-      return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "const[", index, 300), index < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (index = PatcherUtils.lastIndexOf(str, "const[", index, 300), index < 0) return !1;
     const PREF_HIDE_SECTIONS = getPref("ui_hide_sections"), siglIds = [], sections = {
       "native-mkb": "8fa264dd-124f-4af3-97e8-596fcdf4b486",
       "most-popular": "e7590b22-e299-44db-ae22-25c61405454c"
@@ -4230,8 +3954,7 @@ if (e && e.id) {
   },
   overrideStorageGetSettings(str) {
     let text = "}getSetting(e){";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     const newCode = `
 // console.log('setting', this.baseStorageKey, e);
 if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
@@ -4245,44 +3968,34 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   },
   alwaysShowStreamHud(str) {
     let index = str.indexOf(",{onShowStreamMenu:");
-    if (index < 0)
-      return !1;
-    if (index = str.indexOf("&&(0,", index - 100), index < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (index = str.indexOf("&&(0,", index - 100), index < 0) return !1;
     const commaIndex = str.indexOf(",", index - 10);
     return str = str.substring(0, commaIndex) + ",true" + str.substring(index), str;
   },
   patchSetCurrentlyFocusedInteractable(str) {
     let index = str.indexOf(".setCurrentlyFocusedInteractable=(");
-    if (index < 0)
-      return !1;
+    if (index < 0) return !1;
     return index = str.indexOf("{", index) + 1, str = str.substring(0, index) + set_currently_focused_interactable_default + str.substring(index), str;
   },
   detectProductDetailsPage(str) {
     let index = str.indexOf('{location:"ProductDetailPage",');
-    if (index < 0)
-      return !1;
-    if (index = str.indexOf("return", index - 40), index < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (index = str.indexOf("return", index - 40), index < 0) return !1;
     return str = str.substring(0, index) + 'BxEvent.dispatch(window, BxEvent.XCLOUD_RENDERING_COMPONENT, {component: "product-details"});' + str.substring(index), str;
   },
   detectBrowserRouterReady(str) {
     let text = "BrowserRouter:()=>";
-    if (!str.includes(text))
-      return !1;
+    if (!str.includes(text)) return !1;
     let index = str.indexOf("{history:this.history,");
-    if (index < 0)
-      return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "return", index, 100), index < 0)
-      return !1;
+    if (index < 0) return !1;
+    if (index = PatcherUtils.lastIndexOf(str, "return", index, 100), index < 0) return !1;
     return str = PatcherUtils.insertAt(str, index, "window.BxEvent.dispatch(window, window.BxEvent.XCLOUD_ROUTER_HISTORY_READY, {history: this.history});"), str;
   },
   guideAchievementsDefaultLocked(str) {
     let index = str.indexOf("FilterButton-module__container");
-    if (index >= 0 && (index = PatcherUtils.lastIndexOf(str, ".All", index, 150)), index < 0)
-      return !1;
-    if (str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), index = str.indexOf('"Guide_Achievements_Unlocked_Empty","Guide_Achievements_Locked_Empty"'), index >= 0 && (index = PatcherUtils.indexOf(str, ".All", index, 250)), index < 0)
-      return !1;
+    if (index >= 0 && (index = PatcherUtils.lastIndexOf(str, ".All", index, 150)), index < 0) return !1;
+    if (str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), index = str.indexOf('"Guide_Achievements_Unlocked_Empty","Guide_Achievements_Locked_Empty"'), index >= 0 && (index = PatcherUtils.indexOf(str, ".All", index, 250)), index < 0) return !1;
     return str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), str;
   }
 }, PATCH_ORDERS = [
@@ -4354,7 +4067,6 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
     "remotePlayConnectMode"
   ] : []
 ].filter((item2) => !!item2), ALL_PATCHES = [...PATCH_ORDERS, ...PLAYING_PATCH_ORDERS];
-
 class Patcher {
   static #patchFunctionBind() {
     const nativeBind = Function.prototype.bind;
@@ -4364,8 +4076,7 @@ class Patcher {
         if (arguments[1] === 0 || typeof arguments[1] === "function")
           valid = !0;
       }
-      if (!valid)
-        return nativeBind.apply(this, arguments);
+      if (!valid) return nativeBind.apply(this, arguments);
       if (PatcherCache.init(), typeof arguments[1] === "function")
         BxLogger.info(LOG_TAG3, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
       const orgFunc = this, newFunc = (a, item2) => {
@@ -4416,7 +4127,6 @@ class Patcher {
     Patcher.#patchFunctionBind();
   }
 }
-
 class PatcherCache {
   static #KEY_CACHE = "better_xcloud_patches_cache";
   static #KEY_SIGNATURE = "better_xcloud_patches_cache_signature";
@@ -4439,8 +4149,7 @@ class PatcherCache {
   static #cleanupPatches(patches) {
     return patches.filter((item2) => {
       for (let id2 in PatcherCache.#CACHE)
-        if (PatcherCache.#CACHE[id2].includes(item2))
-          return !1;
+        if (PatcherCache.#CACHE[id2].includes(item2)) return !1;
       return !0;
     });
   }
@@ -4461,8 +4170,7 @@ class PatcherCache {
     window.localStorage.setItem(PatcherCache.#KEY_CACHE, JSON.stringify(PatcherCache.#CACHE));
   }
   static init() {
-    if (PatcherCache.#isInitialized)
-      return;
+    if (PatcherCache.#isInitialized) return;
     if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG3, PatcherCache.#CACHE), window.location.pathname.includes("/play/"))
       PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
     else
@@ -4470,7 +4178,6 @@ class PatcherCache {
     PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG3, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG3, PLAYING_PATCH_ORDERS.slice(0));
   }
 }
-
 class FullscreenText {
   static instance;
   static getInstance() {
@@ -4491,7 +4198,6 @@ class FullscreenText {
     document.body.classList.remove("bx-no-scroll"), this.$text.classList.add("bx-gone");
   }
 }
-
 class SettingsNavigationDialog extends NavigationDialog {
   static instance;
   static getInstance() {
@@ -4699,8 +4405,7 @@ class SettingsNavigationDialog extends NavigationDialog {
           $parent.appendChild(CE("div", {
             class: "bx-settings-app-version"
           }, `xCloud website version ${appVersion} (${appDate})`));
-        } catch (e) {
-        }
+        } catch (e) {}
       },
       ($parent) => {
         const debugInfo = deepClone(BX_FLAGS.DeviceInfo);
@@ -4741,8 +4446,7 @@ class SettingsNavigationDialog extends NavigationDialog {
         const $range = $elm.querySelector("input[type=range");
         window.addEventListener(BxEvent.SETTINGS_CHANGED, (e) => {
           const { storageKey, settingKey, settingValue } = e;
-          if (storageKey !== "better_xcloud" || settingKey !== "audio_volume")
-            return;
+          if (storageKey !== "better_xcloud" || settingKey !== "audio_volume") return;
           $range.value = settingValue, BxEvent.dispatch($range, "input", {
             ignoreOnChange: !0
           });
@@ -4760,8 +4464,7 @@ class SettingsNavigationDialog extends NavigationDialog {
       pref: "video_power_preference",
       onChange: () => {
         const streamPlayer = STATES.currentStream.streamPlayer;
-        if (!streamPlayer)
-          return;
+        if (!streamPlayer) return;
         streamPlayer.reloadPlayer(), updateVideoPlayer();
       }
     }, {
@@ -4954,8 +4657,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     return this.$container;
   }
   onMounted() {
-    if (!this.renderFullSettings)
-      return;
+    if (!this.renderFullSettings) return;
     if (onChangeVideoPlayerType(), STATES.userAgent.capabilities.touch)
       BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
     const $selectUserAgent = document.querySelector(`#bx_setting_${"user_agent_profile"}`);
@@ -4968,8 +4670,7 @@ class SettingsNavigationDialog extends NavigationDialog {
   async getRecommendedSettings(deviceCode) {
     try {
       const json = await (await NATIVE_FETCH(`https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/devices/${deviceCode.toLowerCase()}.json`)).json(), recommended = {};
-      if (json.schema_version !== 1)
-        return null;
+      if (json.schema_version !== 1) return null;
       const scriptSettings = json.settings.script;
       if (scriptSettings._base) {
         let base = typeof scriptSettings._base === "string" ? [scriptSettings._base] : scriptSettings._base;
@@ -4981,8 +4682,7 @@ class SettingsNavigationDialog extends NavigationDialog {
       for (key in scriptSettings)
         recommended[key] = scriptSettings[key];
       return BX_FLAGS.DeviceInfo.deviceType = json.device_type, this.suggestedSettings.recommended = recommended, json.device_name;
-    } catch (e) {
-    }
+    } catch (e) {}
     return null;
   }
   addDefaultSuggestedSetting(prefKey, value) {
@@ -5258,8 +4958,7 @@ class SettingsNavigationDialog extends NavigationDialog {
           return this.dialogManager.focus($tabs);
         },
         loop: (direction) => {
-          if (direction === 1 || direction === 3)
-            return this.focusVisibleTab(direction === 1 ? "last" : "first"), !0;
+          if (direction === 1 || direction === 3) return this.focusVisibleTab(direction === 1 ? "last" : "first"), !0;
           return !1;
         }
       }
@@ -5286,8 +4985,7 @@ class SettingsNavigationDialog extends NavigationDialog {
         orientation: "vertical",
         focus: () => this.jumpToSettingGroup("next"),
         loop: (direction) => {
-          if (direction === 1 || direction === 3)
-            return this.focusVisibleSetting(direction === 1 ? "last" : "first"), !0;
+          if (direction === 1 || direction === 3) return this.focusVisibleSetting(direction === 1 ? "last" : "first"), !0;
           return !1;
         }
       }
@@ -5374,8 +5072,7 @@ class SettingsNavigationDialog extends NavigationDialog {
   }
   focusVisibleSetting(type = "first") {
     const controls = Array.from(this.$settings.querySelectorAll("div[data-tab-group]:not(.bx-gone) > *"));
-    if (!controls.length)
-      return !1;
+    if (!controls.length) return !1;
     if (type === "last")
       controls.reverse();
     for (let $control of controls) {
@@ -5383,27 +5080,23 @@ class SettingsNavigationDialog extends NavigationDialog {
         continue;
       const $focusable = this.dialogManager.findFocusableElement($control);
       if ($focusable) {
-        if (this.dialogManager.focus($focusable))
-          return !0;
+        if (this.dialogManager.focus($focusable)) return !0;
       }
     }
     return !1;
   }
   focusVisibleTab(type = "first") {
     const tabs = Array.from(this.$tabs.querySelectorAll("svg:not(.bx-gone)"));
-    if (!tabs.length)
-      return !1;
+    if (!tabs.length) return !1;
     if (type === "last")
       tabs.reverse();
     for (let $tab of tabs)
-      if (this.dialogManager.focus($tab))
-        return !0;
+      if (this.dialogManager.focus($tab)) return !0;
     return !1;
   }
   jumpToSettingGroup(direction) {
     const $tabContent = this.$settings.querySelector("div[data-tab-group]:not(.bx-gone)");
-    if (!$tabContent)
-      return !1;
+    if (!$tabContent) return !1;
     let $header;
     const $focusing = document.activeElement;
     if (!$focusing || !$tabContent.contains($focusing))
@@ -5426,8 +5119,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     let $target;
     if ($header)
       $target = this.dialogManager.findNextTarget($header, 3, !1);
-    if ($target)
-      return this.dialogManager.focus($target);
+    if ($target) return this.dialogManager.focus($target);
     return !1;
   }
   handleKeyPress(key) {
@@ -5474,13 +5166,11 @@ class SettingsNavigationDialog extends NavigationDialog {
     return handled;
   }
 }
-
 var LOG_TAG4 = "MkbHandler", PointerToMouseButton = {
   1: 0,
   2: 2,
   4: 1
 };
-
 class WebSocketMouseDataProvider extends MouseDataProvider {
   #pointerClient;
   #connected = !1;
@@ -5502,18 +5192,15 @@ class WebSocketMouseDataProvider extends MouseDataProvider {
     this.#connected && this.#pointerClient?.stop();
   }
 }
-
 class PointerLockMouseDataProvider extends MouseDataProvider {
-  init() {
-  }
+  init() {}
   start() {
     window.addEventListener("mousemove", this.#onMouseMoveEvent), window.addEventListener("mousedown", this.#onMouseEvent), window.addEventListener("mouseup", this.#onMouseEvent), window.addEventListener("wheel", this.#onWheelEvent, { passive: !1 }), window.addEventListener("contextmenu", this.#disableContextMenu);
   }
   stop() {
     document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("mousemove", this.#onMouseMoveEvent), window.removeEventListener("mousedown", this.#onMouseEvent), window.removeEventListener("mouseup", this.#onMouseEvent), window.removeEventListener("wheel", this.#onWheelEvent), window.removeEventListener("contextmenu", this.#disableContextMenu);
   }
-  destroy() {
-  }
+  destroy() {}
   #onMouseMoveEvent = (e) => {
     this.mkbHandler.handleMouseMove({
       movementX: e.movementX,
@@ -5529,8 +5216,7 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
     this.mkbHandler.handleMouseClick(data);
   };
   #onWheelEvent = (e) => {
-    if (!KeyHelper.getKeyFromEvent(e))
-      return;
+    if (!KeyHelper.getKeyFromEvent(e)) return;
     const data = {
       vertical: e.deltaY,
       horizontal: e.deltaX
@@ -5540,7 +5226,6 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
   };
   #disableContextMenu = (e) => e.preventDefault();
 }
-
 class EmulatedMkbHandler extends MkbHandler {
   static #instance;
   static getInstance() {
@@ -5645,13 +5330,10 @@ class EmulatedMkbHandler extends MkbHandler {
         this.#escKeyDownTime = -1;
       return;
     }
-    if (!this.#isPolling)
-      return;
+    if (!this.#isPolling) return;
     const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code || e.key];
-    if (typeof buttonIndex === "undefined")
-      return;
-    if (e.repeat)
-      return;
+    if (typeof buttonIndex === "undefined") return;
+    if (e.repeat) return;
     e.preventDefault(), this.#pressButton(buttonIndex, isKeyDown);
   };
   #onMouseStopped = () => {
@@ -5669,17 +5351,14 @@ class EmulatedMkbHandler extends MkbHandler {
       code: keyCode,
       name: KeyHelper.codeToKeyName(keyCode)
     };
-    if (!key.name)
-      return;
+    if (!key.name) return;
     const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined")
-      return;
+    if (typeof buttonIndex === "undefined") return;
     this.#pressButton(buttonIndex, data.pressed);
   };
   handleMouseMove = (data) => {
     const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse["map_to"];
-    if (mouseMapTo === 0)
-      return;
+    if (mouseMapTo === 0) return;
     this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout), this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 50);
     const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse["deadzone_counterweight"];
     let x = data.movementX * this.#CURRENT_PRESET_DATA.mouse["sensitivity_x"], y = data.movementY * this.#CURRENT_PRESET_DATA.mouse["sensitivity_y"], length = this.#vectorLength(x, y);
@@ -5700,14 +5379,12 @@ class EmulatedMkbHandler extends MkbHandler {
       code = "ScrollLeft";
     else if (data.horizontal > 0)
       code = "ScrollRight";
-    if (!code)
-      return !1;
+    if (!code) return !1;
     const key = {
       code,
       name: KeyHelper.codeToKeyName(code)
     }, buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined")
-      return !1;
+    if (typeof buttonIndex === "undefined") return !1;
     if (this.#prevWheelCode === null || this.#prevWheelCode === key.code)
       this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout), this.#pressButton(buttonIndex, !0);
     return this.#wheelStoppedTimeout = window.setTimeout(() => {
@@ -5741,8 +5418,7 @@ class EmulatedMkbHandler extends MkbHandler {
     this.#$message && this.#$message.classList.toggle("bx-gone", !wait);
   };
   #onPollingModeChanged = (e) => {
-    if (!this.#$message)
-      return;
+    if (!this.#$message) return;
     if (e.mode === "none")
       this.#$message.classList.remove("bx-offscreen");
     else
@@ -5850,11 +5526,9 @@ class EmulatedMkbHandler extends MkbHandler {
     });
   }
 }
-
 class MicrophoneShortcut {
   static toggle(showToast = !0) {
-    if (!window.BX_EXPOSED.streamSession)
-      return !1;
+    if (!window.BX_EXPOSED.streamSession) return !1;
     const enableMic = window.BX_EXPOSED.streamSession._microphoneState === "Enabled" ? !1 : !0;
     try {
       return window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic), showToast && Toast.show(t("microphone"), t(enableMic ? "unmuted" : "muted"), { instant: !0 }), enableMic;
@@ -5864,13 +5538,11 @@ class MicrophoneShortcut {
     return !1;
   }
 }
-
 class StreamUiShortcut {
   static showHideStreamMenu() {
     window.BX_EXPOSED.showStreamMenu && window.BX_EXPOSED.showStreamMenu();
   }
 }
-
 class ControllerShortcut {
   static #STORAGE_KEY = "better_xcloud_controller_shortcuts";
   static #buttonsCache = {};
@@ -5886,8 +5558,7 @@ class ControllerShortcut {
     if (!ControllerShortcut.#ACTIONS)
       ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
     const gamepadIndex = gamepad.index, actions = ControllerShortcut.#ACTIONS[gamepad.id];
-    if (!actions)
-      return !1;
+    if (!actions) return !1;
     ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0), ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
     const pressed = [];
     let otherButtonPressed = !1;
@@ -5992,23 +5663,23 @@ class ControllerShortcut {
     buttons.set(3, "⇑"), buttons.set(0, "⇓"), buttons.set(1, "⇒"), buttons.set(2, "⇐"), buttons.set(12, "≻"), buttons.set(13, "≽"), buttons.set(14, "≺"), buttons.set(15, "≼"), buttons.set(8, "⇺"), buttons.set(9, "⇻"), buttons.set(4, "↘"), buttons.set(5, "↙"), buttons.set(6, "↖"), buttons.set(7, "↗"), buttons.set(10, "↺"), buttons.set(11, "↻");
     const actions = {
       [t("better-xcloud")]: {
-        ["bx-settings-show"]: [t("settings"), t("show")]
+        "bx-settings-show": [t("settings"), t("show")]
       },
       [t("device")]: AppInterface && {
-        ["device-sound-toggle"]: [t("sound"), t("toggle")],
-        ["device-volume-inc"]: [t("volume"), t("increase")],
-        ["device-volume-dec"]: [t("volume"), t("decrease")],
-        ["device-brightness-inc"]: [t("brightness"), t("increase")],
-        ["device-brightness-dec"]: [t("brightness"), t("decrease")]
+        "device-sound-toggle": [t("sound"), t("toggle")],
+        "device-volume-inc": [t("volume"), t("increase")],
+        "device-volume-dec": [t("volume"), t("decrease")],
+        "device-brightness-inc": [t("brightness"), t("increase")],
+        "device-brightness-dec": [t("brightness"), t("decrease")]
       },
       [t("stream")]: {
-        ["stream-screenshot-capture"]: t("take-screenshot"),
-        ["stream-sound-toggle"]: [t("sound"), t("toggle")],
-        ["stream-volume-inc"]: getPref("audio_enable_volume_control") && [t("volume"), t("increase")],
-        ["stream-volume-dec"]: getPref("audio_enable_volume_control") && [t("volume"), t("decrease")],
-        ["stream-menu-show"]: [t("menu"), t("show")],
-        ["stream-stats-toggle"]: [t("stats"), t("show-hide")],
-        ["stream-microphone-toggle"]: [t("microphone"), t("toggle")]
+        "stream-screenshot-capture": t("take-screenshot"),
+        "stream-sound-toggle": [t("sound"), t("toggle")],
+        "stream-volume-inc": getPref("audio_enable_volume_control") && [t("volume"), t("increase")],
+        "stream-volume-dec": getPref("audio_enable_volume_control") && [t("volume"), t("decrease")],
+        "stream-menu-show": [t("menu"), t("show")],
+        "stream-stats-toggle": [t("stats"), t("show-hide")],
+        "stream-microphone-toggle": [t("microphone"), t("toggle")]
       }
     }, $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
     for (let groupLabel in actions) {
@@ -6077,7 +5748,6 @@ class ControllerShortcut {
     return $container.appendChild($remap), ControllerShortcut.#$selectProfile = $selectProfile, ControllerShortcut.#$container = $container, window.addEventListener("gamepadconnected", ControllerShortcut.#updateProfileList), window.addEventListener("gamepaddisconnected", ControllerShortcut.#updateProfileList), ControllerShortcut.#updateProfileList(), $container;
   }
 }
-
 var BxExposed = {
   getTitleInfo: () => STATES.currentStream.titleInfo,
   modifyTitleInfo: (titleInfo) => {
@@ -6132,8 +5802,7 @@ var BxExposed = {
   disableGamepadPolling: !1,
   backButtonPressed: () => {
     const navigationDialogManager = NavigationDialogManager.getInstance();
-    if (navigationDialogManager.isShowing())
-      return navigationDialogManager.hide(), !0;
+    if (navigationDialogManager.isShowing()) return navigationDialogManager.hide(), !0;
     const dict = {
       bubbles: !0,
       cancelable: !0,
@@ -6145,11 +5814,9 @@ var BxExposed = {
     return document.body.dispatchEvent(new KeyboardEvent("keydown", dict)), document.body.dispatchEvent(new KeyboardEvent("keyup", dict)), !1;
   }
 };
-
 function localRedirect(path) {
   const url = window.location.href.substring(0, 31) + path, $pageContent = document.getElementById("PageContent");
-  if (!$pageContent)
-    return;
+  if (!$pageContent) return;
   const $anchor = CE("a", {
     href: url,
     class: "bx-hidden bx-offscreen"
@@ -6161,26 +5828,20 @@ function localRedirect(path) {
   }), $pageContent.appendChild($anchor), $anchor.click();
 }
 window.localRedirect = localRedirect;
-
 function getPreferredServerRegion(shortName = !1) {
   let preferredRegion = getPref("server_region");
   if (preferredRegion in STATES.serverRegions)
-    if (shortName && STATES.serverRegions[preferredRegion].shortName)
-      return STATES.serverRegions[preferredRegion].shortName;
-    else
-      return preferredRegion;
+    if (shortName && STATES.serverRegions[preferredRegion].shortName) return STATES.serverRegions[preferredRegion].shortName;
+    else return preferredRegion;
   for (let regionName in STATES.serverRegions) {
     const region = STATES.serverRegions[regionName];
     if (!region.isDefault)
       continue;
-    if (shortName && region.shortName)
-      return region.shortName;
-    else
-      return regionName;
+    if (shortName && region.shortName) return region.shortName;
+    else return regionName;
   }
   return null;
 }
-
 class HeaderSection {
   static #$remotePlayBtn = createButton({
     classes: ["bx-header-remote-play-button", "bx-gone"],
@@ -6203,11 +5864,9 @@ class HeaderSection {
   static #observer;
   static #timeout;
   static #injectSettingsButton($parent) {
-    if (!$parent)
-      return;
+    if (!$parent) return;
     const PREF_LATEST_VERSION = getPref("version_latest"), $btnSettings = HeaderSection.#$settingsBtn;
-    if (isElementVisible(HeaderSection.#$buttonsWrapper))
-      return;
+    if (isElementVisible(HeaderSection.#$buttonsWrapper)) return;
     if ($btnSettings.querySelector("span").textContent = getPreferredServerRegion(!0) || t("better-xcloud"), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION)
       $btnSettings.setAttribute("data-update-available", "true");
     $parent.appendChild(HeaderSection.#$buttonsWrapper);
@@ -6223,14 +5882,12 @@ class HeaderSection {
   }
   static watchHeader() {
     const $root = document.querySelector("#PageContent header") || document.querySelector("#root");
-    if (!$root)
-      return;
+    if (!$root) return;
     HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout), HeaderSection.#timeout = null, HeaderSection.#observer && HeaderSection.#observer.disconnect(), HeaderSection.#observer = new MutationObserver((mutationList) => {
       HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout), HeaderSection.#timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
     }), HeaderSection.#observer.observe($root, { subtree: !0, childList: !0 }), HeaderSection.checkHeader();
   }
 }
-
 class RemotePlayNavigationDialog extends NavigationDialog {
   static instance;
   static getInstance() {
@@ -6301,7 +5958,6 @@ class RemotePlayNavigationDialog extends NavigationDialog {
     $btnConnect && $btnConnect.focus();
   }
 }
-
 var LOG_TAG5 = "RemotePlay";
 class RemotePlayManager {
   static instance;
@@ -6316,8 +5972,7 @@ class RemotePlayManager {
   consoles;
   regions = [];
   initialize() {
-    if (this.isInitialized)
-      return;
+    if (this.isInitialized) return;
     this.isInitialized = !0, this.getXhomeToken(() => {
       this.getConsolesList(() => {
         BxLogger.info(LOG_TAG5, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
@@ -6391,8 +6046,7 @@ class RemotePlayManager {
           continue;
         this.consoles = json.results, STATES.remotePlay.server = region.baseUri;
         break;
-      } catch (e) {
-      }
+      } catch (e) {}
     if (!STATES.remotePlay.server)
       this.consoles = [];
     callback();
@@ -6420,8 +6074,7 @@ class RemotePlayManager {
     RemotePlayNavigationDialog.getInstance().show();
   }
   static detect() {
-    if (!getPref("xhome_enabled"))
-      return;
+    if (!getPref("xhome_enabled")) return;
     if (STATES.remotePlay.isPlaying = window.location.pathname.includes("/launch/") && window.location.hash.startsWith("#remote-play"), STATES.remotePlay?.isPlaying)
       window.BX_REMOTE_PLAY_CONFIG = STATES.remotePlay.config, window.history.replaceState({ origin: "better-xcloud" }, "", "https://www.xbox.com/" + location.pathname.substring(1, 6) + "/play");
     else
@@ -6431,7 +6084,6 @@ class RemotePlayManager {
     return this.consoles !== null;
   }
 }
-
 class XhomeInterceptor {
   static #consoleAddrs = {};
   static BASE_DEVICE_INFO = {
@@ -6504,8 +6156,7 @@ class XhomeInterceptor {
   }
   static async#handleInputConfigs(request, opts) {
     const response = await NATIVE_FETCH(request);
-    if (getPref("stream_touch_controller") !== "all")
-      return response;
+    if (getPref("stream_touch_controller") !== "all") return response;
     const obj = await response.clone().json(), xboxTitleId = JSON.parse(opts.body).titleIds[0];
     TouchController.setXboxTitleId(xboxTitleId);
     const inputConfigs = obj[0];
@@ -6563,22 +6214,15 @@ class XhomeInterceptor {
     }
     request = new Request(newUrl, opts);
     let url = typeof request === "string" ? request : request.url;
-    if (url.includes("/configuration"))
-      return XhomeInterceptor.#handleConfiguration(request);
-    else if (url.endsWith("/sessions/home/play"))
-      return XhomeInterceptor.#handlePlay(request);
-    else if (url.includes("inputconfigs"))
-      return XhomeInterceptor.#handleInputConfigs(request, opts);
-    else if (url.includes("/login/user"))
-      return XhomeInterceptor.#handleLogin(request);
-    else if (url.endsWith("/titles"))
-      return XhomeInterceptor.#handleTitles(request);
-    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
-      return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
+    if (url.includes("/configuration")) return XhomeInterceptor.#handleConfiguration(request);
+    else if (url.endsWith("/sessions/home/play")) return XhomeInterceptor.#handlePlay(request);
+    else if (url.includes("inputconfigs")) return XhomeInterceptor.#handleInputConfigs(request, opts);
+    else if (url.includes("/login/user")) return XhomeInterceptor.#handleLogin(request);
+    else if (url.endsWith("/titles")) return XhomeInterceptor.#handleTitles(request);
+    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
     return await NATIVE_FETCH(request);
   }
 }
-
 class LoadingScreen {
   static #$bgStyle;
   static #$waitTimeBox;
@@ -6590,8 +6234,7 @@ class LoadingScreen {
   }
   static setup() {
     const titleInfo = STATES.currentStream.titleInfo;
-    if (!titleInfo)
-      return;
+    if (!titleInfo) return;
     if (!LoadingScreen.#$bgStyle) {
       const $bgStyle = CE("style");
       document.documentElement.appendChild($bgStyle), LoadingScreen.#$bgStyle = $bgStyle;
@@ -6646,17 +6289,15 @@ class LoadingScreen {
     LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = ""), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
   }
 }
-
 var StreamBadgeIcon = {
-  ["playtime"]: BxIcon.PLAYTIME,
-  ["video"]: BxIcon.DISPLAY,
-  ["battery"]: BxIcon.BATTERY,
-  ["in"]: BxIcon.DOWNLOAD,
-  ["out"]: BxIcon.UPLOAD,
-  ["server"]: BxIcon.SERVER,
-  ["audio"]: BxIcon.AUDIO
+  playtime: BxIcon.PLAYTIME,
+  video: BxIcon.DISPLAY,
+  battery: BxIcon.BATTERY,
+  in: BxIcon.DOWNLOAD,
+  out: BxIcon.UPLOAD,
+  server: BxIcon.SERVER,
+  audio: BxIcon.AUDIO
 };
-
 class StreamBadges {
   static instance;
   static getInstance() {
@@ -6680,8 +6321,7 @@ class StreamBadges {
   }
   #renderBadge(name, value, color) {
     let $badge;
-    if (this.#cachedDoms[name])
-      return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
+    if (this.#cachedDoms[name]) return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
     if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === "battery")
       $badge.classList.add("bx-badge-battery");
     return this.#cachedDoms[name] = $badge, $badge;
@@ -6701,8 +6341,7 @@ class StreamBadges {
           const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
           batteryLevel += ` (${sign}${diffLevel}%)`;
         }
-      } catch (e) {
-      }
+      } catch (e) {}
     const stats = await STATES.currentStream.peerConnection?.getStats();
     let totalIn = 0, totalOut = 0;
     stats.forEach((stat) => {
@@ -6710,10 +6349,10 @@ class StreamBadges {
         totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
     });
     const badges = {
-      ["in"]: totalIn ? this.#humanFileSize(totalIn) : null,
-      ["out"]: totalOut ? this.#humanFileSize(totalOut) : null,
-      ["playtime"]: playtime,
-      ["battery"]: batteryLevel
+      in: totalIn ? this.#humanFileSize(totalIn) : null,
+      out: totalOut ? this.#humanFileSize(totalOut) : null,
+      playtime: playtime,
+      battery: batteryLevel
     };
     let name;
     for (name in badges) {
@@ -6746,8 +6385,7 @@ class StreamBadges {
     return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
   }
   async render() {
-    if (this.#$container)
-      return this.#start(), this.#$container;
+    if (this.#$container) return this.#start(), this.#$container;
     await this.#getServerStats();
     let video = "";
     if (this.#resolution)
@@ -6786,8 +6424,7 @@ class StreamBadges {
       audio ? ["audio", audio, "#5f574f"] : null
     ], $container = CE("div", { class: "bx-badges" });
     return BADGES.forEach((item2) => {
-      if (!item2)
-        return;
+      if (!item2) return;
       const $badge = this.#renderBadge(...item2);
       $container.appendChild($badge);
     }), this.#$container = $container, await this.#start(), $container;
@@ -6846,12 +6483,10 @@ class StreamBadges {
         STATES.browser.capabilities.batteryApi && navigator.getBattery().then((bm) => {
           streamBadges.startBatteryLevel = Math.round(bm.level * 100);
         });
-      } catch (e2) {
-      }
+      } catch (e2) {}
     });
   }
 }
-
 class XcloudInterceptor {
   static async#handleLogin(request, init) {
     const bypassServer = getPref("server_bypass_restriction");
@@ -6860,8 +6495,7 @@ class XcloudInterceptor {
       ip && request.headers.set("X-Forwarded-For", ip);
     }
     const response = await NATIVE_FETCH(request, init);
-    if (response.status !== 200)
-      return BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE), response;
+    if (response.status !== 200) return BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE), response;
     const obj = await response.clone().json();
     RemotePlayManager.getInstance().xcloudToken = obj.gsToken;
     const serverEmojis = {
@@ -6933,16 +6567,14 @@ class XcloudInterceptor {
     return response;
   }
   static async#handleConfiguration(request, init) {
-    if (request.method !== "GET")
-      return NATIVE_FETCH(request, init);
+    if (request.method !== "GET") return NATIVE_FETCH(request, init);
     if (getPref("stream_touch_controller") === "all")
       if (STATES.currentStream.titleInfo?.details.hasTouchSupport)
         TouchController.disable();
       else
         TouchController.enable();
     const response = await NATIVE_FETCH(request, init), text = await response.clone().text();
-    if (!text.length)
-      return response;
+    if (!text.length) return response;
     const obj = JSON.parse(text);
     let overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
     overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
@@ -6964,20 +6596,14 @@ class XcloudInterceptor {
   }
   static async handle(request, init) {
     let url = typeof request === "string" ? request : request.url;
-    if (url.endsWith("/v2/login/user"))
-      return XcloudInterceptor.#handleLogin(request, init);
-    else if (url.endsWith("/sessions/cloud/play"))
-      return XcloudInterceptor.#handlePlay(request, init);
-    else if (url.includes("xboxlive.com") && url.includes("/waittime/"))
-      return XcloudInterceptor.#handleWaitTime(request, init);
-    else if (url.endsWith("/configuration"))
-      return XcloudInterceptor.#handleConfiguration(request, init);
-    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET")
-      return patchIceCandidates(request);
+    if (url.endsWith("/v2/login/user")) return XcloudInterceptor.#handleLogin(request, init);
+    else if (url.endsWith("/sessions/cloud/play")) return XcloudInterceptor.#handlePlay(request, init);
+    else if (url.includes("xboxlive.com") && url.includes("/waittime/")) return XcloudInterceptor.#handleWaitTime(request, init);
+    else if (url.endsWith("/configuration")) return XcloudInterceptor.#handleConfiguration(request, init);
+    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") return patchIceCandidates(request);
     return NATIVE_FETCH(request, init);
   }
 }
-
 function clearApplicationInsightsBuffers() {
   window.sessionStorage.removeItem("AI_buffer"), window.sessionStorage.removeItem("AI_sentBuffer");
 }
@@ -6990,8 +6616,7 @@ function clearDbLogs(dbName, table) {
       objectStoreRequest.onsuccess = function() {
         console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
       };
-    } catch (ex) {
-    }
+    } catch (ex) {}
   };
 }
 function clearAllLogs() {
@@ -7030,8 +6655,7 @@ function updateIceCandidates(candidates, options) {
 }
 async function patchIceCandidates(request, consoleAddrs) {
   const response = await NATIVE_FETCH(request), text = await response.clone().text();
-  if (!text.length)
-    return response;
+  if (!text.length) return response;
   const options = {
     preferIpv6Server: getPref("prefer_ipv6_server"),
     consoleAddrs
@@ -7122,15 +6746,12 @@ function interceptHttpRequests() {
       requestType = "xhome";
     else
       requestType = "xcloud";
-    if (requestType === "xhome")
-      return XhomeInterceptor.handle(request);
+    if (requestType === "xhome") return XhomeInterceptor.handle(request);
     return XcloudInterceptor.handle(request, init);
   };
 }
-
 function showGamepadToast(gamepad) {
-  if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID)
-    return;
+  if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) return;
   BxLogger.info("Gamepad", gamepad);
   let text = "🎮";
   if (getPref("local_co_op_enabled"))
@@ -7144,7 +6765,6 @@ function showGamepadToast(gamepad) {
     status = t("disconnected");
   Toast.show(text, status, { instant: !1 });
 }
-
 function addCss() {
   let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:40px;--bx-default-button-color:#2d3036;--bx-default-button-rgb:45,48,54;--bx-default-button-hover-color:#515863;--bx-default-button-hover-rgb:81,88,99;--bx-default-button-active-color:#222428;--bx-default-button-active-rgb:34,36,40;--bx-default-button-disabled-color:#8e8e8e;--bx-default-button-disabled-rgb:142,142,142;--bx-primary-button-color:#008746;--bx-primary-button-rgb:0,135,70;--bx-primary-button-hover-color:#04b358;--bx-primary-button-hover-rgb:4,179,88;--bx-primary-button-active-color:#044e2a;--bx-primary-button-active-rgb:4,78,42;--bx-primary-button-disabled-color:#448262;--bx-primary-button-disabled-rgb:68,130,98;--bx-danger-button-color:#c10404;--bx-danger-button-rgb:193,4,4;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-hover-rgb:230,29,29;--bx-danger-button-active-color:#a26c6c;--bx-danger-button-active-rgb:162,108,108;--bx-danger-button-disabled-color:#df5656;--bx-danger-button-disabled-rgb:223,86,86;--bx-fullscreen-text-z-index:99999;--bx-toast-z-index:60000;--bx-dialog-z-index:50000;--bx-dialog-overlay-z-index:40200;--bx-stats-bar-z-index:40100;--bx-mkb-pointer-lock-msg-z-index:40000;--bx-navigation-dialog-z-index:30100;--bx-navigation-dialog-overlay-z-index:30000;--bx-game-bar-z-index:10000;--bx-screenshot-animation-z-index:9000;--bx-wait-time-box-z-index:1000}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:640px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-hide-scroll-bar{scrollbar-width:none}.bx-hide-scroll-bar::-webkit-scrollbar{display:none}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}.bx-line-through{text-decoration:line-through !important}.bx-normal-case{text-transform:none !important}.bx-normal-link{text-transform:none !important;text-align:left !important;font-weight:400 !important;font-family:var(--bx-normal-font) !important}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-game-tile-wait-time{position:absolute;top:0;left:0;z-index:1;background:rgba(0,0,0,0.549);display:flex;border-radius:4px 0 4px 0;align-items:center;padding:4px 8px}.bx-game-tile-wait-time svg{width:14px;height:16px;margin-right:2px}.bx-game-tile-wait-time span{display:inline-block;height:16px;line-height:16px;font-size:12px;font-weight:bold;margin-left:2px}.bx-fullscreen-text{position:fixed;top:0;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);z-index:var(--bx-fullscreen-text-z-index);line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:var(--bx-normal-font);font-size:1.3rem;user-select:none;-webkit-user-select:none}#root section[class*=DeviceCodePage-module__page]{margin-left:20px !important;margin-right:20px !important;margin-top:20px !important;max-width:800px !important}#root div[class*=DeviceCodePage-module__back]{display:none}.bx-button{--button-rgb:var(--bx-default-button-rgb);--button-hover-rgb:var(--bx-default-button-hover-rgb);--button-active-rgb:var(--bx-default-button-active-rgb);--button-disabled-rgb:var(--bx-default-button-disabled-rgb);background-color:rgb(var(--button-rgb));user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:not([disabled]):active{background-color:rgb(var(--button-active-rgb))}.bx-button:focus{outline:none !important}.bx-button:not([disabled]):not(:active):hover,.bx-button:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button:disabled{cursor:default;background-color:rgb(var(--button-disabled-rgb))}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:not([disabled]):not(:active):hover,.bx-button.bx-ghost:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button.bx-primary{--button-rgb:var(--bx-primary-button-rgb)}.bx-button.bx-primary:not([disabled]):active{--button-active-rgb:var(--bx-primary-button-active-rgb)}.bx-button.bx-primary:not([disabled]):not(:active):hover,.bx-button.bx-primary:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-primary-button-hover-rgb)}.bx-button.bx-primary:disabled{--button-disabled-rgb:var(--bx-primary-button-disabled-rgb)}.bx-button.bx-danger{--button-rgb:var(--bx-danger-button-rgb)}.bx-button.bx-danger:not([disabled]):active{--button-active-rgb:var(--bx-danger-button-active-rgb)}.bx-button.bx-danger:not([disabled]):not(:active):hover,.bx-button.bx-danger:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-danger-button-hover-rgb)}.bx-button.bx-danger:disabled{--button-disabled-rgb:var(--bx-danger-button-disabled-rgb)}.bx-button.bx-frosted{--button-alpha:.2;background-color:rgba(var(--button-rgb), var(--button-alpha));backdrop-filter:blur(4px) brightness(1.5)}.bx-button.bx-frosted:not([disabled]):not(:active):hover,.bx-button.bx-frosted:not([disabled]):not(:active).bx-focusable:focus{background-color:rgba(var(--button-hover-rgb), var(--button-alpha))}.bx-button.bx-drop-shadow{box-shadow:0 0 4px rgba(0,0,0,0.502)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button.bx-circular{border-radius:var(--bx-button-height);height:var(--bx-button-height)}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button span:not(:only-child){margin-left:10px}.bx-focusable{position:relative;overflow:visible}.bx-focusable::after{border:2px solid transparent;border-radius:10px}.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px}html[data-active-input=touch] .bx-focusable:focus::after,html[data-active-input=mouse] .bx-focusable:focus::after{border-color:transparent !important}.bx-focusable.bx-circular::after{border-radius:var(--bx-button-height)}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}button.bx-inactive{pointer-events:none;opacity:.2;background:transparent !important}.bx-button-shortcut{max-width:max-content;margin:10px 0 0 0;flex:1 0 auto}@media (min-width:568px) and (max-height:480px){.bx-button-shortcut{margin:8px 0 0 10px}}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:24px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-navigation-dialog{position:absolute;z-index:var(--bx-navigation-dialog-z-index);font-family:var(--bx-title-font)}.bx-navigation-dialog *:focus{outline:none !important}.bx-navigation-dialog-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-navigation-dialog-overlay-z-index)}.bx-navigation-dialog-overlay[data-is-playing="true"]{background:transparent}.bx-settings-dialog{display:flex;position:fixed;top:0;right:0;bottom:0;opacity:.98;user-select:none;-webkit-user-select:none}.bx-settings-dialog .bx-focusable::after{border-radius:4px}.bx-settings-dialog .bx-focusable:focus::after{top:0;left:0;right:0;bottom:0}.bx-settings-dialog .bx-settings-reload-note{font-size:.8rem;display:block;padding:8px;font-style:italic;font-weight:normal;height:var(--bx-button-height)}.bx-settings-dialog input{accent-color:var(--bx-primary-button-color)}.bx-settings-dialog input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-dialog select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-dialog select option:disabled{display:none}.bx-settings-dialog input[type=checkbox]:focus,.bx-settings-dialog select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-dialog a{color:#1c9d1c;text-decoration:none}.bx-settings-dialog a:hover,.bx-settings-dialog a:focus{color:#5dc21e}.bx-settings-tabs-container{position:fixed;width:48px;max-height:100vh;display:flex;flex-direction:column}.bx-settings-tabs-container > div:last-of-type{display:flex;flex-direction:column;align-items:end}.bx-settings-tabs-container > div:last-of-type button{flex-shrink:0;border-top-right-radius:0;border-bottom-right-radius:0;margin-top:8px;height:unset;padding:8px 10px}.bx-settings-tabs-container > div:last-of-type button svg{width:16px;height:16px}.bx-settings-tabs{display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:overlay;flex:1}.bx-settings-tabs svg{width:24px;height:24px;padding:10px;flex-shrink:0;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-settings-tabs svg:focus{border-color:#fff}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]{background:var(--bx-danger-button-color) !important}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]:hover{background:var(--bx-danger-button-hover-color) !important}.bx-settings-tab-contents{flex-direction:column;padding:10px;margin-left:48px;width:450px;max-width:calc(100vw - tabsWidth);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay;z-index:1}.bx-settings-tab-contents > div[data-tab-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-profile{width:100%;height:36px;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-note{margin-top:10px;font-size:14px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-settings-z-index) + 1)}.bx-settings-tab-contents .bx-top-buttons{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}.bx-settings-tab-contents .bx-top-buttons .bx-button{display:block}.bx-settings-tab-contents h2{margin:16px 0 8px 0;display:flex;align-items:center}.bx-settings-tab-contents h2:first-of-type{margin-top:0}.bx-settings-tab-contents h2 span{display:inline-block;font-size:20px;font-weight:bold;text-align:left;flex:1;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}@media (max-width:500px){.bx-settings-tab-contents{width:calc(100vw - 48px)}}.bx-settings-row{display:flex;gap:10px;padding:16px 10px;margin:0;background:#2a2a2a;border-bottom:1px solid #343434}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row:not(:has(> input[type=checkbox])){flex-wrap:wrap}.bx-settings-row > span.bx-settings-label{font-size:14px;display:block;text-align:left;align-self:center;margin-bottom:0 !important;flex:1}.bx-settings-row > span.bx-settings-label + *{margin:0 0 0 auto}.bx-settings-dialog-note{display:block;color:#afafb0;font-size:12px;font-weight:lighter;font-style:italic}.bx-settings-dialog-note:not(:has(a)){margin-top:4px}.bx-settings-dialog-note a{display:inline-block;padding:4px}.bx-settings-custom-user-agent{display:block;width:100%;padding:6px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px}.bx-debug-info button{margin-top:10px}.bx-debug-info pre{margin-top:10px;cursor:copy;color:#fff;padding:8px;border:1px solid #2d2d2d;background:#212121;white-space:break-spaces;text-align:left}.bx-debug-info pre:hover{background:#272727}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-note-unsupported{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:has(+ .bx-settings-row){border-top-left-radius:10px;border-top-right-radius:10px}.bx-settings-tab-contents > div .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-radius:10px}.bx-suggest-toggler{text-align:left;display:flex;border-radius:4px;overflow:hidden;background:#003861}.bx-suggest-toggler label{flex:1;margin-bottom:0;padding:10px;background:#004f87}.bx-suggest-toggler span{display:inline-block;align-self:center;padding:10px;width:40px;text-align:center}.bx-suggest-toggler:hover,.bx-suggest-toggler:focus{cursor:pointer;background:#005da1}.bx-suggest-toggler:hover label,.bx-suggest-toggler:focus label{background:#006fbe}.bx-suggest-toggler[bx-open] span{transform:rotate(90deg)}.bx-suggest-toggler[bx-open]+ .bx-suggest-box{display:block}.bx-suggest-box{display:none;background:#161616;padding:10px;box-shadow:0 0 12px #0f0f0f inset;border-radius:10px}.bx-suggest-wrapper{display:flex;flex-direction:column;gap:10px;margin:10px}.bx-suggest-note{font-size:11px;color:#8c8c8c;font-style:italic;font-weight:100}.bx-suggest-link{font-size:14px;display:inline-block;margin-top:4px;padding:4px}.bx-suggest-row{display:flex;flex-direction:row;gap:10px}.bx-suggest-row label{flex:1;overflow:overlay;border-radius:4px}.bx-suggest-row label .bx-suggest-label{background:#323232;padding:4px 10px;font-size:12px;text-align:left}.bx-suggest-row label .bx-suggest-value{padding:6px;font-size:14px}.bx-suggest-row label .bx-suggest-value.bx-suggest-change{background-color:var(--bx-warning-color)}.bx-suggest-row.bx-suggest-ok input{visibility:hidden}.bx-suggest-row.bx-suggest-ok .bx-suggest-label{background-color:#008114}.bx-suggest-row.bx-suggest-ok .bx-suggest-value{background-color:#13a72a}.bx-suggest-row.bx-suggest-change .bx-suggest-label{background-color:#a65e08}.bx-suggest-row.bx-suggest-change .bx-suggest-value{background-color:#d57f18}.bx-suggest-row.bx-suggest-change:hover label{cursor:pointer}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-label{background-color:#995707}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-value{background-color:#bd7115}.bx-suggest-row.bx-suggest-change input:not(:checked) + label{opacity:.5}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-label{background-color:#2a2a2a}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-value{background-color:#393939}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label{opacity:1}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-label{background-color:#202020}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-value{background-color:#303030}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:12px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-remote-play-buttons{display:flex;justify-content:space-between}.bx-select{display:flex;align-items:center;flex:0 1 auto}.bx-select select{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-select > div,.bx-select button.bx-select-value{min-width:120px;text-align:left;margin:0 8px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 8px;flex:1}.bx-select > div{display:inline-block}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0;font-size:14px;width:100%}.bx-select > div label span{display:block;font-size:10px;font-weight:bold;text-align:left;line-height:initial}.bx-select button.bx-select-value{border:none;display:inline-flex;cursor:pointer;min-height:30px;font-size:.9rem;align-items:center}.bx-select button.bx-select-value span{flex:1;text-align:left;display:inline-block}.bx-select button.bx-select-value input{margin:0 4px;accent-color:var(--bx-primary-button-color)}.bx-select button.bx-select-value:hover input,.bx-select button.bx-select-value:focus input{accent-color:var(--bx-danger-button-color)}.bx-select button.bx-select-value:hover::after,.bx-select button.bx-select-value:focus::after{border-color:#4d4d4d !important}.bx-select button.bx-button{border:none;height:24px;width:24px;padding:0;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:12px;font-family:var(--bx-monospaced-font);flex-shrink:0}.bx-select button.bx-button span{line-height:unset}.bx-guide-home-achievements-progress{display:flex;gap:10px;flex-direction:row}.bx-guide-home-achievements-progress .bx-button{margin-bottom:0 !important}html[data-xds-platform=tv] .bx-guide-home-achievements-progress{flex-direction:column}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress{flex-direction:row}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:first-of-type{flex:1}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type{width:40px}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type span{display:none}.bx-guide-home-buttons > div{display:flex;flex-direction:row;gap:12px}html[data-xds-platform=tv] .bx-guide-home-buttons > div{flex-direction:column}html[data-xds-platform=tv] .bx-guide-home-buttons > div button{margin-bottom:0 !important}html:not([data-xds-platform=tv]) .bx-guide-home-buttons > div button span{display:none}.bx-guide-home-buttons[data-is-playing="true"] button[data-state='normal']{display:none}.bx-guide-home-buttons[data-is-playing="false"] button[data-state='playing']{display:none}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:12px;margin:0 4px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}`;
   const PREF_HIDE_SECTIONS = getPref("ui_hide_sections"), selectorToHide = [];
@@ -7183,7 +6803,6 @@ function preloadFonts() {
   });
   document.querySelector("head")?.appendChild($link);
 }
-
 class MouseCursorHider {
   static #timeout;
   static #cursorVisible = !0;
@@ -7203,7 +6822,6 @@ class MouseCursorHider {
     MouseCursorHider.#timeout && clearTimeout(MouseCursorHider.#timeout), document.removeEventListener("mousemove", MouseCursorHider.onMouseMove), MouseCursorHider.show();
   }
 }
-
 function patchHistoryMethod(type) {
   const orig = window.history[type];
   return function(...args) {
@@ -7213,15 +6831,13 @@ function patchHistoryMethod(type) {
   };
 }
 function onHistoryChanged(e) {
-  if (e && e.arguments && e.arguments[0] && e.arguments[0].origin === "better-xcloud")
-    return;
+  if (e && e.arguments && e.arguments[0] && e.arguments[0].origin === "better-xcloud") return;
   window.setTimeout(RemotePlayManager.detect, 10);
   const $settings = document.querySelector(".bx-settings-container");
   if ($settings)
     $settings.classList.add("bx-gone");
   NavigationDialogManager.getInstance().hide(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
-
 function overridePreloadState() {
   let _state;
   Object.defineProperty(window, "__PRELOADED_STATE__", {
@@ -7259,7 +6875,6 @@ function overridePreloadState() {
   });
 }
 var LOG_TAG6 = "PreloadState";
-
 function setCodecPreferences(sdp, preferredCodec) {
   const h264Pattern = /a=fmtp:(\d+).*profile-level-id=([0-9a-f]{6})/g, profilePrefix = preferredCodec === "high" ? "4d" : preferredCodec === "low" ? "420" : "42e", preferredCodecIds = [], matches = sdp.matchAll(h264Pattern) || [];
   for (let match of matches) {
@@ -7267,8 +6882,7 @@ function setCodecPreferences(sdp, preferredCodec) {
     if (match[2].startsWith(profilePrefix))
       preferredCodecIds.push(id2);
   }
-  if (!preferredCodecIds.length)
-    return sdp;
+  if (!preferredCodecIds.length) return sdp;
   const lines = sdp.split("\r\n");
   for (let lineIndex = 0;lineIndex < lines.length; lineIndex++) {
     const line = lines[lineIndex];
@@ -7315,13 +6929,9 @@ function patchSdpBitrate(sdp, video, audio) {
   }
   return lines.join("\r\n");
 }
-
 var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
-
 var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 textureAt(sampler2D tex, vec2 coord) {\n    return texture2D(tex, coord / iResolution.xy).rgb;\n}\n\nvec3 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec3 a = textureAt(tex, coord + vec2(-1, 1));\n    vec3 b = textureAt(tex, coord + vec2(0, 1));\n    vec3 c = textureAt(tex, coord + vec2(1, 1));\n\n    vec3 d = textureAt(tex, coord + vec2(-1, 0));\n    vec3 e = textureAt(tex, coord);\n    vec3 f = textureAt(tex, coord + vec2(1, 0));\n\n    vec3 g = textureAt(tex, coord + vec2(-1, -1));\n    vec3 h = textureAt(tex, coord + vec2(0, -1));\n    vec3 i = textureAt(tex, coord + vec2(1, -1));\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d, e), min(f, b)), h);\n        vec3 minRgb2 = min(min(a, c), min(g, i));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d, e), max(f, b)), h);\n        vec3 maxRgb2 = max(max(a, c), max(g, i));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //                0 w 0\n        // Filter shape:  w 1 w\n        //                0 w 0\n        vec3 window = (b + d) + (f + h);\n        vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e, outColor, sharpenFactor / 2.0);\n\n        return outColor;\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor / 3.0;\n    }\n\n    return e;\n}\n\nvec3 adjustBrightness(vec3 color) {\n    return (1.0 + brightness) * color;\n}\n\nvec3 adjustContrast(vec3 color) {\n    return 0.5 + (1.0 + contrast) * (color - 0.5);\n}\n\nvec3 adjustSaturation(vec3 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color, luminosityFactor));\n\n    return mix(grayscale, color, 1.0 + saturation);\n}\n\nvoid main() {\n    vec3 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = vec4(color, 1.0);\n}\n";
-
 var LOG_TAG7 = "WebGL2Player";
-
 class WebGL2Player {
   #$video;
   #$canvas;
@@ -7373,14 +6983,12 @@ class WebGL2Player {
     if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
       const $video = this.#$video;
       animate = () => {
-        if (this.#stopped)
-          return;
+        if (this.#stopped) return;
         this.drawFrame(), this.#animFrameId = $video.requestVideoFrameCallback(animate);
       }, this.#animFrameId = $video.requestVideoFrameCallback(animate);
     } else
       animate = () => {
-        if (this.#stopped)
-          return;
+        if (this.#stopped) return;
         this.drawFrame(), this.#animFrameId = requestAnimationFrame(animate);
       }, this.#animFrameId = requestAnimationFrame(animate);
   }
@@ -7452,7 +7060,6 @@ class WebGL2Player {
     this.#$canvas.width = 1, this.#$canvas.height = 1;
   }
 }
-
 class StreamPlayer {
   #$video;
   #playerType = "default";
@@ -7544,8 +7151,7 @@ class StreamPlayer {
   getPlayerElement(playerType) {
     if (typeof playerType === "undefined")
       playerType = this.#playerType;
-    if (playerType === "webgl2")
-      return this.#webGL2Player?.getCanvas();
+    if (playerType === "webgl2") return this.#webGL2Player?.getCanvas();
     return this.#$video;
   }
   getWebGL2Player() {
@@ -7582,11 +7188,9 @@ class StreamPlayer {
     this.#cleanUpWebGL2Player();
   }
 }
-
 function patchVideoApi() {
   const PREF_SKIP_SPLASH_VIDEO = getPref("skip_splash_video"), showFunc = function() {
-    if (this.style.visibility = "visible", !this.videoWidth)
-      return;
+    if (this.style.visibility = "visible", !this.videoWidth) return;
     const playerOptions = {
       processing: getPref("video_processing"),
       sharpness: getPref("video_sharpness"),
@@ -7600,9 +7204,7 @@ function patchVideoApi() {
   }, nativePlay = HTMLMediaElement.prototype.play;
   HTMLMediaElement.prototype.nativePlay = nativePlay, HTMLMediaElement.prototype.play = function() {
     if (this.className && this.className.startsWith("XboxSplashVideo")) {
-      if (PREF_SKIP_SPLASH_VIDEO)
-        return this.volume = 0, this.style.display = "none", this.dispatchEvent(new Event("ended")), new Promise(() => {
-        });
+      if (PREF_SKIP_SPLASH_VIDEO) return this.volume = 0, this.style.display = "none", this.dispatchEvent(new Event("ended")), new Promise(() => {});
       return nativePlay.apply(this);
     }
     const $parent = this.parentElement;
@@ -7612,10 +7214,8 @@ function patchVideoApi() {
   };
 }
 function patchRtcCodecs() {
-  if (getPref("stream_codec_profile") === "default")
-    return;
-  if (typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype))
-    return !1;
+  if (getPref("stream_codec_profile") === "default") return;
+  if (typeof RTCRtpTransceiver === "undefined" || !("setCodecPreferences" in RTCRtpTransceiver.prototype)) return !1;
 }
 function patchRtcPeerConnection() {
   const nativeCreateDataChannel = RTCPeerConnection.prototype.createDataChannel;
@@ -7669,14 +7269,10 @@ function patchMeControl() {
   }, MSA = {
     MeControl: {
       API: {
-        setDisplayMode: () => {
-        },
-        setMobileState: () => {
-        },
-        addEventListener: () => {
-        },
-        removeEventListener: () => {
-        }
+        setDisplayMode: () => {},
+        setMobileState: () => {},
+        addEventListener: () => {},
+        removeEventListener: () => {}
       }
     }
   }, MeControl = {}, MsaHandler = {
@@ -7736,14 +7332,10 @@ function patchPointerLockApi() {
     pointerLockElement = null, window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_EXITED));
   };
 }
-
 class BaseGameBarAction {
-  constructor() {
-  }
-  reset() {
-  }
+  constructor() {}
+  reset() {}
 }
-
 class ScreenshotAction extends BaseGameBarAction {
   $content;
   constructor() {
@@ -7762,7 +7354,6 @@ class ScreenshotAction extends BaseGameBarAction {
     return this.$content;
   }
 }
-
 class TouchControlAction extends BaseGameBarAction {
   $content;
   constructor() {
@@ -7793,7 +7384,6 @@ class TouchControlAction extends BaseGameBarAction {
     this.$content.setAttribute("data-enabled", "true");
   }
 }
-
 class MicrophoneAction extends BaseGameBarAction {
   $content;
   visible = !1;
@@ -7825,7 +7415,6 @@ class MicrophoneAction extends BaseGameBarAction {
     this.visible = !1, this.$content.classList.add("bx-gone"), this.$content.setAttribute("data-enabled", "false");
   }
 }
-
 class TrueAchievements {
   static $link = createButton({
     label: t("true-achievements"),
@@ -7865,8 +7454,7 @@ class TrueAchievements {
       const $container = $parent.closest("div[class*=AchievementsPreview-module__container]");
       if ($container)
         xboxTitleId = getReactProps($container).children.props.data.data.xboxTitleId;
-    } catch (e) {
-    }
+    } catch (e) {}
     if (!xboxTitleId)
       xboxTitleId = TrueAchievements.getStreamXboxTitleId();
     if (typeof xboxTitleId !== "undefined")
@@ -7879,8 +7467,7 @@ class TrueAchievements {
   }
   static injectAchievementDetailPage($parent) {
     const props = getReactProps($parent);
-    if (!props)
-      return;
+    if (!props) return;
     try {
       const achievementList = props.children.props.data.data, $header = $parent.querySelector("div[class*=AchievementDetailHeader]"), achievementName = getReactProps($header).children[0].props.achievementName;
       let id2, xboxTitleId;
@@ -7891,8 +7478,7 @@ class TrueAchievements {
         }
       if (id2)
         TrueAchievements.updateIds(xboxTitleId, id2), $parent.appendChild(TrueAchievements.$link);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
   static getStreamXboxTitleId() {
     return STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
@@ -7912,7 +7498,6 @@ class TrueAchievements {
     TrueAchievements.$hiddenLink.href = url, TrueAchievements.$hiddenLink.click();
   }
 }
-
 class TrueAchievementsAction extends BaseGameBarAction {
   $content;
   constructor() {
@@ -7931,7 +7516,6 @@ class TrueAchievementsAction extends BaseGameBarAction {
     return this.$content;
   }
 }
-
 class SpeakerAction extends BaseGameBarAction {
   $content;
   constructor() {
@@ -7960,7 +7544,6 @@ class SpeakerAction extends BaseGameBarAction {
     this.$content.dataset.enabled = "true";
   }
 }
-
 class GameBar {
   static instance;
   static getInstance() {
@@ -7987,8 +7570,7 @@ class GameBar {
     for (let action of this.actions)
       $container.appendChild(action.render());
     $gameBar.addEventListener("click", (e) => {
-      if (e.target !== $gameBar)
-        return;
+      if (e.target !== $gameBar) return;
       $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
     }), window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this)), $container.addEventListener("pointerover", this.clearHideTimeout.bind(this)), $container.addEventListener("pointerout", this.beginHideTimeout.bind(this)), $container.addEventListener("transitionend", (e) => {
       const classList = $container.classList;
@@ -8017,13 +7599,11 @@ class GameBar {
     this.hideBar(), this.$gameBar && this.$gameBar.classList.add("bx-gone");
   }
   showBar() {
-    if (!this.$container)
-      return;
+    if (!this.$container) return;
     this.$container.classList.remove("bx-offscreen", "bx-hide", "bx-gone"), this.$container.classList.add("bx-show"), this.beginHideTimeout();
   }
   hideBar() {
-    if (this.clearHideTimeout(), clearFocus(), !this.$container)
-      return;
+    if (this.clearHideTimeout(), clearFocus(), !this.$container) return;
     this.$container.classList.remove("bx-show"), this.$container.classList.add("bx-hide");
   }
   reset() {
@@ -8031,7 +7611,6 @@ class GameBar {
       action.reset();
   }
 }
-
 class GuideMenu {
   static #BUTTONS = {
     scriptSettings: createButton({
@@ -8083,8 +7662,7 @@ class GuideMenu {
   };
   static #$renderedButtons;
   static #renderButtons() {
-    if (GuideMenu.#$renderedButtons)
-      return GuideMenu.#$renderedButtons;
+    if (GuideMenu.#$renderedButtons) return GuideMenu.#$renderedButtons;
     const $div = CE("div", {
       class: "bx-guide-home-buttons"
     }), buttons = [
@@ -8123,8 +7701,7 @@ class GuideMenu {
       if ($dividers)
         $target = $dividers[$dividers.length - 1];
     }
-    if (!$target)
-      return !1;
+    if (!$target) return !1;
     const $buttons = GuideMenu.#renderButtons();
     $buttons.dataset.isPlaying = isPlaying.toString(), $target.insertAdjacentElement("afterend", $buttons);
   }
@@ -8143,8 +7720,7 @@ class GuideMenu {
       TrueAchievements.injectAchievementsProgress($addedElm);
       return;
     }
-    if (!className.startsWith("NavigationAnimation") && !className.startsWith("DialogRoutes") && !className.startsWith("Dialog-module__container"))
-      return;
+    if (!className.startsWith("NavigationAnimation") && !className.startsWith("DialogRoutes") && !className.startsWith("Dialog-module__container")) return;
     const $achievDetailPage = $addedElm.querySelector("div[class*=AchievementDetailPage]");
     if ($achievDetailPage) {
       TrueAchievements.injectAchievementDetailPage($achievDetailPage);
@@ -8160,7 +7736,6 @@ class GuideMenu {
     }
   }
 }
-
 class XcloudApi {
   static instance;
   static getInstance() {
@@ -8171,11 +7746,9 @@ class XcloudApi {
   #CACHE_TITLES = {};
   #CACHE_WAIT_TIME = {};
   async getTitleInfo(id2) {
-    if (id2 in this.#CACHE_TITLES)
-      return this.#CACHE_TITLES[id2];
+    if (id2 in this.#CACHE_TITLES) return this.#CACHE_TITLES[id2];
     const baseUri = STATES.selectedRegion.baseUri;
-    if (!baseUri || !STATES.gsToken)
-      return null;
+    if (!baseUri || !STATES.gsToken) return null;
     let json;
     try {
       json = (await (await NATIVE_FETCH(`${baseUri}/v2/titles`, {
@@ -8195,11 +7768,9 @@ class XcloudApi {
     return this.#CACHE_TITLES[id2] = json, json;
   }
   async getWaitTime(id2) {
-    if (id2 in this.#CACHE_WAIT_TIME)
-      return this.#CACHE_WAIT_TIME[id2];
+    if (id2 in this.#CACHE_WAIT_TIME) return this.#CACHE_WAIT_TIME[id2];
     const baseUri = STATES.selectedRegion.baseUri;
-    if (!baseUri || !STATES.gsToken)
-      return null;
+    if (!baseUri || !STATES.gsToken) return null;
     let json;
     try {
       json = await (await NATIVE_FETCH(`${baseUri}/v1/waittime/${id2}`, {
@@ -8214,7 +7785,6 @@ class XcloudApi {
     return this.#CACHE_WAIT_TIME[id2] = json, json;
   }
 }
-
 class GameTile {
   static #timeout;
   static #secondsToHms(seconds) {
@@ -8227,8 +7797,7 @@ class GameTile {
     return output.join(" ");
   }
   static async#showWaitTime($elm, productId) {
-    if ($elm.hasWaitTime)
-      return;
+    if ($elm.hasWaitTime) return;
     $elm.hasWaitTime = !0;
     let totalWaitTime;
     const api = XcloudApi.getInstance(), info = await api.getTitleInfo(productId);
@@ -8264,8 +7833,7 @@ class GameTile {
           else
             productId = props.children.props.productId;
       }
-    } catch (e) {
-    }
+    } catch (e) {}
     return productId;
   }
   static setup() {
@@ -8285,7 +7853,6 @@ class GameTile {
     });
   }
 }
-
 class ProductDetailsPage {
   static $btnShortcut = AppInterface && createButton({
     classes: ["bx-button-shortcut"],
@@ -8306,18 +7873,15 @@ class ProductDetailsPage {
     onClick: async (e) => {
       try {
         const matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(window.location.pathname);
-        if (!matches?.groups)
-          return;
+        if (!matches?.groups) return;
         const titleSlug = matches.groups.titleSlug.replaceAll("%" + "7C", "-"), productId = matches.groups.productId;
         AppInterface.downloadWallpapers(titleSlug, productId);
-      } catch (e2) {
-      }
+      } catch (e2) {}
     }
   });
   static injectTimeoutId = null;
   static injectButtons() {
-    if (!AppInterface)
-      return;
+    if (!AppInterface) return;
     ProductDetailsPage.injectTimeoutId && clearTimeout(ProductDetailsPage.injectTimeoutId), ProductDetailsPage.injectTimeoutId = window.setTimeout(() => {
       const $container = document.querySelector("div[class*=ActionButtons-module__container]");
       if ($container && $container.parentElement) {
@@ -8329,7 +7893,6 @@ class ProductDetailsPage {
     }, 500);
   }
 }
-
 class StreamUiHandler {
   static $btnStreamSettings;
   static $btnStreamStats;
@@ -8337,21 +7900,17 @@ class StreamUiHandler {
   static $btnHome;
   static observer;
   static cloneStreamHudButton($btnOrg, label, svgIcon) {
-    if (!$btnOrg)
-      return null;
+    if (!$btnOrg) return null;
     const $container = $btnOrg.cloneNode(!0);
     let timeout;
     if (STATES.browser.capabilities.touch) {
       const onTransitionStart = (e) => {
-        if (e.propertyName !== "opacity")
-          return;
+        if (e.propertyName !== "opacity") return;
         timeout && clearTimeout(timeout), e.target.style.pointerEvents = "none";
       }, onTransitionEnd = (e) => {
-        if (e.propertyName !== "opacity")
-          return;
+        if (e.propertyName !== "opacity") return;
         const $streamHud = e.target.closest("#StreamHud");
-        if (!$streamHud)
-          return;
+        if (!$streamHud) return;
         if ($streamHud.style.left === "0px") {
           const $target = e.target;
           timeout && clearTimeout(timeout), timeout = window.setTimeout(() => {
@@ -8362,25 +7921,21 @@ class StreamUiHandler {
       $container.addEventListener("transitionstart", onTransitionStart), $container.addEventListener("transitionend", onTransitionEnd);
     }
     const $button = $container.querySelector("button");
-    if (!$button)
-      return null;
+    if (!$button) return null;
     $button.setAttribute("title", label);
     const $orgSvg = $button.querySelector("svg");
-    if (!$orgSvg)
-      return null;
+    if (!$orgSvg) return null;
     const $svg = createSvgIcon(svgIcon);
     return $svg.style.fill = "none", $svg.setAttribute("class", $orgSvg.getAttribute("class") || ""), $svg.ariaHidden = "true", $orgSvg.replaceWith($svg), $container;
   }
   static cloneCloseButton($btnOrg, icon, className, onChange) {
-    if (!$btnOrg)
-      return null;
+    if (!$btnOrg) return null;
     const $btn = $btnOrg.cloneNode(!0), $svg = createSvgIcon(icon);
     return $svg.setAttribute("class", $btn.firstElementChild.getAttribute("class") || ""), $svg.style.fill = "none", $btn.classList.add(className), $btn.removeChild($btn.firstElementChild), $btn.appendChild($svg), $btn.addEventListener("click", onChange), $btn;
   }
   static async handleStreamMenu() {
     const $btnCloseHud = document.querySelector("button[class*=StreamMenu-module__backButton]");
-    if (!$btnCloseHud)
-      return;
+    if (!$btnCloseHud) return;
     let { $btnRefresh, $btnHome } = StreamUiHandler;
     if (typeof $btnRefresh === "undefined")
       $btnRefresh = StreamUiHandler.cloneCloseButton($btnCloseHud, BxIcon.REFRESH, "bx-stream-refresh-button", () => {
@@ -8396,14 +7951,11 @@ class StreamUiHandler {
   }
   static handleSystemMenu($streamHud) {
     const $gripHandle = $streamHud.querySelector("button[class^=GripHandle]");
-    if (!$gripHandle)
-      return;
+    if (!$gripHandle) return;
     const $orgButton = $streamHud.querySelector("div[class^=HUDButton]");
-    if (!$orgButton)
-      return;
+    if (!$orgButton) return;
     const hideGripHandle = () => {
-      if (!$gripHandle)
-        return;
+      if (!$gripHandle) return;
       $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
     };
     let $btnStreamSettings = StreamUiHandler.$btnStreamSettings;
@@ -8433,18 +7985,14 @@ class StreamUiHandler {
   static observe() {
     StreamUiHandler.reset();
     const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
-    if (!$screen)
-      return;
+    if (!$screen) return;
     const observer = new MutationObserver((mutationList) => {
       mutationList.forEach((item2) => {
-        if (item2.type !== "childList")
-          return;
+        if (item2.type !== "childList") return;
         item2.addedNodes.forEach(async ($node) => {
-          if (!$node || $node.nodeType !== Node.ELEMENT_NODE)
-            return;
+          if (!$node || $node.nodeType !== Node.ELEMENT_NODE) return;
           let $elm = $node;
-          if (!($elm instanceof HTMLElement))
-            return;
+          if (!($elm instanceof HTMLElement)) return;
           const className = $elm.className || "";
           if (className.includes("PureErrorPage")) {
             BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
@@ -8456,8 +8004,7 @@ class StreamUiHandler {
           }
           if (className.startsWith("Overlay-module_") || className.startsWith("InProgressScreen"))
             $elm = $elm.querySelector("#StreamHud");
-          if (!$elm || ($elm.id || "") !== "StreamHud")
-            return;
+          if (!$elm || ($elm.id || "") !== "StreamHud") return;
           StreamUiHandler.handleSystemMenu($elm);
         });
       });
@@ -8465,24 +8012,19 @@ class StreamUiHandler {
     observer.observe($screen, { subtree: !0, childList: !0 }), StreamUiHandler.observer = observer;
   }
 }
-
 class XboxApi {
   static CACHED_TITLES = {};
   static async getProductTitle(xboxTitleId) {
-    if (xboxTitleId = xboxTitleId.toString(), XboxApi.CACHED_TITLES[xboxTitleId])
-      return XboxApi.CACHED_TITLES[xboxTitleId];
+    if (xboxTitleId = xboxTitleId.toString(), XboxApi.CACHED_TITLES[xboxTitleId]) return XboxApi.CACHED_TITLES[xboxTitleId];
     try {
       const url = `https://displaycatalog.mp.microsoft.com/v7.0/products/lookup?market=US&languages=en&value=${xboxTitleId}&alternateId=XboxTitleId&fieldsTemplate=browse`, productTitle = (await (await NATIVE_FETCH(url)).json()).Products[0].LocalizedProperties[0].ProductTitle;
       return XboxApi.CACHED_TITLES[xboxTitleId] = productTitle, productTitle;
-    } catch (e) {
-    }
+    } catch (e) {}
     return null;
   }
 }
-
 function unload() {
-  if (!STATES.isPlaying)
-    return;
+  if (!STATES.isPlaying) return;
   EmulatedMkbHandler.getInstance().destroy(), NativeMkbHandler.getInstance().destroy(), STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1, NavigationDialogManager.getInstance().hide(), StreamStats.getInstance().onStoppedPlaying(), MouseCursorHider.stop(), TouchController.reset(), GameBar.getInstance().disable();
 }
 function observeRootDialog($root) {
@@ -8566,8 +8108,7 @@ window.addEventListener("load", (e) => {
   }, 3000);
 });
 document.addEventListener("readystatechange", (e) => {
-  if (document.readyState !== "interactive")
-    return;
+  if (document.readyState !== "interactive") return;
   if (STATES.isSignedIn = !!window.xbcUser?.isSignedIn, STATES.isSignedIn)
     getPref("xhome_enabled") && RemotePlayManager.getInstance().initialize();
   else
@@ -8617,11 +8158,9 @@ window.addEventListener(BxEvent.XCLOUD_RENDERING_COMPONENT, (e) => {
 });
 window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
   const dataChannel = e.dataChannel;
-  if (!dataChannel || dataChannel.label !== "message")
-    return;
+  if (!dataChannel || dataChannel.label !== "message") return;
   dataChannel.addEventListener("message", async (msg) => {
-    if (msg.origin === "better-xcloud" || typeof msg.data !== "string")
-      return;
+    if (msg.origin === "better-xcloud" || typeof msg.data !== "string") return;
     if (msg.data.includes("/titleinfo")) {
       const json = JSON.parse(JSON.parse(msg.data).content), xboxTitleId = parseInt(json.titleid, 16);
       if (STATES.currentStream.xboxTitleId = xboxTitleId, STATES.remotePlay.isPlaying) {
