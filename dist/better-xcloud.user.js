@@ -2361,15 +2361,23 @@ class NavigationDialogManager {
         if (mutationList.length === 0 || mutationList[0].addedNodes.length === 0) return;
         const $dialog = mutationList[0].addedNodes[0];
         if (!$dialog || !($dialog instanceof HTMLElement)) return;
-        $dialog.querySelectorAll(".bx-select:not([data-calculated]) select").forEach(($select) => {
-          const rect = $select.getBoundingClientRect(), $parent = $select.parentElement;
-          $parent.dataset.calculated = "true";
-          let $label, width = Math.ceil(rect.width);
-          if ($select.multiple) $label = $parent.querySelector(".bx-select-value"), width += 15;
-          else $label = $parent.querySelector("div");
-          $label.style.minWidth = width + "px";
-        });
+        this.calculateSelectBoxes($dialog);
       }).observe(this.$container, { childList: !0 });
+  }
+  calculateSelectBoxes($root) {
+    $root.querySelectorAll(".bx-select:not([data-calculated]) select").forEach(($select) => {
+      const $parent = $select.parentElement;
+      if ($parent.classList.contains("bx-full-width")) {
+        $parent.dataset.calculated = "true";
+        return;
+      }
+      const rect = $select.getBoundingClientRect();
+      let $label, width = Math.ceil(rect.width);
+      if (!width) return;
+      if ($select.multiple) $label = $parent.querySelector(".bx-select-value"), width += 20;
+      else $label = $parent.querySelector("div");
+      $label.style.minWidth = width + "px", $parent.dataset.calculated = "true";
+    });
   }
   handleEvent(event) {
     switch (event.type) {
@@ -4565,8 +4573,9 @@ class SettingsNavigationDialog extends NavigationDialog {
     const $svg = createSvgIcon(settingTab.icon);
     return $svg.dataset.group = settingTab.group, $svg.tabIndex = 0, $svg.addEventListener("click", (e) => {
       for (let $child of Array.from(this.$settings.children))
-        if ($child.getAttribute("data-tab-group") === settingTab.group) $child.classList.remove("bx-gone");
-        else $child.classList.add("bx-gone");
+        if ($child.getAttribute("data-tab-group") === settingTab.group) {
+          if ($child.classList.remove("bx-gone"), getPref("ui_controller_friendly")) this.dialogManager.calculateSelectBoxes($child);
+        } else $child.classList.add("bx-gone");
       for (let $child of Array.from(this.$tabs.children))
         $child.classList.remove("bx-active");
       $svg.classList.add("bx-active");
@@ -5343,7 +5352,9 @@ class ControllerShortcut {
       $baseSelect.appendChild($optGroup);
     }
     let $remap;
-    const $selectProfile = CE("select", { class: "bx-shortcut-profile", autocomplete: "off" }), $profile = PREF_CONTROLLER_FRIENDLY_UI ? BxSelectElement.wrap($selectProfile) : $selectProfile, $container = CE("div", {
+    const $selectProfile = CE("select", { class: "bx-shortcut-profile", autocomplete: "off" }), $profile = PREF_CONTROLLER_FRIENDLY_UI ? BxSelectElement.wrap($selectProfile) : $selectProfile;
+    $profile.classList.add("bx-full-width");
+    const $container = CE("div", {
       "data-has-gamepad": "false",
       _nearby: {
         focus: $profile
@@ -5380,7 +5391,7 @@ class ControllerShortcut {
       const $select = $baseSelect.cloneNode(!0);
       if ($select.dataset.button = button.toString(), $select.addEventListener("input", onActionChanged), ControllerShortcut.#$selectActions[button] = $select, PREF_CONTROLLER_FRIENDLY_UI) {
         const $bxSelect = BxSelectElement.wrap($select);
-        $div.appendChild($bxSelect), setNearby($row, {
+        $bxSelect.classList.add("bx-full-width"), $div.appendChild($bxSelect), setNearby($row, {
           focus: $bxSelect
         });
       } else $div.appendChild($select), setNearby($row, {
