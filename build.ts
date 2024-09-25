@@ -66,9 +66,8 @@ const postProcess = (str: string): string => {
     // Collapse empty brackets
     str = str.replaceAll(/\{[\s\n]+\}/g, '{}');
 
-    // Collapse single return
-    str = str.replaceAll(/\)\n\s+return/g, ') return');
-    str = str.replaceAll(/else\n\s+return/g, 'else return');
+    // Collapse if/else blocks without curly braces
+    str = str.replaceAll(/((if \(.*?\)|else)\n\s+)/g, '$2 ');
 
     // Remove blank lines
     str = str.replaceAll(/\n([\s]*)\n/g, "\n");
