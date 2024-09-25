@@ -171,28 +171,42 @@ export class NavigationDialogManager {
                 }
 
                 // Find un-calculated <select> elements
-                const $selects = $dialog.querySelectorAll('.bx-select:not([data-calculated]) select');
-                $selects.forEach($select => {
-                    const rect = $select.getBoundingClientRect();
-                    const $parent = $select.parentElement! as HTMLElement;
-                    $parent.dataset.calculated = 'true';
-
-                    let $label;
-                    let width = Math.ceil(rect.width);
-
-                    if (($select as HTMLSelectElement).multiple) {
-                        $label = $parent.querySelector('.bx-select-value') as HTMLElement;
-                        width += 15;  // Add checkbox's width
-                    } else {
-                        $label = $parent.querySelector('div') as HTMLElement;
-                    }
-
-                    // Set min-width
-                    $label.style.minWidth = width + 'px';
-                });
+                this.calculateSelectBoxes($dialog);
             });
             observer.observe(this.$container, {childList: true});
         }
+    }
+
+    calculateSelectBoxes($root: HTMLElement) {
+        const $selects = $root.querySelectorAll('.bx-select:not([data-calculated]) select');
+        $selects.forEach($select => {
+            const $parent = $select.parentElement! as HTMLElement;
+
+            // Don't apply to select.bx-full-width elements
+            if ($parent.classList.contains('bx-full-width')) {
+                $parent.dataset.calculated = 'true';
+                return;
+            }
+
+            const rect = $select.getBoundingClientRect();
+
+            let $label;
+            let width = Math.ceil(rect.width);
+            if (!width) {
+                return;
+            }
+
+            if (($select as HTMLSelectElement).multiple) {
+                $label = $parent.querySelector('.bx-select-value') as HTMLElement;
+                width += 20;  // Add checkbox's width
+            } else {
+                $label = $parent.querySelector('div') as HTMLElement;
+            }
+
+            // Set min-width
+            $label.style.minWidth = width + 'px';
+            $parent.dataset.calculated = 'true';
+        });
     }
 
     handleEvent(event: Event) {

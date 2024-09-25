@@ -943,6 +943,11 @@ export class SettingsNavigationDialog extends NavigationDialog {
             for (const $child of Array.from(this.$settings.children)) {
                 if ($child.getAttribute('data-tab-group') === settingTab.group) {
                     $child.classList.remove('bx-gone');
+
+                    // Calculate size of controller-friendly select boxes
+                    if (getPref(PrefKey.UI_CONTROLLER_FRIENDLY)) {
+                        this.dialogManager.calculateSelectBoxes($child as HTMLElement);
+                    }
                 } else {
                     $child.classList.add('bx-gone');
                 }

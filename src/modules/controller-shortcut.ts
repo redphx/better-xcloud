@@ -314,6 +314,7 @@ export class ControllerShortcut {
         const $selectProfile = CE<HTMLSelectElement>('select', {class: 'bx-shortcut-profile', autocomplete: 'off'});
 
         const $profile = PREF_CONTROLLER_FRIENDLY_UI ? BxSelectElement.wrap($selectProfile) : $selectProfile;
+        $profile.classList.add('bx-full-width');
 
         const $container = CE('div', {
             'data-has-gamepad': 'false',
@@ -390,6 +391,8 @@ export class ControllerShortcut {
 
             if (PREF_CONTROLLER_FRIENDLY_UI) {
                 const $bxSelect = BxSelectElement.wrap($select);
+                $bxSelect.classList.add('bx-full-width');
+
                 $div.appendChild($bxSelect);
                 setNearby($row, {
                     focus: $bxSelect,
