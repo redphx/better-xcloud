@@ -1,0 +1,21 @@
+.bx-product-details-buttons {
+    display: flex;
+    gap: 10px;
+    flex-direction: row;
+
+    button {
+        max-width: max-content;
+        margin: 10px 0 0 0;
+        display: flex;
+    }
+}
+
+@media (min-width: 568px) and (max-height: 480px) {
+    .bx-product-details-buttons {
+        flex-direction: column;
+
+        button {
+            margin: 8px 0 0 10px;
+        }
+    }
+}
