@@ -192,8 +192,11 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
     window.setTimeout(HeaderSection.watchHeader, 2000);
 
     // Open Settings dialog on Unsupported page
-    SettingsNavigationDialog.getInstance().show();
-});
+    const $unsupportedPage = document.querySelector('div[class^=UnsupportedMarketPage-module__container]') as HTMLElement;
+    if ($unsupportedPage) {
+        SettingsNavigationDialog.getInstance().show();
+    }
+}, {once: true});
 
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
     STATES.isSignedIn = true;

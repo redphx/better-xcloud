@@ -63,7 +63,7 @@ export class HeaderSection {
     static checkHeader() {
         let $target = document.querySelector('#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]');
         if (!$target) {
-            $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
+            $target = document.querySelector('div[class^=UnsupportedMarketPage-module__buttons]');
         }
 
         $target && HeaderSection.#injectSettingsButton($target as HTMLElement);

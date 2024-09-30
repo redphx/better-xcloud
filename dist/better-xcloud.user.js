@@ -7656,8 +7656,8 @@ window.addEventListener("popstate", onHistoryChanged);
 window.history.pushState = patchHistoryMethod("pushState");
 window.history.replaceState = patchHistoryMethod("replaceState");
 window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, (e) => {
-  STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), SettingsNavigationDialog.getInstance().show();
-});
+  if (STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), document.querySelector("div[class^=UnsupportedMarketPage-module__container]")) SettingsNavigationDialog.getInstance().show();
+}, { once: !0 });
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
   STATES.isSignedIn = !0, window.setTimeout(HeaderSection.watchHeader, 2000);
 });
