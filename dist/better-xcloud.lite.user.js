@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Better xCloud
+// @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
 // @version      5.7.8-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
@@ -7,10 +7,8 @@
 // @license      MIT
 // @match        https://www.xbox.com/*/play*
 // @match        https://www.xbox.com/*/auth/msa?*loggedIn*
-// @run-at       document-start
+// @run-at       document-end
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/redphx/better-xcloud/typescript/dist/better-xcloud.meta.js
-// @downloadURL  https://github.com/redphx/better-xcloud/releases/latest/download/better-xcloud.user.js
 // ==/UserScript==
 "use strict";
 class BxLogger {
@@ -120,7 +118,7 @@ function deepClone(obj) {
   if (!obj) return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.7.8-beta", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.7.8-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -192,11 +190,6 @@ function createElement(elmName, props = {}, ..._) {
   }
   return $elm;
 }
-function getReactProps($elm) {
-  for (let key in $elm)
-    if (key.startsWith("__reactProps")) return $elm[key];
-  return null;
-}
 function escapeHtml(html) {
   const text = document.createTextNode(html), $span = document.createElement("span");
   return $span.appendChild(text), $span.innerHTML;
@@ -208,14 +201,6 @@ function isElementVisible($elm) {
 function removeChildElements($parent) {
   while ($parent.firstElementChild)
     $parent.firstElementChild.remove();
-}
-function clearFocus() {
-  if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-}
-function clearDataSet($elm) {
-  Object.keys($elm.dataset).forEach((key) => {
-    delete $elm.dataset[key];
-  });
 }
 var ButtonStyleClass = {
   1: "bx-primary",
@@ -1718,50 +1703,6 @@ class GlobalSettingsStorage extends BaseSettingsStore {
 }
 var globalSettings = new GlobalSettingsStorage, getPrefDefinition = globalSettings.getDefinition.bind(globalSettings), getPref = globalSettings.getSetting.bind(globalSettings), setPref = globalSettings.setSetting.bind(globalSettings);
 STORAGE.Global = globalSettings;
-class Screenshot {
-  static #$canvas;
-  static #canvasContext;
-  static setup() {
-    if (Screenshot.#$canvas) return;
-    Screenshot.#$canvas = CE("canvas", { class: "bx-gone" }), Screenshot.#canvasContext = Screenshot.#$canvas.getContext("2d", {
-      alpha: !1,
-      willReadFrequently: !1
-    });
-  }
-  static updateCanvasSize(width, height) {
-    const $canvas = Screenshot.#$canvas;
-    if ($canvas) $canvas.width = width, $canvas.height = height;
-  }
-  static updateCanvasFilters(filters) {
-    Screenshot.#canvasContext && (Screenshot.#canvasContext.filter = filters);
-  }
-  static #onAnimationEnd(e) {
-    e.target.classList.remove("bx-taking-screenshot");
-  }
-  static takeScreenshot(callback) {
-    const currentStream = STATES.currentStream, streamPlayer = currentStream.streamPlayer, $canvas = Screenshot.#$canvas;
-    if (!streamPlayer || !$canvas) return;
-    let $player;
-    if (getPref("screenshot_apply_filters")) $player = streamPlayer.getPlayerElement();
-    else $player = streamPlayer.getPlayerElement("default");
-    if (!$player || !$player.isConnected) return;
-    $player.parentElement.addEventListener("animationend", this.#onAnimationEnd, { once: !0 }), $player.parentElement.classList.add("bx-taking-screenshot");
-    const canvasContext = Screenshot.#canvasContext;
-    if ($player instanceof HTMLCanvasElement) streamPlayer.getWebGL2Player().drawFrame();
-    if (canvasContext.drawImage($player, 0, 0, $canvas.width, $canvas.height), AppInterface) {
-      const data = $canvas.toDataURL("image/png").split(";base64,")[1];
-      AppInterface.saveScreenshot(currentStream.titleSlug, data), canvasContext.clearRect(0, 0, $canvas.width, $canvas.height), callback && callback();
-      return;
-    }
-    $canvas && $canvas.toBlob((blob) => {
-      const now = +new Date, $anchor = CE("a", {
-        download: `${currentStream.titleSlug}-${now}.png`,
-        href: URL.createObjectURL(blob)
-      });
-      $anchor.click(), URL.revokeObjectURL($anchor.href), canvasContext.clearRect(0, 0, $canvas.width, $canvas.height), callback && callback();
-    }, "image/png");
-  }
-}
 var GamepadKeyName = {
   0: ["A", "⇓"],
   1: ["B", "⇒"],
@@ -2929,20 +2870,6 @@ class MkbRemapper {
     })));
     return this.#$.wrapper.appendChild($actionButtons), this.#toggleEditing(!1), this.#refresh(), this.#$.wrapper;
   }
-}
-function checkForUpdate() {
-  if (SCRIPT_VERSION.includes("beta")) return;
-  const CHECK_INTERVAL_SECONDS = 7200, currentVersion = getPref("version_current"), lastCheck = getPref("version_last_check"), now = Math.round(+new Date / 1000);
-  if (currentVersion === SCRIPT_VERSION && now - lastCheck < CHECK_INTERVAL_SECONDS) return;
-  setPref("version_last_check", now), fetch("https://api.github.com/repos/redphx/better-xcloud/releases/latest").then((response) => response.json()).then((json) => {
-    setPref("version_latest", json.tag_name.substring(1)), setPref("version_current", SCRIPT_VERSION);
-  }), Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
-}
-function disablePwa() {
-  if (!(window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase()) return;
-  if (!!AppInterface || UserAgent.isSafariMobile()) Object.defineProperty(window.navigator, "standalone", {
-      value: !0
-    });
 }
 function hashCode(str) {
   let hash = 0;
@@ -4351,23 +4278,13 @@ class SettingsNavigationDialog extends NavigationDialog {
     requiredVariants: "full",
     group: "native-mkb",
     label: t("native-mkb"),
-    items: [{
-      pref: "native_mkb_scroll_y_sensitivity",
-      onChange: (e, value) => {
-        NativeMkbHandler.getInstance().setVerticalScrollMultiplier(value / 100);
-      }
-    }, {
-      pref: "native_mkb_scroll_x_sensitivity",
-      onChange: (e, value) => {
-        NativeMkbHandler.getInstance().setHorizontalScrollMultiplier(value / 100);
-      }
-    }]
+    items: [!1, !1]
   }];
   TAB_SHORTCUTS_ITEMS = [{
     requiredVariants: "full",
     group: "controller-shortcuts",
     label: t("controller-shortcuts"),
-    content: ControllerShortcut.renderSettings()
+    content: !1
   }];
   TAB_STATS_ITEMS = [{
     group: "stats",
@@ -5246,217 +5163,6 @@ class EmulatedMkbHandler extends MkbHandler {
     });
   }
 }
-class MicrophoneShortcut {
-  static toggle(showToast = !0) {
-    if (!window.BX_EXPOSED.streamSession) return !1;
-    const enableMic = window.BX_EXPOSED.streamSession._microphoneState === "Enabled" ? !1 : !0;
-    try {
-      return window.BX_EXPOSED.streamSession.tryEnableChatAsync(enableMic), showToast && Toast.show(t("microphone"), t(enableMic ? "unmuted" : "muted"), { instant: !0 }), enableMic;
-    } catch (e) {
-      console.log(e);
-    }
-    return !1;
-  }
-}
-class StreamUiShortcut {
-  static showHideStreamMenu() {
-    window.BX_EXPOSED.showStreamMenu && window.BX_EXPOSED.showStreamMenu();
-  }
-}
-class ControllerShortcut {
-  static #STORAGE_KEY = "better_xcloud_controller_shortcuts";
-  static #buttonsCache = {};
-  static #buttonsStatus = {};
-  static #$selectProfile;
-  static #$selectActions = {};
-  static #$container;
-  static #ACTIONS = null;
-  static reset(index) {
-    ControllerShortcut.#buttonsCache[index] = [], ControllerShortcut.#buttonsStatus[index] = [];
-  }
-  static handle(gamepad) {
-    if (!ControllerShortcut.#ACTIONS) ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
-    const gamepadIndex = gamepad.index, actions = ControllerShortcut.#ACTIONS[gamepad.id];
-    if (!actions) return !1;
-    ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0), ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
-    const pressed = [];
-    let otherButtonPressed = !1;
-    return gamepad.buttons.forEach((button, index) => {
-      if (button.pressed && index !== 16) {
-        if (otherButtonPressed = !0, pressed[index] = !0, actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) setTimeout(() => ControllerShortcut.#runAction(actions[index]), 0);
-      }
-    }), ControllerShortcut.#buttonsStatus[gamepadIndex] = pressed, otherButtonPressed;
-  }
-  static #runAction(action) {
-    switch (action) {
-      case "bx-settings-show":
-        SettingsNavigationDialog.getInstance().show();
-        break;
-      case "stream-screenshot-capture":
-        Screenshot.takeScreenshot();
-        break;
-      case "stream-stats-toggle":
-        StreamStats.getInstance().toggle();
-        break;
-      case "stream-microphone-toggle":
-        MicrophoneShortcut.toggle();
-        break;
-      case "stream-menu-show":
-        StreamUiShortcut.showHideStreamMenu();
-        break;
-      case "stream-sound-toggle":
-        SoundShortcut.muteUnmute();
-        break;
-      case "stream-volume-inc":
-        SoundShortcut.adjustGainNodeVolume(10);
-        break;
-      case "stream-volume-dec":
-        SoundShortcut.adjustGainNodeVolume(-10);
-        break;
-      case "device-brightness-inc":
-      case "device-brightness-dec":
-      case "device-sound-toggle":
-      case "device-volume-inc":
-      case "device-volume-dec":
-        AppInterface && AppInterface.runShortcut && AppInterface.runShortcut(action);
-        break;
-    }
-  }
-  static #updateAction(profile, button, action) {
-    const actions = ControllerShortcut.#ACTIONS;
-    if (!(profile in actions)) actions[profile] = [];
-    if (!action) action = null;
-    actions[profile][button] = action;
-    for (let key in ControllerShortcut.#ACTIONS) {
-      let empty = !0;
-      for (let value of ControllerShortcut.#ACTIONS[key])
-        if (value) {
-          empty = !1;
-          break;
-        }
-      if (empty) delete ControllerShortcut.#ACTIONS[key];
-    }
-    window.localStorage.setItem(ControllerShortcut.#STORAGE_KEY, JSON.stringify(ControllerShortcut.#ACTIONS)), console.log(ControllerShortcut.#ACTIONS);
-  }
-  static #updateProfileList(e) {
-    const $select = ControllerShortcut.#$selectProfile, $container = ControllerShortcut.#$container, $fragment = document.createDocumentFragment();
-    removeChildElements($select);
-    const gamepads = navigator.getGamepads();
-    let hasGamepad = !1;
-    for (let gamepad of gamepads) {
-      if (!gamepad || !gamepad.connected) continue;
-      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) continue;
-      hasGamepad = !0;
-      const $option = CE("option", { value: gamepad.id }, gamepad.id);
-      $fragment.appendChild($option);
-    }
-    if ($container.dataset.hasGamepad = hasGamepad.toString(), hasGamepad) $select.appendChild($fragment), $select.selectedIndex = 0, $select.dispatchEvent(new Event("input"));
-  }
-  static #switchProfile(profile) {
-    let actions = ControllerShortcut.#ACTIONS[profile];
-    if (!actions) actions = [];
-    let button;
-    for (button in ControllerShortcut.#$selectActions) {
-      const $select = ControllerShortcut.#$selectActions[button];
-      $select.value = actions[button] || "", BxEvent.dispatch($select, "input", {
-        ignoreOnChange: !0,
-        manualTrigger: !0
-      });
-    }
-  }
-  static #getActionsFromStorage() {
-    return JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || "{}");
-  }
-  static renderSettings() {
-    const PREF_CONTROLLER_FRIENDLY_UI = getPref("ui_controller_friendly");
-    ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
-    const buttons = new Map;
-    buttons.set(3, "⇑"), buttons.set(0, "⇓"), buttons.set(1, "⇒"), buttons.set(2, "⇐"), buttons.set(12, "≻"), buttons.set(13, "≽"), buttons.set(14, "≺"), buttons.set(15, "≼"), buttons.set(8, "⇺"), buttons.set(9, "⇻"), buttons.set(4, "↘"), buttons.set(5, "↙"), buttons.set(6, "↖"), buttons.set(7, "↗"), buttons.set(10, "↺"), buttons.set(11, "↻");
-    const actions = {
-      [t("better-xcloud")]: {
-        "bx-settings-show": [t("settings"), t("show")]
-      },
-      [t("device")]: AppInterface && {
-        "device-sound-toggle": [t("sound"), t("toggle")],
-        "device-volume-inc": [t("volume"), t("increase")],
-        "device-volume-dec": [t("volume"), t("decrease")],
-        "device-brightness-inc": [t("brightness"), t("increase")],
-        "device-brightness-dec": [t("brightness"), t("decrease")]
-      },
-      [t("stream")]: {
-        "stream-screenshot-capture": t("take-screenshot"),
-        "stream-sound-toggle": [t("sound"), t("toggle")],
-        "stream-volume-inc": getPref("audio_enable_volume_control") && [t("volume"), t("increase")],
-        "stream-volume-dec": getPref("audio_enable_volume_control") && [t("volume"), t("decrease")],
-        "stream-menu-show": [t("menu"), t("show")],
-        "stream-stats-toggle": [t("stats"), t("show-hide")],
-        "stream-microphone-toggle": [t("microphone"), t("toggle")]
-      }
-    }, $baseSelect = CE("select", { autocomplete: "off" }, CE("option", { value: "" }, "---"));
-    for (let groupLabel in actions) {
-      const items = actions[groupLabel];
-      if (!items) continue;
-      const $optGroup = CE("optgroup", { label: groupLabel });
-      for (let action in items) {
-        let label = items[action];
-        if (!label) continue;
-        if (Array.isArray(label)) label = label.join(" ❯ ");
-        const $option = CE("option", { value: action }, label);
-        $optGroup.appendChild($option);
-      }
-      $baseSelect.appendChild($optGroup);
-    }
-    let $remap;
-    const $selectProfile = CE("select", { class: "bx-shortcut-profile", autocomplete: "off" }), $profile = PREF_CONTROLLER_FRIENDLY_UI ? BxSelectElement.wrap($selectProfile) : $selectProfile;
-    $profile.classList.add("bx-full-width");
-    const $container = CE("div", {
-      "data-has-gamepad": "false",
-      _nearby: {
-        focus: $profile
-      }
-    }, CE("div", {}, CE("p", { class: "bx-shortcut-note" }, t("controller-shortcuts-connect-note"))), $remap = CE("div", {}, CE("div", {
-      _nearby: {
-        focus: $profile
-      }
-    }, $profile), CE("p", { class: "bx-shortcut-note" }, CE("span", { class: "bx-prompt" }, ""), ": " + t("controller-shortcuts-xbox-note"))));
-    $selectProfile.addEventListener("input", (e) => {
-      ControllerShortcut.#switchProfile($selectProfile.value);
-    });
-    const onActionChanged = (e) => {
-      const $target = e.target, profile = $selectProfile.value, button = $target.dataset.button, action = $target.value;
-      if (!PREF_CONTROLLER_FRIENDLY_UI) {
-        const $fakeSelect = $target.previousElementSibling;
-        let fakeText = "---";
-        if (action) {
-          const $selectedOption = $target.options[$target.selectedIndex];
-          fakeText = $selectedOption.parentElement.label + " ❯ " + $selectedOption.text;
-        }
-        $fakeSelect.firstElementChild.text = fakeText;
-      }
-      !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button, action);
-    };
-    for (let [button, prompt2] of buttons) {
-      const $row = CE("div", {
-        class: "bx-shortcut-row"
-      }), $label = CE("label", { class: "bx-prompt" }, `${""} + ${prompt2}`), $div = CE("div", { class: "bx-shortcut-actions" });
-      if (!PREF_CONTROLLER_FRIENDLY_UI) {
-        const $fakeSelect = CE("select", { autocomplete: "off" }, CE("option", {}, "---"));
-        $div.appendChild($fakeSelect);
-      }
-      const $select = $baseSelect.cloneNode(!0);
-      if ($select.dataset.button = button.toString(), $select.addEventListener("input", onActionChanged), ControllerShortcut.#$selectActions[button] = $select, PREF_CONTROLLER_FRIENDLY_UI) {
-        const $bxSelect = BxSelectElement.wrap($select);
-        $bxSelect.classList.add("bx-full-width"), $div.appendChild($bxSelect), setNearby($row, {
-          focus: $bxSelect
-        });
-      } else $div.appendChild($select), setNearby($row, {
-          focus: $select
-        });
-      $row.appendChild($label), $row.appendChild($div), $remap.appendChild($row);
-    }
-    return $container.appendChild($remap), ControllerShortcut.#$selectProfile = $selectProfile, ControllerShortcut.#$container = $container, window.addEventListener("gamepadconnected", ControllerShortcut.#updateProfileList), window.addEventListener("gamepaddisconnected", ControllerShortcut.#updateProfileList), ControllerShortcut.#updateProfileList(), $container;
-  }
-}
 var BxExposed = {
   getTitleInfo: () => STATES.currentStream.titleInfo,
   modifyTitleInfo: (titleInfo) => {
@@ -5495,8 +5201,8 @@ var BxExposed = {
       BxLogger.error("setupGainNode", e), STATES.currentStream.audioGainNode = null;
     }
   },
-  handleControllerShortcut: ControllerShortcut.handle,
-  resetControllerShortcut: ControllerShortcut.reset,
+  handleControllerShortcut: !1,
+  resetControllerShortcut: !1,
   overrideSettings: {
     Tv_settings: {
       hasCompletedOnboarding: !0
@@ -5963,81 +5669,6 @@ class LoadingScreen {
     LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = ""), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
   }
 }
-class TrueAchievements {
-  static $link = createButton({
-    label: t("true-achievements"),
-    url: "#",
-    icon: BxIcon.TRUE_ACHIEVEMENTS,
-    style: 32 | 4 | 64 | 2048,
-    onClick: TrueAchievements.onClick
-  });
-  static $button = createButton({
-    label: t("true-achievements"),
-    title: t("true-achievements"),
-    icon: BxIcon.TRUE_ACHIEVEMENTS,
-    style: 32,
-    onClick: TrueAchievements.onClick
-  });
-  static onClick(e) {
-    e.preventDefault();
-    const dataset = TrueAchievements.$link.dataset;
-    TrueAchievements.open(!0, dataset.xboxTitleId, dataset.id), window.BX_EXPOSED.dialogRoutes?.closeAll();
-  }
-  static $hiddenLink = CE("a", {
-    target: "_blank"
-  });
-  static updateIds(xboxTitleId, id2) {
-    const { $link, $button } = TrueAchievements;
-    if (clearDataSet($link), clearDataSet($button), xboxTitleId) $link.dataset.xboxTitleId = xboxTitleId, $button.dataset.xboxTitleId = xboxTitleId;
-    if (id2) $link.dataset.id = id2, $button.dataset.id = id2;
-  }
-  static injectAchievementsProgress($elm) {
-    if (SCRIPT_VARIANT !== "full") return;
-    const $parent = $elm.parentElement, $div = CE("div", {
-      class: "bx-guide-home-achievements-progress"
-    }, $elm);
-    let xboxTitleId;
-    try {
-      const $container = $parent.closest("div[class*=AchievementsPreview-module__container]");
-      if ($container) xboxTitleId = getReactProps($container).children.props.data.data.xboxTitleId;
-    } catch (e) {}
-    if (!xboxTitleId) xboxTitleId = TrueAchievements.getStreamXboxTitleId();
-    if (typeof xboxTitleId !== "undefined") xboxTitleId = xboxTitleId.toString();
-    if (TrueAchievements.updateIds(xboxTitleId), document.documentElement.dataset.xdsPlatform === "tv") $div.appendChild(TrueAchievements.$link);
-    else $div.appendChild(TrueAchievements.$button);
-    $parent.appendChild($div);
-  }
-  static injectAchievementDetailPage($parent) {
-    if (SCRIPT_VARIANT !== "full") return;
-    const props = getReactProps($parent);
-    if (!props) return;
-    try {
-      const achievementList = props.children.props.data.data, $header = $parent.querySelector("div[class*=AchievementDetailHeader]"), achievementName = getReactProps($header).children[0].props.achievementName;
-      let id2, xboxTitleId;
-      for (let achiev of achievementList)
-        if (achiev.name === achievementName) {
-          id2 = achiev.id, xboxTitleId = achiev.title.id;
-          break;
-        }
-      if (id2) TrueAchievements.updateIds(xboxTitleId, id2), $parent.appendChild(TrueAchievements.$link);
-    } catch (e) {}
-  }
-  static getStreamXboxTitleId() {
-    return STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
-  }
-  static open(override, xboxTitleId, id2) {
-    if (!xboxTitleId || xboxTitleId === "undefined") xboxTitleId = TrueAchievements.getStreamXboxTitleId();
-    if (AppInterface && AppInterface.openTrueAchievementsLink) {
-      AppInterface.openTrueAchievementsLink(override, xboxTitleId?.toString(), id2?.toString());
-      return;
-    }
-    let url = "https://www.trueachievements.com";
-    if (xboxTitleId) {
-      if (url += `/deeplink/${xboxTitleId}`, id2) url += `/${id2}`;
-    }
-    TrueAchievements.$hiddenLink.href = url, TrueAchievements.$hiddenLink.click();
-  }
-}
 class GuideMenu {
   static #BUTTONS = {
     scriptSettings: createButton({
@@ -6119,10 +5750,6 @@ class GuideMenu {
     return GuideMenu.#$renderedButtons = $div, $div;
   }
   static #injectHome($root, isPlaying = !1) {
-    {
-      const $achievementsProgress = $root.querySelector("button[class*=AchievementsButton-module__progressBarContainer]");
-      if ($achievementsProgress) TrueAchievements.injectAchievementsProgress($achievementsProgress);
-    }
     let $target = null;
     if (isPlaying) {
       $target = $root.querySelector("a[class*=QuitGameButton]");
@@ -6147,18 +5774,7 @@ class GuideMenu {
   }
   static observe($addedElm) {
     const className = $addedElm.className;
-    if (className.includes("AchievementsButton-module__progressBarContainer")) {
-      TrueAchievements.injectAchievementsProgress($addedElm);
-      return;
-    }
     if (!className.startsWith("NavigationAnimation") && !className.startsWith("DialogRoutes") && !className.startsWith("Dialog-module__container")) return;
-    {
-      const $achievDetailPage = $addedElm.querySelector("div[class*=AchievementDetailPage]");
-      if ($achievDetailPage) {
-        TrueAchievements.injectAchievementDetailPage($achievDetailPage);
-        return;
-      }
-    }
     const $selectedTab = $addedElm.querySelector("div[class^=NavigationMenu] button[aria-selected=true");
     if ($selectedTab) {
       let $elm = $selectedTab, index;
@@ -6342,6 +5958,10 @@ class StreamBadges {
           streamBadges.startBatteryLevel = Math.round(bm.level * 100);
         });
       } catch (e2) {}
+    }), window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, async (e) => {
+      if (e.where !== "home" || !STATES.isPlaying) return;
+      const $btnQuit = document.querySelector("#gamepass-dialog-root a[class*=QuitGameButton]");
+      if ($btnQuit) $btnQuit.insertAdjacentElement("beforebegin", await StreamBadges.getInstance().render());
     });
   }
 }
@@ -6655,40 +6275,6 @@ function onHistoryChanged(e) {
   if ($settings) $settings.classList.add("bx-gone");
   NavigationDialogManager.getInstance().hide(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
-function overridePreloadState() {
-  let _state;
-  Object.defineProperty(window, "__PRELOADED_STATE__", {
-    configurable: !0,
-    get: () => {
-      return _state;
-    },
-    set: (state) => {
-      try {
-        state.appContext.requestInfo.userAgent = window.navigator.userAgent;
-      } catch (e) {
-        BxLogger.error(LOG_TAG6, e);
-      }
-      if (STATES.userAgent.capabilities.touch) try {
-          const sigls = state.xcloud.sigls;
-          if ("9c86f07a-f3e8-45ad-82a0-a1f759597059" in sigls) {
-            let customList = TouchController.getCustomList();
-            const allGames = sigls["29a81209-df6f-41fd-a528-2ae6b91f719c"].data.products;
-            customList = customList.filter((id2) => allGames.includes(id2)), sigls["9c86f07a-f3e8-45ad-82a0-a1f759597059"]?.data.products.push(...customList);
-          }
-          if (BX_FLAGS.ForceNativeMkbTitles && "8fa264dd-124f-4af3-97e8-596fcdf4b486" in sigls) sigls["8fa264dd-124f-4af3-97e8-596fcdf4b486"]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
-        } catch (e) {
-          BxLogger.error(LOG_TAG6, e);
-        }
-      if (getPref("ui_home_context_menu_disabled")) try {
-          state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = !1;
-        } catch (e) {
-          BxLogger.error(LOG_TAG6, e);
-        }
-      _state = state, STATES.appContext = deepClone(state.appContext);
-    }
-  });
-}
-var LOG_TAG6 = "PreloadState";
 function setCodecPreferences(sdp, preferredCodec) {
   const h264Pattern = /a=fmtp:(\d+).*profile-level-id=([0-9a-f]{6})/g, profilePrefix = preferredCodec === "high" ? "4d" : preferredCodec === "low" ? "420" : "42e", preferredCodecIds = [], matches = sdp.matchAll(h264Pattern) || [];
   for (let match of matches) {
@@ -6740,7 +6326,7 @@ function patchSdpBitrate(sdp, video, audio) {
 }
 var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
 var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 textureAt(sampler2D tex, vec2 coord) {\n    return texture2D(tex, coord / iResolution.xy).rgb;\n}\n\nvec3 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec3 a = textureAt(tex, coord + vec2(-1, 1));\n    vec3 b = textureAt(tex, coord + vec2(0, 1));\n    vec3 c = textureAt(tex, coord + vec2(1, 1));\n\n    vec3 d = textureAt(tex, coord + vec2(-1, 0));\n    vec3 e = textureAt(tex, coord);\n    vec3 f = textureAt(tex, coord + vec2(1, 0));\n\n    vec3 g = textureAt(tex, coord + vec2(-1, -1));\n    vec3 h = textureAt(tex, coord + vec2(0, -1));\n    vec3 i = textureAt(tex, coord + vec2(1, -1));\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d, e), min(f, b)), h);\n        vec3 minRgb2 = min(min(a, c), min(g, i));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d, e), max(f, b)), h);\n        vec3 maxRgb2 = max(max(a, c), max(g, i));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //                0 w 0\n        // Filter shape:  w 1 w\n        //                0 w 0\n        vec3 window = (b + d) + (f + h);\n        vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e, outColor, sharpenFactor / 2.0);\n\n        return outColor;\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor / 3.0;\n    }\n\n    return e;\n}\n\nvec3 adjustBrightness(vec3 color) {\n    return (1.0 + brightness) * color;\n}\n\nvec3 adjustContrast(vec3 color) {\n    return 0.5 + (1.0 + contrast) * (color - 0.5);\n}\n\nvec3 adjustSaturation(vec3 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color, luminosityFactor));\n\n    return mix(grayscale, color, 1.0 + saturation);\n}\n\nvoid main() {\n    vec3 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = vec4(color, 1.0);\n}\n";
-var LOG_TAG7 = "WebGL2Player";
+var LOG_TAG6 = "WebGL2Player";
 class WebGL2Player {
   #$video;
   #$canvas;
@@ -6757,7 +6343,7 @@ class WebGL2Player {
   };
   #animFrameId = null;
   constructor($video) {
-    BxLogger.info(LOG_TAG7, "Initialize"), this.#$video = $video;
+    BxLogger.info(LOG_TAG6, "Initialize"), this.#$video = $video;
     const $canvas = document.createElement("canvas");
     $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.#$canvas = $canvas, this.#setupShaders(), this.#setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
   }
@@ -6801,7 +6387,7 @@ class WebGL2Player {
       }, this.#animFrameId = requestAnimationFrame(animate);
   }
   #setupShaders() {
-    BxLogger.info(LOG_TAG7, "Setting up", getPref("video_power_preference"));
+    BxLogger.info(LOG_TAG6, "Setting up", getPref("video_power_preference"));
     const gl = this.#$canvas.getContext("webgl", {
       isBx: !0,
       antialias: !0,
@@ -6835,17 +6421,17 @@ class WebGL2Player {
     this.#resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
   }
   resume() {
-    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG7, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
+    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG6, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
   }
   stop() {
-    if (BxLogger.info(LOG_TAG7, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
+    if (BxLogger.info(LOG_TAG6, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
       if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.#$video.cancelVideoFrameCallback(this.#animFrameId);
       else cancelAnimationFrame(this.#animFrameId);
       this.#animFrameId = null;
     }
   }
   destroy() {
-    BxLogger.info(LOG_TAG7, "Destroy"), this.stop();
+    BxLogger.info(LOG_TAG6, "Destroy"), this.stop();
     const gl = this.#gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
@@ -6948,11 +6534,10 @@ class StreamPlayer {
       const options = this.#options, webGL2Player = this.#webGL2Player;
       if (options.processing === "usm") webGL2Player.setFilter(1);
       else webGL2Player.setFilter(2);
-      Screenshot.updateCanvasFilters("none"), webGL2Player.setSharpness(options.sharpness || 0), webGL2Player.setSaturation(options.saturation || 100), webGL2Player.setContrast(options.contrast || 100), webGL2Player.setBrightness(options.brightness || 100);
+      webGL2Player.setSharpness(options.sharpness || 0), webGL2Player.setSaturation(options.saturation || 100), webGL2Player.setContrast(options.contrast || 100), webGL2Player.setBrightness(options.brightness || 100);
     } else {
       let filters = this.#getVideoPlayerFilterStyle(), videoCss = "";
       if (filters) videoCss += `filter: ${filters} !important;`;
-      if (getPref("screenshot_apply_filters")) Screenshot.updateCanvasFilters(filters);
       let css = "";
       if (videoCss) css = `#game-stream video { ${videoCss} }`;
       this.#$videoCss.textContent = css;
@@ -7084,329 +6669,6 @@ function patchCanvasContext() {
     }
     return nativeGetContext.apply(this, [contextType, contextAttributes]);
   };
-}
-function patchPointerLockApi() {
-  Object.defineProperty(document, "fullscreenElement", {
-    configurable: !0,
-    get() {
-      return document.documentElement;
-    }
-  }), HTMLElement.prototype.requestFullscreen = function(options) {
-    return Promise.resolve();
-  };
-  let pointerLockElement = null;
-  Object.defineProperty(document, "pointerLockElement", {
-    configurable: !0,
-    get() {
-      return pointerLockElement;
-    }
-  }), HTMLElement.prototype.requestPointerLock = function() {
-    pointerLockElement = document.documentElement, window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_REQUESTED));
-  }, Document.prototype.exitPointerLock = function() {
-    pointerLockElement = null, window.dispatchEvent(new Event(BxEvent.POINTER_LOCK_EXITED));
-  };
-}
-class BaseGameBarAction {
-  constructor() {}
-  reset() {}
-}
-class ScreenshotAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), Screenshot.takeScreenshot();
-    };
-    this.$content = createButton({
-      style: 4,
-      icon: BxIcon.SCREENSHOT,
-      title: t("take-screenshot"),
-      onClick
-    });
-  }
-  render() {
-    return this.$content;
-  }
-}
-class TouchControlAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const $parent = e.target.closest("div[data-enabled]");
-      let enabled = $parent.getAttribute("data-enabled", "true") === "true";
-      $parent.setAttribute("data-enabled", (!enabled).toString()), TouchController.toggleVisibility(enabled);
-    }, $btnEnable = createButton({
-      style: 4,
-      icon: BxIcon.TOUCH_CONTROL_ENABLE,
-      title: t("show-touch-controller"),
-      onClick
-    }), $btnDisable = createButton({
-      style: 4,
-      icon: BxIcon.TOUCH_CONTROL_DISABLE,
-      title: t("hide-touch-controller"),
-      onClick,
-      classes: ["bx-activated"]
-    });
-    this.$content = CE("div", {}, $btnEnable, $btnDisable), this.reset();
-  }
-  render() {
-    return this.$content;
-  }
-  reset() {
-    this.$content.setAttribute("data-enabled", "true");
-  }
-}
-class MicrophoneAction extends BaseGameBarAction {
-  $content;
-  visible = !1;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const enabled = MicrophoneShortcut.toggle(!1);
-      this.$content.setAttribute("data-enabled", enabled.toString());
-    }, $btnDefault = createButton({
-      style: 4,
-      icon: BxIcon.MICROPHONE,
-      onClick,
-      classes: ["bx-activated"]
-    }), $btnMuted = createButton({
-      style: 4,
-      icon: BxIcon.MICROPHONE_MUTED,
-      onClick
-    });
-    this.$content = CE("div", {}, $btnDefault, $btnMuted), this.reset(), window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
-      const enabled = e.microphoneState === "Enabled";
-      this.$content.setAttribute("data-enabled", enabled.toString()), this.$content.classList.remove("bx-gone");
-    });
-  }
-  render() {
-    return this.$content;
-  }
-  reset() {
-    this.visible = !1, this.$content.classList.add("bx-gone"), this.$content.setAttribute("data-enabled", "false");
-  }
-}
-class TrueAchievementsAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), TrueAchievements.open(!1);
-    };
-    this.$content = createButton({
-      style: 4,
-      icon: BxIcon.TRUE_ACHIEVEMENTS,
-      title: t("true-achievements"),
-      onClick
-    });
-  }
-  render() {
-    return this.$content;
-  }
-}
-class SpeakerAction extends BaseGameBarAction {
-  $content;
-  constructor() {
-    super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), SoundShortcut.muteUnmute();
-    }, $btnEnable = createButton({
-      style: 4,
-      icon: BxIcon.AUDIO,
-      onClick
-    }), $btnMuted = createButton({
-      style: 4,
-      icon: BxIcon.SPEAKER_MUTED,
-      onClick,
-      classes: ["bx-activated"]
-    });
-    this.$content = CE("div", {}, $btnEnable, $btnMuted), this.reset(), window.addEventListener(BxEvent.SPEAKER_STATE_CHANGED, (e) => {
-      const enabled = e.speakerState === 0;
-      this.$content.dataset.enabled = enabled.toString();
-    });
-  }
-  render() {
-    return this.$content;
-  }
-  reset() {
-    this.$content.dataset.enabled = "true";
-  }
-}
-class GameBar {
-  static instance;
-  static getInstance() {
-    if (!GameBar.instance) GameBar.instance = new GameBar;
-    return GameBar.instance;
-  }
-  static VISIBLE_DURATION = 2000;
-  $gameBar;
-  $container;
-  timeout = null;
-  actions = [];
-  constructor() {
-    let $container;
-    const position = getPref("game_bar_position"), $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
-    if (this.actions = [
-      new ScreenshotAction,
-      ...STATES.userAgent.capabilities.touch && getPref("stream_touch_controller") !== "off" ? [new TouchControlAction] : [],
-      new SpeakerAction,
-      new MicrophoneAction,
-      new TrueAchievementsAction
-    ], position === "bottom-right")
-      this.actions.reverse();
-    for (let action of this.actions)
-      $container.appendChild(action.render());
-    $gameBar.addEventListener("click", (e) => {
-      if (e.target !== $gameBar) return;
-      $container.classList.contains("bx-show") ? this.hideBar() : this.showBar();
-    }), window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this)), $container.addEventListener("pointerover", this.clearHideTimeout.bind(this)), $container.addEventListener("pointerout", this.beginHideTimeout.bind(this)), $container.addEventListener("transitionend", (e) => {
-      const classList = $container.classList;
-      if (classList.contains("bx-hide")) classList.remove("bx-hide"), classList.add("bx-offscreen");
-    }), document.documentElement.appendChild($gameBar), this.$gameBar = $gameBar, this.$container = $container, getPref("game_bar_position") !== "off" && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e) => {
-      if (!STATES.isPlaying) {
-        this.disable();
-        return;
-      }
-      e.mode !== "none" ? this.disable() : this.enable();
-    }).bind(this));
-  }
-  beginHideTimeout() {
-    this.clearHideTimeout(), this.timeout = window.setTimeout(() => {
-      this.timeout = null, this.hideBar();
-    }, GameBar.VISIBLE_DURATION);
-  }
-  clearHideTimeout() {
-    this.timeout && clearTimeout(this.timeout), this.timeout = null;
-  }
-  enable() {
-    this.$gameBar && this.$gameBar.classList.remove("bx-gone");
-  }
-  disable() {
-    this.hideBar(), this.$gameBar && this.$gameBar.classList.add("bx-gone");
-  }
-  showBar() {
-    if (!this.$container) return;
-    this.$container.classList.remove("bx-offscreen", "bx-hide", "bx-gone"), this.$container.classList.add("bx-show"), this.beginHideTimeout();
-  }
-  hideBar() {
-    if (this.clearHideTimeout(), clearFocus(), !this.$container) return;
-    this.$container.classList.remove("bx-show"), this.$container.classList.add("bx-hide");
-  }
-  reset() {
-    for (let action of this.actions)
-      action.reset();
-  }
-}
-class XcloudApi {
-  static instance;
-  static getInstance() {
-    if (!XcloudApi.instance) XcloudApi.instance = new XcloudApi;
-    return XcloudApi.instance;
-  }
-  #CACHE_TITLES = {};
-  #CACHE_WAIT_TIME = {};
-  async getTitleInfo(id2) {
-    if (id2 in this.#CACHE_TITLES) return this.#CACHE_TITLES[id2];
-    const baseUri = STATES.selectedRegion.baseUri;
-    if (!baseUri || !STATES.gsToken) return null;
-    let json;
-    try {
-      json = (await (await NATIVE_FETCH(`${baseUri}/v2/titles`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${STATES.gsToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          alternateIds: [id2],
-          alternateIdType: "productId"
-        })
-      })).json()).results[0];
-    } catch (e) {
-      json = {};
-    }
-    return this.#CACHE_TITLES[id2] = json, json;
-  }
-  async getWaitTime(id2) {
-    if (id2 in this.#CACHE_WAIT_TIME) return this.#CACHE_WAIT_TIME[id2];
-    const baseUri = STATES.selectedRegion.baseUri;
-    if (!baseUri || !STATES.gsToken) return null;
-    let json;
-    try {
-      json = await (await NATIVE_FETCH(`${baseUri}/v1/waittime/${id2}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${STATES.gsToken}`
-        }
-      })).json();
-    } catch (e) {
-      json = {};
-    }
-    return this.#CACHE_WAIT_TIME[id2] = json, json;
-  }
-}
-class GameTile {
-  static #timeout;
-  static #secondsToHms(seconds) {
-    let h = Math.floor(seconds / 3600);
-    seconds %= 3600;
-    let m = Math.floor(seconds / 60), s = seconds % 60;
-    const output = [];
-    if (h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), s > 0 || output.length === 0) output.push(`${s}s`);
-    return output.join(" ");
-  }
-  static async#showWaitTime($elm, productId) {
-    if ($elm.hasWaitTime) return;
-    $elm.hasWaitTime = !0;
-    let totalWaitTime;
-    const api = XcloudApi.getInstance(), info = await api.getTitleInfo(productId);
-    if (info) {
-      const waitTime = await api.getWaitTime(info.titleId);
-      if (waitTime) totalWaitTime = waitTime.estimatedAllocationTimeInSeconds;
-    }
-    if (typeof totalWaitTime === "number" && isElementVisible($elm)) {
-      const $div = CE("div", { class: "bx-game-tile-wait-time" }, createSvgIcon(BxIcon.PLAYTIME), CE("span", {}, GameTile.#secondsToHms(totalWaitTime)));
-      $elm.insertAdjacentElement("afterbegin", $div);
-    }
-  }
-  static #requestWaitTime($elm, productId) {
-    GameTile.#timeout && clearTimeout(GameTile.#timeout), GameTile.#timeout = window.setTimeout(async () => {
-      GameTile.#showWaitTime($elm, productId);
-    }, 500);
-  }
-  static #findProductId($elm) {
-    let productId = null;
-    try {
-      if ($elm.tagName === "BUTTON" && $elm.className.includes("MruGameCard") || $elm.tagName === "A" && $elm.className.includes("GameCard")) {
-        let props = getReactProps($elm.parentElement);
-        if (Array.isArray(props.children)) productId = props.children[0].props.productId;
-        else productId = props.children.props.productId;
-      } else if ($elm.tagName === "A" && $elm.className.includes("GameItem")) {
-        let props = getReactProps($elm.parentElement);
-        if (props = props.children.props, props.location !== "NonStreamableGameItem") if ("productId" in props) productId = props.productId;
-          else productId = props.children.props.productId;
-      }
-    } catch (e) {}
-    return productId;
-  }
-  static setup() {
-    window.addEventListener(BxEvent.NAVIGATION_FOCUS_CHANGED, (e) => {
-      const $elm = e.element;
-      if (($elm.className || "").includes("MruGameCard")) {
-        const $ol = $elm.closest("ol");
-        if ($ol && !$ol.hasWaitTime) $ol.hasWaitTime = !0, $ol.querySelectorAll("button[class*=MruGameCard]").forEach(($elm2) => {
-            const productId = GameTile.#findProductId($elm2);
-            productId && GameTile.#showWaitTime($elm2, productId);
-          });
-      } else {
-        const productId = GameTile.#findProductId($elm);
-        productId && GameTile.#requestWaitTime($elm, productId);
-      }
-    });
-  }
 }
 class ProductDetailsPage {
   static $btnShortcut = AppInterface && createButton({
@@ -7569,7 +6831,7 @@ class XboxApi {
 }
 function unload() {
   if (!STATES.isPlaying) return;
-  EmulatedMkbHandler.getInstance().destroy(), NativeMkbHandler.getInstance().destroy(), STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1, NavigationDialogManager.getInstance().hide(), StreamStats.getInstance().onStoppedPlaying(), MouseCursorHider.stop(), TouchController.reset(), GameBar.getInstance().disable();
+  STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1, NavigationDialogManager.getInstance().hide(), StreamStats.getInstance().onStoppedPlaying();
 }
 function observeRootDialog($root) {
   let beingShown = !1;
@@ -7601,11 +6863,8 @@ function waitForRootDialog() {
   observer.observe(document.documentElement, { subtree: !0, childList: !0 });
 }
 function main() {
-  if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
-  if (waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
-  if (getPref("stream_touch_controller") === "all") TouchController.setup();
-  if (getPref("mkb_enabled") && AppInterface) STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
-  if (getPref("ui_game_card_show_wait_time") && GameTile.setup(), EmulatedMkbHandler.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
+  if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
+  if (waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
 }
 if (window.location.pathname.includes("/auth/msa")) {
   const nativePushState = window.history.pushState;
@@ -7619,22 +6878,6 @@ if (window.location.pathname.includes("/auth/msa")) {
   }, new Error("[Better xCloud] Refreshing the page after logging in");
 }
 BxLogger.info("readyState", document.readyState);
-if (BX_FLAGS.SafariWorkaround && document.readyState !== "loading") {
-  window.stop();
-  let css = "";
-  css += '.bx-reload-overlay{position:fixed;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;background:rgba(0,0,0,0.8);z-index:9999;color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem}.bx-reload-overlay *:focus{outline:none !important}.bx-reload-overlay > div{margin:0 auto}.bx-reload-overlay a{text-decoration:none;display:inline-block;background:#107c10;color:#fff;border-radius:4px;padding:6px}';
-  const isSafari = UserAgent.isSafari();
-  let $secondaryAction;
-  if (isSafari) $secondaryAction = CE("p", {}, t("settings-reloading"));
-  else $secondaryAction = CE("a", {
-      href: "https://better-xcloud.github.io/troubleshooting",
-      target: "_blank"
-    }, "🤓 " + t("how-to-fix"));
-  const $fragment = document.createDocumentFragment();
-  throw $fragment.appendChild(CE("style", {}, css)), $fragment.appendChild(CE("div", {
-    class: "bx-reload-overlay"
-  }, CE("div", {}, CE("p", {}, t("load-failed-message")), $secondaryAction))), document.documentElement.appendChild($fragment), isSafari && window.location.reload(!0), new Error("[Better xCloud] Executing workaround for Safari");
-}
 window.addEventListener("load", (e) => {
   window.setTimeout(() => {
     if (document.body.classList.contains("legacyBackground")) window.stop(), window.location.reload(!0);
@@ -7670,15 +6913,7 @@ window.addEventListener(BxEvent.STREAM_STARTING, (e) => {
   if (LoadingScreen.hide(), !getPref("mkb_enabled") && getPref("mkb_hide_idle_cursor")) MouseCursorHider.start(), MouseCursorHider.hide();
 });
 window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-  if (STATES.isPlaying = !0, StreamUiHandler.observe(), getPref("game_bar_position") !== "off") {
-    const gameBar = GameBar.getInstance();
-    gameBar.reset(), gameBar.enable(), gameBar.showBar();
-  }
-  {
-    const $video = e.$video;
-    Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight);
-  }
-  updateVideoPlayer();
+  STATES.isPlaying = !0, StreamUiHandler.observe(), updateVideoPlayer();
 });
 window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
@@ -7705,8 +6940,5 @@ window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
 window.addEventListener(BxEvent.STREAM_STOPPED, unload);
 window.addEventListener("pagehide", (e) => {
   BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
-});
-window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
-  Screenshot.takeScreenshot();
 });
 main();
