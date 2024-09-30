@@ -1,5 +1,5 @@
 import { BxIcon } from "./bx-icon";
-import { AppInterface, STATES } from "./global";
+import { AppInterface, SCRIPT_VARIANT, STATES } from "./global";
 import { ButtonStyle, CE, clearDataSet, createButton, getReactProps } from "./html";
 import { t } from "./translation";
 
@@ -27,7 +27,7 @@ export class TrueAchievements {
         TrueAchievements.open(true, dataset.xboxTitleId, dataset.id);
 
         // Close all xCloud's dialogs
-        window.BX_EXPOSED.dialogRoutes.closeAll();
+        window.BX_EXPOSED.dialogRoutes?.closeAll();
     }
 
     private static $hiddenLink = CE<HTMLAnchorElement>('a', {
@@ -53,6 +53,11 @@ export class TrueAchievements {
     }
 
     static injectAchievementsProgress($elm: HTMLElement) {
+        // Only do this in Full version
+        if (SCRIPT_VARIANT !== 'full') {
+            return;
+        }
+
         const $parent = $elm.parentElement!;
 
         // Wrap xCloud's element with our own
@@ -89,6 +94,11 @@ export class TrueAchievements {
     }
 
     static injectAchievementDetailPage($parent: HTMLElement) {
+        // Only do this in Full version
+        if (SCRIPT_VARIANT !== 'full') {
+            return;
+        }
+
         const props = getReactProps($parent);
         if (!props) {
             return;

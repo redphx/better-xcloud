@@ -31,7 +31,7 @@ export class Screenshot {
     }
 
     static updateCanvasFilters(filters: string) {
-        Screenshot.#canvasContext.filter = filters;
+        Screenshot.#canvasContext && (Screenshot.#canvasContext.filter = filters);
     }
 
     static #onAnimationEnd(e: Event) {

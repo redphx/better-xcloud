@@ -1,3 +1,5 @@
+import { isFullVersion } from "@macros/build" with {type: "macro"};
+
 import { BxEvent } from "@/utils/bx-event";
 import { AppInterface, STATES } from "@/utils/global";
 import { createButton, ButtonStyle, CE } from "@/utils/html";
@@ -22,7 +24,7 @@ export class GuideMenu {
                 }, {once: true});
 
                 // Close all xCloud's dialogs
-                window.BX_EXPOSED.dialogRoutes.closeAll();
+                GuideMenu.#closeGuideMenu();
             },
         }),
 
@@ -53,7 +55,7 @@ export class GuideMenu {
                 }
 
                 // Close all xCloud's dialogs
-                window.BX_EXPOSED.dialogRoutes.closeAll();
+                GuideMenu.#closeGuideMenu();
             },
         }),
 
@@ -66,7 +68,7 @@ export class GuideMenu {
                 confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
 
                 // Close all xCloud's dialogs
-                window.BX_EXPOSED.dialogRoutes.closeAll();
+                GuideMenu.#closeGuideMenu();
             },
             attributes: {
                 'data-state': 'playing',
@@ -75,6 +77,17 @@ export class GuideMenu {
     }
 
     static #$renderedButtons: HTMLElement;
+
+    static #closeGuideMenu() {
+        if (window.BX_EXPOSED.dialogRoutes) {
+            window.BX_EXPOSED.dialogRoutes.closeAll();
+            return;
+        }
+
+        // Use alternative method for Lite version
+        const $btnClose = document.querySelector('#gamepass-dialog-root button[class^=Header-module__closeButton]') as HTMLElement;
+        $btnClose && $btnClose.click();
+    }
 
     static #renderButtons() {
         if (GuideMenu.#$renderedButtons) {
@@ -115,9 +128,11 @@ export class GuideMenu {
     }
 
     static #injectHome($root: HTMLElement, isPlaying = false) {
-        const $achievementsProgress = $root.querySelector('button[class*=AchievementsButton-module__progressBarContainer]');
-        if ($achievementsProgress) {
-            TrueAchievements.injectAchievementsProgress($achievementsProgress as HTMLElement);
+        if (isFullVersion()) {
+            const $achievementsProgress = $root.querySelector('button[class*=AchievementsButton-module__progressBarContainer]');
+            if ($achievementsProgress) {
+                TrueAchievements.injectAchievementsProgress($achievementsProgress as HTMLElement);
+            }
         }
 
         // Find the element to add buttons to
@@ -162,7 +177,7 @@ export class GuideMenu {
     static observe($addedElm: HTMLElement) {
         const className = $addedElm.className;
 
-        if (className.includes('AchievementsButton-module__progressBarContainer')) {
+        if (isFullVersion() && className.includes('AchievementsButton-module__progressBarContainer')) {
             TrueAchievements.injectAchievementsProgress($addedElm);
             return;
         }
@@ -174,10 +189,12 @@ export class GuideMenu {
         }
 
         // Achievement Details page
-        const $achievDetailPage = $addedElm.querySelector('div[class*=AchievementDetailPage]');
-        if ($achievDetailPage) {
-            TrueAchievements.injectAchievementDetailPage($achievDetailPage as HTMLElement);
-            return;
+        if (isFullVersion()) {
+            const $achievDetailPage = $addedElm.querySelector('div[class*=AchievementDetailPage]');
+            if ($achievDetailPage) {
+                TrueAchievements.injectAchievementDetailPage($achievDetailPage as HTMLElement);
+                return;
+            }
         }
 
         // Find navigation bar

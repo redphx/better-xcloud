@@ -197,6 +197,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.SCREENSHOT_APPLY_FILTERS]: {
+            requiredVariants: 'full',
             label: t('screenshot-apply-filters'),
             default: false,
         },
@@ -211,6 +212,8 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.STREAM_COMBINE_SOURCES]: {
+            requiredVariants: 'full',
+
             label: t('combine-audio-video-streams'),
             default: false,
             experimental: true,
@@ -218,6 +221,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.STREAM_TOUCH_CONTROLLER]: {
+            requiredVariants: 'full',
             label: t('tc-availability'),
             default: StreamTouchController.ALL,
             options: {
@@ -233,11 +237,13 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             },
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF]: {
+            requiredVariants: 'full',
             label: t('tc-auto-off'),
             default: false,
             unsupported: !STATES.userAgent.capabilities.touch,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_DEFAULT_OPACITY]: {
+            requiredVariants: 'full',
             type: SettingElementType.NUMBER_STEPPER,
             label: t('tc-default-opacity'),
             default: 100,
@@ -252,6 +258,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             unsupported: !STATES.userAgent.capabilities.touch,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_STANDARD]: {
+            requiredVariants: 'full',
             label: t('tc-standard-layout-style'),
             default: 'default',
             options: {
@@ -262,6 +269,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             unsupported: !STATES.userAgent.capabilities.touch,
         },
         [PrefKey.STREAM_TOUCH_CONTROLLER_STYLE_CUSTOM]: {
+            requiredVariants: 'full',
             label: t('tc-custom-layout-style'),
             default: 'default',
             options: {
@@ -276,15 +284,18 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: false,
         },
         [PrefKey.MKB_HIDE_IDLE_CURSOR]: {
+            requiredVariants: 'full',
             label: t('hide-idle-cursor'),
             default: false,
         },
         [PrefKey.STREAM_DISABLE_FEEDBACK_DIALOG]: {
+            requiredVariants: 'full',
             label: t('disable-post-stream-feedback-dialog'),
             default: false,
         },
 
         [PrefKey.BITRATE_VIDEO_MAX]: {
+            requiredVariants: 'full',
             type: SettingElementType.NUMBER_STEPPER,
             label: t('bitrate-video-maximum'),
             note: '⚠️ ' + t('unexpected-behavior'),
@@ -306,10 +317,11 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             },
             suggest: {
                 highest: 0,
-            }
+            },
         },
 
         [PrefKey.GAME_BAR_POSITION]: {
+            requiredVariants: 'full',
             label: t('position'),
             default: 'bottom-left',
             options: {
@@ -320,6 +332,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.LOCAL_CO_OP_ENABLED]: {
+            requiredVariants: 'full',
             label: t('enable-local-co-op-support'),
             default: false,
             note: CE<HTMLAnchorElement>('a', {
@@ -341,15 +354,18 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.CONTROLLER_ENABLE_SHORTCUTS]: {
+            requiredVariants: 'full',
             default: false,
         },
 
         [PrefKey.CONTROLLER_ENABLE_VIBRATION]: {
+            requiredVariants: 'full',
             label: t('controller-vibration'),
             default: true,
         },
 
         [PrefKey.CONTROLLER_DEVICE_VIBRATION]: {
+            requiredVariants: 'full',
             label: t('device-vibration'),
             default: ControllerDeviceVibration.OFF,
             options: {
@@ -360,6 +376,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.CONTROLLER_VIBRATION_INTENSITY]: {
+            requiredVariants: 'full',
             label: t('vibration-intensity'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 100,
@@ -373,6 +390,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.MKB_ENABLED]: {
+            requiredVariants: 'full',
             label: t('enable-mkb'),
             default: false,
             unsupported: ((): string | boolean => {
@@ -398,6 +416,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.NATIVE_MKB_ENABLED]: {
+            requiredVariants: 'full',
             label: t('native-mkb'),
             default: 'default',
             options: {
@@ -419,6 +438,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY]: {
+            requiredVariants: 'full',
             label: t('horizontal-scroll-sensitivity'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 0,
@@ -438,6 +458,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY]: {
+            requiredVariants: 'full',
             label: t('vertical-scroll-sensitivity'),
             type: SettingElementType.NUMBER_STEPPER,
             default: 0,
@@ -457,10 +478,12 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.MKB_DEFAULT_PRESET_ID]: {
+            requiredVariants: 'full',
             default: 0,
         },
 
         [PrefKey.MKB_ABSOLUTE_MOUSE]: {
+            requiredVariants: 'full',
             default: false,
         },
 
@@ -470,6 +493,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.UI_LOADING_SCREEN_GAME_ART]: {
+            requiredVariants: 'full',
             label: t('show-game-art'),
             default: true,
         },
@@ -493,6 +517,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.UI_LAYOUT]: {
+            requiredVariants: 'full',
             label: t('layout'),
             default: 'default',
             options: {
@@ -508,11 +533,13 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
+            requiredVariants: 'full',
             label: t('disable-home-context-menu'),
             default: STATES.browser.capabilities.touch,
         },
 
         [PrefKey.UI_HIDE_SECTIONS]: {
+            requiredVariants: 'full',
             label: t('hide-sections'),
             default: [],
             multipleOptions: {
@@ -529,6 +556,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME]: {
+            requiredVariants: 'full',
             label: t('show-wait-time-in-game-card'),
             default: false,
         },
@@ -663,6 +691,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: false,
         },
         [PrefKey.AUDIO_ENABLE_VOLUME_CONTROL]: {
+            requiredVariants: 'full',
             label: t('enable-volume-control'),
             default: false,
         },
@@ -743,11 +772,13 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.REMOTE_PLAY_ENABLED]: {
+            requiredVariants: 'full',
             label: t('enable-remote-play-feature'),
             default: false,
         },
 
         [PrefKey.REMOTE_PLAY_RESOLUTION]: {
+            requiredVariants: 'full',
             default: StreamResolution.DIM_1080P,
             options: {
                 [StreamResolution.DIM_1080P]: '1080p',
@@ -756,6 +787,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         },
 
         [PrefKey.GAME_FORTNITE_FORCE_CONSOLE]: {
+            requiredVariants: 'full',
             label: '🎮 ' + t('fortnite-force-console-version'),
             default: false,
             note: t('fortnite-allow-stw-mode'),

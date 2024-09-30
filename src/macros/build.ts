@@ -1,5 +1,13 @@
 import stylus from 'stylus';
 
+export const isFullVersion = () => {
+    return Bun.env.BUILD_VARIANT === 'full';
+};
+
+export const isLiteVersion = () => {
+    return Bun.env.BUILD_VARIANT === 'lite';
+};
+
 export const renderStylus = async () => {
     const file = Bun.file('./src/assets/css/styles.styl');
     const cssStr = await file.text();

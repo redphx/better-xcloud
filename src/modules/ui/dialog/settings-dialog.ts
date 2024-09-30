@@ -1,3 +1,5 @@
+import { isFullVersion } from "@macros/build" with {type: "macro"};
+
 import { onChangeVideoPlayerType, updateVideoPlayer } from "@/modules/stream/stream-settings-utils";
 import { ButtonStyle, CE, createButton, createSvgIcon, removeChildElements, type BxButton } from "@/utils/html";
 import { NavigationDialog, NavigationDirection } from "./navigation-dialog";
@@ -10,7 +12,7 @@ import { TouchController } from "@/modules/touch-controller";
 import { VibrationManager } from "@/modules/vibration-manager";
 import { BxEvent } from "@/utils/bx-event";
 import { BxIcon } from "@/utils/bx-icon";
-import { STATES, AppInterface, deepClone, SCRIPT_VERSION, STORAGE } from "@/utils/global";
+import { STATES, AppInterface, deepClone, SCRIPT_VERSION, STORAGE, SCRIPT_VARIANT } from "@/utils/global";
 import { t, Translations } from "@/utils/translation";
 import { BxSelectElement } from "@/web-components/bx-select";
 import { setNearby } from "@/utils/navigation-utils";
@@ -38,6 +40,7 @@ type SettingTabContentItem = Partial<{
     onChange: (e: any, value: number) => void;
     onCreated: (setting: SettingTabContentItem, $control: any) => void;
     params: any;
+    requiredVariants?: BuildVariant | Array<BuildVariant>;
 }>
 
 type SettingTabContent = {
@@ -48,12 +51,14 @@ type SettingTabContent = {
     helpUrl?: string;
     content?: any;
     items?: Array<SettingTabContentItem | PrefKey | (($parent: HTMLElement) => void) | false>;
+    requiredVariants?: BuildVariant | Array<BuildVariant>;
 };
 
 type SettingTab = {
     icon: SVGElement;
     group: 'global';
     items: Array<SettingTabContent | false>;
+    requiredVariants?: BuildVariant | Array<BuildVariant>;
 };
 
 export class SettingsNavigationDialog extends NavigationDialog {
@@ -205,12 +210,14 @@ export class SettingsNavigationDialog extends NavigationDialog {
             PrefKey.STREAM_COMBINE_SOURCES,
         ],
     }, {
+        requiredVariants: 'full',
         group: 'co-op',
         label: t('local-co-op'),
         items: [
             PrefKey.LOCAL_CO_OP_ENABLED,
         ],
     }, {
+        requiredVariants: 'full',
         group: 'mkb',
         label: t('mouse-and-keyboard'),
         items: [
@@ -219,6 +226,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
             PrefKey.MKB_HIDE_IDLE_CURSOR,
         ],
     }, {
+        requiredVariants: 'full',
         group: 'touch-control',
         label: t('touch-controller'),
         note: !STATES.userAgent.capabilities.touch ? '⚠️ ' + t('device-unsupported-touch') : null,
@@ -247,6 +255,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
             PrefKey.UI_HIDE_SECTIONS,
         ],
     }, {
+        requiredVariants: 'full',
         group: 'game-bar',
         label: t('game-bar'),
         items: [
@@ -357,6 +366,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
     }];
 
     private readonly TAB_DISPLAY_ITEMS: Array<SettingTabContent | false> = [{
+        requiredVariants: 'full',
         group: 'audio',
         label: t('audio'),
         helpUrl: 'https://better-xcloud.github.io/ingame-features/#audio',
@@ -503,14 +513,15 @@ export class SettingsNavigationDialog extends NavigationDialog {
     }];
 
     private readonly TAB_NATIVE_MKB_ITEMS: Array<SettingTabContent | false> = [{
+        requiredVariants: 'full',
         group: 'native-mkb',
         label: t('native-mkb'),
-        items: [{
+        items: [isFullVersion() && {
             pref: PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY,
             onChange: (e: any, value: number) => {
                 NativeMkbHandler.getInstance().setVerticalScrollMultiplier(value / 100);
             },
-        }, {
+        }, isFullVersion() && {
             pref: PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY,
             onChange: (e: any, value: number) => {
                 NativeMkbHandler.getInstance().setHorizontalScrollMultiplier(value / 100);
@@ -519,9 +530,10 @@ export class SettingsNavigationDialog extends NavigationDialog {
     }];
 
     private readonly TAB_SHORTCUTS_ITEMS: Array<SettingTabContent | false> = [{
+        requiredVariants: 'full',
         group: 'controller-shortcuts',
         label: t('controller-shortcuts'),
-        content: ControllerShortcut.renderSettings(),
+        content: isFullVersion() && ControllerShortcut.renderSettings(),
     }];
 
     private readonly TAB_STATS_ITEMS: Array<SettingTabContent | false> = [{
@@ -575,24 +587,28 @@ export class SettingsNavigationDialog extends NavigationDialog {
             icon: BxIcon.CONTROLLER,
             group: 'controller',
             items: this.TAB_CONTROLLER_ITEMS,
+            requiredVariants: 'full',
         },
 
         getPref(PrefKey.MKB_ENABLED) && {
             icon: BxIcon.VIRTUAL_CONTROLLER,
             group: 'mkb',
             items: this.TAB_VIRTUAL_CONTROLLER_ITEMS,
+            requiredVariants: 'full',
         },
 
         AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' && {
             icon: BxIcon.NATIVE_MKB,
             group: 'native-mkb',
             items: this.TAB_NATIVE_MKB_ITEMS,
+            requiredVariants: 'full',
         },
 
         {
             icon: BxIcon.COMMAND,
             group: 'shortcuts',
             items: this.TAB_SHORTCUTS_ITEMS,
+            requiredVariants: 'full',
         },
 
         {
@@ -713,6 +729,15 @@ export class SettingsNavigationDialog extends NavigationDialog {
                 }
             }
         }
+    }
+
+    private isSupportedVariant(requiredVariants: BuildVariant | Array<BuildVariant> | undefined) {
+        if (typeof requiredVariants === 'undefined') {
+            return true;
+        }
+
+        requiredVariants = typeof requiredVariants === 'string' ? [requiredVariants] : requiredVariants;
+        return requiredVariants.includes(SCRIPT_VARIANT);
     }
 
     private async renderSuggestions(e: Event) {
@@ -1101,6 +1126,10 @@ export class SettingsNavigationDialog extends NavigationDialog {
             prefDefinition = getPrefDefinition(pref);
         }
 
+        if (prefDefinition && !this.isSupportedVariant(prefDefinition.requiredVariants)) {
+            return;
+        }
+
         let label = prefDefinition?.label || setting.label;
         let note = prefDefinition?.note || setting.note;
         const experimental = prefDefinition?.experimental || setting.experimental;
@@ -1237,6 +1266,11 @@ export class SettingsNavigationDialog extends NavigationDialog {
                 continue;
             }
 
+            // Don't render unsupported build variant
+            if (!this.isSupportedVariant(settingTab.requiredVariants)) {
+                continue;
+            }
+
             // Don't render other tabs in unsupported regions
             if (settingTab.group !== 'global' && !this.renderFullSettings) {
                 continue;
@@ -1255,6 +1289,10 @@ export class SettingsNavigationDialog extends NavigationDialog {
                     continue;
                 }
 
+                if (!this.isSupportedVariant(settingTabContent.requiredVariants)) {
+                    continue;
+                }
+
                 // Don't render other settings in unsupported regions
                 if (!this.renderFullSettings && settingTab.group === 'global' && settingTabContent.group !== 'general' && settingTabContent.group !== 'footer') {
                     continue;
@@ -1265,6 +1303,11 @@ export class SettingsNavigationDialog extends NavigationDialog {
                 // If label is "Better xCloud" => create a link to Releases page
                 if (label === t('better-xcloud')) {
                     label += ' ' + SCRIPT_VERSION;
+
+                    if (SCRIPT_VARIANT === 'lite') {
+                        label += ' (Lite)';
+                    }
+
                     label = createButton({
                         label: label,
                         url: 'https://github.com/redphx/better-xcloud/releases',

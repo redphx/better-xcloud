@@ -24,6 +24,7 @@ export type SettingDefinition = {
     suggest: PartialRecord<SuggestedSettingCategory, any>,
     ready: (setting: SettingDefinition) => void;
     type: SettingElementType,
+    requiredVariants: BuildVariant | Array<BuildVariant>;
     // migrate?: (this: Preferences, savedPrefs: any, value: any) => void;
 }> & (
     {} | {

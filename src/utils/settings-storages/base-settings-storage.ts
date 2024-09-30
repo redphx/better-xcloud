@@ -3,6 +3,7 @@ import type { NumberStepperParams, SettingDefinitions } from "@/types/setting-de
 import { BxEvent } from "../bx-event";
 import { SettingElementType } from "../setting-element";
 import { t } from "../translation";
+import { SCRIPT_VARIANT } from "../global";
 
 export class BaseSettingsStore {
     private storage: Storage;
@@ -17,6 +18,11 @@ export class BaseSettingsStore {
         let settingId: keyof typeof definitions
         for (settingId in definitions) {
             const setting = definitions[settingId];
+
+            // Convert requiredVariants to array
+            if (typeof setting.requiredVariants === 'string') {
+                setting.requiredVariants = [setting.requiredVariants];
+            }
 
             /*
             if (setting.migrate && settingId in savedPrefs) {
@@ -58,9 +64,16 @@ export class BaseSettingsStore {
             return;
         }
 
+        const definition = this.definitions[key];
+
+        // Return default value if build variant is different
+        if (definition.requiredVariants && !definition.requiredVariants.includes(SCRIPT_VARIANT)) {
+            return definition.default;
+        }
+
         // Return default value if the feature is not supported
-        if (checkUnsupported && this.definitions[key].unsupported) {
-            return this.definitions[key].default;
+        if (checkUnsupported && definition.unsupported) {
+            return definition.default;
         }
 
         if (!(key in this.settings)) {

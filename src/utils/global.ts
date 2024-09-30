@@ -2,6 +2,7 @@ import type { BaseSettingsStore } from "./settings-storages/base-settings-storag
 import { UserAgent } from "./user-agent";
 
 export const SCRIPT_VERSION = Bun.env.SCRIPT_VERSION!;
+export const SCRIPT_VARIANT = Bun.env.BUILD_VARIANT! as BuildVariant;
 
 export const AppInterface = window.AppInterface;
 

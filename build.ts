@@ -5,6 +5,8 @@ import { sys } from "typescript";
 // @ts-ignore
 import txtScriptHeader from "./src/assets/header_script.txt" with { type: "text" };
 // @ts-ignore
+import txtScriptHeaderLite from "./src/assets/header_script.lite.txt" with { type: "text" };
+// @ts-ignore
 import txtMetaHeader from "./src/assets/header_meta.txt" with { type: "text" };
 import { assert } from "node:console";
 import { ESLint } from "eslint";
@@ -15,6 +17,8 @@ enum BuildTarget {
     MOBILE = 'mobile',
     WEBOS = 'webos',
 }
+
+type BuildVariant = 'full' | 'lite';
 
 const postProcess = (str: string): string => {
     // Unescape unicode charaters
@@ -80,7 +84,7 @@ const postProcess = (str: string): string => {
     return str;
 }
 
-const build = async (target: BuildTarget, version: string, config: any={}) => {
+const build = async (target: BuildTarget, version: string, variant: BuildVariant, config: any={}) => {
     console.log('-- Target:', target);
     const startTime = performance.now();
 
@@ -88,6 +92,11 @@ const build = async (target: BuildTarget, version: string, config: any={}) => {
     if (target !== BuildTarget.ALL) {
         outputScriptName += `.${target}`;
     }
+
+    if (variant !== 'full') {
+        outputScriptName += `.${variant}`;
+    }
+
     let outputMetaName = outputScriptName;
     outputScriptName += '.user.js';
     outputMetaName += '.meta.js';
@@ -103,6 +112,7 @@ const build = async (target: BuildTarget, version: string, config: any={}) => {
         },
         define: {
             'Bun.env.BUILD_TARGET': JSON.stringify(target),
+            'Bun.env.BUILD_VARIANT': JSON.stringify(variant),
             'Bun.env.SCRIPT_VERSION': JSON.stringify(version),
         },
     });
@@ -117,7 +127,13 @@ const build = async (target: BuildTarget, version: string, config: any={}) => {
     let result = postProcess(await readFile(path, 'utf-8'));
 
     // Replace [[VERSION]] with real value
-    const scriptHeader = txtScriptHeader.replace('[[VERSION]]', version);
+    let scriptHeader: string;
+    if (variant === 'full') {
+        scriptHeader = txtScriptHeader;
+    } else {
+        scriptHeader = txtScriptHeaderLite;
+    }
+    scriptHeader = scriptHeader.replace('[[VERSION]]', version);
 
     // Save to script
     await Bun.write(path, scriptHeader + result);
@@ -148,25 +164,40 @@ const buildTargets = [
 const { values, positionals } = parseArgs({
     args: Bun.argv,
     options: {
-      version: {
-        type: 'string',
+        version: {
+            type: 'string',
+        },
 
-      },
+        variant: {
+            type: 'string',
+            default: 'full',
+        },
     },
     strict: true,
     allowPositionals: true,
-  });
+}) as {
+    values: {
+        version: string,
+        variant: BuildVariant,
+    },
+    positionals: string[],
+};
 
 if (!values['version']) {
     console.log('Missing --version param');
     sys.exit(-1);
 }
 
+if (values['variant'] !== 'full' && values['variant'] !== 'lite') {
+    console.log('--variant param must be either "full" or "lite"');
+    sys.exit(-1);
+}
+
 async function main() {
     const config = {};
-    console.log('Building: ', values['version']);
+    console.log(`Building: VERSION=${values['version']}, VARIANT=${values['variant']}`);
     for (const target of buildTargets) {
-        await build(target, values['version']!!, config);
+        await build(target, values['version']!!, values['variant'], config);
     }
 
     console.log('\n** Press Enter to build or Esc to exit');

@@ -1,7 +1,9 @@
+type BuildVariant = 'full' | 'lite';
+
 // Get type of an array's element
 type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 
-type PartialRecord<K extends keyof any, T> = Partial<Record<K, T>>
+type PartialRecord<K extends keyof any, T> = Partial<Record<K, T>>;
 
 interface Window {
     AppInterface: any;

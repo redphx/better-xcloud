@@ -1,0 +1,13 @@
+// ==UserScript==
+// @name         Better xCloud (Lite)
+// @namespace    https://github.com/redphx
+// @version      [[VERSION]]
+// @description  Improve Xbox Cloud Gaming (xCloud) experience
+// @author       redphx
+// @license      MIT
+// @match        https://www.xbox.com/*/play*
+// @match        https://www.xbox.com/*/auth/msa?*loggedIn*
+// @run-at       document-end
+// @grant        none
+// ==/UserScript==
+"use strict";

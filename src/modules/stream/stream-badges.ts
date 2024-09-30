@@ -1,9 +1,12 @@
+import { isLiteVersion } from "@macros/build" with {type: "macro"};
+
 import { t } from "@utils/translation";
 import { BxEvent } from "@utils/bx-event";
 import { CE, createSvgIcon } from "@utils/html";
 import { STATES } from "@utils/global";
 import { BxLogger } from "@/utils/bx-logger";
 import { BxIcon } from "@/utils/bx-icon";
+import { GuideMenuTab } from "../ui/guide-menu";
 
 enum StreamBadge {
     PLAYTIME = 'playtime',
@@ -344,24 +347,20 @@ export class StreamBadges {
             } catch(e) {}
         });
 
-        /*
-        Don't do this until xCloud remove the Stream Menu page
+        // Since the Lite version doesn't have the "..." button on System menu
+        // we need to display Stream badges in the Guide menu instead
+        isLiteVersion() && window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, async e => {
+            const where = (e as any).where as GuideMenuTab;
 
-        window.addEventListener(BxEvent.XCLOUD_GUIDE_SHOWN, async e => {
-            const where = (e as any).where as XcloudGuideWhere;
-
-            if (where !== XcloudGuideWhere.HOME || !STATES.isPlaying) {
+            if (where !== GuideMenuTab.HOME || !STATES.isPlaying) {
                 return;
             }
 
             const $btnQuit = document.querySelector('#gamepass-dialog-root a[class*=QuitGameButton]');
-            if (!$btnQuit) {
-                return;
+            if ($btnQuit) {
+                // Add badges
+                $btnQuit.insertAdjacentElement('beforebegin', await StreamBadges.getInstance().render());
             }
-
-            // Add badges
-            $btnQuit.insertAdjacentElement('beforebegin', await StreamBadges.getInstance().render());
         });
-        */
     }
 }

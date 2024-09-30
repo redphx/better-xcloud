@@ -2,6 +2,7 @@
   "name": "better-xcloud",
   "module": "src/index.ts",
   "type": "module",
+  "sideEffects": false,
   "browserslist": [
     "Chrome >= 80"
   ],
