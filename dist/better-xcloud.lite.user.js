@@ -1028,8 +1028,8 @@ class BaseSettingsStore {
     else if ("multipleOptions" in def) {
       if (value.length) {
         const validOptions = Object.keys(def.multipleOptions);
-        value.forEach((item2, idx) => {
-          validOptions.indexOf(item2) === -1 && value.splice(idx, 1);
+        value.forEach((item, idx) => {
+          validOptions.indexOf(item) === -1 && value.splice(idx, 1);
         });
       }
       if (!value.length) value = def.default;
@@ -1930,30 +1930,30 @@ class LocalDb {
   #delete(table, data) {
     return this.#call(table.delete, ...arguments);
   }
-  #get(table, id2) {
+  #get(table, id) {
     return this.#call(table.get, ...arguments);
   }
   #getAll(table) {
     return this.#call(table.getAll, ...arguments);
   }
   newPreset(name, data) {
-    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#add(table, { name, data })).then(([table, id2]) => new Promise((resolve) => resolve(id2)));
+    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#add(table, { name, data })).then(([table, id]) => new Promise((resolve) => resolve(id)));
   }
   updatePreset(preset) {
-    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#put(table, preset)).then(([table, id2]) => new Promise((resolve) => resolve(id2)));
+    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#put(table, preset)).then(([table, id]) => new Promise((resolve) => resolve(id)));
   }
-  deletePreset(id2) {
-    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#delete(table, id2)).then(([table, id3]) => new Promise((resolve) => resolve(id3)));
+  deletePreset(id) {
+    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#delete(table, id)).then(([table, id2]) => new Promise((resolve) => resolve(id2)));
   }
-  getPreset(id2) {
-    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#get(table, id2)).then(([table, preset]) => new Promise((resolve) => resolve(preset)));
+  getPreset(id) {
+    return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#get(table, id)).then(([table, preset]) => new Promise((resolve) => resolve(preset)));
   }
   getPresets() {
     return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#count(table)).then(([table, count]) => {
       if (count > 0) return new Promise((resolve) => {
           this.#getAll(table).then(([table2, items]) => {
             const presets = {};
-            items.forEach((item2) => presets[item2.id] = item2), resolve(presets);
+            items.forEach((item) => presets[item.id] = item), resolve(presets);
           });
         });
       const preset = {
@@ -1961,8 +1961,8 @@ class LocalDb {
         data: MkbPreset.DEFAULT_PRESET
       };
       return new Promise((resolve) => {
-        this.#add(table, preset).then(([table2, id2]) => {
-          preset.id = id2, setPref("mkb_default_preset_id", id2), resolve({ [id2]: preset });
+        this.#add(table, preset).then(([table2, id]) => {
+          preset.id = id, setPref("mkb_default_preset_id", id), resolve({ [id]: preset });
         });
       });
     });
@@ -2730,11 +2730,11 @@ class MkbRemapper {
       let defaultPresetId;
       if (this.#STATE.currentPresetId === 0) this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.#STATE.currentPresetId, setPref("mkb_default_preset_id", defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
       else defaultPresetId = getPref("mkb_default_preset_id");
-      for (let id2 in presets) {
-        let name = presets[id2].name;
-        if (id2 === defaultPresetId) name = "🎮 " + name;
-        const $options = CE("option", { value: id2 }, name);
-        $options.selected = parseInt(id2) === this.#STATE.currentPresetId, $fragment.appendChild($options);
+      for (let id in presets) {
+        let name = presets[id].name;
+        if (id === defaultPresetId) name = "🎮 " + name;
+        const $options = CE("option", { value: id }, name);
+        $options.selected = parseInt(id) === this.#STATE.currentPresetId, $fragment.appendChild($options);
       }
       this.#$.presetsSelect.appendChild($fragment);
       const activated = defaultPresetId === this.#STATE.currentPresetId;
@@ -2771,7 +2771,7 @@ class MkbRemapper {
         const preset = this.#getCurrentPreset();
         let newName = promptNewName(preset.name);
         if (!newName || newName === preset.name) return;
-        preset.name = newName, LocalDb.INSTANCE.updatePreset(preset).then((id2) => this.#refresh());
+        preset.name = newName, LocalDb.INSTANCE.updatePreset(preset).then((id) => this.#refresh());
       }
     }), createButton({
       icon: BxIcon.NEW,
@@ -2780,8 +2780,8 @@ class MkbRemapper {
       onClick: (e) => {
         let newName = promptNewName("");
         if (!newName) return;
-        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
-          this.#STATE.currentPresetId = id2, this.#refresh();
+        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id) => {
+          this.#STATE.currentPresetId = id, this.#refresh();
         });
       }
     }), createButton({
@@ -2792,8 +2792,8 @@ class MkbRemapper {
         const preset = this.#getCurrentPreset();
         let newName = promptNewName(`${preset.name} (2)`);
         if (!newName) return;
-        LocalDb.INSTANCE.newPreset(newName, preset.data).then((id2) => {
-          this.#STATE.currentPresetId = id2, this.#refresh();
+        LocalDb.INSTANCE.newPreset(newName, preset.data).then((id) => {
+          this.#STATE.currentPresetId = id, this.#refresh();
         });
       }
     }), createButton({
@@ -2803,7 +2803,7 @@ class MkbRemapper {
       tabIndex: -1,
       onClick: (e) => {
         if (!confirm(t("confirm-delete-preset"))) return;
-        LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id2) => {
+        LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id) => {
           this.#STATE.currentPresetId = 0, this.#refresh();
         });
       }
@@ -2862,29 +2862,14 @@ class MkbRemapper {
       tabIndex: -1,
       onClick: (e) => {
         const updatedPreset = deepClone(this.#getCurrentPreset());
-        updatedPreset.data = this.#STATE.editingPresetData, LocalDb.INSTANCE.updatePreset(updatedPreset).then((id2) => {
-          if (id2 === getPref("mkb_default_preset_id")) EmulatedMkbHandler.getInstance().refreshPresetData();
+        updatedPreset.data = this.#STATE.editingPresetData, LocalDb.INSTANCE.updatePreset(updatedPreset).then((id) => {
+          if (id === getPref("mkb_default_preset_id")) EmulatedMkbHandler.getInstance().refreshPresetData();
           this.#toggleEditing(!1), this.#refresh();
         });
       }
     })));
     return this.#$.wrapper.appendChild($actionButtons), this.#toggleEditing(!1), this.#refresh(), this.#$.wrapper;
   }
-}
-function hashCode(str) {
-  let hash = 0;
-  for (let i = 0, len = str.length;i < len; i++) {
-    const chr = str.charCodeAt(i);
-    hash = (hash << 5) - hash + chr, hash |= 0;
-  }
-  return hash;
-}
-function renderString(str, obj) {
-  return str.replace(/\$\{.+?\}/g, (match) => {
-    const key = match.substring(2, match.length - 1);
-    if (key in obj) return obj[key];
-    return match;
-  });
 }
 function ceilToNearest(value, interval) {
   return Math.ceil(value / interval) * interval;
@@ -3289,13 +3274,6 @@ class BxSelectElement {
     }, $div;
   }
 }
-var controller_shortcuts_default = "if (window.BX_EXPOSED.disableGamepadPolling) {\n    this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(50) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, 50);\n    return;\n}\n\nconst currentGamepad = ${gamepadVar};\n\n// Share button on XS controller\nif (currentGamepad.buttons[17] && currentGamepad.buttons[17].pressed) {\n    window.dispatchEvent(new Event(BxEvent.CAPTURE_SCREENSHOT));\n}\n\nconst btnHome = currentGamepad.buttons[16];\nif (btnHome) {\n    if (!this.bxHomeStates) {\n        this.bxHomeStates = {};\n    }\n\n    let intervalMs = 0;\n    let hijack = false;\n\n    if (btnHome.pressed) {\n        hijack = true;\n        intervalMs = 16;\n        this.gamepadIsIdle.set(currentGamepad.index, false);\n\n        if (this.bxHomeStates[currentGamepad.index]) {\n            const lastTimestamp = this.bxHomeStates[currentGamepad.index].timestamp;\n\n            if (currentGamepad.timestamp !== lastTimestamp) {\n                this.bxHomeStates[currentGamepad.index].timestamp = currentGamepad.timestamp;\n\n                const handled = window.BX_EXPOSED.handleControllerShortcut(currentGamepad);\n                if (handled) {\n                    this.bxHomeStates[currentGamepad.index].shortcutPressed += 1;\n                }\n            }\n        } else {\n            // First time pressing > save current timestamp\n            window.BX_EXPOSED.resetControllerShortcut(currentGamepad.index);\n            this.bxHomeStates[currentGamepad.index] = {\n                shortcutPressed: 0,\n                timestamp: currentGamepad.timestamp,\n            };\n        }\n    } else if (this.bxHomeStates[currentGamepad.index]) {\n        hijack = true;\n        const info = structuredClone(this.bxHomeStates[currentGamepad.index]);\n\n        // Home button released\n        this.bxHomeStates[currentGamepad.index] = null;\n\n        if (info.shortcutPressed === 0) {\n            const fakeGamepadMappings = [{\n                GamepadIndex: currentGamepad.index,\n                A: 0,\n                B: 0,\n                X: 0,\n                Y: 0,\n                LeftShoulder: 0,\n                RightShoulder: 0,\n                LeftTrigger: 0,\n                RightTrigger: 0,\n                View: 0,\n                Menu: 0,\n                LeftThumb: 0,\n                RightThumb: 0,\n                DPadUp: 0,\n                DPadDown: 0,\n                DPadLeft: 0,\n                DPadRight: 0,\n                Nexus: 1,\n                LeftThumbXAxis: 0,\n                LeftThumbYAxis: 0,\n                RightThumbXAxis: 0,\n                RightThumbYAxis: 0,\n                PhysicalPhysicality: 0,\n                VirtualPhysicality: 0,\n                Dirty: true,\n                Virtual: false,\n            }];\n\n            const isLongPress = (currentGamepad.timestamp - info.timestamp) >= 500;\n            intervalMs = isLongPress ? 500 : 100;\n\n            this.inputSink.onGamepadInput(performance.now() - intervalMs, fakeGamepadMappings);\n        } else {\n            intervalMs = 4;\n        }\n    }\n\n    if (hijack && intervalMs) {\n        // Listen to next button press\n        this.inputConfiguration.useIntervalWorkerThreadForInput && this.intervalWorker ? this.intervalWorker.scheduleTimer(intervalMs) : this.pollGamepadssetTimeoutTimerID = setTimeout(this.pollGamepads, intervalMs);\n\n        // Hijack this button\n        return;\n    }\n}\n";
-var expose_stream_session_default = "window.BX_EXPOSED.streamSession = this;\n\nconst orgSetMicrophoneState = this.setMicrophoneState.bind(this);\nthis.setMicrophoneState = state => {\n    orgSetMicrophoneState(state);\n\n    const evt = new Event(BxEvent.MICROPHONE_STATE_CHANGED);\n    evt.microphoneState = state;\n\n    window.dispatchEvent(evt);\n};\n\nwindow.dispatchEvent(new Event(BxEvent.STREAM_SESSION_READY));\n\n// Patch updateDimensions() to make native touch work correctly with WebGL2\nlet updateDimensionsStr = this.updateDimensions.toString();\n\nif (updateDimensionsStr.startsWith('function ')) {\n    updateDimensionsStr = updateDimensionsStr.substring(9);\n}\n\n// if(r){\nconst renderTargetVar = updateDimensionsStr.match(/if\\((\\w+)\\){/)[1];\n\nupdateDimensionsStr = updateDimensionsStr.replaceAll(renderTargetVar + '.scroll', 'scroll');\n\nupdateDimensionsStr = updateDimensionsStr.replace(`if(${renderTargetVar}){`, `\nif (${renderTargetVar}) {\n    const scrollWidth = ${renderTargetVar}.dataset.width ? parseInt(${renderTargetVar}.dataset.width) : ${renderTargetVar}.scrollWidth;\n    const scrollHeight = ${renderTargetVar}.dataset.height ? parseInt(${renderTargetVar}.dataset.height) : ${renderTargetVar}.scrollHeight;\n`);\n\neval(`this.updateDimensions = function ${updateDimensionsStr}`);\n";
-var local_co_op_enable_default = "let match;\nlet onGamepadChangedStr = this.onGamepadChanged.toString();\n\nif (onGamepadChangedStr.startsWith('function ')) {\n    onGamepadChangedStr = onGamepadChangedStr.substring(9);\n}\n\nonGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');\neval(`this.onGamepadChanged = function ${onGamepadChangedStr}`);\n\nlet onGamepadInputStr = this.onGamepadInput.toString();\n\nmatch = onGamepadInputStr.match(/(\\w+\\.GamepadIndex)/);\nif (match) {\n    const gamepadIndexVar = match[0];\n    onGamepadInputStr = onGamepadInputStr.replace('this.gamepadStates.get(', `this.gamepadStates.get(${gamepadIndexVar},`);\n    eval(`this.onGamepadInput = function ${onGamepadInputStr}`);\n    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');\n} else {\n    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');\n}\n";
-var set_currently_focused_interactable_default = "e && BxEvent.dispatch(window, BxEvent.NAVIGATION_FOCUS_CHANGED, {element: e});\n";
-var remote_play_enable_default = "connectMode: window.BX_REMOTE_PLAY_CONFIG ? \"xhome-connect\" : \"cloud-connect\",\nremotePlayServerId: (window.BX_REMOTE_PLAY_CONFIG && window.BX_REMOTE_PLAY_CONFIG.serverId) || '',\n";
-var remote_play_keep_alive_default = "const msg = JSON.parse(e);\nif (msg.reason === 'WarningForBeingIdle' && !window.location.pathname.includes('/launch/')) {\n    try {\n        this.sendKeepAlive();\n        return;\n    } catch (ex) { console.log(ex); }\n}\n";
-var vibration_adjust_default = "if (!window.BX_ENABLE_CONTROLLER_VIBRATION) {\n    return void(0);\n}\n\nconst intensity = window.BX_VIBRATION_INTENSITY;\nif (intensity === 0) {\n    return void(0);\n}\n\nif (intensity < 1) {\n    e.leftMotorPercent *= intensity;\n    e.rightMotorPercent *= intensity;\n    e.leftTriggerMotorPercent *= intensity;\n    e.rightTriggerMotorPercent *= intensity;\n}\n";
 var FeatureGates = {
   PwaPrompt: !1,
   EnableWifiWarnings: !1,
@@ -3305,608 +3283,6 @@ var FeatureGates = {
 if (getPref("ui_home_context_menu_disabled")) FeatureGates.EnableHomeContextMenu = !1;
 if (getPref("block_social_features")) FeatureGates.EnableGuideChatTab = !1;
 if (BX_FLAGS.FeatureGates) FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
-class PatcherUtils {
-  static indexOf(txt, searchString, startIndex, maxRange) {
-    const index = txt.indexOf(searchString, startIndex);
-    if (index < 0 || maxRange && index - startIndex > maxRange) return -1;
-    return index;
-  }
-  static lastIndexOf(txt, searchString, startIndex, maxRange) {
-    const index = txt.lastIndexOf(searchString, startIndex);
-    if (index < 0 || maxRange && startIndex - index > maxRange) return -1;
-    return index;
-  }
-  static insertAt(txt, index, insertString) {
-    return txt.substring(0, index) + insertString + txt.substring(index);
-  }
-  static replaceWith(txt, index, fromString, toString) {
-    return txt.substring(0, index) + toString + txt.substring(index + fromString.length);
-  }
-}
-var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG3 = "Patcher", PATCHES = {
-  disableAiTrack(str) {
-    let text = ".track=function(";
-    const index = str.indexOf(text);
-    if (index < 0) return !1;
-    if (PatcherUtils.indexOf(str, '"AppInsightsCore', index, 200) < 0) return !1;
-    return PatcherUtils.replaceWith(str, index, text, ".track=function(e){},!!function(");
-  },
-  disableTelemetry(str) {
-    let text = ".disableTelemetry=function(){return!1}";
-    if (!str.includes(text)) return !1;
-    return str.replace(text, ".disableTelemetry=function(){return!0}");
-  },
-  disableTelemetryProvider(str) {
-    let text = "this.enableLightweightTelemetry=!";
-    if (!str.includes(text)) return !1;
-    const newCode = [
-      "this.trackEvent",
-      "this.trackPageView",
-      "this.trackHttpCompleted",
-      "this.trackHttpFailed",
-      "this.trackError",
-      "this.trackErrorLike",
-      "this.onTrackEvent",
-      "()=>{}"
-    ].join("=");
-    return str.replace(text, newCode + ";" + text);
-  },
-  disableIndexDbLogging(str) {
-    let text = ",this.logsDb=new";
-    if (!str.includes(text)) return !1;
-    let newCode = ",this.log=()=>{}";
-    return str.replace(text, newCode + text);
-  },
-  websiteLayout(str) {
-    let text = '?"tv":"default"';
-    if (!str.includes(text)) return !1;
-    const layout = getPref("ui_layout") === "tv" ? "tv" : "default";
-    return str.replace(text, `?"${layout}":"${layout}"`);
-  },
-  remotePlayDirectConnectUrl(str) {
-    const index = str.indexOf("/direct-connect");
-    if (index < 0) return !1;
-    return str.replace(str.substring(index - 9, index + 15), "https://www.xbox.com/play");
-  },
-  remotePlayKeepAlive(str) {
-    let text = "onServerDisconnectMessage(e){";
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, text + remote_play_keep_alive_default), str;
-  },
-  remotePlayConnectMode(str) {
-    let text = 'connectMode:"cloud-connect",';
-    if (!str.includes(text)) return !1;
-    return str.replace(text, remote_play_enable_default);
-  },
-  remotePlayDisableAchievementToast(str) {
-    let text = ".AchievementUnlock:{";
-    if (!str.includes(text)) return !1;
-    const newCode = "if (!!window.BX_REMOTE_PLAY_CONFIG) return;";
-    return str.replace(text, text + newCode);
-  },
-  remotePlayRecentlyUsedTitleIds(str) {
-    let text = "(e.data.recentlyUsedTitleIds)){";
-    if (!str.includes(text)) return !1;
-    const newCode = "if (window.BX_REMOTE_PLAY_CONFIG) return;";
-    return str.replace(text, text + newCode);
-  },
-  blockWebRtcStatsCollector(str) {
-    let text = "this.shouldCollectStats=!0";
-    if (!str.includes(text)) return !1;
-    return str.replace(text, "this.shouldCollectStats=!1");
-  },
-  patchPollGamepads(str) {
-    const index = str.indexOf("},this.pollGamepads=()=>{");
-    if (index < 0) return !1;
-    const nextIndex = str.indexOf("setTimeout(this.pollGamepads", index);
-    if (nextIndex === -1) return !1;
-    let codeBlock = str.substring(index, nextIndex);
-    if (getPref("block_tracking")) codeBlock = codeBlock.replaceAll("this.inputPollingIntervalStats.addValue", "");
-    const match = codeBlock.match(/this\.gamepadTimestamps\.set\((\w+)\.index/);
-    if (match) {
-      const gamepadVar = match[1], newCode = renderString(controller_shortcuts_default, {
-        gamepadVar
-      });
-      codeBlock = codeBlock.replace("this.gamepadTimestamps.set", newCode + "this.gamepadTimestamps.set");
-    }
-    return str.substring(0, index) + codeBlock + str.substring(nextIndex);
-  },
-  enableXcloudLogger(str) {
-    let text = "this.telemetryProvider=e}log(e,t,r){";
-    if (!str.includes(text)) return !1;
-    const newCode = `
-const [logTag, logLevel, logMessage] = Array.from(arguments);
-const logFunc = [console.debug, console.log, console.warn, console.error][logLevel];
-logFunc(logTag, '//', logMessage);
-`;
-    return str = str.replaceAll(text, text + newCode), str;
-  },
-  enableConsoleLogging(str) {
-    let text = "static isConsoleLoggingAllowed(){";
-    if (!str.includes(text)) return !1;
-    return str = str.replaceAll(text, text + "return true;"), str;
-  },
-  playVibration(str) {
-    let text = "}playVibration(e){";
-    if (!str.includes(text)) return !1;
-    return VibrationManager.updateGlobalVars(), str = str.replaceAll(text, text + vibration_adjust_default), str;
-  },
-  overrideSettings(str) {
-    const index = str.indexOf(",EnableStreamGate:");
-    if (index < 0) return !1;
-    const endIndex = str.indexOf("},", index);
-    let newSettings = JSON.stringify(FeatureGates);
-    newSettings = newSettings.substring(1, newSettings.length - 1);
-    const newCode = newSettings;
-    return str = str.substring(0, endIndex) + "," + newCode + str.substring(endIndex), str;
-  },
-  disableGamepadDisconnectedScreen(str) {
-    const index = str.indexOf('"GamepadDisconnected_Title",');
-    if (index < 0) return !1;
-    const constIndex = str.indexOf("const", index - 30);
-    return str = str.substring(0, constIndex) + "e.onClose();return null;" + str.substring(constIndex), str;
-  },
-  patchUpdateInputConfigurationAsync(str) {
-    let text = "async updateInputConfigurationAsync(e){";
-    if (!str.includes(text)) return !1;
-    const newCode = "e.enableTouchInput = true;";
-    return str = str.replace(text, text + newCode), str;
-  },
-  loadingEndingChunks(str) {
-    let text = '"FamilySagaManager"';
-    if (!str.includes(text)) return !1;
-    return BxLogger.info(LOG_TAG3, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str;
-  },
-  disableStreamGate(str) {
-    const index = str.indexOf('case"partially-ready":');
-    if (index < 0) return !1;
-    const bracketIndex = str.indexOf("=>{", index - 150) + 3;
-    return str = str.substring(0, bracketIndex) + "return 0;" + str.substring(bracketIndex), str;
-  },
-  exposeTouchLayoutManager(str) {
-    let text = "this._perScopeLayoutsStream=new";
-    if (!str.includes(text)) return !1;
-    const newCode = `
-true;
-window.BX_EXPOSED["touchLayoutManager"] = this;
-window.dispatchEvent(new Event("${BxEvent.TOUCH_LAYOUT_MANAGER_READY}"));
-`;
-    return str = str.replace(text, newCode + text), str;
-  },
-  patchBabylonRendererClass(str) {
-    let index = str.indexOf(".current.render(),");
-    if (index < 0) return !1;
-    index -= 1;
-    const newCode = `
-if (window.BX_EXPOSED.stopTakRendering) {
-    try {
-        document.getElementById('BabylonCanvasContainer-main')?.parentElement.classList.add('bx-offscreen');
-        ${str[index]}.current.dispose();
-    } catch (e) {}
-    window.BX_EXPOSED.stopTakRendering = false;
-    return;
-}
-`;
-    return str = str.substring(0, index) + newCode + str.substring(index), str;
-  },
-  supportLocalCoOp(str) {
-    let text = "this.gamepadMappingsToSend=[],";
-    if (!str.includes(text)) return !1;
-    const newCode = `true; ${local_co_op_enable_default}; true,`;
-    return str = str.replace(text, text + newCode), str;
-  },
-  forceFortniteConsole(str) {
-    let text = "sendTouchInputEnabledMessage(e){";
-    if (!str.includes(text)) return !1;
-    const newCode = "window.location.pathname.includes('/launch/fortnite/') && (e = false);";
-    return str = str.replace(text, text + newCode), str;
-  },
-  disableTakRenderer(str) {
-    let text = "const{TakRenderer:";
-    if (!str.includes(text)) return !1;
-    let autoOffCode = "";
-    if (getPref("stream_touch_controller") === "off") autoOffCode = "return;";
-    else if (getPref("stream_touch_controller_auto_off")) autoOffCode = `
-const gamepads = window.navigator.getGamepads();
-let gamepadFound = false;
-for (let gamepad of gamepads) {
-    if (gamepad && gamepad.connected) {
-        gamepadFound = true;
-        break;
-    }
-}
-if (gamepadFound) {
-    return;
-}
-`;
-    const newCode = `
-${autoOffCode}
-const titleInfo = window.BX_EXPOSED.getTitleInfo();
-if (titleInfo && !titleInfo.details.hasTouchSupport && !titleInfo.details.hasFakeTouchSupport) {
-    return;
-}
-`;
-    return str = str.replace(text, newCode + text), str;
-  },
-  streamCombineSources(str) {
-    let text = "this.useCombinedAudioVideoStream=!!this.deviceInformation.isTizen";
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, "this.useCombinedAudioVideoStream=true"), str;
-  },
-  patchStreamHud(str) {
-    let text = "let{onCollapse";
-    if (!str.includes(text)) return !1;
-    let newCode = `
-// Expose onShowStreamMenu
-window.BX_EXPOSED.showStreamMenu = e.onShowStreamMenu;
-// Restore the "..." button
-e.guideUI = null;
-`;
-    if (getPref("stream_touch_controller") === "off") newCode += "e.canShowTakHUD = false;";
-    return str = str.replace(text, newCode + text), str;
-  },
-  broadcastPollingMode(str) {
-    let text = ".setPollingMode=e=>{";
-    if (!str.includes(text)) return !1;
-    const newCode = `
-BxEvent.dispatch(window, BxEvent.XCLOUD_POLLING_MODE_CHANGED, {mode: e.toLowerCase()});
-`;
-    return str = str.replace(text, text + newCode), str;
-  },
-  patchGamepadPolling(str) {
-    let index = str.indexOf(".shouldHandleGamepadInput)())return void");
-    if (index < 0) return !1;
-    return index = str.indexOf("{", index - 20) + 1, str = str.substring(0, index) + "if (window.BX_EXPOSED.disableGamepadPolling) return;" + str.substring(index), str;
-  },
-  patchXcloudTitleInfo(str) {
-    let text = "async cloudConnect", index = str.indexOf(text);
-    if (index < 0) return !1;
-    let backetIndex = str.indexOf("{", index);
-    const titleInfoVar = str.substring(index, backetIndex).match(/\(([^)]+)\)/)[1].split(",")[0], newCode = `
-${titleInfoVar} = window.BX_EXPOSED.modifyTitleInfo(${titleInfoVar});
-BxLogger.info('patchXcloudTitleInfo', ${titleInfoVar});
-`;
-    return str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1), str;
-  },
-  patchRemotePlayMkb(str) {
-    let text = "async homeConsoleConnect", index = str.indexOf(text);
-    if (index < 0) return !1;
-    let backetIndex = str.indexOf("{", index);
-    const configsVar = str.substring(index, backetIndex).match(/\(([^)]+)\)/)[1].split(",")[1], newCode = `
-Object.assign(${configsVar}.inputConfiguration, {
-    enableMouseInput: false,
-    enableKeyboardInput: false,
-    enableAbsoluteMouse: false,
-});
-BxLogger.info('patchRemotePlayMkb', ${configsVar});
-`;
-    return str = str.substring(0, backetIndex + 1) + newCode + str.substring(backetIndex + 1), str;
-  },
-  patchAudioMediaStream(str) {
-    let text = ".srcObject=this.audioMediaStream,";
-    if (!str.includes(text)) return !1;
-    const newCode = "window.BX_EXPOSED.setupGainNode(arguments[1], this.audioMediaStream),";
-    return str = str.replace(text, text + newCode), str;
-  },
-  patchCombinedAudioVideoMediaStream(str) {
-    let text = ".srcObject=this.combinedAudioVideoStream";
-    if (!str.includes(text)) return !1;
-    const newCode = ",window.BX_EXPOSED.setupGainNode(arguments[0], this.combinedAudioVideoStream)";
-    return str = str.replace(text, text + newCode), str;
-  },
-  patchTouchControlDefaultOpacity(str) {
-    let text = "opacityMultiplier:1";
-    if (!str.includes(text)) return !1;
-    const newCode = `opacityMultiplier: ${(getPref("stream_touch_controller_default_opacity") / 100).toFixed(1)}`;
-    return str = str.replace(text, newCode), str;
-  },
-  patchShowSensorControls(str) {
-    let text = "{shouldShowSensorControls:";
-    if (!str.includes(text)) return !1;
-    const newCode = "{shouldShowSensorControls: (window.BX_EXPOSED && window.BX_EXPOSED.shouldShowSensorControls) ||";
-    return str = str.replace(text, newCode), str;
-  },
-  exposeStreamSession(str) {
-    let text = ",this._connectionType=";
-    if (!str.includes(text)) return !1;
-    const newCode = `;
-${expose_stream_session_default}
-true` + text;
-    return str = str.replace(text, newCode), str;
-  },
-  skipFeedbackDialog(str) {
-    let text = "&&this.shouldTransitionToFeedback(";
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, "&& false " + text), str;
-  },
-  enableNativeMkb(str) {
-    let text = "e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;";
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, text + "return true;"), str;
-  },
-  patchMouseAndKeyboardEnabled(str) {
-    let text = "get mouseAndKeyboardEnabled(){";
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, text + "return true;"), str;
-  },
-  exposeInputSink(str) {
-    let text = "this.controlChannel=null,this.inputChannel=null";
-    if (!str.includes(text)) return !1;
-    const newCode = "window.BX_EXPOSED.inputSink = this;";
-    return str = str.replace(text, newCode + text), str;
-  },
-  disableNativeRequestPointerLock(str) {
-    let text = "async requestPointerLock(){";
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, text + "return;"), str;
-  },
-  patchRequestInfoCrash(str) {
-    let text = 'if(!e)throw new Error("RequestInfo.origin is falsy");';
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, 'if (!e) e = "https://www.xbox.com";'), str;
-  },
-  exposeDialogRoutes(str) {
-    let text = "return{goBack:function(){";
-    if (!str.includes(text)) return !1;
-    return str = str.replace(text, "return window.BX_EXPOSED.dialogRoutes = {goBack:function(){"), str;
-  },
-  enableTvRoutes(str) {
-    let index = str.indexOf(".LoginDeviceCode.path,");
-    if (index < 0) return !1;
-    const match = /render:.*?jsx\)\(([^,]+),/.exec(str.substring(index, index + 100));
-    if (!match) return !1;
-    const funcName = match[1];
-    if (index = str.indexOf(`const ${funcName}=e=>{`), index > -1 && (index = str.indexOf("return ", index)), index > -1 && (index = str.indexOf("?", index)), index < 0) return !1;
-    return str = str.substring(0, index) + "|| true" + str.substring(index), str;
-  },
-  ignorePlayWithFriendsSection(str) {
-    let index = str.indexOf('location:"PlayWithFriendsRow",');
-    if (index < 0) return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "return", index, 50), index < 0) return !1;
-    return str = PatcherUtils.replaceWith(str, index, "return", "return null;"), str;
-  },
-  ignoreAllGamesSection(str) {
-    let index = str.indexOf('className:"AllGamesRow-module__allGamesRowContainer');
-    if (index < 0) return !1;
-    if (index = PatcherUtils.indexOf(str, "grid:!0,", index, 1500), index < 0) return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "(0,", index, 70), index < 0) return !1;
-    return str = PatcherUtils.insertAt(str, index, "true ? null :"), str;
-  },
-  ignorePlayWithTouchSection(str) {
-    let index = str.indexOf('("Play_With_Touch"),');
-    if (index < 0) return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "const ", index, 30), index < 0) return !1;
-    return str = PatcherUtils.insertAt(str, index, "return null;"), str;
-  },
-  ignoreSiglSections(str) {
-    let index = str.indexOf("SiglRow-module__heroCard___");
-    if (index < 0) return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "const[", index, 300), index < 0) return !1;
-    const PREF_HIDE_SECTIONS = getPref("ui_hide_sections"), siglIds = [], sections = {
-      "native-mkb": "8fa264dd-124f-4af3-97e8-596fcdf4b486",
-      "most-popular": "e7590b22-e299-44db-ae22-25c61405454c"
-    };
-    PREF_HIDE_SECTIONS.forEach((section) => {
-      const galleryId = sections[section];
-      galleryId && siglIds.push(galleryId);
-    });
-    const newCode = `
-if (e && e.id) {
-    const siglId = e.id;
-    if (${siglIds.map((item2) => `siglId === "${item2}"`).join(" || ")}) {
-        return null;
-    }
-}
-`;
-    return str = PatcherUtils.insertAt(str, index, newCode), str;
-  },
-  overrideStorageGetSettings(str) {
-    let text = "}getSetting(e){";
-    if (!str.includes(text)) return !1;
-    const newCode = `
-// console.log('setting', this.baseStorageKey, e);
-if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
-    const settings = window.BX_EXPOSED.overrideSettings[this.baseStorageKey];
-    if (e in settings) {
-        return settings[e];
-    }
-}
-`;
-    return str = str.replace(text, text + newCode), str;
-  },
-  alwaysShowStreamHud(str) {
-    let index = str.indexOf(",{onShowStreamMenu:");
-    if (index < 0) return !1;
-    if (index = str.indexOf("&&(0,", index - 100), index < 0) return !1;
-    const commaIndex = str.indexOf(",", index - 10);
-    return str = str.substring(0, commaIndex) + ",true" + str.substring(index), str;
-  },
-  patchSetCurrentlyFocusedInteractable(str) {
-    let index = str.indexOf(".setCurrentlyFocusedInteractable=(");
-    if (index < 0) return !1;
-    return index = str.indexOf("{", index) + 1, str = str.substring(0, index) + set_currently_focused_interactable_default + str.substring(index), str;
-  },
-  detectProductDetailsPage(str) {
-    let index = str.indexOf('{location:"ProductDetailPage",');
-    if (index < 0) return !1;
-    if (index = str.indexOf("return", index - 40), index < 0) return !1;
-    return str = str.substring(0, index) + 'BxEvent.dispatch(window, BxEvent.XCLOUD_RENDERING_COMPONENT, {component: "product-details"});' + str.substring(index), str;
-  },
-  detectBrowserRouterReady(str) {
-    let text = "BrowserRouter:()=>";
-    if (!str.includes(text)) return !1;
-    let index = str.indexOf("{history:this.history,");
-    if (index < 0) return !1;
-    if (index = PatcherUtils.lastIndexOf(str, "return", index, 100), index < 0) return !1;
-    return str = PatcherUtils.insertAt(str, index, "window.BxEvent.dispatch(window, window.BxEvent.XCLOUD_ROUTER_HISTORY_READY, {history: this.history});"), str;
-  },
-  guideAchievementsDefaultLocked(str) {
-    let index = str.indexOf("FilterButton-module__container");
-    if (index >= 0 && (index = PatcherUtils.lastIndexOf(str, ".All", index, 150)), index < 0) return !1;
-    if (str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), index = str.indexOf('"Guide_Achievements_Unlocked_Empty","Guide_Achievements_Locked_Empty"'), index >= 0 && (index = PatcherUtils.indexOf(str, ".All", index, 250)), index < 0) return !1;
-    return str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), str;
-  }
-}, PATCH_ORDERS = [
-  ...getPref("native_mkb_enabled") === "on" ? [
-    "enableNativeMkb",
-    "patchMouseAndKeyboardEnabled",
-    "disableNativeRequestPointerLock",
-    "exposeInputSink"
-  ] : [],
-  "detectBrowserRouterReady",
-  "patchRequestInfoCrash",
-  "disableStreamGate",
-  "overrideSettings",
-  "broadcastPollingMode",
-  "patchGamepadPolling",
-  "exposeStreamSession",
-  "exposeDialogRoutes",
-  "guideAchievementsDefaultLocked",
-  "enableTvRoutes",
-  AppInterface && "detectProductDetailsPage",
-  "overrideStorageGetSettings",
-  getPref("ui_game_card_show_wait_time") && "patchSetCurrentlyFocusedInteractable",
-  getPref("ui_layout") !== "default" && "websiteLayout",
-  getPref("local_co_op_enabled") && "supportLocalCoOp",
-  getPref("game_fortnite_force_console") && "forceFortniteConsole",
-  getPref("ui_hide_sections").includes("friends") && "ignorePlayWithFriendsSection",
-  getPref("ui_hide_sections").includes("all-games") && "ignoreAllGamesSection",
-  getPref("ui_hide_sections").includes("touch") && "ignorePlayWithTouchSection",
-  (getPref("ui_hide_sections").includes("native-mkb") || getPref("ui_hide_sections").includes("most-popular")) && "ignoreSiglSections",
-  ...getPref("block_tracking") ? [
-    "disableAiTrack",
-    "disableTelemetry",
-    "blockWebRtcStatsCollector",
-    "disableIndexDbLogging",
-    "disableTelemetryProvider"
-  ] : [],
-  ...getPref("xhome_enabled") ? [
-    "remotePlayKeepAlive",
-    "remotePlayDirectConnectUrl",
-    "remotePlayDisableAchievementToast",
-    "remotePlayRecentlyUsedTitleIds",
-    STATES.userAgent.capabilities.touch && "patchUpdateInputConfigurationAsync"
-  ] : [],
-  ...BX_FLAGS.EnableXcloudLogging ? [
-    "enableConsoleLogging",
-    "enableXcloudLogger"
-  ] : []
-].filter((item2) => !!item2), PLAYING_PATCH_ORDERS = [
-  "patchXcloudTitleInfo",
-  "disableGamepadDisconnectedScreen",
-  "patchStreamHud",
-  "playVibration",
-  "alwaysShowStreamHud",
-  getPref("audio_enable_volume_control") && !getPref("stream_combine_sources") && "patchAudioMediaStream",
-  getPref("audio_enable_volume_control") && getPref("stream_combine_sources") && "patchCombinedAudioVideoMediaStream",
-  getPref("stream_disable_feedback_dialog") && "skipFeedbackDialog",
-  ...STATES.userAgent.capabilities.touch ? [
-    getPref("stream_touch_controller") === "all" && "patchShowSensorControls",
-    getPref("stream_touch_controller") === "all" && "exposeTouchLayoutManager",
-    (getPref("stream_touch_controller") === "off" || getPref("stream_touch_controller_auto_off") || !STATES.userAgent.capabilities.touch) && "disableTakRenderer",
-    getPref("stream_touch_controller_default_opacity") !== 100 && "patchTouchControlDefaultOpacity",
-    "patchBabylonRendererClass"
-  ] : [],
-  BX_FLAGS.EnableXcloudLogging && "enableConsoleLogging",
-  "patchPollGamepads",
-  getPref("stream_combine_sources") && "streamCombineSources",
-  ...getPref("xhome_enabled") ? [
-    "patchRemotePlayMkb",
-    "remotePlayConnectMode"
-  ] : []
-].filter((item2) => !!item2), ALL_PATCHES = [...PATCH_ORDERS, ...PLAYING_PATCH_ORDERS];
-class Patcher {
-  static #patchFunctionBind() {
-    const nativeBind = Function.prototype.bind;
-    Function.prototype.bind = function() {
-      let valid = !1;
-      if (this.name.length <= 2 && arguments.length === 2 && arguments[0] === null) {
-        if (arguments[1] === 0 || typeof arguments[1] === "function") valid = !0;
-      }
-      if (!valid) return nativeBind.apply(this, arguments);
-      if (PatcherCache.init(), typeof arguments[1] === "function") BxLogger.info(LOG_TAG3, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
-      const orgFunc = this, newFunc = (a, item2) => {
-        Patcher.patch(item2), orgFunc(a, item2);
-      };
-      return nativeBind.apply(newFunc, arguments);
-    };
-  }
-  static patch(item) {
-    let patchesToCheck, appliedPatches;
-    const patchesMap = {};
-    for (let id in item[1]) {
-      appliedPatches = [];
-      const cachedPatches = PatcherCache.getPatches(id);
-      if (cachedPatches) patchesToCheck = cachedPatches.slice(0), patchesToCheck.push(...PATCH_ORDERS);
-      else patchesToCheck = PATCH_ORDERS.slice(0);
-      if (!patchesToCheck.length) continue;
-      const func = item[1][id], funcStr = func.toString();
-      let patchedFuncStr = funcStr, modified = !1;
-      for (let patchIndex = 0;patchIndex < patchesToCheck.length; patchIndex++) {
-        const patchName = patchesToCheck[patchIndex];
-        if (appliedPatches.indexOf(patchName) > -1) continue;
-        if (!PATCHES[patchName]) continue;
-        const tmpStr = PATCHES[patchName].call(null, patchedFuncStr);
-        if (!tmpStr) continue;
-        modified = !0, patchedFuncStr = tmpStr, BxLogger.info(LOG_TAG3, `✅ ${patchName}`), appliedPatches.push(patchName), patchesToCheck.splice(patchIndex, 1), patchIndex--, PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
-      }
-      if (modified) try {
-          item[1][id] = eval(patchedFuncStr);
-        } catch (e) {
-          if (e instanceof Error) BxLogger.error(LOG_TAG3, "Error", appliedPatches, e.message, patchedFuncStr);
-        }
-      if (appliedPatches.length) patchesMap[id] = appliedPatches;
-    }
-    if (Object.keys(patchesMap).length) PatcherCache.saveToCache(patchesMap);
-  }
-  static init() {
-    Patcher.#patchFunctionBind();
-  }
-}
-class PatcherCache {
-  static #KEY_CACHE = "better_xcloud_patches_cache";
-  static #KEY_SIGNATURE = "better_xcloud_patches_cache_signature";
-  static #CACHE;
-  static #isInitialized = !1;
-  static #getSignature() {
-    const scriptVersion = SCRIPT_VERSION, webVersion = document.querySelector("meta[name=gamepass-app-version]")?.content, patches = JSON.stringify(ALL_PATCHES);
-    return hashCode(scriptVersion + webVersion + patches);
-  }
-  static clear() {
-    window.localStorage.removeItem(PatcherCache.#KEY_CACHE), PatcherCache.#CACHE = {};
-  }
-  static checkSignature() {
-    const storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0, currentSig = PatcherCache.#getSignature();
-    if (currentSig !== parseInt(storedSig)) BxLogger.warning(LOG_TAG3, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
-    else BxLogger.info(LOG_TAG3, "Signature unchanged");
-  }
-  static #cleanupPatches(patches) {
-    return patches.filter((item2) => {
-      for (let id2 in PatcherCache.#CACHE)
-        if (PatcherCache.#CACHE[id2].includes(item2)) return !1;
-      return !0;
-    });
-  }
-  static getPatches(id2) {
-    return PatcherCache.#CACHE[id2];
-  }
-  static saveToCache(subCache) {
-    for (let id2 in subCache) {
-      const patchNames = subCache[id2];
-      let data = PatcherCache.#CACHE[id2];
-      if (!data) PatcherCache.#CACHE[id2] = patchNames;
-      else for (let patchName of patchNames)
-          if (!data.includes(patchName)) data.push(patchName);
-    }
-    window.localStorage.setItem(PatcherCache.#KEY_CACHE, JSON.stringify(PatcherCache.#CACHE));
-  }
-  static init() {
-    if (PatcherCache.#isInitialized) return;
-    if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG3, PatcherCache.#CACHE), window.location.pathname.includes("/play/")) PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
-    else PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
-    PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG3, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG3, PLAYING_PATCH_ORDERS.slice(0));
-  }
-}
 class FullscreenText {
   static instance;
   static getInstance() {
@@ -4548,7 +3924,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     }), $svg;
   }
   onGlobalSettingChanged(e) {
-    PatcherCache.clear(), this.$btnReload.classList.add("bx-danger"), this.$noteGlobalReload.classList.add("bx-gone"), this.$btnGlobalReload.classList.remove("bx-gone"), this.$btnGlobalReload.classList.add("bx-danger");
+    this.$btnReload.classList.add("bx-danger"), this.$noteGlobalReload.classList.add("bx-gone"), this.$btnGlobalReload.classList.remove("bx-gone"), this.$btnGlobalReload.classList.add("bx-danger");
   }
   renderServerSetting(setting) {
     let selectedValue;
@@ -4844,7 +4220,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     return handled;
   }
 }
-var LOG_TAG4 = "MkbHandler", PointerToMouseButton = {
+var LOG_TAG3 = "MkbHandler", PointerToMouseButton = {
   1: 0,
   2: 2,
   4: 1
@@ -5159,7 +4535,7 @@ class EmulatedMkbHandler extends MkbHandler {
     window.addEventListener(BxEvent.STREAM_PLAYING, () => {
       if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
         if (AppInterface && getPref("native_mkb_enabled") === "on") AppInterface && NativeMkbHandler.getInstance().init();
-      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG4, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
+      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG3, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
     });
   }
 }
@@ -5361,7 +4737,7 @@ class RemotePlayNavigationDialog extends NavigationDialog {
     $btnConnect && $btnConnect.focus();
   }
 }
-var LOG_TAG5 = "RemotePlay";
+var LOG_TAG4 = "RemotePlay";
 class RemotePlayManager {
   static instance;
   static getInstance() {
@@ -5377,7 +4753,7 @@ class RemotePlayManager {
     if (this.isInitialized) return;
     this.isInitialized = !0, this.getXhomeToken(() => {
       this.getConsolesList(() => {
-        BxLogger.info(LOG_TAG5, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+        BxLogger.info(LOG_TAG4, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
       });
     });
   }
@@ -5904,9 +5280,9 @@ class StreamBadges {
       video ? ["video", video, "#742f29"] : null,
       audio ? ["audio", audio, "#5f574f"] : null
     ], $container = CE("div", { class: "bx-badges" });
-    return BADGES.forEach((item2) => {
-      if (!item2) return;
-      const $badge = this.#renderBadge(...item2);
+    return BADGES.forEach((item) => {
+      if (!item) return;
+      const $badge = this.#renderBadge(...item);
       $container.appendChild($badge);
     }), this.#$container = $container, await this.#start(), $container;
   }
@@ -6090,9 +5466,9 @@ function clearAllLogs() {
 }
 function updateIceCandidates(candidates, options) {
   const pattern = new RegExp(/a=candidate:(?<foundation>\d+) (?<component>\d+) UDP (?<priority>\d+) (?<ip>[^\s]+) (?<port>\d+) (?<the_rest>.*)/), lst = [];
-  for (let item2 of candidates) {
-    if (item2.candidate == "a=end-of-candidates") continue;
-    const groups = pattern.exec(item2.candidate).groups;
+  for (let item of candidates) {
+    if (item.candidate == "a=end-of-candidates") continue;
+    const groups = pattern.exec(item.candidate).groups;
     lst.push(groups);
   }
   if (options.preferIpv6Server) lst.sort((a, b) => {
@@ -6109,8 +5485,8 @@ function updateIceCandidates(candidates, options) {
       sdpMid: "0"
     };
   };
-  if (lst.forEach((item2) => {
-    item2.foundation = foundation, item2.priority = foundation == 1 ? 2130706431 : 1, newCandidates.push(newCandidate(`a=candidate:${item2.foundation} 1 UDP ${item2.priority} ${item2.ip} ${item2.port} ${item2.the_rest}`)), ++foundation;
+  if (lst.forEach((item) => {
+    item.foundation = foundation, item.priority = foundation == 1 ? 2130706431 : 1, newCandidates.push(newCandidate(`a=candidate:${item.foundation} 1 UDP ${item.priority} ${item.ip} ${item.port} ${item.the_rest}`)), ++foundation;
   }), options.consoleAddrs)
     for (let ip in options.consoleAddrs)
       for (let port of options.consoleAddrs[ip])
@@ -6177,8 +5553,8 @@ function interceptHttpRequests() {
           gamepassAllGames.push(obj[i].id);
       else if (url.includes("9c86f07a-f3e8-45ad-82a0-a1f759597059")) try {
           let customList = TouchController.getCustomList();
-          customList = customList.filter((id2) => gamepassAllGames.includes(id2));
-          const newCustomList = customList.map((item2) => ({ id: item2 }));
+          customList = customList.filter((id) => gamepassAllGames.includes(id));
+          const newCustomList = customList.map((item) => ({ id: item }));
           obj.push(...newCustomList);
         } catch (e) {
           console.log(e);
@@ -6188,7 +5564,7 @@ function interceptHttpRequests() {
     if (BX_FLAGS.ForceNativeMkbTitles && url.includes("catalog.gamepass.com/sigls/") && url.includes("8fa264dd-124f-4af3-97e8-596fcdf4b486")) {
       const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
       try {
-        const newCustomList = BX_FLAGS.ForceNativeMkbTitles.map((item2) => ({ id: item2 }));
+        const newCustomList = BX_FLAGS.ForceNativeMkbTitles.map((item) => ({ id: item }));
         obj.push(...newCustomList);
       } catch (e) {
         console.log(e);
@@ -6278,8 +5654,8 @@ function onHistoryChanged(e) {
 function setCodecPreferences(sdp, preferredCodec) {
   const h264Pattern = /a=fmtp:(\d+).*profile-level-id=([0-9a-f]{6})/g, profilePrefix = preferredCodec === "high" ? "4d" : preferredCodec === "low" ? "420" : "42e", preferredCodecIds = [], matches = sdp.matchAll(h264Pattern) || [];
   for (let match of matches) {
-    const id2 = match[1];
-    if (match[2].startsWith(profilePrefix)) preferredCodecIds.push(id2);
+    const id = match[1];
+    if (match[2].startsWith(profilePrefix)) preferredCodecIds.push(id);
   }
   if (!preferredCodecIds.length) return sdp;
   const lines = sdp.split("\r\n");
@@ -6288,7 +5664,7 @@ function setCodecPreferences(sdp, preferredCodec) {
     if (!line.startsWith("m=video")) continue;
     const tmp = line.trim().split(" ");
     let ids = tmp.slice(3);
-    ids = ids.filter((item2) => !preferredCodecIds.includes(item2)), ids = preferredCodecIds.concat(ids), lines[lineIndex] = tmp.slice(0, 3).concat(ids).join(" ");
+    ids = ids.filter((item) => !preferredCodecIds.includes(item)), ids = preferredCodecIds.concat(ids), lines[lineIndex] = tmp.slice(0, 3).concat(ids).join(" ");
     break;
   }
   return lines.join("\r\n");
@@ -6326,7 +5702,7 @@ function patchSdpBitrate(sdp, video, audio) {
 }
 var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
 var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 textureAt(sampler2D tex, vec2 coord) {\n    return texture2D(tex, coord / iResolution.xy).rgb;\n}\n\nvec3 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec3 a = textureAt(tex, coord + vec2(-1, 1));\n    vec3 b = textureAt(tex, coord + vec2(0, 1));\n    vec3 c = textureAt(tex, coord + vec2(1, 1));\n\n    vec3 d = textureAt(tex, coord + vec2(-1, 0));\n    vec3 e = textureAt(tex, coord);\n    vec3 f = textureAt(tex, coord + vec2(1, 0));\n\n    vec3 g = textureAt(tex, coord + vec2(-1, -1));\n    vec3 h = textureAt(tex, coord + vec2(0, -1));\n    vec3 i = textureAt(tex, coord + vec2(1, -1));\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d, e), min(f, b)), h);\n        vec3 minRgb2 = min(min(a, c), min(g, i));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d, e), max(f, b)), h);\n        vec3 maxRgb2 = max(max(a, c), max(g, i));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //                0 w 0\n        // Filter shape:  w 1 w\n        //                0 w 0\n        vec3 window = (b + d) + (f + h);\n        vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e, outColor, sharpenFactor / 2.0);\n\n        return outColor;\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor / 3.0;\n    }\n\n    return e;\n}\n\nvec3 adjustBrightness(vec3 color) {\n    return (1.0 + brightness) * color;\n}\n\nvec3 adjustContrast(vec3 color) {\n    return 0.5 + (1.0 + contrast) * (color - 0.5);\n}\n\nvec3 adjustSaturation(vec3 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color, luminosityFactor));\n\n    return mix(grayscale, color, 1.0 + saturation);\n}\n\nvoid main() {\n    vec3 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = vec4(color, 1.0);\n}\n";
-var LOG_TAG6 = "WebGL2Player";
+var LOG_TAG5 = "WebGL2Player";
 class WebGL2Player {
   #$video;
   #$canvas;
@@ -6343,7 +5719,7 @@ class WebGL2Player {
   };
   #animFrameId = null;
   constructor($video) {
-    BxLogger.info(LOG_TAG6, "Initialize"), this.#$video = $video;
+    BxLogger.info(LOG_TAG5, "Initialize"), this.#$video = $video;
     const $canvas = document.createElement("canvas");
     $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.#$canvas = $canvas, this.#setupShaders(), this.#setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
   }
@@ -6387,7 +5763,7 @@ class WebGL2Player {
       }, this.#animFrameId = requestAnimationFrame(animate);
   }
   #setupShaders() {
-    BxLogger.info(LOG_TAG6, "Setting up", getPref("video_power_preference"));
+    BxLogger.info(LOG_TAG5, "Setting up", getPref("video_power_preference"));
     const gl = this.#$canvas.getContext("webgl", {
       isBx: !0,
       antialias: !0,
@@ -6421,17 +5797,17 @@ class WebGL2Player {
     this.#resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
   }
   resume() {
-    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG6, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
+    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG5, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
   }
   stop() {
-    if (BxLogger.info(LOG_TAG6, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
+    if (BxLogger.info(LOG_TAG5, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
       if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.#$video.cancelVideoFrameCallback(this.#animFrameId);
       else cancelAnimationFrame(this.#animFrameId);
       this.#animFrameId = null;
     }
   }
   destroy() {
-    BxLogger.info(LOG_TAG6, "Destroy"), this.stop();
+    BxLogger.info(LOG_TAG5, "Destroy"), this.stop();
     const gl = this.#gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
@@ -6794,9 +6170,9 @@ class StreamUiHandler {
     const $screen = document.querySelector("#PageContent section[class*=PureScreens]");
     if (!$screen) return;
     const observer = new MutationObserver((mutationList) => {
-      mutationList.forEach((item2) => {
-        if (item2.type !== "childList") return;
-        item2.addedNodes.forEach(async ($node) => {
+      mutationList.forEach((item) => {
+        if (item.type !== "childList") return;
+        item.addedNodes.forEach(async ($node) => {
           if (!$node || $node.nodeType !== Node.ELEMENT_NODE) return;
           let $elm = $node;
           if (!($elm instanceof HTMLElement)) return;
@@ -6899,8 +6275,8 @@ window.addEventListener("popstate", onHistoryChanged);
 window.history.pushState = patchHistoryMethod("pushState");
 window.history.replaceState = patchHistoryMethod("replaceState");
 window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, (e) => {
-  STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), SettingsNavigationDialog.getInstance().show();
-});
+  if (STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), document.querySelector("div[class^=UnsupportedMarketPage-module__container]")) SettingsNavigationDialog.getInstance().show();
+}, { once: !0 });
 window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
   STATES.isSignedIn = !0, window.setTimeout(HeaderSection.watchHeader, 2000);
 });
