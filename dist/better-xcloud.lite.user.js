@@ -190,10 +190,6 @@ function createElement(elmName, props = {}, ..._) {
   }
   return $elm;
 }
-function escapeHtml(html) {
-  const text = document.createTextNode(html), $span = document.createElement("span");
-  return $span.appendChild(text), $span.innerHTML;
-}
 function isElementVisible($elm) {
   const rect = $elm.getBoundingClientRect();
   return (rect.x >= 0 || rect.y >= 0) && !!rect.width && !!rect.height;
@@ -2929,196 +2925,6 @@ class SoundShortcut {
     }
   }
 }
-var LOG_TAG2 = "TouchController";
-class TouchController {
-  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
-    data: JSON.stringify({
-      content: '{"layoutId":""}',
-      target: "/streaming/touchcontrols/showlayoutv2",
-      type: "Message"
-    }),
-    origin: "better-xcloud"
-  });
-  static #$style;
-  static #enabled = !1;
-  static #dataChannel;
-  static #customLayouts = {};
-  static #baseCustomLayouts = {};
-  static #currentLayoutId;
-  static #customList;
-  static #xboxTitleId = null;
-  static setXboxTitleId(xboxTitleId) {
-    TouchController.#xboxTitleId = xboxTitleId;
-  }
-  static getCustomLayouts() {
-    const xboxTitleId = TouchController.#xboxTitleId;
-    if (!xboxTitleId) return null;
-    return TouchController.#customLayouts[xboxTitleId];
-  }
-  static enable() {
-    TouchController.#enabled = !0;
-  }
-  static disable() {
-    TouchController.#enabled = !1;
-  }
-  static isEnabled() {
-    return TouchController.#enabled;
-  }
-  static #showDefault() {
-    TouchController.#dispatchMessage(TouchController.#EVENT_SHOW_DEFAULT_CONTROLLER);
-  }
-  static #show() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.remove("bx-offscreen");
-  }
-  static #hide() {
-    document.querySelector("#BabylonCanvasContainer-main")?.parentElement?.classList.add("bx-offscreen");
-  }
-  static toggleVisibility(status) {
-    if (!TouchController.#dataChannel) return;
-    status ? TouchController.#hide() : TouchController.#show();
-  }
-  static reset() {
-    TouchController.#enabled = !1, TouchController.#dataChannel = null, TouchController.#xboxTitleId = null, TouchController.#$style && (TouchController.#$style.textContent = "");
-  }
-  static #dispatchMessage(msg) {
-    TouchController.#dataChannel && window.setTimeout(() => {
-      TouchController.#dataChannel.dispatchEvent(msg);
-    }, 10);
-  }
-  static #dispatchLayouts(data) {
-    TouchController.applyCustomLayout(null, 1000), BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED);
-  }
-  static async requestCustomLayouts(retries = 1) {
-    const xboxTitleId = TouchController.#xboxTitleId;
-    if (!xboxTitleId) return;
-    if (xboxTitleId in TouchController.#customLayouts) {
-      TouchController.#dispatchLayouts(TouchController.#customLayouts[xboxTitleId]);
-      return;
-    }
-    if (retries = retries || 1, retries > 2) {
-      TouchController.#customLayouts[xboxTitleId] = null, window.setTimeout(() => TouchController.#dispatchLayouts(null), 1000);
-      return;
-    }
-    const baseUrl = "https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts", url = `${baseUrl}/${xboxTitleId}.json`;
-    try {
-      const json = await (await NATIVE_FETCH(url)).json(), layouts = {};
-      json.layouts.forEach(async (layoutName) => {
-        let baseLayouts = {};
-        if (layoutName in TouchController.#baseCustomLayouts) baseLayouts = TouchController.#baseCustomLayouts[layoutName];
-        else try {
-            const layoutUrl = `${baseUrl}/layouts/${layoutName}.json`;
-            baseLayouts = (await (await NATIVE_FETCH(layoutUrl)).json()).layouts, TouchController.#baseCustomLayouts[layoutName] = baseLayouts;
-          } catch (e) {}
-        Object.assign(layouts, baseLayouts);
-      }), json.layouts = layouts, TouchController.#customLayouts[xboxTitleId] = json, window.setTimeout(() => TouchController.#dispatchLayouts(json), 1000);
-    } catch (e) {
-      TouchController.requestCustomLayouts(retries + 1);
-    }
-  }
-  static applyCustomLayout(layoutId, delay = 0) {
-    if (!window.BX_EXPOSED.touchLayoutManager) {
-      const listener = (e) => {
-        if (window.removeEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener), TouchController.#enabled) TouchController.applyCustomLayout(layoutId, 0);
-      };
-      window.addEventListener(BxEvent.TOUCH_LAYOUT_MANAGER_READY, listener);
-      return;
-    }
-    const xboxTitleId = TouchController.#xboxTitleId;
-    if (!xboxTitleId) {
-      BxLogger.error(LOG_TAG2, "Invalid xboxTitleId");
-      return;
-    }
-    if (!layoutId) layoutId = TouchController.#customLayouts[xboxTitleId]?.default_layout || null;
-    if (!layoutId) {
-      BxLogger.error(LOG_TAG2, "Invalid layoutId, show default controller"), TouchController.#enabled && TouchController.#showDefault();
-      return;
-    }
-    const layoutChanged = TouchController.#currentLayoutId !== layoutId;
-    TouchController.#currentLayoutId = layoutId;
-    const layoutData = TouchController.#customLayouts[xboxTitleId];
-    if (!xboxTitleId || !layoutId || !layoutData) {
-      TouchController.#enabled && TouchController.#showDefault();
-      return;
-    }
-    const layout = layoutData.layouts[layoutId] || layoutData.layouts[layoutData.default_layout];
-    if (!layout) return;
-    let msg, html = !1;
-    if (layout.author) {
-      const author = `<b>${escapeHtml(layout.author)}</b>`;
-      msg = t("touch-control-layout-by", { name: author }), html = !0;
-    } else msg = t("touch-control-layout");
-    layoutChanged && Toast.show(msg, layout.name, { html }), window.setTimeout(() => {
-      window.BX_EXPOSED.shouldShowSensorControls = JSON.stringify(layout).includes("gyroscope"), window.BX_EXPOSED.touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "System",
-          layoutFile: layout
-        }
-      });
-    }, delay);
-  }
-  static updateCustomList() {
-    TouchController.#customList = JSON.parse(window.localStorage.getItem("better_xcloud_custom_touch_layouts") || "[]"), NATIVE_FETCH("https://raw.githubusercontent.com/redphx/better-xcloud/gh-pages/touch-layouts/ids.json").then((response) => response.json()).then((json) => {
-      TouchController.#customList = json, window.localStorage.setItem("better_xcloud_custom_touch_layouts", JSON.stringify(json));
-    });
-  }
-  static getCustomList() {
-    return TouchController.#customList;
-  }
-  static setup() {
-    window.testTouchLayout = (layout) => {
-      const { touchLayoutManager } = window.BX_EXPOSED;
-      touchLayoutManager && touchLayoutManager.changeLayoutForScope({
-        type: "showLayout",
-        scope: "" + TouchController.#xboxTitleId,
-        subscope: "base",
-        layout: {
-          id: "System.Standard",
-          displayName: "Custom",
-          layoutFile: layout
-        }
-      });
-    };
-    const $style = document.createElement("style");
-    document.documentElement.appendChild($style), TouchController.#$style = $style;
-    const PREF_STYLE_STANDARD = getPref("stream_touch_controller_style_standard"), PREF_STYLE_CUSTOM = getPref("stream_touch_controller_style_custom");
-    window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
-      const dataChannel = e.dataChannel;
-      if (!dataChannel || dataChannel.label !== "message") return;
-      let filter = "";
-      if (TouchController.#enabled) {
-        if (PREF_STYLE_STANDARD === "white") filter = "grayscale(1) brightness(2)";
-        else if (PREF_STYLE_STANDARD === "muted") filter = "sepia(0.5)";
-      } else if (PREF_STYLE_CUSTOM === "muted") filter = "sepia(0.5)";
-      if (filter) $style.textContent = `#babylon-canvas { filter: ${filter} !important; }`;
-      else $style.textContent = "";
-      TouchController.#dataChannel = dataChannel, dataChannel.addEventListener("open", () => {
-        window.setTimeout(TouchController.#show, 1000);
-      });
-      let focused = !1;
-      dataChannel.addEventListener("message", (msg) => {
-        if (msg.origin === "better-xcloud" || typeof msg.data !== "string") return;
-        if (msg.data.includes("touchcontrols/showtitledefault")) {
-          if (TouchController.#enabled) if (focused) TouchController.requestCustomLayouts();
-            else TouchController.#showDefault();
-          return;
-        }
-        try {
-          if (msg.data.includes("/titleinfo")) {
-            const json = JSON.parse(JSON.parse(msg.data).content);
-            if (focused = json.focused, !json.focused) TouchController.#show();
-            TouchController.setXboxTitleId(parseInt(json.titleid, 16).toString());
-          }
-        } catch (e2) {
-          BxLogger.error(LOG_TAG2, "Load custom layout", e2);
-        }
-      });
-    });
-  }
-}
 var VIBRATION_DATA_MAP = {
   gamepadIndex: 8,
   leftMotorPercent: 8,
@@ -3610,39 +3416,7 @@ class SettingsNavigationDialog extends NavigationDialog {
         onChange: () => VibrationManager.updateGlobalVars()
       }]
     },
-    STATES.userAgent.capabilities.touch && {
-      group: "touch-control",
-      label: t("touch-controller"),
-      items: [{
-        label: t("layout"),
-        content: CE("select", {
-          disabled: !0
-        }, CE("option", {}, t("default"))),
-        onCreated: (setting, $elm) => {
-          $elm.addEventListener("input", (e) => {
-            TouchController.applyCustomLayout($elm.value, 1000);
-          }), window.addEventListener(BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, (e) => {
-            const customLayouts = TouchController.getCustomLayouts();
-            while ($elm.firstChild)
-              $elm.removeChild($elm.firstChild);
-            if ($elm.disabled = !customLayouts, !customLayouts) {
-              $elm.appendChild(CE("option", { value: "" }, t("default"))), $elm.value = "", $elm.dispatchEvent(new Event("input"));
-              return;
-            }
-            const $fragment = document.createDocumentFragment();
-            for (let key in customLayouts.layouts) {
-              const layout = customLayouts.layouts[key];
-              let name;
-              if (layout.author) name = `${layout.name} (${layout.author})`;
-              else name = layout.name;
-              const $option = CE("option", { value: key }, name);
-              $fragment.appendChild($option);
-            }
-            $elm.appendChild($fragment), $elm.value = customLayouts.default_layout;
-          });
-        }
-      }]
-    }
+    !1
   ];
   TAB_VIRTUAL_CONTROLLER_ITEMS = [{
     group: "mkb",
@@ -4220,7 +3994,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     return handled;
   }
 }
-var LOG_TAG3 = "MkbHandler", PointerToMouseButton = {
+var LOG_TAG2 = "MkbHandler", PointerToMouseButton = {
   1: 0,
   2: 2,
   4: 1
@@ -4535,34 +4309,13 @@ class EmulatedMkbHandler extends MkbHandler {
     window.addEventListener(BxEvent.STREAM_PLAYING, () => {
       if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
         if (AppInterface && getPref("native_mkb_enabled") === "on") AppInterface && NativeMkbHandler.getInstance().init();
-      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG3, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
+      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG2, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
     });
   }
 }
 var BxExposed = {
   getTitleInfo: () => STATES.currentStream.titleInfo,
-  modifyTitleInfo: (titleInfo) => {
-    titleInfo = deepClone(titleInfo);
-    let supportedInputTypes = titleInfo.details.supportedInputTypes;
-    if (BX_FLAGS.ForceNativeMkbTitles?.includes(titleInfo.details.productId)) supportedInputTypes.push("MKB");
-    if (getPref("native_mkb_enabled") === "off") supportedInputTypes = supportedInputTypes.filter((i) => i !== "MKB");
-    if (titleInfo.details.hasMkbSupport = supportedInputTypes.includes("MKB"), STATES.userAgent.capabilities.touch) {
-      let touchControllerAvailability = getPref("stream_touch_controller");
-      if (touchControllerAvailability !== "off" && getPref("stream_touch_controller_auto_off")) {
-        const gamepads = window.navigator.getGamepads();
-        let gamepadFound = !1;
-        for (let gamepad of gamepads)
-          if (gamepad && gamepad.connected) {
-            gamepadFound = !0;
-            break;
-          }
-        gamepadFound && (touchControllerAvailability = "off");
-      }
-      if (touchControllerAvailability === "off") supportedInputTypes = supportedInputTypes.filter((i) => i !== "CustomTouchOverlay" && i !== "GenericTouch"), titleInfo.details.supportedTabs = [];
-      if (titleInfo.details.hasNativeTouchSupport = supportedInputTypes.includes("NativeTouch"), titleInfo.details.hasTouchSupport = titleInfo.details.hasNativeTouchSupport || supportedInputTypes.includes("CustomTouchOverlay") || supportedInputTypes.includes("GenericTouch"), !titleInfo.details.hasTouchSupport && touchControllerAvailability === "all") titleInfo.details.hasFakeTouchSupport = !0, supportedInputTypes.push("GenericTouch");
-    }
-    return titleInfo.details.supportedInputTypes = supportedInputTypes, STATES.currentStream.titleInfo = titleInfo, BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY), titleInfo;
-  },
+  modifyTitleInfo: !1,
   setupGainNode: ($media, audioStream) => {
     if ($media instanceof HTMLAudioElement) $media.muted = !0, $media.addEventListener("playing", (e) => {
         $media.muted = !0, $media.pause();
@@ -4737,7 +4490,7 @@ class RemotePlayNavigationDialog extends NavigationDialog {
     $btnConnect && $btnConnect.focus();
   }
 }
-var LOG_TAG4 = "RemotePlay";
+var LOG_TAG3 = "RemotePlay";
 class RemotePlayManager {
   static instance;
   static getInstance() {
@@ -4753,7 +4506,7 @@ class RemotePlayManager {
     if (this.isInitialized) return;
     this.isInitialized = !0, this.getXhomeToken(() => {
       this.getConsolesList(() => {
-        BxLogger.info(LOG_TAG4, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+        BxLogger.info(LOG_TAG3, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
       });
     });
   }
@@ -4853,138 +4606,6 @@ class RemotePlayManager {
   }
   isReady() {
     return this.consoles !== null;
-  }
-}
-class XhomeInterceptor {
-  static #consoleAddrs = {};
-  static BASE_DEVICE_INFO = {
-    appInfo: {
-      env: {
-        clientAppId: window.location.host,
-        clientAppType: "browser",
-        clientAppVersion: "24.17.36",
-        clientSdkVersion: "10.1.14",
-        httpEnvironment: "prod",
-        sdkInstallId: ""
-      }
-    },
-    dev: {
-      displayInfo: {
-        dimensions: {
-          widthInPixels: 1920,
-          heightInPixels: 1080
-        },
-        pixelDensity: {
-          dpiX: 1,
-          dpiY: 1
-        }
-      },
-      hw: {
-        make: "Microsoft",
-        model: "unknown",
-        sdktype: "web"
-      },
-      os: {
-        name: "windows",
-        ver: "22631.2715",
-        platform: "desktop"
-      },
-      browser: {
-        browserName: "chrome",
-        browserVersion: "125.0"
-      }
-    }
-  };
-  static async#handleLogin(request) {
-    try {
-      const obj = await request.clone().json();
-      obj.offeringId = "xhome", request = new Request("https://xhome.gssv-play-prod.xboxlive.com/v2/login/user", {
-        method: "POST",
-        body: JSON.stringify(obj),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-    } catch (e) {
-      alert(e), console.log(e);
-    }
-    return NATIVE_FETCH(request);
-  }
-  static async#handleConfiguration(request) {
-    const response = await NATIVE_FETCH(request), obj = await response.clone().json();
-    console.log(obj);
-    const processPorts = (port) => {
-      const ports = new Set;
-      return port && ports.add(port), ports.add(9002), Array.from(ports);
-    }, serverDetails = obj.serverDetails;
-    if (serverDetails.ipAddress) XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
-    if (serverDetails.ipV4Address) XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
-    if (serverDetails.ipV6Address) XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
-    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
-  }
-  static async#handleInputConfigs(request, opts) {
-    const response = await NATIVE_FETCH(request);
-    if (getPref("stream_touch_controller") !== "all") return response;
-    const obj = await response.clone().json(), xboxTitleId = JSON.parse(opts.body).titleIds[0];
-    TouchController.setXboxTitleId(xboxTitleId);
-    const inputConfigs = obj[0];
-    let hasTouchSupport = inputConfigs.supportedTabs.length > 0;
-    if (!hasTouchSupport) {
-      const supportedInputTypes = inputConfigs.supportedInputTypes;
-      hasTouchSupport = supportedInputTypes.includes("NativeTouch") || supportedInputTypes.includes("CustomTouchOverlay");
-    }
-    if (hasTouchSupport) TouchController.disable(), BxEvent.dispatch(window, BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED, {
-        data: null
-      });
-    else TouchController.enable(), TouchController.requestCustomLayouts(xboxTitleId);
-    return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
-  }
-  static async#handleTitles(request) {
-    const clone = request.clone(), headers = {};
-    for (let pair of clone.headers.entries())
-      headers[pair[0]] = pair[1];
-    headers.authorization = `Bearer ${RemotePlayManager.getInstance().xcloudToken}`;
-    const index = request.url.indexOf(".xboxlive.com");
-    return request = new Request("https://wus.core.gssv-play-prod" + request.url.substring(index), {
-      method: clone.method,
-      body: await clone.text(),
-      headers
-    }), NATIVE_FETCH(request);
-  }
-  static async#handlePlay(request) {
-    const body = await request.clone().json(), newRequest = new Request(request, {
-      body: JSON.stringify(body)
-    });
-    return NATIVE_FETCH(newRequest);
-  }
-  static async handle(request) {
-    TouchController.disable();
-    const clone = request.clone(), headers = {};
-    for (let pair of clone.headers.entries())
-      headers[pair[0]] = pair[1];
-    headers.authorization = `Bearer ${RemotePlayManager.getInstance().xhomeToken}`;
-    const deviceInfo = XhomeInterceptor.BASE_DEVICE_INFO;
-    if (getPref("xhome_resolution") === "720p") deviceInfo.dev.os.name = "android";
-    headers["x-ms-device-info"] = JSON.stringify(deviceInfo);
-    const opts = {
-      method: clone.method,
-      headers
-    };
-    if (clone.method === "POST") opts.body = await clone.text();
-    let newUrl = request.url;
-    if (!newUrl.includes("/servers/home")) {
-      const index = request.url.indexOf(".xboxlive.com");
-      newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
-    }
-    request = new Request(newUrl, opts);
-    let url = typeof request === "string" ? request : request.url;
-    if (url.includes("/configuration")) return XhomeInterceptor.#handleConfiguration(request);
-    else if (url.endsWith("/sessions/home/play")) return XhomeInterceptor.#handlePlay(request);
-    else if (url.includes("inputconfigs")) return XhomeInterceptor.#handleInputConfigs(request, opts);
-    else if (url.includes("/login/user")) return XhomeInterceptor.#handleLogin(request);
-    else if (url.endsWith("/titles")) return XhomeInterceptor.#handleTitles(request);
-    else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
-    return await NATIVE_FETCH(request);
   }
 }
 class LoadingScreen {
@@ -5418,8 +5039,6 @@ class XcloudInterceptor {
   }
   static async#handleConfiguration(request, init) {
     if (request.method !== "GET") return NATIVE_FETCH(request, init);
-    if (getPref("stream_touch_controller") === "all") if (STATES.currentStream.titleInfo?.details.hasTouchSupport) TouchController.disable();
-      else TouchController.enable();
     const response = await NATIVE_FETCH(request, init), text = await response.clone().text();
     if (!text.length) return response;
     const obj = JSON.parse(text);
@@ -5432,7 +5051,6 @@ class XcloudInterceptor {
         enableMouseInput: overrideMkb,
         enableKeyboardInput: overrideMkb
       });
-    if (TouchController.isEnabled()) overrides.inputConfiguration.enableTouchInput = !0, overrides.inputConfiguration.maxTouchPoints = 10;
     if (getPref("audio_mic_on_playing")) overrides.audioConfiguration = overrides.audioConfiguration || {}, overrides.audioConfiguration.enableMicrophone = !0;
     return obj.clientStreamingConfigOverrides = JSON.stringify(overrides), response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
   }
@@ -5551,14 +5169,7 @@ function interceptHttpRequests() {
       const response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
       if (url.includes("29a81209-df6f-41fd-a528-2ae6b91f719c")) for (let i = 1;i < obj.length; i++)
           gamepassAllGames.push(obj[i].id);
-      else if (url.includes("9c86f07a-f3e8-45ad-82a0-a1f759597059")) try {
-          let customList = TouchController.getCustomList();
-          customList = customList.filter((id) => gamepassAllGames.includes(id));
-          const newCustomList = customList.map((item) => ({ id: item }));
-          obj.push(...newCustomList);
-        } catch (e) {
-          console.log(e);
-        }
+      else if (!1) try {} catch (e) {}
       return response.json = () => Promise.resolve(obj), response;
     }
     if (BX_FLAGS.ForceNativeMkbTitles && url.includes("catalog.gamepass.com/sigls/") && url.includes("8fa264dd-124f-4af3-97e8-596fcdf4b486")) {
@@ -5574,7 +5185,6 @@ function interceptHttpRequests() {
     let requestType;
     if (url.includes("/sessions/home") || url.includes("xhome.") || STATES.remotePlay.isPlaying && url.endsWith("/inputconfigs")) requestType = "xhome";
     else requestType = "xcloud";
-    if (requestType === "xhome") return XhomeInterceptor.handle(request);
     return XcloudInterceptor.handle(request, init);
   };
 }
@@ -5702,7 +5312,7 @@ function patchSdpBitrate(sdp, video, audio) {
 }
 var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
 var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 textureAt(sampler2D tex, vec2 coord) {\n    return texture2D(tex, coord / iResolution.xy).rgb;\n}\n\nvec3 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec3 a = textureAt(tex, coord + vec2(-1, 1));\n    vec3 b = textureAt(tex, coord + vec2(0, 1));\n    vec3 c = textureAt(tex, coord + vec2(1, 1));\n\n    vec3 d = textureAt(tex, coord + vec2(-1, 0));\n    vec3 e = textureAt(tex, coord);\n    vec3 f = textureAt(tex, coord + vec2(1, 0));\n\n    vec3 g = textureAt(tex, coord + vec2(-1, -1));\n    vec3 h = textureAt(tex, coord + vec2(0, -1));\n    vec3 i = textureAt(tex, coord + vec2(1, -1));\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d, e), min(f, b)), h);\n        vec3 minRgb2 = min(min(a, c), min(g, i));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d, e), max(f, b)), h);\n        vec3 maxRgb2 = max(max(a, c), max(g, i));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //                0 w 0\n        // Filter shape:  w 1 w\n        //                0 w 0\n        vec3 window = (b + d) + (f + h);\n        vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e, outColor, sharpenFactor / 2.0);\n\n        return outColor;\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor / 3.0;\n    }\n\n    return e;\n}\n\nvec3 adjustBrightness(vec3 color) {\n    return (1.0 + brightness) * color;\n}\n\nvec3 adjustContrast(vec3 color) {\n    return 0.5 + (1.0 + contrast) * (color - 0.5);\n}\n\nvec3 adjustSaturation(vec3 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color, luminosityFactor));\n\n    return mix(grayscale, color, 1.0 + saturation);\n}\n\nvoid main() {\n    vec3 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = vec4(color, 1.0);\n}\n";
-var LOG_TAG5 = "WebGL2Player";
+var LOG_TAG4 = "WebGL2Player";
 class WebGL2Player {
   #$video;
   #$canvas;
@@ -5719,7 +5329,7 @@ class WebGL2Player {
   };
   #animFrameId = null;
   constructor($video) {
-    BxLogger.info(LOG_TAG5, "Initialize"), this.#$video = $video;
+    BxLogger.info(LOG_TAG4, "Initialize"), this.#$video = $video;
     const $canvas = document.createElement("canvas");
     $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.#$canvas = $canvas, this.#setupShaders(), this.#setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
   }
@@ -5763,7 +5373,7 @@ class WebGL2Player {
       }, this.#animFrameId = requestAnimationFrame(animate);
   }
   #setupShaders() {
-    BxLogger.info(LOG_TAG5, "Setting up", getPref("video_power_preference"));
+    BxLogger.info(LOG_TAG4, "Setting up", getPref("video_power_preference"));
     const gl = this.#$canvas.getContext("webgl", {
       isBx: !0,
       antialias: !0,
@@ -5797,17 +5407,17 @@ class WebGL2Player {
     this.#resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
   }
   resume() {
-    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG5, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
+    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG4, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
   }
   stop() {
-    if (BxLogger.info(LOG_TAG5, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
+    if (BxLogger.info(LOG_TAG4, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
       if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.#$video.cancelVideoFrameCallback(this.#animFrameId);
       else cancelAnimationFrame(this.#animFrameId);
       this.#animFrameId = null;
     }
   }
   destroy() {
-    BxLogger.info(LOG_TAG5, "Destroy"), this.stop();
+    BxLogger.info(LOG_TAG4, "Destroy"), this.stop();
     const gl = this.#gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();

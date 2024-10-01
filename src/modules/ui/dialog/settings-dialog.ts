@@ -451,7 +451,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
         }],
     },
 
-    STATES.userAgent.capabilities.touch && {
+    isFullVersion() && STATES.userAgent.capabilities.touch && {
         group: 'touch-control',
         label: t('touch-controller'),
         items: [{

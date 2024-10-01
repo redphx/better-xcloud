@@ -1,3 +1,5 @@
+import { isFullVersion } from "@macros/build" with {type: "macro"};
+
 import { BxEvent } from "@utils/bx-event";
 import { BX_FLAGS, NATIVE_FETCH } from "@utils/bx-flags";
 import { TouchController } from "@modules/touch-controller";
@@ -222,7 +224,7 @@ export function interceptHttpRequests() {
                 for (let i = 1; i < obj.length; i++) {
                     gamepassAllGames.push(obj[i].id);
                 }
-            } else if (url.includes(GamePassCloudGallery.TOUCH)) {
+            } else if (isFullVersion() && url.includes(GamePassCloudGallery.TOUCH)) {
                 try {
                     let customList = TouchController.getCustomList();
 
@@ -262,7 +264,7 @@ export function interceptHttpRequests() {
             requestType = 'xcloud';
         }
 
-        if (requestType === 'xhome') {
+        if (isFullVersion() && requestType === 'xhome') {
             return XhomeInterceptor.handle(request as Request);
         }
 

@@ -1,3 +1,5 @@
+import { isFullVersion } from "@macros/build" with {type: "macro"};
+
 import { LoadingScreen } from "@modules/loading-screen";
 import { RemotePlayManager } from "@/modules/remote-play-manager";
 import { StreamBadges } from "@modules/stream/stream-badges";
@@ -147,7 +149,7 @@ class XcloudInterceptor {
         }
 
         // Touch controller for all games
-        if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.ALL) {
+        if (isFullVersion() && getPref(PrefKey.STREAM_TOUCH_CONTROLLER) === StreamTouchController.ALL) {
             const titleInfo = STATES.currentStream.titleInfo;
             if (titleInfo?.details.hasTouchSupport) {
                 TouchController.disable();
@@ -187,7 +189,7 @@ class XcloudInterceptor {
         }
 
         // Enable touch controller
-        if (TouchController.isEnabled()) {
+        if (isFullVersion() && TouchController.isEnabled()) {
             overrides.inputConfiguration.enableTouchInput = true;
             overrides.inputConfiguration.maxTouchPoints = 10;
         }

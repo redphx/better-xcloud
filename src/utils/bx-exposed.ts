@@ -22,7 +22,7 @@ export type SupportedInputTypeValue = (typeof SupportedInputType)[keyof typeof S
 export const BxExposed = {
     getTitleInfo: () => STATES.currentStream.titleInfo,
 
-    modifyTitleInfo: (titleInfo: XcloudTitleInfo): XcloudTitleInfo => {
+    modifyTitleInfo: isFullVersion() && function(titleInfo: XcloudTitleInfo): XcloudTitleInfo {
         // Clone the object since the original is read-only
         titleInfo = deepClone(titleInfo);
 
