@@ -26,6 +26,7 @@ const PointerToMouseButton = {
     4: 1,
 }
 
+export const VIRTUAL_GAMEPAD_ID = 'Xbox 360 Controller';
 
 class WebSocketMouseDataProvider extends MouseDataProvider {
     #pointerClient: PointerClient | undefined
@@ -136,10 +137,8 @@ export class EmulatedMkbHandler extends MkbHandler {
     static readonly DEFAULT_DEADZONE_COUNTERWEIGHT = 0.01;
     static readonly MAXIMUM_STICK_RANGE = 1.1;
 
-    static VIRTUAL_GAMEPAD_ID = 'Xbox 360 Controller';
-
     #VIRTUAL_GAMEPAD = {
-            id: EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID,
+            id: VIRTUAL_GAMEPAD_ID,
             index: 3,
             connected: false,
             hapticActuators: null,

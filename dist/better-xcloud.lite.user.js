@@ -1732,6 +1732,208 @@ var MouseMapTo;
   MouseMapTo2[MouseMapTo2.LS = 1] = "LS";
   MouseMapTo2[MouseMapTo2.RS = 2] = "RS";
 })(MouseMapTo ||= {});
+class Toast {
+  static #$wrapper;
+  static #$msg;
+  static #$status;
+  static #stack = [];
+  static #isShowing = !1;
+  static #timeout;
+  static #DURATION = 3000;
+  static show(msg, status, options = {}) {
+    options = options || {};
+    const args = Array.from(arguments);
+    if (options.instant) Toast.#stack = [args], Toast.#showNext();
+    else Toast.#stack.push(args), !Toast.#isShowing && Toast.#showNext();
+  }
+  static #showNext() {
+    if (!Toast.#stack.length) {
+      Toast.#isShowing = !1;
+      return;
+    }
+    Toast.#isShowing = !0, Toast.#timeout && clearTimeout(Toast.#timeout), Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
+    const [msg, status, options] = Toast.#stack.shift();
+    if (options && options.html) Toast.#$msg.innerHTML = msg;
+    else Toast.#$msg.textContent = msg;
+    if (status) Toast.#$status.classList.remove("bx-gone"), Toast.#$status.textContent = status;
+    else Toast.#$status.classList.add("bx-gone");
+    const classList = Toast.#$wrapper.classList;
+    classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
+  }
+  static #hide() {
+    Toast.#timeout = null;
+    const classList = Toast.#$wrapper.classList;
+    classList.remove("bx-show"), classList.add("bx-hide");
+  }
+  static setup() {
+    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" })), Toast.#$wrapper.addEventListener("transitionend", (e) => {
+      const classList = Toast.#$wrapper.classList;
+      if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.#showNext();
+    }), document.documentElement.appendChild(Toast.#$wrapper);
+  }
+}
+function ceilToNearest(value, interval) {
+  return Math.ceil(value / interval) * interval;
+}
+function floorToNearest(value, interval) {
+  return Math.floor(value / interval) * interval;
+}
+async function copyToClipboard(text, showToast = !0) {
+  try {
+    return await navigator.clipboard.writeText(text), showToast && Toast.show("Copied to clipboard", "", { instant: !0 }), !0;
+  } catch (err) {
+    console.error("Failed to copy: ", err), showToast && Toast.show("Failed to copy", "", { instant: !0 });
+  }
+  return !1;
+}
+function productTitleToSlug(title) {
+  return title.replace(/[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g, "").replace(/\|/g, "-").replace(/ {2,}/g, " ").trim().substr(0, 50).replace(/ /g, "-").toLowerCase();
+}
+class SoundShortcut {
+  static adjustGainNodeVolume(amount) {
+    if (!getPref("audio_enable_volume_control")) return 0;
+    const currentValue = getPref("audio_volume");
+    let nearestValue;
+    if (amount > 0) nearestValue = ceilToNearest(currentValue, amount);
+    else nearestValue = floorToNearest(currentValue, -1 * amount);
+    let newValue;
+    if (currentValue !== nearestValue) newValue = nearestValue;
+    else newValue = currentValue + amount;
+    return newValue = setPref("audio_volume", newValue, !0), SoundShortcut.setGainNodeVolume(newValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: !0 }), newValue;
+  }
+  static setGainNodeVolume(value) {
+    STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
+  }
+  static muteUnmute() {
+    if (getPref("audio_enable_volume_control") && STATES.currentStream.audioGainNode) {
+      const gainValue = STATES.currentStream.audioGainNode.gain.value, settingValue = getPref("audio_volume");
+      let targetValue;
+      if (settingValue === 0) targetValue = 100, setPref("audio_volume", targetValue, !0);
+      else if (gainValue === 0) targetValue = settingValue;
+      else targetValue = 0;
+      let status;
+      if (targetValue === 0) status = t("muted");
+      else status = targetValue + "%";
+      SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 }), BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
+        speakerState: targetValue === 0 ? 1 : 0
+      });
+      return;
+    }
+    let $media;
+    if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media) $media = document.querySelector("div[data-testid=media-container] video");
+    if ($media) {
+      $media.muted = !$media.muted;
+      const status = $media.muted ? t("muted") : t("unmuted");
+      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 }), BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
+        speakerState: $media.muted ? 1 : 0
+      });
+    }
+  }
+}
+class BxSelectElement {
+  static wrap($select) {
+    $select.removeAttribute("tabindex");
+    const $btnPrev = createButton({
+      label: "<",
+      style: 32
+    }), $btnNext = createButton({
+      label: ">",
+      style: 32
+    }), isMultiple = $select.multiple;
+    let $checkBox, $label, visibleIndex = $select.selectedIndex, $content;
+    if (isMultiple) $content = CE("button", {
+        class: "bx-select-value bx-focusable",
+        tabindex: 0
+      }, $checkBox = CE("input", { type: "checkbox" }), $label = CE("span", {}, "")), $content.addEventListener("click", (e) => {
+        $checkBox.click();
+      }), $checkBox.addEventListener("input", (e) => {
+        const $option = getOptionAtIndex(visibleIndex);
+        $option && ($option.selected = e.target.checked), BxEvent.dispatch($select, "input");
+      });
+    else $content = CE("div", {}, $label = CE("label", { for: $select.id + "_checkbox" }, ""));
+    const getOptionAtIndex = (index) => {
+      return Array.from($select.querySelectorAll("option"))[index];
+    }, render = (e) => {
+      if (e && e.manualTrigger) visibleIndex = $select.selectedIndex;
+      visibleIndex = normalizeIndex(visibleIndex);
+      const $option = getOptionAtIndex(visibleIndex);
+      let content = "";
+      if ($option) if (content = $option.textContent || "", content && $option.parentElement.tagName === "OPTGROUP") {
+          $label.innerHTML = "";
+          const fragment = document.createDocumentFragment();
+          fragment.appendChild(CE("span", {}, $option.parentElement.label)), fragment.appendChild(document.createTextNode(content)), $label.appendChild(fragment);
+        } else $label.textContent = content;
+      else $label.textContent = content;
+      if ($label.classList.toggle("bx-line-through", $option && $option.disabled), isMultiple) $checkBox.checked = $option?.selected || !1, $checkBox.classList.toggle("bx-gone", !content);
+      const disablePrev = visibleIndex <= 0, disableNext = visibleIndex === $select.querySelectorAll("option").length - 1;
+      $btnPrev.classList.toggle("bx-inactive", disablePrev), $btnNext.classList.toggle("bx-inactive", disableNext), disablePrev && !disableNext && document.activeElement === $btnPrev && $btnNext.focus(), disableNext && !disablePrev && document.activeElement === $btnNext && $btnPrev.focus();
+    }, normalizeIndex = (index) => {
+      return Math.min(Math.max(index, 0), $select.querySelectorAll("option").length - 1);
+    }, onPrevNext = (e) => {
+      if (!e.target) return;
+      const goNext = e.target.closest("button") === $btnNext, currentIndex = visibleIndex;
+      let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
+      if (newIndex = normalizeIndex(newIndex), visibleIndex = newIndex, !isMultiple && newIndex !== currentIndex) $select.selectedIndex = newIndex;
+      if (isMultiple) render();
+      else BxEvent.dispatch($select, "input");
+    };
+    $select.addEventListener("input", render), $btnPrev.addEventListener("click", onPrevNext), $btnNext.addEventListener("click", onPrevNext), new MutationObserver((mutationList, observer2) => {
+      mutationList.forEach((mutation) => {
+        if (mutation.type === "childList" || mutation.type === "attributes") render();
+      });
+    }).observe($select, {
+      subtree: !0,
+      childList: !0,
+      attributes: !0
+    }), render();
+    const $div = CE("div", {
+      class: "bx-select",
+      _nearby: {
+        orientation: "horizontal",
+        focus: $btnNext
+      }
+    }, $select, $btnPrev, $content, $btnNext);
+    return Object.defineProperty($div, "value", {
+      get() {
+        return $select.value;
+      },
+      set(value) {
+        $div.setValue(value);
+      }
+    }), $div.addEventListener = function() {
+      $select.addEventListener.apply($select, arguments);
+    }, $div.removeEventListener = function() {
+      $select.removeEventListener.apply($select, arguments);
+    }, $div.dispatchEvent = function() {
+      return $select.dispatchEvent.apply($select, arguments);
+    }, $div.setValue = (value) => {
+      if ("setValue" in $select) $select.setValue(value);
+      else $select.value = value;
+    }, $div;
+  }
+}
+function onChangeVideoPlayerType() {
+  const playerType = getPref("video_player_type"), $videoProcessing = document.getElementById("bx_setting_video_processing"), $videoSharpness = document.getElementById("bx_setting_video_sharpness"), $videoPowerPreference = document.getElementById("bx_setting_video_power_preference");
+  if (!$videoProcessing) return;
+  let isDisabled = !1;
+  const $optCas = $videoProcessing.querySelector(`option[value=${"cas"}]`);
+  if (playerType === "webgl2") $optCas && ($optCas.disabled = !1);
+  else if ($videoProcessing.value = "usm", setPref("video_processing", "usm"), $optCas && ($optCas.disabled = !0), UserAgent.isSafari()) isDisabled = !0;
+  $videoProcessing.disabled = isDisabled, $videoSharpness.dataset.disabled = isDisabled.toString(), $videoPowerPreference.closest(".bx-settings-row").classList.toggle("bx-gone", playerType !== "webgl2"), updateVideoPlayer();
+}
+function updateVideoPlayer() {
+  const streamPlayer = STATES.currentStream.streamPlayer;
+  if (!streamPlayer) return;
+  const options = {
+    processing: getPref("video_processing"),
+    sharpness: getPref("video_sharpness"),
+    saturation: getPref("video_saturation"),
+    contrast: getPref("video_contrast"),
+    brightness: getPref("video_brightness")
+  };
+  streamPlayer.setPlayerType(getPref("video_player_type")), streamPlayer.updateOptions(options), streamPlayer.refreshPlayer();
+}
+window.addEventListener("resize", updateVideoPlayer);
 class MkbPreset {
   static MOUSE_SETTINGS = {
     map_to: {
@@ -1827,46 +2029,6 @@ class MkbPreset {
     if (typeof mouseMapTo !== "undefined") mouse["map_to"] = mouseMapTo;
     else mouse["map_to"] = MkbPreset.MOUSE_SETTINGS["map_to"].default;
     return console.log(obj), obj;
-  }
-}
-class Toast {
-  static #$wrapper;
-  static #$msg;
-  static #$status;
-  static #stack = [];
-  static #isShowing = !1;
-  static #timeout;
-  static #DURATION = 3000;
-  static show(msg, status, options = {}) {
-    options = options || {};
-    const args = Array.from(arguments);
-    if (options.instant) Toast.#stack = [args], Toast.#showNext();
-    else Toast.#stack.push(args), !Toast.#isShowing && Toast.#showNext();
-  }
-  static #showNext() {
-    if (!Toast.#stack.length) {
-      Toast.#isShowing = !1;
-      return;
-    }
-    Toast.#isShowing = !0, Toast.#timeout && clearTimeout(Toast.#timeout), Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
-    const [msg, status, options] = Toast.#stack.shift();
-    if (options && options.html) Toast.#$msg.innerHTML = msg;
-    else Toast.#$msg.textContent = msg;
-    if (status) Toast.#$status.classList.remove("bx-gone"), Toast.#$status.textContent = status;
-    else Toast.#$status.classList.add("bx-gone");
-    const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
-  }
-  static #hide() {
-    Toast.#timeout = null;
-    const classList = Toast.#$wrapper.classList;
-    classList.remove("bx-show"), classList.add("bx-hide");
-  }
-  static setup() {
-    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" })), Toast.#$wrapper.addEventListener("transitionend", (e) => {
-      const classList = Toast.#$wrapper.classList;
-      if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.#showNext();
-    }), document.documentElement.appendChild(Toast.#$wrapper);
   }
 }
 class LocalDb {
@@ -2229,28 +2391,324 @@ class NativeMkbHandler extends MkbHandler {
     });
   }
 }
-function onChangeVideoPlayerType() {
-  const playerType = getPref("video_player_type"), $videoProcessing = document.getElementById("bx_setting_video_processing"), $videoSharpness = document.getElementById("bx_setting_video_sharpness"), $videoPowerPreference = document.getElementById("bx_setting_video_power_preference");
-  if (!$videoProcessing) return;
-  let isDisabled = !1;
-  const $optCas = $videoProcessing.querySelector(`option[value=${"cas"}]`);
-  if (playerType === "webgl2") $optCas && ($optCas.disabled = !1);
-  else if ($videoProcessing.value = "usm", setPref("video_processing", "usm"), $optCas && ($optCas.disabled = !0), UserAgent.isSafari()) isDisabled = !0;
-  $videoProcessing.disabled = isDisabled, $videoSharpness.dataset.disabled = isDisabled.toString(), $videoPowerPreference.closest(".bx-settings-row").classList.toggle("bx-gone", playerType !== "webgl2"), updateVideoPlayer();
+var LOG_TAG2 = "MkbHandler", PointerToMouseButton = {
+  1: 0,
+  2: 2,
+  4: 1
+}, VIRTUAL_GAMEPAD_ID = "Xbox 360 Controller";
+class WebSocketMouseDataProvider extends MouseDataProvider {
+  #pointerClient;
+  #connected = !1;
+  init() {
+    this.#pointerClient = PointerClient.getInstance(), this.#connected = !1;
+    try {
+      this.#pointerClient.start(STATES.pointerServerPort, this.mkbHandler), this.#connected = !0;
+    } catch (e) {
+      Toast.show("Cannot enable Mouse & Keyboard feature");
+    }
+  }
+  start() {
+    this.#connected && AppInterface.requestPointerCapture();
+  }
+  stop() {
+    this.#connected && AppInterface.releasePointerCapture();
+  }
+  destroy() {
+    this.#connected && this.#pointerClient?.stop();
+  }
 }
-function updateVideoPlayer() {
-  const streamPlayer = STATES.currentStream.streamPlayer;
-  if (!streamPlayer) return;
-  const options = {
-    processing: getPref("video_processing"),
-    sharpness: getPref("video_sharpness"),
-    saturation: getPref("video_saturation"),
-    contrast: getPref("video_contrast"),
-    brightness: getPref("video_brightness")
+class PointerLockMouseDataProvider extends MouseDataProvider {
+  init() {}
+  start() {
+    window.addEventListener("mousemove", this.#onMouseMoveEvent), window.addEventListener("mousedown", this.#onMouseEvent), window.addEventListener("mouseup", this.#onMouseEvent), window.addEventListener("wheel", this.#onWheelEvent, { passive: !1 }), window.addEventListener("contextmenu", this.#disableContextMenu);
+  }
+  stop() {
+    document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("mousemove", this.#onMouseMoveEvent), window.removeEventListener("mousedown", this.#onMouseEvent), window.removeEventListener("mouseup", this.#onMouseEvent), window.removeEventListener("wheel", this.#onWheelEvent), window.removeEventListener("contextmenu", this.#disableContextMenu);
+  }
+  destroy() {}
+  #onMouseMoveEvent = (e) => {
+    this.mkbHandler.handleMouseMove({
+      movementX: e.movementX,
+      movementY: e.movementY
+    });
   };
-  streamPlayer.setPlayerType(getPref("video_player_type")), streamPlayer.updateOptions(options), streamPlayer.refreshPlayer();
+  #onMouseEvent = (e) => {
+    e.preventDefault();
+    const isMouseDown = e.type === "mousedown", data = {
+      mouseButton: e.button,
+      pressed: isMouseDown
+    };
+    this.mkbHandler.handleMouseClick(data);
+  };
+  #onWheelEvent = (e) => {
+    if (!KeyHelper.getKeyFromEvent(e)) return;
+    const data = {
+      vertical: e.deltaY,
+      horizontal: e.deltaX
+    };
+    if (this.mkbHandler.handleMouseWheel(data)) e.preventDefault();
+  };
+  #disableContextMenu = (e) => e.preventDefault();
 }
-window.addEventListener("resize", updateVideoPlayer);
+class EmulatedMkbHandler extends MkbHandler {
+  static #instance;
+  static getInstance() {
+    if (!EmulatedMkbHandler.#instance) EmulatedMkbHandler.#instance = new EmulatedMkbHandler;
+    return EmulatedMkbHandler.#instance;
+  }
+  #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
+  static DEFAULT_PANNING_SENSITIVITY = 0.001;
+  static DEFAULT_DEADZONE_COUNTERWEIGHT = 0.01;
+  static MAXIMUM_STICK_RANGE = 1.1;
+  #VIRTUAL_GAMEPAD = {
+    id: VIRTUAL_GAMEPAD_ID,
+    index: 3,
+    connected: !1,
+    hapticActuators: null,
+    mapping: "standard",
+    axes: [0, 0, 0, 0],
+    buttons: new Array(17).fill(null).map(() => ({ pressed: !1, value: 0 })),
+    timestamp: performance.now(),
+    vibrationActuator: null
+  };
+  #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
+  #enabled = !1;
+  #mouseDataProvider;
+  #isPolling = !1;
+  #prevWheelCode = null;
+  #wheelStoppedTimeout;
+  #detectMouseStoppedTimeout;
+  #$message;
+  #escKeyDownTime = -1;
+  #STICK_MAP;
+  #LEFT_STICK_X = [];
+  #LEFT_STICK_Y = [];
+  #RIGHT_STICK_X = [];
+  #RIGHT_STICK_Y = [];
+  constructor() {
+    super();
+    this.#STICK_MAP = {
+      102: [this.#LEFT_STICK_X, 0, -1],
+      103: [this.#LEFT_STICK_X, 0, 1],
+      100: [this.#LEFT_STICK_Y, 1, -1],
+      101: [this.#LEFT_STICK_Y, 1, 1],
+      202: [this.#RIGHT_STICK_X, 2, -1],
+      203: [this.#RIGHT_STICK_X, 2, 1],
+      200: [this.#RIGHT_STICK_Y, 3, -1],
+      201: [this.#RIGHT_STICK_Y, 3, 1]
+    };
+  }
+  isEnabled = () => this.#enabled;
+  #patchedGetGamepads = () => {
+    const gamepads = this.#nativeGetGamepads() || [];
+    return gamepads[this.#VIRTUAL_GAMEPAD.index] = this.#VIRTUAL_GAMEPAD, gamepads;
+  };
+  #getVirtualGamepad = () => this.#VIRTUAL_GAMEPAD;
+  #updateStick(stick, x, y) {
+    const virtualGamepad = this.#getVirtualGamepad();
+    virtualGamepad.axes[stick * 2] = x, virtualGamepad.axes[stick * 2 + 1] = y, virtualGamepad.timestamp = performance.now();
+  }
+  #vectorLength = (x, y) => Math.sqrt(x ** 2 + y ** 2);
+  #resetGamepad = () => {
+    const gamepad = this.#getVirtualGamepad();
+    gamepad.axes = [0, 0, 0, 0];
+    for (let button of gamepad.buttons)
+      button.pressed = !1, button.value = 0;
+    gamepad.timestamp = performance.now();
+  };
+  #pressButton = (buttonIndex, pressed) => {
+    const virtualGamepad = this.#getVirtualGamepad();
+    if (buttonIndex >= 100) {
+      let [valueArr, axisIndex] = this.#STICK_MAP[buttonIndex];
+      valueArr = valueArr, axisIndex = axisIndex;
+      for (let i = valueArr.length - 1;i >= 0; i--)
+        if (valueArr[i] === buttonIndex) valueArr.splice(i, 1);
+      pressed && valueArr.push(buttonIndex);
+      let value;
+      if (valueArr.length) value = this.#STICK_MAP[valueArr[valueArr.length - 1]][2];
+      else value = 0;
+      virtualGamepad.axes[axisIndex] = value;
+    } else virtualGamepad.buttons[buttonIndex].pressed = pressed, virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
+    virtualGamepad.timestamp = performance.now();
+  };
+  #onKeyboardEvent = (e) => {
+    const isKeyDown = e.type === "keydown";
+    if (e.code === "F8") {
+      if (!isKeyDown) e.preventDefault(), this.toggle();
+      return;
+    }
+    if (e.code === "Escape") {
+      if (e.preventDefault(), this.#enabled && isKeyDown) {
+        if (this.#escKeyDownTime === -1) this.#escKeyDownTime = performance.now();
+        else if (performance.now() - this.#escKeyDownTime >= 1000) this.stop();
+      } else this.#escKeyDownTime = -1;
+      return;
+    }
+    if (!this.#isPolling) return;
+    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code || e.key];
+    if (typeof buttonIndex === "undefined") return;
+    if (e.repeat) return;
+    e.preventDefault(), this.#pressButton(buttonIndex, isKeyDown);
+  };
+  #onMouseStopped = () => {
+    this.#detectMouseStoppedTimeout = null;
+    const analog = this.#CURRENT_PRESET_DATA.mouse["map_to"] === 1 ? 0 : 1;
+    this.#updateStick(analog, 0, 0);
+  };
+  handleMouseClick = (data) => {
+    let mouseButton;
+    if (typeof data.mouseButton !== "undefined") mouseButton = data.mouseButton;
+    else if (typeof data.pointerButton !== "undefined") mouseButton = PointerToMouseButton[data.pointerButton];
+    const keyCode = "Mouse" + mouseButton, key = {
+      code: keyCode,
+      name: KeyHelper.codeToKeyName(keyCode)
+    };
+    if (!key.name) return;
+    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
+    if (typeof buttonIndex === "undefined") return;
+    this.#pressButton(buttonIndex, data.pressed);
+  };
+  handleMouseMove = (data) => {
+    const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse["map_to"];
+    if (mouseMapTo === 0) return;
+    this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout), this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 50);
+    const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse["deadzone_counterweight"];
+    let x = data.movementX * this.#CURRENT_PRESET_DATA.mouse["sensitivity_x"], y = data.movementY * this.#CURRENT_PRESET_DATA.mouse["sensitivity_y"], length = this.#vectorLength(x, y);
+    if (length !== 0 && length < deadzoneCounterweight) x *= deadzoneCounterweight / length, y *= deadzoneCounterweight / length;
+    else if (length > EmulatedMkbHandler.MAXIMUM_STICK_RANGE) x *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length, y *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length;
+    const analog = mouseMapTo === 1 ? 0 : 1;
+    this.#updateStick(analog, x, y);
+  };
+  handleMouseWheel = (data) => {
+    let code = "";
+    if (data.vertical < 0) code = "ScrollUp";
+    else if (data.vertical > 0) code = "ScrollDown";
+    else if (data.horizontal < 0) code = "ScrollLeft";
+    else if (data.horizontal > 0) code = "ScrollRight";
+    if (!code) return !1;
+    const key = {
+      code,
+      name: KeyHelper.codeToKeyName(code)
+    }, buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
+    if (typeof buttonIndex === "undefined") return !1;
+    if (this.#prevWheelCode === null || this.#prevWheelCode === key.code) this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout), this.#pressButton(buttonIndex, !0);
+    return this.#wheelStoppedTimeout = window.setTimeout(() => {
+      this.#prevWheelCode = null, this.#pressButton(buttonIndex, !1);
+    }, 20), !0;
+  };
+  toggle = (force) => {
+    if (typeof force !== "undefined") this.#enabled = force;
+    else this.#enabled = !this.#enabled;
+    if (this.#enabled) document.body.requestPointerLock();
+    else document.pointerLockElement && document.exitPointerLock();
+  };
+  #getCurrentPreset = () => {
+    return new Promise((resolve) => {
+      const presetId = getPref("mkb_default_preset_id");
+      LocalDb.INSTANCE.getPreset(presetId).then((preset) => {
+        resolve(preset);
+      });
+    });
+  };
+  refreshPresetData = () => {
+    this.#getCurrentPreset().then((preset) => {
+      this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset ? preset.data : MkbPreset.DEFAULT_PRESET), this.#resetGamepad();
+    });
+  };
+  waitForMouseData = (wait) => {
+    this.#$message && this.#$message.classList.toggle("bx-gone", !wait);
+  };
+  #onPollingModeChanged = (e) => {
+    if (!this.#$message) return;
+    if (e.mode === "none") this.#$message.classList.remove("bx-offscreen");
+    else this.#$message.classList.add("bx-offscreen");
+  };
+  #onDialogShown = () => {
+    document.pointerLockElement && document.exitPointerLock();
+  };
+  #initMessage = () => {
+    if (!this.#$message) this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("virtual-controller")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "virtual" }, createButton({
+        style: 1 | 256 | 64,
+        label: t("activate"),
+        onClick: ((e) => {
+          e.preventDefault(), e.stopPropagation(), this.toggle(!0);
+        }).bind(this)
+      }), CE("div", {}, createButton({
+        label: t("ignore"),
+        style: 4,
+        onClick: (e) => {
+          e.preventDefault(), e.stopPropagation(), this.toggle(!1), this.waitForMouseData(!1);
+        }
+      }), createButton({
+        label: t("edit"),
+        onClick: (e) => {
+          e.preventDefault(), e.stopPropagation();
+          const dialog = SettingsNavigationDialog.getInstance();
+          dialog.focusTab("mkb"), NavigationDialogManager.getInstance().show(dialog);
+        }
+      }))));
+    if (!this.#$message.isConnected) document.documentElement.appendChild(this.#$message);
+  };
+  #onPointerLockChange = () => {
+    if (document.pointerLockElement) this.start();
+    else this.stop();
+  };
+  #onPointerLockError = (e) => {
+    console.log(e), this.stop();
+  };
+  #onPointerLockRequested = () => {
+    this.start();
+  };
+  #onPointerLockExited = () => {
+    this.#mouseDataProvider?.stop();
+  };
+  handleEvent(event) {
+    switch (event.type) {
+      case BxEvent.POINTER_LOCK_REQUESTED:
+        this.#onPointerLockRequested();
+        break;
+      case BxEvent.POINTER_LOCK_EXITED:
+        this.#onPointerLockExited();
+        break;
+    }
+  }
+  init = () => {
+    if (this.refreshPresetData(), this.#enabled = !1, AppInterface) this.#mouseDataProvider = new WebSocketMouseDataProvider(this);
+    else this.#mouseDataProvider = new PointerLockMouseDataProvider(this);
+    if (this.#mouseDataProvider.init(), window.addEventListener("keydown", this.#onKeyboardEvent), window.addEventListener("keyup", this.#onKeyboardEvent), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), AppInterface) window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    else document.addEventListener("pointerlockchange", this.#onPointerLockChange), document.addEventListener("pointerlockerror", this.#onPointerLockError);
+    if (this.#initMessage(), this.#$message?.classList.add("bx-gone"), AppInterface) Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("virtual-controller"), { html: !0 }), this.waitForMouseData(!1);
+    else this.waitForMouseData(!0);
+  };
+  destroy = () => {
+    if (this.#isPolling = !1, this.#enabled = !1, this.stop(), this.waitForMouseData(!1), document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("keydown", this.#onKeyboardEvent), window.removeEventListener("keyup", this.#onKeyboardEvent), AppInterface) window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
+    else document.removeEventListener("pointerlockchange", this.#onPointerLockChange), document.removeEventListener("pointerlockerror", this.#onPointerLockError);
+    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), this.#mouseDataProvider?.destroy(), window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
+  };
+  start = () => {
+    if (!this.#enabled) this.#enabled = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
+    this.#isPolling = !0, this.#escKeyDownTime = -1, this.#resetGamepad(), window.navigator.getGamepads = this.#patchedGetGamepads, this.waitForMouseData(!1), this.#mouseDataProvider?.start();
+    const virtualGamepad = this.#getVirtualGamepad();
+    virtualGamepad.connected = !0, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepadconnected", {
+      gamepad: virtualGamepad
+    }), window.BX_EXPOSED.stopTakRendering = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
+  };
+  stop = () => {
+    this.#enabled = !1, this.#isPolling = !1, this.#escKeyDownTime = -1;
+    const virtualGamepad = this.#getVirtualGamepad();
+    if (virtualGamepad.connected) this.#resetGamepad(), virtualGamepad.connected = !1, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepaddisconnected", {
+        gamepad: virtualGamepad
+      }), window.navigator.getGamepads = this.#nativeGetGamepads;
+    this.waitForMouseData(!0), this.#mouseDataProvider?.stop();
+  };
+  static setupEvents() {
+    window.addEventListener(BxEvent.STREAM_PLAYING, () => {
+      if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
+        if (AppInterface && getPref("native_mkb_enabled") === "on") AppInterface && NativeMkbHandler.getInstance().init();
+      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG2, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
+    });
+  }
+}
 class NavigationDialog {
   dialogManager;
   constructor() {
@@ -2376,7 +2834,7 @@ class NavigationDialogManager {
     const gamepads = window.navigator.getGamepads();
     for (let gamepad of gamepads) {
       if (!gamepad || !gamepad.connected) continue;
-      if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) continue;
+      if (gamepad.id === VIRTUAL_GAMEPAD_ID) continue;
       const { axes, buttons } = gamepad;
       let releasedButton = null, heldButton = null, lastState = this.gamepadLastStates[gamepad.index], lastTimestamp, lastKey, lastKeyPressed;
       if (lastState) [lastTimestamp, lastKey, lastKeyPressed] = lastState;
@@ -2568,363 +3026,6 @@ var BxIcon = {
   UPLOAD: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 19.905V1.682m14.318 18.223v9.112a1.31 1.31 0 0 1-1.302 1.302H2.983a1.31 1.31 0 0 1-1.302-1.302v-9.112'/><path d='M9.492 8.19L16 1.682l6.508 6.508'/></svg>",
   AUDIO: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M8.964 21.417h-6.5a1.09 1.09 0 0 1-1.083-1.083v-8.667a1.09 1.09 0 0 1 1.083-1.083h6.5L18.714 3v26l-9.75-7.583z'/><path d='M8.964 10.583v10.833m15.167-8.28a4.35 4.35 0 0 1 0 5.728M28.149 9.5a9.79 9.79 0 0 1 0 13'/></svg>"
 };
-class Dialog {
-  $dialog;
-  $title;
-  $content;
-  $overlay;
-  onClose;
-  constructor(options) {
-    const {
-      title,
-      className,
-      content,
-      hideCloseButton,
-      onClose,
-      helpUrl
-    } = options, $overlay = document.querySelector(".bx-dialog-overlay");
-    if (!$overlay) this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" }), this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$overlay);
-    else this.$overlay = $overlay;
-    let $close;
-    this.onClose = onClose, this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
-      icon: BxIcon.QUESTION,
-      style: 4,
-      title: t("help"),
-      url: helpUrl
-    })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close")))), $close && $close.addEventListener("click", (e) => {
-      this.hide(e);
-    }), !title && this.$title.classList.add("bx-gone"), !content && this.$content.classList.add("bx-gone"), this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$dialog);
-  }
-  show(newOptions) {
-    if (document.activeElement && document.activeElement.blur(), newOptions && newOptions.title) this.$title.querySelector("b").textContent = newOptions.title, this.$title.classList.remove("bx-gone");
-    this.$dialog.classList.remove("bx-gone"), this.$overlay.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
-  }
-  hide(e) {
-    this.$dialog.classList.add("bx-gone"), this.$overlay.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll"), this.onClose && this.onClose(e);
-  }
-  toggle() {
-    this.$dialog.classList.toggle("bx-gone"), this.$overlay.classList.toggle("bx-gone");
-  }
-}
-class MkbRemapper {
-  #BUTTON_ORDERS = [
-    12,
-    13,
-    14,
-    15,
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    16,
-    10,
-    100,
-    101,
-    102,
-    103,
-    11,
-    200,
-    201,
-    202,
-    203
-  ];
-  static #instance;
-  static get INSTANCE() {
-    if (!MkbRemapper.#instance) MkbRemapper.#instance = new MkbRemapper;
-    return MkbRemapper.#instance;
-  }
-  #STATE = {
-    currentPresetId: 0,
-    presets: {},
-    editingPresetData: null,
-    isEditing: !1
-  };
-  #$ = {
-    wrapper: null,
-    presetsSelect: null,
-    activateButton: null,
-    currentBindingKey: null,
-    allKeyElements: [],
-    allMouseElements: {}
-  };
-  bindingDialog;
-  constructor() {
-    this.#STATE.currentPresetId = getPref("mkb_default_preset_id"), this.bindingDialog = new Dialog({
-      className: "bx-binding-dialog",
-      content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
-      hideCloseButton: !0
-    });
-  }
-  #clearEventListeners = () => {
-    window.removeEventListener("keydown", this.#onKeyDown), window.removeEventListener("mousedown", this.#onMouseDown), window.removeEventListener("wheel", this.#onWheel);
-  };
-  #bindKey = ($elm, key) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    if ($elm.getAttribute("data-key-code") === key.code) return;
-    for (let $otherElm of this.#$.allKeyElements)
-      if ($otherElm.getAttribute("data-key-code") === key.code) this.#unbindKey($otherElm);
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.setAttribute("data-key-code", key.code);
-  };
-  #unbindKey = ($elm) => {
-    const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot"));
-    this.#STATE.editingPresetData.mapping[buttonIndex][keySlot] = null, $elm.textContent = "", $elm.removeAttribute("data-key-code");
-  };
-  #onWheel = (e) => {
-    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onMouseDown = (e) => {
-    e.preventDefault(), this.#clearEventListeners(), this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onKeyDown = (e) => {
-    if (e.preventDefault(), e.stopPropagation(), this.#clearEventListeners(), e.code !== "Escape") this.#bindKey(this.#$.currentBindingKey, KeyHelper.getKeyFromEvent(e));
-    window.setTimeout(() => this.bindingDialog.hide(), 200);
-  };
-  #onBindingKey = (e) => {
-    if (!this.#STATE.isEditing || e.button !== 0) return;
-    console.log(e), this.#$.currentBindingKey = e.target, window.addEventListener("keydown", this.#onKeyDown), window.addEventListener("mousedown", this.#onMouseDown), window.addEventListener("wheel", this.#onWheel), this.bindingDialog.show({ title: this.#$.currentBindingKey.getAttribute("data-prompt") });
-  };
-  #onContextMenu = (e) => {
-    if (e.preventDefault(), !this.#STATE.isEditing) return;
-    this.#unbindKey(e.target);
-  };
-  #getPreset = (presetId) => {
-    return this.#STATE.presets[presetId];
-  };
-  #getCurrentPreset = () => {
-    return this.#getPreset(this.#STATE.currentPresetId);
-  };
-  #switchPreset = (presetId) => {
-    this.#STATE.currentPresetId = presetId;
-    const presetData = this.#getCurrentPreset().data;
-    for (let $elm of this.#$.allKeyElements) {
-      const buttonIndex = parseInt($elm.getAttribute("data-button-index")), keySlot = parseInt($elm.getAttribute("data-key-slot")), buttonKeys = presetData.mapping[buttonIndex];
-      if (buttonKeys && buttonKeys[keySlot]) $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]), $elm.setAttribute("data-key-code", buttonKeys[keySlot]);
-      else $elm.textContent = "", $elm.removeAttribute("data-key-code");
-    }
-    let key;
-    for (key in this.#$.allMouseElements) {
-      const $elm = this.#$.allMouseElements[key];
-      let value = presetData.mouse[key];
-      if (typeof value === "undefined") value = MkbPreset.MOUSE_SETTINGS[key].default;
-      "setValue" in $elm && $elm.setValue(value);
-    }
-    const activated = getPref("mkb_default_preset_id") === this.#STATE.currentPresetId;
-    this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
-  };
-  #refresh() {
-    while (this.#$.presetsSelect.firstChild)
-      this.#$.presetsSelect.removeChild(this.#$.presetsSelect.firstChild);
-    LocalDb.INSTANCE.getPresets().then((presets) => {
-      this.#STATE.presets = presets;
-      const $fragment = document.createDocumentFragment();
-      let defaultPresetId;
-      if (this.#STATE.currentPresetId === 0) this.#STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.#STATE.currentPresetId, setPref("mkb_default_preset_id", defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
-      else defaultPresetId = getPref("mkb_default_preset_id");
-      for (let id in presets) {
-        let name = presets[id].name;
-        if (id === defaultPresetId) name = "🎮 " + name;
-        const $options = CE("option", { value: id }, name);
-        $options.selected = parseInt(id) === this.#STATE.currentPresetId, $fragment.appendChild($options);
-      }
-      this.#$.presetsSelect.appendChild($fragment);
-      const activated = defaultPresetId === this.#STATE.currentPresetId;
-      this.#$.activateButton.disabled = activated, this.#$.activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate"), !this.#STATE.isEditing && this.#switchPreset(this.#STATE.currentPresetId);
-    });
-  }
-  #toggleEditing = (force) => {
-    if (this.#STATE.isEditing = typeof force !== "undefined" ? force : !this.#STATE.isEditing, this.#$.wrapper.classList.toggle("bx-editing", this.#STATE.isEditing), this.#STATE.isEditing) this.#STATE.editingPresetData = deepClone(this.#getCurrentPreset().data);
-    else this.#STATE.editingPresetData = null;
-    const childElements = this.#$.wrapper.querySelectorAll("select, button, input");
-    for (let $elm of Array.from(childElements)) {
-      if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons")) continue;
-      let disable = !this.#STATE.isEditing;
-      if ($elm.parentElement.classList.contains("bx-mkb-preset-tools")) disable = !disable;
-      $elm.disabled = disable;
-    }
-  };
-  render() {
-    this.#$.wrapper = CE("div", { class: "bx-mkb-settings" }), this.#$.presetsSelect = CE("select", { tabindex: -1 }), this.#$.presetsSelect.addEventListener("change", (e) => {
-      this.#switchPreset(parseInt(e.target.value));
-    });
-    const promptNewName = (value) => {
-      let newName = "";
-      while (!newName) {
-        if (newName = prompt(t("prompt-preset-name"), value), newName === null) return !1;
-        newName = newName.trim();
-      }
-      return newName ? newName : !1;
-    }, $header = CE("div", { class: "bx-mkb-preset-tools" }, this.#$.presetsSelect, createButton({
-      title: t("rename"),
-      icon: BxIcon.CURSOR_TEXT,
-      tabIndex: -1,
-      onClick: (e) => {
-        const preset = this.#getCurrentPreset();
-        let newName = promptNewName(preset.name);
-        if (!newName || newName === preset.name) return;
-        preset.name = newName, LocalDb.INSTANCE.updatePreset(preset).then((id) => this.#refresh());
-      }
-    }), createButton({
-      icon: BxIcon.NEW,
-      title: t("new"),
-      tabIndex: -1,
-      onClick: (e) => {
-        let newName = promptNewName("");
-        if (!newName) return;
-        LocalDb.INSTANCE.newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id) => {
-          this.#STATE.currentPresetId = id, this.#refresh();
-        });
-      }
-    }), createButton({
-      icon: BxIcon.COPY,
-      title: t("copy"),
-      tabIndex: -1,
-      onClick: (e) => {
-        const preset = this.#getCurrentPreset();
-        let newName = promptNewName(`${preset.name} (2)`);
-        if (!newName) return;
-        LocalDb.INSTANCE.newPreset(newName, preset.data).then((id) => {
-          this.#STATE.currentPresetId = id, this.#refresh();
-        });
-      }
-    }), createButton({
-      icon: BxIcon.TRASH,
-      style: 2,
-      title: t("delete"),
-      tabIndex: -1,
-      onClick: (e) => {
-        if (!confirm(t("confirm-delete-preset"))) return;
-        LocalDb.INSTANCE.deletePreset(this.#STATE.currentPresetId).then((id) => {
-          this.#STATE.currentPresetId = 0, this.#refresh();
-        });
-      }
-    }));
-    this.#$.wrapper.appendChild($header);
-    const $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind"))), keysPerButton = 2;
-    for (let buttonIndex of this.#BUTTON_ORDERS) {
-      const [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex];
-      let $elm;
-      const $fragment = document.createDocumentFragment();
-      for (let i = 0;i < keysPerButton; i++)
-        $elm = CE("button", {
-          type: "button",
-          "data-prompt": buttonPrompt,
-          "data-button-index": buttonIndex,
-          "data-key-slot": i
-        }, " "), $elm.addEventListener("mouseup", this.#onBindingKey), $elm.addEventListener("contextmenu", this.#onContextMenu), $fragment.appendChild($elm), this.#$.allKeyElements.push($elm);
-      const $keyRow = CE("div", { class: "bx-mkb-key-row" }, CE("label", { title: buttonName }, buttonPrompt), $fragment);
-      $rows.appendChild($keyRow);
-    }
-    $rows.appendChild(CE("i", { class: "bx-mkb-note" }, t("mkb-adjust-ingame-settings")));
-    const $mouseSettings = document.createDocumentFragment();
-    for (let key in MkbPreset.MOUSE_SETTINGS) {
-      const setting = MkbPreset.MOUSE_SETTINGS[key], value = setting.default;
-      let $elm;
-      const onChange = (e, value2) => {
-        this.#STATE.editingPresetData.mouse[key] = value2;
-      }, $row = CE("label", {
-        class: "bx-settings-row",
-        for: `bx_setting_${key}`
-      }, CE("span", { class: "bx-settings-label" }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
-      $mouseSettings.appendChild($row), this.#$.allMouseElements[key] = $elm;
-    }
-    $rows.appendChild($mouseSettings), this.#$.wrapper.appendChild($rows);
-    const $actionButtons = CE("div", { class: "bx-mkb-action-buttons" }, CE("div", {}, createButton({
-      label: t("edit"),
-      tabIndex: -1,
-      onClick: (e) => this.#toggleEditing(!0)
-    }), this.#$.activateButton = createButton({
-      label: t("activate"),
-      style: 1,
-      tabIndex: -1,
-      onClick: (e) => {
-        setPref("mkb_default_preset_id", this.#STATE.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.#refresh();
-      }
-    })), CE("div", {}, createButton({
-      label: t("cancel"),
-      style: 4,
-      tabIndex: -1,
-      onClick: (e) => {
-        this.#switchPreset(this.#STATE.currentPresetId), this.#toggleEditing(!1);
-      }
-    }), createButton({
-      label: t("save"),
-      style: 1,
-      tabIndex: -1,
-      onClick: (e) => {
-        const updatedPreset = deepClone(this.#getCurrentPreset());
-        updatedPreset.data = this.#STATE.editingPresetData, LocalDb.INSTANCE.updatePreset(updatedPreset).then((id) => {
-          if (id === getPref("mkb_default_preset_id")) EmulatedMkbHandler.getInstance().refreshPresetData();
-          this.#toggleEditing(!1), this.#refresh();
-        });
-      }
-    })));
-    return this.#$.wrapper.appendChild($actionButtons), this.#toggleEditing(!1), this.#refresh(), this.#$.wrapper;
-  }
-}
-function ceilToNearest(value, interval) {
-  return Math.ceil(value / interval) * interval;
-}
-function floorToNearest(value, interval) {
-  return Math.floor(value / interval) * interval;
-}
-async function copyToClipboard(text, showToast = !0) {
-  try {
-    return await navigator.clipboard.writeText(text), showToast && Toast.show("Copied to clipboard", "", { instant: !0 }), !0;
-  } catch (err) {
-    console.error("Failed to copy: ", err), showToast && Toast.show("Failed to copy", "", { instant: !0 });
-  }
-  return !1;
-}
-function productTitleToSlug(title) {
-  return title.replace(/[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g, "").replace(/\|/g, "-").replace(/ {2,}/g, " ").trim().substr(0, 50).replace(/ /g, "-").toLowerCase();
-}
-class SoundShortcut {
-  static adjustGainNodeVolume(amount) {
-    if (!getPref("audio_enable_volume_control")) return 0;
-    const currentValue = getPref("audio_volume");
-    let nearestValue;
-    if (amount > 0) nearestValue = ceilToNearest(currentValue, amount);
-    else nearestValue = floorToNearest(currentValue, -1 * amount);
-    let newValue;
-    if (currentValue !== nearestValue) newValue = nearestValue;
-    else newValue = currentValue + amount;
-    return newValue = setPref("audio_volume", newValue, !0), SoundShortcut.setGainNodeVolume(newValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, newValue + "%", { instant: !0 }), newValue;
-  }
-  static setGainNodeVolume(value) {
-    STATES.currentStream.audioGainNode && (STATES.currentStream.audioGainNode.gain.value = value / 100);
-  }
-  static muteUnmute() {
-    if (getPref("audio_enable_volume_control") && STATES.currentStream.audioGainNode) {
-      const gainValue = STATES.currentStream.audioGainNode.gain.value, settingValue = getPref("audio_volume");
-      let targetValue;
-      if (settingValue === 0) targetValue = 100, setPref("audio_volume", targetValue, !0);
-      else if (gainValue === 0) targetValue = settingValue;
-      else targetValue = 0;
-      let status;
-      if (targetValue === 0) status = t("muted");
-      else status = targetValue + "%";
-      SoundShortcut.setGainNodeVolume(targetValue), Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 }), BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
-        speakerState: targetValue === 0 ? 1 : 0
-      });
-      return;
-    }
-    let $media;
-    if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media) $media = document.querySelector("div[data-testid=media-container] video");
-    if ($media) {
-      $media.muted = !$media.muted;
-      const status = $media.muted ? t("muted") : t("unmuted");
-      Toast.show(`${t("stream")} ❯ ${t("volume")}`, status, { instant: !0 }), BxEvent.dispatch(window, BxEvent.SPEAKER_STATE_CHANGED, {
-        speakerState: $media.muted ? 1 : 0
-      });
-    }
-  }
-}
 var VIBRATION_DATA_MAP = {
   gamepadIndex: 8,
   leftMotorPercent: 8,
@@ -2996,88 +3097,6 @@ class VibrationManager {
       if (!dataChannel || dataChannel.label !== "input") return;
       dataChannel.addEventListener("message", VibrationManager.#onMessage);
     });
-  }
-}
-class BxSelectElement {
-  static wrap($select) {
-    $select.removeAttribute("tabindex");
-    const $btnPrev = createButton({
-      label: "<",
-      style: 32
-    }), $btnNext = createButton({
-      label: ">",
-      style: 32
-    }), isMultiple = $select.multiple;
-    let $checkBox, $label, visibleIndex = $select.selectedIndex, $content;
-    if (isMultiple) $content = CE("button", {
-        class: "bx-select-value bx-focusable",
-        tabindex: 0
-      }, $checkBox = CE("input", { type: "checkbox" }), $label = CE("span", {}, "")), $content.addEventListener("click", (e) => {
-        $checkBox.click();
-      }), $checkBox.addEventListener("input", (e) => {
-        const $option = getOptionAtIndex(visibleIndex);
-        $option && ($option.selected = e.target.checked), BxEvent.dispatch($select, "input");
-      });
-    else $content = CE("div", {}, $label = CE("label", { for: $select.id + "_checkbox" }, ""));
-    const getOptionAtIndex = (index) => {
-      return Array.from($select.querySelectorAll("option"))[index];
-    }, render = (e) => {
-      if (e && e.manualTrigger) visibleIndex = $select.selectedIndex;
-      visibleIndex = normalizeIndex(visibleIndex);
-      const $option = getOptionAtIndex(visibleIndex);
-      let content = "";
-      if ($option) if (content = $option.textContent || "", content && $option.parentElement.tagName === "OPTGROUP") {
-          $label.innerHTML = "";
-          const fragment = document.createDocumentFragment();
-          fragment.appendChild(CE("span", {}, $option.parentElement.label)), fragment.appendChild(document.createTextNode(content)), $label.appendChild(fragment);
-        } else $label.textContent = content;
-      else $label.textContent = content;
-      if ($label.classList.toggle("bx-line-through", $option && $option.disabled), isMultiple) $checkBox.checked = $option?.selected || !1, $checkBox.classList.toggle("bx-gone", !content);
-      const disablePrev = visibleIndex <= 0, disableNext = visibleIndex === $select.querySelectorAll("option").length - 1;
-      $btnPrev.classList.toggle("bx-inactive", disablePrev), $btnNext.classList.toggle("bx-inactive", disableNext), disablePrev && !disableNext && document.activeElement === $btnPrev && $btnNext.focus(), disableNext && !disablePrev && document.activeElement === $btnNext && $btnPrev.focus();
-    }, normalizeIndex = (index) => {
-      return Math.min(Math.max(index, 0), $select.querySelectorAll("option").length - 1);
-    }, onPrevNext = (e) => {
-      if (!e.target) return;
-      const goNext = e.target.closest("button") === $btnNext, currentIndex = visibleIndex;
-      let newIndex = goNext ? currentIndex + 1 : currentIndex - 1;
-      if (newIndex = normalizeIndex(newIndex), visibleIndex = newIndex, !isMultiple && newIndex !== currentIndex) $select.selectedIndex = newIndex;
-      if (isMultiple) render();
-      else BxEvent.dispatch($select, "input");
-    };
-    $select.addEventListener("input", render), $btnPrev.addEventListener("click", onPrevNext), $btnNext.addEventListener("click", onPrevNext), new MutationObserver((mutationList, observer2) => {
-      mutationList.forEach((mutation) => {
-        if (mutation.type === "childList" || mutation.type === "attributes") render();
-      });
-    }).observe($select, {
-      subtree: !0,
-      childList: !0,
-      attributes: !0
-    }), render();
-    const $div = CE("div", {
-      class: "bx-select",
-      _nearby: {
-        orientation: "horizontal",
-        focus: $btnNext
-      }
-    }, $select, $btnPrev, $content, $btnNext);
-    return Object.defineProperty($div, "value", {
-      get() {
-        return $select.value;
-      },
-      set(value) {
-        $div.setValue(value);
-      }
-    }), $div.addEventListener = function() {
-      $select.addEventListener.apply($select, arguments);
-    }, $div.removeEventListener = function() {
-      $select.removeEventListener.apply($select, arguments);
-    }, $div.dispatchEvent = function() {
-      return $select.dispatchEvent.apply($select, arguments);
-    }, $div.setValue = (value) => {
-      if ("setValue" in $select) $select.setValue(value);
-      else $select.value = value;
-    }, $div;
   }
 }
 var FeatureGates = {
@@ -3422,7 +3441,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     group: "mkb",
     label: t("virtual-controller"),
     helpUrl: "https://better-xcloud.github.io/mouse-and-keyboard/",
-    content: MkbRemapper.INSTANCE.render()
+    content: !1
   }];
   TAB_NATIVE_MKB_ITEMS = [{
     requiredVariants: "full",
@@ -3992,325 +4011,6 @@ class SettingsNavigationDialog extends NavigationDialog {
         break;
     }
     return handled;
-  }
-}
-var LOG_TAG2 = "MkbHandler", PointerToMouseButton = {
-  1: 0,
-  2: 2,
-  4: 1
-};
-class WebSocketMouseDataProvider extends MouseDataProvider {
-  #pointerClient;
-  #connected = !1;
-  init() {
-    this.#pointerClient = PointerClient.getInstance(), this.#connected = !1;
-    try {
-      this.#pointerClient.start(STATES.pointerServerPort, this.mkbHandler), this.#connected = !0;
-    } catch (e) {
-      Toast.show("Cannot enable Mouse & Keyboard feature");
-    }
-  }
-  start() {
-    this.#connected && AppInterface.requestPointerCapture();
-  }
-  stop() {
-    this.#connected && AppInterface.releasePointerCapture();
-  }
-  destroy() {
-    this.#connected && this.#pointerClient?.stop();
-  }
-}
-class PointerLockMouseDataProvider extends MouseDataProvider {
-  init() {}
-  start() {
-    window.addEventListener("mousemove", this.#onMouseMoveEvent), window.addEventListener("mousedown", this.#onMouseEvent), window.addEventListener("mouseup", this.#onMouseEvent), window.addEventListener("wheel", this.#onWheelEvent, { passive: !1 }), window.addEventListener("contextmenu", this.#disableContextMenu);
-  }
-  stop() {
-    document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("mousemove", this.#onMouseMoveEvent), window.removeEventListener("mousedown", this.#onMouseEvent), window.removeEventListener("mouseup", this.#onMouseEvent), window.removeEventListener("wheel", this.#onWheelEvent), window.removeEventListener("contextmenu", this.#disableContextMenu);
-  }
-  destroy() {}
-  #onMouseMoveEvent = (e) => {
-    this.mkbHandler.handleMouseMove({
-      movementX: e.movementX,
-      movementY: e.movementY
-    });
-  };
-  #onMouseEvent = (e) => {
-    e.preventDefault();
-    const isMouseDown = e.type === "mousedown", data = {
-      mouseButton: e.button,
-      pressed: isMouseDown
-    };
-    this.mkbHandler.handleMouseClick(data);
-  };
-  #onWheelEvent = (e) => {
-    if (!KeyHelper.getKeyFromEvent(e)) return;
-    const data = {
-      vertical: e.deltaY,
-      horizontal: e.deltaX
-    };
-    if (this.mkbHandler.handleMouseWheel(data)) e.preventDefault();
-  };
-  #disableContextMenu = (e) => e.preventDefault();
-}
-class EmulatedMkbHandler extends MkbHandler {
-  static #instance;
-  static getInstance() {
-    if (!EmulatedMkbHandler.#instance) EmulatedMkbHandler.#instance = new EmulatedMkbHandler;
-    return EmulatedMkbHandler.#instance;
-  }
-  #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
-  static DEFAULT_PANNING_SENSITIVITY = 0.001;
-  static DEFAULT_DEADZONE_COUNTERWEIGHT = 0.01;
-  static MAXIMUM_STICK_RANGE = 1.1;
-  static VIRTUAL_GAMEPAD_ID = "Xbox 360 Controller";
-  #VIRTUAL_GAMEPAD = {
-    id: EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID,
-    index: 3,
-    connected: !1,
-    hapticActuators: null,
-    mapping: "standard",
-    axes: [0, 0, 0, 0],
-    buttons: new Array(17).fill(null).map(() => ({ pressed: !1, value: 0 })),
-    timestamp: performance.now(),
-    vibrationActuator: null
-  };
-  #nativeGetGamepads = window.navigator.getGamepads.bind(window.navigator);
-  #enabled = !1;
-  #mouseDataProvider;
-  #isPolling = !1;
-  #prevWheelCode = null;
-  #wheelStoppedTimeout;
-  #detectMouseStoppedTimeout;
-  #$message;
-  #escKeyDownTime = -1;
-  #STICK_MAP;
-  #LEFT_STICK_X = [];
-  #LEFT_STICK_Y = [];
-  #RIGHT_STICK_X = [];
-  #RIGHT_STICK_Y = [];
-  constructor() {
-    super();
-    this.#STICK_MAP = {
-      102: [this.#LEFT_STICK_X, 0, -1],
-      103: [this.#LEFT_STICK_X, 0, 1],
-      100: [this.#LEFT_STICK_Y, 1, -1],
-      101: [this.#LEFT_STICK_Y, 1, 1],
-      202: [this.#RIGHT_STICK_X, 2, -1],
-      203: [this.#RIGHT_STICK_X, 2, 1],
-      200: [this.#RIGHT_STICK_Y, 3, -1],
-      201: [this.#RIGHT_STICK_Y, 3, 1]
-    };
-  }
-  isEnabled = () => this.#enabled;
-  #patchedGetGamepads = () => {
-    const gamepads = this.#nativeGetGamepads() || [];
-    return gamepads[this.#VIRTUAL_GAMEPAD.index] = this.#VIRTUAL_GAMEPAD, gamepads;
-  };
-  #getVirtualGamepad = () => this.#VIRTUAL_GAMEPAD;
-  #updateStick(stick, x, y) {
-    const virtualGamepad = this.#getVirtualGamepad();
-    virtualGamepad.axes[stick * 2] = x, virtualGamepad.axes[stick * 2 + 1] = y, virtualGamepad.timestamp = performance.now();
-  }
-  #vectorLength = (x, y) => Math.sqrt(x ** 2 + y ** 2);
-  #resetGamepad = () => {
-    const gamepad = this.#getVirtualGamepad();
-    gamepad.axes = [0, 0, 0, 0];
-    for (let button of gamepad.buttons)
-      button.pressed = !1, button.value = 0;
-    gamepad.timestamp = performance.now();
-  };
-  #pressButton = (buttonIndex, pressed) => {
-    const virtualGamepad = this.#getVirtualGamepad();
-    if (buttonIndex >= 100) {
-      let [valueArr, axisIndex] = this.#STICK_MAP[buttonIndex];
-      valueArr = valueArr, axisIndex = axisIndex;
-      for (let i = valueArr.length - 1;i >= 0; i--)
-        if (valueArr[i] === buttonIndex) valueArr.splice(i, 1);
-      pressed && valueArr.push(buttonIndex);
-      let value;
-      if (valueArr.length) value = this.#STICK_MAP[valueArr[valueArr.length - 1]][2];
-      else value = 0;
-      virtualGamepad.axes[axisIndex] = value;
-    } else virtualGamepad.buttons[buttonIndex].pressed = pressed, virtualGamepad.buttons[buttonIndex].value = pressed ? 1 : 0;
-    virtualGamepad.timestamp = performance.now();
-  };
-  #onKeyboardEvent = (e) => {
-    const isKeyDown = e.type === "keydown";
-    if (e.code === "F8") {
-      if (!isKeyDown) e.preventDefault(), this.toggle();
-      return;
-    }
-    if (e.code === "Escape") {
-      if (e.preventDefault(), this.#enabled && isKeyDown) {
-        if (this.#escKeyDownTime === -1) this.#escKeyDownTime = performance.now();
-        else if (performance.now() - this.#escKeyDownTime >= 1000) this.stop();
-      } else this.#escKeyDownTime = -1;
-      return;
-    }
-    if (!this.#isPolling) return;
-    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[e.code || e.key];
-    if (typeof buttonIndex === "undefined") return;
-    if (e.repeat) return;
-    e.preventDefault(), this.#pressButton(buttonIndex, isKeyDown);
-  };
-  #onMouseStopped = () => {
-    this.#detectMouseStoppedTimeout = null;
-    const analog = this.#CURRENT_PRESET_DATA.mouse["map_to"] === 1 ? 0 : 1;
-    this.#updateStick(analog, 0, 0);
-  };
-  handleMouseClick = (data) => {
-    let mouseButton;
-    if (typeof data.mouseButton !== "undefined") mouseButton = data.mouseButton;
-    else if (typeof data.pointerButton !== "undefined") mouseButton = PointerToMouseButton[data.pointerButton];
-    const keyCode = "Mouse" + mouseButton, key = {
-      code: keyCode,
-      name: KeyHelper.codeToKeyName(keyCode)
-    };
-    if (!key.name) return;
-    const buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined") return;
-    this.#pressButton(buttonIndex, data.pressed);
-  };
-  handleMouseMove = (data) => {
-    const mouseMapTo = this.#CURRENT_PRESET_DATA.mouse["map_to"];
-    if (mouseMapTo === 0) return;
-    this.#detectMouseStoppedTimeout && clearTimeout(this.#detectMouseStoppedTimeout), this.#detectMouseStoppedTimeout = window.setTimeout(this.#onMouseStopped.bind(this), 50);
-    const deadzoneCounterweight = this.#CURRENT_PRESET_DATA.mouse["deadzone_counterweight"];
-    let x = data.movementX * this.#CURRENT_PRESET_DATA.mouse["sensitivity_x"], y = data.movementY * this.#CURRENT_PRESET_DATA.mouse["sensitivity_y"], length = this.#vectorLength(x, y);
-    if (length !== 0 && length < deadzoneCounterweight) x *= deadzoneCounterweight / length, y *= deadzoneCounterweight / length;
-    else if (length > EmulatedMkbHandler.MAXIMUM_STICK_RANGE) x *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length, y *= EmulatedMkbHandler.MAXIMUM_STICK_RANGE / length;
-    const analog = mouseMapTo === 1 ? 0 : 1;
-    this.#updateStick(analog, x, y);
-  };
-  handleMouseWheel = (data) => {
-    let code = "";
-    if (data.vertical < 0) code = "ScrollUp";
-    else if (data.vertical > 0) code = "ScrollDown";
-    else if (data.horizontal < 0) code = "ScrollLeft";
-    else if (data.horizontal > 0) code = "ScrollRight";
-    if (!code) return !1;
-    const key = {
-      code,
-      name: KeyHelper.codeToKeyName(code)
-    }, buttonIndex = this.#CURRENT_PRESET_DATA.mapping[key.code];
-    if (typeof buttonIndex === "undefined") return !1;
-    if (this.#prevWheelCode === null || this.#prevWheelCode === key.code) this.#wheelStoppedTimeout && clearTimeout(this.#wheelStoppedTimeout), this.#pressButton(buttonIndex, !0);
-    return this.#wheelStoppedTimeout = window.setTimeout(() => {
-      this.#prevWheelCode = null, this.#pressButton(buttonIndex, !1);
-    }, 20), !0;
-  };
-  toggle = (force) => {
-    if (typeof force !== "undefined") this.#enabled = force;
-    else this.#enabled = !this.#enabled;
-    if (this.#enabled) document.body.requestPointerLock();
-    else document.pointerLockElement && document.exitPointerLock();
-  };
-  #getCurrentPreset = () => {
-    return new Promise((resolve) => {
-      const presetId = getPref("mkb_default_preset_id");
-      LocalDb.INSTANCE.getPreset(presetId).then((preset) => {
-        resolve(preset);
-      });
-    });
-  };
-  refreshPresetData = () => {
-    this.#getCurrentPreset().then((preset) => {
-      this.#CURRENT_PRESET_DATA = MkbPreset.convert(preset ? preset.data : MkbPreset.DEFAULT_PRESET), this.#resetGamepad();
-    });
-  };
-  waitForMouseData = (wait) => {
-    this.#$message && this.#$message.classList.toggle("bx-gone", !wait);
-  };
-  #onPollingModeChanged = (e) => {
-    if (!this.#$message) return;
-    if (e.mode === "none") this.#$message.classList.remove("bx-offscreen");
-    else this.#$message.classList.add("bx-offscreen");
-  };
-  #onDialogShown = () => {
-    document.pointerLockElement && document.exitPointerLock();
-  };
-  #initMessage = () => {
-    if (!this.#$message) this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg bx-gone" }, CE("div", {}, CE("p", {}, t("virtual-controller")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "virtual" }, createButton({
-        style: 1 | 256 | 64,
-        label: t("activate"),
-        onClick: ((e) => {
-          e.preventDefault(), e.stopPropagation(), this.toggle(!0);
-        }).bind(this)
-      }), CE("div", {}, createButton({
-        label: t("ignore"),
-        style: 4,
-        onClick: (e) => {
-          e.preventDefault(), e.stopPropagation(), this.toggle(!1), this.waitForMouseData(!1);
-        }
-      }), createButton({
-        label: t("edit"),
-        onClick: (e) => {
-          e.preventDefault(), e.stopPropagation();
-          const dialog = SettingsNavigationDialog.getInstance();
-          dialog.focusTab("mkb"), NavigationDialogManager.getInstance().show(dialog);
-        }
-      }))));
-    if (!this.#$message.isConnected) document.documentElement.appendChild(this.#$message);
-  };
-  #onPointerLockChange = () => {
-    if (document.pointerLockElement) this.start();
-    else this.stop();
-  };
-  #onPointerLockError = (e) => {
-    console.log(e), this.stop();
-  };
-  #onPointerLockRequested = () => {
-    this.start();
-  };
-  #onPointerLockExited = () => {
-    this.#mouseDataProvider?.stop();
-  };
-  handleEvent(event) {
-    switch (event.type) {
-      case BxEvent.POINTER_LOCK_REQUESTED:
-        this.#onPointerLockRequested();
-        break;
-      case BxEvent.POINTER_LOCK_EXITED:
-        this.#onPointerLockExited();
-        break;
-    }
-  }
-  init = () => {
-    if (this.refreshPresetData(), this.#enabled = !1, AppInterface) this.#mouseDataProvider = new WebSocketMouseDataProvider(this);
-    else this.#mouseDataProvider = new PointerLockMouseDataProvider(this);
-    if (this.#mouseDataProvider.init(), window.addEventListener("keydown", this.#onKeyboardEvent), window.addEventListener("keyup", this.#onKeyboardEvent), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), AppInterface) window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    else document.addEventListener("pointerlockchange", this.#onPointerLockChange), document.addEventListener("pointerlockerror", this.#onPointerLockError);
-    if (this.#initMessage(), this.#$message?.classList.add("bx-gone"), AppInterface) Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("virtual-controller"), { html: !0 }), this.waitForMouseData(!1);
-    else this.waitForMouseData(!0);
-  };
-  destroy = () => {
-    if (this.#isPolling = !1, this.#enabled = !1, this.stop(), this.waitForMouseData(!1), document.pointerLockElement && document.exitPointerLock(), window.removeEventListener("keydown", this.#onKeyboardEvent), window.removeEventListener("keyup", this.#onKeyboardEvent), AppInterface) window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this);
-    else document.removeEventListener("pointerlockchange", this.#onPointerLockChange), document.removeEventListener("pointerlockerror", this.#onPointerLockError);
-    window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged), window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this.#onDialogShown), this.#mouseDataProvider?.destroy(), window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this.#onPollingModeChanged);
-  };
-  start = () => {
-    if (!this.#enabled) this.#enabled = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
-    this.#isPolling = !0, this.#escKeyDownTime = -1, this.#resetGamepad(), window.navigator.getGamepads = this.#patchedGetGamepads, this.waitForMouseData(!1), this.#mouseDataProvider?.start();
-    const virtualGamepad = this.#getVirtualGamepad();
-    virtualGamepad.connected = !0, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepadconnected", {
-      gamepad: virtualGamepad
-    }), window.BX_EXPOSED.stopTakRendering = !0, Toast.show(t("virtual-controller"), t("enabled"), { instant: !0 });
-  };
-  stop = () => {
-    this.#enabled = !1, this.#isPolling = !1, this.#escKeyDownTime = -1;
-    const virtualGamepad = this.#getVirtualGamepad();
-    if (virtualGamepad.connected) this.#resetGamepad(), virtualGamepad.connected = !1, virtualGamepad.timestamp = performance.now(), BxEvent.dispatch(window, "gamepaddisconnected", {
-        gamepad: virtualGamepad
-      }), window.navigator.getGamepads = this.#nativeGetGamepads;
-    this.waitForMouseData(!0), this.#mouseDataProvider?.stop();
-  };
-  static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, () => {
-      if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-        if (AppInterface && getPref("native_mkb_enabled") === "on") AppInterface && NativeMkbHandler.getInstance().init();
-      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG2, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
-    });
   }
 }
 var BxExposed = {
@@ -5189,7 +4889,7 @@ function interceptHttpRequests() {
   };
 }
 function showGamepadToast(gamepad) {
-  if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) return;
+  if (gamepad.id === VIRTUAL_GAMEPAD_ID) return;
   BxLogger.info("Gamepad", gamepad);
   let text = "🎮";
   if (getPref("local_co_op_enabled")) text += ` #${gamepad.index + 1}`;

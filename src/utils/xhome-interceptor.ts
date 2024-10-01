@@ -1,5 +1,3 @@
-import { isFullVersion } from "@macros/build" with {type: "macro"};
-
 import { TouchController } from "@/modules/touch-controller";
 import { BxEvent } from "./bx-event";
 import { SupportedInputType } from "./bx-exposed";

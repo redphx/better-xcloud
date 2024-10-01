@@ -3,7 +3,6 @@ import { GamepadKey } from "@enums/mkb";
 import { PrompFont } from "@enums/prompt-font";
 import { CE, removeChildElements } from "@utils/html";
 import { t } from "@utils/translation";
-import { EmulatedMkbHandler } from "./mkb/mkb-handler";
 import { StreamStats } from "./stream/stream-stats";
 import { MicrophoneShortcut } from "./shortcuts/shortcut-microphone";
 import { StreamUiShortcut } from "./shortcuts/shortcut-stream-ui";
@@ -15,6 +14,7 @@ import { setNearby } from "@/utils/navigation-utils";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "@/utils/settings-storages/global-settings-storage";
 import { SettingsNavigationDialog } from "./ui/dialog/settings-dialog";
+import { VIRTUAL_GAMEPAD_ID } from "./mkb/mkb-handler";
 
 const enum ShortcutAction {
     BETTER_XCLOUD_SETTINGS_SHOW = 'bx-settings-show',
@@ -185,7 +185,7 @@ export class ControllerShortcut {
             }
 
             // Ignore emulated gamepad
-            if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) {
+            if (gamepad.id === VIRTUAL_GAMEPAD_ID) {
                 continue;
             }
 

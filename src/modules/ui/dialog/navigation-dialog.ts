@@ -1,6 +1,6 @@
 import { GamepadKey } from "@/enums/mkb";
 import { PrefKey } from "@/enums/pref-keys";
-import { EmulatedMkbHandler } from "@/modules/mkb/mkb-handler";
+import { VIRTUAL_GAMEPAD_ID } from "@/modules/mkb/mkb-handler";
 import { BxEvent } from "@/utils/bx-event";
 import { STATES } from "@/utils/global";
 import { CE, isElementVisible } from "@/utils/html";
@@ -263,7 +263,7 @@ export class NavigationDialogManager {
             }
 
             // Ignore virtual controller
-            if (gamepad.id === EmulatedMkbHandler.VIRTUAL_GAMEPAD_ID) {
+            if (gamepad.id === VIRTUAL_GAMEPAD_ID) {
                 continue;
             }
 

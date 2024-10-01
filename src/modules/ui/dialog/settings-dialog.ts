@@ -509,7 +509,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
         group: 'mkb',
         label: t('virtual-controller'),
         helpUrl: 'https://better-xcloud.github.io/mouse-and-keyboard/',
-        content: MkbRemapper.INSTANCE.render(),
+        content: isFullVersion() && MkbRemapper.INSTANCE.render(),
     }];
 
     private readonly TAB_NATIVE_MKB_ITEMS: Array<SettingTabContent | false> = [{
