@@ -590,14 +590,14 @@ export class SettingsNavigationDialog extends NavigationDialog {
             requiredVariants: 'full',
         },
 
-        getPref(PrefKey.MKB_ENABLED) && {
+        isFullVersion() && getPref(PrefKey.MKB_ENABLED) && {
             icon: BxIcon.VIRTUAL_CONTROLLER,
             group: 'mkb',
             items: this.TAB_VIRTUAL_CONTROLLER_ITEMS,
             requiredVariants: 'full',
         },
 
-        AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' && {
+        isFullVersion() && AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on' && {
             icon: BxIcon.NATIVE_MKB,
             group: 'native-mkb',
             items: this.TAB_NATIVE_MKB_ITEMS,

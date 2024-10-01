@@ -2231,167 +2231,7 @@ class MouseDataProvider {
   }
 }
 class MkbHandler {}
-class NativeMkbHandler extends MkbHandler {
-  static instance;
-  #pointerClient;
-  #enabled = !1;
-  #mouseButtonsPressed = 0;
-  #mouseWheelX = 0;
-  #mouseWheelY = 0;
-  #mouseVerticalMultiply = 0;
-  #mouseHorizontalMultiply = 0;
-  #inputSink;
-  #$message;
-  static getInstance() {
-    if (!NativeMkbHandler.instance) NativeMkbHandler.instance = new NativeMkbHandler;
-    return NativeMkbHandler.instance;
-  }
-  #onKeyboardEvent(e) {
-    if (e.type === "keyup" && e.code === "F8") {
-      e.preventDefault(), this.toggle();
-      return;
-    }
-  }
-  #onPointerLockRequested(e) {
-    AppInterface.requestPointerCapture(), this.start();
-  }
-  #onPointerLockExited(e) {
-    AppInterface.releasePointerCapture(), this.stop();
-  }
-  #onPollingModeChanged = (e) => {
-    if (!this.#$message) return;
-    if (e.mode === "none") this.#$message.classList.remove("bx-offscreen");
-    else this.#$message.classList.add("bx-offscreen");
-  };
-  #onDialogShown = () => {
-    document.pointerLockElement && document.exitPointerLock();
-  };
-  #initMessage() {
-    if (!this.#$message) this.#$message = CE("div", { class: "bx-mkb-pointer-lock-msg" }, CE("div", {}, CE("p", {}, t("native-mkb")), CE("p", {}, t("press-key-to-toggle-mkb", { key: "F8" }))), CE("div", { "data-type": "native" }, createButton({
-        style: 1 | 64 | 256,
-        label: t("activate"),
-        onClick: ((e) => {
-          e.preventDefault(), e.stopPropagation(), this.toggle(!0);
-        }).bind(this)
-      }), createButton({
-        style: 4 | 64,
-        label: t("ignore"),
-        onClick: (e) => {
-          e.preventDefault(), e.stopPropagation(), this.#$message?.classList.add("bx-gone");
-        }
-      })));
-    if (!this.#$message.isConnected) document.documentElement.appendChild(this.#$message);
-  }
-  handleEvent(event) {
-    switch (event.type) {
-      case "keyup":
-        this.#onKeyboardEvent(event);
-        break;
-      case BxEvent.XCLOUD_DIALOG_SHOWN:
-        this.#onDialogShown();
-        break;
-      case BxEvent.POINTER_LOCK_REQUESTED:
-        this.#onPointerLockRequested(event);
-        break;
-      case BxEvent.POINTER_LOCK_EXITED:
-        this.#onPointerLockExited(event);
-        break;
-      case BxEvent.XCLOUD_POLLING_MODE_CHANGED:
-        this.#onPollingModeChanged(event);
-        break;
-    }
-  }
-  init() {
-    this.#pointerClient = PointerClient.getInstance(), this.#inputSink = window.BX_EXPOSED.inputSink, this.#updateInputConfigurationAsync(!1);
-    try {
-      this.#pointerClient.start(STATES.pointerServerPort, this);
-    } catch (e) {
-      Toast.show("Cannot enable Mouse & Keyboard feature");
-    }
-    if (this.#mouseVerticalMultiply = getPref("native_mkb_scroll_y_sensitivity"), this.#mouseHorizontalMultiply = getPref("native_mkb_scroll_x_sensitivity"), window.addEventListener("keyup", this), window.addEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this), window.addEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.addEventListener(BxEvent.POINTER_LOCK_EXITED, this), window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this), this.#initMessage(), AppInterface) Toast.show(t("press-key-to-toggle-mkb", { key: "<b>F8</b>" }), t("native-mkb"), { html: !0 }), this.#$message?.classList.add("bx-gone");
-    else this.#$message?.classList.remove("bx-gone");
-  }
-  toggle(force) {
-    let setEnable;
-    if (typeof force !== "undefined") setEnable = force;
-    else setEnable = !this.#enabled;
-    if (setEnable) document.documentElement.requestPointerLock();
-    else document.exitPointerLock();
-  }
-  #updateInputConfigurationAsync(enabled) {
-    window.BX_EXPOSED.streamSession.updateInputConfigurationAsync({
-      enableKeyboardInput: enabled,
-      enableMouseInput: enabled,
-      enableAbsoluteMouse: !1,
-      enableTouchInput: !1
-    });
-  }
-  start() {
-    this.#resetMouseInput(), this.#enabled = !0, this.#updateInputConfigurationAsync(!0), window.BX_EXPOSED.stopTakRendering = !0, this.#$message?.classList.add("bx-gone"), Toast.show(t("native-mkb"), t("enabled"), { instant: !0 });
-  }
-  stop() {
-    this.#resetMouseInput(), this.#enabled = !1, this.#updateInputConfigurationAsync(!1), this.#$message?.classList.remove("bx-gone");
-  }
-  destroy() {
-    this.#pointerClient?.stop(), window.removeEventListener("keyup", this), window.removeEventListener(BxEvent.XCLOUD_DIALOG_SHOWN, this), window.removeEventListener(BxEvent.POINTER_LOCK_REQUESTED, this), window.removeEventListener(BxEvent.POINTER_LOCK_EXITED, this), window.removeEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, this), this.#$message?.classList.add("bx-gone");
-  }
-  handleMouseMove(data) {
-    this.#sendMouseInput({
-      X: data.movementX,
-      Y: data.movementY,
-      Buttons: this.#mouseButtonsPressed,
-      WheelX: this.#mouseWheelX,
-      WheelY: this.#mouseWheelY
-    });
-  }
-  handleMouseClick(data) {
-    const { pointerButton, pressed } = data;
-    if (pressed) this.#mouseButtonsPressed |= pointerButton;
-    else this.#mouseButtonsPressed ^= pointerButton;
-    this.#mouseButtonsPressed = Math.max(0, this.#mouseButtonsPressed), this.#sendMouseInput({
-      X: 0,
-      Y: 0,
-      Buttons: this.#mouseButtonsPressed,
-      WheelX: this.#mouseWheelX,
-      WheelY: this.#mouseWheelY
-    });
-  }
-  handleMouseWheel(data) {
-    const { vertical, horizontal } = data;
-    if (this.#mouseWheelX = horizontal, this.#mouseHorizontalMultiply && this.#mouseHorizontalMultiply !== 1) this.#mouseWheelX *= this.#mouseHorizontalMultiply;
-    if (this.#mouseWheelY = vertical, this.#mouseVerticalMultiply && this.#mouseVerticalMultiply !== 1) this.#mouseWheelY *= this.#mouseVerticalMultiply;
-    return this.#sendMouseInput({
-      X: 0,
-      Y: 0,
-      Buttons: this.#mouseButtonsPressed,
-      WheelX: this.#mouseWheelX,
-      WheelY: this.#mouseWheelY
-    }), !0;
-  }
-  setVerticalScrollMultiplier(vertical) {
-    this.#mouseVerticalMultiply = vertical;
-  }
-  setHorizontalScrollMultiplier(horizontal) {
-    this.#mouseHorizontalMultiply = horizontal;
-  }
-  waitForMouseData(enabled) {}
-  isEnabled() {
-    return this.#enabled;
-  }
-  #sendMouseInput(data) {
-    data.Type = 0, this.#inputSink?.onMouseInput(data);
-  }
-  #resetMouseInput() {
-    this.#mouseButtonsPressed = 0, this.#mouseWheelX = 0, this.#mouseWheelY = 0, this.#sendMouseInput({
-      X: 0,
-      Y: 0,
-      Buttons: 0,
-      WheelX: 0,
-      WheelY: 0
-    });
-  }
-}
-var LOG_TAG2 = "MkbHandler", PointerToMouseButton = {
+var PointerToMouseButton = {
   1: 0,
   2: 2,
   4: 1
@@ -2701,13 +2541,7 @@ class EmulatedMkbHandler extends MkbHandler {
       }), window.navigator.getGamepads = this.#nativeGetGamepads;
     this.waitForMouseData(!0), this.#mouseDataProvider?.stop();
   };
-  static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, () => {
-      if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
-        if (AppInterface && getPref("native_mkb_enabled") === "on") AppInterface && NativeMkbHandler.getInstance().init();
-      } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG2, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
-    });
-  }
+  static setupEvents() {}
 }
 class NavigationDialog {
   dialogManager;
@@ -3513,18 +3347,8 @@ class SettingsNavigationDialog extends NavigationDialog {
       items: this.TAB_CONTROLLER_ITEMS,
       requiredVariants: "full"
     },
-    getPref("mkb_enabled") && {
-      icon: BxIcon.VIRTUAL_CONTROLLER,
-      group: "mkb",
-      items: this.TAB_VIRTUAL_CONTROLLER_ITEMS,
-      requiredVariants: "full"
-    },
-    AppInterface && getPref("native_mkb_enabled") === "on" && {
-      icon: BxIcon.NATIVE_MKB,
-      group: "native-mkb",
-      items: this.TAB_NATIVE_MKB_ITEMS,
-      requiredVariants: "full"
-    },
+    !1,
+    !1,
     {
       icon: BxIcon.COMMAND,
       group: "shortcuts",
@@ -4190,7 +4014,7 @@ class RemotePlayNavigationDialog extends NavigationDialog {
     $btnConnect && $btnConnect.focus();
   }
 }
-var LOG_TAG3 = "RemotePlay";
+var LOG_TAG2 = "RemotePlay";
 class RemotePlayManager {
   static instance;
   static getInstance() {
@@ -4206,7 +4030,7 @@ class RemotePlayManager {
     if (this.isInitialized) return;
     this.isInitialized = !0, this.getXhomeToken(() => {
       this.getConsolesList(() => {
-        BxLogger.info(LOG_TAG3, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+        BxLogger.info(LOG_TAG2, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
       });
     });
   }
@@ -5012,7 +4836,7 @@ function patchSdpBitrate(sdp, video, audio) {
 }
 var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
 var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 textureAt(sampler2D tex, vec2 coord) {\n    return texture2D(tex, coord / iResolution.xy).rgb;\n}\n\nvec3 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec3 a = textureAt(tex, coord + vec2(-1, 1));\n    vec3 b = textureAt(tex, coord + vec2(0, 1));\n    vec3 c = textureAt(tex, coord + vec2(1, 1));\n\n    vec3 d = textureAt(tex, coord + vec2(-1, 0));\n    vec3 e = textureAt(tex, coord);\n    vec3 f = textureAt(tex, coord + vec2(1, 0));\n\n    vec3 g = textureAt(tex, coord + vec2(-1, -1));\n    vec3 h = textureAt(tex, coord + vec2(0, -1));\n    vec3 i = textureAt(tex, coord + vec2(1, -1));\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d, e), min(f, b)), h);\n        vec3 minRgb2 = min(min(a, c), min(g, i));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d, e), max(f, b)), h);\n        vec3 maxRgb2 = max(max(a, c), max(g, i));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //                0 w 0\n        // Filter shape:  w 1 w\n        //                0 w 0\n        vec3 window = (b + d) + (f + h);\n        vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e, outColor, sharpenFactor / 2.0);\n\n        return outColor;\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor / 3.0;\n    }\n\n    return e;\n}\n\nvec3 adjustBrightness(vec3 color) {\n    return (1.0 + brightness) * color;\n}\n\nvec3 adjustContrast(vec3 color) {\n    return 0.5 + (1.0 + contrast) * (color - 0.5);\n}\n\nvec3 adjustSaturation(vec3 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color, luminosityFactor));\n\n    return mix(grayscale, color, 1.0 + saturation);\n}\n\nvoid main() {\n    vec3 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = vec4(color, 1.0);\n}\n";
-var LOG_TAG4 = "WebGL2Player";
+var LOG_TAG3 = "WebGL2Player";
 class WebGL2Player {
   #$video;
   #$canvas;
@@ -5029,7 +4853,7 @@ class WebGL2Player {
   };
   #animFrameId = null;
   constructor($video) {
-    BxLogger.info(LOG_TAG4, "Initialize"), this.#$video = $video;
+    BxLogger.info(LOG_TAG3, "Initialize"), this.#$video = $video;
     const $canvas = document.createElement("canvas");
     $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.#$canvas = $canvas, this.#setupShaders(), this.#setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
   }
@@ -5073,7 +4897,7 @@ class WebGL2Player {
       }, this.#animFrameId = requestAnimationFrame(animate);
   }
   #setupShaders() {
-    BxLogger.info(LOG_TAG4, "Setting up", getPref("video_power_preference"));
+    BxLogger.info(LOG_TAG3, "Setting up", getPref("video_power_preference"));
     const gl = this.#$canvas.getContext("webgl", {
       isBx: !0,
       antialias: !0,
@@ -5107,17 +4931,17 @@ class WebGL2Player {
     this.#resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
   }
   resume() {
-    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG4, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
+    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG3, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
   }
   stop() {
-    if (BxLogger.info(LOG_TAG4, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
+    if (BxLogger.info(LOG_TAG3, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
       if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.#$video.cancelVideoFrameCallback(this.#animFrameId);
       else cancelAnimationFrame(this.#animFrameId);
       this.#animFrameId = null;
     }
   }
   destroy() {
-    BxLogger.info(LOG_TAG4, "Destroy"), this.stop();
+    BxLogger.info(LOG_TAG3, "Destroy"), this.stop();
     const gl = this.#gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();

@@ -1,3 +1,5 @@
+import { isFullVersion } from "@macros/build" with {type: "macro"};
+
 import { MkbPreset } from "./mkb-preset";
 import { GamepadKey, MkbPresetKey, GamepadStick, MouseMapTo, WheelCode } from "@enums/mkb";
 import { createButton, ButtonStyle, CE } from "@utils/html";
@@ -677,7 +679,7 @@ export class EmulatedMkbHandler extends MkbHandler {
     }
 
     static setupEvents() {
-        window.addEventListener(BxEvent.STREAM_PLAYING, () => {
+        isFullVersion() && window.addEventListener(BxEvent.STREAM_PLAYING, () => {
             if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
                 // Enable native MKB in Android app
                 if (AppInterface && getPref(PrefKey.NATIVE_MKB_ENABLED) === 'on') {
