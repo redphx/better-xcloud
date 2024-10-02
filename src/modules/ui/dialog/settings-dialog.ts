@@ -1152,6 +1152,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
         }
 
         let $label;
+
         const $row = CE('label', {
             class: 'bx-settings-row',
             for: `bx_setting_${pref}`,
@@ -1162,10 +1163,9 @@ export class SettingsNavigationDialog extends NavigationDialog {
         },
             $label = CE('span', {class: 'bx-settings-label'},
                 label,
-                note && CE('div', {class: 'bx-settings-dialog-note'}, note),
-                setting.unsupported && CE('div', {class: 'bx-settings-dialog-note'}, t('browser-unsupported-feature')),
+                note ? CE('div', {class: 'bx-settings-dialog-note'}, note) : prefDefinition?.unsupported && CE('div', {class: 'bx-settings-dialog-note'}, t('browser-unsupported-feature')),
             ),
-            !setting.unsupported && $control,
+            !prefDefinition?.unsupported && $control,
         );
 
         // Make link inside <label> focusable
@@ -1178,7 +1178,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
         }
 
         $tabContent.appendChild($row);
-        setting.onCreated && setting.onCreated(setting, $control);
+        !prefDefinition?.unsupported && setting.onCreated && setting.onCreated(setting, $control);
     }
 
     private setupDialog() {

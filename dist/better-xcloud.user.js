@@ -5045,11 +5045,11 @@ class SettingsNavigationDialog extends NavigationDialog {
       _nearby: {
         orientation: "horizontal"
       }
-    }, $label = CE("span", { class: "bx-settings-label" }, label, note && CE("div", { class: "bx-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control), $link = $label.querySelector("a");
+    }, $label = CE("span", { class: "bx-settings-label" }, label, note ? CE("div", { class: "bx-settings-dialog-note" }, note) : prefDefinition?.unsupported && CE("div", { class: "bx-settings-dialog-note" }, t("browser-unsupported-feature"))), !prefDefinition?.unsupported && $control), $link = $label.querySelector("a");
     if ($link) $link.classList.add("bx-focusable"), setNearby($label, {
         focus: $link
       });
-    $tabContent.appendChild($row), setting.onCreated && setting.onCreated(setting, $control);
+    $tabContent.appendChild($row), !prefDefinition?.unsupported && setting.onCreated && setting.onCreated(setting, $control);
   }
   setupDialog() {
     let $tabs, $settings;
