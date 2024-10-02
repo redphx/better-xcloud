@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
-// @version      5.7.8-beta
+// @version      5.7.8
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -118,7 +118,7 @@ function deepClone(obj) {
   if (!obj) return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.7.8-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.7.8", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -3620,11 +3620,11 @@ class SettingsNavigationDialog extends NavigationDialog {
       _nearby: {
         orientation: "horizontal"
       }
-    }, $label = CE("span", { class: "bx-settings-label" }, label, note && CE("div", { class: "bx-settings-dialog-note" }, note), setting.unsupported && CE("div", { class: "bx-settings-dialog-note" }, t("browser-unsupported-feature"))), !setting.unsupported && $control), $link = $label.querySelector("a");
+    }, $label = CE("span", { class: "bx-settings-label" }, label, note ? CE("div", { class: "bx-settings-dialog-note" }, note) : prefDefinition?.unsupported && CE("div", { class: "bx-settings-dialog-note" }, t("browser-unsupported-feature"))), !prefDefinition?.unsupported && $control), $link = $label.querySelector("a");
     if ($link) $link.classList.add("bx-focusable"), setNearby($label, {
         focus: $link
       });
-    $tabContent.appendChild($row), setting.onCreated && setting.onCreated(setting, $control);
+    $tabContent.appendChild($row), !prefDefinition?.unsupported && setting.onCreated && setting.onCreated(setting, $control);
   }
   setupDialog() {
     let $tabs, $settings;
