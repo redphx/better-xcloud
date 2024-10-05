@@ -200,7 +200,8 @@ async function main() {
         await build(target, values['version']!!, values['variant'], config);
     }
 
-    console.log('\n** Press Enter to build or Esc to exit');
+    console.log('')
+    // console.log('\n** Press Enter to build or Esc to exit');
 }
 
 function onKeyPress(data: any) {
@@ -213,6 +214,9 @@ function onKeyPress(data: any) {
 }
 
 main();
+
+/*
 process.stdin.setRawMode(true);
 process.stdin.resume();
 process.stdin.on('data', onKeyPress);
+*/
