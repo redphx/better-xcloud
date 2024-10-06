@@ -89,7 +89,7 @@ export class StreamStats {
         this.intervalId = window.setInterval(this.update.bind(this), this.REFRESH_INTERVAL);
     }
 
-    stop(glancing=false) {
+    async stop(glancing=false) {
         if (glancing && !this.isGlancing()) {
             return;
         }
@@ -101,11 +101,11 @@ export class StreamStats {
         this.$container.classList.add('bx-gone');
     }
 
-    toggle() {
+    async toggle() {
         if (this.isGlancing()) {
             this.$container && (this.$container.dataset.display = 'fixed');
         } else {
-            this.isHidden() ? this.start() : this.stop();
+            this.isHidden() ? await this.start() : await this.stop();
         }
     }
 

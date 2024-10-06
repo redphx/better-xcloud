@@ -178,12 +178,12 @@ export class StreamUiHandler {
         let $btnStreamStats = StreamUiHandler.$btnStreamStats;
         if (typeof $btnStreamStats === 'undefined') {
             $btnStreamStats = StreamUiHandler.cloneStreamHudButton($orgButton, t('stream-stats'), BxIcon.STREAM_STATS);
-            $btnStreamStats?.addEventListener('click', e => {
+            $btnStreamStats?.addEventListener('click', async (e) => {
                 hideGripHandle();
                 e.preventDefault();
 
                 // Toggle Stream Stats
-                streamStats.toggle();
+                await streamStats.toggle();
 
                 const btnStreamStatsOn = (!streamStats.isHidden() && !streamStats.isGlancing());
                 $btnStreamStats!.classList.toggle('bx-stream-menu-button-on', btnStreamStatsOn);
