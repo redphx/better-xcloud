@@ -1912,13 +1912,13 @@ class StreamStats {
     if (!this.isHidden() || glancing && this.isGlancing()) return;
     this.intervalId && clearInterval(this.intervalId), await this.update(!0), this.$container.classList.remove("bx-gone"), this.$container.dataset.display = glancing ? "glancing" : "fixed", this.intervalId = window.setInterval(this.update.bind(this), this.REFRESH_INTERVAL);
   }
-  stop(glancing = !1) {
+  async stop(glancing = !1) {
     if (glancing && !this.isGlancing()) return;
     this.intervalId && clearInterval(this.intervalId), this.intervalId = null, this.$container.removeAttribute("data-display"), this.$container.classList.add("bx-gone");
   }
-  toggle() {
+  async toggle() {
     if (this.isGlancing()) this.$container && (this.$container.dataset.display = "fixed");
-    else this.isHidden() ? this.start() : this.stop();
+    else this.isHidden() ? await this.start() : await this.stop();
   }
   onStoppedPlaying() {
     this.stop(), this.quickGlanceStop(), this.hideSettingsUi();
@@ -1930,9 +1930,12 @@ class StreamStats {
     const $uiContainer = document.querySelector("div[data-testid=ui-container]");
     if (!$uiContainer) return;
     this.quickGlanceObserver = new MutationObserver((mutationList, observer) => {
-      for (let record of mutationList)
-        if (record.attributeName && record.attributeName === "aria-expanded") if (record.target.ariaExpanded === "true") this.isHidden() && this.start(!0);
-          else this.stop(!0);
+      for (let record of mutationList) {
+        const $target = record.target;
+        if (!$target.className || !$target.className.startsWith("GripHandle")) continue;
+        if (record.target.ariaExpanded === "true") this.isHidden() && this.start(!0);
+        else this.stop(!0);
+      }
     }), this.quickGlanceObserver.observe($uiContainer, {
       attributes: !0,
       attributeFilter: ["aria-expanded"],
@@ -7676,13 +7679,11 @@ class StreamUiHandler {
     document.querySelector("div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]")?.appendChild(await StreamBadges.getInstance().render());
   }
   static handleSystemMenu($streamHud) {
-    const $gripHandle = $streamHud.querySelector("button[class^=GripHandle]");
-    if (!$gripHandle) return;
     const $orgButton = $streamHud.querySelector("div[class^=HUDButton]");
     if (!$orgButton) return;
     const hideGripHandle = () => {
-      if (!$gripHandle) return;
-      $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
+      const $gripHandle = document.querySelector("#StreamHud button[class^=GripHandle]");
+      if ($gripHandle && $gripHandle.ariaExpanded === "true") $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click(), $gripHandle.dispatchEvent(new PointerEvent("pointerdown")), $gripHandle.click();
     };
     let $btnStreamSettings = StreamUiHandler.$btnStreamSettings;
     if (typeof $btnStreamSettings === "undefined") $btnStreamSettings = StreamUiHandler.cloneStreamHudButton($orgButton, t("better-xcloud"), BxIcon.BETTER_XCLOUD), $btnStreamSettings?.addEventListener("click", (e) => {
@@ -7690,8 +7691,8 @@ class StreamUiHandler {
       }), StreamUiHandler.$btnStreamSettings = $btnStreamSettings;
     const streamStats = StreamStats.getInstance();
     let $btnStreamStats = StreamUiHandler.$btnStreamStats;
-    if (typeof $btnStreamStats === "undefined") $btnStreamStats = StreamUiHandler.cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats?.addEventListener("click", (e) => {
-        hideGripHandle(), e.preventDefault(), streamStats.toggle();
+    if (typeof $btnStreamStats === "undefined") $btnStreamStats = StreamUiHandler.cloneStreamHudButton($orgButton, t("stream-stats"), BxIcon.STREAM_STATS), $btnStreamStats?.addEventListener("click", async (e) => {
+        hideGripHandle(), e.preventDefault(), await streamStats.toggle();
         const btnStreamStatsOn = !streamStats.isHidden() && !streamStats.isGlancing();
         $btnStreamStats.classList.toggle("bx-stream-menu-button-on", btnStreamStatsOn);
       }), StreamUiHandler.$btnStreamStats = $btnStreamStats;
