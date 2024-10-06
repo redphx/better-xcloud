@@ -181,9 +181,47 @@ export function clearFocus() {
     }
 }
 
-
 export function clearDataSet($elm: HTMLElement) {
     Object.keys($elm.dataset).forEach(key => {
         delete $elm.dataset[key];
     });
+}
+
+// https://stackoverflow.com/a/20732091
+const FILE_SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB'];
+export function humanFileSize(size: number) {
+    const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+    return (size / Math.pow(1024, i)).toFixed(2) + ' ' + FILE_SIZE_UNITS[i];
+}
+
+export function secondsToHm(seconds: number) {
+    let h = Math.floor(seconds / 3600);
+    let m = Math.floor(seconds % 3600 / 60) + 1;
+
+    if (m === 60) {
+        h += 1;
+        m = 0;
+    }
+
+    const output = [];
+    h > 0 && output.push(`${h}h`);
+    m > 0 && output.push(`${m}m`);
+
+    return output.join(' ');
+}
+
+export function secondsToHms(seconds: number) {
+    let h = Math.floor(seconds / 3600);
+    seconds %= 3600;
+    let m = Math.floor(seconds / 60);
+    let s = seconds % 60;
+
+    const output = [];
+    h > 0 && output.push(`${h}h`);
+    m > 0 && output.push(`${m}m`);
+    if (s > 0 || output.length === 0) {
+        output.push(`${s}s`);
+    }
+
+    return output.join(' ');
 }

@@ -1,26 +1,10 @@
 import { BxEvent } from "@/utils/bx-event";
 import { BxIcon } from "@/utils/bx-icon";
-import { CE, createSvgIcon, getReactProps, isElementVisible } from "@/utils/html";
+import { CE, createSvgIcon, getReactProps, isElementVisible, secondsToHms } from "@/utils/html";
 import { XcloudApi } from "@/utils/xcloud-api";
 
 export class GameTile {
     static #timeout: number | null;
-
-    static #secondsToHms(seconds: number) {
-        let h = Math.floor(seconds / 3600);
-        seconds %= 3600;
-        let m = Math.floor(seconds / 60);
-        let s = seconds % 60;
-
-        const output = [];
-        h > 0 && output.push(`${h}h`);
-        m > 0 && output.push(`${m}m`);
-        if (s > 0 || output.length === 0) {
-            output.push(`${s}s`);
-        }
-
-        return output.join(' ');
-    }
 
     static async #showWaitTime($elm: HTMLElement, productId: string) {
         if (($elm as any).hasWaitTime) {
@@ -42,7 +26,7 @@ export class GameTile {
         if (typeof totalWaitTime === 'number' && isElementVisible($elm)) {
             const $div = CE('div', {'class': 'bx-game-tile-wait-time'},
                 createSvgIcon(BxIcon.PLAYTIME),
-                CE('span', {}, GameTile.#secondsToHms(totalWaitTime)),
+                CE('span', {}, secondsToHms(totalWaitTime)),
             );
             $elm.insertAdjacentElement('afterbegin', $div);
         }

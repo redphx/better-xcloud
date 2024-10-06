@@ -2,32 +2,51 @@ import { isLiteVersion } from "@macros/build" with {type: "macro"};
 
 import { t } from "@utils/translation";
 import { BxEvent } from "@utils/bx-event";
-import { CE, createSvgIcon } from "@utils/html";
+import { CE, createSvgIcon, humanFileSize } from "@utils/html";
 import { STATES } from "@utils/global";
 import { BxLogger } from "@/utils/bx-logger";
 import { BxIcon } from "@/utils/bx-icon";
 import { GuideMenuTab } from "../ui/guide-menu";
+import { StreamStat, StreamStatsCollector } from "@/utils/stream-stats-collector";
+
+
+type StreamBadgeInfo = {
+    name: string,
+    $element?: HTMLElement,
+    icon: typeof BxIcon,
+    color: string,
+};
+
+type StreamServerInfo = {
+    server?: {
+        ipv6: boolean,
+        region?: string,
+    },
+
+    video?: {
+        width: number,
+        height: number,
+        codec: string,
+        profile?: string,
+    },
+
+    audio?: {
+        codec: string,
+        bitrate: number,
+    },
+};
 
 enum StreamBadge {
     PLAYTIME = 'playtime',
     BATTERY = 'battery',
-    DOWNLOAD = 'in',
-    UPLOAD = 'out',
+    DOWNLOAD = 'download',
+    UPLOAD = 'upload',
 
     SERVER = 'server',
     VIDEO = 'video',
     AUDIO = 'audio',
 }
 
-const StreamBadgeIcon: Partial<{[key in StreamBadge]: any}> = {
-    [StreamBadge.PLAYTIME]: BxIcon.PLAYTIME,
-    [StreamBadge.VIDEO]: BxIcon.DISPLAY,
-    [StreamBadge.BATTERY]: BxIcon.BATTERY,
-    [StreamBadge.DOWNLOAD]: BxIcon.DOWNLOAD,
-    [StreamBadge.UPLOAD]: BxIcon.UPLOAD,
-    [StreamBadge.SERVER]: BxIcon.SERVER,
-    [StreamBadge.AUDIO]: BxIcon.AUDIO,
-}
 
 export class StreamBadges {
     private static instance: StreamBadges;
@@ -39,91 +58,100 @@ export class StreamBadges {
         return StreamBadges.instance;
     }
 
-    #ipv6 = false;
-    #resolution?: {width: number, height: number} | null = null;
-    #video?: {codec: string, profile?: string | null} | null = null;
-    #audio?: {codec: string, bitrate: number} | null = null;
-    #region = '';
+    private serverInfo: StreamServerInfo = {};
 
-    startBatteryLevel = 100;
-    startTimestamp = 0;
+    private badges: Record<StreamBadge, StreamBadgeInfo> = {
+        [StreamBadge.PLAYTIME]: {
+            name: t('playtime'),
+            icon: BxIcon.PLAYTIME,
+            color: '#ff004d',
+        },
+        [StreamBadge.BATTERY]: {
+            name: t('battery'),
+            icon: BxIcon.BATTERY,
+            color: '#00b543',
+        },
+        [StreamBadge.DOWNLOAD]: {
+            name: t('download'),
+            icon: BxIcon.DOWNLOAD,
+            color: '#29adff',
+        },
+        [StreamBadge.UPLOAD]: {
+            name: t('upload'),
+            icon: BxIcon.UPLOAD,
+            color: '#ff77a8',
+        },
+        [StreamBadge.SERVER]: {
+            name: t('server'),
+            icon: BxIcon.SERVER,
+            color: '#ff6c24',
+        },
+        [StreamBadge.VIDEO]: {
+            name: t('video'),
+            icon: BxIcon.DISPLAY,
+            color: '#742f29',
+        },
+        [StreamBadge.AUDIO]: {
+            name: t('audio'),
+            icon: BxIcon.AUDIO,
+            color: '#5f574f',
+        },
+    };
 
-    #$container: HTMLElement | undefined;
-    #cachedDoms: Partial<{[key in StreamBadge]: HTMLElement}> = {};
+    private $container: HTMLElement | undefined;
 
-    #interval?: number | null;
-    readonly #REFRESH_INTERVAL = 3000;
+    private intervalId?: number | null;
+    private readonly REFRESH_INTERVAL = 3 * 1000;
 
     setRegion(region: string) {
-        this.#region = region;
+        this.serverInfo.server = {
+            region: region,
+            ipv6: false,
+        };
     }
 
-    #renderBadge(name: StreamBadge, value: string, color: string) {
+    renderBadge(name: StreamBadge, value: string) {
+        const badgeInfo = this.badges[name];
+
         let $badge;
-        if (this.#cachedDoms[name]) {
-            $badge = this.#cachedDoms[name]!;
+        if (badgeInfo.$element) {
+            $badge = badgeInfo.$element;
             $badge.lastElementChild!.textContent = value;
             return $badge;
         }
 
-        $badge = CE('div', {'class': 'bx-badge', 'title': t(`badge-${name}`)},
-            CE('span', {'class': 'bx-badge-name'}, createSvgIcon(StreamBadgeIcon[name])),
-            CE('span', {'class': 'bx-badge-value', 'style': `background-color: ${color}`}, value),
+        $badge = CE('div', {class: 'bx-badge', title: badgeInfo.name},
+            CE('span', {class: 'bx-badge-name'}, createSvgIcon(badgeInfo.icon)),
+            CE('span', {class: 'bx-badge-value', style: `background-color: ${badgeInfo.color}`}, value),
         );
 
         if (name === StreamBadge.BATTERY) {
             $badge.classList.add('bx-badge-battery');
         }
 
-        this.#cachedDoms[name] = $badge;
+        this.badges[name].$element = $badge;
         return $badge;
     }
 
-    async #updateBadges(forceUpdate = false) {
-        if (!this.#$container || (!forceUpdate && !this.#$container.isConnected)) {
-            this.#stop();
+    private async updateBadges(forceUpdate = false) {
+        if (!this.$container || (!forceUpdate && !this.$container.isConnected)) {
+            this.stop();
             return;
         }
 
-        // Playtime
-        let now = +new Date;
-        const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000);
-        const playtime = this.#secondsToHm(diffSeconds);
+        const statsCollector = StreamStatsCollector.getInstance();
+        await statsCollector.collect();
 
-        // Battery
-        let batteryLevel = '100%';
-        let batteryLevelInt = 100;
-        let isCharging = false;
-        if (STATES.browser.capabilities.batteryApi) {
-            try {
-                const bm = await (navigator as NavigatorBattery).getBattery();
-                isCharging = bm.charging;
-                batteryLevelInt = Math.round(bm.level * 100);
-                batteryLevel = `${batteryLevelInt}%`;
-
-                if (batteryLevelInt != this.startBatteryLevel) {
-                    const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel);
-                    const sign = diffLevel > 0 ? '+' : '';
-                    batteryLevel += ` (${sign}${diffLevel}%)`;
-                }
-            } catch(e) {}
-        }
-
-        const stats = await STATES.currentStream.peerConnection?.getStats()!;
-        let totalIn = 0;
-        let totalOut = 0;
-        stats.forEach(stat => {
-            if (stat.type === 'candidate-pair' && stat.packetsReceived > 0 && stat.state === 'succeeded') {
-                totalIn += stat.bytesReceived;
-                totalOut += stat.bytesSent;
-            }
-        });
+        const play = statsCollector.getStat(StreamStat.PLAYTIME);
+        const batt = statsCollector.getStat(StreamStat.BATTERY);
+        const dl = statsCollector.getStat(StreamStat.DOWNLOAD);
+        const ul = statsCollector.getStat(StreamStat.UPLOAD);
 
         const badges = {
-            [StreamBadge.DOWNLOAD]: totalIn ? this.#humanFileSize(totalIn) : null,
-            [StreamBadge.UPLOAD]: totalOut ? this.#humanFileSize(totalOut) : null,
-            [StreamBadge.PLAYTIME]: playtime,
-            [StreamBadge.BATTERY]: batteryLevel,
+            [StreamBadge.DOWNLOAD]: dl.toString(),
+            [StreamBadge.UPLOAD]: ul.toString(),
+            [StreamBadge.PLAYTIME]: play.toString(),
+            [StreamBadge.BATTERY]: batt.toString(),
         };
 
         let name: keyof typeof badges;
@@ -133,97 +161,44 @@ export class StreamBadges {
                 continue;
             }
 
-            const $elm = this.#cachedDoms[name]!;
-            $elm && ($elm.lastElementChild!.textContent = value);
+            const $elm = this.badges[name].$element;
+            if (!$elm) {
+                continue;
+            }
+
+            $elm.lastElementChild!.textContent = value;
 
             if (name === StreamBadge.BATTERY) {
-                if (this.startBatteryLevel === 100 && batteryLevelInt === 100) {
+                if (batt.current === 100 && batt.start === 100) {
                     // Hide battery badge when the battery is 100%
                     $elm.classList.add('bx-gone');
                 } else {
                     // Show charging status
-                    $elm.dataset.charging = isCharging.toString()
+                    $elm.dataset.charging = batt.isCharging.toString();
                     $elm.classList.remove('bx-gone');
                 }
             }
         }
     }
 
-    async #start() {
-        await this.#updateBadges(true);
-        this.#stop();
-        this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
+    private async start() {
+        await this.updateBadges(true);
+        this.stop();
+        this.intervalId = window.setInterval(this.updateBadges.bind(this), this.REFRESH_INTERVAL);
     }
 
-    #stop() {
-        this.#interval && clearInterval(this.#interval);
-        this.#interval = null;
-    }
-
-    #secondsToHm(seconds: number) {
-        let h = Math.floor(seconds / 3600);
-        let m = Math.floor(seconds % 3600 / 60) + 1;
-
-        if (m === 60) {
-            h += 1;
-            m = 0;
-        }
-
-        const output = [];
-        h > 0 && output.push(`${h}h`);
-        m > 0 && output.push(`${m}m`);
-
-        return output.join(' ');
-    }
-
-    // https://stackoverflow.com/a/20732091
-    #humanFileSize(size: number) {
-        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-
-        const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-        return (size / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
+    private stop() {
+        this.intervalId && clearInterval(this.intervalId);
+        this.intervalId = null;
     }
 
     async render() {
-        if (this.#$container) {
-            this.#start();
-            return this.#$container;
+        if (this.$container) {
+            this.start();
+            return this.$container;
         }
 
-        await this.#getServerStats();
-
-        // Video
-        let video = '';
-        if (this.#resolution) {
-            video = `${this.#resolution.height}p`;
-        }
-
-        if (this.#video) {
-            video && (video += '/');
-            video += this.#video.codec;
-            if (this.#video.profile) {
-                const profile = this.#video.profile;
-
-                let quality = profile;
-                if (profile.startsWith('4d')) {
-                    quality = t('visual-quality-high');
-                } else if (profile.startsWith('42e')) {
-                    quality = t('visual-quality-normal');
-                } else if (profile.startsWith('420')) {
-                    quality = t('visual-quality-low');
-                }
-
-                video += ` (${quality})`;
-            }
-        }
-
-        // Audio
-        let audio;
-        if (this.#audio) {
-            audio = this.#audio.codec;
-            const bitrate = this.#audio.bitrate / 1000;
-            audio += ` (${bitrate} kHz)`;
-        }
+        await this.getServerStats();
 
         // Battery
         let batteryLevel = '';
@@ -231,46 +206,50 @@ export class StreamBadges {
             batteryLevel = '100%';
         }
 
-        // Server + Region
-        let server = this.#region;
-        server += '@' + (this.#ipv6 ? 'IPv6' : 'IPv4');
-
         const BADGES = [
-            [StreamBadge.PLAYTIME, '1m', '#ff004d'],
-            [StreamBadge.BATTERY, batteryLevel, '#00b543'],
-            [StreamBadge.DOWNLOAD, this.#humanFileSize(0), '#29adff'],
-            [StreamBadge.UPLOAD, this.#humanFileSize(0), '#ff77a8'],
-            [StreamBadge.SERVER, server, '#ff6c24'],
-            video ? [StreamBadge.VIDEO, video, '#742f29'] : null,
-            audio ? [StreamBadge.AUDIO, audio, '#5f574f'] : null,
+            [StreamBadge.PLAYTIME, '1m'],
+            [StreamBadge.BATTERY, batteryLevel],
+            [StreamBadge.DOWNLOAD, humanFileSize(0)],
+            [StreamBadge.UPLOAD, humanFileSize(0)],
+            this.serverInfo.server ? this.badges.server.$element : [StreamBadge.SERVER, '?'],
+            this.serverInfo.video ? this.badges.video.$element : [StreamBadge.VIDEO, '?'],
+            this.serverInfo.audio ? this.badges.audio.$element : [StreamBadge.AUDIO, '?'],
         ];
 
-        const $container = CE('div', {'class': 'bx-badges'});
+        const $container = CE('div', {class: 'bx-badges'});
         BADGES.forEach(item => {
             if (!item) {
                 return;
             }
 
-            const $badge = this.#renderBadge(...(item as [StreamBadge, string, string]));
+            let $badge: HTMLElement;
+            if (!(item instanceof HTMLElement)) {
+                $badge = this.renderBadge(...(item as [StreamBadge, string]));
+            } else {
+                $badge = item;
+            }
+
             $container.appendChild($badge);
         });
 
-        this.#$container = $container;
-        await this.#start();
+        this.$container = $container;
+        await this.start();
 
         return $container;
     }
 
-    async #getServerStats() {
+    private async getServerStats() {
         const stats = await STATES.currentStream.peerConnection!.getStats();
 
-        const allVideoCodecs: {[index: string]: RTCBasicStat} = {};
+        const allVideoCodecs: Record<string, RTCBasicStat> = {};
         let videoCodecId;
+        let videoWidth = 0;
+        let videoHeight = 0;
 
-        const allAudioCodecs: {[index: string]: RTCBasicStat} = {};
+        const allAudioCodecs: Record<string, RTCBasicStat> = {};
         let audioCodecId;
 
-        const allCandidates: {[index: string]: string} = {};
+        const allCandidates: Record<string, string> = {};
         let candidateId;
 
         stats.forEach((stat: RTCBasicStat) => {
@@ -287,6 +266,8 @@ export class StreamBadges {
                 // Get the codecId of the video/audio track currently being used
                 if (stat.kind === 'video') {
                     videoCodecId = stat.codecId;
+                    videoWidth = stat.frameWidth;
+                    videoHeight = stat.frameHeight;
                 } else if (stat.kind === 'audio') {
                     audioCodecId = stat.codecId;
                 }
@@ -300,53 +281,77 @@ export class StreamBadges {
         // Get video codec from codecId
         if (videoCodecId) {
             const videoStat = allVideoCodecs[videoCodecId];
-            const video: any = {
+            const video: StreamServerInfo['video'] = {
+                width: videoWidth,
+                height: videoHeight,
                 codec: videoStat.mimeType.substring(6),
             };
 
             if (video.codec === 'H264') {
                 const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-                video.profile = match ? match[1] : null;
+                match && (video.profile = match[1]);
             }
 
-            this.#video = video;
+            let text = videoHeight + 'p';
+            text && (text += '/');
+            text += video.codec;
+            if (video.profile) {
+                const profile = video.profile;
+
+                let quality = profile;
+                if (profile.startsWith('4d')) {
+                    quality = t('visual-quality-high');
+                } else if (profile.startsWith('42e')) {
+                    quality = t('visual-quality-normal');
+                } else if (profile.startsWith('420')) {
+                    quality = t('visual-quality-low');
+                }
+
+                text += ` (${quality})`;
+            }
+
+            // Render badge
+            this.badges.video.$element = this.renderBadge(StreamBadge.VIDEO, text);
+
+            this.serverInfo.video = video;
         }
 
         // Get audio codec from codecId
         if (audioCodecId) {
             const audioStat = allAudioCodecs[audioCodecId];
-            this.#audio = {
+            const audio: StreamServerInfo['audio'] = {
                 codec: audioStat.mimeType.substring(6),
                 bitrate: audioStat.clockRate,
-            }
+            };
+
+            const bitrate = audio.bitrate / 1000;
+            const text = `${audio.codec} (${bitrate} kHz)`;
+            this.badges.audio.$element = this.renderBadge(StreamBadge.AUDIO, text);
+
+            this.serverInfo.audio = audio;
         }
 
         // Get server type
         if (candidateId) {
             BxLogger.info('candidate', candidateId, allCandidates);
-            this.#ipv6 = allCandidates[candidateId].includes(':');
+
+            // Server + Region
+            const server = this.serverInfo.server;
+            if (server) {
+                server.ipv6 = allCandidates[candidateId].includes(':');
+
+                let text = '';
+                if (server.region) {
+                    text += server.region;
+                }
+
+                text += '@' + (server ? 'IPv6' : 'IPv4');
+                this.badges.server.$element = this.renderBadge(StreamBadge.SERVER, text);
+            }
         }
     }
 
     static setupEvents() {
-        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
-            const $video = (e as any).$video;
-            const streamBadges = StreamBadges.getInstance();
-
-            streamBadges.#resolution = {
-                width: $video.videoWidth,
-                height: $video.videoHeight,
-            };
-            streamBadges.startTimestamp = +new Date;
-
-            // Get battery level
-            try {
-                STATES.browser.capabilities.batteryApi && (navigator as NavigatorBattery).getBattery().then(bm => {
-                    streamBadges.startBatteryLevel = Math.round(bm.level * 100);
-                });
-            } catch(e) {}
-        });
-
         // Since the Lite version doesn't have the "..." button on System menu
         // we need to display Stream badges in the Guide menu instead
         isLiteVersion() && window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, async e => {

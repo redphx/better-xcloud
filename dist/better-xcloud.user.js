@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.7.8
+// @version      5.7.9-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -120,7 +120,7 @@ function deepClone(obj) {
   if (!obj) return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.7.8", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.7.9-beta", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -217,6 +217,24 @@ function clearDataSet($elm) {
     delete $elm.dataset[key];
   });
 }
+function humanFileSize(size) {
+  const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+  return (size / Math.pow(1024, i)).toFixed(2) + " " + FILE_SIZE_UNITS[i];
+}
+function secondsToHm(seconds) {
+  let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
+  if (m === 60) h += 1, m = 0;
+  const output = [];
+  return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
+}
+function secondsToHms(seconds) {
+  let h = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  let m = Math.floor(seconds / 60), s = seconds % 60;
+  const output = [];
+  if (h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), s > 0 || output.length === 0) output.push(`${s}s`);
+  return output.join(" ");
+}
 var ButtonStyleClass = {
   1: "bx-primary",
   2: "bx-danger",
@@ -245,6 +263,7 @@ var ButtonStyleClass = {
   return $btn;
 }, CTN = document.createTextNode.bind(document);
 window.BX_CE = createElement;
+var FILE_SIZE_UNITS = ["B", "KB", "MB", "GB", "TB"];
 var SUPPORTED_LANGUAGES = {
   "en-US": "English (US)",
   "ca-CA": "Català",
@@ -281,13 +300,7 @@ var SUPPORTED_LANGUAGES = {
   auto: "Auto",
   "back-to-home": "Back to home",
   "back-to-home-confirm": "Do you want to go back to the home page (without disconnecting)?",
-  "badge-audio": "Audio",
-  "badge-battery": "Battery",
-  "badge-in": "In",
-  "badge-out": "Out",
-  "badge-playtime": "Playtime",
-  "badge-server": "Server",
-  "badge-video": "Video",
+  battery: "Battery",
   "battery-saving": "Battery saving",
   "better-xcloud": "Better xCloud",
   "bitrate-audio-maximum": "Maximum audio bitrate",
@@ -304,6 +317,7 @@ var SUPPORTED_LANGUAGES = {
   "clarity-boost": "Clarity boost",
   "clarity-boost-warning": "These settings don't work when the Clarity Boost mode is ON",
   clear: "Clear",
+  clock: "Clock",
   close: "Close",
   "close-app": "Close app",
   "combine-audio-video-streams": "Combine audio & video streams",
@@ -338,6 +352,7 @@ var SUPPORTED_LANGUAGES = {
   "disable-xcloud-analytics": "Disable xCloud analytics",
   disabled: "Disabled",
   disconnected: "Disconnected",
+  download: "Download",
   edit: "Edit",
   "enable-controller-shortcuts": "Enable controller shortcuts",
   "enable-local-co-op-support": "Enable local co-op support",
@@ -427,6 +442,7 @@ var SUPPORTED_LANGUAGES = {
   opacity: "Opacity",
   other: "Other",
   playing: "Playing",
+  playtime: "Playtime",
   poland: "Poland",
   position: "Position",
   "powered-off": "Powered off",
@@ -591,6 +607,7 @@ var SUPPORTED_LANGUAGES = {
   unlimited: "Unlimited",
   unmuted: "Unmuted",
   "unsharp-masking": "Unsharp masking",
+  upload: "Upload",
   "use-mouse-absolute-position": "Use mouse's absolute position",
   "use-this-at-your-own-risk": "Use this at your own risk",
   "user-agent-profile": "User-Agent profile",
@@ -690,131 +707,6 @@ var BypassServers = {
   pl: "45.134.212.66",
   us: "143.244.47.65"
 };
-class StreamStats {
-  static instance;
-  static getInstance() {
-    if (!StreamStats.instance) StreamStats.instance = new StreamStats;
-    return StreamStats.instance;
-  }
-  #timeoutId;
-  #updateInterval = 1000;
-  #$container;
-  #$fps;
-  #$ping;
-  #$dt;
-  #$pl;
-  #$fl;
-  #$br;
-  #lastVideoStat;
-  #quickGlanceObserver;
-  constructor() {
-    this.#render();
-  }
-  start(glancing = !1) {
-    if (!this.isHidden() || glancing && this.isGlancing()) return;
-    if (this.#$container) this.#$container.classList.remove("bx-gone"), this.#$container.dataset.display = glancing ? "glancing" : "fixed";
-    this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval);
-  }
-  stop(glancing = !1) {
-    if (glancing && !this.isGlancing()) return;
-    if (this.#timeoutId && clearTimeout(this.#timeoutId), this.#timeoutId = null, this.#lastVideoStat = null, this.#$container) this.#$container.removeAttribute("data-display"), this.#$container.classList.add("bx-gone");
-  }
-  toggle() {
-    if (this.isGlancing()) this.#$container && (this.#$container.dataset.display = "fixed");
-    else this.isHidden() ? this.start() : this.stop();
-  }
-  onStoppedPlaying() {
-    this.stop(), this.quickGlanceStop(), this.hideSettingsUi();
-  }
-  isHidden = () => this.#$container && this.#$container.classList.contains("bx-gone");
-  isGlancing = () => this.#$container && this.#$container.dataset.display === "glancing";
-  quickGlanceSetup() {
-    if (!STATES.isPlaying || this.#quickGlanceObserver) return;
-    const $uiContainer = document.querySelector("div[data-testid=ui-container]");
-    if (!$uiContainer) return;
-    this.#quickGlanceObserver = new MutationObserver((mutationList, observer) => {
-      for (let record of mutationList)
-        if (record.attributeName && record.attributeName === "aria-expanded") if (record.target.ariaExpanded === "true") this.isHidden() && this.start(!0);
-          else this.stop(!0);
-    }), this.#quickGlanceObserver.observe($uiContainer, {
-      attributes: !0,
-      attributeFilter: ["aria-expanded"],
-      subtree: !0
-    });
-  }
-  quickGlanceStop() {
-    this.#quickGlanceObserver && this.#quickGlanceObserver.disconnect(), this.#quickGlanceObserver = null;
-  }
-  async#update() {
-    if (this.isHidden() || !STATES.currentStream.peerConnection) {
-      this.onStoppedPlaying();
-      return;
-    }
-    this.#timeoutId = null;
-    const startTime = performance.now(), PREF_STATS_CONDITIONAL_FORMATTING = getPref("stats_conditional_formatting"), stats = await STATES.currentStream.peerConnection.getStats();
-    let grade = "";
-    stats.forEach((stat) => {
-      if (stat.type === "inbound-rtp" && stat.kind === "video") {
-        this.#$fps.textContent = stat.framesPerSecond || 0;
-        const packetsLost = Math.max(0, stat.packetsLost), packetsReceived = stat.packetsReceived, packetsLostPercentage = (packetsLost * 100 / (packetsLost + packetsReceived || 1)).toFixed(2);
-        this.#$pl.textContent = packetsLostPercentage === "0.00" ? packetsLost.toString() : `${packetsLost} (${packetsLostPercentage}%)`;
-        const { framesDropped, framesReceived } = stat, framesDroppedPercentage = (framesDropped * 100 / (framesDropped + framesReceived || 1)).toFixed(2);
-        if (this.#$fl.textContent = framesDroppedPercentage === "0.00" ? framesDropped : `${framesDropped} (${framesDroppedPercentage}%)`, !this.#lastVideoStat) {
-          this.#lastVideoStat = stat;
-          return;
-        }
-        const lastStat = this.#lastVideoStat, timeDiff = stat.timestamp - lastStat.timestamp, bitrate = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
-        this.#$br.textContent = `${bitrate.toFixed(2)} Mbps`;
-        const totalDecodeTimeDiff = stat.totalDecodeTime - lastStat.totalDecodeTime, framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded, currentDecodeTime = totalDecodeTimeDiff / framesDecodedDiff * 1000;
-        if (isNaN(currentDecodeTime)) this.#$dt.textContent = "??ms";
-        else this.#$dt.textContent = `${currentDecodeTime.toFixed(2)}ms`;
-        if (PREF_STATS_CONDITIONAL_FORMATTING) grade = currentDecodeTime > 12 ? "bad" : currentDecodeTime > 9 ? "ok" : currentDecodeTime > 6 ? "good" : "", this.#$dt.dataset.grade = grade;
-        this.#lastVideoStat = stat;
-      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
-        const roundTripTime = stat.currentRoundTripTime ? stat.currentRoundTripTime * 1000 : -1;
-        if (this.#$ping.textContent = roundTripTime === -1 ? "???" : roundTripTime.toString(), PREF_STATS_CONDITIONAL_FORMATTING) grade = roundTripTime > 100 ? "bad" : roundTripTime > 75 ? "ok" : roundTripTime > 40 ? "good" : "", this.#$ping.dataset.grade = grade;
-      }
-    });
-    const lapsedTime = performance.now() - startTime;
-    this.#timeoutId = window.setTimeout(this.#update.bind(this), this.#updateInterval - lapsedTime);
-  }
-  refreshStyles() {
-    const PREF_ITEMS = getPref("stats_items"), PREF_POSITION = getPref("stats_position"), PREF_TRANSPARENT = getPref("stats_transparent"), PREF_OPACITY = getPref("stats_opacity"), PREF_TEXT_SIZE = getPref("stats_text_size"), $container = this.#$container;
-    $container.dataset.stats = "[" + PREF_ITEMS.join("][") + "]", $container.dataset.position = PREF_POSITION, $container.dataset.transparent = PREF_TRANSPARENT, $container.style.opacity = PREF_OPACITY + "%", $container.style.fontSize = PREF_TEXT_SIZE;
-  }
-  hideSettingsUi() {
-    if (this.isGlancing() && !getPref("stats_quick_glance")) this.stop();
-  }
-  #render() {
-    const stats = {
-      ping: [t("stat-ping"), this.#$ping = CE("span", {}, "0")],
-      fps: [t("stat-fps"), this.#$fps = CE("span", {}, "0")],
-      btr: [t("stat-bitrate"), this.#$br = CE("span", {}, "0 Mbps")],
-      dt: [t("stat-decode-time"), this.#$dt = CE("span", {}, "0ms")],
-      pl: [t("stat-packets-lost"), this.#$pl = CE("span", {}, "0")],
-      fl: [t("stat-frames-lost"), this.#$fl = CE("span", {}, "0")]
-    }, $barFragment = document.createDocumentFragment();
-    let statKey;
-    for (statKey in stats) {
-      const $div = CE("div", {
-        class: `bx-stat-${statKey}`,
-        title: stats[statKey][0]
-      }, CE("label", {}, statKey.toUpperCase()), stats[statKey][1]);
-      $barFragment.appendChild($div);
-    }
-    this.#$container = CE("div", { class: "bx-stats-bar bx-gone" }, $barFragment), this.refreshStyles(), document.documentElement.appendChild(this.#$container);
-  }
-  static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-      const PREF_STATS_QUICK_GLANCE = getPref("stats_quick_glance"), PREF_STATS_SHOW_WHEN_PLAYING = getPref("stats_show_when_playing"), streamStats = StreamStats.getInstance();
-      if (PREF_STATS_SHOW_WHEN_PLAYING) streamStats.start();
-      else if (PREF_STATS_QUICK_GLANCE) streamStats.quickGlanceSetup(), !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(!0);
-    });
-  }
-  static refreshStyles() {
-    StreamStats.getInstance().refreshStyles();
-  }
-}
 class SettingElement {
   static #renderOptions(key, setting, currentValue, onChange) {
     const $control = CE("select", {
@@ -1068,6 +960,159 @@ class BaseSettingsStore {
       if (value in options) return options[value];
     } else if (typeof value === "boolean") return value ? t("on") : t("off");
     return value.toString();
+  }
+}
+class StreamStatsCollector {
+  static instance;
+  static getInstance() {
+    if (!StreamStatsCollector.instance) StreamStatsCollector.instance = new StreamStatsCollector;
+    return StreamStatsCollector.instance;
+  }
+  static INTERVAL_BACKGROUND = 60000;
+  currentStats = {
+    ping: {
+      current: -1,
+      calculateGrade() {
+        return this.current >= 100 ? "bad" : this.current > 75 ? "ok" : this.current > 40 ? "good" : "";
+      },
+      toString() {
+        return this.current === -1 ? "???" : this.current.toString();
+      }
+    },
+    fps: {
+      current: 0,
+      toString() {
+        return this.current.toString();
+      }
+    },
+    btr: {
+      current: 0,
+      toString() {
+        return `${this.current.toFixed(2)} Mbps`;
+      }
+    },
+    fl: {
+      received: 0,
+      dropped: 0,
+      toString() {
+        const framesDroppedPercentage = (this.dropped * 100 / (this.dropped + this.received || 1)).toFixed(2);
+        return framesDroppedPercentage === "0.00" ? this.dropped.toString() : `${this.dropped} (${framesDroppedPercentage}%)`;
+      }
+    },
+    pl: {
+      received: 0,
+      dropped: 0,
+      toString() {
+        const packetsLostPercentage = (this.dropped * 100 / (this.dropped + this.received || 1)).toFixed(2);
+        return packetsLostPercentage === "0.00" ? this.dropped.toString() : `${this.dropped} (${packetsLostPercentage}%)`;
+      }
+    },
+    dt: {
+      current: 0,
+      total: 0,
+      calculateGrade() {
+        return this.current > 12 ? "bad" : this.current > 9 ? "ok" : this.current > 6 ? "good" : "";
+      },
+      toString() {
+        return isNaN(this.current) ? "??ms" : `${this.current.toFixed(2)}ms`;
+      }
+    },
+    dl: {
+      total: 0,
+      toString() {
+        return humanFileSize(this.total);
+      }
+    },
+    ul: {
+      total: 0,
+      toString() {
+        return humanFileSize(this.total);
+      }
+    },
+    play: {
+      seconds: 0,
+      startTime: 0,
+      toString() {
+        return secondsToHm(this.seconds);
+      }
+    },
+    batt: {
+      current: 100,
+      start: 100,
+      isCharging: !1,
+      toString() {
+        let text = `${this.current}%`;
+        if (this.current !== this.start) {
+          const diffLevel = Math.round(this.current - this.start), sign = diffLevel > 0 ? "+" : "";
+          text += ` (${sign}${diffLevel}%)`;
+        }
+        return text;
+      }
+    },
+    time: {
+      toString() {
+        return (new Date()).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: !1
+        });
+      }
+    }
+  };
+  lastVideoStat;
+  async collect() {
+    (await STATES.currentStream.peerConnection?.getStats())?.forEach((stat) => {
+      if (stat.type === "inbound-rtp" && stat.kind === "video") {
+        const fps = this.currentStats.fps;
+        fps.current = stat.framesPerSecond || 0;
+        const pl = this.currentStats.pl;
+        pl.dropped = Math.max(0, stat.packetsLost), pl.received = stat.packetsReceived;
+        const fl = this.currentStats.fl;
+        if (fl.dropped = stat.framesDropped, fl.received = stat.framesReceived, !this.lastVideoStat) {
+          this.lastVideoStat = stat;
+          return;
+        }
+        const lastStat = this.lastVideoStat, btr = this.currentStats.btr, timeDiff = stat.timestamp - lastStat.timestamp;
+        btr.current = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
+        const dt = this.currentStats.dt;
+        dt.total = stat.totalDecodeTime - lastStat.totalDecodeTime;
+        const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
+        dt.current = dt.total / framesDecodedDiff * 1000, this.lastVideoStat = stat;
+      } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") {
+        const ping = this.currentStats.ping;
+        ping.current = stat.currentRoundTripTime ? stat.currentRoundTripTime * 1000 : -1;
+        const dl = this.currentStats.dl;
+        dl.total = stat.bytesReceived;
+        const ul = this.currentStats.ul;
+        ul.total = stat.bytesSent;
+      }
+    });
+    let batteryLevel = 100, isCharging = !1;
+    if (STATES.browser.capabilities.batteryApi) try {
+        const bm = await navigator.getBattery();
+        isCharging = bm.charging, batteryLevel = Math.round(bm.level * 100);
+      } catch (e) {}
+    const battery = this.currentStats.batt;
+    battery.current = batteryLevel, battery.isCharging = isCharging;
+    const playTime = this.currentStats.play, now = +new Date;
+    playTime.seconds = Math.ceil((now - playTime.startTime) / 1000);
+  }
+  getStat(kind) {
+    return this.currentStats[kind];
+  }
+  reset() {
+    const playTime = this.currentStats.play;
+    playTime.seconds = 0, playTime.startTime = +new Date;
+    try {
+      STATES.browser.capabilities.batteryApi && navigator.getBattery().then((bm) => {
+        this.currentStats.batt.start = Math.round(bm.level * 100);
+      });
+    } catch (e) {}
+  }
+  static setupEvents() {
+    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+      StreamStatsCollector.getInstance().reset();
+    });
   }
 }
 function getSupportedCodecProfiles() {
@@ -1635,12 +1680,17 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       label: t("stats"),
       default: ["ping", "fps", "btr", "dt", "pl", "fl"],
       multipleOptions: {
+        time: `${"time".toUpperCase()}: ${t("clock")}`,
+        play: `${"play".toUpperCase()}: ${t("playtime")}`,
+        batt: `${"batt".toUpperCase()}: ${t("battery")}`,
         ping: `${"ping".toUpperCase()}: ${t("stat-ping")}`,
         fps: `${"fps".toUpperCase()}: ${t("stat-fps")}`,
         btr: `${"btr".toUpperCase()}: ${t("stat-bitrate")}`,
         dt: `${"dt".toUpperCase()}: ${t("stat-decode-time")}`,
         pl: `${"pl".toUpperCase()}: ${t("stat-packets-lost")}`,
-        fl: `${"fl".toUpperCase()}: ${t("stat-frames-lost")}`
+        fl: `${"fl".toUpperCase()}: ${t("stat-frames-lost")}`,
+        dl: `${"dl".toUpperCase()}: ${t("download")}`,
+        ul: `${"ul".toUpperCase()}: ${t("upload")}`
       },
       params: {
         size: 6
@@ -1795,6 +1845,148 @@ var MouseMapTo;
   MouseMapTo2[MouseMapTo2.LS = 1] = "LS";
   MouseMapTo2[MouseMapTo2.RS = 2] = "RS";
 })(MouseMapTo ||= {});
+class StreamStats {
+  static instance;
+  static getInstance() {
+    if (!StreamStats.instance) StreamStats.instance = new StreamStats;
+    return StreamStats.instance;
+  }
+  intervalId;
+  REFRESH_INTERVAL = 1000;
+  stats = {
+    time: {
+      name: t("clock"),
+      $element: CE("span")
+    },
+    play: {
+      name: t("playtime"),
+      $element: CE("span")
+    },
+    batt: {
+      name: t("battery"),
+      $element: CE("span")
+    },
+    ping: {
+      name: t("stat-ping"),
+      $element: CE("span")
+    },
+    fps: {
+      name: t("stat-fps"),
+      $element: CE("span")
+    },
+    btr: {
+      name: t("stat-bitrate"),
+      $element: CE("span")
+    },
+    dt: {
+      name: t("stat-decode-time"),
+      $element: CE("span")
+    },
+    pl: {
+      name: t("stat-packets-lost"),
+      $element: CE("span")
+    },
+    fl: {
+      name: t("stat-frames-lost"),
+      $element: CE("span")
+    },
+    dl: {
+      name: t("download"),
+      $element: CE("span")
+    },
+    ul: {
+      name: t("upload"),
+      $element: CE("span")
+    }
+  };
+  $container;
+  quickGlanceObserver;
+  constructor() {
+    this.render();
+  }
+  async start(glancing = !1) {
+    if (!this.isHidden() || glancing && this.isGlancing()) return;
+    this.intervalId && clearInterval(this.intervalId), await this.update(!0), this.$container.classList.remove("bx-gone"), this.$container.dataset.display = glancing ? "glancing" : "fixed", this.intervalId = window.setInterval(this.update.bind(this), this.REFRESH_INTERVAL);
+  }
+  stop(glancing = !1) {
+    if (glancing && !this.isGlancing()) return;
+    this.intervalId && clearInterval(this.intervalId), this.intervalId = null, this.$container.removeAttribute("data-display"), this.$container.classList.add("bx-gone");
+  }
+  toggle() {
+    if (this.isGlancing()) this.$container && (this.$container.dataset.display = "fixed");
+    else this.isHidden() ? this.start() : this.stop();
+  }
+  onStoppedPlaying() {
+    this.stop(), this.quickGlanceStop(), this.hideSettingsUi();
+  }
+  isHidden = () => this.$container.classList.contains("bx-gone");
+  isGlancing = () => this.$container.dataset.display === "glancing";
+  quickGlanceSetup() {
+    if (!STATES.isPlaying || this.quickGlanceObserver) return;
+    const $uiContainer = document.querySelector("div[data-testid=ui-container]");
+    if (!$uiContainer) return;
+    this.quickGlanceObserver = new MutationObserver((mutationList, observer) => {
+      for (let record of mutationList)
+        if (record.attributeName && record.attributeName === "aria-expanded") if (record.target.ariaExpanded === "true") this.isHidden() && this.start(!0);
+          else this.stop(!0);
+    }), this.quickGlanceObserver.observe($uiContainer, {
+      attributes: !0,
+      attributeFilter: ["aria-expanded"],
+      subtree: !0
+    });
+  }
+  quickGlanceStop() {
+    this.quickGlanceObserver && this.quickGlanceObserver.disconnect(), this.quickGlanceObserver = null;
+  }
+  async update(forceUpdate = !1) {
+    if (!forceUpdate && this.isHidden() || !STATES.currentStream.peerConnection) {
+      this.onStoppedPlaying();
+      return;
+    }
+    const PREF_STATS_CONDITIONAL_FORMATTING = getPref("stats_conditional_formatting");
+    let grade = "";
+    const statsCollector = StreamStatsCollector.getInstance();
+    await statsCollector.collect();
+    let statKey;
+    for (statKey in this.stats) {
+      grade = "";
+      const stat = this.stats[statKey], value = statsCollector.getStat(statKey), $element = stat.$element;
+      if ($element.textContent = value.toString(), PREF_STATS_CONDITIONAL_FORMATTING) {
+        if (statKey === "ping" || statKey === "dt") grade = value.calculateGrade();
+      }
+      if ($element.dataset.grade !== grade) $element.dataset.grade = grade;
+    }
+  }
+  refreshStyles() {
+    const PREF_ITEMS = getPref("stats_items"), $container = this.$container;
+    $container.dataset.stats = "[" + PREF_ITEMS.join("][") + "]", $container.dataset.position = getPref("stats_position"), $container.dataset.transparent = getPref("stats_transparent"), $container.style.opacity = getPref("stats_opacity") + "%", $container.style.fontSize = getPref("stats_text_size");
+  }
+  hideSettingsUi() {
+    if (this.isGlancing() && !getPref("stats_quick_glance")) this.stop();
+  }
+  async render() {
+    this.$container = CE("div", { class: "bx-stats-bar bx-gone" });
+    let statKey;
+    for (statKey in this.stats) {
+      const stat = this.stats[statKey], $div = CE("div", {
+        class: `bx-stat-${statKey}`,
+        title: stat.name
+      }, CE("label", {}, statKey.toUpperCase()), stat.$element);
+      this.$container.appendChild($div);
+    }
+    this.refreshStyles(), document.documentElement.appendChild(this.$container);
+  }
+  static setupEvents() {
+    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+      const PREF_STATS_QUICK_GLANCE = getPref("stats_quick_glance"), PREF_STATS_SHOW_WHEN_PLAYING = getPref("stats_show_when_playing"), streamStats = StreamStats.getInstance();
+      if (PREF_STATS_SHOW_WHEN_PLAYING) streamStats.start();
+      else if (PREF_STATS_QUICK_GLANCE) streamStats.quickGlanceSetup(), !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(!0);
+    });
+  }
+  static refreshStyles() {
+    StreamStats.getInstance().refreshStyles();
+  }
+}
 class Toast {
   static #$wrapper;
   static #$msg;
@@ -6167,135 +6359,120 @@ class GuideMenu {
     }
   }
 }
-var StreamBadgeIcon = {
-  playtime: BxIcon.PLAYTIME,
-  video: BxIcon.DISPLAY,
-  battery: BxIcon.BATTERY,
-  in: BxIcon.DOWNLOAD,
-  out: BxIcon.UPLOAD,
-  server: BxIcon.SERVER,
-  audio: BxIcon.AUDIO
-};
 class StreamBadges {
   static instance;
   static getInstance() {
     if (!StreamBadges.instance) StreamBadges.instance = new StreamBadges;
     return StreamBadges.instance;
   }
-  #ipv6 = !1;
-  #resolution = null;
-  #video = null;
-  #audio = null;
-  #region = "";
-  startBatteryLevel = 100;
-  startTimestamp = 0;
-  #$container;
-  #cachedDoms = {};
-  #interval;
-  #REFRESH_INTERVAL = 3000;
+  serverInfo = {};
+  badges = {
+    playtime: {
+      name: t("playtime"),
+      icon: BxIcon.PLAYTIME,
+      color: "#ff004d"
+    },
+    battery: {
+      name: t("battery"),
+      icon: BxIcon.BATTERY,
+      color: "#00b543"
+    },
+    download: {
+      name: t("download"),
+      icon: BxIcon.DOWNLOAD,
+      color: "#29adff"
+    },
+    upload: {
+      name: t("upload"),
+      icon: BxIcon.UPLOAD,
+      color: "#ff77a8"
+    },
+    server: {
+      name: t("server"),
+      icon: BxIcon.SERVER,
+      color: "#ff6c24"
+    },
+    video: {
+      name: t("video"),
+      icon: BxIcon.DISPLAY,
+      color: "#742f29"
+    },
+    audio: {
+      name: t("audio"),
+      icon: BxIcon.AUDIO,
+      color: "#5f574f"
+    }
+  };
+  $container;
+  intervalId;
+  REFRESH_INTERVAL = 3000;
   setRegion(region) {
-    this.#region = region;
+    this.serverInfo.server = {
+      region,
+      ipv6: !1
+    };
   }
-  #renderBadge(name, value, color) {
+  renderBadge(name, value) {
+    const badgeInfo = this.badges[name];
     let $badge;
-    if (this.#cachedDoms[name]) return $badge = this.#cachedDoms[name], $badge.lastElementChild.textContent = value, $badge;
-    if ($badge = CE("div", { class: "bx-badge", title: t(`badge-${name}`) }, CE("span", { class: "bx-badge-name" }, createSvgIcon(StreamBadgeIcon[name])), CE("span", { class: "bx-badge-value", style: `background-color: ${color}` }, value)), name === "battery") $badge.classList.add("bx-badge-battery");
-    return this.#cachedDoms[name] = $badge, $badge;
+    if (badgeInfo.$element) return $badge = badgeInfo.$element, $badge.lastElementChild.textContent = value, $badge;
+    if ($badge = CE("div", { class: "bx-badge", title: badgeInfo.name }, CE("span", { class: "bx-badge-name" }, createSvgIcon(badgeInfo.icon)), CE("span", { class: "bx-badge-value", style: `background-color: ${badgeInfo.color}` }, value)), name === "battery") $badge.classList.add("bx-badge-battery");
+    return this.badges[name].$element = $badge, $badge;
   }
-  async#updateBadges(forceUpdate = !1) {
-    if (!this.#$container || !forceUpdate && !this.#$container.isConnected) {
-      this.#stop();
+  async updateBadges(forceUpdate = !1) {
+    if (!this.$container || !forceUpdate && !this.$container.isConnected) {
+      this.stop();
       return;
     }
-    let now = +new Date;
-    const diffSeconds = Math.ceil((now - this.startTimestamp) / 1000), playtime = this.#secondsToHm(diffSeconds);
-    let batteryLevel = "100%", batteryLevelInt = 100, isCharging = !1;
-    if (STATES.browser.capabilities.batteryApi) try {
-        const bm = await navigator.getBattery();
-        if (isCharging = bm.charging, batteryLevelInt = Math.round(bm.level * 100), batteryLevel = `${batteryLevelInt}%`, batteryLevelInt != this.startBatteryLevel) {
-          const diffLevel = Math.round(batteryLevelInt - this.startBatteryLevel), sign = diffLevel > 0 ? "+" : "";
-          batteryLevel += ` (${sign}${diffLevel}%)`;
-        }
-      } catch (e) {}
-    const stats = await STATES.currentStream.peerConnection?.getStats();
-    let totalIn = 0, totalOut = 0;
-    stats.forEach((stat) => {
-      if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") totalIn += stat.bytesReceived, totalOut += stat.bytesSent;
-    });
-    const badges = {
-      in: totalIn ? this.#humanFileSize(totalIn) : null,
-      out: totalOut ? this.#humanFileSize(totalOut) : null,
-      playtime: playtime,
-      battery: batteryLevel
+    const statsCollector = StreamStatsCollector.getInstance();
+    await statsCollector.collect();
+    const play = statsCollector.getStat("play"), batt = statsCollector.getStat("batt"), dl = statsCollector.getStat("dl"), ul = statsCollector.getStat("ul"), badges = {
+      download: dl.toString(),
+      upload: ul.toString(),
+      playtime: play.toString(),
+      battery: batt.toString()
     };
     let name;
     for (name in badges) {
       const value = badges[name];
       if (value === null) continue;
-      const $elm = this.#cachedDoms[name];
-      if ($elm && ($elm.lastElementChild.textContent = value), name === "battery") if (this.startBatteryLevel === 100 && batteryLevelInt === 100) $elm.classList.add("bx-gone");
-        else $elm.dataset.charging = isCharging.toString(), $elm.classList.remove("bx-gone");
+      const $elm = this.badges[name].$element;
+      if (!$elm) continue;
+      if ($elm.lastElementChild.textContent = value, name === "battery") if (batt.current === 100 && batt.start === 100) $elm.classList.add("bx-gone");
+        else $elm.dataset.charging = batt.isCharging.toString(), $elm.classList.remove("bx-gone");
     }
   }
-  async#start() {
-    await this.#updateBadges(!0), this.#stop(), this.#interval = window.setInterval(this.#updateBadges.bind(this), this.#REFRESH_INTERVAL);
+  async start() {
+    await this.updateBadges(!0), this.stop(), this.intervalId = window.setInterval(this.updateBadges.bind(this), this.REFRESH_INTERVAL);
   }
-  #stop() {
-    this.#interval && clearInterval(this.#interval), this.#interval = null;
-  }
-  #secondsToHm(seconds) {
-    let h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60) + 1;
-    if (m === 60) h += 1, m = 0;
-    const output = [];
-    return h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), output.join(" ");
-  }
-  #humanFileSize(size) {
-    const units = ["B", "KB", "MB", "GB", "TB"], i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-    return (size / Math.pow(1024, i)).toFixed(2) + " " + units[i];
+  stop() {
+    this.intervalId && clearInterval(this.intervalId), this.intervalId = null;
   }
   async render() {
-    if (this.#$container) return this.#start(), this.#$container;
-    await this.#getServerStats();
-    let video = "";
-    if (this.#resolution) video = `${this.#resolution.height}p`;
-    if (this.#video) {
-      if (video && (video += "/"), video += this.#video.codec, this.#video.profile) {
-        const profile = this.#video.profile;
-        let quality = profile;
-        if (profile.startsWith("4d")) quality = t("visual-quality-high");
-        else if (profile.startsWith("42e")) quality = t("visual-quality-normal");
-        else if (profile.startsWith("420")) quality = t("visual-quality-low");
-        video += ` (${quality})`;
-      }
-    }
-    let audio;
-    if (this.#audio) {
-      audio = this.#audio.codec;
-      const bitrate = this.#audio.bitrate / 1000;
-      audio += ` (${bitrate} kHz)`;
-    }
+    if (this.$container) return this.start(), this.$container;
+    await this.getServerStats();
     let batteryLevel = "";
     if (STATES.browser.capabilities.batteryApi) batteryLevel = "100%";
-    let server = this.#region;
-    server += "@" + (this.#ipv6 ? "IPv6" : "IPv4");
     const BADGES = [
-      ["playtime", "1m", "#ff004d"],
-      ["battery", batteryLevel, "#00b543"],
-      ["in", this.#humanFileSize(0), "#29adff"],
-      ["out", this.#humanFileSize(0), "#ff77a8"],
-      ["server", server, "#ff6c24"],
-      video ? ["video", video, "#742f29"] : null,
-      audio ? ["audio", audio, "#5f574f"] : null
+      ["playtime", "1m"],
+      ["battery", batteryLevel],
+      ["download", humanFileSize(0)],
+      ["upload", humanFileSize(0)],
+      this.serverInfo.server ? this.badges.server.$element : ["server", "?"],
+      this.serverInfo.video ? this.badges.video.$element : ["video", "?"],
+      this.serverInfo.audio ? this.badges.audio.$element : ["audio", "?"]
     ], $container = CE("div", { class: "bx-badges" });
     return BADGES.forEach((item2) => {
       if (!item2) return;
-      const $badge = this.#renderBadge(...item2);
+      let $badge;
+      if (!(item2 instanceof HTMLElement)) $badge = this.renderBadge(...item2);
+      else $badge = item2;
       $container.appendChild($badge);
-    }), this.#$container = $container, await this.#start(), $container;
+    }), this.$container = $container, await this.start(), $container;
   }
-  async#getServerStats() {
+  async getServerStats() {
     const stats = await STATES.currentStream.peerConnection.getStats(), allVideoCodecs = {};
-    let videoCodecId;
+    let videoCodecId, videoWidth = 0, videoHeight = 0;
     const allAudioCodecs = {};
     let audioCodecId;
     const allCandidates = {};
@@ -6306,43 +6483,50 @@ class StreamBadges {
         if (mimeType === "video") allVideoCodecs[stat.id] = stat;
         else if (mimeType === "audio") allAudioCodecs[stat.id] = stat;
       } else if (stat.type === "inbound-rtp" && stat.packetsReceived > 0) {
-        if (stat.kind === "video") videoCodecId = stat.codecId;
+        if (stat.kind === "video") videoCodecId = stat.codecId, videoWidth = stat.frameWidth, videoHeight = stat.frameHeight;
         else if (stat.kind === "audio") audioCodecId = stat.codecId;
       } else if (stat.type === "candidate-pair" && stat.packetsReceived > 0 && stat.state === "succeeded") candidateId = stat.remoteCandidateId;
       else if (stat.type === "remote-candidate") allCandidates[stat.id] = stat.address;
     }), videoCodecId) {
       const videoStat = allVideoCodecs[videoCodecId], video = {
+        width: videoWidth,
+        height: videoHeight,
         codec: videoStat.mimeType.substring(6)
       };
       if (video.codec === "H264") {
         const match = /profile-level-id=([0-9a-f]{6})/.exec(videoStat.sdpFmtpLine);
-        video.profile = match ? match[1] : null;
+        match && (video.profile = match[1]);
       }
-      this.#video = video;
+      let text = videoHeight + "p";
+      if (text && (text += "/"), text += video.codec, video.profile) {
+        const profile = video.profile;
+        let quality = profile;
+        if (profile.startsWith("4d")) quality = t("visual-quality-high");
+        else if (profile.startsWith("42e")) quality = t("visual-quality-normal");
+        else if (profile.startsWith("420")) quality = t("visual-quality-low");
+        text += ` (${quality})`;
+      }
+      this.badges.video.$element = this.renderBadge("video", text), this.serverInfo.video = video;
     }
     if (audioCodecId) {
-      const audioStat = allAudioCodecs[audioCodecId];
-      this.#audio = {
+      const audioStat = allAudioCodecs[audioCodecId], audio = {
         codec: audioStat.mimeType.substring(6),
         bitrate: audioStat.clockRate
-      };
+      }, bitrate = audio.bitrate / 1000, text = `${audio.codec} (${bitrate} kHz)`;
+      this.badges.audio.$element = this.renderBadge("audio", text), this.serverInfo.audio = audio;
     }
-    if (candidateId) BxLogger.info("candidate", candidateId, allCandidates), this.#ipv6 = allCandidates[candidateId].includes(":");
+    if (candidateId) {
+      BxLogger.info("candidate", candidateId, allCandidates);
+      const server = this.serverInfo.server;
+      if (server) {
+        server.ipv6 = allCandidates[candidateId].includes(":");
+        let text = "";
+        if (server.region) text += server.region;
+        text += "@" + (server ? "IPv6" : "IPv4"), this.badges.server.$element = this.renderBadge("server", text);
+      }
+    }
   }
-  static setupEvents() {
-    window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
-      const $video = e.$video, streamBadges = StreamBadges.getInstance();
-      streamBadges.#resolution = {
-        width: $video.videoWidth,
-        height: $video.videoHeight
-      }, streamBadges.startTimestamp = +new Date;
-      try {
-        STATES.browser.capabilities.batteryApi && navigator.getBattery().then((bm) => {
-          streamBadges.startBatteryLevel = Math.round(bm.level * 100);
-        });
-      } catch (e2) {}
-    });
-  }
+  static setupEvents() {}
 }
 class XcloudInterceptor {
   static async#handleLogin(request, init) {
@@ -6594,7 +6778,7 @@ function showGamepadToast(gamepad) {
   Toast.show(text, status, { instant: !1 });
 }
 function addCss() {
-  let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:40px;--bx-default-button-color:#2d3036;--bx-default-button-rgb:45,48,54;--bx-default-button-hover-color:#515863;--bx-default-button-hover-rgb:81,88,99;--bx-default-button-active-color:#222428;--bx-default-button-active-rgb:34,36,40;--bx-default-button-disabled-color:#8e8e8e;--bx-default-button-disabled-rgb:142,142,142;--bx-primary-button-color:#008746;--bx-primary-button-rgb:0,135,70;--bx-primary-button-hover-color:#04b358;--bx-primary-button-hover-rgb:4,179,88;--bx-primary-button-active-color:#044e2a;--bx-primary-button-active-rgb:4,78,42;--bx-primary-button-disabled-color:#448262;--bx-primary-button-disabled-rgb:68,130,98;--bx-danger-button-color:#c10404;--bx-danger-button-rgb:193,4,4;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-hover-rgb:230,29,29;--bx-danger-button-active-color:#a26c6c;--bx-danger-button-active-rgb:162,108,108;--bx-danger-button-disabled-color:#df5656;--bx-danger-button-disabled-rgb:223,86,86;--bx-fullscreen-text-z-index:99999;--bx-toast-z-index:60000;--bx-dialog-z-index:50000;--bx-dialog-overlay-z-index:40200;--bx-stats-bar-z-index:40100;--bx-mkb-pointer-lock-msg-z-index:40000;--bx-navigation-dialog-z-index:30100;--bx-navigation-dialog-overlay-z-index:30000;--bx-game-bar-z-index:10000;--bx-screenshot-animation-z-index:9000;--bx-wait-time-box-z-index:1000}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:640px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-hide-scroll-bar{scrollbar-width:none}.bx-hide-scroll-bar::-webkit-scrollbar{display:none}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}.bx-line-through{text-decoration:line-through !important}.bx-normal-case{text-transform:none !important}.bx-normal-link{text-transform:none !important;text-align:left !important;font-weight:400 !important;font-family:var(--bx-normal-font) !important}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-game-tile-wait-time{position:absolute;top:0;left:0;z-index:1;background:rgba(0,0,0,0.549);display:flex;border-radius:4px 0 4px 0;align-items:center;padding:4px 8px}.bx-game-tile-wait-time svg{width:14px;height:16px;margin-right:2px}.bx-game-tile-wait-time span{display:inline-block;height:16px;line-height:16px;font-size:12px;font-weight:bold;margin-left:2px}.bx-fullscreen-text{position:fixed;top:0;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);z-index:var(--bx-fullscreen-text-z-index);line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:var(--bx-normal-font);font-size:1.3rem;user-select:none;-webkit-user-select:none}#root section[class*=DeviceCodePage-module__page]{margin-left:20px !important;margin-right:20px !important;margin-top:20px !important;max-width:800px !important}#root div[class*=DeviceCodePage-module__back]{display:none}.bx-button{--button-rgb:var(--bx-default-button-rgb);--button-hover-rgb:var(--bx-default-button-hover-rgb);--button-active-rgb:var(--bx-default-button-active-rgb);--button-disabled-rgb:var(--bx-default-button-disabled-rgb);background-color:rgb(var(--button-rgb));user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:not([disabled]):active{background-color:rgb(var(--button-active-rgb))}.bx-button:focus{outline:none !important}.bx-button:not([disabled]):not(:active):hover,.bx-button:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button:disabled{cursor:default;background-color:rgb(var(--button-disabled-rgb))}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:not([disabled]):not(:active):hover,.bx-button.bx-ghost:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button.bx-primary{--button-rgb:var(--bx-primary-button-rgb)}.bx-button.bx-primary:not([disabled]):active{--button-active-rgb:var(--bx-primary-button-active-rgb)}.bx-button.bx-primary:not([disabled]):not(:active):hover,.bx-button.bx-primary:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-primary-button-hover-rgb)}.bx-button.bx-primary:disabled{--button-disabled-rgb:var(--bx-primary-button-disabled-rgb)}.bx-button.bx-danger{--button-rgb:var(--bx-danger-button-rgb)}.bx-button.bx-danger:not([disabled]):active{--button-active-rgb:var(--bx-danger-button-active-rgb)}.bx-button.bx-danger:not([disabled]):not(:active):hover,.bx-button.bx-danger:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-danger-button-hover-rgb)}.bx-button.bx-danger:disabled{--button-disabled-rgb:var(--bx-danger-button-disabled-rgb)}.bx-button.bx-frosted{--button-alpha:.2;background-color:rgba(var(--button-rgb), var(--button-alpha));backdrop-filter:blur(4px) brightness(1.5)}.bx-button.bx-frosted:not([disabled]):not(:active):hover,.bx-button.bx-frosted:not([disabled]):not(:active).bx-focusable:focus{background-color:rgba(var(--button-hover-rgb), var(--button-alpha))}.bx-button.bx-drop-shadow{box-shadow:0 0 4px rgba(0,0,0,0.502)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button.bx-circular{border-radius:var(--bx-button-height);height:var(--bx-button-height)}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button span:not(:only-child){margin-left:10px}.bx-focusable{position:relative;overflow:visible}.bx-focusable::after{border:2px solid transparent;border-radius:10px}.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px}html[data-active-input=touch] .bx-focusable:focus::after,html[data-active-input=mouse] .bx-focusable:focus::after{border-color:transparent !important}.bx-focusable.bx-circular::after{border-radius:var(--bx-button-height)}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}button.bx-inactive{pointer-events:none;opacity:.2;background:transparent !important}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:24px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-navigation-dialog{position:absolute;z-index:var(--bx-navigation-dialog-z-index);font-family:var(--bx-title-font)}.bx-navigation-dialog *:focus{outline:none !important}.bx-navigation-dialog-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-navigation-dialog-overlay-z-index)}.bx-navigation-dialog-overlay[data-is-playing="true"]{background:transparent}.bx-settings-dialog{display:flex;position:fixed;top:0;right:0;bottom:0;opacity:.98;user-select:none;-webkit-user-select:none}.bx-settings-dialog .bx-focusable::after{border-radius:4px}.bx-settings-dialog .bx-focusable:focus::after{top:0;left:0;right:0;bottom:0}.bx-settings-dialog .bx-settings-reload-note{font-size:.8rem;display:block;padding:8px;font-style:italic;font-weight:normal;height:var(--bx-button-height)}.bx-settings-dialog input{accent-color:var(--bx-primary-button-color)}.bx-settings-dialog input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-dialog select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-dialog select option:disabled{display:none}.bx-settings-dialog input[type=checkbox]:focus,.bx-settings-dialog select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-dialog a{color:#1c9d1c;text-decoration:none}.bx-settings-dialog a:hover,.bx-settings-dialog a:focus{color:#5dc21e}.bx-settings-tabs-container{position:fixed;width:48px;max-height:100vh;display:flex;flex-direction:column}.bx-settings-tabs-container > div:last-of-type{display:flex;flex-direction:column;align-items:end}.bx-settings-tabs-container > div:last-of-type button{flex-shrink:0;border-top-right-radius:0;border-bottom-right-radius:0;margin-top:8px;height:unset;padding:8px 10px}.bx-settings-tabs-container > div:last-of-type button svg{width:16px;height:16px}.bx-settings-tabs{display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:overlay;flex:1}.bx-settings-tabs svg{width:24px;height:24px;padding:10px;flex-shrink:0;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-settings-tabs svg:focus{border-color:#fff}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]{background:var(--bx-danger-button-color) !important}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]:hover{background:var(--bx-danger-button-hover-color) !important}.bx-settings-tab-contents{flex-direction:column;padding:10px;margin-left:48px;width:450px;max-width:calc(100vw - tabsWidth);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay;z-index:1}.bx-settings-tab-contents > div[data-tab-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-profile{width:100%;height:36px;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-note{margin-top:10px;font-size:14px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-settings-z-index) + 1)}.bx-settings-tab-contents .bx-top-buttons{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}.bx-settings-tab-contents .bx-top-buttons .bx-button{display:block}.bx-settings-tab-contents h2{margin:16px 0 8px 0;display:flex;align-items:center}.bx-settings-tab-contents h2:first-of-type{margin-top:0}.bx-settings-tab-contents h2 span{display:inline-block;font-size:20px;font-weight:bold;text-align:left;flex:1;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}@media (max-width:500px){.bx-settings-tab-contents{width:calc(100vw - 48px)}}.bx-settings-row{display:flex;gap:10px;padding:16px 10px;margin:0;background:#2a2a2a;border-bottom:1px solid #343434}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row:not(:has(> input[type=checkbox])){flex-wrap:wrap}.bx-settings-row > span.bx-settings-label{font-size:14px;display:block;text-align:left;align-self:center;margin-bottom:0 !important;flex:1}.bx-settings-row > span.bx-settings-label + *{margin:0 0 0 auto}.bx-settings-dialog-note{display:block;color:#afafb0;font-size:12px;font-weight:lighter;font-style:italic}.bx-settings-dialog-note:not(:has(a)){margin-top:4px}.bx-settings-dialog-note a{display:inline-block;padding:4px}.bx-settings-custom-user-agent{display:block;width:100%;padding:6px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px}.bx-debug-info button{margin-top:10px}.bx-debug-info pre{margin-top:10px;cursor:copy;color:#fff;padding:8px;border:1px solid #2d2d2d;background:#212121;white-space:break-spaces;text-align:left}.bx-debug-info pre:hover{background:#272727}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-note-unsupported{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:has(+ .bx-settings-row){border-top-left-radius:10px;border-top-right-radius:10px}.bx-settings-tab-contents > div .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-radius:10px}.bx-suggest-toggler{text-align:left;display:flex;border-radius:4px;overflow:hidden;background:#003861}.bx-suggest-toggler label{flex:1;margin-bottom:0;padding:10px;background:#004f87}.bx-suggest-toggler span{display:inline-block;align-self:center;padding:10px;width:40px;text-align:center}.bx-suggest-toggler:hover,.bx-suggest-toggler:focus{cursor:pointer;background:#005da1}.bx-suggest-toggler:hover label,.bx-suggest-toggler:focus label{background:#006fbe}.bx-suggest-toggler[bx-open] span{transform:rotate(90deg)}.bx-suggest-toggler[bx-open]+ .bx-suggest-box{display:block}.bx-suggest-box{display:none;background:#161616;padding:10px;box-shadow:0 0 12px #0f0f0f inset;border-radius:10px}.bx-suggest-wrapper{display:flex;flex-direction:column;gap:10px;margin:10px}.bx-suggest-note{font-size:11px;color:#8c8c8c;font-style:italic;font-weight:100}.bx-suggest-link{font-size:14px;display:inline-block;margin-top:4px;padding:4px}.bx-suggest-row{display:flex;flex-direction:row;gap:10px}.bx-suggest-row label{flex:1;overflow:overlay;border-radius:4px}.bx-suggest-row label .bx-suggest-label{background:#323232;padding:4px 10px;font-size:12px;text-align:left}.bx-suggest-row label .bx-suggest-value{padding:6px;font-size:14px}.bx-suggest-row label .bx-suggest-value.bx-suggest-change{background-color:var(--bx-warning-color)}.bx-suggest-row.bx-suggest-ok input{visibility:hidden}.bx-suggest-row.bx-suggest-ok .bx-suggest-label{background-color:#008114}.bx-suggest-row.bx-suggest-ok .bx-suggest-value{background-color:#13a72a}.bx-suggest-row.bx-suggest-change .bx-suggest-label{background-color:#a65e08}.bx-suggest-row.bx-suggest-change .bx-suggest-value{background-color:#d57f18}.bx-suggest-row.bx-suggest-change:hover label{cursor:pointer}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-label{background-color:#995707}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-value{background-color:#bd7115}.bx-suggest-row.bx-suggest-change input:not(:checked) + label{opacity:.5}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-label{background-color:#2a2a2a}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-value{background-color:#393939}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label{opacity:1}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-label{background-color:#202020}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-value{background-color:#303030}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:12px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-remote-play-buttons{display:flex;justify-content:space-between}.bx-select{display:flex;align-items:center;flex:0 1 auto}.bx-select select{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-select > div,.bx-select button.bx-select-value{min-width:120px;text-align:left;margin:0 8px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 8px;flex:1}.bx-select > div{display:inline-block}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0;font-size:14px;width:100%}.bx-select > div label span{display:block;font-size:10px;font-weight:bold;text-align:left;line-height:initial}.bx-select button.bx-select-value{border:none;display:inline-flex;cursor:pointer;min-height:30px;font-size:.9rem;align-items:center}.bx-select button.bx-select-value span{flex:1;text-align:left;display:inline-block}.bx-select button.bx-select-value input{margin:0 4px;accent-color:var(--bx-primary-button-color)}.bx-select button.bx-select-value:hover input,.bx-select button.bx-select-value:focus input{accent-color:var(--bx-danger-button-color)}.bx-select button.bx-select-value:hover::after,.bx-select button.bx-select-value:focus::after{border-color:#4d4d4d !important}.bx-select button.bx-button{border:none;height:24px;width:24px;padding:0;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:12px;font-family:var(--bx-monospaced-font);flex-shrink:0}.bx-select button.bx-button span{line-height:unset}.bx-guide-home-achievements-progress{display:flex;gap:10px;flex-direction:row}.bx-guide-home-achievements-progress .bx-button{margin-bottom:0 !important}html[data-xds-platform=tv] .bx-guide-home-achievements-progress{flex-direction:column}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress{flex-direction:row}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:first-of-type{flex:1}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type{width:40px}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type span{display:none}.bx-guide-home-buttons > div{display:flex;flex-direction:row;gap:12px}html[data-xds-platform=tv] .bx-guide-home-buttons > div{flex-direction:column}html[data-xds-platform=tv] .bx-guide-home-buttons > div button{margin-bottom:0 !important}html:not([data-xds-platform=tv]) .bx-guide-home-buttons > div button span{display:none}.bx-guide-home-buttons[data-is-playing="true"] button[data-state='normal']{display:none}.bx-guide-home-buttons[data-is-playing="false"] button[data-state='playing']{display:none}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:12px;margin:0 4px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:block;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl{display:inline-block}.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl{margin-right:0;border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;margin-right:8px;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:inherit;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}.bx-product-details-buttons{display:flex;gap:10px;flex-direction:row}.bx-product-details-buttons button{max-width:max-content;margin:10px 0 0 0;display:flex}@media (min-width:568px) and (max-height:480px){.bx-product-details-buttons{flex-direction:column}.bx-product-details-buttons button{margin:8px 0 0 10px}}`;
+  let css = `:root{--bx-title-font:Bahnschrift,Arial,Helvetica,sans-serif;--bx-title-font-semibold:Bahnschrift Semibold,Arial,Helvetica,sans-serif;--bx-normal-font:"Segoe UI",Arial,Helvetica,sans-serif;--bx-monospaced-font:Consolas,"Courier New",Courier,monospace;--bx-promptfont-font:promptfont;--bx-button-height:40px;--bx-default-button-color:#2d3036;--bx-default-button-rgb:45,48,54;--bx-default-button-hover-color:#515863;--bx-default-button-hover-rgb:81,88,99;--bx-default-button-active-color:#222428;--bx-default-button-active-rgb:34,36,40;--bx-default-button-disabled-color:#8e8e8e;--bx-default-button-disabled-rgb:142,142,142;--bx-primary-button-color:#008746;--bx-primary-button-rgb:0,135,70;--bx-primary-button-hover-color:#04b358;--bx-primary-button-hover-rgb:4,179,88;--bx-primary-button-active-color:#044e2a;--bx-primary-button-active-rgb:4,78,42;--bx-primary-button-disabled-color:#448262;--bx-primary-button-disabled-rgb:68,130,98;--bx-danger-button-color:#c10404;--bx-danger-button-rgb:193,4,4;--bx-danger-button-hover-color:#e61d1d;--bx-danger-button-hover-rgb:230,29,29;--bx-danger-button-active-color:#a26c6c;--bx-danger-button-active-rgb:162,108,108;--bx-danger-button-disabled-color:#df5656;--bx-danger-button-disabled-rgb:223,86,86;--bx-fullscreen-text-z-index:99999;--bx-toast-z-index:60000;--bx-dialog-z-index:50000;--bx-dialog-overlay-z-index:40200;--bx-stats-bar-z-index:40100;--bx-mkb-pointer-lock-msg-z-index:40000;--bx-navigation-dialog-z-index:30100;--bx-navigation-dialog-overlay-z-index:30000;--bx-game-bar-z-index:10000;--bx-screenshot-animation-z-index:9000;--bx-wait-time-box-z-index:1000}@font-face{font-family:'promptfont';src:url("https://redphx.github.io/better-xcloud/fonts/promptfont.otf")}div[class^=HUDButton-module__hiddenContainer] ~ div:not([class^=HUDButton-module__hiddenContainer]){opacity:0;pointer-events:none !important;position:absolute;top:-9999px;left:-9999px}@media screen and (max-width:640px){header a[href="/play"]{display:none}}.bx-full-width{width:100% !important}.bx-full-height{height:100% !important}.bx-no-scroll{overflow:hidden !important}.bx-hide-scroll-bar{scrollbar-width:none}.bx-hide-scroll-bar::-webkit-scrollbar{display:none}.bx-gone{display:none !important}.bx-offscreen{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-hidden{visibility:hidden !important}.bx-invisible{opacity:0}.bx-unclickable{pointer-events:none}.bx-pixel{width:1px !important;height:1px !important}.bx-no-margin{margin:0 !important}.bx-no-padding{padding:0 !important}.bx-prompt{font-family:var(--bx-promptfont-font)}.bx-line-through{text-decoration:line-through !important}.bx-normal-case{text-transform:none !important}.bx-normal-link{text-transform:none !important;text-align:left !important;font-weight:400 !important;font-family:var(--bx-normal-font) !important}select[multiple]{overflow:auto}#headerArea,#uhfSkipToMain,.uhf-footer{display:none}div[class*=NotFocusedDialog]{position:absolute !important;top:-9999px !important;left:-9999px !important;width:0 !important;height:0 !important}#game-stream video:not([src]){visibility:hidden}div[class*=SupportedInputsBadge]:not(:has(:nth-child(2))),div[class*=SupportedInputsBadge] svg:first-of-type{display:none}.bx-game-tile-wait-time{position:absolute;top:0;left:0;z-index:1;background:rgba(0,0,0,0.549);display:flex;border-radius:4px 0 4px 0;align-items:center;padding:4px 8px}.bx-game-tile-wait-time svg{width:14px;height:16px;margin-right:2px}.bx-game-tile-wait-time span{display:inline-block;height:16px;line-height:16px;font-size:12px;font-weight:bold;margin-left:2px}.bx-fullscreen-text{position:fixed;top:0;bottom:0;left:0;right:0;background:rgba(0,0,0,0.8);z-index:var(--bx-fullscreen-text-z-index);line-height:100vh;color:#fff;text-align:center;font-weight:400;font-family:var(--bx-normal-font);font-size:1.3rem;user-select:none;-webkit-user-select:none}#root section[class*=DeviceCodePage-module__page]{margin-left:20px !important;margin-right:20px !important;margin-top:20px !important;max-width:800px !important}#root div[class*=DeviceCodePage-module__back]{display:none}.bx-button{--button-rgb:var(--bx-default-button-rgb);--button-hover-rgb:var(--bx-default-button-hover-rgb);--button-active-rgb:var(--bx-default-button-active-rgb);--button-disabled-rgb:var(--bx-default-button-disabled-rgb);background-color:rgb(var(--button-rgb));user-select:none;-webkit-user-select:none;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;border:none;font-weight:400;height:var(--bx-button-height);border-radius:4px;padding:0 8px;text-transform:uppercase;cursor:pointer;overflow:hidden}.bx-button:not([disabled]):active{background-color:rgb(var(--button-active-rgb))}.bx-button:focus{outline:none !important}.bx-button:not([disabled]):not(:active):hover,.bx-button:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button:disabled{cursor:default;background-color:rgb(var(--button-disabled-rgb))}.bx-button.bx-ghost{background-color:transparent}.bx-button.bx-ghost:not([disabled]):not(:active):hover,.bx-button.bx-ghost:not([disabled]):not(:active).bx-focusable:focus{background-color:rgb(var(--button-hover-rgb))}.bx-button.bx-primary{--button-rgb:var(--bx-primary-button-rgb)}.bx-button.bx-primary:not([disabled]):active{--button-active-rgb:var(--bx-primary-button-active-rgb)}.bx-button.bx-primary:not([disabled]):not(:active):hover,.bx-button.bx-primary:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-primary-button-hover-rgb)}.bx-button.bx-primary:disabled{--button-disabled-rgb:var(--bx-primary-button-disabled-rgb)}.bx-button.bx-danger{--button-rgb:var(--bx-danger-button-rgb)}.bx-button.bx-danger:not([disabled]):active{--button-active-rgb:var(--bx-danger-button-active-rgb)}.bx-button.bx-danger:not([disabled]):not(:active):hover,.bx-button.bx-danger:not([disabled]):not(:active).bx-focusable:focus{--button-hover-rgb:var(--bx-danger-button-hover-rgb)}.bx-button.bx-danger:disabled{--button-disabled-rgb:var(--bx-danger-button-disabled-rgb)}.bx-button.bx-frosted{--button-alpha:.2;background-color:rgba(var(--button-rgb), var(--button-alpha));backdrop-filter:blur(4px) brightness(1.5)}.bx-button.bx-frosted:not([disabled]):not(:active):hover,.bx-button.bx-frosted:not([disabled]):not(:active).bx-focusable:focus{background-color:rgba(var(--button-hover-rgb), var(--button-alpha))}.bx-button.bx-drop-shadow{box-shadow:0 0 4px rgba(0,0,0,0.502)}.bx-button.bx-tall{height:calc(var(--bx-button-height) * 1.5) !important}.bx-button.bx-circular{border-radius:var(--bx-button-height);height:var(--bx-button-height)}.bx-button svg{display:inline-block;width:16px;height:var(--bx-button-height)}.bx-button span{display:inline-block;line-height:var(--bx-button-height);vertical-align:middle;color:#fff;overflow:hidden;white-space:nowrap}.bx-button span:not(:only-child){margin-left:10px}.bx-focusable{position:relative;overflow:visible}.bx-focusable::after{border:2px solid transparent;border-radius:10px}.bx-focusable:focus::after{content:'';border-color:#fff;position:absolute;top:-6px;left:-6px;right:-6px;bottom:-6px}html[data-active-input=touch] .bx-focusable:focus::after,html[data-active-input=mouse] .bx-focusable:focus::after{border-color:transparent !important}.bx-focusable.bx-circular::after{border-radius:var(--bx-button-height)}a.bx-button{display:inline-block}a.bx-button.bx-full-width{text-align:center}button.bx-inactive{pointer-events:none;opacity:.2;background:transparent !important}.bx-header-remote-play-button{height:auto;margin-right:8px !important}.bx-header-remote-play-button svg{width:24px;height:24px}.bx-header-settings-button{line-height:30px;font-size:14px;text-transform:uppercase;position:relative}.bx-header-settings-button[data-update-available]::before{content:'🌟' !important;line-height:var(--bx-button-height);display:inline-block;margin-left:4px}.bx-dialog-overlay{position:fixed;inset:0;z-index:var(--bx-dialog-overlay-z-index);background:#000;opacity:50%}.bx-dialog{display:flex;flex-flow:column;max-height:90vh;position:fixed;top:50%;left:50%;margin-right:-50%;transform:translate(-50%,-50%);min-width:420px;padding:20px;border-radius:8px;z-index:var(--bx-dialog-z-index);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-normal-font);box-shadow:0 0 6px #000;user-select:none;-webkit-user-select:none}.bx-dialog *:focus{outline:none !important}.bx-dialog h2{display:flex;margin-bottom:12px}.bx-dialog h2 b{flex:1;color:#fff;display:block;font-family:var(--bx-title-font);font-size:26px;font-weight:400;line-height:var(--bx-button-height)}.bx-dialog.bx-binding-dialog h2 b{font-family:var(--bx-promptfont-font) !important}.bx-dialog > div{overflow:auto;padding:2px 0}.bx-dialog > button{padding:8px 32px;margin:10px auto 0;border:none;border-radius:4px;display:block;background-color:#2d3036;text-align:center;color:#fff;text-transform:uppercase;font-family:var(--bx-title-font);font-weight:400;line-height:18px;font-size:14px}@media (hover:hover){.bx-dialog > button:hover{background-color:#515863}}.bx-dialog > button:focus{background-color:#515863}@media screen and (max-width:450px){.bx-dialog{min-width:100%}}.bx-navigation-dialog{position:absolute;z-index:var(--bx-navigation-dialog-z-index);font-family:var(--bx-title-font)}.bx-navigation-dialog *:focus{outline:none !important}.bx-navigation-dialog-overlay{position:fixed;background:rgba(11,11,11,0.89);top:0;left:0;right:0;bottom:0;z-index:var(--bx-navigation-dialog-overlay-z-index)}.bx-navigation-dialog-overlay[data-is-playing="true"]{background:transparent}.bx-settings-dialog{display:flex;position:fixed;top:0;right:0;bottom:0;opacity:.98;user-select:none;-webkit-user-select:none}.bx-settings-dialog .bx-focusable::after{border-radius:4px}.bx-settings-dialog .bx-focusable:focus::after{top:0;left:0;right:0;bottom:0}.bx-settings-dialog .bx-settings-reload-note{font-size:.8rem;display:block;padding:8px;font-style:italic;font-weight:normal;height:var(--bx-button-height)}.bx-settings-dialog input{accent-color:var(--bx-primary-button-color)}.bx-settings-dialog input:focus{accent-color:var(--bx-danger-button-color)}.bx-settings-dialog select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;border:none;color:#fff}.bx-settings-dialog select option:disabled{display:none}.bx-settings-dialog input[type=checkbox]:focus,.bx-settings-dialog select:focus{filter:drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff) drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)}.bx-settings-dialog a{color:#1c9d1c;text-decoration:none}.bx-settings-dialog a:hover,.bx-settings-dialog a:focus{color:#5dc21e}.bx-settings-tabs-container{position:fixed;width:48px;max-height:100vh;display:flex;flex-direction:column}.bx-settings-tabs-container > div:last-of-type{display:flex;flex-direction:column;align-items:end}.bx-settings-tabs-container > div:last-of-type button{flex-shrink:0;border-top-right-radius:0;border-bottom-right-radius:0;margin-top:8px;height:unset;padding:8px 10px}.bx-settings-tabs-container > div:last-of-type button svg{width:16px;height:16px}.bx-settings-tabs{display:flex;flex-direction:column;border-radius:0 0 0 8px;box-shadow:0 0 6px #000;overflow:overlay;flex:1}.bx-settings-tabs svg{width:24px;height:24px;padding:10px;flex-shrink:0;box-sizing:content-box;background:#131313;cursor:pointer;border-left:4px solid #1e1e1e}.bx-settings-tabs svg.bx-active{background:#222;border-color:#008746}.bx-settings-tabs svg:not(.bx-active):hover{background:#2f2f2f;border-color:#484848}.bx-settings-tabs svg:focus{border-color:#fff}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]{background:var(--bx-danger-button-color) !important}.bx-settings-tabs svg[data-group=global][data-need-refresh=true]:hover{background:var(--bx-danger-button-hover-color) !important}.bx-settings-tab-contents{flex-direction:column;padding:10px;margin-left:48px;width:450px;max-width:calc(100vw - tabsWidth);background:#1a1b1e;color:#fff;font-weight:400;font-size:16px;font-family:var(--bx-title-font);text-align:center;box-shadow:0 0 6px #000;overflow:overlay;z-index:1}.bx-settings-tab-contents > div[data-tab-group=mkb]{display:flex;flex-direction:column;height:100%;overflow:hidden}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:first-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=true] > div:last-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:first-of-type{display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] > div[data-has-gamepad=false] > div:last-of-type{display:none}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-profile{width:100%;height:36px;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-note{margin-top:10px;font-size:14px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row{display:flex;margin-bottom:10px}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row label.bx-prompt{flex:1;font-size:26px;margin-bottom:0}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions{flex:2;position:relative}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select{position:absolute;width:100%;height:100%;display:block}.bx-settings-tab-contents > div[data-tab-group=shortcuts] .bx-shortcut-row .bx-shortcut-actions select:last-of-type{opacity:0;z-index:calc(var(--bx-settings-z-index) + 1)}.bx-settings-tab-contents .bx-top-buttons{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}.bx-settings-tab-contents .bx-top-buttons .bx-button{display:block}.bx-settings-tab-contents h2{margin:16px 0 8px 0;display:flex;align-items:center}.bx-settings-tab-contents h2:first-of-type{margin-top:0}.bx-settings-tab-contents h2 span{display:inline-block;font-size:20px;font-weight:bold;text-align:left;flex:1;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}@media (max-width:500px){.bx-settings-tab-contents{width:calc(100vw - 48px)}}.bx-settings-row{display:flex;gap:10px;padding:16px 10px;margin:0;background:#2a2a2a;border-bottom:1px solid #343434}.bx-settings-row:hover,.bx-settings-row:focus-within{background-color:#242424}.bx-settings-row:not(:has(> input[type=checkbox])){flex-wrap:wrap}.bx-settings-row > span.bx-settings-label{font-size:14px;display:block;text-align:left;align-self:center;margin-bottom:0 !important;flex:1}.bx-settings-row > span.bx-settings-label + *{margin:0 0 0 auto}.bx-settings-dialog-note{display:block;color:#afafb0;font-size:12px;font-weight:lighter;font-style:italic}.bx-settings-dialog-note:not(:has(a)){margin-top:4px}.bx-settings-dialog-note a{display:inline-block;padding:4px}.bx-settings-custom-user-agent{display:block;width:100%;padding:6px}.bx-donation-link{display:block;text-align:center;text-decoration:none;height:20px;line-height:20px;font-size:14px;margin-top:10px}.bx-debug-info button{margin-top:10px}.bx-debug-info pre{margin-top:10px;cursor:copy;color:#fff;padding:8px;border:1px solid #2d2d2d;background:#212121;white-space:break-spaces;text-align:left}.bx-debug-info pre:hover{background:#272727}.bx-settings-app-version{margin-top:10px;text-align:center;color:#747474;font-size:12px}.bx-note-unsupported{display:block;font-size:12px;font-style:italic;font-weight:normal;color:#828282}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:has(+ .bx-settings-row){border-top-left-radius:10px;border-top-right-radius:10px}.bx-settings-tab-contents > div .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px}.bx-settings-tab-contents > div *:not(.bx-settings-row):has(+ .bx-settings-row) + .bx-settings-row:not(:has(+ .bx-settings-row)){border:none;border-radius:10px}.bx-suggest-toggler{text-align:left;display:flex;border-radius:4px;overflow:hidden;background:#003861}.bx-suggest-toggler label{flex:1;margin-bottom:0;padding:10px;background:#004f87}.bx-suggest-toggler span{display:inline-block;align-self:center;padding:10px;width:40px;text-align:center}.bx-suggest-toggler:hover,.bx-suggest-toggler:focus{cursor:pointer;background:#005da1}.bx-suggest-toggler:hover label,.bx-suggest-toggler:focus label{background:#006fbe}.bx-suggest-toggler[bx-open] span{transform:rotate(90deg)}.bx-suggest-toggler[bx-open]+ .bx-suggest-box{display:block}.bx-suggest-box{display:none;background:#161616;padding:10px;box-shadow:0 0 12px #0f0f0f inset;border-radius:10px}.bx-suggest-wrapper{display:flex;flex-direction:column;gap:10px;margin:10px}.bx-suggest-note{font-size:11px;color:#8c8c8c;font-style:italic;font-weight:100}.bx-suggest-link{font-size:14px;display:inline-block;margin-top:4px;padding:4px}.bx-suggest-row{display:flex;flex-direction:row;gap:10px}.bx-suggest-row label{flex:1;overflow:overlay;border-radius:4px}.bx-suggest-row label .bx-suggest-label{background:#323232;padding:4px 10px;font-size:12px;text-align:left}.bx-suggest-row label .bx-suggest-value{padding:6px;font-size:14px}.bx-suggest-row label .bx-suggest-value.bx-suggest-change{background-color:var(--bx-warning-color)}.bx-suggest-row.bx-suggest-ok input{visibility:hidden}.bx-suggest-row.bx-suggest-ok .bx-suggest-label{background-color:#008114}.bx-suggest-row.bx-suggest-ok .bx-suggest-value{background-color:#13a72a}.bx-suggest-row.bx-suggest-change .bx-suggest-label{background-color:#a65e08}.bx-suggest-row.bx-suggest-change .bx-suggest-value{background-color:#d57f18}.bx-suggest-row.bx-suggest-change:hover label{cursor:pointer}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-label{background-color:#995707}.bx-suggest-row.bx-suggest-change:hover .bx-suggest-value{background-color:#bd7115}.bx-suggest-row.bx-suggest-change input:not(:checked) + label{opacity:.5}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-label{background-color:#2a2a2a}.bx-suggest-row.bx-suggest-change input:not(:checked) + label .bx-suggest-value{background-color:#393939}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label{opacity:1}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-label{background-color:#202020}.bx-suggest-row.bx-suggest-change:hover input:not(:checked) + label .bx-suggest-value{background-color:#303030}.bx-toast{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:24px;transform:translate(-50%,0);background:#000;border-radius:16px;color:#fff;z-index:var(--bx-toast-z-index);font-family:var(--bx-normal-font);border:2px solid #fff;display:flex;align-items:center;opacity:0;overflow:clip;transition:opacity .2s ease-in}.bx-toast.bx-show{opacity:.85}.bx-toast.bx-hide{opacity:0;pointer-events:none}.bx-toast-msg{font-size:14px;display:inline-block;padding:12px 16px;white-space:pre}.bx-toast-status{font-weight:bold;font-size:14px;text-transform:uppercase;display:inline-block;background:#515863;padding:12px 16px;color:#fff;white-space:pre}.bx-wait-time-box{position:fixed;top:0;right:0;background-color:rgba(0,0,0,0.8);color:#fff;z-index:var(--bx-wait-time-box-z-index);padding:12px;border-radius:0 0 0 8px}.bx-wait-time-box label{display:block;text-transform:uppercase;text-align:right;font-size:12px;font-weight:bold;margin:0}.bx-wait-time-box span{display:block;font-family:var(--bx-monospaced-font);text-align:right;font-size:16px;margin-bottom:10px}.bx-wait-time-box span:last-of-type{margin-bottom:0}.bx-remote-play-container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;background:#1a1b1e;border-radius:10px;width:420px;max-width:calc(100vw - 20px);margin:0 0 0 auto;padding:20px}.bx-remote-play-container > .bx-button{display:table;margin:0 0 0 auto}.bx-remote-play-settings{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d2d2d}.bx-remote-play-settings > div{display:flex}.bx-remote-play-settings label{flex:1}.bx-remote-play-settings label p{margin:4px 0 0;padding:0;color:#888;font-size:12px}.bx-remote-play-resolution{display:block}.bx-remote-play-resolution input[type="radio"]{accent-color:var(--bx-primary-button-color);margin-right:6px}.bx-remote-play-resolution input[type="radio"]:focus{accent-color:var(--bx-primary-button-hover-color)}.bx-remote-play-device-wrapper{display:flex;margin-bottom:12px}.bx-remote-play-device-wrapper:last-child{margin-bottom:2px}.bx-remote-play-device-info{flex:1;padding:4px 0}.bx-remote-play-device-name{font-size:20px;font-weight:bold;display:inline-block;vertical-align:middle}.bx-remote-play-console-type{font-size:12px;background:#004c87;color:#fff;display:inline-block;border-radius:14px;padding:2px 10px;margin-left:8px;vertical-align:middle}.bx-remote-play-power-state{color:#888;font-size:12px}.bx-remote-play-connect-button{min-height:100%;margin:4px 0}.bx-remote-play-buttons{display:flex;justify-content:space-between}.bx-select{display:flex;align-items:center;flex:0 1 auto}.bx-select select{position:absolute !important;top:-9999px !important;left:-9999px !important;visibility:hidden !important}.bx-select > div,.bx-select button.bx-select-value{min-width:120px;text-align:left;margin:0 8px;line-height:24px;vertical-align:middle;background:#fff;color:#000;border-radius:4px;padding:2px 8px;flex:1}.bx-select > div{display:inline-block}.bx-select > div input{display:inline-block;margin-right:8px}.bx-select > div label{margin-bottom:0;font-size:14px;width:100%}.bx-select > div label span{display:block;font-size:10px;font-weight:bold;text-align:left;line-height:initial}.bx-select button.bx-select-value{border:none;display:inline-flex;cursor:pointer;min-height:30px;font-size:.9rem;align-items:center}.bx-select button.bx-select-value span{flex:1;text-align:left;display:inline-block}.bx-select button.bx-select-value input{margin:0 4px;accent-color:var(--bx-primary-button-color)}.bx-select button.bx-select-value:hover input,.bx-select button.bx-select-value:focus input{accent-color:var(--bx-danger-button-color)}.bx-select button.bx-select-value:hover::after,.bx-select button.bx-select-value:focus::after{border-color:#4d4d4d !important}.bx-select button.bx-button{border:none;height:24px;width:24px;padding:0;line-height:24px;color:#fff;border-radius:4px;font-weight:bold;font-size:12px;font-family:var(--bx-monospaced-font);flex-shrink:0}.bx-select button.bx-button span{line-height:unset}.bx-guide-home-achievements-progress{display:flex;gap:10px;flex-direction:row}.bx-guide-home-achievements-progress .bx-button{margin-bottom:0 !important}html[data-xds-platform=tv] .bx-guide-home-achievements-progress{flex-direction:column}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress{flex-direction:row}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:first-of-type{flex:1}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type{width:40px}html:not([data-xds-platform=tv]) .bx-guide-home-achievements-progress > button:last-of-type span{display:none}.bx-guide-home-buttons > div{display:flex;flex-direction:row;gap:12px}html[data-xds-platform=tv] .bx-guide-home-buttons > div{flex-direction:column}html[data-xds-platform=tv] .bx-guide-home-buttons > div button{margin-bottom:0 !important}html:not([data-xds-platform=tv]) .bx-guide-home-buttons > div button span{display:none}.bx-guide-home-buttons[data-is-playing="true"] button[data-state='normal']{display:none}.bx-guide-home-buttons[data-is-playing="false"] button[data-state='playing']{display:none}div[class*=StreamMenu-module__menuContainer] > div[class*=Menu-module]{overflow:visible}.bx-stream-menu-button-on{fill:#000 !important;background-color:#2d2d2d !important;color:#000 !important}.bx-stream-refresh-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px) !important}body[data-media-type=default] .bx-stream-refresh-button{left:calc(env(safe-area-inset-left, 0px) + 11px) !important}body[data-media-type=tv] .bx-stream-refresh-button{top:calc(var(--gds-focus-borderSize) + 80px) !important}.bx-stream-home-button{top:calc(env(safe-area-inset-top, 0px) + 10px + 50px * 2) !important}body[data-media-type=default] .bx-stream-home-button{left:calc(env(safe-area-inset-left, 0px) + 12px) !important}body[data-media-type=tv] .bx-stream-home-button{top:calc(var(--gds-focus-borderSize) + 80px * 2) !important}div[data-testid=media-container]{display:flex}div[data-testid=media-container].bx-taking-screenshot:before{animation:bx-anim-taking-screenshot .5s ease;content:' ';position:absolute;width:100%;height:100%;z-index:var(--bx-screenshot-animation-z-index)}#game-stream video{margin:auto;align-self:center;background:#000}#game-stream canvas{position:absolute;align-self:center;margin:auto;left:0;right:0}#gamepass-dialog-root div[class^=Guide-module__guide] .bx-button{overflow:visible;margin-bottom:12px}@-moz-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-webkit-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@-o-keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}@keyframes bx-anim-taking-screenshot{0%{border:0 solid rgba(255,255,255,0.502)}50%{border:8px solid rgba(255,255,255,0.502)}100%{border:0 solid rgba(255,255,255,0.502)}}.bx-number-stepper{text-align:center}.bx-number-stepper span{display:inline-block;min-width:40px;font-family:var(--bx-monospaced-font);font-size:12px;margin:0 4px}.bx-number-stepper button{border:none;width:24px;height:24px;margin:0;line-height:24px;background-color:var(--bx-default-button-color);color:#fff;border-radius:4px;font-weight:bold;font-size:14px;font-family:var(--bx-monospaced-font)}@media (hover:hover){.bx-number-stepper button:hover{background-color:var(--bx-default-button-hover-color)}}.bx-number-stepper button:active{background-color:var(--bx-default-button-hover-color)}.bx-number-stepper button:disabled + span{font-family:var(--bx-title-font)}.bx-number-stepper input[type="range"]{display:block;margin:12px auto 2px;width:180px;color:#959595 !important}.bx-number-stepper input[type=range]:disabled,.bx-number-stepper button:disabled{display:none}.bx-number-stepper[data-disabled=true] input[type=range],.bx-number-stepper[data-disabled=true] button{display:none}#bx-game-bar{z-index:var(--bx-game-bar-z-index);position:fixed;bottom:0;width:40px;height:90px;overflow:visible;cursor:pointer}#bx-game-bar > svg{display:none;pointer-events:none;position:absolute;height:28px;margin-top:16px}@media (hover:hover){#bx-game-bar:hover > svg{display:block}}#bx-game-bar .bx-game-bar-container{opacity:0;position:absolute;display:flex;overflow:hidden;background:rgba(26,27,30,0.91);box-shadow:0 0 6px #1c1c1c;transition:opacity .1s ease-in}#bx-game-bar .bx-game-bar-container.bx-show{opacity:.9}#bx-game-bar .bx-game-bar-container.bx-show + svg{display:none !important}#bx-game-bar .bx-game-bar-container.bx-hide{opacity:0;pointer-events:none}#bx-game-bar .bx-game-bar-container button{width:60px;height:60px;border-radius:0}#bx-game-bar .bx-game-bar-container button svg{width:28px;height:28px;transition:transform .08s ease 0s}#bx-game-bar .bx-game-bar-container button:hover{border-radius:0}#bx-game-bar .bx-game-bar-container button:active svg{transform:scale(.75)}#bx-game-bar .bx-game-bar-container button.bx-activated{background-color:#fff}#bx-game-bar .bx-game-bar-container button.bx-activated svg{filter:invert(1)}#bx-game-bar .bx-game-bar-container div[data-enabled] button{display:none}#bx-game-bar .bx-game-bar-container div[data-enabled='true'] button:first-of-type{display:block}#bx-game-bar .bx-game-bar-container div[data-enabled='false'] button:last-of-type{display:block}#bx-game-bar[data-position="bottom-left"]{left:0;direction:ltr}#bx-game-bar[data-position="bottom-left"] .bx-game-bar-container{border-radius:0 10px 10px 0}#bx-game-bar[data-position="bottom-right"]{right:0;direction:rtl}#bx-game-bar[data-position="bottom-right"] .bx-game-bar-container{direction:ltr;border-radius:10px 0 0 10px}.bx-badges{margin-left:0;user-select:none;-webkit-user-select:none}.bx-badge{border:none;display:inline-block;line-height:24px;color:#fff;font-family:var(--bx-title-font-semibold);font-size:14px;font-weight:400;margin:0 8px 8px 0;box-shadow:0 0 6px #000;border-radius:4px}.bx-badge-name{background-color:#2d3036;border-radius:4px 0 0 4px}.bx-badge-name svg{width:16px;height:16px}.bx-badge-value{background-color:#808080;border-radius:0 4px 4px 0}.bx-badge-name,.bx-badge-value{display:inline-block;padding:0 8px;line-height:30px;vertical-align:bottom}.bx-badge-battery[data-charging=true] span:first-of-type::after{content:' ⚡️'}div[class^=StreamMenu-module__container] .bx-badges{position:absolute;max-width:500px}#gamepass-dialog-root .bx-badges{position:fixed;top:60px;left:460px;max-width:500px}@media (min-width:568px) and (max-height:480px){#gamepass-dialog-root .bx-badges{position:unset;top:unset;left:unset;margin:8px 0}}.bx-stats-bar{display:flex;flex-direction:row;gap:8px;user-select:none;-webkit-user-select:none;position:fixed;top:0;background-color:#000;color:#fff;font-family:var(--bx-monospaced-font);font-size:.9rem;padding-left:8px;z-index:var(--bx-stats-bar-z-index);text-wrap:nowrap}.bx-stats-bar[data-stats*="[time]"] > .bx-stat-time,.bx-stats-bar[data-stats*="[play]"] > .bx-stat-play,.bx-stats-bar[data-stats*="[batt]"] > .bx-stat-batt,.bx-stats-bar[data-stats*="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats*="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats*="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats*="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats*="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats*="[fl]"] > .bx-stat-fl,.bx-stats-bar[data-stats*="[dl]"] > .bx-stat-dl,.bx-stats-bar[data-stats*="[ul]"] > .bx-stat-ul{display:inline-block}.bx-stats-bar[data-stats$="[time]"] > .bx-stat-time,.bx-stats-bar[data-stats$="[play]"] > .bx-stat-play,.bx-stats-bar[data-stats$="[batt]"] > .bx-stat-batt,.bx-stats-bar[data-stats$="[fps]"] > .bx-stat-fps,.bx-stats-bar[data-stats$="[ping]"] > .bx-stat-ping,.bx-stats-bar[data-stats$="[btr]"] > .bx-stat-btr,.bx-stats-bar[data-stats$="[dt]"] > .bx-stat-dt,.bx-stats-bar[data-stats$="[pl]"] > .bx-stat-pl,.bx-stats-bar[data-stats$="[fl]"] > .bx-stat-fl,.bx-stats-bar[data-stats$="[dl]"] > .bx-stat-dl,.bx-stats-bar[data-stats$="[ul]"] > .bx-stat-ul{border-right:none}.bx-stats-bar::before{display:none;content:'👀';vertical-align:middle;margin-right:8px}.bx-stats-bar[data-display=glancing]::before{display:inline-block}.bx-stats-bar[data-position=top-left]{left:0;border-radius:0 0 4px 0}.bx-stats-bar[data-position=top-right]{right:0;border-radius:0 0 0 4px}.bx-stats-bar[data-position=top-center]{transform:translate(-50%,0);left:50%;border-radius:0 0 4px 4px}.bx-stats-bar[data-transparent=true]{background:none;filter:drop-shadow(1px 0 0 rgba(0,0,0,0.941)) drop-shadow(-1px 0 0 rgba(0,0,0,0.941)) drop-shadow(0 1px 0 rgba(0,0,0,0.941)) drop-shadow(0 -1px 0 rgba(0,0,0,0.941))}.bx-stats-bar > div{display:none;border-right:1px solid #fff;padding-right:8px}.bx-stats-bar label{margin:0 8px 0 0;font-family:var(--bx-title-font);font-size:70%;font-weight:bold;vertical-align:middle;cursor:help}.bx-stats-bar span{min-width:60px;display:inline-block;text-align:right;vertical-align:middle}.bx-stats-bar span[data-grade=good]{color:#6bffff}.bx-stats-bar span[data-grade=ok]{color:#fff16b}.bx-stats-bar span[data-grade=bad]{color:#ff5f5f}.bx-stats-bar span:first-of-type{min-width:22px}.bx-mkb-settings{display:flex;flex-direction:column;flex:1;padding-bottom:10px;overflow:hidden}.bx-mkb-settings select:disabled{-webkit-appearance:none;background:transparent;text-align-last:right;text-align:right;border:none;color:#fff}.bx-mkb-pointer-lock-msg{user-select:none;-webkit-user-select:none;position:fixed;left:50%;top:50%;transform:translateX(-50%) translateY(-50%);margin:auto;background:#151515;z-index:var(--bx-mkb-pointer-lock-msg-z-index);color:#fff;text-align:center;font-weight:400;font-family:"Segoe UI",Arial,Helvetica,sans-serif;font-size:1.3rem;padding:12px;border-radius:8px;align-items:center;box-shadow:0 0 6px #000;min-width:220px;opacity:.9}.bx-mkb-pointer-lock-msg:hover{opacity:1}.bx-mkb-pointer-lock-msg > div:first-of-type{display:flex;flex-direction:column;text-align:left}.bx-mkb-pointer-lock-msg p{margin:0}.bx-mkb-pointer-lock-msg p:first-child{font-size:22px;margin-bottom:4px;font-weight:bold}.bx-mkb-pointer-lock-msg p:last-child{font-size:12px;font-style:italic}.bx-mkb-pointer-lock-msg > div:last-of-type{margin-top:10px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='native'] button:first-of-type{margin-bottom:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div{display:flex;flex-flow:row;margin-top:8px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button{flex:1}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:first-of-type{margin-right:5px}.bx-mkb-pointer-lock-msg > div:last-of-type[data-type='virtual'] div button:last-of-type{margin-left:5px}.bx-mkb-preset-tools{display:flex;margin-bottom:12px}.bx-mkb-preset-tools select{flex:1}.bx-mkb-preset-tools button{margin-left:6px}.bx-mkb-settings-rows{flex:1;overflow:scroll}.bx-mkb-key-row{display:flex;margin-bottom:10px;align-items:center}.bx-mkb-key-row label{margin-bottom:0;font-family:var(--bx-promptfont-font);font-size:26px;text-align:center;width:26px;height:32px;line-height:32px}.bx-mkb-key-row button{flex:1;height:32px;line-height:32px;margin:0 0 0 10px;background:transparent;border:none;color:#fff;border-radius:0;border-left:1px solid #373737}.bx-mkb-key-row button:hover{background:transparent;cursor:default}.bx-mkb-settings.bx-editing .bx-mkb-key-row button{background:#393939;border-radius:4px;border:none}.bx-mkb-settings.bx-editing .bx-mkb-key-row button:hover{background:#333;cursor:pointer}.bx-mkb-action-buttons > div{text-align:right;display:none}.bx-mkb-action-buttons button{margin-left:8px}.bx-mkb-settings:not(.bx-editing) .bx-mkb-action-buttons > div:first-child{display:block}.bx-mkb-settings.bx-editing .bx-mkb-action-buttons > div:last-child{display:block}.bx-mkb-note{display:block;margin:16px 0 10px;font-size:12px}.bx-mkb-note:first-of-type{margin-top:0}.bx-product-details-buttons{display:flex;gap:10px;flex-direction:row}.bx-product-details-buttons button{max-width:max-content;margin:10px 0 0 0;display:flex}@media (min-width:568px) and (max-height:480px){.bx-product-details-buttons{flex-direction:column}.bx-product-details-buttons button{margin:8px 0 0 10px}}`;
   const PREF_HIDE_SECTIONS = getPref("ui_hide_sections"), selectorToHide = [];
   if (PREF_HIDE_SECTIONS.includes("news")) selectorToHide.push("#BodyContent > div[class*=CarouselRow-module]");
   if (PREF_HIDE_SECTIONS.includes("all-games")) selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__gridContainer]"), selectorToHide.push("#BodyContent div[class*=AllGamesRow-module__rowHeader]");
@@ -7349,14 +7533,6 @@ class XcloudApi {
 }
 class GameTile {
   static #timeout;
-  static #secondsToHms(seconds) {
-    let h = Math.floor(seconds / 3600);
-    seconds %= 3600;
-    let m = Math.floor(seconds / 60), s = seconds % 60;
-    const output = [];
-    if (h > 0 && output.push(`${h}h`), m > 0 && output.push(`${m}m`), s > 0 || output.length === 0) output.push(`${s}s`);
-    return output.join(" ");
-  }
   static async#showWaitTime($elm, productId) {
     if ($elm.hasWaitTime) return;
     $elm.hasWaitTime = !0;
@@ -7367,7 +7543,7 @@ class GameTile {
       if (waitTime) totalWaitTime = waitTime.estimatedAllocationTimeInSeconds;
     }
     if (typeof totalWaitTime === "number" && isElementVisible($elm)) {
-      const $div = CE("div", { class: "bx-game-tile-wait-time" }, createSvgIcon(BxIcon.PLAYTIME), CE("span", {}, GameTile.#secondsToHms(totalWaitTime)));
+      const $div = CE("div", { class: "bx-game-tile-wait-time" }, createSvgIcon(BxIcon.PLAYTIME), CE("span", {}, secondsToHms(totalWaitTime)));
       $elm.insertAdjacentElement("afterbegin", $div);
     }
   }
@@ -7601,7 +7777,7 @@ function waitForRootDialog() {
 }
 function main() {
   if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
-  if (waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
+  if (waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
   if (getPref("stream_touch_controller") === "all") TouchController.setup();
   if (getPref("mkb_enabled") && AppInterface) STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
   if (getPref("ui_game_card_show_wait_time") && GameTile.setup(), EmulatedMkbHandler.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));

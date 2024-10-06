@@ -71,7 +71,9 @@ div[class^=StreamMenu-module__container] .bx-badges {
 
 /* STATS BAR */
 .bx-stats-bar {
-    display: block;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
     user-select: none;
     -webkit-user-select: none;
     position: fixed;
@@ -84,22 +86,31 @@ div[class^=StreamMenu-module__container] .bx-badges {
     z-index: var(--bx-stats-bar-z-index);
     text-wrap: nowrap;
 
+    &[data-stats*="[time]"] > .bx-stat-time,
+    &[data-stats*="[play]"] > .bx-stat-play,
+    &[data-stats*="[batt]"] > .bx-stat-batt,
     &[data-stats*="[fps]"] > .bx-stat-fps,
     &[data-stats*="[ping]"] > .bx-stat-ping,
     &[data-stats*="[btr]"] > .bx-stat-btr,
     &[data-stats*="[dt]"] > .bx-stat-dt,
     &[data-stats*="[pl]"] > .bx-stat-pl,
-    &[data-stats*="[fl]"] > .bx-stat-fl {
+    &[data-stats*="[fl]"] > .bx-stat-fl,
+    &[data-stats*="[dl]"] > .bx-stat-dl,
+    &[data-stats*="[ul]"] > .bx-stat-ul {
         display: inline-block;
     }
 
+    &[data-stats$="[time]"] > .bx-stat-time,
+    &[data-stats$="[play]"] > .bx-stat-play,
+    &[data-stats$="[batt]"] > .bx-stat-batt,
     &[data-stats$="[fps]"] > .bx-stat-fps,
     &[data-stats$="[ping]"] > .bx-stat-ping,
     &[data-stats$="[btr]"] > .bx-stat-btr,
     &[data-stats$="[dt]"] > .bx-stat-dt,
     &[data-stats$="[pl]"] > .bx-stat-pl,
-    &[data-stats$="[fl]"] > .bx-stat-fl {
-        margin-right: 0;
+    &[data-stats$="[fl]"] > .bx-stat-fl,
+    &[data-stats$="[dl]"] > .bx-stat-dl,
+    &[data-stats$="[ul]"] > .bx-stat-ul {
         border-right: none;
     }
 
@@ -137,7 +148,6 @@ div[class^=StreamMenu-module__container] .bx-badges {
 
     > div {
         display: none;
-        margin-right: 8px;
         border-right: 1px solid #fff;
         padding-right: 8px;
     }
@@ -145,7 +155,7 @@ div[class^=StreamMenu-module__container] .bx-badges {
     label {
         margin: 0 8px 0 0;
         font-family: var(--bx-title-font);
-        font-size: inherit;
+        font-size: 70%;
         font-weight: bold;
         vertical-align: middle;
         cursor: help;

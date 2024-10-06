@@ -41,6 +41,7 @@ import { SettingsNavigationDialog } from "./modules/ui/dialog/settings-dialog";
 import { StreamUiHandler } from "./modules/stream/stream-ui";
 import { UserAgent } from "./utils/user-agent";
 import { XboxApi } from "./utils/xbox-api";
+import { StreamStatsCollector } from "./utils/stream-stats-collector";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
@@ -399,6 +400,7 @@ function main() {
     Toast.setup();
 
     GuideMenu.addEventListeners();
+    StreamStatsCollector.setupEvents();
     StreamBadges.setupEvents();
     StreamStats.setupEvents();
 

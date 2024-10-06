@@ -3,6 +3,8 @@ type RTCBasicStat = {
     bytesReceived: number,
     clockRate: number,
     codecId: string,
+    frameWidth: number,
+    frameHeight: number,
     framesDecoded: number,
     id: string,
     kind: string,

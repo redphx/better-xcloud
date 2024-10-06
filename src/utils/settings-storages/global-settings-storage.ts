@@ -3,7 +3,6 @@ import { PrefKey, StorageKey } from "@/enums/pref-keys";
 import { StreamPlayerType, StreamVideoProcessing } from "@/enums/stream-player";
 import { UiSection } from "@/enums/ui-sections";
 import { UserAgentProfile } from "@/enums/user-agent";
-import { StreamStat } from "@/modules/stream/stream-stats";
 import { type SettingDefinition, type SettingDefinitions } from "@/types/setting-definition";
 import { BX_FLAGS } from "../bx-flags";
 import { STATES, AppInterface, STORAGE } from "../global";
@@ -12,6 +11,7 @@ import { t, SUPPORTED_LANGUAGES } from "../translation";
 import { UserAgent } from "../user-agent";
 import { BaseSettingsStore as BaseSettingsStorage } from "./base-settings-storage";
 import { SettingElementType } from "../setting-element";
+import { StreamStat } from "../stream-stats-collector";
 
 
 export const enum StreamResolution {
@@ -713,12 +713,17 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             label: t('stats'),
             default: [StreamStat.PING, StreamStat.FPS, StreamStat.BITRATE, StreamStat.DECODE_TIME, StreamStat.PACKETS_LOST, StreamStat.FRAMES_LOST],
             multipleOptions: {
+                [StreamStat.CLOCK]: `${StreamStat.CLOCK.toUpperCase()}: ${t('clock')}`,
+                [StreamStat.PLAYTIME]: `${StreamStat.PLAYTIME.toUpperCase()}: ${t('playtime')}`,
+                [StreamStat.BATTERY]: `${StreamStat.BATTERY.toUpperCase()}: ${t('battery')}`,
                 [StreamStat.PING]: `${StreamStat.PING.toUpperCase()}: ${t('stat-ping')}`,
                 [StreamStat.FPS]: `${StreamStat.FPS.toUpperCase()}: ${t('stat-fps')}`,
                 [StreamStat.BITRATE]: `${StreamStat.BITRATE.toUpperCase()}: ${t('stat-bitrate')}`,
                 [StreamStat.DECODE_TIME]: `${StreamStat.DECODE_TIME.toUpperCase()}: ${t('stat-decode-time')}`,
                 [StreamStat.PACKETS_LOST]: `${StreamStat.PACKETS_LOST.toUpperCase()}: ${t('stat-packets-lost')}`,
                 [StreamStat.FRAMES_LOST]: `${StreamStat.FRAMES_LOST.toUpperCase()}: ${t('stat-frames-lost')}`,
+                [StreamStat.DOWNLOAD]: `${StreamStat.DOWNLOAD.toUpperCase()}: ${t('download')}`,
+                [StreamStat.UPLOAD]: `${StreamStat.UPLOAD.toUpperCase()}: ${t('upload')}`,
             },
             params: {
                 size: 6,
