@@ -96,7 +96,7 @@ function getSupportedCodecProfiles() {
 }
 
 export class GlobalSettingsStorage extends BaseSettingsStorage {
-    private static readonly DEFINITIONS: SettingDefinitions = {
+    private static readonly DEFINITIONS = {
         [PrefKey.LAST_UPDATE_CHECK]: {
             default: 0,
         },
@@ -728,6 +728,13 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             params: {
                 size: 6,
             },
+            ready: setting => {
+                // Remove Battery option in unsupported browser
+                const multipleOptions = (setting as any).multipleOptions;
+                if (!STATES.browser.capabilities.batteryApi) {
+                    delete multipleOptions[StreamStat.BATTERY];
+                }
+            },
         },
         [PrefKey.STATS_SHOW_WHEN_PLAYING]: {
             label: t('show-stats-on-startup'),
@@ -797,7 +804,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: false,
             note: t('fortnite-allow-stw-mode'),
         },
-    };
+    } satisfies SettingDefinitions;
 
     constructor() {
         super(StorageKey.GLOBAL, GlobalSettingsStorage.DEFINITIONS);

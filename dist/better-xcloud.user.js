@@ -1694,6 +1694,10 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       },
       params: {
         size: 6
+      },
+      ready: (setting) => {
+        const multipleOptions = setting.multipleOptions;
+        if (!STATES.browser.capabilities.batteryApi) delete multipleOptions["batt"];
       }
     },
     stats_show_when_playing: {
