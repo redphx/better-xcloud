@@ -428,7 +428,7 @@ var SUPPORTED_LANGUAGES = {
     e => `Versão ${e.version} disponível`,
     ,
     e => `เวอร์ชัน ${e.version} พร้อมใช้งานแล้ว`,
-    ,
+    e => `${e.version} sayılı yeni sürüm mevcut`,
     e => `Доступна версія ${e.version}`,
     e => `Đã có phiên bản ${e.version}`,
     e => `版本 ${e.version} 可供更新`,
