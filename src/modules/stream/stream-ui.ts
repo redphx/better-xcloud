@@ -135,12 +135,6 @@ export class StreamUiHandler {
     }
 
     private static handleSystemMenu($streamHud: HTMLElement) {
-        // Grip handle
-        const $gripHandle = $streamHud.querySelector('button[class^=GripHandle]') as HTMLElement;
-        if (!$gripHandle) {
-            return;
-        }
-
         // Get the last button
         const $orgButton = $streamHud.querySelector('div[class^=HUDButton]') as HTMLElement;
         if (!$orgButton) {
@@ -148,14 +142,11 @@ export class StreamUiHandler {
         }
 
         const hideGripHandle = () => {
-            if (!$gripHandle) {
-                return;
+            // Grip handle
+            const $gripHandle = document.querySelector('#StreamHud button[class^=GripHandle]') as HTMLElement;
+            if ($gripHandle && $gripHandle.ariaExpanded === 'true') {
+                $gripHandle.click();
             }
-
-            $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
-            $gripHandle.click();
-            $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
-            $gripHandle.click();
         }
 
         // Create Stream Settings button
