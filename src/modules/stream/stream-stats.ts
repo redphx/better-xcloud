@@ -129,14 +129,17 @@ export class StreamStats {
         }
 
         this.quickGlanceObserver = new MutationObserver((mutationList, observer) => {
-            for (let record of mutationList) {
-                if (record.attributeName && record.attributeName === 'aria-expanded') {
-                    const expanded = (record.target as HTMLElement).ariaExpanded;
-                    if (expanded === 'true') {
-                        this.isHidden() && this.start(true);
-                    } else {
-                        this.stop(true);
-                    }
+            for (const record of mutationList) {
+                const $target = record.target as HTMLElement;
+                if (!$target.className || !$target.className.startsWith('GripHandle')) {
+                    continue;
+                }
+
+                const expanded = (record.target as HTMLElement).ariaExpanded;
+                if (expanded === 'true') {
+                    this.isHidden() && this.start(true);
+                } else {
+                    this.stop(true);
                 }
             }
         });
