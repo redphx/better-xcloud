@@ -145,6 +145,9 @@ export class StreamUiHandler {
             // Grip handle
             const $gripHandle = document.querySelector('#StreamHud button[class^=GripHandle]') as HTMLElement;
             if ($gripHandle && $gripHandle.ariaExpanded === 'true') {
+                $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
+                $gripHandle.click();
+                $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
                 $gripHandle.click();
             }
         }
