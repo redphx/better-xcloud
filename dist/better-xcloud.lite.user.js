@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
-// @version      5.8.0
+// @version      5.8.1-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -118,7 +118,7 @@ function deepClone(obj) {
   if (!obj) return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.8.0", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.8.1-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
   supportedRegion: !0,
@@ -326,6 +326,7 @@ var SUPPORTED_LANGUAGES = {
   disabled: "Disabled",
   disconnected: "Disconnected",
   download: "Download",
+  downloaded: "Downloaded",
   edit: "Edit",
   "enable-controller-shortcuts": "Enable controller shortcuts",
   "enable-local-co-op-support": "Enable local co-op support",
@@ -339,7 +340,7 @@ var SUPPORTED_LANGUAGES = {
   experimental: "Experimental",
   export: "Export",
   fast: "Fast",
-  "fortnite-allow-stw-mode": "Allows playing STW mode on mobile",
+  "fortnite-allow-stw-mode": "Allows playing \"Save the World\" mode on mobile",
   "fortnite-force-console-version": "Fortnite: force console version",
   "game-bar": "Game Bar",
   "getting-consoles-list": "Getting the list of consoles...",
@@ -382,6 +383,7 @@ var SUPPORTED_LANGUAGES = {
   "mkb-disclaimer": "Using this feature when playing online could be viewed as cheating",
   "mouse-and-keyboard": "Mouse & Keyboard",
   "mouse-wheel": "Mouse wheel",
+  "msfs2020-force-native-mkb": "MSFS2020: force native M&KB support",
   muted: "Muted",
   name: "Name",
   "native-mkb": "Native Mouse & Keyboard",
@@ -581,6 +583,7 @@ var SUPPORTED_LANGUAGES = {
   unmuted: "Unmuted",
   "unsharp-masking": "Unsharp masking",
   upload: "Upload",
+  uploaded: "Uploaded",
   "use-mouse-absolute-position": "Use mouse's absolute position",
   "use-this-at-your-own-risk": "Use this at your own risk",
   "user-agent-profile": "User-Agent profile",
@@ -1662,8 +1665,8 @@ class GlobalSettingsStorage extends BaseSettingsStore {
         dt: `${"dt".toUpperCase()}: ${t("stat-decode-time")}`,
         pl: `${"pl".toUpperCase()}: ${t("stat-packets-lost")}`,
         fl: `${"fl".toUpperCase()}: ${t("stat-frames-lost")}`,
-        dl: `${"dl".toUpperCase()}: ${t("download")}`,
-        ul: `${"ul".toUpperCase()}: ${t("upload")}`
+        dl: `${"dl".toUpperCase()}: ${t("downloaded")}`,
+        ul: `${"ul".toUpperCase()}: ${t("uploaded")}`
       },
       params: {
         size: 6
@@ -1737,6 +1740,12 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       label: "🎮 " + t("fortnite-force-console-version"),
       default: !1,
       note: t("fortnite-allow-stw-mode")
+    },
+    game_msfs2020_force_native_mkb: {
+      requiredVariants: "full",
+      label: "✈️ " + t("msfs2020-force-native-mkb"),
+      default: !1,
+      note: t("may-not-work-properly")
     }
   };
   constructor() {
@@ -1824,11 +1833,11 @@ class StreamStats {
       $element: CE("span")
     },
     dl: {
-      name: t("download"),
+      name: t("downloaded"),
       $element: CE("span")
     },
     ul: {
-      name: t("upload"),
+      name: t("uploaded"),
       $element: CE("span")
     }
   };
@@ -3264,6 +3273,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     label: t("mouse-and-keyboard"),
     items: [
       "native_mkb_enabled",
+      "game_msfs2020_force_native_mkb",
       "mkb_enabled",
       "mkb_hide_idle_cursor"
     ]
@@ -3472,7 +3482,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     requiredVariants: "full",
     group: "native-mkb",
     label: t("native-mkb"),
-    items: [!1, !1]
+    items: []
   }];
   TAB_SHORTCUTS_ITEMS = [{
     requiredVariants: "full",
@@ -5556,6 +5566,7 @@ function waitForRootDialog() {
   observer.observe(document.documentElement, { subtree: !0, childList: !0 });
 }
 function main() {
+  if (getPref("game_msfs2020_force_native_mkb")) BX_FLAGS.ForceNativeMkbTitles.push("9PMQDM08SNK9");
   if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
   if (waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
 }
