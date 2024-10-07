@@ -222,6 +222,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
         label: t('mouse-and-keyboard'),
         items: [
             PrefKey.NATIVE_MKB_ENABLED,
+            PrefKey.GAME_MSFS2020_FORCE_NATIVE_MKB,
             PrefKey.MKB_ENABLED,
             PrefKey.MKB_HIDE_IDLE_CURSOR,
         ],
@@ -516,17 +517,17 @@ export class SettingsNavigationDialog extends NavigationDialog {
         requiredVariants: 'full',
         group: 'native-mkb',
         label: t('native-mkb'),
-        items: [isFullVersion() && {
+        items: isFullVersion() ? [{
             pref: PrefKey.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY,
             onChange: (e: any, value: number) => {
                 NativeMkbHandler.getInstance().setVerticalScrollMultiplier(value / 100);
             },
-        }, isFullVersion() && {
+        }, {
             pref: PrefKey.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY,
             onChange: (e: any, value: number) => {
                 NativeMkbHandler.getInstance().setHorizontalScrollMultiplier(value / 100);
             },
-        }],
+        }] : [],
     }];
 
     private readonly TAB_SHORTCUTS_ITEMS: Array<SettingTabContent | false> = [{

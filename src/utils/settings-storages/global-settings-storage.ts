@@ -804,6 +804,13 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: false,
             note: t('fortnite-allow-stw-mode'),
         },
+
+        [PrefKey.GAME_MSFS2020_FORCE_NATIVE_MKB]: {
+            requiredVariants: 'full',
+            label: '✈️ ' + t('msfs2020-force-native-mkb'),
+            default: false,
+            note: t('may-not-work-properly'),
+        },
     } satisfies SettingDefinitions;
 
     constructor() {

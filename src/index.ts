@@ -378,6 +378,10 @@ function waitForRootDialog() {
 
 
 function main() {
+    if (getPref(PrefKey.GAME_MSFS2020_FORCE_NATIVE_MKB)) {
+        BX_FLAGS.ForceNativeMkbTitles.push('9PMQDM08SNK9');
+    }
+
     // Monkey patches
     patchRtcPeerConnection();
     patchRtcCodecs();
