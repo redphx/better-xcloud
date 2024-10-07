@@ -722,8 +722,8 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 [StreamStat.DECODE_TIME]: `${StreamStat.DECODE_TIME.toUpperCase()}: ${t('stat-decode-time')}`,
                 [StreamStat.PACKETS_LOST]: `${StreamStat.PACKETS_LOST.toUpperCase()}: ${t('stat-packets-lost')}`,
                 [StreamStat.FRAMES_LOST]: `${StreamStat.FRAMES_LOST.toUpperCase()}: ${t('stat-frames-lost')}`,
-                [StreamStat.DOWNLOAD]: `${StreamStat.DOWNLOAD.toUpperCase()}: ${t('download')}`,
-                [StreamStat.UPLOAD]: `${StreamStat.UPLOAD.toUpperCase()}: ${t('upload')}`,
+                [StreamStat.DOWNLOAD]: `${StreamStat.DOWNLOAD.toUpperCase()}: ${t('downloaded')}`,
+                [StreamStat.UPLOAD]: `${StreamStat.UPLOAD.toUpperCase()}: ${t('uploaded')}`,
             },
             params: {
                 size: 6,

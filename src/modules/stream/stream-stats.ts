@@ -58,11 +58,11 @@ export class StreamStats {
             $element: CE('span'),
         },
         [StreamStat.DOWNLOAD]: {
-            name: t('download'),
+            name: t('downloaded'),
             $element: CE('span'),
         },
         [StreamStat.UPLOAD]: {
-            name: t('upload'),
+            name: t('uploaded'),
             $element: CE('span'),
         },
     };
