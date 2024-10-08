@@ -139,7 +139,7 @@ const build = async (target: BuildTarget, version: string, variant: BuildVariant
     await Bun.write(path, scriptHeader + result);
 
     // Create meta file (don't build if it's beta version)
-    if (!version.includes('beta')) {
+    if (!version.includes('beta') && variant === 'full') {
         await Bun.write(outDir + '/' + outputMetaName, txtMetaHeader.replace('[[VERSION]]', version));
     }
 
