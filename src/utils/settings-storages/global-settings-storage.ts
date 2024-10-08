@@ -182,7 +182,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
 
                 if (keys.length <= 1) { // Unsupported
                     setting.unsupported = true;
-                    setting.note = '⚠️ ' + t('browser-unsupported-feature');
+                    setting.unsupportedNote = '⚠️ ' + t('browser-unsupported-feature');
                 }
 
                 setting.suggest = {
@@ -405,7 +405,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                     url = 'https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer';
                 }
 
-                setting.note = CE('a', {
+                setting.unsupportedNote = CE('a', {
                         href: url,
                         target: '_blank',
                     }, '⚠️ ' + note);

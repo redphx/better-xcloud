@@ -3,7 +3,8 @@ export type PreferenceSetting = {
     optionsGroup?: string;
     options?: {[index: string]: string};
     multipleOptions?: {[index: string]: string};
-    unsupported?: string | boolean;
+    unsupported?: boolean;
+    unsupported_note?: string | HTMLElement;
     note?: string | HTMLElement;
     type?: SettingElementType;
     ready?: (setting: PreferenceSetting) => void;

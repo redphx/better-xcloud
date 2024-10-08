@@ -37,6 +37,7 @@ type SettingTabContentItem = Partial<{
     content: HTMLElement | (() => HTMLElement);
     options: {[key: string]: string};
     unsupported: boolean;
+    unsupportedNote: string;
     onChange: (e: any, value: number) => void;
     onCreated: (setting: SettingTabContentItem, $control: any) => void;
     params: any;
@@ -46,8 +47,8 @@ type SettingTabContentItem = Partial<{
 type SettingTabContent = {
     group: 'general' | 'server' | 'stream' | 'game-bar' | 'co-op' | 'mkb' | 'touch-control' | 'loading-screen' | 'ui' | 'other' | 'advanced' | 'footer' | 'audio' | 'video' | 'controller' | 'native-mkb' | 'stats' | 'controller-shortcuts';
     label?: string;
-    note?: string | Text | null;
     unsupported?: boolean;
+    unsupportedNote?: string | Text | null;
     helpUrl?: string;
     content?: any;
     items?: Array<SettingTabContentItem | PrefKey | (($parent: HTMLElement) => void) | false>;
@@ -220,7 +221,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
         requiredVariants: 'full',
         group: 'mkb',
         label: t('mouse-and-keyboard'),
-        note: !STATES.userAgent.capabilities.mkb ? CE('a', {
+        unsupportedNote: !STATES.userAgent.capabilities.mkb ? CE('a', {
             href: 'https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657',
             target: '_blank',
         }, '⚠️ ' + t('browser-unsupported-feature')) : null,
@@ -235,8 +236,8 @@ export class SettingsNavigationDialog extends NavigationDialog {
         requiredVariants: 'full',
         group: 'touch-control',
         label: t('touch-controller'),
-        note: !STATES.userAgent.capabilities.touch ? '⚠️ ' + t('device-unsupported-touch') : null,
         unsupported: !STATES.userAgent.capabilities.touch,
+        unsupportedNote: !STATES.userAgent.capabilities.touch ? '⚠️ ' + t('device-unsupported-touch') : null,
         items: [
             PrefKey.STREAM_TOUCH_CONTROLLER,
             PrefKey.STREAM_TOUCH_CONTROLLER_AUTO_OFF,
@@ -1138,6 +1139,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
 
         let label = prefDefinition?.label || setting.label;
         let note = prefDefinition?.note || setting.note;
+        let unsupportedNote = prefDefinition?.unsupportedNote || setting.unsupportedNote;
         const experimental = prefDefinition?.experimental || setting.experimental;
 
         if (settingTabContent.label && setting.pref) {
@@ -1157,6 +1159,13 @@ export class SettingsNavigationDialog extends NavigationDialog {
             }
         }
 
+        let $note;
+        if (unsupportedNote) {
+            $note = CE('div', {class: 'bx-settings-dialog-note'}, unsupportedNote);
+        } else if (note) {
+            $note = CE('div', {class: 'bx-settings-dialog-note'}, note);
+        }
+
         let $label;
 
         const $row = CE('label', {
@@ -1169,7 +1178,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
         },
             $label = CE('span', {class: 'bx-settings-label'},
                 label,
-                note ? CE('div', {class: 'bx-settings-dialog-note'}, note) : prefDefinition?.unsupported && CE('div', {class: 'bx-settings-dialog-note'}, t('browser-unsupported-feature')),
+                $note,
             ),
             !prefDefinition?.unsupported && $control,
         );
@@ -1340,8 +1349,8 @@ export class SettingsNavigationDialog extends NavigationDialog {
                 }
 
                 // Add note
-                if (settingTabContent.note) {
-                    const $note = CE('b', {class: 'bx-note-unsupported'}, settingTabContent.note);
+                if (settingTabContent.unsupportedNote) {
+                    const $note = CE('b', {class: 'bx-note-unsupported'}, settingTabContent.unsupportedNote);
 
                     $tabContent.appendChild($note);
                 }

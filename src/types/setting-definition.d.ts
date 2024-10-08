@@ -20,7 +20,8 @@ export type SettingDefinition = {
     label: string;
     note: string | HTMLElement;
     experimental: boolean;
-    unsupported: string | boolean;
+    unsupported: boolean;
+    unsupportedNote: string | HTMLElement;
     suggest: PartialRecord<SuggestedSettingCategory, any>,
     ready: (setting: SettingDefinition) => void;
     type: SettingElementType,
