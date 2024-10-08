@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
-// @version      5.8.1-beta
+// @version      5.8.1
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -118,7 +118,7 @@ function deepClone(obj) {
   if (!obj) return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.8.1-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.8.1", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
   supportedRegion: !0,
@@ -331,7 +331,7 @@ var SUPPORTED_LANGUAGES = {
   edit: "Edit",
   "enable-controller-shortcuts": "Enable controller shortcuts",
   "enable-local-co-op-support": "Enable local co-op support",
-  "enable-local-co-op-support-note": "Only works if the game doesn't require a different profile",
+  "enable-local-co-op-support-note": "Only works with some games",
   "enable-mic-on-startup": "Enable microphone on game launch",
   "enable-mkb": "Emulate controller with Mouse & Keyboard",
   "enable-quick-glance-mode": "Enable \"Quick Glance\" mode",
