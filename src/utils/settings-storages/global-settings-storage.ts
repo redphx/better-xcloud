@@ -393,10 +393,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             requiredVariants: 'full',
             label: t('enable-mkb'),
             default: false,
-            unsupported: ((): string | boolean => {
-                const userAgent = ((window.navigator as any).orgUserAgent || window.navigator.userAgent || '').toLowerCase();
-                return !AppInterface && userAgent.match(/(android|iphone|ipad)/) ? t('browser-unsupported-feature') : false;
-            })(),
+            unsupported: !STATES.userAgent.capabilities.mkb,
             ready: (setting: SettingDefinition) => {
                 let note;
                 let url;

@@ -122,7 +122,7 @@ function deepClone(obj) {
 }
 var SCRIPT_VERSION = "5.8.1-beta", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
 UserAgent.init();
-var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
+var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
   supportedRegion: !0,
   serverRegions: {},
   selectedRegion: {},
@@ -139,7 +139,8 @@ var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.inclu
   userAgent: {
     isTv,
     capabilities: {
-      touch: userAgentHasTouchSupport
+      touch: userAgentHasTouchSupport,
+      mkb: supportMkb
     }
   },
   currentStream: {},
@@ -1402,10 +1403,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       requiredVariants: "full",
       label: t("enable-mkb"),
       default: !1,
-      unsupported: (() => {
-        const userAgent2 = (window.navigator.orgUserAgent || window.navigator.userAgent || "").toLowerCase();
-        return !AppInterface && userAgent2.match(/(android|iphone|ipad)/) ? t("browser-unsupported-feature") : !1;
-      })(),
+      unsupported: !STATES.userAgent.capabilities.mkb,
       ready: (setting) => {
         let note, url;
         if (setting.unsupported) note = t("browser-unsupported-feature"), url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
@@ -4652,6 +4650,11 @@ class SettingsNavigationDialog extends NavigationDialog {
     requiredVariants: "full",
     group: "mkb",
     label: t("mouse-and-keyboard"),
+    note: !STATES.userAgent.capabilities.mkb ? CE("a", {
+      href: "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657",
+      target: "_blank"
+    }, "⚠️ " + t("browser-unsupported-feature")) : null,
+    unsupported: !STATES.userAgent.capabilities.mkb,
     items: [
       "native_mkb_enabled",
       "game_msfs2020_force_native_mkb",
@@ -5347,9 +5350,7 @@ class SettingsNavigationDialog extends NavigationDialog {
           $tabContent.appendChild($title);
         }
         if (settingTabContent.note) {
-          let $note;
-          if (typeof settingTabContent.note === "string") $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.note);
-          else $note = settingTabContent.note;
+          const $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.note);
           $tabContent.appendChild($note);
         }
         if (settingTabContent.unsupported) continue;

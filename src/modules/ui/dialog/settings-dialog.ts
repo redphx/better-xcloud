@@ -220,6 +220,11 @@ export class SettingsNavigationDialog extends NavigationDialog {
         requiredVariants: 'full',
         group: 'mkb',
         label: t('mouse-and-keyboard'),
+        note: !STATES.userAgent.capabilities.mkb ? CE('a', {
+            href: 'https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657',
+            target: '_blank',
+        }, '⚠️ ' + t('browser-unsupported-feature')) : null,
+        unsupported: !STATES.userAgent.capabilities.mkb,
         items: [
             PrefKey.NATIVE_MKB_ENABLED,
             PrefKey.GAME_MSFS2020_FORCE_NATIVE_MKB,
@@ -1336,12 +1341,7 @@ export class SettingsNavigationDialog extends NavigationDialog {
 
                 // Add note
                 if (settingTabContent.note) {
-                    let $note;
-                    if (typeof settingTabContent.note === 'string') {
-                        $note = CE('b', {class: 'bx-note-unsupported'}, settingTabContent.note);
-                    } else {
-                        $note = settingTabContent.note;
-                    }
+                    const $note = CE('b', {class: 'bx-note-unsupported'}, settingTabContent.note);
 
                     $tabContent.appendChild($note);
                 }

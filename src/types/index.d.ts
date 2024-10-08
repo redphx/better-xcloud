@@ -46,6 +46,7 @@ type BxStates = {
         isTv: boolean;
         capabilities: {
             touch: boolean;
+            mkb: boolean;
         };
     };
 

@@ -13,6 +13,7 @@ const isTv = userAgent.includes('smart-tv') || userAgent.includes('smarttv') || 
 const isVr = window.navigator.userAgent.includes('VR') && window.navigator.userAgent.includes('OculusBrowser');
 const browserHasTouchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 const userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport;
+const supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/);
 
 export const STATES: BxStates = {
     supportedRegion: true,
@@ -35,6 +36,7 @@ export const STATES: BxStates = {
         isTv: isTv,
         capabilities: {
             touch: userAgentHasTouchSupport,
+            mkb: supportMkb,
         }
     },
 
