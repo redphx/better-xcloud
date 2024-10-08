@@ -345,7 +345,7 @@ export class StreamBadges {
                     text += server.region;
                 }
 
-                text += '@' + (server ? 'IPv6' : 'IPv4');
+                text += '@' + (server.ipv6 ? 'IPv6' : 'IPv4');
                 this.badges.server.$element = this.renderBadge(StreamBadge.SERVER, text);
             }
         }

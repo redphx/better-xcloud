@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
-// @version      5.8.1
+// @version      5.8.2-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -118,7 +118,7 @@ function deepClone(obj) {
   if (!obj) return {};
   return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.8.1", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.8.2-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
   supportedRegion: !0,
@@ -4673,7 +4673,7 @@ class StreamBadges {
         server.ipv6 = allCandidates[candidateId].includes(":");
         let text = "";
         if (server.region) text += server.region;
-        text += "@" + (server ? "IPv6" : "IPv4"), this.badges.server.$element = this.renderBadge("server", text);
+        text += "@" + (server.ipv6 ? "IPv6" : "IPv4"), this.badges.server.$element = this.renderBadge("server", text);
       }
     }
   }
