@@ -1196,7 +1196,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       options: getSupportedCodecProfiles(),
       ready: (setting) => {
         const options = setting.options, keys = Object.keys(options);
-        if (keys.length <= 1) setting.unsupported = !0, setting.note = "⚠️ " + t("browser-unsupported-feature");
+        if (keys.length <= 1) setting.unsupported = !0, setting.unsupportedNote = "⚠️ " + t("browser-unsupported-feature");
         setting.suggest = {
           lowest: keys.length === 1 ? keys[0] : keys[1],
           highest: keys[keys.length - 1]
@@ -1381,7 +1381,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
         let note, url;
         if (setting.unsupported) note = t("browser-unsupported-feature"), url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
         else note = t("mkb-disclaimer"), url = "https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer";
-        setting.note = CE("a", {
+        setting.unsupportedNote = CE("a", {
           href: url,
           target: "_blank"
         }, "⚠️ " + note);
@@ -3269,7 +3269,7 @@ class SettingsNavigationDialog extends NavigationDialog {
     requiredVariants: "full",
     group: "mkb",
     label: t("mouse-and-keyboard"),
-    note: !STATES.userAgent.capabilities.mkb ? CE("a", {
+    unsupportedNote: !STATES.userAgent.capabilities.mkb ? CE("a", {
       href: "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657",
       target: "_blank"
     }, "⚠️ " + t("browser-unsupported-feature")) : null,
@@ -3284,8 +3284,8 @@ class SettingsNavigationDialog extends NavigationDialog {
     requiredVariants: "full",
     group: "touch-control",
     label: t("touch-controller"),
-    note: !STATES.userAgent.capabilities.touch ? "⚠️ " + t("device-unsupported-touch") : null,
     unsupported: !STATES.userAgent.capabilities.touch,
+    unsupportedNote: !STATES.userAgent.capabilities.touch ? "⚠️ " + t("device-unsupported-touch") : null,
     items: [
       "stream_touch_controller",
       "stream_touch_controller_auto_off",
@@ -3809,13 +3809,16 @@ class SettingsNavigationDialog extends NavigationDialog {
     let prefDefinition = null;
     if (pref) prefDefinition = getPrefDefinition(pref);
     if (prefDefinition && !this.isSupportedVariant(prefDefinition.requiredVariants)) return;
-    let label = prefDefinition?.label || setting.label, note = prefDefinition?.note || setting.note;
+    let label = prefDefinition?.label || setting.label, note = prefDefinition?.note || setting.note, unsupportedNote = prefDefinition?.unsupportedNote || setting.unsupportedNote;
     const experimental = prefDefinition?.experimental || setting.experimental;
     if (settingTabContent.label && setting.pref) {
       if (prefDefinition?.suggest) typeof prefDefinition.suggest.lowest !== "undefined" && (this.suggestedSettings.lowest[setting.pref] = prefDefinition.suggest.lowest), typeof prefDefinition.suggest.highest !== "undefined" && (this.suggestedSettings.highest[setting.pref] = prefDefinition.suggest.highest);
     }
     if (experimental) if (label = "🧪 " + label, !note) note = t("experimental");
       else note = `${t("experimental")}: ${note}`;
+    let $note;
+    if (unsupportedNote) $note = CE("div", { class: "bx-settings-dialog-note" }, unsupportedNote);
+    else if (note) $note = CE("div", { class: "bx-settings-dialog-note" }, note);
     let $label;
     const $row = CE("label", {
       class: "bx-settings-row",
@@ -3824,7 +3827,7 @@ class SettingsNavigationDialog extends NavigationDialog {
       _nearby: {
         orientation: "horizontal"
       }
-    }, $label = CE("span", { class: "bx-settings-label" }, label, note ? CE("div", { class: "bx-settings-dialog-note" }, note) : prefDefinition?.unsupported && CE("div", { class: "bx-settings-dialog-note" }, t("browser-unsupported-feature"))), !prefDefinition?.unsupported && $control), $link = $label.querySelector("a");
+    }, $label = CE("span", { class: "bx-settings-label" }, label, $note), !prefDefinition?.unsupported && $control), $link = $label.querySelector("a");
     if ($link) $link.classList.add("bx-focusable"), setNearby($label, {
         focus: $link
       });
@@ -3916,8 +3919,8 @@ class SettingsNavigationDialog extends NavigationDialog {
           }));
           $tabContent.appendChild($title);
         }
-        if (settingTabContent.note) {
-          const $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.note);
+        if (settingTabContent.unsupportedNote) {
+          const $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.unsupportedNote);
           $tabContent.appendChild($note);
         }
         if (settingTabContent.unsupported) continue;
