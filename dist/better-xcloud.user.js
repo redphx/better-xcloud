@@ -358,7 +358,7 @@ var SUPPORTED_LANGUAGES = {
   edit: "Edit",
   "enable-controller-shortcuts": "Enable controller shortcuts",
   "enable-local-co-op-support": "Enable local co-op support",
-  "enable-local-co-op-support-note": "Only works if the game doesn't require a different profile",
+  "enable-local-co-op-support-note": "Only works with some games",
   "enable-mic-on-startup": "Enable microphone on game launch",
   "enable-mkb": "Emulate controller with Mouse & Keyboard",
   "enable-quick-glance-mode": "Enable \"Quick Glance\" mode",
