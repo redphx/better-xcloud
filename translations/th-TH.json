@@ -66,7 +66,6 @@
   "edit": "แก้ไข",
   "enable-controller-shortcuts": "เปิดใช้งานคีย์ลัดของคอนโทรลเลอร์",
   "enable-local-co-op-support": "เปิดใช้งานการสนับสนุน Co-op ในพื้นที่",
-  "enable-local-co-op-support-note": "ใช้งานได้เฉพาะในกรณีที่เกมไม่ต้องการโปรไฟล์อื่น",
   "enable-mic-on-startup": "เปิดไมโครโฟนเมื่อเปิดเกม",
   "enable-mkb": "จำลองคอนโทรลเลอร์ด้วยเมาส์และคีย์บอร์ด",
   "enable-quick-glance-mode": "เปิดใช้งานโหมด \"Quick Glance\"",

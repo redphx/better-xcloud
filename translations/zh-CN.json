@@ -68,7 +68,7 @@
   "edit": "编辑",
   "enable-controller-shortcuts": "启用手柄快捷方式",
   "enable-local-co-op-support": "启用本地多人联机",
-  "enable-local-co-op-support-note": "仅在当前游戏不要求切换账户时才能使用",
+  "enable-local-co-op-support-note": "仅支持部分游戏",
   "enable-mic-on-startup": "游戏启动时打开麦克风",
   "enable-mkb": "使用键鼠模拟手柄输入",
   "enable-quick-glance-mode": "仅在打开设置时显示统计信息",

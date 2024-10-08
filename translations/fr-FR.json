@@ -64,7 +64,6 @@
   "edit": "Modifier",
   "enable-controller-shortcuts": "Activer les raccourcis de la manette",
   "enable-local-co-op-support": "Activer le support du co-op local",
-  "enable-local-co-op-support-note": "Ne fonctionne que si le jeu ne nécessite pas un profil différent",
   "enable-mic-on-startup": "Activer le microphone lors du lancement du jeu",
   "enable-mkb": "Émuler la manette avec la souris et le clavier",
   "enable-quick-glance-mode": "Activer le mode \"Aperçu rapide\"",
