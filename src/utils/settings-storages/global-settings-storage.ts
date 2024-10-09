@@ -631,7 +631,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             },
             suggest: {
                 lowest: 0,
-                highest: 4,
+                highest: 2,
             },
         },
         [PrefKey.VIDEO_RATIO]: {
