@@ -1692,18 +1692,18 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       label: t("stats"),
       default: ["ping", "fps", "btr", "dt", "pl", "fl"],
       multipleOptions: {
-        time: `${"time".toUpperCase()}: ${t("clock")}`,
-        play: `${"play".toUpperCase()}: ${t("playtime")}`,
-        batt: `${"batt".toUpperCase()}: ${t("battery")}`,
-        ping: `${"ping".toUpperCase()}: ${t("stat-ping")}`,
-        jit: `${"jit".toUpperCase()}: ${t("jitter")}`,
-        fps: `${"fps".toUpperCase()}: ${t("stat-fps")}`,
-        btr: `${"btr".toUpperCase()}: ${t("stat-bitrate")}`,
-        dt: `${"dt".toUpperCase()}: ${t("stat-decode-time")}`,
-        pl: `${"pl".toUpperCase()}: ${t("stat-packets-lost")}`,
-        fl: `${"fl".toUpperCase()}: ${t("stat-frames-lost")}`,
-        dl: `${"dl".toUpperCase()}: ${t("downloaded")}`,
-        ul: `${"ul".toUpperCase()}: ${t("uploaded")}`
+        time: `TIME: ${t("clock")}`,
+        play: `PLAY: ${t("playtime")}`,
+        batt: `BATT: ${t("battery")}`,
+        ping: `PING: ${t("stat-ping")}`,
+        jit: `JIT: ${t("jitter")}`,
+        fps: `FPS: ${t("stat-fps")}`,
+        btr: `BTR: ${t("stat-bitrate")}`,
+        dt: `DT: ${t("stat-decode-time")}`,
+        pl: `PL: ${t("stat-packets-lost")}`,
+        fl: `FL: ${t("stat-frames-lost")}`,
+        dl: `DL: ${t("downloaded")}`,
+        ul: `UL: ${t("uploaded")}`
       },
       params: {
         size: 6

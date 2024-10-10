@@ -55,7 +55,7 @@ const postProcess = (str: string): string => {
 
     // Minify SVG import code
     const svgMap = {}
-    str = str.replaceAll(/var ([\w_]+) = ("<svg.*?");\n\n/g, function(match, p1, p2) {
+    str = str.replaceAll(/var ([\w_]+) = ("<svg.*?");\n\n/g, (match, p1, p2) => {
         // Remove new lines in SVG
         p2 = p2.replaceAll(/\\n*\s*/g, '');
 
@@ -81,6 +81,11 @@ const postProcess = (str: string): string => {
     str = str.replaceAll(/\\n+\s*/g, '\\n');
     // Remove comment line
     str = str.replaceAll(/\\n\/\/.*?(?=\\n)/g, '');
+
+    // Replace ${"time".toUpperCase()} with "TIME"
+    str = str.replaceAll(/\$\{"([^"]+)"\.toUpperCase\(\)\}/g, (match, p1) => {
+        return p1.toUpperCase();
+    });
 
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
