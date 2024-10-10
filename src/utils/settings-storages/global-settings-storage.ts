@@ -714,6 +714,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 [StreamStat.PLAYTIME]: `${StreamStat.PLAYTIME.toUpperCase()}: ${t('playtime')}`,
                 [StreamStat.BATTERY]: `${StreamStat.BATTERY.toUpperCase()}: ${t('battery')}`,
                 [StreamStat.PING]: `${StreamStat.PING.toUpperCase()}: ${t('stat-ping')}`,
+                [StreamStat.JITTER]: `${StreamStat.JITTER.toUpperCase()}: ${t('jitter')}`,
                 [StreamStat.FPS]: `${StreamStat.FPS.toUpperCase()}: ${t('stat-fps')}`,
                 [StreamStat.BITRATE]: `${StreamStat.BITRATE.toUpperCase()}: ${t('stat-bitrate')}`,
                 [StreamStat.DECODE_TIME]: `${StreamStat.DECODE_TIME.toUpperCase()}: ${t('stat-decode-time')}`,

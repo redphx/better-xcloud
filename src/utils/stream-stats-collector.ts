@@ -4,6 +4,7 @@ import { humanFileSize, secondsToHm } from "./html";
 
 export enum StreamStat {
     PING = 'ping',
+    JITTER = 'jit',
     FPS = 'fps',
     BITRATE = 'btr',
     DECODE_TIME = 'dt',
@@ -21,7 +22,13 @@ export type StreamStatGrade = '' | 'bad' | 'ok' | 'good';
 type CurrentStats = {
     [StreamStat.PING]: {
         current: number;
-        calculateGrade: () => StreamStatGrade;
+        grades: [number, number, number];
+        toString: () => string;
+    };
+
+    [StreamStat.JITTER]: {
+        current: number;
+        grades: [number, number, number];
         toString: () => string;
     };
 
@@ -50,7 +57,7 @@ type CurrentStats = {
     [StreamStat.DECODE_TIME]: {
         current: number;
         total: number;
-        calculateGrade: () => StreamStatGrade;
+        grades: [number, number, number];
         toString: () => string;
     };
 
@@ -96,14 +103,24 @@ export class StreamStatsCollector {
     // Collect in background - 60 seconds
     static readonly INTERVAL_BACKGROUND = 60 * 1000;
 
+    public calculateGrade(value: number, grades: [number, number, number]): StreamStatGrade {
+        return (value > grades[2]) ? 'bad' : (value > grades[1]) ? 'ok' : (value > grades[0]) ? 'good' : '';
+    }
+
     private currentStats: CurrentStats = {
         [StreamStat.PING]: {
             current: -1,
-            calculateGrade() {
-                return (this.current >= 100) ? 'bad' : (this.current > 75) ? 'ok' : (this.current > 40) ? 'good' : '';
-            },
+            grades: [40, 75, 100],
             toString() {
                 return this.current === -1 ? '???' : this.current.toString();
+            },
+        },
+
+        [StreamStat.JITTER]: {
+            current: 0,
+            grades: [30, 40, 60],
+            toString() {
+                return `${this.current.toFixed(2)}ms`;
             },
         },
 
@@ -142,9 +159,7 @@ export class StreamStatsCollector {
         [StreamStat.DECODE_TIME]: {
             current: 0,
             total: 0,
-            calculateGrade() {
-                return (this.current > 12) ? 'bad' : (this.current > 9) ? 'ok' : (this.current > 6) ? 'good' : '';
-            },
+            grades: [6, 9, 12],
             toString() {
                 return isNaN(this.current) ? '??ms' : `${this.current.toFixed(2)}ms`;
             },
@@ -200,12 +215,15 @@ export class StreamStatsCollector {
         },
     };
 
-    private lastVideoStat?: RTCBasicStat | null;
+    private lastVideoStat?: RTCInboundRtpStreamStats | null;
 
     async collect() {
         const stats = await STATES.currentStream.peerConnection?.getStats();
+        if (!stats) {
+            return;
+        }
 
-        stats?.forEach(stat => {
+        stats.forEach(stat => {
             if (stat.type === 'inbound-rtp' && stat.kind === 'video') {
                 // FPS
                 const fps = this.currentStats[StreamStat.FPS];
@@ -229,15 +247,23 @@ export class StreamStatsCollector {
 
                 const lastStat = this.lastVideoStat;
 
+                // Jitter
+                const jit = this.currentStats[StreamStat.JITTER];
+                const bufferDelayDiff = (stat as RTCInboundRtpStreamStats).jitterBufferDelay! - lastStat.jitterBufferDelay!;
+                const emittedCountDiff = (stat as RTCInboundRtpStreamStats).jitterBufferEmittedCount! - lastStat.jitterBufferEmittedCount!;
+                if (emittedCountDiff > 0) {
+                    jit.current = bufferDelayDiff / emittedCountDiff * 1000;
+                }
+
                 // Bitrate
                 const btr = this.currentStats[StreamStat.BITRATE];
                 const timeDiff = stat.timestamp - lastStat.timestamp;
-                btr.current = 8 * (stat.bytesReceived - lastStat.bytesReceived) / timeDiff / 1000;
+                btr.current = 8 * (stat.bytesReceived - lastStat.bytesReceived!) / timeDiff / 1000;
 
                 // Decode time
                 const dt = this.currentStats[StreamStat.DECODE_TIME];
-                dt.total = stat.totalDecodeTime - lastStat.totalDecodeTime;
-                const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded;
+                dt.total = stat.totalDecodeTime - lastStat.totalDecodeTime!;
+                const framesDecodedDiff = stat.framesDecoded - lastStat.framesDecoded!;
                 dt.current = dt.total / framesDecodedDiff * 1000;
 
                 this.lastVideoStat = stat;

@@ -37,6 +37,10 @@ export class StreamStats {
             name: t('stat-ping'),
             $element: CE('span'),
         },
+        [StreamStat.JITTER]: {
+            name: t('jitter'),
+            $element: CE('span'),
+        },
         [StreamStat.FPS]: {
             name: t('stat-fps'),
             $element: CE('span'),
@@ -179,10 +183,8 @@ export class StreamStats {
             $element.textContent = value.toString();
 
             // Get stat's grade
-            if (PREF_STATS_CONDITIONAL_FORMATTING) {
-                if (statKey === StreamStat.PING || statKey === StreamStat.DECODE_TIME) {
-                    grade = (value as any).calculateGrade();
-                }
+            if (PREF_STATS_CONDITIONAL_FORMATTING && 'grades' in value) {
+                grade = statsCollector.calculateGrade(value.current, value.grades);
             }
 
             if ($element.dataset.grade !== grade) {

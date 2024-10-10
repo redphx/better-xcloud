@@ -131,6 +131,7 @@ const Texts = {
     "increase": "Increase",
     "install-android": "Better xCloud app for Android",
     "japan": "Japan",
+    "jitter": "Jitter",
     "keyboard-shortcuts": "Keyboard shortcuts",
     "korea": "Korea",
     "language": "Language",
