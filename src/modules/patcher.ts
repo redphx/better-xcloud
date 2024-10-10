@@ -211,7 +211,8 @@ const PATCHES = {
 
         // Block gamepad stats collecting
         if (getPref(PrefKey.BLOCK_TRACKING)) {
-            codeBlock = codeBlock.replaceAll('this.inputPollingIntervalStats.addValue', '');
+            codeBlock = codeBlock.replace('this.inputPollingIntervalStats.addValue', '');
+            codeBlock = codeBlock.replace('this.inputPollingDurationStats.addValue', '');
         }
 
         // Map the Share button on Xbox Series controller with the capturing screenshot feature
@@ -219,8 +220,8 @@ const PATCHES = {
         if (match) {
             const gamepadVar = match[1];
             const newCode = renderString(codeControllerShortcuts, {
-                    gamepadVar,
-                });
+                gamepadVar,
+            });
 
             codeBlock = codeBlock.replace('this.gamepadTimestamps.set', newCode + 'this.gamepadTimestamps.set');
         }
