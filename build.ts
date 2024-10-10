@@ -76,6 +76,12 @@ const postProcess = (str: string): string => {
     // Remove blank lines
     str = str.replaceAll(/\n([\s]*)\n/g, "\n");
 
+    // Minify WebGL shaders & JS strings
+    // Replace "\n     " with "\n"
+    str = str.replaceAll(/\\n+\s*/g, '\\n');
+    // Remove comment line
+    str = str.replaceAll(/\\n\/\/.*?(?=\\n)/g, '');
+
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
     assert(str.includes('window.BxEvent = BxEvent'));

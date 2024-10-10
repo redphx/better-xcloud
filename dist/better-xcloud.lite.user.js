@@ -1580,7 +1580,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
       },
       suggest: {
         lowest: 0,
-        highest: 4
+        highest: 2
       }
     },
     video_ratio: {
@@ -5033,86 +5033,86 @@ function patchSdpBitrate(sdp, video, audio) {
   }
   return lines.join("\r\n");
 }
-var clarity_boost_default = "attribute vec2 position;\n\nvoid main() {\n    gl_Position = vec4(position, 0, 1);\n}\n";
-var clarity_boost_default2 = "const int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nprecision highp float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 textureAt(sampler2D tex, vec2 coord) {\n    return texture2D(tex, coord / iResolution.xy).rgb;\n}\n\nvec3 clarityBoost(sampler2D tex, vec2 coord)\n{\n    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.\n    // a b c\n    // d e f\n    // g h i\n    vec3 a = textureAt(tex, coord + vec2(-1, 1));\n    vec3 b = textureAt(tex, coord + vec2(0, 1));\n    vec3 c = textureAt(tex, coord + vec2(1, 1));\n\n    vec3 d = textureAt(tex, coord + vec2(-1, 0));\n    vec3 e = textureAt(tex, coord);\n    vec3 f = textureAt(tex, coord + vec2(1, 0));\n\n    vec3 g = textureAt(tex, coord + vec2(-1, -1));\n    vec3 h = textureAt(tex, coord + vec2(0, -1));\n    vec3 i = textureAt(tex, coord + vec2(1, -1));\n\n    if (filterId == FILTER_CAS) {\n        // Soft min and max.\n        //  a b c             b\n        //  d e f * 0.5  +  d e f * 0.5\n        //  g h i             h\n        // These are 2.0x bigger (factored out the extra multiply).\n        vec3 minRgb = min(min(min(d, e), min(f, b)), h);\n        vec3 minRgb2 = min(min(a, c), min(g, i));\n        minRgb += min(minRgb, minRgb2);\n\n        vec3 maxRgb = max(max(max(d, e), max(f, b)), h);\n        vec3 maxRgb2 = max(max(a, c), max(g, i));\n        maxRgb += max(maxRgb, maxRgb2);\n\n        // Smooth minimum distance to signal limit divided by smooth max.\n        vec3 reciprocalMaxRgb = 1.0 / maxRgb;\n        vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\n        // Shaping amount of sharpening.\n        amplifyRgb = inversesqrt(amplifyRgb);\n\n        float contrast = 0.8;\n        float peak = -3.0 * contrast + 8.0;\n        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));\n\n        vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\n        //                0 w 0\n        // Filter shape:  w 1 w\n        //                0 w 0\n        vec3 window = (b + d) + (f + h);\n        vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\n        outColor = mix(e, outColor, sharpenFactor / 2.0);\n\n        return outColor;\n    } else if (filterId == FILTER_UNSHARP_MASKING) {\n        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +\n            d * 2.0 + e * 4.0 + f * 2.0 +\n            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;\n\n        // Return edge detection\n        return e + (e - gaussianBlur) * sharpenFactor / 3.0;\n    }\n\n    return e;\n}\n\nvec3 adjustBrightness(vec3 color) {\n    return (1.0 + brightness) * color;\n}\n\nvec3 adjustContrast(vec3 color) {\n    return 0.5 + (1.0 + contrast) * (color - 0.5);\n}\n\nvec3 adjustSaturation(vec3 color) {\n    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);\n    vec3 grayscale = vec3(dot(color, luminosityFactor));\n\n    return mix(grayscale, color, 1.0 + saturation);\n}\n\nvoid main() {\n    vec3 color;\n\n    if (sharpenFactor > 0.0) {\n        color = clarityBoost(data, gl_FragCoord.xy);\n    } else {\n        color = textureAt(data, gl_FragCoord.xy);\n    }\n\n    if (saturation != 0.0) {\n        color = adjustSaturation(color);\n    }\n\n    if (contrast != 0.0) {\n        color = adjustContrast(color);\n    }\n\n    if (brightness != 0.0) {\n        color = adjustBrightness(color);\n    }\n\n    gl_FragColor = vec4(color, 1.0);\n}\n";
+var clarity_boost_default = "attribute vec4 position;\n\nvoid main() {\ngl_Position = position;\n}\n";
+var clarity_boost_default2 = "precision mediump float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nconst int FILTER_UNSHARP_MASKING = 1;\nconst int FILTER_CAS = 2;\n\nconst float CAS_CONTRAST_PEAK = (-3.0 * 0.8 + 8.0);\n\nconst vec3 LUMINOSITY_FACTOR = vec3(0.2126, 0.7152, 0.0722);\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nvec3 clarityBoost(sampler2D tex, vec2 coord) {\nvec2 texelSize = 1.0 / iResolution.xy;\n\nvec3 a = texture2D(tex, coord + texelSize * vec2(-1, 1)).rgb;\nvec3 b = texture2D(tex, coord + texelSize * vec2(0, 1)).rgb;\nvec3 c = texture2D(tex, coord + texelSize * vec2(1, 1)).rgb;\n\nvec3 d = texture2D(tex, coord + texelSize * vec2(-1, 0)).rgb;\nvec3 e = texture2D(tex, coord).rgb;\nvec3 f = texture2D(tex, coord + texelSize * vec2(1, 0)).rgb;\n\nvec3 g = texture2D(tex, coord + texelSize * vec2(-1, -1)).rgb;\nvec3 h = texture2D(tex, coord + texelSize * vec2(0, -1)).rgb;\nvec3 i = texture2D(tex, coord + texelSize * vec2(1, -1)).rgb;\n\nif (filterId == FILTER_CAS) {\nvec3 minRgb = min(min(min(d, e), min(f, b)), h);\nvec3 minRgb2 = min(min(a, c), min(g, i));\nminRgb += min(minRgb, minRgb2);\n\nvec3 maxRgb = max(max(max(d, e), max(f, b)), h);\nvec3 maxRgb2 = max(max(a, c), max(g, i));\nmaxRgb += max(maxRgb, maxRgb2);\n\nvec3 reciprocalMaxRgb = 1.0 / maxRgb;\nvec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\namplifyRgb = inversesqrt(amplifyRgb);\n\nvec3 weightRgb = -(1.0 / (amplifyRgb * CAS_CONTRAST_PEAK));\nvec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\nvec3 window = (b + d) + (f + h);\nvec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\noutColor = mix(e, outColor, sharpenFactor / 2.0);\n\nreturn outColor;\n} else if (filterId == FILTER_UNSHARP_MASKING) {\nvec3 gaussianBlur = (a + c + g + i) * 1.0 +\n(b + d + f + h) * 2.0 +\ne * 4.0;\ngaussianBlur /= 16.0;\n\nreturn e + (e - gaussianBlur) * sharpenFactor / 3.0;\n}\n\nreturn e;\n}\n\nvoid main() {\nvec3 color;\nvec2 uv = gl_FragCoord.xy / iResolution.xy;\n\nif (sharpenFactor > 0.0) {\ncolor = clarityBoost(data, uv);\n} else {\ncolor = texture2D(data, uv).rgb;\n}\n\nif (saturation != 1.0) {\nvec3 grayscale = vec3(dot(color, LUMINOSITY_FACTOR));\ncolor = mix(grayscale, color, saturation);\n}\n\nif (contrast != 1.0) {\ncolor = 0.5 + contrast * (color - 0.5);\n}\n\nif (brightness != 1.0) {\ncolor = brightness * color;\n}\n\ngl_FragColor = vec4(color, 1.0);\n}\n";
 var LOG_TAG3 = "WebGL2Player";
 class WebGL2Player {
-  #$video;
-  #$canvas;
-  #gl = null;
-  #resources = [];
-  #program = null;
-  #stopped = !1;
-  #options = {
+  $video;
+  $canvas;
+  gl = null;
+  resources = [];
+  program = null;
+  stopped = !1;
+  options = {
     filterId: 1,
     sharpenFactor: 0,
     brightness: 0,
     contrast: 0,
     saturation: 0
   };
-  #animFrameId = null;
+  animFrameId = null;
   constructor($video) {
-    BxLogger.info(LOG_TAG3, "Initialize"), this.#$video = $video;
+    BxLogger.info(LOG_TAG3, "Initialize"), this.$video = $video;
     const $canvas = document.createElement("canvas");
-    $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.#$canvas = $canvas, this.#setupShaders(), this.#setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
+    $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.$canvas = $canvas, this.setupShaders(), this.setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
   }
   setFilter(filterId, update = !0) {
-    this.#options.filterId = filterId, update && this.updateCanvas();
+    this.options.filterId = filterId, update && this.updateCanvas();
   }
   setSharpness(sharpness, update = !0) {
-    this.#options.sharpenFactor = sharpness, update && this.updateCanvas();
+    this.options.sharpenFactor = sharpness, update && this.updateCanvas();
   }
   setBrightness(brightness, update = !0) {
-    this.#options.brightness = (brightness - 100) / 100, update && this.updateCanvas();
+    this.options.brightness = 1 + (brightness - 100) / 100, update && this.updateCanvas();
   }
   setContrast(contrast, update = !0) {
-    this.#options.contrast = (contrast - 100) / 100, update && this.updateCanvas();
+    this.options.contrast = 1 + (contrast - 100) / 100, update && this.updateCanvas();
   }
   setSaturation(saturation, update = !0) {
-    this.#options.saturation = (saturation - 100) / 100, update && this.updateCanvas();
+    this.options.saturation = 1 + (saturation - 100) / 100, update && this.updateCanvas();
   }
   getCanvas() {
-    return this.#$canvas;
+    return this.$canvas;
   }
   updateCanvas() {
-    const gl = this.#gl, program = this.#program;
-    gl.uniform2f(gl.getUniformLocation(program, "iResolution"), this.#$canvas.width, this.#$canvas.height), gl.uniform1i(gl.getUniformLocation(program, "filterId"), this.#options.filterId), gl.uniform1f(gl.getUniformLocation(program, "sharpenFactor"), this.#options.sharpenFactor), gl.uniform1f(gl.getUniformLocation(program, "brightness"), this.#options.brightness), gl.uniform1f(gl.getUniformLocation(program, "contrast"), this.#options.contrast), gl.uniform1f(gl.getUniformLocation(program, "saturation"), this.#options.saturation);
+    const gl = this.gl, program = this.program;
+    gl.uniform2f(gl.getUniformLocation(program, "iResolution"), this.$canvas.width, this.$canvas.height), gl.uniform1i(gl.getUniformLocation(program, "filterId"), this.options.filterId), gl.uniform1f(gl.getUniformLocation(program, "sharpenFactor"), this.options.sharpenFactor), gl.uniform1f(gl.getUniformLocation(program, "brightness"), this.options.brightness), gl.uniform1f(gl.getUniformLocation(program, "contrast"), this.options.contrast), gl.uniform1f(gl.getUniformLocation(program, "saturation"), this.options.saturation);
   }
   drawFrame() {
-    const gl = this.#gl, $video = this.#$video;
+    const gl = this.gl, $video = this.$video;
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, $video), gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
-  #setupRendering() {
+  setupRendering() {
     let animate;
     if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
-      const $video = this.#$video;
+      const $video = this.$video;
       animate = () => {
-        if (this.#stopped) return;
-        this.drawFrame(), this.#animFrameId = $video.requestVideoFrameCallback(animate);
-      }, this.#animFrameId = $video.requestVideoFrameCallback(animate);
+        if (this.stopped) return;
+        this.drawFrame(), this.animFrameId = $video.requestVideoFrameCallback(animate);
+      }, this.animFrameId = $video.requestVideoFrameCallback(animate);
     } else animate = () => {
-        if (this.#stopped) return;
-        this.drawFrame(), this.#animFrameId = requestAnimationFrame(animate);
-      }, this.#animFrameId = requestAnimationFrame(animate);
+        if (this.stopped) return;
+        this.drawFrame(), this.animFrameId = requestAnimationFrame(animate);
+      }, this.animFrameId = requestAnimationFrame(animate);
   }
-  #setupShaders() {
+  setupShaders() {
     BxLogger.info(LOG_TAG3, "Setting up", getPref("video_power_preference"));
-    const gl = this.#$canvas.getContext("webgl", {
+    const gl = this.$canvas.getContext("webgl", {
       isBx: !0,
       antialias: !0,
       alpha: !1,
       powerPreference: getPref("video_power_preference")
     });
-    this.#gl = gl, gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
+    this.gl = gl, gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
     const vShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vShader, clarity_boost_default), gl.compileShader(vShader);
     const fShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fShader, clarity_boost_default2), gl.compileShader(fShader);
     const program = gl.createProgram();
-    if (this.#program = program, gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), gl.useProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS)) console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
+    if (this.program = program, gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), gl.useProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS)) console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
     this.updateCanvas();
     const buffer = gl.createBuffer();
-    this.#resources.push(buffer), gl.bindBuffer(gl.ARRAY_BUFFER, buffer), gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    this.resources.push(buffer), gl.bindBuffer(gl.ARRAY_BUFFER, buffer), gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
       -1,
       -1,
       1,
@@ -5127,51 +5127,51 @@ class WebGL2Player {
       1
     ]), gl.STATIC_DRAW), gl.enableVertexAttribArray(0), gl.vertexAttribPointer(0, 2, gl.FLOAT, !1, 0, 0);
     const texture = gl.createTexture();
-    this.#resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
+    this.resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
   }
   resume() {
-    this.stop(), this.#stopped = !1, BxLogger.info(LOG_TAG3, "Resume"), this.#$canvas.classList.remove("bx-gone"), this.#setupRendering();
+    this.stop(), this.stopped = !1, BxLogger.info(LOG_TAG3, "Resume"), this.$canvas.classList.remove("bx-gone"), this.setupRendering();
   }
   stop() {
-    if (BxLogger.info(LOG_TAG3, "Stop"), this.#$canvas.classList.add("bx-gone"), this.#stopped = !0, this.#animFrameId) {
-      if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.#$video.cancelVideoFrameCallback(this.#animFrameId);
-      else cancelAnimationFrame(this.#animFrameId);
-      this.#animFrameId = null;
+    if (BxLogger.info(LOG_TAG3, "Stop"), this.$canvas.classList.add("bx-gone"), this.stopped = !0, this.animFrameId) {
+      if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.$video.cancelVideoFrameCallback(this.animFrameId);
+      else cancelAnimationFrame(this.animFrameId);
+      this.animFrameId = null;
     }
   }
   destroy() {
     BxLogger.info(LOG_TAG3, "Destroy"), this.stop();
-    const gl = this.#gl;
+    const gl = this.gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
-      for (let resource of this.#resources)
+      for (let resource of this.resources)
         if (resource instanceof WebGLProgram) gl.useProgram(null), gl.deleteProgram(resource);
         else if (resource instanceof WebGLShader) gl.deleteShader(resource);
         else if (resource instanceof WebGLTexture) gl.deleteTexture(resource);
         else if (resource instanceof WebGLBuffer) gl.deleteBuffer(resource);
-      this.#gl = null;
+      this.gl = null;
     }
-    if (this.#$canvas.isConnected) this.#$canvas.parentElement?.removeChild(this.#$canvas);
-    this.#$canvas.width = 1, this.#$canvas.height = 1;
+    if (this.$canvas.isConnected) this.$canvas.parentElement?.removeChild(this.$canvas);
+    this.$canvas.width = 1, this.$canvas.height = 1;
   }
 }
 class StreamPlayer {
-  #$video;
-  #playerType = "default";
-  #options = {};
-  #webGL2Player = null;
-  #$videoCss = null;
-  #$usmMatrix = null;
+  $video;
+  playerType = "default";
+  options = {};
+  webGL2Player = null;
+  $videoCss = null;
+  $usmMatrix = null;
   constructor($video, type, options) {
-    this.#setupVideoElements(), this.#$video = $video, this.#options = options || {}, this.setPlayerType(type);
+    this.setupVideoElements(), this.$video = $video, this.options = options || {}, this.setPlayerType(type);
   }
-  #setupVideoElements() {
-    if (this.#$videoCss = document.getElementById("bx-video-css"), this.#$videoCss) {
-      this.#$usmMatrix = this.#$videoCss.querySelector("#bx-filter-usm-matrix");
+  setupVideoElements() {
+    if (this.$videoCss = document.getElementById("bx-video-css"), this.$videoCss) {
+      this.$usmMatrix = this.$videoCss.querySelector("#bx-filter-usm-matrix");
       return;
     }
     const $fragment = document.createDocumentFragment();
-    this.#$videoCss = CE("style", { id: "bx-video-css" }), $fragment.appendChild(this.#$videoCss);
+    this.$videoCss = CE("style", { id: "bx-video-css" }), $fragment.appendChild(this.$videoCss);
     const $svg = CE("svg", {
       id: "bx-video-filters",
       xmlns: "http://www.w3.org/2000/svg",
@@ -5179,31 +5179,31 @@ class StreamPlayer {
     }, CE("defs", { xmlns: "http://www.w3.org/2000/svg" }, CE("filter", {
       id: "bx-filter-usm",
       xmlns: "http://www.w3.org/2000/svg"
-    }, this.#$usmMatrix = CE("feConvolveMatrix", {
+    }, this.$usmMatrix = CE("feConvolveMatrix", {
       id: "bx-filter-usm-matrix",
       order: "3",
       xmlns: "http://www.w3.org/2000/svg"
     }))));
     $fragment.appendChild($svg), document.documentElement.appendChild($fragment);
   }
-  #getVideoPlayerFilterStyle() {
-    const filters = [], sharpness = this.#options.sharpness || 0;
-    if (this.#options.processing === "usm" && sharpness != 0) {
+  getVideoPlayerFilterStyle() {
+    const filters = [], sharpness = this.options.sharpness || 0;
+    if (this.options.processing === "usm" && sharpness != 0) {
       const matrix = `0 -1 0 -1 ${(7 - (sharpness / 2 - 1) * 0.5).toFixed(1)} -1 0 -1 0`;
-      this.#$usmMatrix?.setAttributeNS(null, "kernelMatrix", matrix), filters.push("url(#bx-filter-usm)");
+      this.$usmMatrix?.setAttributeNS(null, "kernelMatrix", matrix), filters.push("url(#bx-filter-usm)");
     }
-    const saturation = this.#options.saturation || 100;
+    const saturation = this.options.saturation || 100;
     if (saturation != 100) filters.push(`saturate(${saturation}%)`);
-    const contrast = this.#options.contrast || 100;
+    const contrast = this.options.contrast || 100;
     if (contrast != 100) filters.push(`contrast(${contrast}%)`);
-    const brightness = this.#options.brightness || 100;
+    const brightness = this.options.brightness || 100;
     if (brightness != 100) filters.push(`brightness(${brightness}%)`);
     return filters.join(" ");
   }
-  #resizePlayer() {
-    const PREF_RATIO = getPref("video_ratio"), $video = this.#$video, isNativeTouchGame = STATES.currentStream.titleInfo?.details.hasNativeTouchSupport;
+  resizePlayer() {
+    const PREF_RATIO = getPref("video_ratio"), $video = this.$video, isNativeTouchGame = STATES.currentStream.titleInfo?.details.hasNativeTouchSupport;
     let $webGL2Canvas;
-    if (this.#playerType == "webgl2") $webGL2Canvas = this.#webGL2Player?.getCanvas();
+    if (this.playerType == "webgl2") $webGL2Canvas = this.webGL2Player?.getCanvas();
     let targetWidth, targetHeight, targetObjectFit;
     if (PREF_RATIO.includes(":")) {
       const tmp = PREF_RATIO.split(":"), videoRatio = parseFloat(tmp[0]) / parseFloat(tmp[1]);
@@ -5214,53 +5214,53 @@ class StreamPlayer {
       width = Math.ceil(Math.min(parentRect.width, width)), height = Math.ceil(Math.min(parentRect.height, height)), $video.dataset.width = width.toString(), $video.dataset.height = height.toString(), targetWidth = `${width}px`, targetHeight = `${height}px`, targetObjectFit = PREF_RATIO === "16:9" ? "contain" : "fill";
     } else targetWidth = "100%", targetHeight = "100%", targetObjectFit = PREF_RATIO, $video.dataset.width = window.innerWidth.toString(), $video.dataset.height = window.innerHeight.toString();
     if ($video.style.width = targetWidth, $video.style.height = targetHeight, $video.style.objectFit = targetObjectFit, $webGL2Canvas) $webGL2Canvas.style.width = targetWidth, $webGL2Canvas.style.height = targetHeight, $webGL2Canvas.style.objectFit = targetObjectFit;
-    if (isNativeTouchGame && this.#playerType == "webgl2") window.BX_EXPOSED.streamSession.updateDimensions();
+    if (isNativeTouchGame && this.playerType == "webgl2") window.BX_EXPOSED.streamSession.updateDimensions();
   }
   setPlayerType(type, refreshPlayer = !1) {
-    if (this.#playerType !== type) if (type === "webgl2") {
-        if (!this.#webGL2Player) this.#webGL2Player = new WebGL2Player(this.#$video);
-        else this.#webGL2Player.resume();
-        this.#$videoCss.textContent = "", this.#$video.classList.add("bx-pixel");
-      } else this.#webGL2Player?.stop(), this.#$video.classList.remove("bx-pixel");
-    this.#playerType = type, refreshPlayer && this.refreshPlayer();
+    if (this.playerType !== type) if (type === "webgl2") {
+        if (!this.webGL2Player) this.webGL2Player = new WebGL2Player(this.$video);
+        else this.webGL2Player.resume();
+        this.$videoCss.textContent = "", this.$video.classList.add("bx-pixel");
+      } else this.webGL2Player?.stop(), this.$video.classList.remove("bx-pixel");
+    this.playerType = type, refreshPlayer && this.refreshPlayer();
   }
   setOptions(options, refreshPlayer = !1) {
-    this.#options = options, refreshPlayer && this.refreshPlayer();
+    this.options = options, refreshPlayer && this.refreshPlayer();
   }
   updateOptions(options, refreshPlayer = !1) {
-    this.#options = Object.assign(this.#options, options), refreshPlayer && this.refreshPlayer();
+    this.options = Object.assign(this.options, options), refreshPlayer && this.refreshPlayer();
   }
   getPlayerElement(playerType) {
-    if (typeof playerType === "undefined") playerType = this.#playerType;
-    if (playerType === "webgl2") return this.#webGL2Player?.getCanvas();
-    return this.#$video;
+    if (typeof playerType === "undefined") playerType = this.playerType;
+    if (playerType === "webgl2") return this.webGL2Player?.getCanvas();
+    return this.$video;
   }
   getWebGL2Player() {
-    return this.#webGL2Player;
+    return this.webGL2Player;
   }
   refreshPlayer() {
-    if (this.#playerType === "webgl2") {
-      const options = this.#options, webGL2Player = this.#webGL2Player;
+    if (this.playerType === "webgl2") {
+      const options = this.options, webGL2Player = this.webGL2Player;
       if (options.processing === "usm") webGL2Player.setFilter(1);
       else webGL2Player.setFilter(2);
       webGL2Player.setSharpness(options.sharpness || 0), webGL2Player.setSaturation(options.saturation || 100), webGL2Player.setContrast(options.contrast || 100), webGL2Player.setBrightness(options.brightness || 100);
     } else {
-      let filters = this.#getVideoPlayerFilterStyle(), videoCss = "";
+      let filters = this.getVideoPlayerFilterStyle(), videoCss = "";
       if (filters) videoCss += `filter: ${filters} !important;`;
       let css = "";
       if (videoCss) css = `#game-stream video { ${videoCss} }`;
-      this.#$videoCss.textContent = css;
+      this.$videoCss.textContent = css;
     }
-    this.#resizePlayer();
+    this.resizePlayer();
   }
   reloadPlayer() {
-    this.#cleanUpWebGL2Player(), this.#playerType = "default", this.setPlayerType("webgl2", !1);
+    this.cleanUpWebGL2Player(), this.playerType = "default", this.setPlayerType("webgl2", !1);
   }
-  #cleanUpWebGL2Player() {
-    this.#webGL2Player?.destroy(), this.#webGL2Player = null;
+  cleanUpWebGL2Player() {
+    this.webGL2Player?.destroy(), this.webGL2Player = null;
   }
   destroy() {
-    this.#cleanUpWebGL2Player();
+    this.cleanUpWebGL2Player();
   }
 }
 function patchVideoApi() {

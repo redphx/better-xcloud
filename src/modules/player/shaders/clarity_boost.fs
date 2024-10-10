@@ -1,9 +1,15 @@
+precision mediump float;
+uniform sampler2D data;
+uniform vec2 iResolution;
+
 const int FILTER_UNSHARP_MASKING = 1;
 const int FILTER_CAS = 2;
 
-precision highp float;
-uniform sampler2D data;
-uniform vec2 iResolution;
+// constrast = 0.8
+const float CAS_CONTRAST_PEAK = (-3.0 * 0.8 + 8.0);
+
+// Luminosity factor
+const vec3 LUMINOSITY_FACTOR = vec3(0.2126, 0.7152, 0.0722);
 
 uniform int filterId;
 uniform float sharpenFactor;
@@ -11,27 +17,24 @@ uniform float brightness;
 uniform float contrast;
 uniform float saturation;
 
-vec3 textureAt(sampler2D tex, vec2 coord) {
-    return texture2D(tex, coord / iResolution.xy).rgb;
-}
+vec3 clarityBoost(sampler2D tex, vec2 coord) {
+    vec2 texelSize = 1.0 / iResolution.xy;
 
-vec3 clarityBoost(sampler2D tex, vec2 coord)
-{
     // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.
     // a b c
     // d e f
     // g h i
-    vec3 a = textureAt(tex, coord + vec2(-1, 1));
-    vec3 b = textureAt(tex, coord + vec2(0, 1));
-    vec3 c = textureAt(tex, coord + vec2(1, 1));
+    vec3 a = texture2D(tex, coord + texelSize * vec2(-1, 1)).rgb;
+    vec3 b = texture2D(tex, coord + texelSize * vec2(0, 1)).rgb;
+    vec3 c = texture2D(tex, coord + texelSize * vec2(1, 1)).rgb;
 
-    vec3 d = textureAt(tex, coord + vec2(-1, 0));
-    vec3 e = textureAt(tex, coord);
-    vec3 f = textureAt(tex, coord + vec2(1, 0));
+    vec3 d = texture2D(tex, coord + texelSize * vec2(-1, 0)).rgb;
+    vec3 e = texture2D(tex, coord).rgb;
+    vec3 f = texture2D(tex, coord + texelSize * vec2(1, 0)).rgb;
 
-    vec3 g = textureAt(tex, coord + vec2(-1, -1));
-    vec3 h = textureAt(tex, coord + vec2(0, -1));
-    vec3 i = textureAt(tex, coord + vec2(1, -1));
+    vec3 g = texture2D(tex, coord + texelSize * vec2(-1, -1)).rgb;
+    vec3 h = texture2D(tex, coord + texelSize * vec2(0, -1)).rgb;
+    vec3 i = texture2D(tex, coord + texelSize * vec2(1, -1)).rgb;
 
     if (filterId == FILTER_CAS) {
         // Soft min and max.
@@ -54,10 +57,7 @@ vec3 clarityBoost(sampler2D tex, vec2 coord)
         // Shaping amount of sharpening.
         amplifyRgb = inversesqrt(amplifyRgb);
 
-        float contrast = 0.8;
-        float peak = -3.0 * contrast + 8.0;
-        vec3 weightRgb = -(1.0 / (amplifyRgb * peak));
-
+        vec3 weightRgb = -(1.0 / (amplifyRgb * CAS_CONTRAST_PEAK));
         vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);
 
         //                0 w 0
@@ -70,9 +70,10 @@ vec3 clarityBoost(sampler2D tex, vec2 coord)
 
         return outColor;
     } else if (filterId == FILTER_UNSHARP_MASKING) {
-        vec3 gaussianBlur = (a * 1.0 + b * 2.0 + c * 1.0 +
-            d * 2.0 + e * 4.0 + f * 2.0 +
-            g * 1.0 + h * 2.0 + i * 1.0) / 16.0;
+        vec3 gaussianBlur = (a + c + g + i) * 1.0 +
+                            (b + d + f + h) * 2.0 +
+                            e * 4.0;
+        gaussianBlur /= 16.0;
 
         // Return edge detection
         return e + (e - gaussianBlur) * sharpenFactor / 3.0;
@@ -81,40 +82,30 @@ vec3 clarityBoost(sampler2D tex, vec2 coord)
     return e;
 }
 
-vec3 adjustBrightness(vec3 color) {
-    return (1.0 + brightness) * color;
-}
-
-vec3 adjustContrast(vec3 color) {
-    return 0.5 + (1.0 + contrast) * (color - 0.5);
-}
-
-vec3 adjustSaturation(vec3 color) {
-    const vec3 luminosityFactor = vec3(0.2126, 0.7152, 0.0722);
-    vec3 grayscale = vec3(dot(color, luminosityFactor));
-
-    return mix(grayscale, color, 1.0 + saturation);
-}
-
 void main() {
     vec3 color;
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
 
     if (sharpenFactor > 0.0) {
-        color = clarityBoost(data, gl_FragCoord.xy);
+        color = clarityBoost(data, uv);
     } else {
-        color = textureAt(data, gl_FragCoord.xy);
+        color = texture2D(data, uv).rgb;
     }
 
-    if (saturation != 0.0) {
-        color = adjustSaturation(color);
+    // Saturation
+    if (saturation != 1.0) {
+        vec3 grayscale = vec3(dot(color, LUMINOSITY_FACTOR));
+        color = mix(grayscale, color, saturation);
     }
 
-    if (contrast != 0.0) {
-        color = adjustContrast(color);
+    // Contrast
+    if (contrast != 1.0) {
+        color = 0.5 + contrast * (color - 0.5);
     }
 
-    if (brightness != 0.0) {
-        color = adjustBrightness(color);
+    // Brightness
+    if (brightness != 1.0) {
+        color = brightness * color;
     }
 
     gl_FragColor = vec4(color, 1.0);
