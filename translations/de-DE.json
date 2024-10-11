@@ -67,6 +67,7 @@
   "edit": "Bearbeiten",
   "enable-controller-shortcuts": "Controller-Shortcuts aktivieren",
   "enable-local-co-op-support": "Lokale Koop-Unterstützung aktivieren",
+  "enable-local-co-op-support-note": "Funktioniert nur mit einigen Spielen",
   "enable-mic-on-startup": "Mikrofon bei Spielstart aktivieren",
   "enable-mkb": "Controller mit Maus & Tastatur emulieren",
   "enable-quick-glance-mode": "\"Kurzer Blick\"-Modus aktivieren",
