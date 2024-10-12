@@ -75,6 +75,7 @@ export enum PrefKey {
     VIDEO_PLAYER_TYPE = 'video_player_type',
     VIDEO_PROCESSING = 'video_processing',
     VIDEO_POWER_PREFERENCE = 'video_power_preference',
+    VIDEO_MAX_FPS = 'video_max_fps',
     VIDEO_SHARPNESS = 'video_sharpness',
     VIDEO_RATIO = 'video_ratio',
     VIDEO_BRIGHTNESS = 'video_brightness',

@@ -143,6 +143,7 @@ const Texts = {
     "local-co-op": "Local co-op",
     "lowest-quality": "Lowest quality",
     "map-mouse-to": "Map mouse to",
+    "max-fps": "Max FPS",
     "may-not-work-properly": "May not work properly!",
     "menu": "Menu",
     "microphone": "Microphone",

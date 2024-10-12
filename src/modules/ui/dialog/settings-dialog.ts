@@ -1,6 +1,6 @@
 import { isFullVersion } from "@macros/build" with {type: "macro"};
 
-import { onChangeVideoPlayerType, updateVideoPlayer } from "@/modules/stream/stream-settings-utils";
+import { limitVideoPlayerFps, onChangeVideoPlayerType, updateVideoPlayer } from "@/modules/stream/stream-settings-utils";
 import { ButtonStyle, CE, createButton, createSvgIcon, removeChildElements, type BxButton } from "@/utils/html";
 import { NavigationDialog, NavigationDirection } from "./navigation-dialog";
 import { ControllerShortcut } from "@/modules/controller-shortcut";
@@ -407,6 +407,9 @@ export class SettingsNavigationDialog extends NavigationDialog {
         items: [{
             pref: PrefKey.VIDEO_PLAYER_TYPE,
             onChange: onChangeVideoPlayerType,
+        }, {
+            pref: PrefKey.VIDEO_MAX_FPS,
+            onChange: limitVideoPlayerFps,
         }, {
             pref: PrefKey.VIDEO_POWER_PREFERENCE,
             onChange: () => {

@@ -25,6 +25,10 @@ export class WebGL2Player {
         saturation: 0.0,
     };
 
+    private targetFps = 60;
+    private frameInterval = Math.ceil(1000 / this.targetFps);
+    private lastFrameTime = 0;
+
     private animFrameId: number | null = null;
 
     constructor($video: HTMLVideoElement) {
@@ -67,6 +71,11 @@ export class WebGL2Player {
         update && this.updateCanvas();
     }
 
+    setTargetFps(target: number) {
+        this.targetFps = target;
+        this.frameInterval = Math.ceil(1000 / target);
+    }
+
     getCanvas() {
         return this.$canvas;
     }
@@ -85,6 +94,16 @@ export class WebGL2Player {
     }
 
     drawFrame() {
+        // Limit FPS
+        if (this.targetFps < 60) {
+            const currentTime = performance.now();
+            const timeSinceLastFrame = currentTime - this.lastFrameTime;
+            if (timeSinceLastFrame < this.frameInterval) {
+                return;
+            }
+            this.lastFrameTime = currentTime;
+        }
+
         const gl = this.gl!;
         const $video = this.$video;
 

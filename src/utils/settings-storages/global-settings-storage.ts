@@ -616,6 +616,21 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 highest: 'low-power',
             },
         },
+        [PrefKey.VIDEO_MAX_FPS]: {
+            label: t('max-fps'),
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 60,
+            min: 10,
+            max: 60,
+            steps: 10,
+            params: {
+                exactTicks: 10,
+                customTextValue: (value: any) => {
+                    value = parseInt(value);
+                    return value === 60 ? t('unlimited') : value + 'FPS';
+                },
+            },
+        },
         [PrefKey.VIDEO_SHARPNESS]: {
             label: t('sharpness'),
             type: SettingElementType.NUMBER_STEPPER,
