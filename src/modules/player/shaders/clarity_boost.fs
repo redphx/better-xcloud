@@ -1,3 +1,5 @@
+#version 300 es
+
 precision mediump float;
 uniform sampler2D data;
 uniform vec2 iResolution;
@@ -17,6 +19,8 @@ uniform float brightness;
 uniform float contrast;
 uniform float saturation;
 
+out vec4 fragColor;
+
 vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {
     vec2 texelSize = 1.0 / iResolution.xy;
 
@@ -24,16 +28,16 @@ vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {
     // a b c
     // d e f
     // g h i
-    vec3 a = texture2D(tex, coord + texelSize * vec2(-1, 1)).rgb;
-    vec3 b = texture2D(tex, coord + texelSize * vec2(0, 1)).rgb;
-    vec3 c = texture2D(tex, coord + texelSize * vec2(1, 1)).rgb;
+    vec3 a = texture(tex, coord + texelSize * vec2(-1, 1)).rgb;
+    vec3 b = texture(tex, coord + texelSize * vec2(0, 1)).rgb;
+    vec3 c = texture(tex, coord + texelSize * vec2(1, 1)).rgb;
 
-    vec3 d = texture2D(tex, coord + texelSize * vec2(-1, 0)).rgb;
-    vec3 f = texture2D(tex, coord + texelSize * vec2(1, 0)).rgb;
+    vec3 d = texture(tex, coord + texelSize * vec2(-1, 0)).rgb;
+    vec3 f = texture(tex, coord + texelSize * vec2(1, 0)).rgb;
 
-    vec3 g = texture2D(tex, coord + texelSize * vec2(-1, -1)).rgb;
-    vec3 h = texture2D(tex, coord + texelSize * vec2(0, -1)).rgb;
-    vec3 i = texture2D(tex, coord + texelSize * vec2(1, -1)).rgb;
+    vec3 g = texture(tex, coord + texelSize * vec2(-1, -1)).rgb;
+    vec3 h = texture(tex, coord + texelSize * vec2(0, -1)).rgb;
+    vec3 i = texture(tex, coord + texelSize * vec2(1, -1)).rgb;
 
     // USM
     if (filterId == FILTER_UNSHARP_MASKING) {
@@ -78,7 +82,7 @@ vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {
 void main() {
     vec2 uv = gl_FragCoord.xy / iResolution.xy;
     // Get current pixel
-    vec3 color = texture2D(data, uv).rgb;
+    vec3 color = texture(data, uv).rgb;
 
     // Clarity boost
     color = sharpenFactor > 0.0 ? clarityBoost(data, uv, color) : color;
@@ -92,5 +96,5 @@ void main() {
     // Brightness
     color = brightness * color;
 
-    gl_FragColor = vec4(color, 1.0);
+    fragColor = vec4(color, 1.0);
 }
