@@ -627,7 +627,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 exactTicks: 10,
                 customTextValue: (value: any) => {
                     value = parseInt(value);
-                    return value === 60 ? t('unlimited') : value + 'FPS';
+                    return value === 60 ? t('unlimited') : value + 'fps';
                 },
             },
         },
