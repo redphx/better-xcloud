@@ -13,24 +13,17 @@ export class MicrophoneAction extends BaseGameBarAction {
     constructor() {
         super();
 
-        const onClick = (e: Event) => {
-            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-
-            const enabled = MicrophoneShortcut.toggle(false);
-            this.$content.dataset.activated = enabled.toString();
-        };
-
         const $btnDefault = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.MICROPHONE,
-            onClick: onClick,
+            onClick: this.onClick.bind(this),
             classes: ['bx-activated'],
         });
 
         const $btnMuted = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.MICROPHONE_MUTED,
-            onClick: onClick,
+            onClick: this.onClick.bind(this),
         });
 
         this.$content = CE('div', {},
@@ -48,6 +41,12 @@ export class MicrophoneAction extends BaseGameBarAction {
             // Show the button in Game Bar if the mic is enabled
             this.$content.classList.remove('bx-gone');
         });
+    }
+
+    onClick(e: Event) {
+        super.onClick(e);
+        const enabled = MicrophoneShortcut.toggle(false);
+        this.$content.dataset.activated = enabled.toString();
     }
 
     render(): HTMLElement {

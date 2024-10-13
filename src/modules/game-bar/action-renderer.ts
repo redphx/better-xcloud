@@ -1,4 +1,3 @@
-import { BxEvent } from "@utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BaseGameBarAction } from "./action-base";
@@ -11,22 +10,16 @@ export class RendererAction extends BaseGameBarAction {
     constructor() {
         super();
 
-        const onClick = (e: Event) => {
-            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-            const isVisible = RendererShortcut.toggleVisibility();
-            this.$content.dataset.activated = (!isVisible).toString();
-        };
-
         const $btnDefault = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.EYE,
-            onClick: onClick,
+            onClick: this.onClick.bind(this),
         });
 
         const $btnActivated = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.EYE_SLASH,
-            onClick: onClick,
+            onClick: this.onClick.bind(this),
             classes: ['bx-activated'],
         });
 
@@ -36,6 +29,12 @@ export class RendererAction extends BaseGameBarAction {
         );
 
         this.reset();
+    }
+
+    onClick(e: Event) {
+        super.onClick(e);
+        const isVisible = RendererShortcut.toggleVisibility();
+        this.$content.dataset.activated = (!isVisible).toString();
     }
 
     render(): HTMLElement {

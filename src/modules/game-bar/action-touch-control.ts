@@ -1,4 +1,3 @@
-import { BxEvent } from "@utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle, CE } from "@utils/html";
 import { TouchController } from "@modules/touch-controller";
@@ -11,26 +10,18 @@ export class TouchControlAction extends BaseGameBarAction {
     constructor() {
         super();
 
-        const onClick = (e: Event) => {
-            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-
-            const $parent = (e as any).target.closest('div[data-activated]');
-            const isVisible =  TouchController.toggleVisibility();
-            $parent.dataset.activated = (!isVisible).toString();
-        };
-
         const $btnEnable = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.TOUCH_CONTROL_ENABLE,
             title: t('show-touch-controller'),
-            onClick: onClick,
+            onClick: this.onClick.bind(this),
         });
 
         const $btnDisable = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.TOUCH_CONTROL_DISABLE,
             title: t('hide-touch-controller'),
-            onClick: onClick,
+            onClick: this.onClick.bind(this),
             classes: ['bx-activated'],
         });
 
@@ -40,6 +31,12 @@ export class TouchControlAction extends BaseGameBarAction {
         );
 
         this.reset();
+    }
+
+    onClick(e: Event) {
+        super.onClick(e);
+        const isVisible = TouchController.toggleVisibility();
+        this.$content.dataset.activated = (!isVisible).toString();
     }
 
     render(): HTMLElement {

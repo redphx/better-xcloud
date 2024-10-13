@@ -7340,20 +7340,23 @@ function patchPointerLockApi() {
 class BaseGameBarAction {
   constructor() {}
   reset() {}
+  onClick(e) {
+    BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
+  }
 }
 class ScreenshotAction extends BaseGameBarAction {
   $content;
   constructor() {
     super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), Screenshot.takeScreenshot();
-    };
     this.$content = createButton({
       style: 4,
       icon: BxIcon.SCREENSHOT,
       title: t("take-screenshot"),
-      onClick
+      onClick: this.onClick.bind(this)
     });
+  }
+  onClick(e) {
+    super.onClick(e), Screenshot.takeScreenshot();
   }
   render() {
     return this.$content;
@@ -7363,23 +7366,24 @@ class TouchControlAction extends BaseGameBarAction {
   $content;
   constructor() {
     super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const $parent = e.target.closest("div[data-activated]"), isVisible = TouchController.toggleVisibility();
-      $parent.dataset.activated = (!isVisible).toString();
-    }, $btnEnable = createButton({
+    const $btnEnable = createButton({
       style: 4,
       icon: BxIcon.TOUCH_CONTROL_ENABLE,
       title: t("show-touch-controller"),
-      onClick
+      onClick: this.onClick.bind(this)
     }), $btnDisable = createButton({
       style: 4,
       icon: BxIcon.TOUCH_CONTROL_DISABLE,
       title: t("hide-touch-controller"),
-      onClick,
+      onClick: this.onClick.bind(this),
       classes: ["bx-activated"]
     });
     this.$content = CE("div", {}, $btnEnable, $btnDisable), this.reset();
+  }
+  onClick(e) {
+    super.onClick(e);
+    const isVisible = TouchController.toggleVisibility();
+    this.$content.dataset.activated = (!isVisible).toString();
   }
   render() {
     return this.$content;
@@ -7393,24 +7397,25 @@ class MicrophoneAction extends BaseGameBarAction {
   visible = !1;
   constructor() {
     super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const enabled = MicrophoneShortcut.toggle(!1);
-      this.$content.dataset.activated = enabled.toString();
-    }, $btnDefault = createButton({
+    const $btnDefault = createButton({
       style: 4,
       icon: BxIcon.MICROPHONE,
-      onClick,
+      onClick: this.onClick.bind(this),
       classes: ["bx-activated"]
     }), $btnMuted = createButton({
       style: 4,
       icon: BxIcon.MICROPHONE_MUTED,
-      onClick
+      onClick: this.onClick.bind(this)
     });
     this.$content = CE("div", {}, $btnMuted, $btnDefault), this.reset(), window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, (e) => {
       const enabled = e.microphoneState === "Enabled";
       this.$content.dataset.activated = enabled.toString(), this.$content.classList.remove("bx-gone");
     });
+  }
+  onClick(e) {
+    super.onClick(e);
+    const enabled = MicrophoneShortcut.toggle(!1);
+    this.$content.dataset.activated = enabled.toString();
   }
   render() {
     return this.$content;
@@ -7423,15 +7428,15 @@ class TrueAchievementsAction extends BaseGameBarAction {
   $content;
   constructor() {
     super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), TrueAchievements.open(!1);
-    };
     this.$content = createButton({
       style: 4,
       icon: BxIcon.TRUE_ACHIEVEMENTS,
       title: t("true-achievements"),
-      onClick
+      onClick: this.onClick.bind(this)
     });
+  }
+  onClick(e) {
+    super.onClick(e), TrueAchievements.open(!1);
   }
   render() {
     return this.$content;
@@ -7441,22 +7446,23 @@ class SpeakerAction extends BaseGameBarAction {
   $content;
   constructor() {
     super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED), SoundShortcut.muteUnmute();
-    }, $btnEnable = createButton({
+    const $btnEnable = createButton({
       style: 4,
       icon: BxIcon.AUDIO,
-      onClick
+      onClick: this.onClick.bind(this)
     }), $btnMuted = createButton({
       style: 4,
       icon: BxIcon.SPEAKER_MUTED,
-      onClick,
+      onClick: this.onClick.bind(this),
       classes: ["bx-activated"]
     });
     this.$content = CE("div", {}, $btnEnable, $btnMuted), this.reset(), window.addEventListener(BxEvent.SPEAKER_STATE_CHANGED, (e) => {
       const enabled = e.speakerState === 0;
       this.$content.dataset.activated = (!enabled).toString();
     });
+  }
+  onClick(e) {
+    super.onClick(e), SoundShortcut.muteUnmute();
   }
   render() {
     return this.$content;
@@ -7476,21 +7482,22 @@ class RendererAction extends BaseGameBarAction {
   $content;
   constructor() {
     super();
-    const onClick = (e) => {
-      BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-      const isVisible = RendererShortcut.toggleVisibility();
-      this.$content.dataset.activated = (!isVisible).toString();
-    }, $btnDefault = createButton({
+    const $btnDefault = createButton({
       style: 4,
       icon: BxIcon.EYE,
-      onClick
+      onClick: this.onClick.bind(this)
     }), $btnActivated = createButton({
       style: 4,
       icon: BxIcon.EYE_SLASH,
-      onClick,
+      onClick: this.onClick.bind(this),
       classes: ["bx-activated"]
     });
     this.$content = CE("div", {}, $btnDefault, $btnActivated), this.reset();
+  }
+  onClick(e) {
+    super.onClick(e);
+    const isVisible = RendererShortcut.toggleVisibility();
+    this.$content.dataset.activated = (!isVisible).toString();
   }
   render() {
     return this.$content;

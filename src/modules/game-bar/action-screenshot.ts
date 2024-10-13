@@ -1,4 +1,3 @@
-import { BxEvent } from "@utils/bx-event";
 import { BxIcon } from "@utils/bx-icon";
 import { createButton, ButtonStyle } from "@utils/html";
 import { BaseGameBarAction } from "./action-base";
@@ -11,17 +10,17 @@ export class ScreenshotAction extends BaseGameBarAction {
     constructor() {
         super();
 
-        const onClick = (e: Event) => {
-            BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-            Screenshot.takeScreenshot();
-        };
-
         this.$content = createButton({
             style: ButtonStyle.GHOST,
             icon: BxIcon.SCREENSHOT,
             title: t('take-screenshot'),
-            onClick: onClick,
+            onClick: this.onClick.bind(this),
         });
+    }
+
+    onClick(e: Event): void {
+        super.onClick(e);
+        Screenshot.takeScreenshot();
     }
 
     render(): HTMLElement {
