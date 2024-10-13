@@ -5,22 +5,12 @@ const enum TextColor {
 }
 
 export class BxLogger {
-    static #PREFIX = '[BxC]';
+    static info = (tag: string, ...args: any[]) => BxLogger.log(TextColor.INFO, tag, ...args);
+    static warning = (tag: string, ...args: any[]) => BxLogger.log(TextColor.WARNING, tag, ...args);
+    static error = (tag: string, ...args: any[]) => BxLogger.log(TextColor.ERROR, tag, ...args);
 
-    static info(tag: string, ...args: any[]) {
-        BxLogger.#log(TextColor.INFO, tag, ...args);
-    }
-
-    static warning(tag: string, ...args: any[]) {
-        BxLogger.#log(TextColor.WARNING, tag, ...args);
-    }
-
-    static error(tag: string, ...args: any[]) {
-        BxLogger.#log(TextColor.ERROR, tag, ...args);
-    }
-
-    static #log(color: string, tag: string, ...args: any) {
-        console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, '//', ...args);
+    private static log(color: string, tag: string, ...args: any) {
+        console.log(`%c[BxC]`, `color:${color};font-weight:bold;`, tag, '//', ...args);
     }
 }
 

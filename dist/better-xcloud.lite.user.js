@@ -12,18 +12,11 @@
 // ==/UserScript==
 "use strict";
 class BxLogger {
-  static #PREFIX = "[BxC]";
-  static info(tag, ...args) {
-    BxLogger.#log("#008746", tag, ...args);
-  }
-  static warning(tag, ...args) {
-    BxLogger.#log("#c1a404", tag, ...args);
-  }
-  static error(tag, ...args) {
-    BxLogger.#log("#c10404", tag, ...args);
-  }
-  static #log(color, tag, ...args) {
-    console.log(`%c${BxLogger.#PREFIX}`, `color:${color};font-weight:bold;`, tag, "//", ...args);
+  static info = (tag, ...args) => BxLogger.log("#008746", tag, ...args);
+  static warning = (tag, ...args) => BxLogger.log("#c1a404", tag, ...args);
+  static error = (tag, ...args) => BxLogger.log("#c10404", tag, ...args);
+  static log(color, tag, ...args) {
+    console.log("%c[BxC]", `color:${color};font-weight:bold;`, tag, "//", ...args);
   }
 }
 window.BxLogger = BxLogger;
