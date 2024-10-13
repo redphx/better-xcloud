@@ -14,11 +14,9 @@ export class TouchControlAction extends BaseGameBarAction {
         const onClick = (e: Event) => {
             BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
 
-            const $parent = (e as any).target.closest('div[data-enabled]');
-            let enabled = $parent.getAttribute('data-enabled', 'true') === 'true';
-            $parent.setAttribute('data-enabled', (!enabled).toString());
-
-            TouchController.toggleVisibility(enabled);
+            const $parent = (e as any).target.closest('div[data-activated]');
+            const isVisible =  TouchController.toggleVisibility();
+            $parent.dataset.activated = (!isVisible).toString();
         };
 
         const $btnEnable = createButton({
@@ -49,6 +47,6 @@ export class TouchControlAction extends BaseGameBarAction {
     }
 
     reset(): void {
-        this.$content.setAttribute('data-enabled', 'true');
+        this.$content.dataset.activated = 'false';
     }
 }

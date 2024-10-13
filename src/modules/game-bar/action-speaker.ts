@@ -40,7 +40,7 @@ export class SpeakerAction extends BaseGameBarAction {
             const speakerState = (e as any).speakerState;
             const enabled = speakerState === SpeakerState.ENABLED;
 
-            this.$content.dataset.enabled = enabled.toString();
+            this.$content.dataset.activated = (!enabled).toString();
         });
     }
 
@@ -49,6 +49,6 @@ export class SpeakerAction extends BaseGameBarAction {
     }
 
     reset(): void {
-        this.$content.dataset.enabled = 'true';
+        this.$content.dataset.activated = 'false';
     }
 }

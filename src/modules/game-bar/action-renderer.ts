@@ -13,7 +13,8 @@ export class RendererAction extends BaseGameBarAction {
 
         const onClick = (e: Event) => {
             BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
-            this.$content.dataset.enabled = RendererShortcut.toggleVisibility().toString();
+            const isVisible = RendererShortcut.toggleVisibility();
+            this.$content.dataset.activated = (!isVisible).toString();
         };
 
         const $btnDefault = createButton({
@@ -42,6 +43,6 @@ export class RendererAction extends BaseGameBarAction {
     }
 
     reset(): void {
-        this.$content.dataset.enabled = 'true';
+        this.$content.dataset.activated = 'false';
     }
 }

@@ -85,16 +85,24 @@ export class TouchController {
         document.querySelector('#BabylonCanvasContainer-main')?.parentElement?.classList.remove('bx-offscreen');
     }
 
+    /*
     static #hide() {
         document.querySelector('#BabylonCanvasContainer-main')?.parentElement?.classList.add('bx-offscreen');
     }
+    */
 
-    static toggleVisibility(status: boolean) {
+    static toggleVisibility(): boolean {
         if (!TouchController.#dataChannel) {
-            return;
+            return false;
         }
 
-        status ? TouchController.#hide() : TouchController.#show();
+        const $container = document.querySelector('#BabylonCanvasContainer-main')?.parentElement;
+        if (!$container) {
+            return false;
+        }
+
+        $container.classList.toggle('bx-offscreen');
+        return !$container.classList.contains('bx-offscreen');
     }
 
     static reset() {

@@ -76,21 +76,21 @@
         }
 
         /* Touch controller buttons */
-        div[data-enabled] {
+        div[data-activated] {
             button {
                 display: none;
             }
         }
 
-        /* Show enabled button */
-        div[data-enabled='true'] {
+        /* Show default button */
+        div[data-activated='false'] {
             button:first-of-type {
                 display: block;
             }
         }
 
-        /* Show enable button */
-        div[data-enabled='false'] {
+        /* Show activated button */
+        div[data-activated='true'] {
             button:last-of-type {
                 display: block;
             }
