@@ -23,37 +23,37 @@ export class PointerClient {
         return PointerClient.instance;
     }
 
-    #socket: WebSocket | undefined | null;
-    #mkbHandler: MkbHandler | undefined;
+    private socket: WebSocket | undefined | null;
+    private mkbHandler: MkbHandler | undefined;
 
     start(port: number, mkbHandler: MkbHandler) {
         if (!port) {
             throw new Error('PointerServer port is 0');
         }
 
-        this.#mkbHandler = mkbHandler;
+        this.mkbHandler = mkbHandler;
 
         // Create WebSocket connection.
-        this.#socket = new WebSocket(`ws://localhost:${port}`);
-        this.#socket.binaryType = 'arraybuffer';
+        this.socket = new WebSocket(`ws://localhost:${port}`);
+        this.socket.binaryType = 'arraybuffer';
 
         // Connection opened
-        this.#socket.addEventListener('open', (event) => {
+        this.socket.addEventListener('open', (event) => {
             BxLogger.info(LOG_TAG, 'connected')
         });
 
         // Error
-        this.#socket.addEventListener('error', (event) => {
+        this.socket.addEventListener('error', (event) => {
             BxLogger.error(LOG_TAG, event);
             Toast.show('Cannot setup mouse: ' + event);
         });
 
-        this.#socket.addEventListener('close', (event) => {
-            this.#socket = null;
+        this.socket.addEventListener('close', (event) => {
+            this.socket = null;
         });
 
         // Listen for messages
-        this.#socket.addEventListener('message', (event) => {
+        this.socket.addEventListener('message', (event) => {
             const dataView = new DataView(event.data);
 
             let messageType = dataView.getInt8(0);
@@ -84,7 +84,7 @@ export class PointerClient {
         offset += Int16Array.BYTES_PER_ELEMENT;
         const y = dataView.getInt16(offset);
 
-        this.#mkbHandler?.handleMouseMove({
+        this.mkbHandler?.handleMouseMove({
             movementX: x,
             movementY: y,
         });
@@ -94,7 +94,7 @@ export class PointerClient {
     onPress(messageType: PointerAction, dataView: DataView, offset: number) {
         const button = dataView.getUint8(offset);
 
-        this.#mkbHandler?.handleMouseClick({
+        this.mkbHandler?.handleMouseClick({
             pointerButton: button,
             pressed: messageType === PointerAction.BUTTON_PRESS,
         });
@@ -108,7 +108,7 @@ export class PointerClient {
         offset += Int16Array.BYTES_PER_ELEMENT;
         const hScroll = dataView.getInt16(offset);
 
-        this.#mkbHandler?.handleMouseWheel({
+        this.mkbHandler?.handleMouseWheel({
             vertical: vScroll,
             horizontal: hScroll,
         });
@@ -118,13 +118,13 @@ export class PointerClient {
 
     onPointerCaptureChanged(dataView: DataView, offset: number) {
         const hasCapture = dataView.getInt8(offset) === 1;
-        !hasCapture && this.#mkbHandler?.stop();
+        !hasCapture && this.mkbHandler?.stop();
     }
 
     stop() {
         try {
-            this.#socket?.close();
+            this.socket?.close();
         } catch (e) {}
-        this.#socket = null;
+        this.socket = null;
     }
 }

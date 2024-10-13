@@ -6,14 +6,14 @@ type ToastOptions = {
 }
 
 export class Toast {
-    static #$wrapper: HTMLElement;
-    static #$msg: HTMLElement;
-    static #$status: HTMLElement;
-    static #stack: Array<[string, string, ToastOptions]> = [];
-    static #isShowing = false;
+    private static $wrapper: HTMLElement;
+    private static $msg: HTMLElement;
+    private static $status: HTMLElement;
+    private static stack: Array<[string, string, ToastOptions]> = [];
+    private static isShowing = false;
 
-    static #timeout?: number | null;
-    static #DURATION = 3000;
+    private static timeout?: number | null;
+    private static DURATION = 3000;
 
     static show(msg: string, status?: string, options: Partial<ToastOptions> = {}) {
         options = options || {};
@@ -21,69 +21,70 @@ export class Toast {
         const args = Array.from(arguments) as [string, string, ToastOptions];
         if (options.instant) {
             // Clear stack
-            Toast.#stack = [args];
-            Toast.#showNext();
+            Toast.stack = [args];
+            Toast.showNext();
         } else {
-            Toast.#stack.push(args);
-            !Toast.#isShowing && Toast.#showNext();
+            Toast.stack.push(args);
+            !Toast.isShowing && Toast.showNext();
         }
     }
 
-    static #showNext() {
-        if (!Toast.#stack.length) {
-            Toast.#isShowing = false;
+    private static showNext() {
+        if (!Toast.stack.length) {
+            Toast.isShowing = false;
             return;
         }
 
-        Toast.#isShowing = true;
+        Toast.isShowing = true;
 
-        Toast.#timeout && clearTimeout(Toast.#timeout);
-        Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
+        Toast.timeout && clearTimeout(Toast.timeout);
+        Toast.timeout = window.setTimeout(Toast.hide, Toast.DURATION);
 
         // Get values from item
-        const [msg, status, options] = Toast.#stack.shift()!;
+        const [msg, status, options] = Toast.stack.shift()!;
 
         if (options && options.html) {
-            Toast.#$msg.innerHTML = msg;
+            Toast.$msg.innerHTML = msg;
         } else {
-            Toast.#$msg.textContent = msg;
+            Toast.$msg.textContent = msg;
         }
 
         if (status) {
-            Toast.#$status.classList.remove('bx-gone');
-            Toast.#$status.textContent = status;
+            Toast.$status.classList.remove('bx-gone');
+            Toast.$status.textContent = status;
         } else {
-            Toast.#$status.classList.add('bx-gone');
+            Toast.$status.classList.add('bx-gone');
         }
 
-        const classList = Toast.#$wrapper.classList;
+        const classList = Toast.$wrapper.classList;
         classList.remove('bx-offscreen', 'bx-hide');
         classList.add('bx-show');
     }
 
-    static #hide() {
-        Toast.#timeout = null;
+    private static hide() {
+        Toast.timeout = null;
 
-        const classList = Toast.#$wrapper.classList;
+        const classList = Toast.$wrapper.classList;
         classList.remove('bx-show');
         classList.add('bx-hide');
     }
 
     static setup() {
-        Toast.#$wrapper = CE('div', {'class': 'bx-toast bx-offscreen'},
-                                        Toast.#$msg = CE('span', {'class': 'bx-toast-msg'}),
-                                        Toast.#$status = CE('span', {'class': 'bx-toast-status'}));
+        Toast.$wrapper = CE('div', {'class': 'bx-toast bx-offscreen'},
+            Toast.$msg = CE('span', {'class': 'bx-toast-msg'}),
+            Toast.$status = CE('span', {'class': 'bx-toast-status'}),
+        );
 
-        Toast.#$wrapper.addEventListener('transitionend', e => {
-            const classList = Toast.#$wrapper.classList;
+        Toast.$wrapper.addEventListener('transitionend', e => {
+            const classList = Toast.$wrapper.classList;
             if (classList.contains('bx-hide')) {
                 classList.remove('bx-offscreen', 'bx-hide');
                 classList.add('bx-offscreen');
 
-                Toast.#showNext();
+                Toast.showNext();
             }
         });
 
-        document.documentElement.appendChild(Toast.#$wrapper);
+        document.documentElement.appendChild(Toast.$wrapper);
     }
 }

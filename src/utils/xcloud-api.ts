@@ -3,7 +3,6 @@ import { STATES } from "./global";
 
 export class XcloudApi {
     private static instance: XcloudApi;
-
     public static getInstance(): XcloudApi {
         if (!XcloudApi.instance) {
             XcloudApi.instance = new XcloudApi();
@@ -12,12 +11,12 @@ export class XcloudApi {
         return XcloudApi.instance;
     }
 
-    #CACHE_TITLES: {[key: string]: XcloudTitleInfo} = {};
-    #CACHE_WAIT_TIME: {[key: string]: XcloudWaitTimeInfo} = {};
+    private CACHE_TITLES: {[key: string]: XcloudTitleInfo} = {};
+    private CACHE_WAIT_TIME: {[key: string]: XcloudWaitTimeInfo} = {};
 
     async getTitleInfo(id: string): Promise<XcloudTitleInfo | null> {
-        if (id in this.#CACHE_TITLES) {
-            return this.#CACHE_TITLES[id];
+        if (id in this.CACHE_TITLES) {
+            return this.CACHE_TITLES[id];
         }
 
         const baseUri = STATES.selectedRegion.baseUri;
@@ -45,13 +44,13 @@ export class XcloudApi {
         } catch (e) {
             json = {}
         }
-        this.#CACHE_TITLES[id] = json;
+        this.CACHE_TITLES[id] = json;
         return json;
     }
 
     async getWaitTime(id: string): Promise<XcloudWaitTimeInfo | null> {
-        if (id in this.#CACHE_WAIT_TIME) {
-            return this.#CACHE_WAIT_TIME[id];
+        if (id in this.CACHE_WAIT_TIME) {
+            return this.CACHE_WAIT_TIME[id];
         }
 
         const baseUri = STATES.selectedRegion.baseUri;
@@ -73,7 +72,7 @@ export class XcloudApi {
             json = {};
         }
 
-        this.#CACHE_WAIT_TIME[id] = json;
+        this.CACHE_WAIT_TIME[id] = json;
         return json;
     }
 }

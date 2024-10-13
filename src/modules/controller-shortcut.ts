@@ -38,37 +38,37 @@ const enum ShortcutAction {
 }
 
 export class ControllerShortcut {
-    static readonly #STORAGE_KEY = 'better_xcloud_controller_shortcuts';
+    private static readonly STORAGE_KEY = 'better_xcloud_controller_shortcuts';
 
-    static #buttonsCache: {[key: string]: boolean[]} = {};
-    static #buttonsStatus: {[key: string]: boolean[]} = {};
+    private static buttonsCache: {[key: string]: boolean[]} = {};
+    private static buttonsStatus: {[key: string]: boolean[]} = {};
 
-    static #$selectProfile: HTMLSelectElement;
-    static #$selectActions: Partial<{[key in GamepadKey]: HTMLSelectElement}> = {};
-    static #$container: HTMLElement;
+    private static $selectProfile: HTMLSelectElement;
+    private static $selectActions: Partial<{[key in GamepadKey]: HTMLSelectElement}> = {};
+    private static $container: HTMLElement;
 
-    static #ACTIONS: {[key: string]: (ShortcutAction | null)[]} | null = null;
+    private static ACTIONS: {[key: string]: (ShortcutAction | null)[]} | null = null;
 
     static reset(index: number) {
-        ControllerShortcut.#buttonsCache[index] = [];
-        ControllerShortcut.#buttonsStatus[index] = [];
+        ControllerShortcut.buttonsCache[index] = [];
+        ControllerShortcut.buttonsStatus[index] = [];
     }
 
     static handle(gamepad: Gamepad): boolean {
-        if (!ControllerShortcut.#ACTIONS) {
-            ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
+        if (!ControllerShortcut.ACTIONS) {
+            ControllerShortcut.ACTIONS = ControllerShortcut.getActionsFromStorage();
         }
 
         const gamepadIndex = gamepad.index;
-        const actions = ControllerShortcut.#ACTIONS![gamepad.id];
+        const actions = ControllerShortcut.ACTIONS![gamepad.id];
         if (!actions) {
             return false;
         }
 
         // Move the buttons status from the previous frame to the cache
-        ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0);
+        ControllerShortcut.buttonsCache[gamepadIndex] = ControllerShortcut.buttonsStatus[gamepadIndex].slice(0);
         // Clear the buttons status
-        ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
+        ControllerShortcut.buttonsStatus[gamepadIndex] = [];
 
         const pressed: boolean[] = [];
         let otherButtonPressed = false;
@@ -80,17 +80,17 @@ export class ControllerShortcut {
                 pressed[index] = true;
 
                 // If this is newly pressed button -> run action
-                if (actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) {
-                    setTimeout(() => ControllerShortcut.#runAction(actions[index]!), 0);
+                if (actions[index] && !ControllerShortcut.buttonsCache[gamepadIndex][index]) {
+                    setTimeout(() => ControllerShortcut.runAction(actions[index]!), 0);
                 }
             }
         });
 
-        ControllerShortcut.#buttonsStatus[gamepadIndex] = pressed;
+        ControllerShortcut.buttonsStatus[gamepadIndex] = pressed;
         return otherButtonPressed;
     }
 
-    static #runAction(action: ShortcutAction) {
+    private static runAction(action: ShortcutAction) {
         switch (action) {
             case ShortcutAction.BETTER_XCLOUD_SETTINGS_SHOW:
                 SettingsNavigationDialog.getInstance().show();
@@ -134,8 +134,8 @@ export class ControllerShortcut {
         }
     }
 
-    static #updateAction(profile: string, button: GamepadKey, action: ShortcutAction | null) {
-        const actions = ControllerShortcut.#ACTIONS!;
+    private static updateAction(profile: string, button: GamepadKey, action: ShortcutAction | null) {
+        const actions = ControllerShortcut.ACTIONS!;
         if (!(profile in actions)) {
             actions[profile] = [];
         }
@@ -147,9 +147,9 @@ export class ControllerShortcut {
         actions[profile][button] = action;
 
         // Remove empty profiles
-        for (const key in ControllerShortcut.#ACTIONS) {
+        for (const key in ControllerShortcut.ACTIONS) {
             let empty = true;
-            for (const value of ControllerShortcut.#ACTIONS[key]) {
+            for (const value of ControllerShortcut.ACTIONS[key]) {
                 if (!!value) {
                     empty = false;
                     break;
@@ -157,19 +157,19 @@ export class ControllerShortcut {
             }
 
             if (empty) {
-                delete ControllerShortcut.#ACTIONS[key];
+                delete ControllerShortcut.ACTIONS[key];
             }
         }
 
         // Save to storage
-        window.localStorage.setItem(ControllerShortcut.#STORAGE_KEY, JSON.stringify(ControllerShortcut.#ACTIONS));
+        window.localStorage.setItem(ControllerShortcut.STORAGE_KEY, JSON.stringify(ControllerShortcut.ACTIONS));
 
-        console.log(ControllerShortcut.#ACTIONS);
+        console.log(ControllerShortcut.ACTIONS);
     }
 
-    static #updateProfileList(e?: GamepadEvent) {
-        const $select = ControllerShortcut.#$selectProfile;
-        const $container = ControllerShortcut.#$container;
+    private static updateProfileList(e?: GamepadEvent) {
+        const $select = ControllerShortcut.$selectProfile;
+        const $container = ControllerShortcut.$container;
 
         const $fragment = document.createDocumentFragment();
 
@@ -205,16 +205,16 @@ export class ControllerShortcut {
 
     }
 
-    static #switchProfile(profile: string) {
-        let actions = ControllerShortcut.#ACTIONS![profile];
+    private static switchProfile(profile: string) {
+        let actions = ControllerShortcut.ACTIONS![profile];
         if (!actions) {
             actions = [];
         }
 
         // Reset selects' values
         let button: any;
-        for (button in ControllerShortcut.#$selectActions) {
-            const $select = ControllerShortcut.#$selectActions[button as GamepadKey]!;
+        for (button in ControllerShortcut.$selectActions) {
+            const $select = ControllerShortcut.$selectActions[button as GamepadKey]!;
             $select.value = actions[button] || '';
 
             BxEvent.dispatch($select, 'input', {
@@ -224,15 +224,15 @@ export class ControllerShortcut {
         }
     }
 
-    static #getActionsFromStorage() {
-        return JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || '{}');
+    private static getActionsFromStorage() {
+        return JSON.parse(window.localStorage.getItem(ControllerShortcut.STORAGE_KEY) || '{}');
     }
 
     static renderSettings() {
         const PREF_CONTROLLER_FRIENDLY_UI = getPref(PrefKey.UI_CONTROLLER_FRIENDLY);
 
         // Read actions from localStorage
-        ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
+        ControllerShortcut.ACTIONS = ControllerShortcut.getActionsFromStorage();
 
         const buttons: Map<GamepadKey, PrompFont> = new Map();
         buttons.set(GamepadKey.Y, PrompFont.Y);
@@ -340,7 +340,7 @@ export class ControllerShortcut {
         );
 
         $selectProfile.addEventListener('input', e => {
-            ControllerShortcut.#switchProfile($selectProfile.value);
+            ControllerShortcut.switchProfile($selectProfile.value);
         });
 
         const onActionChanged = (e: Event) => {
@@ -361,7 +361,7 @@ export class ControllerShortcut {
                 ($fakeSelect.firstElementChild as HTMLOptionElement).text = fakeText;
             }
 
-            !(e as any).ignoreOnChange && ControllerShortcut.#updateAction(profile, button as GamepadKey, action);
+            !(e as any).ignoreOnChange && ControllerShortcut.updateAction(profile, button as GamepadKey, action);
         };
 
 
@@ -387,7 +387,7 @@ export class ControllerShortcut {
             $select.dataset.button = button.toString();
             $select.addEventListener('input', onActionChanged);
 
-            ControllerShortcut.#$selectActions[button] = $select;
+            ControllerShortcut.$selectActions[button] = $select;
 
             if (PREF_CONTROLLER_FRIENDLY_UI) {
                 const $bxSelect = BxSelectElement.wrap($select);
@@ -412,14 +412,14 @@ export class ControllerShortcut {
 
         $container.appendChild($remap);
 
-        ControllerShortcut.#$selectProfile = $selectProfile;
-        ControllerShortcut.#$container = $container;
+        ControllerShortcut.$selectProfile = $selectProfile;
+        ControllerShortcut.$container = $container;
 
         // Detect when gamepad connected/disconnect
-        window.addEventListener('gamepadconnected', ControllerShortcut.#updateProfileList);
-        window.addEventListener('gamepaddisconnected', ControllerShortcut.#updateProfileList);
+        window.addEventListener('gamepadconnected', ControllerShortcut.updateProfileList);
+        window.addEventListener('gamepaddisconnected', ControllerShortcut.updateProfileList);
 
-        ControllerShortcut.#updateProfileList();
+        ControllerShortcut.updateProfileList();
 
         return $container;
     }

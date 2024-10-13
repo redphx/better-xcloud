@@ -7,13 +7,13 @@ import { getPref } from "@/utils/settings-storages/global-settings-storage";
 import { compressCss } from "@macros/build" with {type: "macro"};
 
 export class LoadingScreen {
-    static #$bgStyle: HTMLElement;
-    static #$waitTimeBox: HTMLElement;
+    private static $bgStyle: HTMLElement;
+    private static $waitTimeBox: HTMLElement;
 
-    static #waitTimeInterval?: number | null = null;
-    static #orgWebTitle: string;
+    private static waitTimeInterval?: number | null = null;
+    private static orgWebTitle: string;
 
-    static #secondsToString(seconds: number) {
+    private static secondsToString(seconds: number) {
         const m = Math.floor(seconds / 60);
         const s = Math.floor(seconds % 60);
 
@@ -28,21 +28,21 @@ export class LoadingScreen {
             return;
         }
 
-        if (!LoadingScreen.#$bgStyle) {
+        if (!LoadingScreen.$bgStyle) {
             const $bgStyle = CE('style');
             document.documentElement.appendChild($bgStyle);
-            LoadingScreen.#$bgStyle = $bgStyle;
+            LoadingScreen.$bgStyle = $bgStyle;
         }
 
-        LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl);
+        LoadingScreen.setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl);
 
         if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === 'hide') {
-            LoadingScreen.#hideRocket();
+            LoadingScreen.hideRocket();
         }
     }
 
-    static #hideRocket() {
-        let $bgStyle = LoadingScreen.#$bgStyle;
+    private static hideRocket() {
+        let $bgStyle = LoadingScreen.$bgStyle;
 
         $bgStyle.textContent! += compressCss(`
 #game-stream div[class*=RocketAnimation-module__container] > svg {
@@ -55,9 +55,9 @@ export class LoadingScreen {
 `);
     }
 
-    static #setBackground(imageUrl: string) {
+    private static setBackground(imageUrl: string) {
         // Setup style tag
-        let $bgStyle = LoadingScreen.#$bgStyle;
+        let $bgStyle = LoadingScreen.$bgStyle;
 
         // Limit max width to reduce image size
         imageUrl = imageUrl + '?w=1920';
@@ -89,14 +89,14 @@ export class LoadingScreen {
     static setupWaitTime(waitTime: number) {
         // Hide rocket when queing
         if (getPref(PrefKey.UI_LOADING_SCREEN_ROCKET) === 'hide-queue') {
-            LoadingScreen.#hideRocket();
+            LoadingScreen.hideRocket();
         }
 
         let secondsLeft = waitTime;
         let $countDown;
         let $estimated;
 
-        LoadingScreen.#orgWebTitle = document.title;
+        LoadingScreen.orgWebTitle = document.title;
 
         const endDate = new Date();
         const timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
@@ -104,9 +104,9 @@ export class LoadingScreen {
 
         let endDateStr = endDate.toISOString().slice(0, 19);
         endDateStr = endDateStr.substring(0, 10) + ' ' + endDateStr.substring(11, 19);
-        endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
+        endDateStr += ` (${LoadingScreen.secondsToString(waitTime)})`;
 
-        let $waitTimeBox = LoadingScreen.#$waitTimeBox;
+        let $waitTimeBox = LoadingScreen.$waitTimeBox;
         if (!$waitTimeBox) {
             $waitTimeBox = CE('div', {'class': 'bx-wait-time-box'},
                                     CE('label', {}, t('server')),
@@ -118,7 +118,7 @@ export class LoadingScreen {
                                    );
 
             document.documentElement.appendChild($waitTimeBox);
-            LoadingScreen.#$waitTimeBox = $waitTimeBox;
+            LoadingScreen.$waitTimeBox = $waitTimeBox;
         } else {
             $waitTimeBox.classList.remove('bx-gone');
             $estimated = $waitTimeBox.querySelector('.bx-wait-time-estimated')!;
@@ -126,36 +126,36 @@ export class LoadingScreen {
         }
 
         $estimated.textContent = endDateStr;
-        $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-        document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+        $countDown.textContent = LoadingScreen.secondsToString(secondsLeft);
+        document.title = `[${$countDown.textContent}] ${LoadingScreen.orgWebTitle}`;
 
-        LoadingScreen.#waitTimeInterval = window.setInterval(() => {
+        LoadingScreen.waitTimeInterval = window.setInterval(() => {
             secondsLeft--;
-            $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft);
-            document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`;
+            $countDown.textContent = LoadingScreen.secondsToString(secondsLeft);
+            document.title = `[${$countDown.textContent}] ${LoadingScreen.orgWebTitle}`;
 
             if (secondsLeft <= 0) {
-                LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-                LoadingScreen.#waitTimeInterval = null;
+                LoadingScreen.waitTimeInterval && clearInterval(LoadingScreen.waitTimeInterval);
+                LoadingScreen.waitTimeInterval = null;
             }
         }, 1000);
     }
 
     static hide() {
-        LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle);
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
+        LoadingScreen.orgWebTitle && (document.title = LoadingScreen.orgWebTitle);
+        LoadingScreen.$waitTimeBox && LoadingScreen.$waitTimeBox.classList.add('bx-gone');
 
-        if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.#$bgStyle) {
+        if (getPref(PrefKey.UI_LOADING_SCREEN_GAME_ART) && LoadingScreen.$bgStyle) {
             const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
             $rocketBg && $rocketBg.addEventListener('transitionend', e => {
-                LoadingScreen.#$bgStyle.textContent += compressCss(`
+                LoadingScreen.$bgStyle.textContent += compressCss(`
 #game-stream {
     background: #000 !important;
 }
 `);
             });
 
-            LoadingScreen.#$bgStyle.textContent += compressCss(`
+            LoadingScreen.$bgStyle.textContent += compressCss(`
 #game-stream rect[width="800"] {
     opacity: 1 !important;
 }
@@ -166,10 +166,10 @@ export class LoadingScreen {
     }
 
     static reset() {
-        LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = '');
+        LoadingScreen.$bgStyle && (LoadingScreen.$bgStyle.textContent = '');
 
-        LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add('bx-gone');
-        LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval);
-        LoadingScreen.#waitTimeInterval = null;
+        LoadingScreen.$waitTimeBox && LoadingScreen.$waitTimeBox.classList.add('bx-gone');
+        LoadingScreen.waitTimeInterval && clearInterval(LoadingScreen.waitTimeInterval);
+        LoadingScreen.waitTimeInterval = null;
     }
 }

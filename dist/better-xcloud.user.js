@@ -2031,43 +2031,43 @@ class StreamStats {
   }
 }
 class Toast {
-  static #$wrapper;
-  static #$msg;
-  static #$status;
-  static #stack = [];
-  static #isShowing = !1;
-  static #timeout;
-  static #DURATION = 3000;
+  static $wrapper;
+  static $msg;
+  static $status;
+  static stack = [];
+  static isShowing = !1;
+  static timeout;
+  static DURATION = 3000;
   static show(msg, status, options = {}) {
     options = options || {};
     const args = Array.from(arguments);
-    if (options.instant) Toast.#stack = [args], Toast.#showNext();
-    else Toast.#stack.push(args), !Toast.#isShowing && Toast.#showNext();
+    if (options.instant) Toast.stack = [args], Toast.showNext();
+    else Toast.stack.push(args), !Toast.isShowing && Toast.showNext();
   }
-  static #showNext() {
-    if (!Toast.#stack.length) {
-      Toast.#isShowing = !1;
+  static showNext() {
+    if (!Toast.stack.length) {
+      Toast.isShowing = !1;
       return;
     }
-    Toast.#isShowing = !0, Toast.#timeout && clearTimeout(Toast.#timeout), Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
-    const [msg, status, options] = Toast.#stack.shift();
-    if (options && options.html) Toast.#$msg.innerHTML = msg;
-    else Toast.#$msg.textContent = msg;
-    if (status) Toast.#$status.classList.remove("bx-gone"), Toast.#$status.textContent = status;
-    else Toast.#$status.classList.add("bx-gone");
-    const classList = Toast.#$wrapper.classList;
+    Toast.isShowing = !0, Toast.timeout && clearTimeout(Toast.timeout), Toast.timeout = window.setTimeout(Toast.hide, Toast.DURATION);
+    const [msg, status, options] = Toast.stack.shift();
+    if (options && options.html) Toast.$msg.innerHTML = msg;
+    else Toast.$msg.textContent = msg;
+    if (status) Toast.$status.classList.remove("bx-gone"), Toast.$status.textContent = status;
+    else Toast.$status.classList.add("bx-gone");
+    const classList = Toast.$wrapper.classList;
     classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
   }
-  static #hide() {
-    Toast.#timeout = null;
-    const classList = Toast.#$wrapper.classList;
+  static hide() {
+    Toast.timeout = null;
+    const classList = Toast.$wrapper.classList;
     classList.remove("bx-show"), classList.add("bx-hide");
   }
   static setup() {
-    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" })), Toast.#$wrapper.addEventListener("transitionend", (e) => {
-      const classList = Toast.#$wrapper.classList;
-      if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.#showNext();
-    }), document.documentElement.appendChild(Toast.#$wrapper);
+    Toast.$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.$msg = CE("span", { class: "bx-toast-msg" }), Toast.$status = CE("span", { class: "bx-toast-status" })), Toast.$wrapper.addEventListener("transitionend", (e) => {
+      const classList = Toast.$wrapper.classList;
+      if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.showNext();
+    }), document.documentElement.appendChild(Toast.$wrapper);
   }
 }
 class MicrophoneShortcut {
@@ -2509,17 +2509,17 @@ class PointerClient {
     if (!PointerClient.instance) PointerClient.instance = new PointerClient;
     return PointerClient.instance;
   }
-  #socket;
-  #mkbHandler;
+  socket;
+  mkbHandler;
   start(port, mkbHandler) {
     if (!port) throw new Error("PointerServer port is 0");
-    this.#mkbHandler = mkbHandler, this.#socket = new WebSocket(`ws://localhost:${port}`), this.#socket.binaryType = "arraybuffer", this.#socket.addEventListener("open", (event) => {
+    this.mkbHandler = mkbHandler, this.socket = new WebSocket(`ws://localhost:${port}`), this.socket.binaryType = "arraybuffer", this.socket.addEventListener("open", (event) => {
       BxLogger.info(LOG_TAG, "connected");
-    }), this.#socket.addEventListener("error", (event) => {
+    }), this.socket.addEventListener("error", (event) => {
       BxLogger.error(LOG_TAG, event), Toast.show("Cannot setup mouse: " + event);
-    }), this.#socket.addEventListener("close", (event) => {
-      this.#socket = null;
-    }), this.#socket.addEventListener("message", (event) => {
+    }), this.socket.addEventListener("close", (event) => {
+      this.socket = null;
+    }), this.socket.addEventListener("message", (event) => {
       const dataView = new DataView(event.data);
       let messageType = dataView.getInt8(0), offset = Int8Array.BYTES_PER_ELEMENT;
       switch (messageType) {
@@ -2542,14 +2542,14 @@ class PointerClient {
     const x = dataView.getInt16(offset);
     offset += Int16Array.BYTES_PER_ELEMENT;
     const y = dataView.getInt16(offset);
-    this.#mkbHandler?.handleMouseMove({
+    this.mkbHandler?.handleMouseMove({
       movementX: x,
       movementY: y
     });
   }
   onPress(messageType, dataView, offset) {
     const button = dataView.getUint8(offset);
-    this.#mkbHandler?.handleMouseClick({
+    this.mkbHandler?.handleMouseClick({
       pointerButton: button,
       pressed: messageType === 2
     });
@@ -2558,19 +2558,19 @@ class PointerClient {
     const vScroll = dataView.getInt16(offset);
     offset += Int16Array.BYTES_PER_ELEMENT;
     const hScroll = dataView.getInt16(offset);
-    this.#mkbHandler?.handleMouseWheel({
+    this.mkbHandler?.handleMouseWheel({
       vertical: vScroll,
       horizontal: hScroll
     });
   }
   onPointerCaptureChanged(dataView, offset) {
-    dataView.getInt8(offset) !== 1 && this.#mkbHandler?.stop();
+    dataView.getInt8(offset) !== 1 && this.mkbHandler?.stop();
   }
   stop() {
     try {
-      this.#socket?.close();
+      this.socket?.close();
     } catch (e) {}
-    this.#socket = null;
+    this.socket = null;
   }
 }
 class MouseDataProvider {
@@ -5513,30 +5513,30 @@ class SettingsNavigationDialog extends NavigationDialog {
   }
 }
 class ControllerShortcut {
-  static #STORAGE_KEY = "better_xcloud_controller_shortcuts";
-  static #buttonsCache = {};
-  static #buttonsStatus = {};
-  static #$selectProfile;
-  static #$selectActions = {};
-  static #$container;
-  static #ACTIONS = null;
+  static STORAGE_KEY = "better_xcloud_controller_shortcuts";
+  static buttonsCache = {};
+  static buttonsStatus = {};
+  static $selectProfile;
+  static $selectActions = {};
+  static $container;
+  static ACTIONS = null;
   static reset(index) {
-    ControllerShortcut.#buttonsCache[index] = [], ControllerShortcut.#buttonsStatus[index] = [];
+    ControllerShortcut.buttonsCache[index] = [], ControllerShortcut.buttonsStatus[index] = [];
   }
   static handle(gamepad) {
-    if (!ControllerShortcut.#ACTIONS) ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
-    const gamepadIndex = gamepad.index, actions = ControllerShortcut.#ACTIONS[gamepad.id];
+    if (!ControllerShortcut.ACTIONS) ControllerShortcut.ACTIONS = ControllerShortcut.getActionsFromStorage();
+    const gamepadIndex = gamepad.index, actions = ControllerShortcut.ACTIONS[gamepad.id];
     if (!actions) return !1;
-    ControllerShortcut.#buttonsCache[gamepadIndex] = ControllerShortcut.#buttonsStatus[gamepadIndex].slice(0), ControllerShortcut.#buttonsStatus[gamepadIndex] = [];
+    ControllerShortcut.buttonsCache[gamepadIndex] = ControllerShortcut.buttonsStatus[gamepadIndex].slice(0), ControllerShortcut.buttonsStatus[gamepadIndex] = [];
     const pressed = [];
     let otherButtonPressed = !1;
     return gamepad.buttons.forEach((button, index) => {
       if (button.pressed && index !== 16) {
-        if (otherButtonPressed = !0, pressed[index] = !0, actions[index] && !ControllerShortcut.#buttonsCache[gamepadIndex][index]) setTimeout(() => ControllerShortcut.#runAction(actions[index]), 0);
+        if (otherButtonPressed = !0, pressed[index] = !0, actions[index] && !ControllerShortcut.buttonsCache[gamepadIndex][index]) setTimeout(() => ControllerShortcut.runAction(actions[index]), 0);
       }
-    }), ControllerShortcut.#buttonsStatus[gamepadIndex] = pressed, otherButtonPressed;
+    }), ControllerShortcut.buttonsStatus[gamepadIndex] = pressed, otherButtonPressed;
   }
-  static #runAction(action) {
+  static runAction(action) {
     switch (action) {
       case "bx-settings-show":
         SettingsNavigationDialog.getInstance().show();
@@ -5571,24 +5571,24 @@ class ControllerShortcut {
         break;
     }
   }
-  static #updateAction(profile, button, action) {
-    const actions = ControllerShortcut.#ACTIONS;
+  static updateAction(profile, button, action) {
+    const actions = ControllerShortcut.ACTIONS;
     if (!(profile in actions)) actions[profile] = [];
     if (!action) action = null;
     actions[profile][button] = action;
-    for (let key in ControllerShortcut.#ACTIONS) {
+    for (let key in ControllerShortcut.ACTIONS) {
       let empty = !0;
-      for (let value of ControllerShortcut.#ACTIONS[key])
+      for (let value of ControllerShortcut.ACTIONS[key])
         if (value) {
           empty = !1;
           break;
         }
-      if (empty) delete ControllerShortcut.#ACTIONS[key];
+      if (empty) delete ControllerShortcut.ACTIONS[key];
     }
-    window.localStorage.setItem(ControllerShortcut.#STORAGE_KEY, JSON.stringify(ControllerShortcut.#ACTIONS)), console.log(ControllerShortcut.#ACTIONS);
+    window.localStorage.setItem(ControllerShortcut.STORAGE_KEY, JSON.stringify(ControllerShortcut.ACTIONS)), console.log(ControllerShortcut.ACTIONS);
   }
-  static #updateProfileList(e) {
-    const $select = ControllerShortcut.#$selectProfile, $container = ControllerShortcut.#$container, $fragment = document.createDocumentFragment();
+  static updateProfileList(e) {
+    const { $selectProfile: $select, $container } = ControllerShortcut, $fragment = document.createDocumentFragment();
     removeChildElements($select);
     const gamepads = navigator.getGamepads();
     let hasGamepad = !1;
@@ -5601,24 +5601,24 @@ class ControllerShortcut {
     }
     if ($container.dataset.hasGamepad = hasGamepad.toString(), hasGamepad) $select.appendChild($fragment), $select.selectedIndex = 0, $select.dispatchEvent(new Event("input"));
   }
-  static #switchProfile(profile) {
-    let actions = ControllerShortcut.#ACTIONS[profile];
+  static switchProfile(profile) {
+    let actions = ControllerShortcut.ACTIONS[profile];
     if (!actions) actions = [];
     let button;
-    for (button in ControllerShortcut.#$selectActions) {
-      const $select = ControllerShortcut.#$selectActions[button];
+    for (button in ControllerShortcut.$selectActions) {
+      const $select = ControllerShortcut.$selectActions[button];
       $select.value = actions[button] || "", BxEvent.dispatch($select, "input", {
         ignoreOnChange: !0,
         manualTrigger: !0
       });
     }
   }
-  static #getActionsFromStorage() {
-    return JSON.parse(window.localStorage.getItem(ControllerShortcut.#STORAGE_KEY) || "{}");
+  static getActionsFromStorage() {
+    return JSON.parse(window.localStorage.getItem(ControllerShortcut.STORAGE_KEY) || "{}");
   }
   static renderSettings() {
     const PREF_CONTROLLER_FRIENDLY_UI = getPref("ui_controller_friendly");
-    ControllerShortcut.#ACTIONS = ControllerShortcut.#getActionsFromStorage();
+    ControllerShortcut.ACTIONS = ControllerShortcut.getActionsFromStorage();
     const buttons = new Map;
     buttons.set(3, "⇑"), buttons.set(0, "⇓"), buttons.set(1, "⇒"), buttons.set(2, "⇐"), buttons.set(12, "≻"), buttons.set(13, "≽"), buttons.set(14, "≺"), buttons.set(15, "≼"), buttons.set(8, "⇺"), buttons.set(9, "⇻"), buttons.set(4, "↘"), buttons.set(5, "↙"), buttons.set(6, "↖"), buttons.set(7, "↗"), buttons.set(10, "↺"), buttons.set(11, "↻");
     const actions = {
@@ -5669,7 +5669,7 @@ class ControllerShortcut {
       }
     }, $profile), CE("p", { class: "bx-shortcut-note" }, CE("span", { class: "bx-prompt" }, ""), ": " + t("controller-shortcuts-xbox-note"))));
     $selectProfile.addEventListener("input", (e) => {
-      ControllerShortcut.#switchProfile($selectProfile.value);
+      ControllerShortcut.switchProfile($selectProfile.value);
     });
     const onActionChanged = (e) => {
       const $target = e.target, profile = $selectProfile.value, button = $target.dataset.button, action = $target.value;
@@ -5682,7 +5682,7 @@ class ControllerShortcut {
         }
         $fakeSelect.firstElementChild.text = fakeText;
       }
-      !e.ignoreOnChange && ControllerShortcut.#updateAction(profile, button, action);
+      !e.ignoreOnChange && ControllerShortcut.updateAction(profile, button, action);
     };
     for (let [button, prompt2] of buttons) {
       const $row = CE("div", {
@@ -5693,7 +5693,7 @@ class ControllerShortcut {
         $div.appendChild($fakeSelect);
       }
       const $select = $baseSelect.cloneNode(!0);
-      if ($select.dataset.button = button.toString(), $select.addEventListener("input", onActionChanged), ControllerShortcut.#$selectActions[button] = $select, PREF_CONTROLLER_FRIENDLY_UI) {
+      if ($select.dataset.button = button.toString(), $select.addEventListener("input", onActionChanged), ControllerShortcut.$selectActions[button] = $select, PREF_CONTROLLER_FRIENDLY_UI) {
         const $bxSelect = BxSelectElement.wrap($select);
         $bxSelect.classList.add("bx-full-width"), $div.appendChild($bxSelect), setNearby($row, {
           focus: $bxSelect
@@ -5703,7 +5703,7 @@ class ControllerShortcut {
         });
       $row.appendChild($label), $row.appendChild($div), $remap.appendChild($row);
     }
-    return $container.appendChild($remap), ControllerShortcut.#$selectProfile = $selectProfile, ControllerShortcut.#$container = $container, window.addEventListener("gamepadconnected", ControllerShortcut.#updateProfileList), window.addEventListener("gamepaddisconnected", ControllerShortcut.#updateProfileList), ControllerShortcut.#updateProfileList(), $container;
+    return $container.appendChild($remap), ControllerShortcut.$selectProfile = $selectProfile, ControllerShortcut.$container = $container, window.addEventListener("gamepadconnected", ControllerShortcut.updateProfileList), window.addEventListener("gamepaddisconnected", ControllerShortcut.updateProfileList), ControllerShortcut.updateProfileList(), $container;
   }
 }
 var BxExposed = {
@@ -6155,29 +6155,29 @@ class XhomeInterceptor {
   }
 }
 class LoadingScreen {
-  static #$bgStyle;
-  static #$waitTimeBox;
-  static #waitTimeInterval = null;
-  static #orgWebTitle;
-  static #secondsToString(seconds) {
+  static $bgStyle;
+  static $waitTimeBox;
+  static waitTimeInterval = null;
+  static orgWebTitle;
+  static secondsToString(seconds) {
     const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60), mDisplay = m > 0 ? `${m}m` : "", sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
     return mDisplay + sDisplay;
   }
   static setup() {
     const titleInfo = STATES.currentStream.titleInfo;
     if (!titleInfo) return;
-    if (!LoadingScreen.#$bgStyle) {
+    if (!LoadingScreen.$bgStyle) {
       const $bgStyle = CE("style");
-      document.documentElement.appendChild($bgStyle), LoadingScreen.#$bgStyle = $bgStyle;
+      document.documentElement.appendChild($bgStyle), LoadingScreen.$bgStyle = $bgStyle;
     }
-    if (LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref("ui_loading_screen_rocket") === "hide") LoadingScreen.#hideRocket();
+    if (LoadingScreen.setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref("ui_loading_screen_rocket") === "hide") LoadingScreen.hideRocket();
   }
-  static #hideRocket() {
-    let $bgStyle = LoadingScreen.#$bgStyle;
+  static hideRocket() {
+    let $bgStyle = LoadingScreen.$bgStyle;
     $bgStyle.textContent += "#game-stream div[class*=RocketAnimation-module__container] > svg{display:none}#game-stream video[class*=RocketAnimationVideo-module__video]{display:none}";
   }
-  static #setBackground(imageUrl) {
-    let $bgStyle = LoadingScreen.#$bgStyle;
+  static setBackground(imageUrl) {
+    let $bgStyle = LoadingScreen.$bgStyle;
     imageUrl = imageUrl + "?w=1920", $bgStyle.textContent += '#game-stream{background-color:transparent !important;background-position:center center !important;background-repeat:no-repeat !important;background-size:cover !important}#game-stream rect[width="800"]{transition:opacity .3s ease-in-out !important}' + `#game-stream {background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;}`;
     const bg = new Image;
     bg.onload = (e) => {
@@ -6185,31 +6185,31 @@ class LoadingScreen {
     }, bg.src = imageUrl;
   }
   static setupWaitTime(waitTime) {
-    if (getPref("ui_loading_screen_rocket") === "hide-queue") LoadingScreen.#hideRocket();
+    if (getPref("ui_loading_screen_rocket") === "hide-queue") LoadingScreen.hideRocket();
     let secondsLeft = waitTime, $countDown, $estimated;
-    LoadingScreen.#orgWebTitle = document.title;
+    LoadingScreen.orgWebTitle = document.title;
     const endDate = new Date, timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
     endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
     let endDateStr = endDate.toISOString().slice(0, 19);
-    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
-    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-    if (!$waitTimeBox) $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.secondsToString(waitTime)})`;
+    let $waitTimeBox = LoadingScreen.$waitTimeBox;
+    if (!$waitTimeBox) $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.$waitTimeBox = $waitTimeBox;
     else $waitTimeBox.classList.remove("bx-gone"), $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated"), $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
-    $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, LoadingScreen.#waitTimeInterval = window.setInterval(() => {
-      if (secondsLeft--, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, secondsLeft <= 0) LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
+    $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.orgWebTitle}`, LoadingScreen.waitTimeInterval = window.setInterval(() => {
+      if (secondsLeft--, $countDown.textContent = LoadingScreen.secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.orgWebTitle}`, secondsLeft <= 0) LoadingScreen.waitTimeInterval && clearInterval(LoadingScreen.waitTimeInterval), LoadingScreen.waitTimeInterval = null;
     }, 1000);
   }
   static hide() {
-    if (LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), getPref("ui_loading_screen_game_art") && LoadingScreen.#$bgStyle) {
+    if (LoadingScreen.orgWebTitle && (document.title = LoadingScreen.orgWebTitle), LoadingScreen.$waitTimeBox && LoadingScreen.$waitTimeBox.classList.add("bx-gone"), getPref("ui_loading_screen_game_art") && LoadingScreen.$bgStyle) {
       const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
       $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
-        LoadingScreen.#$bgStyle.textContent += "#game-stream{background:#000 !important}";
-      }), LoadingScreen.#$bgStyle.textContent += '#game-stream rect[width="800"]{opacity:1 !important}';
+        LoadingScreen.$bgStyle.textContent += "#game-stream{background:#000 !important}";
+      }), LoadingScreen.$bgStyle.textContent += '#game-stream rect[width="800"]{opacity:1 !important}';
     }
     setTimeout(LoadingScreen.reset, 2000);
   }
   static reset() {
-    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = ""), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
+    LoadingScreen.$bgStyle && (LoadingScreen.$bgStyle.textContent = ""), LoadingScreen.$waitTimeBox && LoadingScreen.$waitTimeBox.classList.add("bx-gone"), LoadingScreen.waitTimeInterval && clearInterval(LoadingScreen.waitTimeInterval), LoadingScreen.waitTimeInterval = null;
   }
 }
 class TrueAchievements {
@@ -7558,10 +7558,10 @@ class XcloudApi {
     if (!XcloudApi.instance) XcloudApi.instance = new XcloudApi;
     return XcloudApi.instance;
   }
-  #CACHE_TITLES = {};
-  #CACHE_WAIT_TIME = {};
+  CACHE_TITLES = {};
+  CACHE_WAIT_TIME = {};
   async getTitleInfo(id2) {
-    if (id2 in this.#CACHE_TITLES) return this.#CACHE_TITLES[id2];
+    if (id2 in this.CACHE_TITLES) return this.CACHE_TITLES[id2];
     const baseUri = STATES.selectedRegion.baseUri;
     if (!baseUri || !STATES.gsToken) return null;
     let json;
@@ -7580,10 +7580,10 @@ class XcloudApi {
     } catch (e) {
       json = {};
     }
-    return this.#CACHE_TITLES[id2] = json, json;
+    return this.CACHE_TITLES[id2] = json, json;
   }
   async getWaitTime(id2) {
-    if (id2 in this.#CACHE_WAIT_TIME) return this.#CACHE_WAIT_TIME[id2];
+    if (id2 in this.CACHE_WAIT_TIME) return this.CACHE_WAIT_TIME[id2];
     const baseUri = STATES.selectedRegion.baseUri;
     if (!baseUri || !STATES.gsToken) return null;
     let json;
@@ -7597,7 +7597,7 @@ class XcloudApi {
     } catch (e) {
       json = {};
     }
-    return this.#CACHE_WAIT_TIME[id2] = json, json;
+    return this.CACHE_WAIT_TIME[id2] = json, json;
   }
 }
 class GameTile {

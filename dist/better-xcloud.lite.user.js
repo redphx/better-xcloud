@@ -1960,43 +1960,43 @@ class StreamStats {
   }
 }
 class Toast {
-  static #$wrapper;
-  static #$msg;
-  static #$status;
-  static #stack = [];
-  static #isShowing = !1;
-  static #timeout;
-  static #DURATION = 3000;
+  static $wrapper;
+  static $msg;
+  static $status;
+  static stack = [];
+  static isShowing = !1;
+  static timeout;
+  static DURATION = 3000;
   static show(msg, status, options = {}) {
     options = options || {};
     const args = Array.from(arguments);
-    if (options.instant) Toast.#stack = [args], Toast.#showNext();
-    else Toast.#stack.push(args), !Toast.#isShowing && Toast.#showNext();
+    if (options.instant) Toast.stack = [args], Toast.showNext();
+    else Toast.stack.push(args), !Toast.isShowing && Toast.showNext();
   }
-  static #showNext() {
-    if (!Toast.#stack.length) {
-      Toast.#isShowing = !1;
+  static showNext() {
+    if (!Toast.stack.length) {
+      Toast.isShowing = !1;
       return;
     }
-    Toast.#isShowing = !0, Toast.#timeout && clearTimeout(Toast.#timeout), Toast.#timeout = window.setTimeout(Toast.#hide, Toast.#DURATION);
-    const [msg, status, options] = Toast.#stack.shift();
-    if (options && options.html) Toast.#$msg.innerHTML = msg;
-    else Toast.#$msg.textContent = msg;
-    if (status) Toast.#$status.classList.remove("bx-gone"), Toast.#$status.textContent = status;
-    else Toast.#$status.classList.add("bx-gone");
-    const classList = Toast.#$wrapper.classList;
+    Toast.isShowing = !0, Toast.timeout && clearTimeout(Toast.timeout), Toast.timeout = window.setTimeout(Toast.hide, Toast.DURATION);
+    const [msg, status, options] = Toast.stack.shift();
+    if (options && options.html) Toast.$msg.innerHTML = msg;
+    else Toast.$msg.textContent = msg;
+    if (status) Toast.$status.classList.remove("bx-gone"), Toast.$status.textContent = status;
+    else Toast.$status.classList.add("bx-gone");
+    const classList = Toast.$wrapper.classList;
     classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
   }
-  static #hide() {
-    Toast.#timeout = null;
-    const classList = Toast.#$wrapper.classList;
+  static hide() {
+    Toast.timeout = null;
+    const classList = Toast.$wrapper.classList;
     classList.remove("bx-show"), classList.add("bx-hide");
   }
   static setup() {
-    Toast.#$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.#$msg = CE("span", { class: "bx-toast-msg" }), Toast.#$status = CE("span", { class: "bx-toast-status" })), Toast.#$wrapper.addEventListener("transitionend", (e) => {
-      const classList = Toast.#$wrapper.classList;
-      if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.#showNext();
-    }), document.documentElement.appendChild(Toast.#$wrapper);
+    Toast.$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.$msg = CE("span", { class: "bx-toast-msg" }), Toast.$status = CE("span", { class: "bx-toast-status" })), Toast.$wrapper.addEventListener("transitionend", (e) => {
+      const classList = Toast.$wrapper.classList;
+      if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.showNext();
+    }), document.documentElement.appendChild(Toast.$wrapper);
   }
 }
 function ceilToNearest(value, interval) {
@@ -2392,17 +2392,17 @@ class PointerClient {
     if (!PointerClient.instance) PointerClient.instance = new PointerClient;
     return PointerClient.instance;
   }
-  #socket;
-  #mkbHandler;
+  socket;
+  mkbHandler;
   start(port, mkbHandler) {
     if (!port) throw new Error("PointerServer port is 0");
-    this.#mkbHandler = mkbHandler, this.#socket = new WebSocket(`ws://localhost:${port}`), this.#socket.binaryType = "arraybuffer", this.#socket.addEventListener("open", (event) => {
+    this.mkbHandler = mkbHandler, this.socket = new WebSocket(`ws://localhost:${port}`), this.socket.binaryType = "arraybuffer", this.socket.addEventListener("open", (event) => {
       BxLogger.info(LOG_TAG, "connected");
-    }), this.#socket.addEventListener("error", (event) => {
+    }), this.socket.addEventListener("error", (event) => {
       BxLogger.error(LOG_TAG, event), Toast.show("Cannot setup mouse: " + event);
-    }), this.#socket.addEventListener("close", (event) => {
-      this.#socket = null;
-    }), this.#socket.addEventListener("message", (event) => {
+    }), this.socket.addEventListener("close", (event) => {
+      this.socket = null;
+    }), this.socket.addEventListener("message", (event) => {
       const dataView = new DataView(event.data);
       let messageType = dataView.getInt8(0), offset = Int8Array.BYTES_PER_ELEMENT;
       switch (messageType) {
@@ -2425,14 +2425,14 @@ class PointerClient {
     const x = dataView.getInt16(offset);
     offset += Int16Array.BYTES_PER_ELEMENT;
     const y = dataView.getInt16(offset);
-    this.#mkbHandler?.handleMouseMove({
+    this.mkbHandler?.handleMouseMove({
       movementX: x,
       movementY: y
     });
   }
   onPress(messageType, dataView, offset) {
     const button = dataView.getUint8(offset);
-    this.#mkbHandler?.handleMouseClick({
+    this.mkbHandler?.handleMouseClick({
       pointerButton: button,
       pressed: messageType === 2
     });
@@ -2441,19 +2441,19 @@ class PointerClient {
     const vScroll = dataView.getInt16(offset);
     offset += Int16Array.BYTES_PER_ELEMENT;
     const hScroll = dataView.getInt16(offset);
-    this.#mkbHandler?.handleMouseWheel({
+    this.mkbHandler?.handleMouseWheel({
       vertical: vScroll,
       horizontal: hScroll
     });
   }
   onPointerCaptureChanged(dataView, offset) {
-    dataView.getInt8(offset) !== 1 && this.#mkbHandler?.stop();
+    dataView.getInt8(offset) !== 1 && this.mkbHandler?.stop();
   }
   stop() {
     try {
-      this.#socket?.close();
+      this.socket?.close();
     } catch (e) {}
-    this.#socket = null;
+    this.socket = null;
   }
 }
 class MouseDataProvider {
@@ -4375,29 +4375,29 @@ class RemotePlayManager {
   }
 }
 class LoadingScreen {
-  static #$bgStyle;
-  static #$waitTimeBox;
-  static #waitTimeInterval = null;
-  static #orgWebTitle;
-  static #secondsToString(seconds) {
+  static $bgStyle;
+  static $waitTimeBox;
+  static waitTimeInterval = null;
+  static orgWebTitle;
+  static secondsToString(seconds) {
     const m = Math.floor(seconds / 60), s = Math.floor(seconds % 60), mDisplay = m > 0 ? `${m}m` : "", sDisplay = `${s}s`.padStart(s >= 0 ? 3 : 4, "0");
     return mDisplay + sDisplay;
   }
   static setup() {
     const titleInfo = STATES.currentStream.titleInfo;
     if (!titleInfo) return;
-    if (!LoadingScreen.#$bgStyle) {
+    if (!LoadingScreen.$bgStyle) {
       const $bgStyle = CE("style");
-      document.documentElement.appendChild($bgStyle), LoadingScreen.#$bgStyle = $bgStyle;
+      document.documentElement.appendChild($bgStyle), LoadingScreen.$bgStyle = $bgStyle;
     }
-    if (LoadingScreen.#setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref("ui_loading_screen_rocket") === "hide") LoadingScreen.#hideRocket();
+    if (LoadingScreen.setBackground(titleInfo.product.heroImageUrl || titleInfo.product.titledHeroImageUrl || titleInfo.product.tileImageUrl), getPref("ui_loading_screen_rocket") === "hide") LoadingScreen.hideRocket();
   }
-  static #hideRocket() {
-    let $bgStyle = LoadingScreen.#$bgStyle;
+  static hideRocket() {
+    let $bgStyle = LoadingScreen.$bgStyle;
     $bgStyle.textContent += "#game-stream div[class*=RocketAnimation-module__container] > svg{display:none}#game-stream video[class*=RocketAnimationVideo-module__video]{display:none}";
   }
-  static #setBackground(imageUrl) {
-    let $bgStyle = LoadingScreen.#$bgStyle;
+  static setBackground(imageUrl) {
+    let $bgStyle = LoadingScreen.$bgStyle;
     imageUrl = imageUrl + "?w=1920", $bgStyle.textContent += '#game-stream{background-color:transparent !important;background-position:center center !important;background-repeat:no-repeat !important;background-size:cover !important}#game-stream rect[width="800"]{transition:opacity .3s ease-in-out !important}' + `#game-stream {background-image: linear-gradient(#00000033, #000000e6), url(${imageUrl}) !important;}`;
     const bg = new Image;
     bg.onload = (e) => {
@@ -4405,31 +4405,31 @@ class LoadingScreen {
     }, bg.src = imageUrl;
   }
   static setupWaitTime(waitTime) {
-    if (getPref("ui_loading_screen_rocket") === "hide-queue") LoadingScreen.#hideRocket();
+    if (getPref("ui_loading_screen_rocket") === "hide-queue") LoadingScreen.hideRocket();
     let secondsLeft = waitTime, $countDown, $estimated;
-    LoadingScreen.#orgWebTitle = document.title;
+    LoadingScreen.orgWebTitle = document.title;
     const endDate = new Date, timeZoneOffsetSeconds = endDate.getTimezoneOffset() * 60;
     endDate.setSeconds(endDate.getSeconds() + waitTime - timeZoneOffsetSeconds);
     let endDateStr = endDate.toISOString().slice(0, 19);
-    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.#secondsToString(waitTime)})`;
-    let $waitTimeBox = LoadingScreen.#$waitTimeBox;
-    if (!$waitTimeBox) $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.#$waitTimeBox = $waitTimeBox;
+    endDateStr = endDateStr.substring(0, 10) + " " + endDateStr.substring(11, 19), endDateStr += ` (${LoadingScreen.secondsToString(waitTime)})`;
+    let $waitTimeBox = LoadingScreen.$waitTimeBox;
+    if (!$waitTimeBox) $waitTimeBox = CE("div", { class: "bx-wait-time-box" }, CE("label", {}, t("server")), CE("span", {}, getPreferredServerRegion()), CE("label", {}, t("wait-time-estimated")), $estimated = CE("span", {}), CE("label", {}, t("wait-time-countdown")), $countDown = CE("span", {})), document.documentElement.appendChild($waitTimeBox), LoadingScreen.$waitTimeBox = $waitTimeBox;
     else $waitTimeBox.classList.remove("bx-gone"), $estimated = $waitTimeBox.querySelector(".bx-wait-time-estimated"), $countDown = $waitTimeBox.querySelector(".bx-wait-time-countdown");
-    $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, LoadingScreen.#waitTimeInterval = window.setInterval(() => {
-      if (secondsLeft--, $countDown.textContent = LoadingScreen.#secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.#orgWebTitle}`, secondsLeft <= 0) LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
+    $estimated.textContent = endDateStr, $countDown.textContent = LoadingScreen.secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.orgWebTitle}`, LoadingScreen.waitTimeInterval = window.setInterval(() => {
+      if (secondsLeft--, $countDown.textContent = LoadingScreen.secondsToString(secondsLeft), document.title = `[${$countDown.textContent}] ${LoadingScreen.orgWebTitle}`, secondsLeft <= 0) LoadingScreen.waitTimeInterval && clearInterval(LoadingScreen.waitTimeInterval), LoadingScreen.waitTimeInterval = null;
     }, 1000);
   }
   static hide() {
-    if (LoadingScreen.#orgWebTitle && (document.title = LoadingScreen.#orgWebTitle), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), getPref("ui_loading_screen_game_art") && LoadingScreen.#$bgStyle) {
+    if (LoadingScreen.orgWebTitle && (document.title = LoadingScreen.orgWebTitle), LoadingScreen.$waitTimeBox && LoadingScreen.$waitTimeBox.classList.add("bx-gone"), getPref("ui_loading_screen_game_art") && LoadingScreen.$bgStyle) {
       const $rocketBg = document.querySelector('#game-stream rect[width="800"]');
       $rocketBg && $rocketBg.addEventListener("transitionend", (e) => {
-        LoadingScreen.#$bgStyle.textContent += "#game-stream{background:#000 !important}";
-      }), LoadingScreen.#$bgStyle.textContent += '#game-stream rect[width="800"]{opacity:1 !important}';
+        LoadingScreen.$bgStyle.textContent += "#game-stream{background:#000 !important}";
+      }), LoadingScreen.$bgStyle.textContent += '#game-stream rect[width="800"]{opacity:1 !important}';
     }
     setTimeout(LoadingScreen.reset, 2000);
   }
   static reset() {
-    LoadingScreen.#$bgStyle && (LoadingScreen.#$bgStyle.textContent = ""), LoadingScreen.#$waitTimeBox && LoadingScreen.#$waitTimeBox.classList.add("bx-gone"), LoadingScreen.#waitTimeInterval && clearInterval(LoadingScreen.#waitTimeInterval), LoadingScreen.#waitTimeInterval = null;
+    LoadingScreen.$bgStyle && (LoadingScreen.$bgStyle.textContent = ""), LoadingScreen.$waitTimeBox && LoadingScreen.$waitTimeBox.classList.add("bx-gone"), LoadingScreen.waitTimeInterval && clearInterval(LoadingScreen.waitTimeInterval), LoadingScreen.waitTimeInterval = null;
   }
 }
 class GuideMenu {
