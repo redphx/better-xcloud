@@ -5,9 +5,9 @@ import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "@/utils/settings-storages/global-settings-storage";
 
 
-const LOG_TAG = 'WebGL2Player';
-
 export class WebGL2Player {
+    private readonly LOG_TAG = 'WebGL2Player';
+
     private $video: HTMLVideoElement;
     private $canvas: HTMLCanvasElement;
 
@@ -32,7 +32,7 @@ export class WebGL2Player {
     private animFrameId: number | null = null;
 
     constructor($video: HTMLVideoElement) {
-        BxLogger.info(LOG_TAG, 'Initialize');
+        BxLogger.info(this.LOG_TAG, 'Initialize');
         this.$video = $video;
 
         const $canvas = document.createElement('canvas');
@@ -105,9 +105,7 @@ export class WebGL2Player {
         }
 
         const gl = this.gl!;
-        const $video = this.$video;
-
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, $video);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.$video);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
@@ -117,23 +115,19 @@ export class WebGL2Player {
         if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
             const $video = this.$video;
             animate = () => {
-                if (this.stopped) {
-                    return;
+                if (!this.stopped) {
+                    this.drawFrame();
+                    this.animFrameId = $video.requestVideoFrameCallback(animate);
                 }
-
-                this.drawFrame();
-                this.animFrameId = $video.requestVideoFrameCallback(animate);
             }
 
             this.animFrameId = $video.requestVideoFrameCallback(animate);
         } else {
             animate = () => {
-                if (this.stopped) {
-                    return;
+                if (!this.stopped) {
+                    this.drawFrame();
+                    this.animFrameId = requestAnimationFrame(animate);
                 }
-
-                this.drawFrame();
-                this.animFrameId = requestAnimationFrame(animate);
             }
 
             this.animFrameId = requestAnimationFrame(animate);
@@ -141,7 +135,7 @@ export class WebGL2Player {
     }
 
     private setupShaders() {
-        BxLogger.info(LOG_TAG, 'Setting up', getPref(PrefKey.VIDEO_POWER_PREFERENCE));
+        BxLogger.info(this.LOG_TAG, 'Setting up', getPref(PrefKey.VIDEO_POWER_PREFERENCE));
 
         const gl = this.$canvas.getContext('webgl2', {
             isBx: true,
@@ -184,14 +178,7 @@ export class WebGL2Player {
         this.resources.push(buffer);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-            -1, -1,
-            1, -1,
-            -1,  1,
-            -1,  1,
-            1, -1,
-            1,  1,
-        ]), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1,  1, -1,  1, 1, -1, 1,  1]), gl.STATIC_DRAW);
 
         gl.enableVertexAttribArray(0);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
@@ -217,14 +204,14 @@ export class WebGL2Player {
     resume() {
         this.stop();
         this.stopped = false;
-        BxLogger.info(LOG_TAG, 'Resume');
+        BxLogger.info(this.LOG_TAG, 'Resume');
 
         this.$canvas.classList.remove('bx-gone');
         this.setupRendering();
     }
 
     stop() {
-        BxLogger.info(LOG_TAG, 'Stop');
+        BxLogger.info(this.LOG_TAG, 'Stop');
         this.$canvas.classList.add('bx-gone');
 
         this.stopped = true;
@@ -240,7 +227,7 @@ export class WebGL2Player {
     }
 
     destroy() {
-        BxLogger.info(LOG_TAG, 'Destroy');
+        BxLogger.info(this.LOG_TAG, 'Destroy');
         this.stop();
 
         const gl = this.gl;

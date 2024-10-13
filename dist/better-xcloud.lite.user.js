@@ -5065,8 +5065,8 @@ function patchSdpBitrate(sdp, video, audio) {
 }
 var clarity_boost_default = "#version 300 es\n\nin vec4 position;\n\nvoid main() {\ngl_Position = position;\n}\n";
 var clarity_boost_default2 = "#version 300 es\n\nprecision mediump float;\nuniform sampler2D data;\nuniform vec2 iResolution;\n\nconst int FILTER_UNSHARP_MASKING = 1;\n\nconst float CAS_CONTRAST_PEAK = 0.8 * -3.0 + 8.0;\n\nconst vec3 LUMINOSITY_FACTOR = vec3(0.2126, 0.7152, 0.0722);\n\nuniform int filterId;\nuniform float sharpenFactor;\nuniform float brightness;\nuniform float contrast;\nuniform float saturation;\n\nout vec4 fragColor;\n\nvec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {\nvec2 texelSize = 1.0 / iResolution.xy;\n\nvec3 a = texture(tex, coord + texelSize * vec2(-1, 1)).rgb;\nvec3 b = texture(tex, coord + texelSize * vec2(0, 1)).rgb;\nvec3 c = texture(tex, coord + texelSize * vec2(1, 1)).rgb;\n\nvec3 d = texture(tex, coord + texelSize * vec2(-1, 0)).rgb;\nvec3 f = texture(tex, coord + texelSize * vec2(1, 0)).rgb;\n\nvec3 g = texture(tex, coord + texelSize * vec2(-1, -1)).rgb;\nvec3 h = texture(tex, coord + texelSize * vec2(0, -1)).rgb;\nvec3 i = texture(tex, coord + texelSize * vec2(1, -1)).rgb;\n\nif (filterId == FILTER_UNSHARP_MASKING) {\nvec3 gaussianBlur = (a + c + g + i) * 1.0 + (b + d + f + h) * 2.0 + e * 4.0;\ngaussianBlur /= 16.0;\n\nreturn e + (e - gaussianBlur) * sharpenFactor / 3.0;\n}\n\nvec3 minRgb = min(min(min(d, e), min(f, b)), h);\nminRgb += min(min(a, c), min(g, i));\n\nvec3 maxRgb = max(max(max(d, e), max(f, b)), h);\nmaxRgb += max(max(a, c), max(g, i));\n\nvec3 reciprocalMaxRgb = 1.0 / maxRgb;\nvec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);\n\namplifyRgb = inversesqrt(amplifyRgb);\n\nvec3 weightRgb = -(1.0 / (amplifyRgb * CAS_CONTRAST_PEAK));\nvec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);\n\nvec3 window = b + d + f + h;\nvec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);\n\nreturn mix(e, outColor, sharpenFactor / 2.0);\n}\n\nvoid main() {\nvec2 uv = gl_FragCoord.xy / iResolution.xy;\nvec3 color = texture(data, uv).rgb;\n\ncolor = sharpenFactor > 0.0 ? clarityBoost(data, uv, color) : color;\n\ncolor = saturation != 1.0 ? mix(vec3(dot(color, LUMINOSITY_FACTOR)), color, saturation) : color;\n\ncolor = contrast * (color - 0.5) + 0.5;\n\ncolor = brightness * color;\n\nfragColor = vec4(color, 1.0);\n}\n";
-var LOG_TAG3 = "WebGL2Player";
 class WebGL2Player {
+  LOG_TAG = "WebGL2Player";
   $video;
   $canvas;
   gl = null;
@@ -5085,7 +5085,7 @@ class WebGL2Player {
   lastFrameTime = 0;
   animFrameId = null;
   constructor($video) {
-    BxLogger.info(LOG_TAG3, "Initialize"), this.$video = $video;
+    BxLogger.info(this.LOG_TAG, "Initialize"), this.$video = $video;
     const $canvas = document.createElement("canvas");
     $canvas.width = $video.videoWidth, $canvas.height = $video.videoHeight, this.$canvas = $canvas, this.setupShaders(), this.setupRendering(), $video.insertAdjacentElement("afterend", $canvas);
   }
@@ -5120,24 +5120,22 @@ class WebGL2Player {
       if (currentTime - this.lastFrameTime < this.frameInterval) return;
       this.lastFrameTime = currentTime;
     }
-    const gl = this.gl, $video = this.$video;
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, $video), gl.drawArrays(gl.TRIANGLES, 0, 6);
+    const gl = this.gl;
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.$video), gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
   setupRendering() {
     let animate;
     if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) {
       const $video = this.$video;
       animate = () => {
-        if (this.stopped) return;
-        this.drawFrame(), this.animFrameId = $video.requestVideoFrameCallback(animate);
+        if (!this.stopped) this.drawFrame(), this.animFrameId = $video.requestVideoFrameCallback(animate);
       }, this.animFrameId = $video.requestVideoFrameCallback(animate);
     } else animate = () => {
-        if (this.stopped) return;
-        this.drawFrame(), this.animFrameId = requestAnimationFrame(animate);
+        if (!this.stopped) this.drawFrame(), this.animFrameId = requestAnimationFrame(animate);
       }, this.animFrameId = requestAnimationFrame(animate);
   }
   setupShaders() {
-    BxLogger.info(LOG_TAG3, "Setting up", getPref("video_power_preference"));
+    BxLogger.info(this.LOG_TAG, "Setting up", getPref("video_power_preference"));
     const gl = this.$canvas.getContext("webgl2", {
       isBx: !0,
       antialias: !0,
@@ -5153,35 +5151,22 @@ class WebGL2Player {
     if (this.program = program, gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), gl.useProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS)) console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
     this.updateCanvas();
     const buffer = gl.createBuffer();
-    this.resources.push(buffer), gl.bindBuffer(gl.ARRAY_BUFFER, buffer), gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-      -1,
-      -1,
-      1,
-      -1,
-      -1,
-      1,
-      -1,
-      1,
-      1,
-      -1,
-      1,
-      1
-    ]), gl.STATIC_DRAW), gl.enableVertexAttribArray(0), gl.vertexAttribPointer(0, 2, gl.FLOAT, !1, 0, 0);
+    this.resources.push(buffer), gl.bindBuffer(gl.ARRAY_BUFFER, buffer), gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW), gl.enableVertexAttribArray(0), gl.vertexAttribPointer(0, 2, gl.FLOAT, !1, 0, 0);
     const texture = gl.createTexture();
     this.resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
   }
   resume() {
-    this.stop(), this.stopped = !1, BxLogger.info(LOG_TAG3, "Resume"), this.$canvas.classList.remove("bx-gone"), this.setupRendering();
+    this.stop(), this.stopped = !1, BxLogger.info(this.LOG_TAG, "Resume"), this.$canvas.classList.remove("bx-gone"), this.setupRendering();
   }
   stop() {
-    if (BxLogger.info(LOG_TAG3, "Stop"), this.$canvas.classList.add("bx-gone"), this.stopped = !0, this.animFrameId) {
+    if (BxLogger.info(this.LOG_TAG, "Stop"), this.$canvas.classList.add("bx-gone"), this.stopped = !0, this.animFrameId) {
       if ("requestVideoFrameCallback" in HTMLVideoElement.prototype) this.$video.cancelVideoFrameCallback(this.animFrameId);
       else cancelAnimationFrame(this.animFrameId);
       this.animFrameId = null;
     }
   }
   destroy() {
-    BxLogger.info(LOG_TAG3, "Destroy"), this.stop();
+    BxLogger.info(this.LOG_TAG, "Destroy"), this.stop();
     const gl = this.gl;
     if (gl) {
       gl.getExtension("WEBGL_lose_context")?.loseContext();
