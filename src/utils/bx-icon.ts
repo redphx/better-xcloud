@@ -7,6 +7,8 @@ import iconCopy from "@assets/svg/copy.svg" with { type: "text" };
 import iconCreateShortcut from "@assets/svg/create-shortcut.svg" with { type: "text" };
 import iconCursorText from "@assets/svg/cursor-text.svg" with { type: "text" };
 import iconDisplay from "@assets/svg/display.svg" with { type: "text" };
+import iconEye from "@assets/svg/eye.svg" with { type: "text" };
+import iconEyeSlash from "@assets/svg/eye-slash.svg" with { type: "text" };
 import iconHome from "@assets/svg/home.svg" with { type: "text" };
 import iconNativeMkb from "@assets/svg/native-mkb.svg" with { type: "text" };
 import iconNew from "@assets/svg/new.svg" with { type: "text" };
@@ -48,6 +50,8 @@ export const BxIcon = {
     CONTROLLER: iconController,
     CREATE_SHORTCUT: iconCreateShortcut,
     DISPLAY: iconDisplay,
+    EYE: iconEye,
+    EYE_SLASH: iconEyeSlash,
     HOME: iconHome,
     NATIVE_MKB: iconNativeMkb,
     NEW: iconNew,

@@ -10,6 +10,7 @@ import { PrefKey } from "@/enums/pref-keys";
 import { getPref, StreamTouchController } from "@/utils/settings-storages/global-settings-storage";
 import { TrueAchievementsAction } from "./action-true-achievements";
 import { SpeakerAction } from "./action-speaker";
+import { RendererAction } from "./action-renderer";
 
 
 export class GameBar {
@@ -27,7 +28,7 @@ export class GameBar {
     private $gameBar: HTMLElement;
     private $container: HTMLElement;
 
-    private timeout: number | null = null;
+    private timeoutId: number | null = null;
 
     private actions: BaseGameBarAction[] = [];
 
@@ -45,6 +46,7 @@ export class GameBar {
             new ScreenshotAction(),
             ...(STATES.userAgent.capabilities.touch && (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== StreamTouchController.OFF) ? [new TouchControlAction()] : []),
             new SpeakerAction(),
+            new RendererAction(),
             new MicrophoneAction(),
             new TrueAchievementsAction(),
         ];
@@ -103,15 +105,15 @@ export class GameBar {
     private beginHideTimeout() {
         this.clearHideTimeout();
 
-        this.timeout = window.setTimeout(() => {
-                this.timeout = null;
+        this.timeoutId = window.setTimeout(() => {
+                this.timeoutId = null;
                 this.hideBar();
             }, GameBar.VISIBLE_DURATION);
     }
 
     private clearHideTimeout() {
-        this.timeout && clearTimeout(this.timeout);
-        this.timeout = null;
+        this.timeoutId && clearTimeout(this.timeoutId);
+        this.timeoutId = null;
     }
 
     enable() {
