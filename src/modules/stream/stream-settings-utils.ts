@@ -45,8 +45,7 @@ export function onChangeVideoPlayerType() {
 }
 
 
-export function limitVideoPlayerFps() {
-    const targetFps = getPref(PrefKey.VIDEO_MAX_FPS);
+export function limitVideoPlayerFps(targetFps: number) {
     const streamPlayer = STATES.currentStream.streamPlayer;
     streamPlayer?.getWebGL2Player()?.setTargetFps(targetFps);
 }
@@ -58,7 +57,7 @@ export function updateVideoPlayer() {
         return;
     }
 
-    limitVideoPlayerFps();
+    limitVideoPlayerFps(getPref(PrefKey.VIDEO_MAX_FPS));
 
     const options = {
         processing: getPref(PrefKey.VIDEO_PROCESSING),

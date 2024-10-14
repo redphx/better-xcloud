@@ -409,7 +409,9 @@ export class SettingsNavigationDialog extends NavigationDialog {
             onChange: onChangeVideoPlayerType,
         }, {
             pref: PrefKey.VIDEO_MAX_FPS,
-            onChange: limitVideoPlayerFps,
+            onChange: e => {
+                limitVideoPlayerFps(parseInt(e.target.value));
+            },
         }, {
             pref: PrefKey.VIDEO_POWER_PREFERENCE,
             onChange: () => {

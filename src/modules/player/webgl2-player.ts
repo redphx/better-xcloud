@@ -73,7 +73,8 @@ export class WebGL2Player {
 
     setTargetFps(target: number) {
         this.targetFps = target;
-        this.frameInterval = Math.ceil(1000 / target);
+        this.lastFrameTime = 0;
+        this.frameInterval = target ? Math.floor(1000 / target) : 0;
     }
 
     getCanvas() {
@@ -94,6 +95,11 @@ export class WebGL2Player {
     }
 
     drawFrame() {
+        // Don't draw when FPS is 0
+        if (this.targetFps === 0) {
+            return;
+        }
+
         // Limit FPS
         if (this.targetFps < 60) {
             const currentTime = performance.now();
@@ -233,10 +239,10 @@ export class WebGL2Player {
         const gl = this.gl;
         if (gl) {
             gl.getExtension('WEBGL_lose_context')?.loseContext();
+            gl.useProgram(null);
 
             for (const resource of this.resources) {
                 if (resource instanceof WebGLProgram) {
-                    gl.useProgram(null);
                     gl.deleteProgram(resource);
                 } else if (resource instanceof WebGLShader) {
                     gl.deleteShader(resource);
