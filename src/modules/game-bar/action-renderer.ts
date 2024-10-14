@@ -23,22 +23,13 @@ export class RendererAction extends BaseGameBarAction {
             classes: ['bx-activated'],
         });
 
-        this.$content = CE('div', {},
-            $btnDefault,
-            $btnActivated,
-        );
-
-        this.reset();
+        this.$content = CE('div', {}, $btnDefault, $btnActivated);
     }
 
     onClick(e: Event) {
         super.onClick(e);
         const isVisible = RendererShortcut.toggleVisibility();
         this.$content.dataset.activated = (!isVisible).toString();
-    }
-
-    render(): HTMLElement {
-        return this.$content;
     }
 
     reset(): void {

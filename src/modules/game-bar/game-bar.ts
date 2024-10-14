@@ -7,7 +7,7 @@ import type { BaseGameBarAction } from "./action-base";
 import { STATES } from "@utils/global";
 import { MicrophoneAction } from "./action-microphone";
 import { PrefKey } from "@/enums/pref-keys";
-import { getPref, StreamTouchController } from "@/utils/settings-storages/global-settings-storage";
+import { getPref, StreamTouchController, type GameBarPosition } from "@/utils/settings-storages/global-settings-storage";
 import { TrueAchievementsAction } from "./action-true-achievements";
 import { SpeakerAction } from "./action-speaker";
 import { RendererAction } from "./action-renderer";
@@ -15,13 +15,7 @@ import { RendererAction } from "./action-renderer";
 
 export class GameBar {
     private static instance: GameBar;
-    public static getInstance(): GameBar {
-        if (!GameBar.instance) {
-            GameBar.instance = new GameBar();
-        }
-
-        return GameBar.instance;
-    }
+    public static getInstance = () => GameBar.instance ?? (GameBar.instance = new GameBar());
 
     private static readonly VISIBLE_DURATION = 2000;
 
@@ -35,12 +29,12 @@ export class GameBar {
     private constructor() {
         let $container;
 
-        const position = getPref(PrefKey.GAME_BAR_POSITION);
+        const position = getPref(PrefKey.GAME_BAR_POSITION) as GameBarPosition;
 
         const $gameBar = CE('div', {id: 'bx-game-bar', class: 'bx-gone', 'data-position': position},
-                $container = CE('div', {class: 'bx-game-bar-container bx-offscreen'}),
-                createSvgIcon(position === 'bottom-left' ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT),
-            );
+            $container = CE('div', {class: 'bx-game-bar-container bx-offscreen'}),
+            createSvgIcon(position === 'bottom-left' ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT),
+        );
 
         this.actions = [
             new ScreenshotAction(),
@@ -78,11 +72,7 @@ export class GameBar {
 
         // Add animation when hiding game bar
         $container.addEventListener('transitionend', e => {
-            const classList = $container.classList;
-            if (classList.contains('bx-hide')) {
-                classList.remove('bx-hide');
-                classList.add('bx-offscreen');
-            }
+            $container.classList.replace('bx-hide', 'bx-offscreen');
         });
 
         document.documentElement.appendChild($gameBar);
@@ -106,9 +96,9 @@ export class GameBar {
         this.clearHideTimeout();
 
         this.timeoutId = window.setTimeout(() => {
-                this.timeoutId = null;
-                this.hideBar();
-            }, GameBar.VISIBLE_DURATION);
+            this.timeoutId = null;
+            this.hideBar();
+        }, GameBar.VISIBLE_DURATION);
     }
 
     private clearHideTimeout() {
@@ -117,19 +107,15 @@ export class GameBar {
     }
 
     enable() {
-        this.$gameBar && this.$gameBar.classList.remove('bx-gone');
+        this.$gameBar.classList.remove('bx-gone');
     }
 
     disable() {
         this.hideBar();
-        this.$gameBar && this.$gameBar.classList.add('bx-gone');
+        this.$gameBar.classList.add('bx-gone');
     }
 
     showBar() {
-        if (!this.$container) {
-            return;
-        }
-
         this.$container.classList.remove('bx-offscreen', 'bx-hide' , 'bx-gone');
         this.$container.classList.add('bx-show');
 
@@ -142,18 +128,11 @@ export class GameBar {
         // Stop focusing Game Bar
         clearFocus();
 
-        if (!this.$container) {
-            return;
-        }
-
-        this.$container.classList.remove('bx-show');
-        this.$container.classList.add('bx-hide');
+        this.$container.classList.replace('bx-show', 'bx-hide');
     }
 
     // Reset all states
     reset() {
-        for (const action of this.actions) {
-            action.reset();
-        }
+        this.actions.forEach(action => action.reset());
     }
 }

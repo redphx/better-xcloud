@@ -39,6 +39,10 @@ export const enum ControllerDeviceVibration {
 }
 
 
+export type GameBarPosition = 'bottom-left' | 'bottom-right' | 'off';
+export type GameBarPositionOptions = Record<GameBarPosition, string>;
+
+
 function getSupportedCodecProfiles() {
     const options: PartialRecord<CodecProfile, string> = {
         default: t('default'),
@@ -323,12 +327,12 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
         [PrefKey.GAME_BAR_POSITION]: {
             requiredVariants: 'full',
             label: t('position'),
-            default: 'bottom-left',
+            default: 'bottom-left' satisfies GameBarPosition,
             options: {
                 'bottom-left': t('bottom-left'),
                 'bottom-right': t('bottom-right'),
                 'off': t('off'),
-            },
+            } satisfies GameBarPositionOptions,
         },
 
         [PrefKey.LOCAL_CO_OP_ENABLED]: {

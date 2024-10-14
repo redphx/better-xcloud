@@ -8,8 +8,6 @@ import { MicrophoneShortcut, MicrophoneState } from "../shortcuts/shortcut-micro
 export class MicrophoneAction extends BaseGameBarAction {
     $content: HTMLElement;
 
-    visible: boolean = false;
-
     constructor() {
         super();
 
@@ -26,12 +24,7 @@ export class MicrophoneAction extends BaseGameBarAction {
             onClick: this.onClick.bind(this),
         });
 
-        this.$content = CE('div', {},
-            $btnMuted,
-            $btnDefault,
-        );
-
-        this.reset();
+        this.$content = CE('div', {}, $btnMuted, $btnDefault);
 
         window.addEventListener(BxEvent.MICROPHONE_STATE_CHANGED, e => {
             const microphoneState = (e as any).microphoneState;
@@ -49,12 +42,7 @@ export class MicrophoneAction extends BaseGameBarAction {
         this.$content.dataset.activated = enabled.toString();
     }
 
-    render(): HTMLElement {
-        return this.$content;
-    }
-
     reset(): void {
-        this.visible = false;
         this.$content.classList.add('bx-gone');
         this.$content.dataset.activated = 'false';
     }

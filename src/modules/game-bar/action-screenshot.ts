@@ -22,8 +22,4 @@ export class ScreenshotAction extends BaseGameBarAction {
         super.onClick(e);
         Screenshot.takeScreenshot();
     }
-
-    render(): HTMLElement {
-        return this.$content;
-    }
 }

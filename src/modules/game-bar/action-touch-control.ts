@@ -25,22 +25,13 @@ export class TouchControlAction extends BaseGameBarAction {
             classes: ['bx-activated'],
         });
 
-        this.$content = CE('div', {},
-            $btnEnable,
-            $btnDisable,
-        );
-
-        this.reset();
+        this.$content = CE('div', {}, $btnEnable, $btnDisable);
     }
 
     onClick(e: Event) {
         super.onClick(e);
         const isVisible = TouchController.toggleVisibility();
         this.$content.dataset.activated = (!isVisible).toString();
-    }
-
-    render(): HTMLElement {
-        return this.$content;
     }
 
     reset(): void {

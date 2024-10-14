@@ -24,12 +24,7 @@ export class SpeakerAction extends BaseGameBarAction {
             classes: ['bx-activated'],
         });
 
-        this.$content = CE('div', {},
-            $btnEnable,
-            $btnMuted,
-        );
-
-        this.reset();
+        this.$content = CE('div', {}, $btnEnable, $btnMuted);
 
         window.addEventListener(BxEvent.SPEAKER_STATE_CHANGED, e => {
             const speakerState = (e as any).speakerState;
@@ -42,10 +37,6 @@ export class SpeakerAction extends BaseGameBarAction {
     onClick(e: Event) {
         super.onClick(e);
         SoundShortcut.muteUnmute();
-    }
-
-    render(): HTMLElement {
-        return this.$content;
     }
 
     reset(): void {

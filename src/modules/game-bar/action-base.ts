@@ -1,6 +1,8 @@
 import { BxEvent } from "@/utils/bx-event";
 
 export abstract class BaseGameBarAction {
+    abstract $content: HTMLElement;
+
     constructor() {}
     reset() {}
 
@@ -8,5 +10,7 @@ export abstract class BaseGameBarAction {
         BxEvent.dispatch(window, BxEvent.GAME_BAR_ACTION_ACTIVATED);
     };
 
-    abstract render(): HTMLElement;
+    render(): HTMLElement {
+        return this.$content;
+    };
 }
