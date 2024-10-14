@@ -10,7 +10,7 @@ import type { RemotePlayConsoleAddresses } from "@/types/network";
 import { RemotePlayManager } from "@/modules/remote-play-manager";
 
 export class XhomeInterceptor {
-    static #consoleAddrs: RemotePlayConsoleAddresses = {};
+    private static consoleAddrs: RemotePlayConsoleAddresses = {};
 
     private static readonly BASE_DEVICE_INFO = {
         appInfo: {
@@ -52,7 +52,7 @@ export class XhomeInterceptor {
         },
     };
 
-    static async #handleLogin(request: Request) {
+    private static async handleLogin(request: Request) {
         try {
             const clone = (request as Request).clone();
 
@@ -74,7 +74,7 @@ export class XhomeInterceptor {
         return NATIVE_FETCH(request);
     }
 
-    static async #handleConfiguration(request: Request | URL) {
+    private static async handleConfiguration(request: Request | URL) {
         const response = await NATIVE_FETCH(request);
 
         const obj = await response.clone().json()
@@ -90,15 +90,15 @@ export class XhomeInterceptor {
 
         const serverDetails = obj.serverDetails;
         if (serverDetails.ipAddress) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
+            XhomeInterceptor.consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
         }
 
         if (serverDetails.ipV4Address) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
+            XhomeInterceptor.consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
         }
 
         if (serverDetails.ipV6Address) {
-            XhomeInterceptor.#consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
+            XhomeInterceptor.consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
         }
 
         response.json = () => Promise.resolve(obj);
@@ -107,7 +107,7 @@ export class XhomeInterceptor {
         return response;
     }
 
-    static async #handleInputConfigs(request: Request | URL, opts: {[index: string]: any}) {
+    private static async handleInputConfigs(request: Request | URL, opts: {[index: string]: any}) {
         const response = await NATIVE_FETCH(request);
 
         if (getPref(PrefKey.STREAM_TOUCH_CONTROLLER) !== StreamTouchController.ALL) {
@@ -144,7 +144,7 @@ export class XhomeInterceptor {
         return response;
     }
 
-    static async #handleTitles(request: Request) {
+    private static async handleTitles(request: Request) {
         const clone = request.clone();
 
         const headers: {[index: string]: any} = {};
@@ -163,7 +163,7 @@ export class XhomeInterceptor {
         return NATIVE_FETCH(request);
     }
 
-    static async #handlePlay(request: RequestInfo | URL) {
+    private static async handlePlay(request: RequestInfo | URL) {
         const clone = (request as Request).clone();
         const body = await clone.json();
 
@@ -216,17 +216,17 @@ export class XhomeInterceptor {
 
         // Get console IP
         if (url.includes('/configuration')) {
-            return XhomeInterceptor.#handleConfiguration(request);
+            return XhomeInterceptor.handleConfiguration(request);
         } else if (url.endsWith('/sessions/home/play')) {
-            return XhomeInterceptor.#handlePlay(request);
+            return XhomeInterceptor.handlePlay(request);
         } else if (url.includes('inputconfigs')) {
-            return XhomeInterceptor.#handleInputConfigs(request, opts);
+            return XhomeInterceptor.handleInputConfigs(request, opts);
         } else if (url.includes('/login/user')) {
-            return XhomeInterceptor.#handleLogin(request);
+            return XhomeInterceptor.handleLogin(request);
         } else if (url.endsWith('/titles')) {
-            return XhomeInterceptor.#handleTitles(request);
+            return XhomeInterceptor.handleTitles(request);
         } else if (url && url.endsWith('/ice') && url.includes('/sessions/') && (request as Request).method === 'GET') {
-            return patchIceCandidates(request, XhomeInterceptor.#consoleAddrs);
+            return patchIceCandidates(request, XhomeInterceptor.consoleAddrs);
         }
 
         return await NATIVE_FETCH(request);
