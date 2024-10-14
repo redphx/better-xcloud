@@ -1,6 +1,8 @@
+import { PrefKey } from "@/enums/pref-keys";
 import { BxEvent } from "./bx-event";
 import { STATES } from "./global";
 import { humanFileSize, secondsToHm } from "./html";
+import { getPref } from "./settings-storages/global-settings-storage";
 
 export enum StreamStat {
     PING = 'ping',
@@ -121,7 +123,8 @@ export class StreamStatsCollector {
         [StreamStat.FPS]: {
             current: 0,
             toString() {
-                return this.current.toString();
+                const maxFps = getPref(PrefKey.VIDEO_MAX_FPS);
+                return maxFps < 60 ? `${maxFps}/${this.current}` : this.current.toString();
             },
         },
 

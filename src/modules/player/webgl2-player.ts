@@ -26,7 +26,7 @@ export class WebGL2Player {
     };
 
     private targetFps = 60;
-    private frameInterval = Math.ceil(1000 / this.targetFps);
+    private frameInterval = 0;
     private lastFrameTime = 0;
 
     private animFrameId: number | null = null;
