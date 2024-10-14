@@ -87,6 +87,15 @@ const postProcess = (str: string): string => {
         return p1.toUpperCase();
     });
 
+    // Replace " (e) =>" to " e =>"
+    // str = str.replaceAll(/ \(([^\s,.$()]+)\) =>/g, ' $1 =>');
+
+    // Set indent to 1 space
+    str = str.replaceAll(/\n(\s+)/g, (match, p1) => {
+        const len = p1.length / 2;
+        return '\n' + ' '.repeat(len);
+    });
+
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
     assert(str.includes('window.BxEvent = BxEvent'));
