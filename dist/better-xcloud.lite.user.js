@@ -959,7 +959,8 @@ class StreamStatsCollector {
   fps: {
    current: 0,
    toString() {
-    return this.current.toString();
+    const maxFps = getPref("video_max_fps");
+    return maxFps < 60 ? `${maxFps}/${this.current}` : this.current.toString();
    }
   },
   btr: {
@@ -4689,7 +4690,23 @@ class StreamBadges {
  }
 }
 class XcloudInterceptor {
- static async#handleLogin(request, init) {
+ static SERVER_EMOJIS = {
+  AustraliaEast: "🇦🇺",
+  AustraliaSouthEast: "🇦🇺",
+  BrazilSouth: "🇧🇷",
+  EastUS: "🇺🇸",
+  EastUS2: "🇺🇸",
+  JapanEast: "🇯🇵",
+  KoreaCentral: "🇰🇷",
+  MexicoCentral: "🇲🇽",
+  NorthCentralUs: "🇺🇸",
+  SouthCentralUS: "🇺🇸",
+  UKSouth: "🇬🇧",
+  WestEurope: "🇪🇺",
+  WestUS: "🇺🇸",
+  WestUS2: "🇺🇸"
+ };
+ static async handleLogin(request, init) {
   const bypassServer = getPref("server_bypass_restriction");
   if (bypassServer !== "off") {
    const ip = BypassServerIps[bypassServer];
@@ -4699,22 +4716,7 @@ class XcloudInterceptor {
   if (response.status !== 200) return BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE), response;
   const obj = await response.clone().json();
   RemotePlayManager.getInstance().xcloudToken = obj.gsToken;
-  const serverEmojis = {
-   AustraliaEast: "🇦🇺",
-   AustraliaSouthEast: "🇦🇺",
-   BrazilSouth: "🇧🇷",
-   EastUS: "🇺🇸",
-   EastUS2: "🇺🇸",
-   JapanEast: "🇯🇵",
-   KoreaCentral: "🇰🇷",
-   MexicoCentral: "🇲🇽",
-   NorthCentralUs: "🇺🇸",
-   SouthCentralUS: "🇺🇸",
-   UKSouth: "🇬🇧",
-   WestEurope: "🇪🇺",
-   WestUS: "🇺🇸",
-   WestUS2: "🇺🇸"
-  }, serverRegex = /\/\/(\w+)\./;
+  const serverRegex = /\/\/(\w+)\./, serverEmojis = XcloudInterceptor.SERVER_EMOJIS;
   for (let region of obj.offeringSettings.regions) {
    const regionName = region.name;
    let shortName = region.name;
@@ -4733,7 +4735,7 @@ class XcloudInterceptor {
   }
   return STATES.gsToken = obj.gsToken, response.json = () => Promise.resolve(obj), response;
  }
- static async#handlePlay(request, init) {
+ static async handlePlay(request, init) {
   const PREF_STREAM_TARGET_RESOLUTION = getPref("stream_target_resolution"), PREF_STREAM_PREFERRED_LOCALE = getPref("stream_preferred_locale"), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url);
   let badgeRegion = parsedUrl.host.split(".", 1)[0];
   for (let regionName in STATES.serverRegions) {
@@ -4755,7 +4757,7 @@ class XcloudInterceptor {
   });
   return NATIVE_FETCH(newRequest);
  }
- static async#handleWaitTime(request, init) {
+ static async handleWaitTime(request, init) {
   const response = await NATIVE_FETCH(request, init);
   if (getPref("ui_loading_screen_wait_time")) {
    const json = await response.clone().json();
@@ -4763,7 +4765,7 @@ class XcloudInterceptor {
   }
   return response;
  }
- static async#handleConfiguration(request, init) {
+ static async handleConfiguration(request, init) {
   if (request.method !== "GET") return NATIVE_FETCH(request, init);
   const response = await NATIVE_FETCH(request, init), text = await response.clone().text();
   if (!text.length) return response;
@@ -4782,10 +4784,10 @@ class XcloudInterceptor {
  }
  static async handle(request, init) {
   let url = typeof request === "string" ? request : request.url;
-  if (url.endsWith("/v2/login/user")) return XcloudInterceptor.#handleLogin(request, init);
-  else if (url.endsWith("/sessions/cloud/play")) return XcloudInterceptor.#handlePlay(request, init);
-  else if (url.includes("xboxlive.com") && url.includes("/waittime/")) return XcloudInterceptor.#handleWaitTime(request, init);
-  else if (url.endsWith("/configuration")) return XcloudInterceptor.#handleConfiguration(request, init);
+  if (url.endsWith("/v2/login/user")) return XcloudInterceptor.handleLogin(request, init);
+  else if (url.endsWith("/sessions/cloud/play")) return XcloudInterceptor.handlePlay(request, init);
+  else if (url.includes("xboxlive.com") && url.includes("/waittime/")) return XcloudInterceptor.handleWaitTime(request, init);
+  else if (url.endsWith("/configuration")) return XcloudInterceptor.handleConfiguration(request, init);
   else if (url && url.endsWith("/ice") && url.includes("/sessions/") && request.method === "GET") return patchIceCandidates(request);
   return NATIVE_FETCH(request, init);
  }
@@ -5054,7 +5056,7 @@ class WebGL2Player {
   saturation: 0
  };
  targetFps = 60;
- frameInterval = Math.ceil(1000 / this.targetFps);
+ frameInterval = 0;
  lastFrameTime = 0;
  animFrameId = null;
  constructor($video) {
