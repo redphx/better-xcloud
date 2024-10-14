@@ -124,14 +124,8 @@ This class uses some code from Yuzu emulator to handle mouse's movements
 Source: https://github.com/yuzu-emu/yuzu-mainline/blob/master/src/input_common/drivers/mouse.cpp
 */
 export class EmulatedMkbHandler extends MkbHandler {
-    static #instance: EmulatedMkbHandler;
-    public static getInstance(): EmulatedMkbHandler {
-        if (!EmulatedMkbHandler.#instance) {
-            EmulatedMkbHandler.#instance = new EmulatedMkbHandler();
-        }
-
-        return EmulatedMkbHandler.#instance;
-    }
+    private static instance: EmulatedMkbHandler;
+    public static getInstance = () => EmulatedMkbHandler.instance ?? (EmulatedMkbHandler.instance = new EmulatedMkbHandler());
 
     #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
 

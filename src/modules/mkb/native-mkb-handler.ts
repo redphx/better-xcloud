@@ -23,6 +23,8 @@ type XcloudInputSink = {
 
 export class NativeMkbHandler extends MkbHandler {
     private static instance: NativeMkbHandler;
+    public static getInstance = () => NativeMkbHandler.instance ?? (NativeMkbHandler.instance = new NativeMkbHandler());
+
     #pointerClient: PointerClient | undefined;
     #enabled: boolean = false;
 
@@ -36,14 +38,6 @@ export class NativeMkbHandler extends MkbHandler {
     #inputSink: XcloudInputSink | undefined;
 
     #$message?: HTMLElement;
-
-    public static getInstance(): NativeMkbHandler {
-        if (!NativeMkbHandler.instance) {
-            NativeMkbHandler.instance = new NativeMkbHandler();
-        }
-
-        return NativeMkbHandler.instance;
-    }
 
     #onKeyboardEvent(e: KeyboardEvent) {
         if (e.type === 'keyup' && e.code === 'F8') {

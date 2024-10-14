@@ -2,12 +2,7 @@ import { CE } from "@/utils/html";
 
 export class FullscreenText {
     private static instance: FullscreenText;
-    public static getInstance(): FullscreenText {
-        if (!FullscreenText.instance) {
-            FullscreenText.instance = new FullscreenText();
-        }
-        return FullscreenText.instance;
-    }
+    public static getInstance = () => FullscreenText.instance ?? (FullscreenText.instance = new FullscreenText());
 
     $text: HTMLElement;
 

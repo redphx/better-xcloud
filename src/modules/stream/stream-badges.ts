@@ -50,13 +50,7 @@ enum StreamBadge {
 
 export class StreamBadges {
     private static instance: StreamBadges;
-    public static getInstance(): StreamBadges {
-        if (!StreamBadges.instance) {
-            StreamBadges.instance = new StreamBadges();
-        }
-
-        return StreamBadges.instance;
-    }
+    public static getInstance = () => StreamBadges.instance ?? (StreamBadges.instance = new StreamBadges());
 
     private serverInfo: StreamServerInfo = {};
 

@@ -92,13 +92,7 @@ type CurrentStats = {
 
 export class StreamStatsCollector {
     private static instance: StreamStatsCollector;
-    public static getInstance(): StreamStatsCollector {
-        if (!StreamStatsCollector.instance) {
-            StreamStatsCollector.instance = new StreamStatsCollector();
-        }
-
-        return StreamStatsCollector.instance;
-    }
+    public static getInstance = () => StreamStatsCollector.instance ?? (StreamStatsCollector.instance = new StreamStatsCollector());
 
     // Collect in background - 60 seconds
     static readonly INTERVAL_BACKGROUND = 60 * 1000;

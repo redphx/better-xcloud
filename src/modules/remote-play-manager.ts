@@ -37,13 +37,7 @@ type RemotePlayConsole = {
 
 export class RemotePlayManager {
     private static instance: RemotePlayManager;
-    public static getInstance(): RemotePlayManager {
-        if (!this.instance) {
-            this.instance = new RemotePlayManager();
-        }
-
-        return this.instance;
-    }
+    public static getInstance = () => RemotePlayManager.instance ?? (RemotePlayManager.instance = new RemotePlayManager());
 
     private isInitialized = false;
 

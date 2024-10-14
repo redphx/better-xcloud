@@ -11,12 +11,7 @@ import { BxEvent } from "@/utils/bx-event";
 
 export class RemotePlayNavigationDialog extends NavigationDialog {
     private static instance: RemotePlayNavigationDialog;
-    public static getInstance(): RemotePlayNavigationDialog {
-        if (!RemotePlayNavigationDialog.instance) {
-            RemotePlayNavigationDialog.instance = new RemotePlayNavigationDialog();
-        }
-        return RemotePlayNavigationDialog.instance;
-    }
+    public static getInstance = () => RemotePlayNavigationDialog.instance ?? (RemotePlayNavigationDialog.instance = new RemotePlayNavigationDialog());
 
     private readonly STATE_LABELS: Record<RemotePlayConsoleState, string> = {
         [RemotePlayConsoleState.ON]: t('powered-on'),

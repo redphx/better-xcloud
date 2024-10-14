@@ -64,12 +64,7 @@ type SettingTab = {
 
 export class SettingsNavigationDialog extends NavigationDialog {
     private static instance: SettingsNavigationDialog;
-    public static getInstance(): SettingsNavigationDialog {
-        if (!SettingsNavigationDialog.instance) {
-            SettingsNavigationDialog.instance = new SettingsNavigationDialog();
-        }
-        return SettingsNavigationDialog.instance;
-    }
+    public static getInstance = () => SettingsNavigationDialog.instance ?? (SettingsNavigationDialog.instance = new SettingsNavigationDialog());
 
     $container!: HTMLElement;
     private $tabs!: HTMLElement;

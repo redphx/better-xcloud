@@ -88,12 +88,7 @@ export abstract class NavigationDialog {
 
 export class NavigationDialogManager {
     private static instance: NavigationDialogManager;
-    public static getInstance(): NavigationDialogManager {
-        if (!NavigationDialogManager.instance) {
-            NavigationDialogManager.instance = new NavigationDialogManager();
-        }
-        return NavigationDialogManager.instance;
-    }
+    public static getInstance = () => NavigationDialogManager.instance ?? (NavigationDialogManager.instance = new NavigationDialogManager());
 
     private static readonly GAMEPAD_POLLING_INTERVAL = 50;
     private static readonly GAMEPAD_KEYS = [

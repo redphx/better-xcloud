@@ -15,13 +15,7 @@ enum PointerAction {
 
 export class PointerClient {
     private static instance: PointerClient;
-    public static getInstance(): PointerClient {
-        if (!PointerClient.instance) {
-            PointerClient.instance = new PointerClient();
-        }
-
-        return PointerClient.instance;
-    }
+    public static getInstance = () => PointerClient.instance ?? (PointerClient.instance = new PointerClient());
 
     private socket: WebSocket | undefined | null;
     private mkbHandler: MkbHandler | undefined;

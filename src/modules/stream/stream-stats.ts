@@ -9,13 +9,7 @@ import { StreamStat, StreamStatsCollector, type StreamStatGrade } from "@/utils/
 
 export class StreamStats {
     private static instance: StreamStats;
-    public static getInstance(): StreamStats {
-        if (!StreamStats.instance) {
-            StreamStats.instance = new StreamStats();
-        }
-
-        return StreamStats.instance;
-    }
+    public static getInstance = () => StreamStats.instance ?? (StreamStats.instance = new StreamStats());
 
     private intervalId?: number | null;
     private readonly REFRESH_INTERVAL = 1 * 1000;

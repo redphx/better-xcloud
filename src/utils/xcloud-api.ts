@@ -3,13 +3,7 @@ import { STATES } from "./global";
 
 export class XcloudApi {
     private static instance: XcloudApi;
-    public static getInstance(): XcloudApi {
-        if (!XcloudApi.instance) {
-            XcloudApi.instance = new XcloudApi();
-        }
-
-        return XcloudApi.instance;
-    }
+    public static getInstance = () => XcloudApi.instance ?? (XcloudApi.instance = new XcloudApi());
 
     private CACHE_TITLES: {[key: string]: XcloudTitleInfo} = {};
     private CACHE_WAIT_TIME: {[key: string]: XcloudWaitTimeInfo} = {};
