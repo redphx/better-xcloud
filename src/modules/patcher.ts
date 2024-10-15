@@ -632,12 +632,12 @@ true` + text;
     },
 
     skipFeedbackDialog(str: string) {
-        let text = '&&this.shouldTransitionToFeedback(';
+        let text = 'shouldTransitionToFeedback(e){';
         if (!str.includes(text)) {
             return false;
         }
 
-        str = str.replace(text, '&& false ' + text);
+        str = str.replace(text, text + 'return !1;');
         return str;
     },
 

@@ -4239,9 +4239,9 @@ true` + text;
   return str = str.replace(text, newCode), str;
  },
  skipFeedbackDialog(str) {
-  let text = "&&this.shouldTransitionToFeedback(";
+  let text = "shouldTransitionToFeedback(e){";
   if (!str.includes(text)) return !1;
-  return str = str.replace(text, "&& false " + text), str;
+  return str = str.replace(text, text + "return !1;"), str;
  },
  enableNativeMkb(str) {
   let text = "e.mouseSupported&&e.keyboardSupported&&e.fullscreenSupported;";
