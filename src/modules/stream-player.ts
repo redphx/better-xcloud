@@ -7,6 +7,7 @@ import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 import { STATES } from "@/utils/global";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { BX_FLAGS } from "@/utils/bx-flags";
 
 export type StreamPlayerOptions = Partial<{
     processing: string,
@@ -173,6 +174,8 @@ export class StreamPlayer {
 
     setPlayerType(type: StreamPlayerType, refreshPlayer: boolean = false) {
         if (this.playerType !== type) {
+            const videoClass = BX_FLAGS.DeviceInfo.deviceType === 'android-tv' ? 'bx-pixel' : 'bx-gone';
+
             // Switch from Video -> WebGL2
             if (type === StreamPlayerType.WEBGL2) {
                 // Initialize WebGL2 player
@@ -184,12 +187,12 @@ export class StreamPlayer {
 
                 this.$videoCss!.textContent = '';
 
-                this.$video.classList.add('bx-pixel');
+                this.$video.classList.add(videoClass);
             } else {
                 // Cleanup WebGL2 Player
                 this.webGL2Player?.stop();
 
-                this.$video.classList.remove('bx-pixel');
+                this.$video.classList.remove(videoClass);
             }
         }
 

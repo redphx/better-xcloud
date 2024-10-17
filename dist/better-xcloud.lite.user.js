@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
-// @version      5.8.5
+// @version      5.8.6-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -111,7 +111,7 @@ function deepClone(obj) {
  if (!obj) return {};
  return JSON.parse(JSON.stringify(obj));
 }
-var SCRIPT_VERSION = "5.8.5", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.8.6-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
  supportedRegion: !0,
@@ -5219,11 +5219,14 @@ class StreamPlayer {
   if (isNativeTouchGame && this.playerType == "webgl2") window.BX_EXPOSED.streamSession.updateDimensions();
  }
  setPlayerType(type, refreshPlayer = !1) {
-  if (this.playerType !== type) if (type === "webgl2") {
+  if (this.playerType !== type) {
+   const videoClass = BX_FLAGS.DeviceInfo.deviceType === "android-tv" ? "bx-pixel" : "bx-gone";
+   if (type === "webgl2") {
     if (!this.webGL2Player) this.webGL2Player = new WebGL2Player(this.$video);
     else this.webGL2Player.resume();
-    this.$videoCss.textContent = "", this.$video.classList.add("bx-pixel");
-   } else this.webGL2Player?.stop(), this.$video.classList.remove("bx-pixel");
+    this.$videoCss.textContent = "", this.$video.classList.add(videoClass);
+   } else this.webGL2Player?.stop(), this.$video.classList.remove(videoClass);
+  }
   this.playerType = type, refreshPlayer && this.refreshPlayer();
  }
  setOptions(options, refreshPlayer = !1) {
