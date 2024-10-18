@@ -962,7 +962,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
             return false;
         }
 
-        str = PatcherUtils.replaceWith(str, index, 'return', 'return null;');
+        str = PatcherUtils.replaceWith(str, index, 'return', 'return () => {};');
         return str;
     },
 };

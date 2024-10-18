@@ -4333,7 +4333,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
  disableTouchContextMenu(str) {
   let index = str.indexOf('"ContextualCardActions-module__container');
   if (index >= 0 && (index = str.indexOf('addEventListener("touchstart"', index)), index >= 0 && (index = PatcherUtils.lastIndexOf(str, "return ", index, 50)), index < 0) return !1;
-  return str = PatcherUtils.replaceWith(str, index, "return", "return null;"), str;
+  return str = PatcherUtils.replaceWith(str, index, "return", "return () => {};"), str;
  }
 }, PATCH_ORDERS = [
  ...getPref("native_mkb_enabled") === "on" ? [
