@@ -1,3 +1,4 @@
+// Credit: https://phosphoricons.com
 import iconBetterXcloud from "@assets/svg/better-xcloud.svg" with { type: "text" };
 import iconTrueAchievements from "@assets/svg/true-achievements.svg" with { type: "text" };
 import iconClose from "@assets/svg/close.svg" with { type: "text" };

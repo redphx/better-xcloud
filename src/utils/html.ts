@@ -101,16 +101,14 @@ function createElement<T=HTMLElement>(elmName: string, props: CreateElementOptio
 
 export const CE = createElement;
 
-// Credit: https://phosphoricons.com
-const svgParser = (svg: string) => new DOMParser().parseFromString(svg, 'image/svg+xml').documentElement;
-
-export const createSvgIcon = (icon: typeof BxIcon) => {
-    return svgParser(icon.toString());
+const domParser = new DOMParser();
+export function createSvgIcon(icon: typeof BxIcon) {
+    return domParser.parseFromString(icon.toString(), 'image/svg+xml').documentElement;
 }
 
 const ButtonStyleIndices = Object.keys(ButtonStyleClass).map(i => parseInt(i));
 
-export const createButton = <T=HTMLButtonElement>(options: BxButton): T => {
+export function createButton<T=HTMLButtonElement>(options: BxButton): T {
     let $btn;
     if (options.url) {
         $btn = CE('a', {'class': 'bx-button'}) as HTMLAnchorElement;
