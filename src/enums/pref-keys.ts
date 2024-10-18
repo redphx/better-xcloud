@@ -69,7 +69,6 @@ export enum PrefKey {
     UI_SCROLLBAR_HIDE = 'ui_scrollbar_hide',
     UI_HIDE_SECTIONS = 'ui_hide_sections',
 
-    UI_HOME_CONTEXT_MENU_DISABLED = 'ui_home_context_menu_disabled',
     UI_GAME_CARD_SHOW_WAIT_TIME = 'ui_game_card_show_wait_time',
 
     VIDEO_PLAYER_TYPE = 'video_player_type',

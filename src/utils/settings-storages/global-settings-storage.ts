@@ -533,12 +533,6 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: false,
         },
 
-        [PrefKey.UI_HOME_CONTEXT_MENU_DISABLED]: {
-            requiredVariants: 'full',
-            label: t('disable-home-context-menu'),
-            default: STATES.browser.capabilities.touch,
-        },
-
         [PrefKey.UI_HIDE_SECTIONS]: {
             requiredVariants: 'full',
             label: t('hide-sections'),

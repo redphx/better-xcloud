@@ -3,8 +3,6 @@ import { BxLogger } from "./bx-logger";
 import { TouchController } from "@modules/touch-controller";
 import { GamePassCloudGallery } from "../enums/game-pass-gallery";
 import { BX_FLAGS } from "./bx-flags";
-import { PrefKey } from "@/enums/pref-keys";
-import { getPref } from "./settings-storages/global-settings-storage";
 
 const LOG_TAG = 'PreloadState';
 
@@ -45,14 +43,6 @@ export function overridePreloadState() {
                         sigls[GamePassCloudGallery.NATIVE_MKB]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
                     }
 
-                } catch (e) {
-                    BxLogger.error(LOG_TAG, e);
-                }
-            }
-
-            if (getPref(PrefKey.UI_HOME_CONTEXT_MENU_DISABLED)) {
-                try {
-                    state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = false;
                 } catch (e) {
                     BxLogger.error(LOG_TAG, e);
                 }

@@ -246,7 +246,6 @@ export class SettingsNavigationDialog extends NavigationDialog {
         items: [
             PrefKey.UI_LAYOUT,
             PrefKey.UI_GAME_CARD_SHOW_WAIT_TIME,
-            PrefKey.UI_HOME_CONTEXT_MENU_DISABLED,
             PrefKey.CONTROLLER_SHOW_CONNECTION_STATUS,
             PrefKey.STREAM_SIMPLIFY_MENU,
             PrefKey.SKIP_SPLASH_VIDEO,

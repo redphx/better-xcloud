@@ -951,7 +951,22 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
 
         str = PatcherUtils.replaceWith(str, index, '.All', '.Locked');
         return str;
-    }
+    },
+
+    /*
+    // Disable long touch activating context menu
+    disableTouchContextMenu(str: string) {
+        let index = str.indexOf('"ContextualCardActions-module__container');
+        index >= 0 && (index = str.indexOf('addEventListener("touchstart"', index));
+        index >= 0 && (index = PatcherUtils.lastIndexOf(str, 'return ', index, 50));
+        if (index < 0) {
+            return false;
+        }
+
+        str = PatcherUtils.replaceWith(str, index, 'return', 'return null;');
+        return str;
+    },
+    */
 };
 
 let PATCH_ORDERS: PatchArray = [

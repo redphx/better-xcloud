@@ -1508,11 +1508,6 @@ class GlobalSettingsStorage extends BaseSettingsStore {
    label: t("hide-scrollbar"),
    default: !1
   },
-  ui_home_context_menu_disabled: {
-   requiredVariants: "full",
-   label: t("disable-home-context-menu"),
-   default: STATES.browser.capabilities.touch
-  },
   ui_hide_sections: {
    requiredVariants: "full",
    label: t("hide-sections"),
@@ -3896,7 +3891,6 @@ var FeatureGates = {
  EnableUpdateRequiredPage: !1,
  ShowForcedUpdateScreen: !1
 };
-if (getPref("ui_home_context_menu_disabled")) FeatureGates.EnableHomeContextMenu = !1;
 if (getPref("block_social_features")) FeatureGates.EnableGuideChatTab = !1;
 if (BX_FLAGS.FeatureGates) FeatureGates = Object.assign(BX_FLAGS.FeatureGates, FeatureGates);
 class PatcherUtils {
@@ -4647,7 +4641,6 @@ class SettingsNavigationDialog extends NavigationDialog {
   items: [
    "ui_layout",
    "ui_game_card_show_wait_time",
-   "ui_home_context_menu_disabled",
    "controller_show_connection_status",
    "stream_simplify_menu",
    "skip_splash_video",
@@ -6805,11 +6798,6 @@ function overridePreloadState() {
       customList = customList.filter((id2) => allGames.includes(id2)), sigls["9c86f07a-f3e8-45ad-82a0-a1f759597059"]?.data.products.push(...customList);
      }
      if (BX_FLAGS.ForceNativeMkbTitles && "8fa264dd-124f-4af3-97e8-596fcdf4b486" in sigls) sigls["8fa264dd-124f-4af3-97e8-596fcdf4b486"]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
-    } catch (e) {
-     BxLogger.error(LOG_TAG6, e);
-    }
-   if (getPref("ui_home_context_menu_disabled")) try {
-     state.experiments.experimentationInfo.data.treatments.EnableHomeContextMenu = !1;
     } catch (e) {
      BxLogger.error(LOG_TAG6, e);
     }
