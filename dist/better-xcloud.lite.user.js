@@ -52,7 +52,7 @@ class UserAgent {
  static #USER_AGENTS = {
   "windows-edge": `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${CHROMIUM_VERSION} Safari/537.36 Edg/${CHROMIUM_VERSION}`,
   "macos-safari": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5.2 Safari/605.1.1",
-  "smarttv-generic": `${window.navigator.userAgent} SmartTV`,
+  "smarttv-generic": `${window.navigator.userAgent} Smart-TV`,
   "smarttv-tizen": `Mozilla/5.0 (SMART-TV; LINUX; Tizen 7.0) AppleWebKit/537.36 (KHTML, like Gecko) ${CHROMIUM_VERSION}/7.0 TV Safari/537.36 ${SMART_TV_UNIQUE_ID}`,
   "vr-oculus": window.navigator.userAgent + " OculusBrowser VR"
  };
@@ -196,9 +196,12 @@ function createElement(elmName, props = {}, ..._) {
  }
  return $elm;
 }
-var CE = createElement, svgParser = (svg) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement, createSvgIcon = (icon) => {
- return svgParser(icon.toString());
-}, ButtonStyleIndices = Object.keys(ButtonStyleClass).map((i) => parseInt(i)), createButton = (options) => {
+var CE = createElement, domParser = new DOMParser;
+function createSvgIcon(icon) {
+ return domParser.parseFromString(icon.toString(), "image/svg+xml").documentElement;
+}
+var ButtonStyleIndices = Object.keys(ButtonStyleClass).map((i) => parseInt(i));
+function createButton(options) {
  let $btn;
  if (options.url) $btn = CE("a", { class: "bx-button" }), $btn.href = options.url, $btn.target = "_blank";
  else $btn = CE("button", { class: "bx-button", type: "button" });
@@ -209,7 +212,7 @@ var CE = createElement, svgParser = (svg) => new DOMParser().parseFromString(svg
  for (let key in options.attributes)
   if (!$btn.hasOwnProperty(key)) $btn.setAttribute(key, options.attributes[key]);
  return $btn;
-};
+}
 function isElementVisible($elm) {
  let rect = $elm.getBoundingClientRect();
  return (rect.x >= 0 || rect.y >= 0) && !!rect.width && !!rect.height;
