@@ -953,7 +953,6 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         return str;
     },
 
-    /*
     // Disable long touch activating context menu
     disableTouchContextMenu(str: string) {
         let index = str.indexOf('"ContextualCardActions-module__container');
@@ -966,7 +965,6 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         str = PatcherUtils.replaceWith(str, index, 'return', 'return null;');
         return str;
     },
-    */
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -1004,6 +1002,10 @@ let PATCH_ORDERS: PatchArray = [
     getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.ALL_GAMES) && 'ignoreAllGamesSection',
     getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.TOUCH) && 'ignorePlayWithTouchSection',
     (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.NATIVE_MKB) || getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.MOST_POPULAR)) && 'ignoreSiglSections',
+
+    ...(STATES.userAgent.capabilities.touch ? [
+        'disableTouchContextMenu',
+    ] : []),
 
     ...(getPref(PrefKey.BLOCK_TRACKING) ? [
         'disableAiTrack',

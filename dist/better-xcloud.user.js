@@ -4329,6 +4329,11 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   if (index >= 0 && (index = PatcherUtils.lastIndexOf(str, ".All", index, 150)), index < 0) return !1;
   if (str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), index = str.indexOf('"Guide_Achievements_Unlocked_Empty","Guide_Achievements_Locked_Empty"'), index >= 0 && (index = PatcherUtils.indexOf(str, ".All", index, 250)), index < 0) return !1;
   return str = PatcherUtils.replaceWith(str, index, ".All", ".Locked"), str;
+ },
+ disableTouchContextMenu(str) {
+  let index = str.indexOf('"ContextualCardActions-module__container');
+  if (index >= 0 && (index = str.indexOf('addEventListener("touchstart"', index)), index >= 0 && (index = PatcherUtils.lastIndexOf(str, "return ", index, 50)), index < 0) return !1;
+  return str = PatcherUtils.replaceWith(str, index, "return", "return null;"), str;
  }
 }, PATCH_ORDERS = [
  ...getPref("native_mkb_enabled") === "on" ? [
@@ -4357,6 +4362,9 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
  getPref("ui_hide_sections").includes("all-games") && "ignoreAllGamesSection",
  getPref("ui_hide_sections").includes("touch") && "ignorePlayWithTouchSection",
  (getPref("ui_hide_sections").includes("native-mkb") || getPref("ui_hide_sections").includes("most-popular")) && "ignoreSiglSections",
+ ...STATES.userAgent.capabilities.touch ? [
+  "disableTouchContextMenu"
+ ] : [],
  ...getPref("block_tracking") ? [
   "disableAiTrack",
   "disableTelemetry",
