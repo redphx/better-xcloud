@@ -5036,12 +5036,14 @@ class WebGL2Player {
   let gl = this.gl, program = this.program;
   gl.uniform2f(gl.getUniformLocation(program, "iResolution"), this.$canvas.width, this.$canvas.height), gl.uniform1i(gl.getUniformLocation(program, "filterId"), this.options.filterId), gl.uniform1f(gl.getUniformLocation(program, "sharpenFactor"), this.options.sharpenFactor), gl.uniform1f(gl.getUniformLocation(program, "brightness"), this.options.brightness), gl.uniform1f(gl.getUniformLocation(program, "contrast"), this.options.contrast), gl.uniform1f(gl.getUniformLocation(program, "saturation"), this.options.saturation);
  }
- drawFrame() {
-  if (this.targetFps === 0) return;
-  if (this.targetFps < 60) {
-   let currentTime = performance.now();
-   if (currentTime - this.lastFrameTime < this.frameInterval) return;
-   this.lastFrameTime = currentTime;
+ drawFrame(force = !1) {
+  if (!force) {
+   if (this.targetFps === 0) return;
+   if (this.targetFps < 60) {
+    let currentTime = performance.now();
+    if (currentTime - this.lastFrameTime < this.frameInterval) return;
+    this.lastFrameTime = currentTime;
+   }
   }
   let gl = this.gl;
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.$video), gl.drawArrays(gl.TRIANGLES, 0, 6);

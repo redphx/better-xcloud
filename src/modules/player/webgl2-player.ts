@@ -94,20 +94,22 @@ export class WebGL2Player {
         gl.uniform1f(gl.getUniformLocation(program, 'saturation'), this.options.saturation);
     }
 
-    drawFrame() {
-        // Don't draw when FPS is 0
-        if (this.targetFps === 0) {
-            return;
-        }
-
-        // Limit FPS
-        if (this.targetFps < 60) {
-            const currentTime = performance.now();
-            const timeSinceLastFrame = currentTime - this.lastFrameTime;
-            if (timeSinceLastFrame < this.frameInterval) {
+    drawFrame(force=false) {
+        if (!force) {
+            // Don't draw when FPS is 0
+            if (this.targetFps === 0) {
                 return;
             }
-            this.lastFrameTime = currentTime;
+
+            // Limit FPS
+            if (this.targetFps < 60) {
+                const currentTime = performance.now();
+                const timeSinceLastFrame = currentTime - this.lastFrameTime;
+                if (timeSinceLastFrame < this.frameInterval) {
+                    return;
+                }
+                this.lastFrameTime = currentTime;
+            }
         }
 
         const gl = this.gl!;

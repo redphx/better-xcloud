@@ -64,7 +64,7 @@ export class Screenshot {
         const canvasContext = Screenshot.#canvasContext;
 
         if ($player instanceof HTMLCanvasElement) {
-            streamPlayer.getWebGL2Player().drawFrame();
+            streamPlayer.getWebGL2Player().drawFrame(true);
         }
         canvasContext.drawImage($player, 0, 0, $canvas.width, $canvas.height);
 
