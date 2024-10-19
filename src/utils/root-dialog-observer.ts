@@ -23,7 +23,7 @@ export class RootDialogObserver {
         },
     });
 
-    private static $btnWallpaper = AppInterface &&createButton({
+    private static $btnWallpaper = AppInterface && createButton({
         icon: BxIcon.DOWNLOAD,
         label: t('wallpaper'),
         style: ButtonStyle.FOCUSABLE | ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH | ButtonStyle.NORMAL_CASE | ButtonStyle.NORMAL_LINK,
