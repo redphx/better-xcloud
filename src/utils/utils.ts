@@ -120,3 +120,15 @@ export function productTitleToSlug(title: string): string {
             .replace(/ /g, '-')
             .toLowerCase();
 }
+
+export function parseDetailsPath(path: string) {
+    const matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(path);
+    if (!matches?.groups) {
+        return;
+    }
+
+    const titleSlug = matches.groups.titleSlug.replaceAll('\%' + '7C', '-');
+    const productId = matches.groups.productId;
+
+    return {titleSlug, productId};
+}

@@ -3,6 +3,7 @@ import { BxIcon } from "@/utils/bx-icon";
 import { AppInterface } from "@/utils/global";
 import { ButtonStyle, CE, createButton } from "@/utils/html";
 import { t } from "@/utils/translation";
+import { parseDetailsPath } from "@/utils/utils";
 
 export class ProductDetailsPage {
     private static $btnShortcut = AppInterface && createButton({
@@ -20,17 +21,9 @@ export class ProductDetailsPage {
         label: t('wallpaper'),
         style: ButtonStyle.FOCUSABLE,
         tabIndex: 0,
-        onClick: async e => {
-            try {
-                const matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(window.location.pathname);
-                if (!matches?.groups) {
-                    return;
-                }
-
-                const titleSlug = matches.groups.titleSlug.replaceAll('\%' + '7C', '-');
-                const productId = matches.groups.productId;
-                AppInterface.downloadWallpapers(titleSlug, productId);
-            } catch (e) {}
+        onClick: e => {
+            const details = parseDetailsPath(window.location.pathname);
+            details && AppInterface.downloadWallpapers(details.titleSlug, details.productId);
         },
     });
 

@@ -42,6 +42,7 @@ import { StreamUiHandler } from "./modules/stream/stream-ui";
 import { UserAgent } from "./utils/user-agent";
 import { XboxApi } from "./utils/xbox-api";
 import { StreamStatsCollector } from "./utils/stream-stats-collector";
+import { RootDialogObserver } from "./utils/root-dialog-observer";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
@@ -328,55 +329,6 @@ isFullVersion() && window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, e => {
 });
 
 
-function observeRootDialog($root: HTMLElement) {
-    let beingShown = false;
-
-    const observer = new MutationObserver(mutationList => {
-        for (const mutation of mutationList) {
-            if (mutation.type !== 'childList') {
-                continue;
-            }
-
-            BX_FLAGS.Debug && BxLogger.warning('RootDialog', 'added', mutation.addedNodes);
-            if (mutation.addedNodes.length === 1) {
-                const $addedElm = mutation.addedNodes[0];
-                if ($addedElm instanceof HTMLElement && $addedElm.className) {
-                    // Make sure it's Guide dialog
-                    if ($root.querySelector('div[class*=GuideDialog]')) {
-                        GuideMenu.observe($addedElm);
-                    }
-                }
-            }
-
-            const shown = !!($root.firstElementChild && $root.firstElementChild.childElementCount > 0);
-            if (shown !== beingShown) {
-                beingShown = shown;
-                BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
-            }
-        }
-    });
-    observer.observe($root, {subtree: true, childList: true});
-}
-
-function waitForRootDialog() {
-    const observer = new MutationObserver(mutationList => {
-        for (const mutation of mutationList) {
-            if (mutation.type !== 'childList') {
-                continue;
-            }
-
-            const $target = mutation.target as HTMLElement;
-            if ($target.id && $target.id === 'gamepass-dialog-root') {
-                observer.disconnect();
-                observeRootDialog($target);
-                break;
-            }
-        };
-    });
-    observer.observe(document.documentElement, {subtree: true, childList: true});
-}
-
-
 function main() {
     if (getPref(PrefKey.GAME_MSFS2020_FORCE_NATIVE_MKB)) {
         BX_FLAGS.ForceNativeMkbTitles.push('9PMQDM08SNK9');
@@ -397,7 +349,7 @@ function main() {
         disableAdobeAudienceManager();
     }
 
-    waitForRootDialog();
+    RootDialogObserver.waitForRootDialog();
 
     // Setup UI
     addCss();
