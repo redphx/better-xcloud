@@ -234,9 +234,6 @@ function removeChildElements($parent) {
  while ($parent.firstElementChild)
   $parent.firstElementChild.remove();
 }
-function clearFocus() {
- if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-}
 function clearDataSet($elm) {
  Object.keys($elm.dataset).forEach((key) => {
   delete $elm.dataset[key];
@@ -2109,6 +2106,12 @@ async function copyToClipboard(text, showToast = !0) {
 }
 function productTitleToSlug(title) {
  return title.replace(/[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g, "").replace(/\|/g, "-").replace(/ {2,}/g, " ").trim().substr(0, 50).replace(/ /g, "-").toLowerCase();
+}
+function parseDetailsPath(path) {
+ let matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(path);
+ if (!matches?.groups) return;
+ let titleSlug = matches.groups.titleSlug.replaceAll("%" + "7C", "-"), productId = matches.groups.productId;
+ return { titleSlug, productId };
 }
 class SoundShortcut {
  static adjustGainNodeVolume(amount) {
@@ -7407,11 +7410,7 @@ class GameBar {
   }), window.addEventListener(BxEvent.GAME_BAR_ACTION_ACTIVATED, this.hideBar.bind(this)), $container.addEventListener("pointerover", this.clearHideTimeout.bind(this)), $container.addEventListener("pointerout", this.beginHideTimeout.bind(this)), $container.addEventListener("transitionend", (e) => {
    $container.classList.replace("bx-hide", "bx-offscreen");
   }), document.documentElement.appendChild($gameBar), this.$gameBar = $gameBar, this.$container = $container, getPref("game_bar_position") !== "off" && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e) => {
-   if (!STATES.isPlaying) {
-    this.disable();
-    return;
-   }
-   e.mode !== "none" ? this.disable() : this.enable();
+   if (STATES.isPlaying) e.mode !== "none" ? this.disable() : this.enable();
   }).bind(this));
  }
  beginHideTimeout() {
@@ -7432,7 +7431,7 @@ class GameBar {
   this.$container.classList.remove("bx-offscreen", "bx-hide", "bx-gone"), this.$container.classList.add("bx-show"), this.beginHideTimeout();
  }
  hideBar() {
-  this.clearHideTimeout(), clearFocus(), this.$container.classList.replace("bx-show", "bx-hide");
+  this.clearHideTimeout(), this.$container.classList.replace("bx-show", "bx-hide");
  }
  reset() {
   this.actions.forEach((action) => action.reset());
@@ -7549,13 +7548,9 @@ class ProductDetailsPage {
   label: t("wallpaper"),
   style: 32,
   tabIndex: 0,
-  onClick: async (e) => {
-   try {
-    let matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(window.location.pathname);
-    if (!matches?.groups) return;
-    let titleSlug = matches.groups.titleSlug.replaceAll("%" + "7C", "-"), productId = matches.groups.productId;
-    AppInterface.downloadWallpapers(titleSlug, productId);
-   } catch (e2) {}
+  onClick: (e) => {
+   let details = parseDetailsPath(window.location.pathname);
+   details && AppInterface.downloadWallpapers(details.titleSlug, details.productId);
   }
  });
  static injectTimeoutId = null;
@@ -7688,6 +7683,70 @@ class XboxApi {
   return null;
  }
 }
+class RootDialogObserver {
+ static $btnShortcut = AppInterface && createButton({
+  icon: BxIcon.CREATE_SHORTCUT,
+  label: t("create-shortcut"),
+  style: 32 | 4 | 64 | 1024 | 2048,
+  tabIndex: 0,
+  onClick: (e) => {
+   window.BX_EXPOSED.dialogRoutes?.closeAll();
+   let $btn = e.target.closest("button");
+   AppInterface.createShortcut($btn?.dataset.path);
+  }
+ });
+ static $btnWallpaper = AppInterface && createButton({
+  icon: BxIcon.DOWNLOAD,
+  label: t("wallpaper"),
+  style: 32 | 4 | 64 | 1024 | 2048,
+  tabIndex: 0,
+  onClick: (e) => {
+   window.BX_EXPOSED.dialogRoutes?.closeAll();
+   let $btn = e.target.closest("button"), details = parseDetailsPath($btn.dataset.path);
+   details && AppInterface.downloadWallpapers(details.titleSlug, details.productId);
+  }
+ });
+ static handleGameCardMenu($root) {
+  let $detail = $root.querySelector('a[href^="/play/"]');
+  if (!$detail) return;
+  let path = $detail.getAttribute("href");
+  RootDialogObserver.$btnShortcut.dataset.path = path, RootDialogObserver.$btnWallpaper.dataset.path = path, $root.append(RootDialogObserver.$btnShortcut, RootDialogObserver.$btnWallpaper);
+ }
+ static handleAddedElement($root, $addedElm) {
+  if (AppInterface && $addedElm.className.startsWith("SlideSheet-module__container")) {
+   let $gameCardMenu = $addedElm.querySelector("div[class^=MruContextMenu],div[class^=GameCardContextMenu]");
+   if ($gameCardMenu) return RootDialogObserver.handleGameCardMenu($gameCardMenu), !0;
+  } else if ($root.querySelector("div[class*=GuideDialog]")) return GuideMenu.observe($addedElm), !0;
+  return !1;
+ }
+ static observe($root) {
+  let beingShown = !1;
+  new MutationObserver((mutationList) => {
+   for (let mutation of mutationList) {
+    if (mutation.type !== "childList") continue;
+    if (BX_FLAGS.Debug && BxLogger.warning("RootDialog", "added", mutation.addedNodes), mutation.addedNodes.length === 1) {
+     let $addedElm = mutation.addedNodes[0];
+     if ($addedElm instanceof HTMLElement && $addedElm.className) RootDialogObserver.handleAddedElement($root, $addedElm);
+    }
+    let shown = !!($root.firstElementChild && $root.firstElementChild.childElementCount > 0);
+    if (shown !== beingShown) beingShown = shown, BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
+   }
+  }).observe($root, { subtree: !0, childList: !0 });
+ }
+ static waitForRootDialog() {
+  let observer = new MutationObserver((mutationList) => {
+   for (let mutation of mutationList) {
+    if (mutation.type !== "childList") continue;
+    let $target = mutation.target;
+    if ($target.id && $target.id === "gamepass-dialog-root") {
+     observer.disconnect(), RootDialogObserver.observe($target);
+     break;
+    }
+   }
+  });
+  observer.observe(document.documentElement, { subtree: !0, childList: !0 });
+ }
+}
 if (window.location.pathname.includes("/auth/msa")) {
  let nativePushState = window.history.pushState;
  throw window.history.pushState = function(...args) {
@@ -7793,39 +7852,10 @@ window.addEventListener("pagehide", (e) => {
 window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
  Screenshot.takeScreenshot();
 });
-function observeRootDialog($root) {
- let beingShown = !1;
- new MutationObserver((mutationList) => {
-  for (let mutation of mutationList) {
-   if (mutation.type !== "childList") continue;
-   if (BX_FLAGS.Debug && BxLogger.warning("RootDialog", "added", mutation.addedNodes), mutation.addedNodes.length === 1) {
-    let $addedElm = mutation.addedNodes[0];
-    if ($addedElm instanceof HTMLElement && $addedElm.className) {
-     if ($root.querySelector("div[class*=GuideDialog]")) GuideMenu.observe($addedElm);
-    }
-   }
-   let shown = !!($root.firstElementChild && $root.firstElementChild.childElementCount > 0);
-   if (shown !== beingShown) beingShown = shown, BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
-  }
- }).observe($root, { subtree: !0, childList: !0 });
-}
-function waitForRootDialog() {
- let observer = new MutationObserver((mutationList) => {
-  for (let mutation of mutationList) {
-   if (mutation.type !== "childList") continue;
-   let $target = mutation.target;
-   if ($target.id && $target.id === "gamepass-dialog-root") {
-    observer.disconnect(), observeRootDialog($target);
-    break;
-   }
-  }
- });
- observer.observe(document.documentElement, { subtree: !0, childList: !0 });
-}
 function main() {
  if (getPref("game_msfs2020_force_native_mkb")) BX_FLAGS.ForceNativeMkbTitles.push("9PMQDM08SNK9");
  if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
- if (waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
+ if (RootDialogObserver.waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("game_bar_position") !== "off" && GameBar.getInstance(), Screenshot.setup(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
  if (getPref("stream_touch_controller") === "all") TouchController.setup();
  if (getPref("mkb_enabled") && AppInterface) STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
  if (getPref("ui_game_card_show_wait_time") && GameTile.setup(), EmulatedMkbHandler.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));

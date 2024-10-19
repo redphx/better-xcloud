@@ -1994,6 +1994,12 @@ async function copyToClipboard(text, showToast = !0) {
 function productTitleToSlug(title) {
  return title.replace(/[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g, "").replace(/\|/g, "-").replace(/ {2,}/g, " ").trim().substr(0, 50).replace(/ /g, "-").toLowerCase();
 }
+function parseDetailsPath(path) {
+ let matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(path);
+ if (!matches?.groups) return;
+ let titleSlug = matches.groups.titleSlug.replaceAll("%" + "7C", "-"), productId = matches.groups.productId;
+ return { titleSlug, productId };
+}
 class SoundShortcut {
  static adjustGainNodeVolume(amount) {
   if (!getPref("audio_enable_volume_control")) return 0;
@@ -5337,13 +5343,9 @@ class ProductDetailsPage {
   label: t("wallpaper"),
   style: 32,
   tabIndex: 0,
-  onClick: async (e) => {
-   try {
-    let matches = /\/games\/(?<titleSlug>[^\/]+)\/(?<productId>\w+)/.exec(window.location.pathname);
-    if (!matches?.groups) return;
-    let titleSlug = matches.groups.titleSlug.replaceAll("%" + "7C", "-"), productId = matches.groups.productId;
-    AppInterface.downloadWallpapers(titleSlug, productId);
-   } catch (e2) {}
+  onClick: (e) => {
+   let details = parseDetailsPath(window.location.pathname);
+   details && AppInterface.downloadWallpapers(details.titleSlug, details.productId);
   }
  });
  static injectTimeoutId = null;
@@ -5476,6 +5478,70 @@ class XboxApi {
   return null;
  }
 }
+class RootDialogObserver {
+ static $btnShortcut = AppInterface && createButton({
+  icon: BxIcon.CREATE_SHORTCUT,
+  label: t("create-shortcut"),
+  style: 32 | 4 | 64 | 1024 | 2048,
+  tabIndex: 0,
+  onClick: (e) => {
+   window.BX_EXPOSED.dialogRoutes?.closeAll();
+   let $btn = e.target.closest("button");
+   AppInterface.createShortcut($btn?.dataset.path);
+  }
+ });
+ static $btnWallpaper = AppInterface && createButton({
+  icon: BxIcon.DOWNLOAD,
+  label: t("wallpaper"),
+  style: 32 | 4 | 64 | 1024 | 2048,
+  tabIndex: 0,
+  onClick: (e) => {
+   window.BX_EXPOSED.dialogRoutes?.closeAll();
+   let $btn = e.target.closest("button"), details = parseDetailsPath($btn.dataset.path);
+   details && AppInterface.downloadWallpapers(details.titleSlug, details.productId);
+  }
+ });
+ static handleGameCardMenu($root) {
+  let $detail = $root.querySelector('a[href^="/play/"]');
+  if (!$detail) return;
+  let path = $detail.getAttribute("href");
+  RootDialogObserver.$btnShortcut.dataset.path = path, RootDialogObserver.$btnWallpaper.dataset.path = path, $root.append(RootDialogObserver.$btnShortcut, RootDialogObserver.$btnWallpaper);
+ }
+ static handleAddedElement($root, $addedElm) {
+  if (AppInterface && $addedElm.className.startsWith("SlideSheet-module__container")) {
+   let $gameCardMenu = $addedElm.querySelector("div[class^=MruContextMenu],div[class^=GameCardContextMenu]");
+   if ($gameCardMenu) return RootDialogObserver.handleGameCardMenu($gameCardMenu), !0;
+  } else if ($root.querySelector("div[class*=GuideDialog]")) return GuideMenu.observe($addedElm), !0;
+  return !1;
+ }
+ static observe($root) {
+  let beingShown = !1;
+  new MutationObserver((mutationList) => {
+   for (let mutation of mutationList) {
+    if (mutation.type !== "childList") continue;
+    if (BX_FLAGS.Debug && BxLogger.warning("RootDialog", "added", mutation.addedNodes), mutation.addedNodes.length === 1) {
+     let $addedElm = mutation.addedNodes[0];
+     if ($addedElm instanceof HTMLElement && $addedElm.className) RootDialogObserver.handleAddedElement($root, $addedElm);
+    }
+    let shown = !!($root.firstElementChild && $root.firstElementChild.childElementCount > 0);
+    if (shown !== beingShown) beingShown = shown, BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
+   }
+  }).observe($root, { subtree: !0, childList: !0 });
+ }
+ static waitForRootDialog() {
+  let observer = new MutationObserver((mutationList) => {
+   for (let mutation of mutationList) {
+    if (mutation.type !== "childList") continue;
+    let $target = mutation.target;
+    if ($target.id && $target.id === "gamepass-dialog-root") {
+     observer.disconnect(), RootDialogObserver.observe($target);
+     break;
+    }
+   }
+  });
+  observer.observe(document.documentElement, { subtree: !0, childList: !0 });
+ }
+}
 if (window.location.pathname.includes("/auth/msa")) {
  let nativePushState = window.history.pushState;
  throw window.history.pushState = function(...args) {
@@ -5555,38 +5621,9 @@ window.addEventListener(BxEvent.STREAM_STOPPED, unload);
 window.addEventListener("pagehide", (e) => {
  BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 });
-function observeRootDialog($root) {
- let beingShown = !1;
- new MutationObserver((mutationList) => {
-  for (let mutation of mutationList) {
-   if (mutation.type !== "childList") continue;
-   if (BX_FLAGS.Debug && BxLogger.warning("RootDialog", "added", mutation.addedNodes), mutation.addedNodes.length === 1) {
-    let $addedElm = mutation.addedNodes[0];
-    if ($addedElm instanceof HTMLElement && $addedElm.className) {
-     if ($root.querySelector("div[class*=GuideDialog]")) GuideMenu.observe($addedElm);
-    }
-   }
-   let shown = !!($root.firstElementChild && $root.firstElementChild.childElementCount > 0);
-   if (shown !== beingShown) beingShown = shown, BxEvent.dispatch(window, shown ? BxEvent.XCLOUD_DIALOG_SHOWN : BxEvent.XCLOUD_DIALOG_DISMISSED);
-  }
- }).observe($root, { subtree: !0, childList: !0 });
-}
-function waitForRootDialog() {
- let observer = new MutationObserver((mutationList) => {
-  for (let mutation of mutationList) {
-   if (mutation.type !== "childList") continue;
-   let $target = mutation.target;
-   if ($target.id && $target.id === "gamepass-dialog-root") {
-    observer.disconnect(), observeRootDialog($target);
-    break;
-   }
-  }
- });
- observer.observe(document.documentElement, { subtree: !0, childList: !0 });
-}
 function main() {
  if (getPref("game_msfs2020_force_native_mkb")) BX_FLAGS.ForceNativeMkbTitles.push("9PMQDM08SNK9");
  if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
- if (waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
+ if (RootDialogObserver.waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
 }
 main();
