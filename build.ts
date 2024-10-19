@@ -20,6 +20,8 @@ enum BuildTarget {
 
 type BuildVariant = 'full' | 'lite';
 
+const MINIFY_SYNTAX = true;
+
 const postProcess = (str: string): string => {
     // Unescape unicode charaters
     str = unescape((str.replace(/\\u/g, '%u')));
@@ -70,9 +72,6 @@ const postProcess = (str: string): string => {
     // Collapse empty brackets
     str = str.replaceAll(/\{[\s\n]+\}/g, '{}');
 
-    // Collapse if/else blocks without curly braces
-    str = str.replaceAll(/((if \(.*?\)|else)\n\s+)/g, '$2 ');
-
     // Remove blank lines
     str = str.replaceAll(/\n([\s]*)\n/g, "\n");
 
@@ -91,10 +90,15 @@ const postProcess = (str: string): string => {
     // str = str.replaceAll(/ \(([^\s,.$()]+)\) =>/g, ' $1 =>');
 
     // Set indent to 1 space
-    str = str.replaceAll(/\n(\s+)/g, (match, p1) => {
-        const len = p1.length / 2;
-        return '\n' + ' '.repeat(len);
-    });
+    if (MINIFY_SYNTAX) {
+        // Collapse if/else blocks without curly braces
+        str = str.replaceAll(/((if \(.*?\)|else)\n\s+)/g, '$2 ');
+
+        str = str.replaceAll(/\n(\s+)/g, (match, p1) => {
+            const len = p1.length / 2;
+            return '\n' + ' '.repeat(len);
+        });
+    }
 
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
@@ -128,7 +132,7 @@ const build = async (target: BuildTarget, version: string, variant: BuildVariant
         outdir: outDir,
         naming: outputScriptName,
         minify: {
-            syntax: true,
+            syntax: MINIFY_SYNTAX,
         },
         define: {
             'Bun.env.BUILD_TARGET': JSON.stringify(target),
