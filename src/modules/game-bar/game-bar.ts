@@ -81,14 +81,11 @@ export class GameBar {
 
         // Enable/disable Game Bar when playing/pausing
         getPref(PrefKey.GAME_BAR_POSITION) !== 'off' && window.addEventListener(BxEvent.XCLOUD_POLLING_MODE_CHANGED, ((e: Event) => {
-            if (!STATES.isPlaying) {
-                this.disable();
-                return;
-            }
-
             // Toggle Game bar
-            const mode = (e as any).mode;
-            mode !== 'none' ? this.disable() : this.enable();
+            if (STATES.isPlaying) {
+                const mode = (e as any).mode;
+                mode !== 'none' ? this.disable() : this.enable();
+            }
         }).bind(this));
     }
 
@@ -124,10 +121,6 @@ export class GameBar {
 
     hideBar() {
         this.clearHideTimeout();
-
-        // Stop focusing Game Bar
-        clearFocus();
-
         this.$container.classList.replace('bx-show', 'bx-hide');
     }
 
