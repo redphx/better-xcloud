@@ -310,7 +310,8 @@ function unload() {
     window.BX_EXPOSED.stopTakRendering = false;
 
     NavigationDialogManager.getInstance().hide();
-    StreamStats.getInstance().onStoppedPlaying();
+    StreamStats.getInstance().destroy();
+    StreamBadges.getInstance().destroy();
 
     if (isFullVersion()) {
         MouseCursorHider.stop();

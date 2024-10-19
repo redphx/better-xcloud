@@ -107,7 +107,7 @@ export class StreamStats {
         }
     }
 
-    onStoppedPlaying() {
+    destroy() {
         this.stop();
         this.quickGlanceStop();
         this.hideSettingsUi();
@@ -156,7 +156,7 @@ export class StreamStats {
 
     private async update(forceUpdate=false) {
         if ((!forceUpdate && this.isHidden()) || !STATES.currentStream.peerConnection) {
-            this.onStoppedPlaying();
+            this.destroy();
             return;
         }
 

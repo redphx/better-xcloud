@@ -1934,7 +1934,7 @@ class StreamStats {
   if (this.isGlancing()) this.$container && (this.$container.dataset.display = "fixed");
   else this.isHidden() ? await this.start() : await this.stop();
  }
- onStoppedPlaying() {
+ destroy() {
   this.stop(), this.quickGlanceStop(), this.hideSettingsUi();
  }
  isHidden = () => this.$container.classList.contains("bx-gone");
@@ -1961,7 +1961,7 @@ class StreamStats {
  }
  async update(forceUpdate = !1) {
   if (!forceUpdate && this.isHidden() || !STATES.currentStream.peerConnection) {
-   this.onStoppedPlaying();
+   this.destroy();
    return;
   }
   let PREF_STATS_CONDITIONAL_FORMATTING = getPref("stats_conditional_formatting"), grade = "", statsCollector = StreamStatsCollector.getInstance();
@@ -6372,8 +6372,7 @@ class StreamBadges {
  REFRESH_INTERVAL = 3000;
  setRegion(region) {
   this.serverInfo.server = {
-   region,
-   ipv6: !1
+   region
   };
  }
  renderBadge(name, value) {
@@ -6410,6 +6409,9 @@ class StreamBadges {
  stop() {
   this.intervalId && clearInterval(this.intervalId), this.intervalId = null;
  }
+ destroy() {
+  this.serverInfo = {}, delete this.$container;
+ }
  async render() {
   if (this.$container) return this.start(), this.$container;
   await this.getServerStats();
@@ -6420,7 +6422,7 @@ class StreamBadges {
    ["battery", batteryLevel],
    ["download", humanFileSize(0)],
    ["upload", humanFileSize(0)],
-   this.serverInfo.server ? this.badges.server.$element : ["server", "?"],
+   this.badges.server.$element ?? ["server", "?"],
    this.serverInfo.video ? this.badges.video.$element : ["video", "?"],
    this.serverInfo.audio ? this.badges.audio.$element : ["audio", "?"]
   ], $container = CE("div", { class: "bx-badges" });
@@ -6473,13 +6475,9 @@ class StreamBadges {
   }
   if (candidateId) {
    BxLogger.info("candidate", candidateId, allCandidates);
-   let server = this.serverInfo.server;
-   if (server) {
-    server.ipv6 = allCandidates[candidateId].includes(":");
-    let text = "";
-    if (server.region) text += server.region;
-    text += "@" + (server.ipv6 ? "IPv6" : "IPv4"), this.badges.server.$element = this.renderBadge("server", text);
-   }
+   let text = "", isIpv6 = allCandidates[candidateId].includes(":"), server = this.serverInfo.server;
+   if (server && server.region) text += server.region;
+   text += "@" + (isIpv6 ? "IPv6" : "IPv4"), this.badges.server.$element = this.renderBadge("server", text);
   }
  }
  static setupEvents() {}
@@ -7845,7 +7843,7 @@ window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
 });
 function unload() {
  if (!STATES.isPlaying) return;
- EmulatedMkbHandler.getInstance().destroy(), NativeMkbHandler.getInstance().destroy(), STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1, NavigationDialogManager.getInstance().hide(), StreamStats.getInstance().onStoppedPlaying(), MouseCursorHider.stop(), TouchController.reset(), GameBar.getInstance().disable();
+ EmulatedMkbHandler.getInstance().destroy(), NativeMkbHandler.getInstance().destroy(), STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1, NavigationDialogManager.getInstance().hide(), StreamStats.getInstance().destroy(), StreamBadges.getInstance().destroy(), MouseCursorHider.stop(), TouchController.reset(), GameBar.getInstance().disable();
 }
 window.addEventListener(BxEvent.STREAM_STOPPED, unload);
 window.addEventListener("pagehide", (e) => {

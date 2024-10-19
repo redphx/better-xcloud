@@ -19,7 +19,6 @@ type StreamBadgeInfo = {
 
 type StreamServerInfo = {
     server?: {
-        ipv6: boolean,
         region?: string,
     },
 
@@ -100,7 +99,6 @@ export class StreamBadges {
     setRegion(region: string) {
         this.serverInfo.server = {
             region: region,
-            ipv6: false,
         };
     }
 
@@ -186,6 +184,11 @@ export class StreamBadges {
         this.intervalId = null;
     }
 
+    destroy() {
+        this.serverInfo = {};
+        delete this.$container;
+    }
+
     async render() {
         if (this.$container) {
             this.start();
@@ -205,7 +208,7 @@ export class StreamBadges {
             [StreamBadge.BATTERY, batteryLevel],
             [StreamBadge.DOWNLOAD, humanFileSize(0)],
             [StreamBadge.UPLOAD, humanFileSize(0)],
-            this.serverInfo.server ? this.badges.server.$element : [StreamBadge.SERVER, '?'],
+            this.badges.server.$element ?? [StreamBadge.SERVER, '?'],
             this.serverInfo.video ? this.badges.video.$element : [StreamBadge.VIDEO, '?'],
             this.serverInfo.audio ? this.badges.audio.$element : [StreamBadge.AUDIO, '?'],
         ];
@@ -330,18 +333,16 @@ export class StreamBadges {
             BxLogger.info('candidate', candidateId, allCandidates);
 
             // Server + Region
+            let text = '';
+            const isIpv6 = allCandidates[candidateId].includes(':');
+
             const server = this.serverInfo.server;
-            if (server) {
-                server.ipv6 = allCandidates[candidateId].includes(':');
-
-                let text = '';
-                if (server.region) {
-                    text += server.region;
-                }
-
-                text += '@' + (server.ipv6 ? 'IPv6' : 'IPv4');
-                this.badges.server.$element = this.renderBadge(StreamBadge.SERVER, text);
+            if (server && server.region) {
+                text += server.region;
             }
+
+            text += '@' + (isIpv6 ? 'IPv6' : 'IPv4');
+            this.badges.server.$element = this.renderBadge(StreamBadge.SERVER, text);
         }
     }
 
