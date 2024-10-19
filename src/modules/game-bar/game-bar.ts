@@ -1,4 +1,4 @@
-import { CE, clearFocus, createSvgIcon } from "@utils/html";
+import { CE, createSvgIcon } from "@utils/html";
 import { ScreenshotAction } from "./action-screenshot";
 import { TouchControlAction } from "./action-touch-control";
 import { BxEvent } from "@utils/bx-event";
