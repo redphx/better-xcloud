@@ -5764,43 +5764,52 @@ function getPreferredServerRegion(shortName = !1) {
  return null;
 }
 class HeaderSection {
- static $btnRemotePlay = createButton({
-  classes: ["bx-header-remote-play-button", "bx-gone"],
-  icon: BxIcon.REMOTE_PLAY,
-  title: t("remote-play"),
-  style: 4 | 32 | 512,
-  onClick: (e) => RemotePlayManager.getInstance().togglePopup()
- });
- static $btnSettings = createButton({
-  classes: ["bx-header-settings-button"],
-  label: "???",
-  style: 8 | 16 | 32 | 128,
-  onClick: (e) => SettingsNavigationDialog.getInstance().show()
- });
- static $buttonsWrapper = CE("div", {}, getPref("xhome_enabled") ? HeaderSection.$btnRemotePlay : null, HeaderSection.$btnSettings);
- static observer;
- static timeoutId;
- static injectSettingsButton($parent) {
-  if (!$parent) return;
-  let PREF_LATEST_VERSION = getPref("version_latest"), $btnSettings = HeaderSection.$btnSettings;
-  if (isElementVisible(HeaderSection.$buttonsWrapper)) return;
-  if ($btnSettings.querySelector("span").textContent = getPreferredServerRegion(!0) || t("better-xcloud"), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) $btnSettings.setAttribute("data-update-available", "true");
-  $parent.appendChild(HeaderSection.$buttonsWrapper);
+ static instance;
+ static getInstance = () => HeaderSection.instance ?? (HeaderSection.instance = new HeaderSection);
+ LOG_TAG = "HeaderSection";
+ $btnRemotePlay;
+ $btnSettings;
+ $buttonsWrapper;
+ observer;
+ timeoutId;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$btnRemotePlay = createButton({
+   classes: ["bx-header-remote-play-button", "bx-gone"],
+   icon: BxIcon.REMOTE_PLAY,
+   title: t("remote-play"),
+   style: 4 | 32 | 512,
+   onClick: (e) => RemotePlayManager.getInstance().togglePopup()
+  }), this.$btnSettings = createButton({
+   classes: ["bx-header-settings-button"],
+   label: "???",
+   style: 8 | 16 | 32 | 128,
+   onClick: (e) => SettingsNavigationDialog.getInstance().show()
+  }), this.$buttonsWrapper = CE("div", {}, getPref("xhome_enabled") ? this.$btnRemotePlay : null, this.$btnSettings);
  }
- static checkHeader() {
+ injectSettingsButton($parent) {
+  if (!$parent) return;
+  let PREF_LATEST_VERSION = getPref("version_latest"), $btnSettings = this.$btnSettings;
+  if (isElementVisible(this.$buttonsWrapper)) return;
+  if ($btnSettings.querySelector("span").textContent = getPreferredServerRegion(!0) || t("better-xcloud"), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) $btnSettings.setAttribute("data-update-available", "true");
+  $parent.appendChild(this.$buttonsWrapper);
+ }
+ checkHeader() {
   let $target = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
   if (!$target) $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
-  $target && HeaderSection.injectSettingsButton($target);
+  $target && this.injectSettingsButton($target);
  }
- static showRemotePlayButton() {
-  HeaderSection.$btnRemotePlay.classList.remove("bx-gone");
- }
- static watchHeader() {
+ watchHeader() {
   let $root = document.querySelector("#PageContent header") || document.querySelector("#root");
   if (!$root) return;
-  HeaderSection.timeoutId && clearTimeout(HeaderSection.timeoutId), HeaderSection.timeoutId = null, HeaderSection.observer && HeaderSection.observer.disconnect(), HeaderSection.observer = new MutationObserver((mutationList) => {
-   HeaderSection.timeoutId && clearTimeout(HeaderSection.timeoutId), HeaderSection.timeoutId = window.setTimeout(HeaderSection.checkHeader, 2000);
-  }), HeaderSection.observer.observe($root, { subtree: !0, childList: !0 }), HeaderSection.checkHeader();
+  this.timeoutId && clearTimeout(this.timeoutId), this.timeoutId = null, this.observer && this.observer.disconnect(), this.observer = new MutationObserver((mutationList) => {
+   this.timeoutId && clearTimeout(this.timeoutId), this.timeoutId = window.setTimeout(this.checkHeader.bind(this), 2000);
+  }), this.observer.observe($root, { subtree: !0, childList: !0 }), this.checkHeader();
+ }
+ showRemotePlayButton() {
+  this.$btnRemotePlay.classList.remove("bx-gone");
+ }
+ static watchHeader() {
+  HeaderSection.getInstance().watchHeader();
  }
 }
 class RemotePlayNavigationDialog extends NavigationDialog {
@@ -5884,7 +5893,7 @@ class RemotePlayManager {
   if (this.isInitialized) return;
   this.isInitialized = !0, this.getXhomeToken(() => {
    this.getConsolesList(() => {
-    BxLogger.info(this.LOG_TAG, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+    BxLogger.info(this.LOG_TAG, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.getInstance().showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
    });
   });
  }
@@ -6043,15 +6052,19 @@ class XhomeInterceptor {
  }
  static async handleConfiguration(request) {
   BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
-  let response = await NATIVE_FETCH(request), obj = await response.clone().json();
-  console.log(obj);
-  let processPorts = (port) => {
-   let ports = new Set;
-   return port && ports.add(port), ports.add(9002), Array.from(ports);
-  }, serverDetails = obj.serverDetails;
-  if (serverDetails.ipAddress) XhomeInterceptor.consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
-  if (serverDetails.ipV4Address) XhomeInterceptor.consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
-  if (serverDetails.ipV6Address) XhomeInterceptor.consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
+  let response = await NATIVE_FETCH(request), obj = await response.clone().json(), serverDetails = obj.serverDetails, pairs = [
+   ["ipAddress", "port"],
+   ["ipV4Address", "ipV4Port"],
+   ["ipV6Address", "ipV6Port"]
+  ];
+  XhomeInterceptor.consoleAddrs = {};
+  for (let pair in pairs) {
+   let [keyAddr, keyPort] = pair;
+   if (serverDetails[keyAddr]) {
+    let port = serverDetails[keyPort], ports = new Set;
+    port && ports.add(port), ports.add(9002), XhomeInterceptor.consoleAddrs[serverDetails[keyAddr]] = Array.from(ports);
+   }
+  }
   return response.json = () => Promise.resolve(obj), response.text = () => Promise.resolve(JSON.stringify(obj)), response;
  }
  static async handleInputConfigs(request, opts) {
@@ -6103,14 +6116,12 @@ class XhomeInterceptor {
    headers
   };
   if (clone.method === "POST") opts.body = await clone.text();
-  let newUrl = request.url;
-  if (!newUrl.includes("/servers/home")) {
-   let index = request.url.indexOf(".xboxlive.com");
-   newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
+  let url = request.url;
+  if (!url.includes("/servers/home")) {
+   let parsed = new URL(url);
+   url = STATES.remotePlay.server + parsed.pathname;
   }
-  request = new Request(newUrl, opts);
-  let url = typeof request === "string" ? request : request.url;
-  if (url.includes("/configuration")) return XhomeInterceptor.handleConfiguration(request);
+  if (request = new Request(url, opts), url.includes("/configuration")) return XhomeInterceptor.handleConfiguration(request);
   else if (url.endsWith("/sessions/home/play")) return XhomeInterceptor.handlePlay(request);
   else if (url.includes("inputconfigs")) return XhomeInterceptor.handleInputConfigs(request, opts);
   else if (url.includes("/login/user")) return XhomeInterceptor.handleLogin(request);
@@ -6178,34 +6189,40 @@ class LoadingScreen {
  }
 }
 class TrueAchievements {
- static $link = createButton({
-  label: t("true-achievements"),
-  url: "#",
-  icon: BxIcon.TRUE_ACHIEVEMENTS,
-  style: 32 | 4 | 64 | 2048,
-  onClick: TrueAchievements.onClick
- });
- static $button = createButton({
-  label: t("true-achievements"),
-  title: t("true-achievements"),
-  icon: BxIcon.TRUE_ACHIEVEMENTS,
-  style: 32,
-  onClick: TrueAchievements.onClick
- });
- static onClick(e) {
-  e.preventDefault();
-  let dataset = TrueAchievements.$link.dataset;
-  TrueAchievements.open(!0, dataset.xboxTitleId, dataset.id), window.BX_EXPOSED.dialogRoutes?.closeAll();
+ static instance;
+ static getInstance = () => TrueAchievements.instance ?? (TrueAchievements.instance = new TrueAchievements);
+ LOG_TAG = "TrueAchievements";
+ $link;
+ $button;
+ $hiddenLink;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$link = createButton({
+   label: t("true-achievements"),
+   url: "#",
+   icon: BxIcon.TRUE_ACHIEVEMENTS,
+   style: 32 | 4 | 64 | 2048,
+   onClick: this.onClick.bind(this)
+  }), this.$button = createButton({
+   label: t("true-achievements"),
+   title: t("true-achievements"),
+   icon: BxIcon.TRUE_ACHIEVEMENTS,
+   style: 32,
+   onClick: this.onClick.bind(this)
+  }), this.$hiddenLink = CE("a", {
+   target: "_blank"
+  });
  }
- static $hiddenLink = CE("a", {
-  target: "_blank"
- });
- static updateIds(xboxTitleId, id2) {
-  let { $link, $button } = TrueAchievements;
+ onClick(e) {
+  e.preventDefault(), window.BX_EXPOSED.dialogRoutes?.closeAll();
+  let dataset = this.$link.dataset;
+  this.open(!0, dataset.xboxTitleId, dataset.id);
+ }
+ updateIds(xboxTitleId, id2) {
+  let $link = this.$link, $button = this.$button;
   if (clearDataSet($link), clearDataSet($button), xboxTitleId) $link.dataset.xboxTitleId = xboxTitleId, $button.dataset.xboxTitleId = xboxTitleId;
   if (id2) $link.dataset.id = id2, $button.dataset.id = id2;
  }
- static injectAchievementsProgress($elm) {
+ injectAchievementsProgress($elm) {
   if (SCRIPT_VARIANT !== "full") return;
   let $parent = $elm.parentElement, $div = CE("div", {
    class: "bx-guide-home-achievements-progress"
@@ -6214,13 +6231,13 @@ class TrueAchievements {
    let $container = $parent.closest("div[class*=AchievementsPreview-module__container]");
    if ($container) xboxTitleId = getReactProps($container).children.props.data.data.xboxTitleId;
   } catch (e) {}
-  if (!xboxTitleId) xboxTitleId = TrueAchievements.getStreamXboxTitleId();
+  if (!xboxTitleId) xboxTitleId = this.getStreamXboxTitleId();
   if (typeof xboxTitleId !== "undefined") xboxTitleId = xboxTitleId.toString();
-  if (TrueAchievements.updateIds(xboxTitleId), document.documentElement.dataset.xdsPlatform === "tv") $div.appendChild(TrueAchievements.$link);
-  else $div.appendChild(TrueAchievements.$button);
+  if (this.updateIds(xboxTitleId), document.documentElement.dataset.xdsPlatform === "tv") $div.appendChild(this.$link);
+  else $div.appendChild(this.$button);
   $parent.appendChild($div);
  }
- static injectAchievementDetailPage($parent) {
+ injectAchievementDetailPage($parent) {
   if (SCRIPT_VARIANT !== "full") return;
   let props = getReactProps($parent);
   if (!props) return;
@@ -6231,14 +6248,14 @@ class TrueAchievements {
      id2 = achiev.id, xboxTitleId = achiev.title.id;
      break;
     }
-   if (id2) TrueAchievements.updateIds(xboxTitleId, id2), $parent.appendChild(TrueAchievements.$link);
+   if (id2) this.updateIds(xboxTitleId, id2), $parent.appendChild(this.$link);
   } catch (e) {}
  }
- static getStreamXboxTitleId() {
+ getStreamXboxTitleId() {
   return STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
  }
- static open(override, xboxTitleId, id2) {
-  if (!xboxTitleId || xboxTitleId === "undefined") xboxTitleId = TrueAchievements.getStreamXboxTitleId();
+ open(override, xboxTitleId, id2) {
+  if (!xboxTitleId || xboxTitleId === "undefined") xboxTitleId = this.getStreamXboxTitleId();
   if (AppInterface && AppInterface.openTrueAchievementsLink) {
    AppInterface.openTrueAchievementsLink(override, xboxTitleId?.toString(), id2?.toString());
    return;
@@ -6247,58 +6264,14 @@ class TrueAchievements {
   if (xboxTitleId) {
    if (url += `/deeplink/${xboxTitleId}`, id2) url += `/${id2}`;
   }
-  TrueAchievements.$hiddenLink.href = url, TrueAchievements.$hiddenLink.click();
+  this.$hiddenLink.href = url, this.$hiddenLink.click();
  }
 }
 class GuideMenu {
- static #BUTTONS = {
-  scriptSettings: createButton({
-   label: t("better-xcloud"),
-   style: 64 | 32 | 1,
-   onClick: (e) => {
-    window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, (e2) => {
-     setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
-    }, { once: !0 }), GuideMenu.#closeGuideMenu();
-   }
-  }),
-  closeApp: AppInterface && createButton({
-   icon: BxIcon.POWER,
-   label: t("close-app"),
-   title: t("close-app"),
-   style: 64 | 32 | 2,
-   onClick: (e) => {
-    AppInterface.closeApp();
-   },
-   attributes: {
-    "data-state": "normal"
-   }
-  }),
-  reloadPage: createButton({
-   icon: BxIcon.REFRESH,
-   label: t("reload-page"),
-   title: t("reload-page"),
-   style: 64 | 32,
-   onClick: (e) => {
-    if (STATES.isPlaying) confirm(t("confirm-reload-stream")) && window.location.reload();
-    else window.location.reload();
-    GuideMenu.#closeGuideMenu();
-   }
-  }),
-  backToHome: createButton({
-   icon: BxIcon.HOME,
-   label: t("back-to-home"),
-   title: t("back-to-home"),
-   style: 64 | 32,
-   onClick: (e) => {
-    confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31)), GuideMenu.#closeGuideMenu();
-   },
-   attributes: {
-    "data-state": "playing"
-   }
-  })
- };
- static #$renderedButtons;
- static #closeGuideMenu() {
+ static instance;
+ static getInstance = () => GuideMenu.instance ?? (GuideMenu.instance = new GuideMenu);
+ $renderedButtons;
+ closeGuideMenu() {
   if (window.BX_EXPOSED.dialogRoutes) {
    window.BX_EXPOSED.dialogRoutes.closeAll();
    return;
@@ -6306,19 +6279,63 @@ class GuideMenu {
   let $btnClose = document.querySelector("#gamepass-dialog-root button[class^=Header-module__closeButton]");
   $btnClose && $btnClose.click();
  }
- static #renderButtons() {
-  if (GuideMenu.#$renderedButtons) return GuideMenu.#$renderedButtons;
-  let $div = CE("div", {
-   class: "bx-guide-home-buttons"
-  }), buttons = [
-   GuideMenu.#BUTTONS.scriptSettings,
+ renderButtons() {
+  if (this.$renderedButtons) return this.$renderedButtons;
+  let buttons = {
+   scriptSettings: createButton({
+    label: t("better-xcloud"),
+    style: 64 | 32 | 1,
+    onClick: (() => {
+     window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, (e) => {
+      setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
+     }, { once: !0 }), this.closeGuideMenu();
+    }).bind(this)
+   }),
+   closeApp: AppInterface && createButton({
+    icon: BxIcon.POWER,
+    label: t("close-app"),
+    title: t("close-app"),
+    style: 64 | 32 | 2,
+    onClick: (e) => {
+     AppInterface.closeApp();
+    },
+    attributes: {
+     "data-state": "normal"
+    }
+   }),
+   reloadPage: createButton({
+    icon: BxIcon.REFRESH,
+    label: t("reload-page"),
+    title: t("reload-page"),
+    style: 64 | 32,
+    onClick: (() => {
+     if (this.closeGuideMenu(), STATES.isPlaying) confirm(t("confirm-reload-stream")) && window.location.reload();
+     else window.location.reload();
+    }).bind(this)
+   }),
+   backToHome: createButton({
+    icon: BxIcon.HOME,
+    label: t("back-to-home"),
+    title: t("back-to-home"),
+    style: 64 | 32,
+    onClick: (() => {
+     this.closeGuideMenu(), confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
+    }).bind(this),
+    attributes: {
+     "data-state": "playing"
+    }
+   })
+  }, buttonsLayout = [
+   buttons.scriptSettings,
    [
-    GuideMenu.#BUTTONS.backToHome,
-    GuideMenu.#BUTTONS.reloadPage,
-    GuideMenu.#BUTTONS.closeApp
+    buttons.backToHome,
+    buttons.reloadPage,
+    buttons.closeApp
    ]
-  ];
-  for (let $button of buttons) {
+  ], $div = CE("div", {
+   class: "bx-guide-home-buttons"
+  });
+  for (let $button of buttonsLayout) {
    if (!$button) continue;
    if ($button instanceof HTMLElement) $div.appendChild($button);
    else if (Array.isArray($button)) {
@@ -6328,12 +6345,12 @@ class GuideMenu {
     $div.appendChild($wrapper);
    }
   }
-  return GuideMenu.#$renderedButtons = $div, $div;
+  return this.$renderedButtons = $div, $div;
  }
- static #injectHome($root, isPlaying = !1) {
+ injectHome($root, isPlaying = !1) {
   {
    let $achievementsProgress = $root.querySelector("button[class*=AchievementsButton-module__progressBarContainer]");
-   if ($achievementsProgress) TrueAchievements.injectAchievementsProgress($achievementsProgress);
+   if ($achievementsProgress) TrueAchievements.getInstance().injectAchievementsProgress($achievementsProgress);
   }
   let $target = null;
   if (isPlaying) {
@@ -6345,29 +6362,29 @@ class GuideMenu {
    if ($dividers) $target = $dividers[$dividers.length - 1];
   }
   if (!$target) return !1;
-  let $buttons = GuideMenu.#renderButtons();
+  let $buttons = this.renderButtons();
   $buttons.dataset.isPlaying = isPlaying.toString(), $target.insertAdjacentElement("afterend", $buttons);
  }
- static async#onShown(e) {
+ async onShown(e) {
   if (e.where === "home") {
    let $root = document.querySelector("#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]");
-   $root && GuideMenu.#injectHome($root, STATES.isPlaying);
+   $root && this.injectHome($root, STATES.isPlaying);
   }
  }
- static addEventListeners() {
-  window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, GuideMenu.#onShown);
+ addEventListeners() {
+  window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, this.onShown.bind(this));
  }
- static observe($addedElm) {
+ observe($addedElm) {
   let className = $addedElm.className;
   if (className.includes("AchievementsButton-module__progressBarContainer")) {
-   TrueAchievements.injectAchievementsProgress($addedElm);
+   TrueAchievements.getInstance().injectAchievementsProgress($addedElm);
    return;
   }
   if (!className.startsWith("NavigationAnimation") && !className.startsWith("DialogRoutes") && !className.startsWith("Dialog-module__container")) return;
   {
    let $achievDetailPage = $addedElm.querySelector("div[class*=AchievementDetailPage]");
    if ($achievDetailPage) {
-    TrueAchievements.injectAchievementDetailPage($achievDetailPage);
+    TrueAchievements.getInstance().injectAchievementDetailPage($achievDetailPage);
     return;
    }
   }
@@ -6703,7 +6720,8 @@ function interceptHttpRequests() {
    "https://arc.msn.com",
    "https://browser.events.data.microsoft.com",
    "https://dc.services.visualstudio.com",
-   "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
+   "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io",
+   "https://mscom.demdex.net"
   ]);
  if (getPref("block_social_features")) BLOCKED_URLS = BLOCKED_URLS.concat([
    "https://peoplehub.xboxlive.com/users/me/people/social",
@@ -7389,7 +7407,7 @@ class TrueAchievementsAction extends BaseGameBarAction {
   });
  }
  onClick(e) {
-  super.onClick(e), TrueAchievements.open(!1);
+  super.onClick(e), TrueAchievements.getInstance().open(!1);
  }
 }
 class SpeakerAction extends BaseGameBarAction {
@@ -7791,7 +7809,7 @@ class RootDialogObserver {
   if (AppInterface && $addedElm.className.startsWith("SlideSheet-module__container")) {
    let $gameCardMenu = $addedElm.querySelector("div[class^=MruContextMenu],div[class^=GameCardContextMenu]");
    if ($gameCardMenu) return RootDialogObserver.handleGameCardMenu($gameCardMenu), !0;
-  } else if ($root.querySelector("div[class*=GuideDialog]")) return GuideMenu.observe($addedElm), !0;
+  } else if ($root.querySelector("div[class*=GuideDialog]")) return GuideMenu.getInstance().observe($addedElm), !0;
   return !1;
  }
  static observe($root) {
@@ -7930,7 +7948,7 @@ window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
 function main() {
  if (getPref("game_msfs2020_force_native_mkb")) BX_FLAGS.ForceNativeMkbTitles.push("9PMQDM08SNK9");
  if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
- if (RootDialogObserver.waitForRootDialog(), addCss(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
+ if (RootDialogObserver.waitForRootDialog(), addCss(), GuideMenu.getInstance().addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
  if (getPref("stream_touch_controller") === "all") TouchController.setup();
  if (getPref("mkb_enabled") && AppInterface) STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
  if (getPref("ui_game_card_show_wait_time") && GameTile.setup(), EmulatedMkbHandler.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
