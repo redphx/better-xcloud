@@ -1,12 +1,18 @@
 import { NATIVE_FETCH } from "./bx-flags";
+import { BxLogger } from "./bx-logger";
 import { STATES } from "./global";
 
 export class XcloudApi {
     private static instance: XcloudApi;
     public static getInstance = () => XcloudApi.instance ?? (XcloudApi.instance = new XcloudApi());
+    private readonly LOG_TAG = 'XcloudApi';
 
     private CACHE_TITLES: {[key: string]: XcloudTitleInfo} = {};
     private CACHE_WAIT_TIME: {[key: string]: XcloudWaitTimeInfo} = {};
+
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+    }
 
     async getTitleInfo(id: string): Promise<XcloudTitleInfo | null> {
         if (id in this.CACHE_TITLES) {

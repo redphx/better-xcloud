@@ -7,11 +7,13 @@ import { t } from "@/utils/translation";
 import { RemotePlayConsoleState, RemotePlayManager } from "@/modules/remote-play-manager";
 import { BxSelectElement } from "@/web-components/bx-select";
 import { BxEvent } from "@/utils/bx-event";
+import { BxLogger } from "@/utils/bx-logger";
 
 
 export class RemotePlayNavigationDialog extends NavigationDialog {
     private static instance: RemotePlayNavigationDialog;
     public static getInstance = () => RemotePlayNavigationDialog.instance ?? (RemotePlayNavigationDialog.instance = new RemotePlayNavigationDialog());
+    private readonly LOG_TAG = 'RemotePlayNavigationDialog';
 
     private readonly STATE_LABELS: Record<RemotePlayConsoleState, string> = {
         [RemotePlayConsoleState.ON]: t('powered-on'),
@@ -22,8 +24,9 @@ export class RemotePlayNavigationDialog extends NavigationDialog {
 
     $container!: HTMLElement;
 
-    constructor() {
+    private constructor() {
         super();
+        BxLogger.info(this.LOG_TAG, 'constructor()');
         this.setupDialog();
     }
 
@@ -124,7 +127,7 @@ export class RemotePlayNavigationDialog extends NavigationDialog {
     }
 
     focusIfNeeded(): void {
-        const $btnConnect = this.$container.querySelector('.bx-remote-play-device-wrapper button') as HTMLElement;
+        const $btnConnect = this.$container.querySelector<HTMLElement>('.bx-remote-play-device-wrapper button');
         $btnConnect && $btnConnect.focus();
     }
 }

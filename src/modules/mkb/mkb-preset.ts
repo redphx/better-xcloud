@@ -130,7 +130,6 @@ export class MkbPreset {
             mouse[MkbPresetKey.MOUSE_MAP_TO] = MkbPreset.MOUSE_SETTINGS[MkbPresetKey.MOUSE_MAP_TO].default;
         }
 
-        console.log(obj);
         return obj;
     }
 }

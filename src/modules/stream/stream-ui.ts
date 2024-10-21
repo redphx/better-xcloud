@@ -39,7 +39,7 @@ export class StreamUiHandler {
                     return;
                 }
 
-                const $streamHud = (e.target as HTMLElement).closest('#StreamHud') as HTMLElement;
+                const $streamHud = (e.target as HTMLElement).closest<HTMLElement>('#StreamHud');
                 if (!$streamHud) {
                     return;
                 }
@@ -58,13 +58,13 @@ export class StreamUiHandler {
             $container.addEventListener('transitionend', onTransitionEnd);
         }
 
-        const $button = $container.querySelector('button') as HTMLElement;
+        const $button = $container.querySelector<HTMLButtonElement>('button');
         if (!$button) {
             return null;
         }
         $button.setAttribute('title', label);
 
-        const $orgSvg = $button.querySelector('svg') as SVGElement;
+        const $orgSvg = $button.querySelector<SVGElement>('svg');
         if (!$orgSvg) {
             return null;
         }
@@ -102,7 +102,7 @@ export class StreamUiHandler {
     }
 
     private static async handleStreamMenu() {
-        const $btnCloseHud = document.querySelector('button[class*=StreamMenu-module__backButton]') as HTMLElement;
+        const $btnCloseHud = document.querySelector<HTMLElement>('button[class*=StreamMenu-module__backButton]');
         if (!$btnCloseHud) {
             return;
         }
@@ -136,14 +136,14 @@ export class StreamUiHandler {
 
     private static handleSystemMenu($streamHud: HTMLElement) {
         // Get the last button
-        const $orgButton = $streamHud.querySelector('div[class^=HUDButton]') as HTMLElement;
+        const $orgButton = $streamHud.querySelector<HTMLElement>('div[class^=HUDButton]');
         if (!$orgButton) {
             return;
         }
 
         const hideGripHandle = () => {
             // Grip handle
-            const $gripHandle = document.querySelector('#StreamHud button[class^=GripHandle]') as HTMLElement;
+            const $gripHandle = document.querySelector<HTMLElement>('#StreamHud button[class^=GripHandle]');
             if ($gripHandle && $gripHandle.ariaExpanded === 'true') {
                 $gripHandle.dispatchEvent(new PointerEvent('pointerdown'));
                 $gripHandle.click();

@@ -1,42 +1,55 @@
 import { BxIcon } from "./bx-icon";
+import { BxLogger } from "./bx-logger";
 import { AppInterface, SCRIPT_VARIANT, STATES } from "./global";
 import { ButtonStyle, CE, clearDataSet, createButton, getReactProps } from "./html";
 import { t } from "./translation";
 
 export class TrueAchievements {
-    private static $link = createButton({
-        label: t('true-achievements'),
-        url: '#',
-        icon: BxIcon.TRUE_ACHIEVEMENTS,
-        style: ButtonStyle.FOCUSABLE | ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH | ButtonStyle.NORMAL_LINK,
-        onClick: TrueAchievements.onClick,
-    }) as HTMLAnchorElement;
+    private static instance: TrueAchievements;
+    public static getInstance = () => TrueAchievements.instance ?? (TrueAchievements.instance = new TrueAchievements());
+    private readonly LOG_TAG = 'TrueAchievements';
 
-    static $button = createButton({
-        label: t('true-achievements'),
-        title: t('true-achievements'),
-        icon: BxIcon.TRUE_ACHIEVEMENTS,
-        style: ButtonStyle.FOCUSABLE,
-        onClick: TrueAchievements.onClick,
-    }) as HTMLAnchorElement;
+    private $link: HTMLElement;
+    private $button: HTMLElement;
+    private $hiddenLink: HTMLAnchorElement;
 
-    private static onClick(e: Event) {
+    constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+
+        this.$link = createButton<HTMLAnchorElement>({
+            label: t('true-achievements'),
+            url: '#',
+            icon: BxIcon.TRUE_ACHIEVEMENTS,
+            style: ButtonStyle.FOCUSABLE | ButtonStyle.GHOST | ButtonStyle.FULL_WIDTH | ButtonStyle.NORMAL_LINK,
+            onClick: this.onClick.bind(this),
+        });
+
+        this.$button = createButton<HTMLAnchorElement>({
+            label: t('true-achievements'),
+            title: t('true-achievements'),
+            icon: BxIcon.TRUE_ACHIEVEMENTS,
+            style: ButtonStyle.FOCUSABLE,
+            onClick: this.onClick.bind(this),
+        });
+
+        this.$hiddenLink = CE<HTMLAnchorElement>('a', {
+            target: '_blank',
+        });
+    }
+
+    private onClick(e: Event) {
         e.preventDefault();
-
-        const dataset = TrueAchievements.$link.dataset;
-        TrueAchievements.open(true, dataset.xboxTitleId, dataset.id);
 
         // Close all xCloud's dialogs
         window.BX_EXPOSED.dialogRoutes?.closeAll();
+
+        const dataset = this.$link.dataset;
+        this.open(true, dataset.xboxTitleId, dataset.id);
     }
 
-    private static $hiddenLink = CE<HTMLAnchorElement>('a', {
-        target: '_blank',
-    });
-
-    private static updateIds(xboxTitleId?: string, id?: string) {
-        const $link = TrueAchievements.$link;
-        const $button = TrueAchievements.$button;
+    private updateIds(xboxTitleId?: string, id?: string) {
+        const $link = this.$link;
+        const $button = this.$button;
 
         clearDataSet($link);
         clearDataSet($button);
@@ -52,7 +65,7 @@ export class TrueAchievements {
         }
     }
 
-    static injectAchievementsProgress($elm: HTMLElement) {
+    injectAchievementsProgress($elm: HTMLElement) {
         // Only do this in Full version
         if (SCRIPT_VARIANT !== 'full') {
             return;
@@ -68,7 +81,7 @@ export class TrueAchievements {
         // Get xboxTitleId of the game
         let xboxTitleId: string | number | undefined;
         try {
-            const $container = $parent.closest('div[class*=AchievementsPreview-module__container]') as HTMLElement;
+            const $container = $parent.closest<HTMLElement>('div[class*=AchievementsPreview-module__container]');
             if ($container) {
                 const props = getReactProps($container);
                 xboxTitleId = props.children.props.data.data.xboxTitleId;
@@ -76,24 +89,24 @@ export class TrueAchievements {
         } catch (e) {}
 
         if (!xboxTitleId) {
-            xboxTitleId = TrueAchievements.getStreamXboxTitleId();
+            xboxTitleId = this.getStreamXboxTitleId();
         }
 
         if (typeof xboxTitleId !== 'undefined') {
             xboxTitleId = xboxTitleId.toString();
         }
-        TrueAchievements.updateIds(xboxTitleId);
+        this.updateIds(xboxTitleId);
 
         if (document.documentElement.dataset.xdsPlatform === 'tv') {
-            $div.appendChild(TrueAchievements.$link);
+            $div.appendChild(this.$link);
         } else {
-            $div.appendChild(TrueAchievements.$button);
+            $div.appendChild(this.$button);
         }
 
         $parent.appendChild($div);
     }
 
-    static injectAchievementDetailPage($parent: HTMLElement) {
+    injectAchievementDetailPage($parent: HTMLElement) {
         // Only do this in Full version
         if (SCRIPT_VARIANT !== 'full') {
             return;
@@ -109,7 +122,7 @@ export class TrueAchievements {
             const achievementList: XboxAchievement[] = props.children.props.data.data;
 
             // Get current achievement name
-            const $header = $parent.querySelector('div[class*=AchievementDetailHeader]') as HTMLElement;
+            const $header = $parent.querySelector<HTMLElement>('div[class*=AchievementDetailHeader]')!;
             const achievementName = getReactProps($header).children[0].props.achievementName;
 
             // Find achievement based on name
@@ -125,19 +138,19 @@ export class TrueAchievements {
 
             // Found achievement -> add TrueAchievements button
             if (id) {
-                TrueAchievements.updateIds(xboxTitleId, id);
-                $parent.appendChild(TrueAchievements.$link);
+                this.updateIds(xboxTitleId, id);
+                $parent.appendChild(this.$link);
             }
         } catch (e) {};
     }
 
-    private static getStreamXboxTitleId() : number | undefined {
+    private getStreamXboxTitleId() : number | undefined {
         return STATES.currentStream.xboxTitleId || STATES.currentStream.titleInfo?.details.xboxTitleId;
     }
 
-    static open(override: boolean, xboxTitleId?: number | string, id?: number | string) {
+    open(override: boolean, xboxTitleId?: number | string, id?: number | string) {
         if (!xboxTitleId || xboxTitleId === 'undefined') {
-            xboxTitleId = TrueAchievements.getStreamXboxTitleId();
+            xboxTitleId = this.getStreamXboxTitleId();
         }
 
         if (AppInterface && AppInterface.openTrueAchievementsLink) {
@@ -154,7 +167,7 @@ export class TrueAchievements {
             }
         }
 
-        TrueAchievements.$hiddenLink.href = url;
-        TrueAchievements.$hiddenLink.click();
+        this.$hiddenLink.href = url;
+        this.$hiddenLink.click();
     }
 }

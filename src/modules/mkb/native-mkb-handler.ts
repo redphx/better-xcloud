@@ -7,6 +7,7 @@ import { BxEvent } from "@/utils/bx-event";
 import { ButtonStyle, CE, createButton } from "@/utils/html";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "@/utils/settings-storages/global-settings-storage";
+import { BxLogger } from "@/utils/bx-logger";
 
 type NativeMouseData = {
     X: number,
@@ -24,6 +25,7 @@ type XcloudInputSink = {
 export class NativeMkbHandler extends MkbHandler {
     private static instance: NativeMkbHandler;
     public static getInstance = () => NativeMkbHandler.instance ?? (NativeMkbHandler.instance = new NativeMkbHandler());
+    private readonly LOG_TAG = 'NativeMkbHandler';
 
     #pointerClient: PointerClient | undefined;
     #enabled: boolean = false;
@@ -38,6 +40,11 @@ export class NativeMkbHandler extends MkbHandler {
     #inputSink: XcloudInputSink | undefined;
 
     #$message?: HTMLElement;
+
+    private constructor() {
+        super();
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+    }
 
     #onKeyboardEvent(e: KeyboardEvent) {
         if (e.type === 'keyup' && e.code === 'F8') {

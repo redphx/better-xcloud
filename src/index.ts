@@ -12,7 +12,6 @@ import { EmulatedMkbHandler } from "@modules/mkb/mkb-handler";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
 import { addCss, preloadFonts } from "@utils/css";
-import { Toast } from "@utils/toast";
 import { LoadingScreen } from "@modules/loading-screen";
 import { MouseCursorHider } from "@modules/mkb/mouse-cursor-hider";
 import { TouchController } from "@modules/touch-controller";
@@ -26,7 +25,7 @@ import { disableAdobeAudienceManager, patchAudioContext, patchCanvasContext, pat
 import { AppInterface, STATES } from "@utils/global";
 import { BxLogger } from "@utils/bx-logger";
 import { GameBar } from "./modules/game-bar/game-bar";
-import { Screenshot } from "./utils/screenshot";
+import { ScreenshotManager } from "./utils/screenshot-manager";
 import { NativeMkbHandler } from "./modules/mkb/native-mkb-handler";
 import { GuideMenu } from "./modules/ui/guide-menu";
 import { updateVideoPlayer } from "./modules/stream/stream-settings-utils";
@@ -170,7 +169,7 @@ document.addEventListener('readystatechange', e => {
 
     // Hide "Play with Friends" skeleton section
     if (getPref(PrefKey.UI_HIDE_SECTIONS).includes(UiSection.FRIENDS)) {
-        const $parent = document.querySelector('div[class*=PlayWithFriendsSkeleton]')?.closest('div[class*=HomePage-module]') as HTMLElement;
+        const $parent = document.querySelector('div[class*=PlayWithFriendsSkeleton]')?.closest<HTMLElement>('div[class*=HomePage-module]');
         $parent && ($parent.style.display = 'none');
     }
 
@@ -194,7 +193,7 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
     window.setTimeout(HeaderSection.watchHeader, 2000);
 
     // Open Settings dialog on Unsupported page
-    const $unsupportedPage = document.querySelector('div[class^=UnsupportedMarketPage-module__container]') as HTMLElement;
+    const $unsupportedPage = document.querySelector<HTMLElement>('div[class^=UnsupportedMarketPage-module__container]');
     if ($unsupportedPage) {
         SettingsNavigationDialog.getInstance().show();
     }
@@ -241,7 +240,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
 
     if (isFullVersion()) {
         const $video = (e as any).$video as HTMLVideoElement;
-        Screenshot.updateCanvasSize($video.videoWidth, $video.videoHeight);
+        ScreenshotManager.getInstance().updateCanvasSize($video.videoWidth, $video.videoHeight);
     }
 
     updateVideoPlayer();
@@ -316,7 +315,7 @@ function unload() {
     if (isFullVersion()) {
         MouseCursorHider.stop();
         TouchController.reset();
-        GameBar.getInstance().disable();
+        (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance().disable();
     }
 }
 
@@ -326,7 +325,7 @@ window.addEventListener('pagehide', e => {
 });
 
 isFullVersion() && window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, e => {
-    Screenshot.takeScreenshot();
+    ScreenshotManager.getInstance().takeScreenshot();
 });
 
 
@@ -354,17 +353,13 @@ function main() {
 
     // Setup UI
     addCss();
-    Toast.setup();
 
-    GuideMenu.addEventListeners();
+    GuideMenu.getInstance().addEventListeners();
     StreamStatsCollector.setupEvents();
     StreamBadges.setupEvents();
     StreamStats.setupEvents();
 
     if (isFullVersion()) {
-        (getPref(PrefKey.GAME_BAR_POSITION) !== 'off') && GameBar.getInstance();
-        Screenshot.setup();
-
         STATES.userAgent.capabilities.touch && TouchController.updateCustomList();
         overridePreloadState();
 

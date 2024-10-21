@@ -3,6 +3,7 @@ import { BxEvent } from "./bx-event";
 import { STATES } from "./global";
 import { humanFileSize, secondsToHm } from "./html";
 import { getPref } from "./settings-storages/global-settings-storage";
+import { BxLogger } from "./bx-logger";
 
 export enum StreamStat {
     PING = 'ping',
@@ -95,6 +96,7 @@ type CurrentStats = {
 export class StreamStatsCollector {
     private static instance: StreamStatsCollector;
     public static getInstance = () => StreamStatsCollector.instance ?? (StreamStatsCollector.instance = new StreamStatsCollector());
+    private readonly LOG_TAG = 'StreamStatsCollector';
 
     // Collect in background - 60 seconds
     static readonly INTERVAL_BACKGROUND = 60 * 1000;
@@ -213,6 +215,10 @@ export class StreamStatsCollector {
     };
 
     private lastVideoStat?: RTCInboundRtpStreamStats | null;
+
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+    }
 
     async collect() {
         const stats = await STATES.currentStream.peerConnection?.getStats();

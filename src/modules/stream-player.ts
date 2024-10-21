@@ -2,7 +2,7 @@ import { isFullVersion } from "@macros/build" with {type: "macro"};
 
 import { CE } from "@/utils/html";
 import { WebGL2Player } from "./player/webgl2-player";
-import { Screenshot } from "@/utils/screenshot";
+import { ScreenshotManager } from "@/utils/screenshot-manager";
 import { StreamPlayerType, StreamVideoProcessing } from "@enums/stream-player";
 import { STATES } from "@/utils/global";
 import { PrefKey } from "@/enums/pref-keys";
@@ -237,7 +237,7 @@ export class StreamPlayer {
                 webGL2Player.setFilter(2);
             }
 
-            isFullVersion() && Screenshot.updateCanvasFilters('none');
+            isFullVersion() && ScreenshotManager.getInstance().updateCanvasFilters('none');
 
             webGL2Player.setSharpness(options.sharpness || 0);
             webGL2Player.setSaturation(options.saturation || 100);
@@ -252,7 +252,7 @@ export class StreamPlayer {
 
             // Apply video filters to screenshots
             if (isFullVersion() && getPref(PrefKey.SCREENSHOT_APPLY_FILTERS)) {
-                Screenshot.updateCanvasFilters(filters);
+                ScreenshotManager.getInstance().updateCanvasFilters(filters);
             }
 
             let css = '';

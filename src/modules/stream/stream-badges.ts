@@ -50,6 +50,7 @@ enum StreamBadge {
 export class StreamBadges {
     private static instance: StreamBadges;
     public static getInstance = () => StreamBadges.instance ?? (StreamBadges.instance = new StreamBadges());
+    private readonly LOG_TAG = 'StreamBadges';
 
     private serverInfo: StreamServerInfo = {};
 
@@ -95,6 +96,10 @@ export class StreamBadges {
 
     private intervalId?: number | null;
     private readonly REFRESH_INTERVAL = 3 * 1000;
+
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+    }
 
     setRegion(region: string) {
         this.serverInfo.server = {

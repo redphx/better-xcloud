@@ -77,13 +77,7 @@ export class SoundShortcut {
             return;
         }
 
-        let $media: HTMLMediaElement;
-
-        $media = document.querySelector('div[data-testid=media-container] audio') as HTMLAudioElement;
-        if (!$media) {
-            $media = document.querySelector('div[data-testid=media-container] video') as HTMLAudioElement;
-        }
-
+        const $media = document.querySelector<HTMLAudioElement>('div[data-testid=media-container] audio') ?? document.querySelector<HTMLAudioElement>('div[data-testid=media-container] video');
         if ($media) {
             $media.muted = !$media.muted;
 

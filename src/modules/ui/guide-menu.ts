@@ -13,101 +13,104 @@ export enum GuideMenuTab {
 }
 
 export class GuideMenu {
-    static #BUTTONS = {
-        scriptSettings: createButton({
-            label: t('better-xcloud'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.PRIMARY,
-            onClick: e => {
-                // Wait until the Guide dialog is closed
-                window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, e => {
-                    setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
-                }, {once: true});
+    private static instance: GuideMenu;
+    public static getInstance = () => GuideMenu.instance ?? (GuideMenu.instance = new GuideMenu());
 
-                // Close all xCloud's dialogs
-                GuideMenu.#closeGuideMenu();
-            },
-        }),
+    private $renderedButtons?: HTMLElement;
 
-        closeApp: AppInterface && createButton({
-            icon: BxIcon.POWER,
-            label: t('close-app'),
-            title: t('close-app'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
-            onClick: e => {
-                AppInterface.closeApp();
-            },
-
-            attributes: {
-                'data-state': 'normal',
-            },
-        }),
-
-        reloadPage: createButton({
-            icon: BxIcon.REFRESH,
-            label: t('reload-page'),
-            title: t('reload-page'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-            onClick: e => {
-                if (STATES.isPlaying) {
-                    confirm(t('confirm-reload-stream')) && window.location.reload();
-                } else {
-                    window.location.reload();
-                }
-
-                // Close all xCloud's dialogs
-                GuideMenu.#closeGuideMenu();
-            },
-        }),
-
-        backToHome: createButton({
-            icon: BxIcon.HOME,
-            label: t('back-to-home'),
-            title: t('back-to-home'),
-            style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
-            onClick: e => {
-                confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
-
-                // Close all xCloud's dialogs
-                GuideMenu.#closeGuideMenu();
-            },
-            attributes: {
-                'data-state': 'playing',
-            },
-        }),
-    }
-
-    static #$renderedButtons: HTMLElement;
-
-    static #closeGuideMenu() {
+    closeGuideMenu() {
         if (window.BX_EXPOSED.dialogRoutes) {
             window.BX_EXPOSED.dialogRoutes.closeAll();
             return;
         }
 
         // Use alternative method for Lite version
-        const $btnClose = document.querySelector('#gamepass-dialog-root button[class^=Header-module__closeButton]') as HTMLElement;
+        const $btnClose = document.querySelector<HTMLElement>('#gamepass-dialog-root button[class^=Header-module__closeButton]');
         $btnClose && $btnClose.click();
     }
 
-    static #renderButtons() {
-        if (GuideMenu.#$renderedButtons) {
-            return GuideMenu.#$renderedButtons;
+    private renderButtons() {
+        if (this.$renderedButtons) {
+            return this.$renderedButtons;
         }
+
+        const buttons = {
+            scriptSettings: createButton({
+                label: t('better-xcloud'),
+                style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.PRIMARY,
+                onClick: (() => {
+                    // Wait until the Guide dialog is closed
+                    window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, e => {
+                        setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
+                    }, {once: true});
+
+                    // Close all xCloud's dialogs
+                    this.closeGuideMenu();
+                }).bind(this),
+            }),
+
+            closeApp: AppInterface && createButton({
+                icon: BxIcon.POWER,
+                label: t('close-app'),
+                title: t('close-app'),
+                style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE | ButtonStyle.DANGER,
+                onClick: e => {
+                    AppInterface.closeApp();
+                },
+
+                attributes: {
+                    'data-state': 'normal',
+                },
+            }),
+
+            reloadPage: createButton({
+                icon: BxIcon.REFRESH,
+                label: t('reload-page'),
+                title: t('reload-page'),
+                style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+                onClick: (() => {
+                    // Close all xCloud's dialogs
+                    this.closeGuideMenu();
+
+                    if (STATES.isPlaying) {
+                        confirm(t('confirm-reload-stream')) && window.location.reload();
+                    } else {
+                        window.location.reload();
+                    }
+                }).bind(this),
+            }),
+
+            backToHome: createButton({
+                icon: BxIcon.HOME,
+                label: t('back-to-home'),
+                title: t('back-to-home'),
+                style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+                onClick: (() => {
+                    // Close all xCloud's dialogs
+                    this.closeGuideMenu();
+
+                    confirm(t('back-to-home-confirm')) && (window.location.href = window.location.href.substring(0, 31));
+                }).bind(this),
+                attributes: {
+                    'data-state': 'playing',
+                },
+            }),
+        };
+
+        const buttonsLayout = [
+            buttons.scriptSettings,
+            [
+                buttons.backToHome,
+                buttons.reloadPage,
+                buttons.closeApp,
+            ],
+        ];
 
         const $div = CE('div', {
             class: 'bx-guide-home-buttons',
         });
 
-        const buttons = [
-            GuideMenu.#BUTTONS.scriptSettings,
-            [
-                GuideMenu.#BUTTONS.backToHome,
-                GuideMenu.#BUTTONS.reloadPage,
-                GuideMenu.#BUTTONS.closeApp,
-            ],
-        ];
-
-        for (const $button of buttons) {
+        for (const $button of buttonsLayout) {
             if (!$button) {
                 continue;
             }
@@ -123,15 +126,15 @@ export class GuideMenu {
             }
         }
 
-        GuideMenu.#$renderedButtons = $div;
+        this.$renderedButtons = $div;
         return $div;
     }
 
-    static #injectHome($root: HTMLElement, isPlaying = false) {
+    injectHome($root: HTMLElement, isPlaying = false) {
         if (isFullVersion()) {
             const $achievementsProgress = $root.querySelector('button[class*=AchievementsButton-module__progressBarContainer]');
             if ($achievementsProgress) {
-                TrueAchievements.injectAchievementsProgress($achievementsProgress as HTMLElement);
+                TrueAchievements.getInstance().injectAchievementsProgress($achievementsProgress as HTMLElement);
             }
         }
 
@@ -142,7 +145,7 @@ export class GuideMenu {
             $target = $root.querySelector('a[class*=QuitGameButton]');
 
             // Hide xCloud's Home button
-            const $btnXcloudHome = $root.querySelector('div[class^=HomeButtonWithDivider]') as HTMLElement;
+            const $btnXcloudHome = $root.querySelector<HTMLElement>('div[class^=HomeButtonWithDivider]');
             $btnXcloudHome && ($btnXcloudHome.style.display = 'none');
         } else {
             // Last divider
@@ -156,29 +159,30 @@ export class GuideMenu {
             return false;
         }
 
-        const $buttons = GuideMenu.#renderButtons();
+        const $buttons = this.renderButtons();
         $buttons.dataset.isPlaying = isPlaying.toString();
         $target.insertAdjacentElement('afterend', $buttons);
     }
 
-    static async #onShown(e: Event) {
+    async onShown(e: Event) {
         const where = (e as any).where as GuideMenuTab;
 
         if (where === GuideMenuTab.HOME) {
-            const $root = document.querySelector('#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]') as HTMLElement;
-            $root && GuideMenu.#injectHome($root, STATES.isPlaying);
+            const $root = document.querySelector<HTMLElement>('#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]');
+            $root && this.injectHome($root, STATES.isPlaying);
         }
     }
 
-    static addEventListeners() {
-        window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, GuideMenu.#onShown);
+    addEventListeners() {
+        window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, this.onShown.bind(this));
     }
 
-    static observe($addedElm: HTMLElement) {
+    observe($addedElm: HTMLElement) {
         const className = $addedElm.className;
 
+        // TrueAchievements
         if (isFullVersion() && className.includes('AchievementsButton-module__progressBarContainer')) {
-            TrueAchievements.injectAchievementsProgress($addedElm);
+            TrueAchievements.getInstance().injectAchievementsProgress($addedElm);
             return;
         }
 
@@ -192,7 +196,7 @@ export class GuideMenu {
         if (isFullVersion()) {
             const $achievDetailPage = $addedElm.querySelector('div[class*=AchievementDetailPage]');
             if ($achievDetailPage) {
-                TrueAchievements.injectAchievementDetailPage($achievDetailPage as HTMLElement);
+                TrueAchievements.getInstance().injectAchievementDetailPage($achievDetailPage as HTMLElement);
                 return;
             }
         }

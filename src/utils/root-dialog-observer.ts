@@ -60,7 +60,7 @@ export class RootDialogObserver {
             }
         } else if ($root.querySelector('div[class*=GuideDialog]')) {
             // Guide menu
-            GuideMenu.observe($addedElm);
+            GuideMenu.getInstance().observe($addedElm);
             return true;
         }
 

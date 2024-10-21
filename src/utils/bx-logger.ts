@@ -1,3 +1,5 @@
+import { BX_FLAGS } from "./bx-flags";
+
 const enum TextColor {
     INFO = '#008746',
     WARNING = '#c1a404',
@@ -10,7 +12,7 @@ export class BxLogger {
     static error = (tag: string, ...args: any[]) => BxLogger.log(TextColor.ERROR, tag, ...args);
 
     private static log(color: string, tag: string, ...args: any) {
-        console.log(`%c[BxC]`, `color:${color};font-weight:bold;`, tag, '//', ...args);
+        BX_FLAGS.Debug && console.log(`%c[BxC]`, `color:${color};font-weight:bold;`, tag, '//', ...args);
     }
 }
 

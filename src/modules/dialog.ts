@@ -30,7 +30,7 @@ export class Dialog {
         } = options;
 
         // Create dialog overlay
-        const $overlay = document.querySelector('.bx-dialog-overlay') as HTMLElement;
+        const $overlay = document.querySelector<HTMLElement>('.bx-dialog-overlay');
 
         if (!$overlay) {
             this.$overlay = CE('div', {'class': 'bx-dialog-overlay bx-gone'});

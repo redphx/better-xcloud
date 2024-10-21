@@ -1,4 +1,5 @@
 import { CE } from "@utils/html";
+import { BxLogger } from "./bx-logger";
 
 type ToastOptions = {
     instant?: boolean;
@@ -6,85 +7,100 @@ type ToastOptions = {
 }
 
 export class Toast {
-    private static $wrapper: HTMLElement;
-    private static $msg: HTMLElement;
-    private static $status: HTMLElement;
-    private static stack: Array<[string, string, ToastOptions]> = [];
-    private static isShowing = false;
+    private static instance: Toast;
+    public static getInstance = () => Toast.instance ?? (Toast.instance = new Toast());
+    private readonly LOG_TAG = 'Toast';
 
-    private static timeout?: number | null;
-    private static DURATION = 3000;
+    private $wrapper: HTMLElement;
+    private $msg: HTMLElement;
+    private $status: HTMLElement;
 
-    static show(msg: string, status?: string, options: Partial<ToastOptions> = {}) {
+    private stack: Array<[string, string, ToastOptions]> = [];
+    private isShowing = false;
+
+    private timeoutId?: number | null;
+    private DURATION = 3000;
+
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+
+        this.$wrapper = CE('div', {class: 'bx-toast bx-offscreen'},
+            this.$msg = CE('span', {class: 'bx-toast-msg'}),
+            this.$status = CE('span', {class: 'bx-toast-status'}),
+        );
+
+        this.$wrapper.addEventListener('transitionend', e => {
+            const classList = this.$wrapper.classList;
+            if (classList.contains('bx-hide')) {
+                classList.remove('bx-offscreen', 'bx-hide');
+                classList.add('bx-offscreen');
+
+                this.showNext();
+            }
+        });
+
+        document.documentElement.appendChild(this.$wrapper);
+    }
+
+    private show(msg: string, status?: string, options: Partial<ToastOptions> = {}) {
         options = options || {};
 
         const args = Array.from(arguments) as [string, string, ToastOptions];
         if (options.instant) {
             // Clear stack
-            Toast.stack = [args];
-            Toast.showNext();
+            this.stack = [args];
+            this.showNext();
         } else {
-            Toast.stack.push(args);
-            !Toast.isShowing && Toast.showNext();
+            this.stack.push(args);
+            !this.isShowing && this.showNext();
         }
     }
 
-    private static showNext() {
-        if (!Toast.stack.length) {
-            Toast.isShowing = false;
+    private showNext() {
+        if (!this.stack.length) {
+            this.isShowing = false;
             return;
         }
 
-        Toast.isShowing = true;
+        this.isShowing = true;
 
-        Toast.timeout && clearTimeout(Toast.timeout);
-        Toast.timeout = window.setTimeout(Toast.hide, Toast.DURATION);
+        this.timeoutId && clearTimeout(this.timeoutId);
+        this.timeoutId = window.setTimeout(this.hide.bind(this), this.DURATION);
 
         // Get values from item
-        const [msg, status, options] = Toast.stack.shift()!;
+        const [msg, status, options] = this.stack.shift()!;
 
         if (options && options.html) {
-            Toast.$msg.innerHTML = msg;
+            this.$msg.innerHTML = msg;
         } else {
-            Toast.$msg.textContent = msg;
+            this.$msg.textContent = msg;
         }
 
         if (status) {
-            Toast.$status.classList.remove('bx-gone');
-            Toast.$status.textContent = status;
+            this.$status.classList.remove('bx-gone');
+            this.$status.textContent = status;
         } else {
-            Toast.$status.classList.add('bx-gone');
+            this.$status.classList.add('bx-gone');
         }
 
-        const classList = Toast.$wrapper.classList;
+        const classList = this.$wrapper.classList;
         classList.remove('bx-offscreen', 'bx-hide');
         classList.add('bx-show');
     }
 
-    private static hide() {
-        Toast.timeout = null;
+    private hide() {
+        this.timeoutId = null;
 
-        const classList = Toast.$wrapper.classList;
+        const classList = this.$wrapper.classList;
         classList.remove('bx-show');
         classList.add('bx-hide');
     }
 
-    static setup() {
-        Toast.$wrapper = CE('div', {'class': 'bx-toast bx-offscreen'},
-            Toast.$msg = CE('span', {'class': 'bx-toast-msg'}),
-            Toast.$status = CE('span', {'class': 'bx-toast-status'}),
-        );
+    static show(msg: string, status?: string, options: Partial<ToastOptions> = {}) {
+        Toast.getInstance().show(msg, status, options);
+    }
 
-        Toast.$wrapper.addEventListener('transitionend', e => {
-            const classList = Toast.$wrapper.classList;
-            if (classList.contains('bx-hide')) {
-                classList.remove('bx-offscreen', 'bx-hide');
-                classList.add('bx-offscreen');
-
-                Toast.showNext();
-            }
-        });
-
-        document.documentElement.appendChild(Toast.$wrapper);
+    static showNext() {
+        Toast.getInstance().showNext();
     }
 }

@@ -1,6 +1,5 @@
 import { isFullVersion } from "@macros/build" with {type: "macro"};
 
-import { BxEvent } from "@utils/bx-event";
 import { BX_FLAGS, NATIVE_FETCH } from "@utils/bx-flags";
 import { TouchController } from "@modules/touch-controller";
 import { STATES } from "@utils/global";
@@ -29,9 +28,7 @@ function clearDbLogs(dbName: string, table: string) {
             const objectStore = db.transaction(table, 'readwrite').objectStore(table);
             const objectStoreRequest = objectStore.clear();
 
-            objectStoreRequest.onsuccess = function() {
-                console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
-            };
+            objectStoreRequest.onsuccess = () => BxLogger.info('clearDbLogs', `Cleared ${dbName}.${table}`);
         } catch (ex) {}
     }
 }
@@ -134,6 +131,7 @@ export function interceptHttpRequests() {
             'https://browser.events.data.microsoft.com',
             'https://dc.services.visualstudio.com',
             'https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io',
+            'https://mscom.demdex.net',
         ]);
     }
 
@@ -172,29 +170,42 @@ export function interceptHttpRequests() {
     };
 
     let gamepassAllGames: string[] = [];
+    const IGNORED_DOMAINS = [
+        'accounts.xboxlive.com',
+        'chat.xboxlive.com',
+        'notificationinbox.xboxlive.com',
+        'peoplehub.xboxlive.com',
+        'rta.xboxlive.com',
+        'userpresence.xboxlive.com',
+        'xblmessaging.xboxlive.com',
+        'consent.config.office.com',
+
+        'arc.msn.com',
+        'browser.events.data.microsoft.com',
+        'dc.services.visualstudio.com',
+        '2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io',
+    ];
 
     (window as any).BX_FETCH = window.fetch = async (request: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
         let url = (typeof request === 'string') ? request : (request as Request).url;
 
         // Check blocked URLs
         for (let blocked of BLOCKED_URLS) {
-            if (!url.startsWith(blocked)) {
-                continue;
+            if (url.startsWith(blocked)) {
+                return new Response('{"acc":1,"webResult":{}}', {
+                    status: 200,
+                    statusText: '200 OK',
+                });
             }
-
-            return new Response('{"acc":1,"webResult":{}}', {
-                status: 200,
-                statusText: '200 OK',
-            });
         }
 
-        if (url.endsWith('/play')) {
-            BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+        // Ignore URLs
+        const domain = (new URL(url)).hostname;
+        if (IGNORED_DOMAINS.includes(domain)) {
+            return NATIVE_FETCH(request, init);
         }
 
-        if (url.endsWith('/configuration')) {
-            BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
-        }
+        // BxLogger.info('fetch', url);
 
         // Override experimentals
         if (url.startsWith('https://emerald.xboxservices.com/xboxcomfd/experimentation')) {
@@ -212,6 +223,7 @@ export function interceptHttpRequests() {
                 return response;
             } catch (e) {
                 console.log(e);
+                return NATIVE_FETCH(request, init);
             }
         }
 

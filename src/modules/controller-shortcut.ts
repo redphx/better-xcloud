@@ -1,4 +1,4 @@
-import { Screenshot } from "@utils/screenshot";
+import { ScreenshotManager } from "@/utils/screenshot-manager";
 import { GamepadKey } from "@enums/mkb";
 import { PrompFont } from "@enums/prompt-font";
 import { CE, removeChildElements } from "@utils/html";
@@ -97,7 +97,7 @@ export class ControllerShortcut {
                 break;
 
             case ShortcutAction.STREAM_SCREENSHOT_CAPTURE:
-                Screenshot.takeScreenshot();
+                ScreenshotManager.getInstance().takeScreenshot();
                 break;
 
             case ShortcutAction.STREAM_STATS_TOGGLE:
@@ -163,8 +163,6 @@ export class ControllerShortcut {
 
         // Save to storage
         window.localStorage.setItem(ControllerShortcut.STORAGE_KEY, JSON.stringify(ControllerShortcut.ACTIONS));
-
-        console.log(ControllerShortcut.ACTIONS);
     }
 
     private static updateProfileList(e?: GamepadEvent) {

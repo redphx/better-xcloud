@@ -11,11 +11,13 @@ import { getPref, StreamTouchController, type GameBarPosition } from "@/utils/se
 import { TrueAchievementsAction } from "./action-true-achievements";
 import { SpeakerAction } from "./action-speaker";
 import { RendererAction } from "./action-renderer";
+import { BxLogger } from "@/utils/bx-logger";
 
 
 export class GameBar {
     private static instance: GameBar;
     public static getInstance = () => GameBar.instance ?? (GameBar.instance = new GameBar());
+    private readonly LOG_TAG = 'GameBar';
 
     private static readonly VISIBLE_DURATION = 2000;
 
@@ -27,6 +29,8 @@ export class GameBar {
     private actions: BaseGameBarAction[] = [];
 
     private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+
         let $container;
 
         const position = getPref(PrefKey.GAME_BAR_POSITION) as GameBarPosition;

@@ -6,7 +6,6 @@ import { createButton, ButtonStyle, CE } from "@utils/html";
 import { BxEvent } from "@utils/bx-event";
 import { Toast } from "@utils/toast";
 import { t } from "@utils/translation";
-import { LocalDb } from "@utils/local-db";
 import { KeyHelper } from "./key-helper";
 import type { MkbStoredPreset } from "@/types/mkb";
 import { AppInterface, STATES } from "@utils/global";
@@ -19,8 +18,7 @@ import { SettingsNavigationDialog } from "../ui/dialog/settings-dialog";
 import { NavigationDialogManager } from "../ui/dialog/navigation-dialog";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "@/utils/settings-storages/global-settings-storage";
-
-const LOG_TAG = 'MkbHandler';
+import { MkbPresetsDb } from "@/utils/local-db/mkb-presets-db";
 
 const PointerToMouseButton = {
     1: 0,
@@ -126,6 +124,7 @@ Source: https://github.com/yuzu-emu/yuzu-mainline/blob/master/src/input_common/d
 export class EmulatedMkbHandler extends MkbHandler {
     private static instance: EmulatedMkbHandler;
     public static getInstance = () => EmulatedMkbHandler.instance ?? (EmulatedMkbHandler.instance = new EmulatedMkbHandler());
+    private static readonly LOG_TAG = 'EmulatedMkbHandler';
 
     #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
 
@@ -167,8 +166,9 @@ export class EmulatedMkbHandler extends MkbHandler {
     #RIGHT_STICK_X: GamepadKey[] = [];
     #RIGHT_STICK_Y: GamepadKey[] = [];
 
-    constructor() {
+    private constructor() {
         super();
+        BxLogger.info(EmulatedMkbHandler.LOG_TAG, 'constructor()');
 
         this.#STICK_MAP = {
             [GamepadKey.LS_LEFT]: [this.#LEFT_STICK_X, 0, -1],
@@ -431,7 +431,7 @@ export class EmulatedMkbHandler extends MkbHandler {
     #getCurrentPreset = (): Promise<MkbStoredPreset> => {
         return new Promise(resolve => {
             const presetId = getPref(PrefKey.MKB_DEFAULT_PRESET_ID);
-            LocalDb.INSTANCE.getPreset(presetId).then((preset: MkbStoredPreset) => {
+            MkbPresetsDb.getInstance().getPreset(presetId).then((preset: MkbStoredPreset) => {
                 resolve(preset);
             });
         });
@@ -680,7 +680,7 @@ export class EmulatedMkbHandler extends MkbHandler {
                     AppInterface && NativeMkbHandler.getInstance().init();
                 }
             } else if (getPref(PrefKey.MKB_ENABLED) && (AppInterface || !UserAgent.isMobile())) {
-                    BxLogger.info(LOG_TAG, 'Emulate MKB');
+                    BxLogger.info(EmulatedMkbHandler.LOG_TAG, 'Emulate MKB');
                     EmulatedMkbHandler.getInstance().init();
             }
         });

@@ -18,7 +18,7 @@ export function onChangeVideoPlayerType() {
 
     let isDisabled = false;
 
-    const $optCas = $videoProcessing.querySelector(`option[value=${StreamVideoProcessing.CAS}]`) as HTMLOptionElement;
+    const $optCas = $videoProcessing.querySelector<HTMLOptionElement>(`option[value=${StreamVideoProcessing.CAS}]`);
 
     if (playerType === StreamPlayerType.WEBGL2) {
         $optCas && ($optCas.disabled = false);

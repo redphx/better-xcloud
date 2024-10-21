@@ -18,6 +18,6 @@ export class TrueAchievementsAction extends BaseGameBarAction {
 
     onClick(e: Event) {
         super.onClick(e);
-        TrueAchievements.open(false);
+        TrueAchievements.getInstance().open(false);
     }
 }

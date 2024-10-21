@@ -2,6 +2,7 @@ import { GamepadKey } from "@/enums/mkb";
 import { PrefKey } from "@/enums/pref-keys";
 import { VIRTUAL_GAMEPAD_ID } from "@/modules/mkb/mkb-handler";
 import { BxEvent } from "@/utils/bx-event";
+import { BxLogger } from "@/utils/bx-logger";
 import { STATES } from "@/utils/global";
 import { CE, isElementVisible } from "@/utils/html";
 import { setNearby } from "@/utils/navigation-utils";
@@ -89,6 +90,7 @@ export abstract class NavigationDialog {
 export class NavigationDialogManager {
     private static instance: NavigationDialogManager;
     public static getInstance = () => NavigationDialogManager.instance ?? (NavigationDialogManager.instance = new NavigationDialogManager());
+    private readonly LOG_TAG = 'NavigationDialogManager';
 
     private static readonly GAMEPAD_POLLING_INTERVAL = 50;
     private static readonly GAMEPAD_KEYS = [
@@ -136,7 +138,9 @@ export class NavigationDialogManager {
     private $container: HTMLElement;
     private dialog: NavigationDialog | null = null;
 
-    constructor() {
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+
         this.$overlay = CE('div', {class: 'bx-navigation-dialog-overlay bx-gone'});
         this.$overlay.addEventListener('click', e => {
             e.preventDefault();
@@ -185,17 +189,17 @@ export class NavigationDialogManager {
 
             const rect = $select.getBoundingClientRect();
 
-            let $label;
+            let $label: HTMLElement;
             let width = Math.ceil(rect.width);
             if (!width) {
                 return;
             }
 
             if (($select as HTMLSelectElement).multiple) {
-                $label = $parent.querySelector('.bx-select-value') as HTMLElement;
+                $label = $parent.querySelector<HTMLElement>('.bx-select-value')!;
                 width += 20;  // Add checkbox's width
             } else {
-                $label = $parent.querySelector('div') as HTMLElement;
+                $label = $parent.querySelector<HTMLElement>('div')!;
             }
 
             // Set min-width

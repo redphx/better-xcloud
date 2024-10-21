@@ -92,6 +92,8 @@ export class XcloudInterceptor {
     }
 
     private static async handlePlay(request: RequestInfo | URL, init?: RequestInit) {
+        BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+
         const PREF_STREAM_TARGET_RESOLUTION = getPref(PrefKey.STREAM_TARGET_RESOLUTION);
         const PREF_STREAM_PREFERRED_LOCALE = getPref(PrefKey.STREAM_PREFERRED_LOCALE);
 
@@ -164,6 +166,8 @@ export class XcloudInterceptor {
         if (!text.length) {
             return response;
         }
+
+        BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
 
         const obj = JSON.parse(text);
         let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};

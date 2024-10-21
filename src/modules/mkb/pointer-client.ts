@@ -2,8 +2,6 @@ import { BxLogger } from "@/utils/bx-logger";
 import { Toast } from "@/utils/toast";
 import type { MkbHandler } from "./base-mkb-handler";
 
-const LOG_TAG = 'PointerClient';
-
 enum PointerAction {
     MOVE = 1,
     BUTTON_PRESS = 2,
@@ -16,9 +14,14 @@ enum PointerAction {
 export class PointerClient {
     private static instance: PointerClient;
     public static getInstance = () => PointerClient.instance ?? (PointerClient.instance = new PointerClient());
+    private readonly LOG_TAG = 'PointerClient';
 
     private socket: WebSocket | undefined | null;
     private mkbHandler: MkbHandler | undefined;
+
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
+    }
 
     start(port: number, mkbHandler: MkbHandler) {
         if (!port) {
@@ -33,12 +36,12 @@ export class PointerClient {
 
         // Connection opened
         this.socket.addEventListener('open', (event) => {
-            BxLogger.info(LOG_TAG, 'connected')
+            BxLogger.info(this.LOG_TAG, 'connected')
         });
 
         // Error
         this.socket.addEventListener('error', (event) => {
-            BxLogger.error(LOG_TAG, event);
+            BxLogger.error(this.LOG_TAG, event);
             Toast.show('Cannot setup mouse: ' + event);
         });
 

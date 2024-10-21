@@ -1,12 +1,15 @@
+import { BxLogger } from "@/utils/bx-logger";
 import { CE } from "@/utils/html";
 
 export class FullscreenText {
     private static instance: FullscreenText;
     public static getInstance = () => FullscreenText.instance ?? (FullscreenText.instance = new FullscreenText());
+    private readonly LOG_TAG = 'FullscreenText';
 
     $text: HTMLElement;
 
-    constructor() {
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
         this.$text = CE('div', {
             class: 'bx-fullscreen-text bx-gone',
         });

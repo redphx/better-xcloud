@@ -54,8 +54,7 @@ export class XhomeInterceptor {
 
     private static async handleLogin(request: Request) {
         try {
-            const clone = (request as Request).clone();
-
+            const clone = request.clone();
             const obj = await clone.json();
             obj.offeringId = 'xhome';
 
@@ -75,30 +74,30 @@ export class XhomeInterceptor {
     }
 
     private static async handleConfiguration(request: Request | URL) {
+        BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+
         const response = await NATIVE_FETCH(request);
-
-        const obj = await response.clone().json()
-        console.log(obj);
-
-        const processPorts = (port: number): number[] => {
-            const ports = new Set<number>();
-            port && ports.add(port);
-            ports.add(9002);
-
-            return Array.from(ports);
-        };
+        const obj = await response.clone().json();
 
         const serverDetails = obj.serverDetails;
-        if (serverDetails.ipAddress) {
-            XhomeInterceptor.consoleAddrs[serverDetails.ipAddress] = processPorts(serverDetails.port);
-        }
+        const pairs = [
+            ['ipAddress', 'port'],
+            ['ipV4Address', 'ipV4Port'],
+            ['ipV6Address', 'ipV6Port'],
+        ];
 
-        if (serverDetails.ipV4Address) {
-            XhomeInterceptor.consoleAddrs[serverDetails.ipV4Address] = processPorts(serverDetails.ipV4Port);
-        }
-
-        if (serverDetails.ipV6Address) {
-            XhomeInterceptor.consoleAddrs[serverDetails.ipV6Address] = processPorts(serverDetails.ipV6Port);
+        XhomeInterceptor.consoleAddrs = {};
+        for (const pair in pairs) {
+            const [keyAddr, keyPort] = pair;
+            if (serverDetails[keyAddr]) {
+                const port = serverDetails[keyPort];
+                // Add port 9002 to the list of ports
+                const ports = new Set<number>();
+                port && ports.add(port);
+                ports.add(9002);
+                // Save it
+                XhomeInterceptor.consoleAddrs[serverDetails[keyAddr]] = Array.from(ports);
+            }
         }
 
         response.json = () => Promise.resolve(obj);
@@ -164,6 +163,8 @@ export class XhomeInterceptor {
     }
 
     private static async handlePlay(request: RequestInfo | URL) {
+        BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+
         const clone = (request as Request).clone();
         const body = await clone.json();
 
@@ -196,23 +197,25 @@ export class XhomeInterceptor {
 
         headers['x-ms-device-info'] = JSON.stringify(deviceInfo);
 
-        const opts: {[index: string]: any} = {
+        const opts: Record<string, any> = {
             method: clone.method,
             headers: headers,
         };
 
+        // Copy body
         if (clone.method === 'POST') {
             opts.body = await clone.text();
         }
 
-        let newUrl = request.url;
-        if (!newUrl.includes('/servers/home')) {
-            const index = request.url.indexOf('.xboxlive.com');
-            newUrl = STATES.remotePlay.server + request.url.substring(index + 13);
+        // Replace xCloud domain with xHome domain
+        let url = request.url;
+        if (!url.includes('/servers/home')) {
+            const parsed = new URL(url);
+            url = STATES.remotePlay.server + parsed.pathname;
         }
 
-        request = new Request(newUrl, opts);
-        let url = (typeof request === 'string') ? request : request.url;
+        // Create new Request instance
+        request = new Request(url, opts);
 
         // Get console IP
         if (url.includes('/configuration')) {
@@ -225,7 +228,7 @@ export class XhomeInterceptor {
             return XhomeInterceptor.handleLogin(request);
         } else if (url.endsWith('/titles')) {
             return XhomeInterceptor.handleTitles(request);
-        } else if (url && url.endsWith('/ice') && url.includes('/sessions/') && (request as Request).method === 'GET') {
+        } else if (url && url.endsWith('/ice') && url.includes('/sessions/') && request.method === 'GET') {
             return patchIceCandidates(request, XhomeInterceptor.consoleAddrs);
         }
 

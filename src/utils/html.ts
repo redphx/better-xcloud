@@ -56,6 +56,8 @@ function createElement<T=HTMLElement>(elmName: string, props: CreateElementOptio
     let $elm;
     const hasNs = 'xmlns' in props;
 
+    // console.trace('createElement', elmName, props);
+
     if (hasNs) {
         $elm = document.createElementNS(props.xmlns, elmName);
         delete props.xmlns;
@@ -111,11 +113,11 @@ const ButtonStyleIndices = Object.keys(ButtonStyleClass).map(i => parseInt(i));
 export function createButton<T=HTMLButtonElement>(options: BxButton): T {
     let $btn;
     if (options.url) {
-        $btn = CE('a', {'class': 'bx-button'}) as HTMLAnchorElement;
+        $btn = CE<HTMLAnchorElement>('a', {'class': 'bx-button'});
         $btn.href = options.url;
         $btn.target = '_blank';
     } else {
-        $btn = CE('button', {'class': 'bx-button', type: 'button'}) as HTMLButtonElement;
+        $btn = CE<HTMLButtonElement>('button', {'class': 'bx-button', type: 'button'});
     }
 
     const style = (options.style || 0) as number;

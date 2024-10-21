@@ -18,10 +18,10 @@ export type SettingDefinition = {
     default: any;
 } & Partial<{
     label: string;
-    note: string | HTMLElement;
+    note: string | (() => HTMLElement);
     experimental: boolean;
     unsupported: boolean;
-    unsupportedNote: string | HTMLElement;
+    unsupportedNote: string | (() => HTMLElement);
     suggest: PartialRecord<SuggestedSettingCategory, any>,
     ready: (setting: SettingDefinition) => void;
     type: SettingElementType,

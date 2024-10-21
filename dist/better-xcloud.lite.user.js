@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
-// @version      5.8.6
+// @version      5.9.0-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -16,7 +16,7 @@ class BxLogger {
  static warning = (tag, ...args) => BxLogger.log("#c1a404", tag, ...args);
  static error = (tag, ...args) => BxLogger.log("#c10404", tag, ...args);
  static log(color, tag, ...args) {
-  console.log("%c[BxC]", `color:${color};font-weight:bold;`, tag, "//", ...args);
+  BX_FLAGS.Debug && console.log("%c[BxC]", `color:${color};font-weight:bold;`, tag, "//", ...args);
  }
 }
 window.BxLogger = BxLogger;
@@ -105,7 +105,7 @@ class UserAgent {
   });
  }
 }
-var SCRIPT_VERSION = "5.8.6", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.9.0-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
  supportedRegion: !0,
@@ -935,6 +935,7 @@ class BaseSettingsStore {
 class StreamStatsCollector {
  static instance;
  static getInstance = () => StreamStatsCollector.instance ?? (StreamStatsCollector.instance = new StreamStatsCollector);
+ LOG_TAG = "StreamStatsCollector";
  static INTERVAL_BACKGROUND = 60000;
  calculateGrade(value, grades) {
   return value > grades[2] ? "bad" : value > grades[1] ? "ok" : value > grades[0] ? "good" : "";
@@ -1034,6 +1035,9 @@ class StreamStatsCollector {
   }
  };
  lastVideoStat;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  async collect() {
   let stats = await STATES.currentStream.peerConnection?.getStats();
   if (!stats) return;
@@ -1331,7 +1335,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
    requiredVariants: "full",
    label: t("enable-local-co-op-support"),
    default: !1,
-   note: CE("a", {
+   note: () => CE("a", {
     href: "https://github.com/redphx/better-xcloud/discussions/275",
     target: "_blank"
    }, t("enable-local-co-op-support-note"))
@@ -1381,7 +1385,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
     let note, url;
     if (setting.unsupported) note = t("browser-unsupported-feature"), url = "https://github.com/redphx/better-xcloud/issues/206#issuecomment-1920475657";
     else note = t("mkb-disclaimer"), url = "https://better-xcloud.github.io/mouse-and-keyboard/#disclaimer";
-    setting.unsupportedNote = CE("a", {
+    setting.unsupportedNote = () => CE("a", {
      href: url,
      target: "_blank"
     }, "⚠️ " + note);
@@ -1798,6 +1802,7 @@ var MouseMapTo;
 class StreamStats {
  static instance;
  static getInstance = () => StreamStats.instance ?? (StreamStats.instance = new StreamStats);
+ LOG_TAG = "StreamStats";
  intervalId;
  REFRESH_INTERVAL = 1000;
  stats = {
@@ -1853,7 +1858,7 @@ class StreamStats {
  $container;
  quickGlanceObserver;
  constructor() {
-  this.render();
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.render();
  }
  async start(glancing = !1) {
   if (!this.isHidden() || glancing && this.isGlancing()) return;
@@ -1938,43 +1943,52 @@ class StreamStats {
  }
 }
 class Toast {
- static $wrapper;
- static $msg;
- static $status;
- static stack = [];
- static isShowing = !1;
- static timeout;
- static DURATION = 3000;
- static show(msg, status, options = {}) {
+ static instance;
+ static getInstance = () => Toast.instance ?? (Toast.instance = new Toast);
+ LOG_TAG = "Toast";
+ $wrapper;
+ $msg;
+ $status;
+ stack = [];
+ isShowing = !1;
+ timeoutId;
+ DURATION = 3000;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, this.$msg = CE("span", { class: "bx-toast-msg" }), this.$status = CE("span", { class: "bx-toast-status" })), this.$wrapper.addEventListener("transitionend", (e) => {
+   let classList = this.$wrapper.classList;
+   if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), this.showNext();
+  }), document.documentElement.appendChild(this.$wrapper);
+ }
+ show(msg, status, options = {}) {
   options = options || {};
   let args = Array.from(arguments);
-  if (options.instant) Toast.stack = [args], Toast.showNext();
-  else Toast.stack.push(args), !Toast.isShowing && Toast.showNext();
+  if (options.instant) this.stack = [args], this.showNext();
+  else this.stack.push(args), !this.isShowing && this.showNext();
  }
- static showNext() {
-  if (!Toast.stack.length) {
-   Toast.isShowing = !1;
+ showNext() {
+  if (!this.stack.length) {
+   this.isShowing = !1;
    return;
   }
-  Toast.isShowing = !0, Toast.timeout && clearTimeout(Toast.timeout), Toast.timeout = window.setTimeout(Toast.hide, Toast.DURATION);
-  let [msg, status, options] = Toast.stack.shift();
-  if (options && options.html) Toast.$msg.innerHTML = msg;
-  else Toast.$msg.textContent = msg;
-  if (status) Toast.$status.classList.remove("bx-gone"), Toast.$status.textContent = status;
-  else Toast.$status.classList.add("bx-gone");
-  let classList = Toast.$wrapper.classList;
+  this.isShowing = !0, this.timeoutId && clearTimeout(this.timeoutId), this.timeoutId = window.setTimeout(this.hide.bind(this), this.DURATION);
+  let [msg, status, options] = this.stack.shift();
+  if (options && options.html) this.$msg.innerHTML = msg;
+  else this.$msg.textContent = msg;
+  if (status) this.$status.classList.remove("bx-gone"), this.$status.textContent = status;
+  else this.$status.classList.add("bx-gone");
+  let classList = this.$wrapper.classList;
   classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
  }
- static hide() {
-  Toast.timeout = null;
-  let classList = Toast.$wrapper.classList;
+ hide() {
+  this.timeoutId = null;
+  let classList = this.$wrapper.classList;
   classList.remove("bx-show"), classList.add("bx-hide");
  }
- static setup() {
-  Toast.$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.$msg = CE("span", { class: "bx-toast-msg" }), Toast.$status = CE("span", { class: "bx-toast-status" })), Toast.$wrapper.addEventListener("transitionend", (e) => {
-   let classList = Toast.$wrapper.classList;
-   if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.showNext();
-  }), document.documentElement.appendChild(Toast.$wrapper);
+ static show(msg, status, options = {}) {
+  Toast.getInstance().show(msg, status, options);
+ }
+ static showNext() {
+  Toast.getInstance().showNext();
  }
 }
 function ceilToNearest(value, interval) {
@@ -2028,8 +2042,7 @@ class SoundShortcut {
    });
    return;
   }
-  let $media;
-  if ($media = document.querySelector("div[data-testid=media-container] audio"), !$media) $media = document.querySelector("div[data-testid=media-container] video");
+  let $media = document.querySelector("div[data-testid=media-container] audio") ?? document.querySelector("div[data-testid=media-container] video");
   if ($media) {
    $media.muted = !$media.muted;
    let status = $media.muted ? t("muted") : t("unmuted");
@@ -2237,102 +2250,7 @@ class MkbPreset {
   let mouseMapTo = MouseMapTo[mouse["map_to"]];
   if (typeof mouseMapTo !== "undefined") mouse["map_to"] = mouseMapTo;
   else mouse["map_to"] = MkbPreset.MOUSE_SETTINGS["map_to"].default;
-  return console.log(obj), obj;
- }
-}
-class LocalDb {
- static #instance;
- static get INSTANCE() {
-  if (!LocalDb.#instance) LocalDb.#instance = new LocalDb;
-  return LocalDb.#instance;
- }
- static DB_NAME = "BetterXcloud";
- static DB_VERSION = 1;
- static TABLE_PRESETS = "mkb_presets";
- #DB;
- #open() {
-  return new Promise((resolve, reject) => {
-   if (this.#DB) {
-    resolve();
-    return;
-   }
-   let request = window.indexedDB.open(LocalDb.DB_NAME, LocalDb.DB_VERSION);
-   request.onupgradeneeded = (e) => {
-    let db = e.target.result;
-    switch (e.oldVersion) {
-     case 0: {
-      db.createObjectStore(LocalDb.TABLE_PRESETS, { keyPath: "id", autoIncrement: !0 }).createIndex("name_idx", "name");
-      break;
-     }
-    }
-   }, request.onerror = (e) => {
-    console.log(e), alert(e.target.error.message), reject && reject();
-   }, request.onsuccess = (e) => {
-    this.#DB = e.target.result, resolve();
-   };
-  });
- }
- #table(name, type) {
-  let table = this.#DB.transaction(name, type || "readonly").objectStore(name);
-  return new Promise((resolve) => resolve(table));
- }
- #call(method) {
-  let table = arguments[1];
-  return new Promise((resolve) => {
-   let request = method.call(table, ...Array.from(arguments).slice(2));
-   request.onsuccess = (e) => {
-    resolve([table, e.target.result]);
-   };
-  });
- }
- #count(table) {
-  return this.#call(table.count, ...arguments);
- }
- #add(table, data) {
-  return this.#call(table.add, ...arguments);
- }
- #put(table, data) {
-  return this.#call(table.put, ...arguments);
- }
- #delete(table, data) {
-  return this.#call(table.delete, ...arguments);
- }
- #get(table, id) {
-  return this.#call(table.get, ...arguments);
- }
- #getAll(table) {
-  return this.#call(table.getAll, ...arguments);
- }
- newPreset(name, data) {
-  return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#add(table, { name, data })).then(([table, id]) => new Promise((resolve) => resolve(id)));
- }
- updatePreset(preset) {
-  return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#put(table, preset)).then(([table, id]) => new Promise((resolve) => resolve(id)));
- }
- deletePreset(id) {
-  return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#delete(table, id)).then(([table, id2]) => new Promise((resolve) => resolve(id2)));
- }
- getPreset(id) {
-  return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#get(table, id)).then(([table, preset]) => new Promise((resolve) => resolve(preset)));
- }
- getPresets() {
-  return this.#open().then(() => this.#table(LocalDb.TABLE_PRESETS, "readwrite")).then((table) => this.#count(table)).then(([table, count]) => {
-   if (count > 0) return new Promise((resolve) => {
-     this.#getAll(table).then(([table2, items]) => {
-      let presets = {};
-      items.forEach((item) => presets[item.id] = item), resolve(presets);
-     });
-    });
-   let preset = {
-    name: t("default"),
-    data: MkbPreset.DEFAULT_PRESET
-   };
-   return new Promise((resolve) => {
-    this.#add(table, preset).then(([table2, id]) => {
-     preset.id = id, setPref("mkb_default_preset_id", id), resolve({ [id]: preset });
-    });
-   });
-  });
+  return obj;
  }
 }
 class KeyHelper {
@@ -2362,18 +2280,21 @@ class KeyHelper {
   return KeyHelper.#NON_PRINTABLE_KEYS[code] || code.startsWith("Key") && code.substring(3) || code.startsWith("Digit") && code.substring(5) || code.startsWith("Numpad") && "Numpad " + code.substring(6) || code.startsWith("Arrow") && "Arrow " + code.substring(5) || code.endsWith("Lock") && code.replace("Lock", " Lock") || code.endsWith("Left") && "Left " + code.replace("Left", "") || code.endsWith("Right") && "Right " + code.replace("Right", "") || code;
  }
 }
-var LOG_TAG = "PointerClient";
 class PointerClient {
  static instance;
  static getInstance = () => PointerClient.instance ?? (PointerClient.instance = new PointerClient);
+ LOG_TAG = "PointerClient";
  socket;
  mkbHandler;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  start(port, mkbHandler) {
   if (!port) throw new Error("PointerServer port is 0");
   this.mkbHandler = mkbHandler, this.socket = new WebSocket(`ws://localhost:${port}`), this.socket.binaryType = "arraybuffer", this.socket.addEventListener("open", (event) => {
-   BxLogger.info(LOG_TAG, "connected");
+   BxLogger.info(this.LOG_TAG, "connected");
   }), this.socket.addEventListener("error", (event) => {
-   BxLogger.error(LOG_TAG, event), Toast.show("Cannot setup mouse: " + event);
+   BxLogger.error(this.LOG_TAG, event), Toast.show("Cannot setup mouse: " + event);
   }), this.socket.addEventListener("close", (event) => {
    this.socket = null;
   }), this.socket.addEventListener("message", (event) => {
@@ -2436,6 +2357,112 @@ class MouseDataProvider {
  }
 }
 class MkbHandler {}
+class LocalDb {
+ static DB_NAME = "BetterXcloud";
+ static DB_VERSION = 1;
+ db;
+ open() {
+  return new Promise((resolve, reject) => {
+   if (this.db) {
+    resolve();
+    return;
+   }
+   let request = window.indexedDB.open(LocalDb.DB_NAME, LocalDb.DB_VERSION);
+   request.onupgradeneeded = this.onUpgradeNeeded, request.onerror = (e) => {
+    console.log(e), alert(e.target.error.message), reject && reject();
+   }, request.onsuccess = (e) => {
+    this.db = e.target.result, resolve();
+   };
+  });
+ }
+ table(name, type) {
+  let table = this.db.transaction(name, type || "readonly").objectStore(name);
+  return new Promise((resolve) => resolve(table));
+ }
+ call(method) {
+  let table = arguments[1];
+  return new Promise((resolve) => {
+   let request = method.call(table, ...Array.from(arguments).slice(2));
+   request.onsuccess = (e) => {
+    resolve([table, e.target.result]);
+   };
+  });
+ }
+ count(table) {
+  return this.call(table.count, ...arguments);
+ }
+ add(table, data) {
+  return this.call(table.add, ...arguments);
+ }
+ put(table, data) {
+  return this.call(table.put, ...arguments);
+ }
+ delete(table, data) {
+  return this.call(table.delete, ...arguments);
+ }
+ get(table, id) {
+  return this.call(table.get, ...arguments);
+ }
+ getAll(table) {
+  return this.call(table.getAll, ...arguments);
+ }
+}
+class MkbPresetsDb extends LocalDb {
+ static instance;
+ static getInstance = () => MkbPresetsDb.instance ?? (MkbPresetsDb.instance = new MkbPresetsDb);
+ LOG_TAG = "MkbPresetsDb";
+ TABLE_PRESETS = "mkb_presets";
+ constructor() {
+  super();
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
+ onUpgradeNeeded(e) {
+  let db = e.target.result;
+  switch (e.oldVersion) {
+   case 0: {
+    db.createObjectStore(this.TABLE_PRESETS, {
+     keyPath: "id",
+     autoIncrement: !0
+    }).createIndex("name_idx", "name");
+    break;
+   }
+  }
+ }
+ presetsTable() {
+  return this.open().then(() => this.table(this.TABLE_PRESETS, "readwrite"));
+ }
+ newPreset(name, data) {
+  return this.presetsTable().then((table) => this.add(table, { name, data })).then(([table, id]) => new Promise((resolve) => resolve(id)));
+ }
+ updatePreset(preset) {
+  return this.presetsTable().then((table) => this.put(table, preset)).then(([table, id]) => new Promise((resolve) => resolve(id)));
+ }
+ deletePreset(id) {
+  return this.presetsTable().then((table) => this.delete(table, id)).then(([table, id2]) => new Promise((resolve) => resolve(id2)));
+ }
+ getPreset(id) {
+  return this.presetsTable().then((table) => this.get(table, id)).then(([table, preset]) => new Promise((resolve) => resolve(preset)));
+ }
+ getPresets() {
+  return this.presetsTable().then((table) => this.count(table)).then(([table, count]) => {
+   if (count > 0) return new Promise((resolve) => {
+     this.getAll(table).then(([table2, items]) => {
+      let presets = {};
+      items.forEach((item) => presets[item.id] = item), resolve(presets);
+     });
+    });
+   let preset = {
+    name: t("default"),
+    data: MkbPreset.DEFAULT_PRESET
+   };
+   return new Promise((resolve) => {
+    this.add(table, preset).then(([table2, id]) => {
+     preset.id = id, setPref("mkb_default_preset_id", id), resolve({ [id]: preset });
+    });
+   });
+  });
+ }
+}
 var PointerToMouseButton = {
  1: 0,
  2: 2,
@@ -2498,6 +2525,7 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
 class EmulatedMkbHandler extends MkbHandler {
  static instance;
  static getInstance = () => EmulatedMkbHandler.instance ?? (EmulatedMkbHandler.instance = new EmulatedMkbHandler);
+ static LOG_TAG = "EmulatedMkbHandler";
  #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
  static DEFAULT_PANNING_SENSITIVITY = 0.001;
  static DEFAULT_DEADZONE_COUNTERWEIGHT = 0.01;
@@ -2529,7 +2557,7 @@ class EmulatedMkbHandler extends MkbHandler {
  #RIGHT_STICK_Y = [];
  constructor() {
   super();
-  this.#STICK_MAP = {
+  BxLogger.info(EmulatedMkbHandler.LOG_TAG, "constructor()"), this.#STICK_MAP = {
    102: [this.#LEFT_STICK_X, 0, -1],
    103: [this.#LEFT_STICK_X, 0, 1],
    100: [this.#LEFT_STICK_Y, 1, -1],
@@ -2646,7 +2674,7 @@ class EmulatedMkbHandler extends MkbHandler {
  #getCurrentPreset = () => {
   return new Promise((resolve) => {
    let presetId = getPref("mkb_default_preset_id");
-   LocalDb.INSTANCE.getPreset(presetId).then((preset) => {
+   MkbPresetsDb.getInstance().getPreset(presetId).then((preset) => {
     resolve(preset);
    });
   });
@@ -2775,6 +2803,7 @@ class NavigationDialog {
 class NavigationDialogManager {
  static instance;
  static getInstance = () => NavigationDialogManager.instance ?? (NavigationDialogManager.instance = new NavigationDialogManager);
+ LOG_TAG = "NavigationDialogManager";
  static GAMEPAD_POLLING_INTERVAL = 50;
  static GAMEPAD_KEYS = [
   12,
@@ -2815,7 +2844,7 @@ class NavigationDialogManager {
  $container;
  dialog = null;
  constructor() {
-  if (this.$overlay = CE("div", { class: "bx-navigation-dialog-overlay bx-gone" }), this.$overlay.addEventListener("click", (e) => {
+  if (BxLogger.info(this.LOG_TAG, "constructor()"), this.$overlay = CE("div", { class: "bx-navigation-dialog-overlay bx-gone" }), this.$overlay.addEventListener("click", (e) => {
    e.preventDefault(), e.stopPropagation(), this.hide();
   }), document.documentElement.appendChild(this.$overlay), this.$container = CE("div", { class: "bx-navigation-dialog bx-gone" }), document.documentElement.appendChild(this.$container), window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, (e) => this.hide()), getPref("ui_controller_friendly"))
    new MutationObserver((mutationList) => {
@@ -3055,6 +3084,293 @@ var BxIcon = {
  UPLOAD: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M16 19.905V1.682m14.318 18.223v9.112a1.31 1.31 0 0 1-1.302 1.302H2.983a1.31 1.31 0 0 1-1.302-1.302v-9.112'/><path d='M9.492 8.19L16 1.682l6.508 6.508'/></svg>",
  AUDIO: "<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='#fff' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 32 32'><path d='M8.964 21.417h-6.5a1.09 1.09 0 0 1-1.083-1.083v-8.667a1.09 1.09 0 0 1 1.083-1.083h6.5L18.714 3v26l-9.75-7.583z'/><path d='M8.964 10.583v10.833m15.167-8.28a4.35 4.35 0 0 1 0 5.728M28.149 9.5a9.79 9.79 0 0 1 0 13'/></svg>"
 };
+class Dialog {
+ $dialog;
+ $title;
+ $content;
+ $overlay;
+ onClose;
+ constructor(options) {
+  let {
+   title,
+   className,
+   content,
+   hideCloseButton,
+   onClose,
+   helpUrl
+  } = options, $overlay = document.querySelector(".bx-dialog-overlay");
+  if (!$overlay) this.$overlay = CE("div", { class: "bx-dialog-overlay bx-gone" }), this.$overlay.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$overlay);
+  else this.$overlay = $overlay;
+  let $close;
+  this.onClose = onClose, this.$dialog = CE("div", { class: `bx-dialog ${className || ""} bx-gone` }, this.$title = CE("h2", {}, CE("b", {}, title), helpUrl && createButton({
+   icon: BxIcon.QUESTION,
+   style: 4,
+   title: t("help"),
+   url: helpUrl
+  })), this.$content = CE("div", { class: "bx-dialog-content" }, content), !hideCloseButton && ($close = CE("button", { type: "button" }, t("close")))), $close && $close.addEventListener("click", (e) => {
+   this.hide(e);
+  }), !title && this.$title.classList.add("bx-gone"), !content && this.$content.classList.add("bx-gone"), this.$dialog.addEventListener("contextmenu", (e) => e.preventDefault()), document.documentElement.appendChild(this.$dialog);
+ }
+ show(newOptions) {
+  if (document.activeElement && document.activeElement.blur(), newOptions && newOptions.title) this.$title.querySelector("b").textContent = newOptions.title, this.$title.classList.remove("bx-gone");
+  this.$dialog.classList.remove("bx-gone"), this.$overlay.classList.remove("bx-gone"), document.body.classList.add("bx-no-scroll");
+ }
+ hide(e) {
+  this.$dialog.classList.add("bx-gone"), this.$overlay.classList.add("bx-gone"), document.body.classList.remove("bx-no-scroll"), this.onClose && this.onClose(e);
+ }
+ toggle() {
+  this.$dialog.classList.toggle("bx-gone"), this.$overlay.classList.toggle("bx-gone");
+ }
+}
+class MkbRemapper {
+ BUTTON_ORDERS = [
+  12,
+  13,
+  14,
+  15,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  16,
+  10,
+  100,
+  101,
+  102,
+  103,
+  11,
+  200,
+  201,
+  202,
+  203
+ ];
+ static instance;
+ static getInstance = () => MkbRemapper.instance ?? (MkbRemapper.instance = new MkbRemapper);
+ LOG_TAG = "MkbRemapper";
+ STATE = {
+  currentPresetId: 0,
+  presets: {},
+  editingPresetData: null,
+  isEditing: !1
+ };
+ $wrapper;
+ $presetsSelect;
+ $activateButton;
+ $currentBindingKey;
+ allKeyElements = [];
+ allMouseElements = {};
+ bindingDialog;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.STATE.currentPresetId = getPref("mkb_default_preset_id"), this.bindingDialog = new Dialog({
+   className: "bx-binding-dialog",
+   content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
+   hideCloseButton: !0
+  });
+ }
+ clearEventListeners = () => {
+  window.removeEventListener("keydown", this.onKeyDown), window.removeEventListener("mousedown", this.onMouseDown), window.removeEventListener("wheel", this.onWheel);
+ };
+ bindKey = ($elm, key) => {
+  let buttonIndex = parseInt($elm.dataset.buttonIndex), keySlot = parseInt($elm.dataset.keySlot);
+  if ($elm.dataset.keyCode === key.code) return;
+  for (let $otherElm of this.allKeyElements)
+   if ($otherElm.dataset.keyCode === key.code) this.unbindKey($otherElm);
+  this.STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.dataset.keyCode = key.code;
+ };
+ unbindKey = ($elm) => {
+  let buttonIndex = parseInt($elm.dataset.buttonIndex), keySlot = parseInt($elm.dataset.keySlot);
+  this.STATE.editingPresetData.mapping[buttonIndex][keySlot] = null, $elm.textContent = "", delete $elm.dataset.keyCode;
+ };
+ onWheel = (e) => {
+  e.preventDefault(), this.clearEventListeners(), this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
+ };
+ onMouseDown = (e) => {
+  e.preventDefault(), this.clearEventListeners(), this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
+ };
+ onKeyDown = (e) => {
+  if (e.preventDefault(), e.stopPropagation(), this.clearEventListeners(), e.code !== "Escape") this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e));
+  window.setTimeout(() => this.bindingDialog.hide(), 200);
+ };
+ onBindingKey = (e) => {
+  if (!this.STATE.isEditing || e.button !== 0) return;
+  console.log(e), this.$currentBindingKey = e.target, window.addEventListener("keydown", this.onKeyDown), window.addEventListener("mousedown", this.onMouseDown), window.addEventListener("wheel", this.onWheel), this.bindingDialog.show({ title: this.$currentBindingKey.dataset.prompt });
+ };
+ onContextMenu = (e) => {
+  if (e.preventDefault(), !this.STATE.isEditing) return;
+  this.unbindKey(e.target);
+ };
+ getPreset = (presetId) => {
+  return this.STATE.presets[presetId];
+ };
+ getCurrentPreset = () => {
+  return this.getPreset(this.STATE.currentPresetId);
+ };
+ switchPreset = (presetId) => {
+  this.STATE.currentPresetId = presetId;
+  let presetData = this.getCurrentPreset().data;
+  for (let $elm of this.allKeyElements) {
+   let buttonIndex = parseInt($elm.dataset.buttonIndex), keySlot = parseInt($elm.dataset.keySlot), buttonKeys = presetData.mapping[buttonIndex];
+   if (buttonKeys && buttonKeys[keySlot]) $elm.textContent = KeyHelper.codeToKeyName(buttonKeys[keySlot]), $elm.dataset.keyCode = buttonKeys[keySlot];
+   else $elm.textContent = "", delete $elm.dataset.keyCode;
+  }
+  let key;
+  for (key in this.allMouseElements) {
+   let $elm = this.allMouseElements[key], value = presetData.mouse[key];
+   if (typeof value === "undefined") value = MkbPreset.MOUSE_SETTINGS[key].default;
+   "setValue" in $elm && $elm.setValue(value);
+  }
+  let activated = getPref("mkb_default_preset_id") === this.STATE.currentPresetId;
+  this.$activateButton.disabled = activated, this.$activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
+ };
+ refresh() {
+  while (this.$presetsSelect.firstChild)
+   this.$presetsSelect.removeChild(this.$presetsSelect.firstChild);
+  MkbPresetsDb.getInstance().getPresets().then((presets) => {
+   this.STATE.presets = presets;
+   let $fragment = document.createDocumentFragment(), defaultPresetId;
+   if (this.STATE.currentPresetId === 0) this.STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.STATE.currentPresetId, setPref("mkb_default_preset_id", defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
+   else defaultPresetId = getPref("mkb_default_preset_id");
+   for (let id in presets) {
+    let name = presets[id].name;
+    if (id === defaultPresetId) name = "🎮 " + name;
+    let $options = CE("option", { value: id }, name);
+    $options.selected = parseInt(id) === this.STATE.currentPresetId, $fragment.appendChild($options);
+   }
+   this.$presetsSelect.appendChild($fragment);
+   let activated = defaultPresetId === this.STATE.currentPresetId;
+   this.$activateButton.disabled = activated, this.$activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate"), !this.STATE.isEditing && this.switchPreset(this.STATE.currentPresetId);
+  });
+ }
+ toggleEditing = (force) => {
+  if (this.STATE.isEditing = typeof force !== "undefined" ? force : !this.STATE.isEditing, this.$wrapper.classList.toggle("bx-editing", this.STATE.isEditing), this.STATE.isEditing) this.STATE.editingPresetData = deepClone(this.getCurrentPreset().data);
+  else this.STATE.editingPresetData = null;
+  let childElements = this.$wrapper.querySelectorAll("select, button, input");
+  for (let $elm of Array.from(childElements)) {
+   if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons")) continue;
+   let disable = !this.STATE.isEditing;
+   if ($elm.parentElement.classList.contains("bx-mkb-preset-tools")) disable = !disable;
+   $elm.disabled = disable;
+  }
+ };
+ render() {
+  this.$wrapper = CE("div", { class: "bx-mkb-settings" }), this.$presetsSelect = CE("select", { tabindex: -1 }), this.$presetsSelect.addEventListener("change", (e) => {
+   this.switchPreset(parseInt(e.target.value));
+  });
+  let promptNewName = (value) => {
+   let newName = "";
+   while (!newName) {
+    if (newName = prompt(t("prompt-preset-name"), value), newName === null) return !1;
+    newName = newName.trim();
+   }
+   return newName ? newName : !1;
+  }, $header = CE("div", { class: "bx-mkb-preset-tools" }, this.$presetsSelect, createButton({
+   title: t("rename"),
+   icon: BxIcon.CURSOR_TEXT,
+   tabIndex: -1,
+   onClick: (e) => {
+    let preset = this.getCurrentPreset(), newName = promptNewName(preset.name);
+    if (!newName || newName === preset.name) return;
+    preset.name = newName, MkbPresetsDb.getInstance().updatePreset(preset).then((id) => this.refresh());
+   }
+  }), createButton({
+   icon: BxIcon.NEW,
+   title: t("new"),
+   tabIndex: -1,
+   onClick: (e) => {
+    let newName = promptNewName("");
+    if (!newName) return;
+    MkbPresetsDb.getInstance().newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id) => {
+     this.STATE.currentPresetId = id, this.refresh();
+    });
+   }
+  }), createButton({
+   icon: BxIcon.COPY,
+   title: t("copy"),
+   tabIndex: -1,
+   onClick: (e) => {
+    let preset = this.getCurrentPreset(), newName = promptNewName(`${preset.name} (2)`);
+    if (!newName) return;
+    MkbPresetsDb.getInstance().newPreset(newName, preset.data).then((id) => {
+     this.STATE.currentPresetId = id, this.refresh();
+    });
+   }
+  }), createButton({
+   icon: BxIcon.TRASH,
+   style: 2,
+   title: t("delete"),
+   tabIndex: -1,
+   onClick: (e) => {
+    if (!confirm(t("confirm-delete-preset"))) return;
+    MkbPresetsDb.getInstance().deletePreset(this.STATE.currentPresetId).then((id) => {
+     this.STATE.currentPresetId = 0, this.refresh();
+    });
+   }
+  }));
+  this.$wrapper.appendChild($header);
+  let $rows = CE("div", { class: "bx-mkb-settings-rows" }, CE("i", { class: "bx-mkb-note" }, t("right-click-to-unbind"))), keysPerButton = 2;
+  for (let buttonIndex of this.BUTTON_ORDERS) {
+   let [buttonName, buttonPrompt] = GamepadKeyName[buttonIndex], $elm, $fragment = document.createDocumentFragment();
+   for (let i = 0;i < keysPerButton; i++)
+    $elm = CE("button", {
+     type: "button",
+     "data-prompt": buttonPrompt,
+     "data-button-index": buttonIndex,
+     "data-key-slot": i
+    }, " "), $elm.addEventListener("mouseup", this.onBindingKey), $elm.addEventListener("contextmenu", this.onContextMenu), $fragment.appendChild($elm), this.allKeyElements.push($elm);
+   let $keyRow = CE("div", { class: "bx-mkb-key-row" }, CE("label", { title: buttonName }, buttonPrompt), $fragment);
+   $rows.appendChild($keyRow);
+  }
+  $rows.appendChild(CE("i", { class: "bx-mkb-note" }, t("mkb-adjust-ingame-settings")));
+  let $mouseSettings = document.createDocumentFragment();
+  for (let key in MkbPreset.MOUSE_SETTINGS) {
+   let setting = MkbPreset.MOUSE_SETTINGS[key], value = setting.default, $elm, onChange = (e, value2) => {
+    this.STATE.editingPresetData.mouse[key] = value2;
+   }, $row = CE("label", {
+    class: "bx-settings-row",
+    for: `bx_setting_${key}`
+   }, CE("span", { class: "bx-settings-label" }, setting.label), $elm = SettingElement.render(setting.type, key, setting, value, onChange, setting.params));
+   $mouseSettings.appendChild($row), this.allMouseElements[key] = $elm;
+  }
+  $rows.appendChild($mouseSettings), this.$wrapper.appendChild($rows);
+  let $actionButtons = CE("div", { class: "bx-mkb-action-buttons" }, CE("div", {}, createButton({
+   label: t("edit"),
+   tabIndex: -1,
+   onClick: (e) => this.toggleEditing(!0)
+  }), this.$activateButton = createButton({
+   label: t("activate"),
+   style: 1,
+   tabIndex: -1,
+   onClick: (e) => {
+    setPref("mkb_default_preset_id", this.STATE.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.refresh();
+   }
+  })), CE("div", {}, createButton({
+   label: t("cancel"),
+   style: 4,
+   tabIndex: -1,
+   onClick: (e) => {
+    this.switchPreset(this.STATE.currentPresetId), this.toggleEditing(!1);
+   }
+  }), createButton({
+   label: t("save"),
+   style: 1,
+   tabIndex: -1,
+   onClick: (e) => {
+    let updatedPreset = deepClone(this.getCurrentPreset());
+    updatedPreset.data = this.STATE.editingPresetData, MkbPresetsDb.getInstance().updatePreset(updatedPreset).then((id) => {
+     if (id === getPref("mkb_default_preset_id")) EmulatedMkbHandler.getInstance().refreshPresetData();
+     this.toggleEditing(!1), this.refresh();
+    });
+   }
+  })));
+  return this.$wrapper.appendChild($actionButtons), this.toggleEditing(!1), this.refresh(), this.$wrapper;
+ }
+}
 var VIBRATION_DATA_MAP = {
  gamepadIndex: 8,
  leftMotorPercent: 8,
@@ -3136,9 +3452,10 @@ if (BX_FLAGS.FeatureGates) FeatureGates = Object.assign(BX_FLAGS.FeatureGates, F
 class FullscreenText {
  static instance;
  static getInstance = () => FullscreenText.instance ?? (FullscreenText.instance = new FullscreenText);
+ LOG_TAG = "FullscreenText";
  $text;
  constructor() {
-  this.$text = CE("div", {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$text = CE("div", {
    class: "bx-fullscreen-text bx-gone"
   }), document.documentElement.appendChild(this.$text);
  }
@@ -3152,9 +3469,10 @@ class FullscreenText {
 class SettingsNavigationDialog extends NavigationDialog {
  static instance;
  static getInstance = () => SettingsNavigationDialog.instance ?? (SettingsNavigationDialog.instance = new SettingsNavigationDialog);
+ LOG_TAG = "SettingsNavigationDialog";
  $container;
  $tabs;
- $settings;
+ $tabContents;
  $btnReload;
  $btnGlobalReload;
  $noteGlobalReload;
@@ -3466,11 +3784,11 @@ class SettingsNavigationDialog extends NavigationDialog {
   },
   !1
  ];
- TAB_VIRTUAL_CONTROLLER_ITEMS = [{
+ TAB_VIRTUAL_CONTROLLER_ITEMS = () => [{
   group: "mkb",
   label: t("virtual-controller"),
   helpUrl: "https://better-xcloud.github.io/mouse-and-keyboard/",
-  content: !1
+  content: MkbRemapper.getInstance().render()
  }];
  TAB_NATIVE_MKB_ITEMS = [{
   requiredVariants: "full",
@@ -3478,7 +3796,7 @@ class SettingsNavigationDialog extends NavigationDialog {
   label: t("native-mkb"),
   items: []
  }];
- TAB_SHORTCUTS_ITEMS = [{
+ TAB_SHORTCUTS_ITEMS = () => [{
   requiredVariants: "full",
   group: "controller-shortcuts",
   label: t("controller-shortcuts"),
@@ -3525,40 +3843,41 @@ class SettingsNavigationDialog extends NavigationDialog {
    }
   ]
  }];
- SETTINGS_UI = [
-  {
-   icon: BxIcon.HOME,
+ SETTINGS_UI = {
+  global: {
    group: "global",
+   icon: BxIcon.HOME,
    items: this.TAB_GLOBAL_ITEMS
   },
-  {
-   icon: BxIcon.DISPLAY,
+  stream: {
    group: "stream",
+   icon: BxIcon.DISPLAY,
    items: this.TAB_DISPLAY_ITEMS
   },
-  {
-   icon: BxIcon.CONTROLLER,
+  controller: {
    group: "controller",
+   icon: BxIcon.CONTROLLER,
    items: this.TAB_CONTROLLER_ITEMS,
    requiredVariants: "full"
   },
-  !1,
-  !1,
-  {
-   icon: BxIcon.COMMAND,
+  mkb: !1,
+  "native-mkb": !1,
+  shortcuts: {
    group: "shortcuts",
+   icon: BxIcon.COMMAND,
    items: this.TAB_SHORTCUTS_ITEMS,
+   lazyContent: !0,
    requiredVariants: "full"
   },
-  {
-   icon: BxIcon.STREAM_STATS,
+  stats: {
    group: "stats",
+   icon: BxIcon.STREAM_STATS,
    items: this.TAB_STATS_ITEMS
   }
- ];
+ };
  constructor() {
   super();
-  this.renderFullSettings = STATES.supportedRegion && STATES.isSignedIn, this.setupDialog();
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.renderFullSettings = STATES.supportedRegion && STATES.isSignedIn, this.setupDialog();
  }
  getDialog() {
   return this;
@@ -3619,8 +3938,10 @@ class SettingsNavigationDialog extends NavigationDialog {
    BxEvent.dispatch($content.querySelector("select"), "input");
    return;
   }
-  for (let settingTab of this.SETTINGS_UI) {
-   if (!settingTab || !settingTab.items) continue;
+  let settingTabGroup;
+  for (settingTabGroup in this.SETTINGS_UI) {
+   let settingTab = this.SETTINGS_UI[settingTabGroup];
+   if (!settingTab || !settingTab.items || typeof settingTab.items === "function") continue;
    for (let settingTabContent of settingTab.items) {
     if (!settingTabContent || !settingTabContent.items) continue;
     for (let setting of settingTabContent.items) {
@@ -3716,19 +4037,27 @@ class SettingsNavigationDialog extends NavigationDialog {
    href: "https://github.com/redphx/better-xcloud-devices",
    target: "_blank",
    tabindex: 0
-  }, t("suggest-settings-link"))), $btnSuggest?.insertAdjacentElement("afterend", $content);
+  }, t("suggest-settings-link"))), $btnSuggest.insertAdjacentElement("afterend", $content);
+ }
+ onTabClicked(e) {
+  let $svg = e.target.closest("svg");
+  if ($svg.dataset.lazy) {
+   delete $svg.dataset.lazy;
+   let settingTab = this.SETTINGS_UI[$svg.dataset.group], items = settingTab.items(), $tabContent = this.renderTabContent.call(this, settingTab, items);
+   this.$tabContents.appendChild($tabContent);
+  }
+  let $child, children = Array.from(this.$tabContents.children);
+  for ($child of children)
+   if ($child.dataset.tabGroup === $svg.dataset.group) {
+    if ($child.classList.remove("bx-gone"), getPref("ui_controller_friendly")) this.dialogManager.calculateSelectBoxes($child);
+   } else $child.classList.add("bx-gone");
+  for (let $child2 of Array.from(this.$tabs.children))
+   $child2.classList.remove("bx-active");
+  $svg.classList.add("bx-active");
  }
  renderTab(settingTab) {
   let $svg = createSvgIcon(settingTab.icon);
-  return $svg.dataset.group = settingTab.group, $svg.tabIndex = 0, $svg.addEventListener("click", (e) => {
-   for (let $child of Array.from(this.$settings.children))
-    if ($child.getAttribute("data-tab-group") === settingTab.group) {
-     if ($child.classList.remove("bx-gone"), getPref("ui_controller_friendly")) this.dialogManager.calculateSelectBoxes($child);
-    } else $child.classList.add("bx-gone");
-   for (let $child of Array.from(this.$tabs.children))
-    $child.classList.remove("bx-active");
-   $svg.classList.add("bx-active");
-  }), $svg;
+  return $svg.dataset.group = settingTab.group, $svg.tabIndex = 0, settingTab.lazyContent && ($svg.dataset.lazy = settingTab.lazyContent.toString()), $svg.addEventListener("click", this.onTabClicked.bind(this)), $svg;
  }
  onGlobalSettingChanged(e) {
   this.$btnReload.classList.add("bx-danger"), this.$noteGlobalReload.classList.add("bx-gone"), this.$btnGlobalReload.classList.remove("bx-gone"), this.$btnGlobalReload.classList.add("bx-danger");
@@ -3792,6 +4121,8 @@ class SettingsNavigationDialog extends NavigationDialog {
   if (pref) prefDefinition = getPrefDefinition(pref);
   if (prefDefinition && !this.isSupportedVariant(prefDefinition.requiredVariants)) return;
   let label = prefDefinition?.label || setting.label, note = prefDefinition?.note || setting.note, unsupportedNote = prefDefinition?.unsupportedNote || setting.unsupportedNote, experimental = prefDefinition?.experimental || setting.experimental;
+  if (typeof note === "function") note = note();
+  if (typeof unsupportedNote === "function") unsupportedNote = unsupportedNote();
   if (settingTabContent.label && setting.pref) {
    if (prefDefinition?.suggest) typeof prefDefinition.suggest.lowest !== "undefined" && (this.suggestedSettings.lowest[setting.pref] = prefDefinition.suggest.lowest), typeof prefDefinition.suggest.highest !== "undefined" && (this.suggestedSettings.highest[setting.pref] = prefDefinition.suggest.highest);
   }
@@ -3813,8 +4144,60 @@ class SettingsNavigationDialog extends NavigationDialog {
    });
   $tabContent.appendChild($row), !prefDefinition?.unsupported && setting.onCreated && setting.onCreated(setting, $control);
  }
+ renderTabContent(settingTab, items) {
+  let $tabContent = CE("div", {
+   class: "bx-gone",
+   "data-tab-group": settingTab.group
+  });
+  for (let settingTabContent of items) {
+   if (!settingTabContent) continue;
+   if (!this.isSupportedVariant(settingTabContent.requiredVariants)) continue;
+   if (!this.renderFullSettings && settingTab.group === "global" && settingTabContent.group !== "general" && settingTabContent.group !== "footer") continue;
+   let label = settingTabContent.label;
+   if (label === t("better-xcloud")) {
+    if (label += " " + SCRIPT_VERSION, SCRIPT_VARIANT === "lite") label += " (Lite)";
+    label = createButton({
+     label,
+     url: "https://github.com/redphx/better-xcloud/releases",
+     style: 1024 | 8 | 32
+    });
+   }
+   if (label) {
+    let $title = CE("h2", {
+     _nearby: {
+      orientation: "horizontal"
+     }
+    }, CE("span", {}, label), settingTabContent.helpUrl && createButton({
+     icon: BxIcon.QUESTION,
+     style: 4 | 32,
+     url: settingTabContent.helpUrl,
+     title: t("help")
+    }));
+    $tabContent.appendChild($title);
+   }
+   if (settingTabContent.unsupportedNote) {
+    let $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.unsupportedNote);
+    $tabContent.appendChild($note);
+   }
+   if (settingTabContent.unsupported) continue;
+   if (settingTabContent.content) {
+    $tabContent.appendChild(settingTabContent.content);
+    continue;
+   }
+   settingTabContent.items = settingTabContent.items || [];
+   for (let setting of settingTabContent.items) {
+    if (setting === !1) continue;
+    if (typeof setting === "function") {
+     setting.apply(this, [$tabContent]);
+     continue;
+    }
+    this.renderSettingRow(settingTab, $tabContent, settingTabContent, setting);
+   }
+  }
+  return $tabContent;
+ }
  setupDialog() {
-  let $tabs, $settings, $container = CE("div", {
+  let $tabs, $tabContents, $container = CE("div", {
    class: "bx-settings-dialog",
    _nearby: {
     orientation: "horizontal"
@@ -3848,7 +4231,7 @@ class SettingsNavigationDialog extends NavigationDialog {
    onClick: (e) => {
     this.dialogManager.hide();
    }
-  }))), $settings = CE("div", {
+  }))), $tabContents = CE("div", {
    class: "bx-settings-tab-contents",
    _nearby: {
     orientation: "vertical",
@@ -3859,65 +4242,19 @@ class SettingsNavigationDialog extends NavigationDialog {
     }
    }
   }));
-  this.$container = $container, this.$tabs = $tabs, this.$settings = $settings, $container.addEventListener("click", (e) => {
+  this.$container = $container, this.$tabs = $tabs, this.$tabContents = $tabContents, $container.addEventListener("click", (e) => {
    if (e.target === $container) e.preventDefault(), e.stopPropagation(), this.hide();
   });
-  for (let settingTab of this.SETTINGS_UI) {
+  let settingTabGroup;
+  for (settingTabGroup in this.SETTINGS_UI) {
+   let settingTab = this.SETTINGS_UI[settingTabGroup];
    if (!settingTab) continue;
    if (!this.isSupportedVariant(settingTab.requiredVariants)) continue;
    if (settingTab.group !== "global" && !this.renderFullSettings) continue;
    let $svg = this.renderTab(settingTab);
-   $tabs.appendChild($svg);
-   let $tabContent = CE("div", {
-    class: "bx-gone",
-    "data-tab-group": settingTab.group
-   });
-   for (let settingTabContent of settingTab.items) {
-    if (settingTabContent === !1) continue;
-    if (!this.isSupportedVariant(settingTabContent.requiredVariants)) continue;
-    if (!this.renderFullSettings && settingTab.group === "global" && settingTabContent.group !== "general" && settingTabContent.group !== "footer") continue;
-    let label = settingTabContent.label;
-    if (label === t("better-xcloud")) {
-     if (label += " " + SCRIPT_VERSION, SCRIPT_VARIANT === "lite") label += " (Lite)";
-     label = createButton({
-      label,
-      url: "https://github.com/redphx/better-xcloud/releases",
-      style: 1024 | 8 | 32
-     });
-    }
-    if (label) {
-     let $title = CE("h2", {
-      _nearby: {
-       orientation: "horizontal"
-      }
-     }, CE("span", {}, label), settingTabContent.helpUrl && createButton({
-      icon: BxIcon.QUESTION,
-      style: 4 | 32,
-      url: settingTabContent.helpUrl,
-      title: t("help")
-     }));
-     $tabContent.appendChild($title);
-    }
-    if (settingTabContent.unsupportedNote) {
-     let $note = CE("b", { class: "bx-note-unsupported" }, settingTabContent.unsupportedNote);
-     $tabContent.appendChild($note);
-    }
-    if (settingTabContent.unsupported) continue;
-    if (settingTabContent.content) {
-     $tabContent.appendChild(settingTabContent.content);
-     continue;
-    }
-    settingTabContent.items = settingTabContent.items || [];
-    for (let setting of settingTabContent.items) {
-     if (setting === !1) continue;
-     if (typeof setting === "function") {
-      setting.apply(this, [$tabContent]);
-      continue;
-     }
-     this.renderSettingRow(settingTab, $tabContent, settingTabContent, setting);
-    }
-   }
-   $settings.appendChild($tabContent);
+   if ($tabs.appendChild($svg), typeof settingTab.items === "function") continue;
+   let $tabContent = this.renderTabContent.call(this, settingTab, settingTab.items);
+   $tabContents.appendChild($tabContent);
   }
   $tabs.firstElementChild.dispatchEvent(new Event("click"));
  }
@@ -3933,7 +4270,7 @@ class SettingsNavigationDialog extends NavigationDialog {
   return $currentTab && $currentTab.focus(), !0;
  }
  focusVisibleSetting(type = "first") {
-  let controls = Array.from(this.$settings.querySelectorAll("div[data-tab-group]:not(.bx-gone) > *"));
+  let controls = Array.from(this.$tabContents.querySelectorAll("div[data-tab-group]:not(.bx-gone) > *"));
   if (!controls.length) return !1;
   if (type === "last") controls.reverse();
   for (let $control of controls) {
@@ -3954,7 +4291,7 @@ class SettingsNavigationDialog extends NavigationDialog {
   return !1;
  }
  jumpToSettingGroup(direction) {
-  let $tabContent = this.$settings.querySelector("div[data-tab-group]:not(.bx-gone)");
+  let $tabContent = this.$tabContents.querySelector("div[data-tab-group]:not(.bx-gone)");
   if (!$tabContent) return !1;
   let $header, $focusing = document.activeElement;
   if (!$focusing || !$tabContent.contains($focusing)) $header = $tabContent.querySelector("h2");
@@ -4085,52 +4422,58 @@ function getPreferredServerRegion(shortName = !1) {
  return null;
 }
 class HeaderSection {
- static #$remotePlayBtn = createButton({
-  classes: ["bx-header-remote-play-button", "bx-gone"],
-  icon: BxIcon.REMOTE_PLAY,
-  title: t("remote-play"),
-  style: 4 | 32 | 512,
-  onClick: (e) => {
-   RemotePlayManager.getInstance().togglePopup();
-  }
- });
- static #$settingsBtn = createButton({
-  classes: ["bx-header-settings-button"],
-  label: "???",
-  style: 8 | 16 | 32 | 128,
-  onClick: (e) => {
-   SettingsNavigationDialog.getInstance().show();
-  }
- });
- static #$buttonsWrapper = CE("div", {}, getPref("xhome_enabled") ? HeaderSection.#$remotePlayBtn : null, HeaderSection.#$settingsBtn);
- static #observer;
- static #timeout;
- static #injectSettingsButton($parent) {
-  if (!$parent) return;
-  let PREF_LATEST_VERSION = getPref("version_latest"), $btnSettings = HeaderSection.#$settingsBtn;
-  if (isElementVisible(HeaderSection.#$buttonsWrapper)) return;
-  if ($btnSettings.querySelector("span").textContent = getPreferredServerRegion(!0) || t("better-xcloud"), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) $btnSettings.setAttribute("data-update-available", "true");
-  $parent.appendChild(HeaderSection.#$buttonsWrapper);
+ static instance;
+ static getInstance = () => HeaderSection.instance ?? (HeaderSection.instance = new HeaderSection);
+ LOG_TAG = "HeaderSection";
+ $btnRemotePlay;
+ $btnSettings;
+ $buttonsWrapper;
+ observer;
+ timeoutId;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$btnRemotePlay = createButton({
+   classes: ["bx-header-remote-play-button", "bx-gone"],
+   icon: BxIcon.REMOTE_PLAY,
+   title: t("remote-play"),
+   style: 4 | 32 | 512,
+   onClick: (e) => RemotePlayManager.getInstance().togglePopup()
+  }), this.$btnSettings = createButton({
+   classes: ["bx-header-settings-button"],
+   label: "???",
+   style: 8 | 16 | 32 | 128,
+   onClick: (e) => SettingsNavigationDialog.getInstance().show()
+  }), this.$buttonsWrapper = CE("div", {}, getPref("xhome_enabled") ? this.$btnRemotePlay : null, this.$btnSettings);
  }
- static checkHeader() {
+ injectSettingsButton($parent) {
+  if (!$parent) return;
+  let PREF_LATEST_VERSION = getPref("version_latest"), $btnSettings = this.$btnSettings;
+  if (isElementVisible(this.$buttonsWrapper)) return;
+  if ($btnSettings.querySelector("span").textContent = getPreferredServerRegion(!0) || t("better-xcloud"), !SCRIPT_VERSION.includes("beta") && PREF_LATEST_VERSION && PREF_LATEST_VERSION !== SCRIPT_VERSION) $btnSettings.setAttribute("data-update-available", "true");
+  $parent.appendChild(this.$buttonsWrapper);
+ }
+ checkHeader() {
   let $target = document.querySelector("#PageContent div[class*=EdgewaterHeader-module__rightSectionSpacing]");
   if (!$target) $target = document.querySelector("div[class^=UnsupportedMarketPage-module__buttons]");
-  $target && HeaderSection.#injectSettingsButton($target);
+  $target && this.injectSettingsButton($target);
  }
- static showRemotePlayButton() {
-  HeaderSection.#$remotePlayBtn.classList.remove("bx-gone");
- }
- static watchHeader() {
+ watchHeader() {
   let $root = document.querySelector("#PageContent header") || document.querySelector("#root");
   if (!$root) return;
-  HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout), HeaderSection.#timeout = null, HeaderSection.#observer && HeaderSection.#observer.disconnect(), HeaderSection.#observer = new MutationObserver((mutationList) => {
-   HeaderSection.#timeout && clearTimeout(HeaderSection.#timeout), HeaderSection.#timeout = window.setTimeout(HeaderSection.checkHeader, 2000);
-  }), HeaderSection.#observer.observe($root, { subtree: !0, childList: !0 }), HeaderSection.checkHeader();
+  this.timeoutId && clearTimeout(this.timeoutId), this.timeoutId = null, this.observer && this.observer.disconnect(), this.observer = new MutationObserver((mutationList) => {
+   this.timeoutId && clearTimeout(this.timeoutId), this.timeoutId = window.setTimeout(this.checkHeader.bind(this), 2000);
+  }), this.observer.observe($root, { subtree: !0, childList: !0 }), this.checkHeader();
+ }
+ showRemotePlayButton() {
+  this.$btnRemotePlay.classList.remove("bx-gone");
+ }
+ static watchHeader() {
+  HeaderSection.getInstance().watchHeader();
  }
 }
 class RemotePlayNavigationDialog extends NavigationDialog {
  static instance;
  static getInstance = () => RemotePlayNavigationDialog.instance ?? (RemotePlayNavigationDialog.instance = new RemotePlayNavigationDialog);
+ LOG_TAG = "RemotePlayNavigationDialog";
  STATE_LABELS = {
   On: t("powered-on"),
   Off: t("powered-off"),
@@ -4140,7 +4483,7 @@ class RemotePlayNavigationDialog extends NavigationDialog {
  $container;
  constructor() {
   super();
-  this.setupDialog();
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.setupDialog();
  }
  setupDialog() {
   let $fragment = CE("div", { class: "bx-remote-play-container" }), $settingNote = CE("p", {}), currentResolution = getPref("xhome_resolution"), $resolutions = CE("select", {}, CE("option", { value: "1080p" }, "1080p"), CE("option", { value: "720p" }, "720p"));
@@ -4192,20 +4535,23 @@ class RemotePlayNavigationDialog extends NavigationDialog {
   $btnConnect && $btnConnect.focus();
  }
 }
-var LOG_TAG2 = "RemotePlay";
 class RemotePlayManager {
  static instance;
  static getInstance = () => RemotePlayManager.instance ?? (RemotePlayManager.instance = new RemotePlayManager);
+ LOG_TAG = "RemotePlayManager";
  isInitialized = !1;
  XCLOUD_TOKEN;
  XHOME_TOKEN;
  consoles;
  regions = [];
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  initialize() {
   if (this.isInitialized) return;
   this.isInitialized = !0, this.getXhomeToken(() => {
    this.getConsolesList(() => {
-    BxLogger.info(LOG_TAG2, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+    BxLogger.info(this.LOG_TAG, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.getInstance().showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
    });
   });
  }
@@ -4366,54 +4712,10 @@ class LoadingScreen {
  }
 }
 class GuideMenu {
- static #BUTTONS = {
-  scriptSettings: createButton({
-   label: t("better-xcloud"),
-   style: 64 | 32 | 1,
-   onClick: (e) => {
-    window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, (e2) => {
-     setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
-    }, { once: !0 }), GuideMenu.#closeGuideMenu();
-   }
-  }),
-  closeApp: AppInterface && createButton({
-   icon: BxIcon.POWER,
-   label: t("close-app"),
-   title: t("close-app"),
-   style: 64 | 32 | 2,
-   onClick: (e) => {
-    AppInterface.closeApp();
-   },
-   attributes: {
-    "data-state": "normal"
-   }
-  }),
-  reloadPage: createButton({
-   icon: BxIcon.REFRESH,
-   label: t("reload-page"),
-   title: t("reload-page"),
-   style: 64 | 32,
-   onClick: (e) => {
-    if (STATES.isPlaying) confirm(t("confirm-reload-stream")) && window.location.reload();
-    else window.location.reload();
-    GuideMenu.#closeGuideMenu();
-   }
-  }),
-  backToHome: createButton({
-   icon: BxIcon.HOME,
-   label: t("back-to-home"),
-   title: t("back-to-home"),
-   style: 64 | 32,
-   onClick: (e) => {
-    confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31)), GuideMenu.#closeGuideMenu();
-   },
-   attributes: {
-    "data-state": "playing"
-   }
-  })
- };
- static #$renderedButtons;
- static #closeGuideMenu() {
+ static instance;
+ static getInstance = () => GuideMenu.instance ?? (GuideMenu.instance = new GuideMenu);
+ $renderedButtons;
+ closeGuideMenu() {
   if (window.BX_EXPOSED.dialogRoutes) {
    window.BX_EXPOSED.dialogRoutes.closeAll();
    return;
@@ -4421,19 +4723,63 @@ class GuideMenu {
   let $btnClose = document.querySelector("#gamepass-dialog-root button[class^=Header-module__closeButton]");
   $btnClose && $btnClose.click();
  }
- static #renderButtons() {
-  if (GuideMenu.#$renderedButtons) return GuideMenu.#$renderedButtons;
-  let $div = CE("div", {
-   class: "bx-guide-home-buttons"
-  }), buttons = [
-   GuideMenu.#BUTTONS.scriptSettings,
+ renderButtons() {
+  if (this.$renderedButtons) return this.$renderedButtons;
+  let buttons = {
+   scriptSettings: createButton({
+    label: t("better-xcloud"),
+    style: 64 | 32 | 1,
+    onClick: (() => {
+     window.addEventListener(BxEvent.XCLOUD_DIALOG_DISMISSED, (e) => {
+      setTimeout(() => SettingsNavigationDialog.getInstance().show(), 50);
+     }, { once: !0 }), this.closeGuideMenu();
+    }).bind(this)
+   }),
+   closeApp: AppInterface && createButton({
+    icon: BxIcon.POWER,
+    label: t("close-app"),
+    title: t("close-app"),
+    style: 64 | 32 | 2,
+    onClick: (e) => {
+     AppInterface.closeApp();
+    },
+    attributes: {
+     "data-state": "normal"
+    }
+   }),
+   reloadPage: createButton({
+    icon: BxIcon.REFRESH,
+    label: t("reload-page"),
+    title: t("reload-page"),
+    style: 64 | 32,
+    onClick: (() => {
+     if (this.closeGuideMenu(), STATES.isPlaying) confirm(t("confirm-reload-stream")) && window.location.reload();
+     else window.location.reload();
+    }).bind(this)
+   }),
+   backToHome: createButton({
+    icon: BxIcon.HOME,
+    label: t("back-to-home"),
+    title: t("back-to-home"),
+    style: 64 | 32,
+    onClick: (() => {
+     this.closeGuideMenu(), confirm(t("back-to-home-confirm")) && (window.location.href = window.location.href.substring(0, 31));
+    }).bind(this),
+    attributes: {
+     "data-state": "playing"
+    }
+   })
+  }, buttonsLayout = [
+   buttons.scriptSettings,
    [
-    GuideMenu.#BUTTONS.backToHome,
-    GuideMenu.#BUTTONS.reloadPage,
-    GuideMenu.#BUTTONS.closeApp
+    buttons.backToHome,
+    buttons.reloadPage,
+    buttons.closeApp
    ]
-  ];
-  for (let $button of buttons) {
+  ], $div = CE("div", {
+   class: "bx-guide-home-buttons"
+  });
+  for (let $button of buttonsLayout) {
    if (!$button) continue;
    if ($button instanceof HTMLElement) $div.appendChild($button);
    else if (Array.isArray($button)) {
@@ -4443,9 +4789,9 @@ class GuideMenu {
     $div.appendChild($wrapper);
    }
   }
-  return GuideMenu.#$renderedButtons = $div, $div;
+  return this.$renderedButtons = $div, $div;
  }
- static #injectHome($root, isPlaying = !1) {
+ injectHome($root, isPlaying = !1) {
   let $target = null;
   if (isPlaying) {
    $target = $root.querySelector("a[class*=QuitGameButton]");
@@ -4456,19 +4802,19 @@ class GuideMenu {
    if ($dividers) $target = $dividers[$dividers.length - 1];
   }
   if (!$target) return !1;
-  let $buttons = GuideMenu.#renderButtons();
+  let $buttons = this.renderButtons();
   $buttons.dataset.isPlaying = isPlaying.toString(), $target.insertAdjacentElement("afterend", $buttons);
  }
- static async#onShown(e) {
+ async onShown(e) {
   if (e.where === "home") {
    let $root = document.querySelector("#gamepass-dialog-root div[role=dialog] div[role=tabpanel] div[class*=HomeLandingPage]");
-   $root && GuideMenu.#injectHome($root, STATES.isPlaying);
+   $root && this.injectHome($root, STATES.isPlaying);
   }
  }
- static addEventListeners() {
-  window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, GuideMenu.#onShown);
+ addEventListeners() {
+  window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, this.onShown.bind(this));
  }
- static observe($addedElm) {
+ observe($addedElm) {
   let className = $addedElm.className;
   if (!className.startsWith("NavigationAnimation") && !className.startsWith("DialogRoutes") && !className.startsWith("Dialog-module__container")) return;
   let $selectedTab = $addedElm.querySelector("div[class^=NavigationMenu] button[aria-selected=true");
@@ -4483,6 +4829,7 @@ class GuideMenu {
 class StreamBadges {
  static instance;
  static getInstance = () => StreamBadges.instance ?? (StreamBadges.instance = new StreamBadges);
+ LOG_TAG = "StreamBadges";
  serverInfo = {};
  badges = {
   playtime: {
@@ -4524,6 +4871,9 @@ class StreamBadges {
  $container;
  intervalId;
  REFRESH_INTERVAL = 3000;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  setRegion(region) {
   this.serverInfo.server = {
    region
@@ -4688,6 +5038,7 @@ class XcloudInterceptor {
   return STATES.gsToken = obj.gsToken, response.json = () => Promise.resolve(obj), response;
  }
  static async handlePlay(request, init) {
+  BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
   let PREF_STREAM_TARGET_RESOLUTION = getPref("stream_target_resolution"), PREF_STREAM_PREFERRED_LOCALE = getPref("stream_preferred_locale"), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url), badgeRegion = parsedUrl.host.split(".", 1)[0];
   for (let regionName in STATES.serverRegions) {
    let region = STATES.serverRegions[regionName];
@@ -4720,6 +5071,7 @@ class XcloudInterceptor {
   if (request.method !== "GET") return NATIVE_FETCH(request, init);
   let response = await NATIVE_FETCH(request, init), text = await response.clone().text();
   if (!text.length) return response;
+  BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
   let obj = JSON.parse(text), overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
   overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
   let overrideMkb = null;
@@ -4751,9 +5103,7 @@ function clearDbLogs(dbName, table) {
   let db = e.target.result;
   try {
    let objectStoreRequest = db.transaction(table, "readwrite").objectStore(table).clear();
-   objectStoreRequest.onsuccess = function() {
-    console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
-   };
+   objectStoreRequest.onsuccess = () => BxLogger.info("clearDbLogs", `Cleared ${dbName}.${table}`);
   } catch (ex) {}
  };
 }
@@ -4802,7 +5152,8 @@ function interceptHttpRequests() {
    "https://arc.msn.com",
    "https://browser.events.data.microsoft.com",
    "https://dc.services.visualstudio.com",
-   "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
+   "https://2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io",
+   "https://mscom.demdex.net"
   ]);
  if (getPref("block_social_features")) BLOCKED_URLS = BLOCKED_URLS.concat([
    "https://peoplehub.xboxlive.com/users/me/people/social",
@@ -4820,25 +5171,36 @@ function interceptHttpRequests() {
    }
   return nativeXhrSend.apply(this, arguments);
  };
- let gamepassAllGames = [];
+ let gamepassAllGames = [], IGNORED_DOMAINS = [
+  "accounts.xboxlive.com",
+  "chat.xboxlive.com",
+  "notificationinbox.xboxlive.com",
+  "peoplehub.xboxlive.com",
+  "rta.xboxlive.com",
+  "userpresence.xboxlive.com",
+  "xblmessaging.xboxlive.com",
+  "consent.config.office.com",
+  "arc.msn.com",
+  "browser.events.data.microsoft.com",
+  "dc.services.visualstudio.com",
+  "2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
+ ];
  window.BX_FETCH = window.fetch = async (request, init) => {
   let url = typeof request === "string" ? request : request.url;
-  for (let blocked of BLOCKED_URLS) {
-   if (!url.startsWith(blocked)) continue;
-   return new Response('{"acc":1,"webResult":{}}', {
-    status: 200,
-    statusText: "200 OK"
-   });
-  }
-  if (url.endsWith("/play")) BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
-  if (url.endsWith("/configuration")) BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+  for (let blocked of BLOCKED_URLS)
+   if (url.startsWith(blocked)) return new Response('{"acc":1,"webResult":{}}', {
+     status: 200,
+     statusText: "200 OK"
+    });
+  let domain = new URL(url).hostname;
+  if (IGNORED_DOMAINS.includes(domain)) return NATIVE_FETCH(request, init);
   if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation")) try {
     let response = await NATIVE_FETCH(request, init), json = await response.json();
     if (json && json.exp && json.exp.treatments) for (let key in FeatureGates)
       json.exp.treatments[key] = FeatureGates[key];
     return response.json = () => Promise.resolve(json), response;
    } catch (e) {
-    console.log(e);
+    return console.log(e), NATIVE_FETCH(request, init);
    }
   if (STATES.userAgent.capabilities.touch && url.includes("catalog.gamepass.com/sigls/")) {
    let response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
@@ -5511,7 +5873,7 @@ class RootDialogObserver {
   if (AppInterface && $addedElm.className.startsWith("SlideSheet-module__container")) {
    let $gameCardMenu = $addedElm.querySelector("div[class^=MruContextMenu],div[class^=GameCardContextMenu]");
    if ($gameCardMenu) return RootDialogObserver.handleGameCardMenu($gameCardMenu), !0;
-  } else if ($root.querySelector("div[class*=GuideDialog]")) return GuideMenu.observe($addedElm), !0;
+  } else if ($root.querySelector("div[class*=GuideDialog]")) return GuideMenu.getInstance().observe($addedElm), !0;
   return !1;
  }
  static observe($root) {
@@ -5624,6 +5986,6 @@ window.addEventListener("pagehide", (e) => {
 function main() {
  if (getPref("game_msfs2020_force_native_mkb")) BX_FLAGS.ForceNativeMkbTitles.push("9PMQDM08SNK9");
  if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
- if (RootDialogObserver.waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
+ if (RootDialogObserver.waitForRootDialog(), addCss(), GuideMenu.getInstance().addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
 }
 main();

@@ -5,11 +5,13 @@ import { STATES } from "@utils/global"
 import { PrefKey } from "@/enums/pref-keys"
 import { getPref } from "@/utils/settings-storages/global-settings-storage"
 import { StreamStat, StreamStatsCollector, type StreamStatGrade } from "@/utils/stream-stats-collector"
+import { BxLogger } from "@/utils/bx-logger"
 
 
 export class StreamStats {
     private static instance: StreamStats;
     public static getInstance = () => StreamStats.instance ?? (StreamStats.instance = new StreamStats());
+    private readonly LOG_TAG = 'StreamStats';
 
     private intervalId?: number | null;
     private readonly REFRESH_INTERVAL = 1 * 1000;
@@ -69,7 +71,8 @@ export class StreamStats {
 
     quickGlanceObserver?: MutationObserver | null;
 
-    constructor() {
+    private constructor() {
+        BxLogger.info(this.LOG_TAG, 'constructor()');
         this.render();
     }
 

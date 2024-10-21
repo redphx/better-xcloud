@@ -1212,7 +1212,7 @@ export class PatcherCache {
      */
     static #getSignature(): number {
         const scriptVersion = SCRIPT_VERSION;
-        const webVersion = (document.querySelector('meta[name=gamepass-app-version]') as HTMLMetaElement)?.content;
+        const webVersion = (document.querySelector<HTMLMetaElement>('meta[name=gamepass-app-version]'))?.content;
         const patches = JSON.stringify(ALL_PATCHES);
 
         // Calculate signature
