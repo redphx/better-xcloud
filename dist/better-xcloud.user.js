@@ -18,7 +18,7 @@ class BxLogger {
  static warning = (tag, ...args) => BxLogger.log("#c1a404", tag, ...args);
  static error = (tag, ...args) => BxLogger.log("#c10404", tag, ...args);
  static log(color, tag, ...args) {
-  console.log("%c[BxC]", `color:${color};font-weight:bold;`, tag, "//", ...args);
+  BX_FLAGS.Debug && console.log("%c[BxC]", `color:${color};font-weight:bold;`, tag, "//", ...args);
  }
 }
 window.BxLogger = BxLogger;
@@ -958,6 +958,7 @@ class BaseSettingsStore {
 class StreamStatsCollector {
  static instance;
  static getInstance = () => StreamStatsCollector.instance ?? (StreamStatsCollector.instance = new StreamStatsCollector);
+ LOG_TAG = "StreamStatsCollector";
  static INTERVAL_BACKGROUND = 60000;
  calculateGrade(value, grades) {
   return value > grades[2] ? "bad" : value > grades[1] ? "ok" : value > grades[0] ? "good" : "";
@@ -1057,6 +1058,9 @@ class StreamStatsCollector {
   }
  };
  lastVideoStat;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  async collect() {
   let stats = await STATES.currentStream.peerConnection?.getStats();
   if (!stats) return;
@@ -1788,11 +1792,12 @@ STORAGE.Global = globalSettings;
 class ScreenshotManager {
  static instance;
  static getInstance = () => ScreenshotManager.instance ?? (ScreenshotManager.instance = new ScreenshotManager);
+ LOG_TAG = "ScreenshotManager";
  $download;
  $canvas;
  canvasContext;
  constructor() {
-  this.$download = CE("a"), this.$canvas = CE("canvas", { class: "bx-gone" }), this.canvasContext = this.$canvas.getContext("2d", {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$download = CE("a"), this.$canvas = CE("canvas", { class: "bx-gone" }), this.canvasContext = this.$canvas.getContext("2d", {
    alpha: !1,
    willReadFrequently: !1
   });
@@ -1864,6 +1869,7 @@ var MouseMapTo;
 class StreamStats {
  static instance;
  static getInstance = () => StreamStats.instance ?? (StreamStats.instance = new StreamStats);
+ LOG_TAG = "StreamStats";
  intervalId;
  REFRESH_INTERVAL = 1000;
  stats = {
@@ -1919,7 +1925,7 @@ class StreamStats {
  $container;
  quickGlanceObserver;
  constructor() {
-  this.render();
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.render();
  }
  async start(glancing = !1) {
   if (!this.isHidden() || glancing && this.isGlancing()) return;
@@ -2004,43 +2010,52 @@ class StreamStats {
  }
 }
 class Toast {
- static $wrapper;
- static $msg;
- static $status;
- static stack = [];
- static isShowing = !1;
- static timeout;
- static DURATION = 3000;
- static show(msg, status, options = {}) {
+ static instance;
+ static getInstance = () => Toast.instance ?? (Toast.instance = new Toast);
+ LOG_TAG = "Toast";
+ $wrapper;
+ $msg;
+ $status;
+ stack = [];
+ isShowing = !1;
+ timeoutId;
+ DURATION = 3000;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, this.$msg = CE("span", { class: "bx-toast-msg" }), this.$status = CE("span", { class: "bx-toast-status" })), this.$wrapper.addEventListener("transitionend", (e) => {
+   let classList = this.$wrapper.classList;
+   if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), this.showNext();
+  }), document.documentElement.appendChild(this.$wrapper);
+ }
+ show(msg, status, options = {}) {
   options = options || {};
   let args = Array.from(arguments);
-  if (options.instant) Toast.stack = [args], Toast.showNext();
-  else Toast.stack.push(args), !Toast.isShowing && Toast.showNext();
+  if (options.instant) this.stack = [args], this.showNext();
+  else this.stack.push(args), !this.isShowing && this.showNext();
  }
- static showNext() {
-  if (!Toast.stack.length) {
-   Toast.isShowing = !1;
+ showNext() {
+  if (!this.stack.length) {
+   this.isShowing = !1;
    return;
   }
-  Toast.isShowing = !0, Toast.timeout && clearTimeout(Toast.timeout), Toast.timeout = window.setTimeout(Toast.hide, Toast.DURATION);
-  let [msg, status, options] = Toast.stack.shift();
-  if (options && options.html) Toast.$msg.innerHTML = msg;
-  else Toast.$msg.textContent = msg;
-  if (status) Toast.$status.classList.remove("bx-gone"), Toast.$status.textContent = status;
-  else Toast.$status.classList.add("bx-gone");
-  let classList = Toast.$wrapper.classList;
+  this.isShowing = !0, this.timeoutId && clearTimeout(this.timeoutId), this.timeoutId = window.setTimeout(this.hide.bind(this), this.DURATION);
+  let [msg, status, options] = this.stack.shift();
+  if (options && options.html) this.$msg.innerHTML = msg;
+  else this.$msg.textContent = msg;
+  if (status) this.$status.classList.remove("bx-gone"), this.$status.textContent = status;
+  else this.$status.classList.add("bx-gone");
+  let classList = this.$wrapper.classList;
   classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-show");
  }
- static hide() {
-  Toast.timeout = null;
-  let classList = Toast.$wrapper.classList;
+ hide() {
+  this.timeoutId = null;
+  let classList = this.$wrapper.classList;
   classList.remove("bx-show"), classList.add("bx-hide");
  }
- static setup() {
-  Toast.$wrapper = CE("div", { class: "bx-toast bx-offscreen" }, Toast.$msg = CE("span", { class: "bx-toast-msg" }), Toast.$status = CE("span", { class: "bx-toast-status" })), Toast.$wrapper.addEventListener("transitionend", (e) => {
-   let classList = Toast.$wrapper.classList;
-   if (classList.contains("bx-hide")) classList.remove("bx-offscreen", "bx-hide"), classList.add("bx-offscreen"), Toast.showNext();
-  }), document.documentElement.appendChild(Toast.$wrapper);
+ static show(msg, status, options = {}) {
+  Toast.getInstance().show(msg, status, options);
+ }
+ static showNext() {
+  Toast.getInstance().showNext();
  }
 }
 class MicrophoneShortcut {
@@ -2348,7 +2363,7 @@ class MkbPreset {
   let mouseMapTo = MouseMapTo[mouse["map_to"]];
   if (typeof mouseMapTo !== "undefined") mouse["map_to"] = mouseMapTo;
   else mouse["map_to"] = MkbPreset.MOUSE_SETTINGS["map_to"].default;
-  return console.log(obj), obj;
+  return obj;
  }
 }
 class KeyHelper {
@@ -2378,18 +2393,21 @@ class KeyHelper {
   return KeyHelper.#NON_PRINTABLE_KEYS[code] || code.startsWith("Key") && code.substring(3) || code.startsWith("Digit") && code.substring(5) || code.startsWith("Numpad") && "Numpad " + code.substring(6) || code.startsWith("Arrow") && "Arrow " + code.substring(5) || code.endsWith("Lock") && code.replace("Lock", " Lock") || code.endsWith("Left") && "Left " + code.replace("Left", "") || code.endsWith("Right") && "Right " + code.replace("Right", "") || code;
  }
 }
-var LOG_TAG = "PointerClient";
 class PointerClient {
  static instance;
  static getInstance = () => PointerClient.instance ?? (PointerClient.instance = new PointerClient);
+ LOG_TAG = "PointerClient";
  socket;
  mkbHandler;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  start(port, mkbHandler) {
   if (!port) throw new Error("PointerServer port is 0");
   this.mkbHandler = mkbHandler, this.socket = new WebSocket(`ws://localhost:${port}`), this.socket.binaryType = "arraybuffer", this.socket.addEventListener("open", (event) => {
-   BxLogger.info(LOG_TAG, "connected");
+   BxLogger.info(this.LOG_TAG, "connected");
   }), this.socket.addEventListener("error", (event) => {
-   BxLogger.error(LOG_TAG, event), Toast.show("Cannot setup mouse: " + event);
+   BxLogger.error(this.LOG_TAG, event), Toast.show("Cannot setup mouse: " + event);
   }), this.socket.addEventListener("close", (event) => {
    this.socket = null;
   }), this.socket.addEventListener("message", (event) => {
@@ -2455,6 +2473,7 @@ class MkbHandler {}
 class NativeMkbHandler extends MkbHandler {
  static instance;
  static getInstance = () => NativeMkbHandler.instance ?? (NativeMkbHandler.instance = new NativeMkbHandler);
+ LOG_TAG = "NativeMkbHandler";
  #pointerClient;
  #enabled = !1;
  #mouseButtonsPressed = 0;
@@ -2464,6 +2483,10 @@ class NativeMkbHandler extends MkbHandler {
  #mouseHorizontalMultiply = 0;
  #inputSink;
  #$message;
+ constructor() {
+  super();
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  #onKeyboardEvent(e) {
   if (e.type === "keyup" && e.code === "F8") {
    e.preventDefault(), this.toggle();
@@ -2662,7 +2685,12 @@ class LocalDb {
 class MkbPresetsDb extends LocalDb {
  static instance;
  static getInstance = () => MkbPresetsDb.instance ?? (MkbPresetsDb.instance = new MkbPresetsDb);
+ LOG_TAG = "MkbPresetsDb";
  TABLE_PRESETS = "mkb_presets";
+ constructor() {
+  super();
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  onUpgradeNeeded(e) {
   let db = e.target.result;
   switch (e.oldVersion) {
@@ -2710,7 +2738,7 @@ class MkbPresetsDb extends LocalDb {
   });
  }
 }
-var LOG_TAG2 = "MkbHandler", PointerToMouseButton = {
+var PointerToMouseButton = {
  1: 0,
  2: 2,
  4: 1
@@ -2772,6 +2800,7 @@ class PointerLockMouseDataProvider extends MouseDataProvider {
 class EmulatedMkbHandler extends MkbHandler {
  static instance;
  static getInstance = () => EmulatedMkbHandler.instance ?? (EmulatedMkbHandler.instance = new EmulatedMkbHandler);
+ static LOG_TAG = "EmulatedMkbHandler";
  #CURRENT_PRESET_DATA = MkbPreset.convert(MkbPreset.DEFAULT_PRESET);
  static DEFAULT_PANNING_SENSITIVITY = 0.001;
  static DEFAULT_DEADZONE_COUNTERWEIGHT = 0.01;
@@ -2803,7 +2832,7 @@ class EmulatedMkbHandler extends MkbHandler {
  #RIGHT_STICK_Y = [];
  constructor() {
   super();
-  this.#STICK_MAP = {
+  BxLogger.info(EmulatedMkbHandler.LOG_TAG, "constructor()"), this.#STICK_MAP = {
    102: [this.#LEFT_STICK_X, 0, -1],
    103: [this.#LEFT_STICK_X, 0, 1],
    100: [this.#LEFT_STICK_Y, 1, -1],
@@ -3020,7 +3049,7 @@ class EmulatedMkbHandler extends MkbHandler {
   window.addEventListener(BxEvent.STREAM_PLAYING, () => {
    if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
     if (AppInterface && getPref("native_mkb_enabled") === "on") AppInterface && NativeMkbHandler.getInstance().init();
-   } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(LOG_TAG2, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
+   } else if (getPref("mkb_enabled") && (AppInterface || !UserAgent.isMobile())) BxLogger.info(EmulatedMkbHandler.LOG_TAG, "Emulate MKB"), EmulatedMkbHandler.getInstance().init();
   });
  }
 }
@@ -3055,6 +3084,7 @@ class NavigationDialog {
 class NavigationDialogManager {
  static instance;
  static getInstance = () => NavigationDialogManager.instance ?? (NavigationDialogManager.instance = new NavigationDialogManager);
+ LOG_TAG = "NavigationDialogManager";
  static GAMEPAD_POLLING_INTERVAL = 50;
  static GAMEPAD_KEYS = [
   12,
@@ -3095,7 +3125,7 @@ class NavigationDialogManager {
  $container;
  dialog = null;
  constructor() {
-  if (this.$overlay = CE("div", { class: "bx-navigation-dialog-overlay bx-gone" }), this.$overlay.addEventListener("click", (e) => {
+  if (BxLogger.info(this.LOG_TAG, "constructor()"), this.$overlay = CE("div", { class: "bx-navigation-dialog-overlay bx-gone" }), this.$overlay.addEventListener("click", (e) => {
    e.preventDefault(), e.stopPropagation(), this.hide();
   }), document.documentElement.appendChild(this.$overlay), this.$container = CE("div", { class: "bx-navigation-dialog bx-gone" }), document.documentElement.appendChild(this.$container), window.addEventListener(BxEvent.XCLOUD_GUIDE_MENU_SHOWN, (e) => this.hide()), getPref("ui_controller_friendly"))
    new MutationObserver((mutationList) => {
@@ -3403,6 +3433,7 @@ class MkbRemapper {
  ];
  static instance;
  static getInstance = () => MkbRemapper.instance ?? (MkbRemapper.instance = new MkbRemapper);
+ LOG_TAG = "MkbRemapper";
  STATE = {
   currentPresetId: 0,
   presets: {},
@@ -3417,7 +3448,7 @@ class MkbRemapper {
  allMouseElements = {};
  bindingDialog;
  constructor() {
-  this.STATE.currentPresetId = getPref("mkb_default_preset_id"), this.bindingDialog = new Dialog({
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.STATE.currentPresetId = getPref("mkb_default_preset_id"), this.bindingDialog = new Dialog({
    className: "bx-binding-dialog",
    content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
    hideCloseButton: !0
@@ -3621,7 +3652,7 @@ class MkbRemapper {
   return this.$wrapper.appendChild($actionButtons), this.toggleEditing(!1), this.refresh(), this.$wrapper;
  }
 }
-var LOG_TAG3 = "TouchController";
+var LOG_TAG = "TouchController";
 class TouchController {
  static #EVENT_SHOW_DEFAULT_CONTROLLER = new MessageEvent("message", {
   data: JSON.stringify({
@@ -3716,12 +3747,12 @@ class TouchController {
   }
   let xboxTitleId = TouchController.#xboxTitleId;
   if (!xboxTitleId) {
-   BxLogger.error(LOG_TAG3, "Invalid xboxTitleId");
+   BxLogger.error(LOG_TAG, "Invalid xboxTitleId");
    return;
   }
   if (!layoutId) layoutId = TouchController.#customLayouts[xboxTitleId]?.default_layout || null;
   if (!layoutId) {
-   BxLogger.error(LOG_TAG3, "Invalid layoutId, show default controller"), TouchController.#enabled && TouchController.#showDefault();
+   BxLogger.error(LOG_TAG, "Invalid layoutId, show default controller"), TouchController.#enabled && TouchController.#showDefault();
    return;
   }
   let layoutChanged = TouchController.#currentLayoutId !== layoutId;
@@ -3804,7 +3835,7 @@ class TouchController {
       TouchController.setXboxTitleId(parseInt(json.titleid, 16).toString());
      }
     } catch (e2) {
-     BxLogger.error(LOG_TAG3, "Load custom layout", e2);
+     BxLogger.error(LOG_TAG, "Load custom layout", e2);
     }
    });
   });
@@ -3913,7 +3944,7 @@ class PatcherUtils {
   return txt.substring(0, index) + toString + txt.substring(index + fromString.length);
  }
 }
-var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG4 = "Patcher", PATCHES = {
+var ENDING_CHUNKS_PATCH_NAME = "loadingEndingChunks", LOG_TAG2 = "Patcher", PATCHES = {
  disableAiTrack(str) {
   let text = ".track=function(", index = str.indexOf(text);
   if (index < 0) return !1;
@@ -4043,7 +4074,7 @@ logFunc(logTag, '//', logMessage);
  loadingEndingChunks(str) {
   let text = '"FamilySagaManager"';
   if (!str.includes(text)) return !1;
-  return BxLogger.info(LOG_TAG4, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str;
+  return BxLogger.info(LOG_TAG2, "Remaining patches:", PATCH_ORDERS), PATCH_ORDERS = PATCH_ORDERS.concat(PLAYING_PATCH_ORDERS), str;
  },
  disableStreamGate(str) {
   let index = str.indexOf('case"partially-ready":');
@@ -4418,7 +4449,7 @@ class Patcher {
     if (arguments[1] === 0 || typeof arguments[1] === "function") valid = !0;
    }
    if (!valid) return nativeBind.apply(this, arguments);
-   if (PatcherCache.init(), typeof arguments[1] === "function") BxLogger.info(LOG_TAG4, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
+   if (PatcherCache.init(), typeof arguments[1] === "function") BxLogger.info(LOG_TAG2, "Restored Function.prototype.bind()"), Function.prototype.bind = nativeBind;
    let orgFunc = this, newFunc = (a, item2) => {
     Patcher.patch(item2), orgFunc(a, item2);
    };
@@ -4440,12 +4471,12 @@ class Patcher {
     if (!PATCHES[patchName]) continue;
     let tmpStr = PATCHES[patchName].call(null, patchedFuncStr);
     if (!tmpStr) continue;
-    modified = !0, patchedFuncStr = tmpStr, BxLogger.info(LOG_TAG4, `✅ ${patchName}`), appliedPatches.push(patchName), patchesToCheck.splice(patchIndex, 1), patchIndex--, PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
+    modified = !0, patchedFuncStr = tmpStr, BxLogger.info(LOG_TAG2, `✅ ${patchName}`), appliedPatches.push(patchName), patchesToCheck.splice(patchIndex, 1), patchIndex--, PATCH_ORDERS = PATCH_ORDERS.filter((item2) => item2 != patchName);
    }
    if (modified) try {
      item[1][id] = eval(patchedFuncStr);
     } catch (e) {
-     if (e instanceof Error) BxLogger.error(LOG_TAG4, "Error", appliedPatches, e.message, patchedFuncStr);
+     if (e instanceof Error) BxLogger.error(LOG_TAG2, "Error", appliedPatches, e.message, patchedFuncStr);
     }
    if (appliedPatches.length) patchesMap[id] = appliedPatches;
   }
@@ -4469,8 +4500,8 @@ class PatcherCache {
  }
  static checkSignature() {
   let storedSig = window.localStorage.getItem(PatcherCache.#KEY_SIGNATURE) || 0, currentSig = PatcherCache.#getSignature();
-  if (currentSig !== parseInt(storedSig)) BxLogger.warning(LOG_TAG4, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
-  else BxLogger.info(LOG_TAG4, "Signature unchanged");
+  if (currentSig !== parseInt(storedSig)) BxLogger.warning(LOG_TAG2, "Signature changed"), window.localStorage.setItem(PatcherCache.#KEY_SIGNATURE, currentSig.toString()), PatcherCache.clear();
+  else BxLogger.info(LOG_TAG2, "Signature unchanged");
  }
  static #cleanupPatches(patches) {
   return patches.filter((item2) => {
@@ -4493,17 +4524,18 @@ class PatcherCache {
  }
  static init() {
   if (PatcherCache.#isInitialized) return;
-  if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG4, PatcherCache.#CACHE), window.location.pathname.includes("/play/")) PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
+  if (PatcherCache.#isInitialized = !0, PatcherCache.checkSignature(), PatcherCache.#CACHE = JSON.parse(window.localStorage.getItem(PatcherCache.#KEY_CACHE) || "{}"), BxLogger.info(LOG_TAG2, PatcherCache.#CACHE), window.location.pathname.includes("/play/")) PATCH_ORDERS.push(...PLAYING_PATCH_ORDERS);
   else PATCH_ORDERS.push(ENDING_CHUNKS_PATCH_NAME);
-  PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG4, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG4, PLAYING_PATCH_ORDERS.slice(0));
+  PATCH_ORDERS = PatcherCache.#cleanupPatches(PATCH_ORDERS), PLAYING_PATCH_ORDERS = PatcherCache.#cleanupPatches(PLAYING_PATCH_ORDERS), BxLogger.info(LOG_TAG2, PATCH_ORDERS.slice(0)), BxLogger.info(LOG_TAG2, PLAYING_PATCH_ORDERS.slice(0));
  }
 }
 class FullscreenText {
  static instance;
  static getInstance = () => FullscreenText.instance ?? (FullscreenText.instance = new FullscreenText);
+ LOG_TAG = "FullscreenText";
  $text;
  constructor() {
-  this.$text = CE("div", {
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.$text = CE("div", {
    class: "bx-fullscreen-text bx-gone"
   }), document.documentElement.appendChild(this.$text);
  }
@@ -4517,6 +4549,7 @@ class FullscreenText {
 class SettingsNavigationDialog extends NavigationDialog {
  static instance;
  static getInstance = () => SettingsNavigationDialog.instance ?? (SettingsNavigationDialog.instance = new SettingsNavigationDialog);
+ LOG_TAG = "SettingsNavigationDialog";
  $container;
  $tabs;
  $tabContents;
@@ -4976,7 +5009,7 @@ class SettingsNavigationDialog extends NavigationDialog {
  };
  constructor() {
   super();
-  this.renderFullSettings = STATES.supportedRegion && STATES.isSignedIn, this.setupDialog();
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.renderFullSettings = STATES.supportedRegion && STATES.isSignedIn, this.setupDialog();
  }
  getDialog() {
   return this;
@@ -5527,7 +5560,7 @@ class ControllerShortcut {
     }
    if (empty) delete ControllerShortcut.ACTIONS[key];
   }
-  window.localStorage.setItem(ControllerShortcut.STORAGE_KEY, JSON.stringify(ControllerShortcut.ACTIONS)), console.log(ControllerShortcut.ACTIONS);
+  window.localStorage.setItem(ControllerShortcut.STORAGE_KEY, JSON.stringify(ControllerShortcut.ACTIONS));
  }
  static updateProfileList(e) {
   let { $selectProfile: $select, $container } = ControllerShortcut, $fragment = document.createDocumentFragment();
@@ -5773,6 +5806,7 @@ class HeaderSection {
 class RemotePlayNavigationDialog extends NavigationDialog {
  static instance;
  static getInstance = () => RemotePlayNavigationDialog.instance ?? (RemotePlayNavigationDialog.instance = new RemotePlayNavigationDialog);
+ LOG_TAG = "RemotePlayNavigationDialog";
  STATE_LABELS = {
   On: t("powered-on"),
   Off: t("powered-off"),
@@ -5782,7 +5816,7 @@ class RemotePlayNavigationDialog extends NavigationDialog {
  $container;
  constructor() {
   super();
-  this.setupDialog();
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.setupDialog();
  }
  setupDialog() {
   let $fragment = CE("div", { class: "bx-remote-play-container" }), $settingNote = CE("p", {}), currentResolution = getPref("xhome_resolution"), $resolutions = CE("select", {}, CE("option", { value: "1080p" }, "1080p"), CE("option", { value: "720p" }, "720p"));
@@ -5834,20 +5868,23 @@ class RemotePlayNavigationDialog extends NavigationDialog {
   $btnConnect && $btnConnect.focus();
  }
 }
-var LOG_TAG5 = "RemotePlay";
 class RemotePlayManager {
  static instance;
  static getInstance = () => RemotePlayManager.instance ?? (RemotePlayManager.instance = new RemotePlayManager);
+ LOG_TAG = "RemotePlayManager";
  isInitialized = !1;
  XCLOUD_TOKEN;
  XHOME_TOKEN;
  consoles;
  regions = [];
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  initialize() {
   if (this.isInitialized) return;
   this.isInitialized = !0, this.getXhomeToken(() => {
    this.getConsolesList(() => {
-    BxLogger.info(LOG_TAG5, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
+    BxLogger.info(this.LOG_TAG, "Consoles", this.consoles), STATES.supportedRegion && HeaderSection.showRemotePlayButton(), BxEvent.dispatch(window, BxEvent.REMOTE_PLAY_READY);
    });
   });
  }
@@ -6344,6 +6381,7 @@ class GuideMenu {
 class StreamBadges {
  static instance;
  static getInstance = () => StreamBadges.instance ?? (StreamBadges.instance = new StreamBadges);
+ LOG_TAG = "StreamBadges";
  serverInfo = {};
  badges = {
   playtime: {
@@ -6385,6 +6423,9 @@ class StreamBadges {
  $container;
  intervalId;
  REFRESH_INTERVAL = 3000;
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  setRegion(region) {
   this.serverInfo.server = {
    region
@@ -6609,9 +6650,7 @@ function clearDbLogs(dbName, table) {
   let db = e.target.result;
   try {
    let objectStoreRequest = db.transaction(table, "readwrite").objectStore(table).clear();
-   objectStoreRequest.onsuccess = function() {
-    console.log(`[Better xCloud] Cleared ${dbName}.${table}`);
-   };
+   objectStoreRequest.onsuccess = () => BxLogger.info("clearDbLogs", `Cleared ${dbName}.${table}`);
   } catch (ex) {}
  };
 }
@@ -6801,7 +6840,7 @@ function onHistoryChanged(e) {
  if ($settings) $settings.classList.add("bx-gone");
  NavigationDialogManager.getInstance().hide(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
 }
-var LOG_TAG6 = "PreloadState";
+var LOG_TAG3 = "PreloadState";
 function overridePreloadState() {
  let _state;
  Object.defineProperty(window, "__PRELOADED_STATE__", {
@@ -6813,7 +6852,7 @@ function overridePreloadState() {
    try {
     state.appContext.requestInfo.userAgent = window.navigator.userAgent;
    } catch (e) {
-    BxLogger.error(LOG_TAG6, e);
+    BxLogger.error(LOG_TAG3, e);
    }
    if (STATES.userAgent.capabilities.touch) try {
      let sigls = state.xcloud.sigls;
@@ -6823,7 +6862,7 @@ function overridePreloadState() {
      }
      if (BX_FLAGS.ForceNativeMkbTitles && "8fa264dd-124f-4af3-97e8-596fcdf4b486" in sigls) sigls["8fa264dd-124f-4af3-97e8-596fcdf4b486"]?.data.products.push(...BX_FLAGS.ForceNativeMkbTitles);
     } catch (e) {
-     BxLogger.error(LOG_TAG6, e);
+     BxLogger.error(LOG_TAG3, e);
     }
    _state = state, STATES.appContext = deepClone(state.appContext);
   }
@@ -7401,12 +7440,14 @@ class RendererAction extends BaseGameBarAction {
 class GameBar {
  static instance;
  static getInstance = () => GameBar.instance ?? (GameBar.instance = new GameBar);
+ LOG_TAG = "GameBar";
  static VISIBLE_DURATION = 2000;
  $gameBar;
  $container;
  timeoutId = null;
  actions = [];
  constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
   let $container, position = getPref("game_bar_position"), $gameBar = CE("div", { id: "bx-game-bar", class: "bx-gone", "data-position": position }, $container = CE("div", { class: "bx-game-bar-container bx-offscreen" }), createSvgIcon(position === "bottom-left" ? BxIcon.CARET_RIGHT : BxIcon.CARET_LEFT));
   if (this.actions = [
    new ScreenshotAction,
@@ -7455,8 +7496,12 @@ class GameBar {
 class XcloudApi {
  static instance;
  static getInstance = () => XcloudApi.instance ?? (XcloudApi.instance = new XcloudApi);
+ LOG_TAG = "XcloudApi";
  CACHE_TITLES = {};
  CACHE_WAIT_TIME = {};
+ constructor() {
+  BxLogger.info(this.LOG_TAG, "constructor()");
+ }
  async getTitleInfo(id2) {
   if (id2 in this.CACHE_TITLES) return this.CACHE_TITLES[id2];
   let baseUri = STATES.selectedRegion.baseUri;
@@ -7870,7 +7915,7 @@ window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, (e) => {
 function main() {
  if (getPref("game_msfs2020_force_native_mkb")) BX_FLAGS.ForceNativeMkbTitles.push("9PMQDM08SNK9");
  if (patchRtcPeerConnection(), patchRtcCodecs(), interceptHttpRequests(), patchVideoApi(), patchCanvasContext(), AppInterface && patchPointerLockApi(), getPref("audio_enable_volume_control") && patchAudioContext(), getPref("block_tracking")) patchMeControl(), disableAdobeAudienceManager();
- if (RootDialogObserver.waitForRootDialog(), addCss(), Toast.setup(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
+ if (RootDialogObserver.waitForRootDialog(), addCss(), GuideMenu.addEventListeners(), StreamStatsCollector.setupEvents(), StreamBadges.setupEvents(), StreamStats.setupEvents(), STATES.userAgent.capabilities.touch && TouchController.updateCustomList(), overridePreloadState(), VibrationManager.initialSetup(), BX_FLAGS.CheckForUpdate && checkForUpdate(), Patcher.init(), disablePwa(), getPref("xhome_enabled")) RemotePlayManager.detect();
  if (getPref("stream_touch_controller") === "all") TouchController.setup();
  if (getPref("mkb_enabled") && AppInterface) STATES.pointerServerPort = AppInterface.startPointerServer() || 9269, BxLogger.info("startPointerServer", "Port", STATES.pointerServerPort.toString());
  if (getPref("ui_game_card_show_wait_time") && GameTile.setup(), EmulatedMkbHandler.setupEvents(), getPref("controller_show_connection_status")) window.addEventListener("gamepadconnected", (e) => showGamepadToast(e.gamepad)), window.addEventListener("gamepaddisconnected", (e) => showGamepadToast(e.gamepad));
