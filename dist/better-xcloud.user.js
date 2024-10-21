@@ -6042,6 +6042,7 @@ class XhomeInterceptor {
   return NATIVE_FETCH(request);
  }
  static async handleConfiguration(request) {
+  BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
   let response = await NATIVE_FETCH(request), obj = await response.clone().json();
   console.log(obj);
   let processPorts = (port) => {
@@ -6082,6 +6083,7 @@ class XhomeInterceptor {
   }), NATIVE_FETCH(request);
  }
  static async handlePlay(request) {
+  BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
   let body = await request.clone().json(), newRequest = new Request(request, {
    body: JSON.stringify(body)
   });
@@ -6584,6 +6586,7 @@ class XcloudInterceptor {
   return STATES.gsToken = obj.gsToken, response.json = () => Promise.resolve(obj), response;
  }
  static async handlePlay(request, init) {
+  BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
   let PREF_STREAM_TARGET_RESOLUTION = getPref("stream_target_resolution"), PREF_STREAM_PREFERRED_LOCALE = getPref("stream_preferred_locale"), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url), badgeRegion = parsedUrl.host.split(".", 1)[0];
   for (let regionName in STATES.serverRegions) {
    let region = STATES.serverRegions[regionName];
@@ -6618,6 +6621,7 @@ class XcloudInterceptor {
    else TouchController.enable();
   let response = await NATIVE_FETCH(request, init), text = await response.clone().text();
   if (!text.length) return response;
+  BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
   let obj = JSON.parse(text), overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
   overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
   let overrideMkb = null;
@@ -6717,25 +6721,36 @@ function interceptHttpRequests() {
    }
   return nativeXhrSend.apply(this, arguments);
  };
- let gamepassAllGames = [];
+ let gamepassAllGames = [], IGNORED_DOMAINS = [
+  "accounts.xboxlive.com",
+  "chat.xboxlive.com",
+  "notificationinbox.xboxlive.com",
+  "peoplehub.xboxlive.com",
+  "rta.xboxlive.com",
+  "userpresence.xboxlive.com",
+  "xblmessaging.xboxlive.com",
+  "consent.config.office.com",
+  "arc.msn.com",
+  "browser.events.data.microsoft.com",
+  "dc.services.visualstudio.com",
+  "2c06dea3f26c40c69b8456d319791fd0@o427368.ingest.sentry.io"
+ ];
  window.BX_FETCH = window.fetch = async (request, init) => {
   let url = typeof request === "string" ? request : request.url;
-  for (let blocked of BLOCKED_URLS) {
-   if (!url.startsWith(blocked)) continue;
-   return new Response('{"acc":1,"webResult":{}}', {
-    status: 200,
-    statusText: "200 OK"
-   });
-  }
-  if (url.endsWith("/play")) BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
-  if (url.endsWith("/configuration")) BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+  for (let blocked of BLOCKED_URLS)
+   if (url.startsWith(blocked)) return new Response('{"acc":1,"webResult":{}}', {
+     status: 200,
+     statusText: "200 OK"
+    });
+  let domain = new URL(url).hostname;
+  if (IGNORED_DOMAINS.includes(domain)) return NATIVE_FETCH(request, init);
   if (url.startsWith("https://emerald.xboxservices.com/xboxcomfd/experimentation")) try {
     let response = await NATIVE_FETCH(request, init), json = await response.json();
     if (json && json.exp && json.exp.treatments) for (let key in FeatureGates)
       json.exp.treatments[key] = FeatureGates[key];
     return response.json = () => Promise.resolve(json), response;
    } catch (e) {
-    console.log(e);
+    return console.log(e), NATIVE_FETCH(request, init);
    }
   if (STATES.userAgent.capabilities.touch && url.includes("catalog.gamepass.com/sigls/")) {
    let response = await NATIVE_FETCH(request, init), obj = await response.clone().json();
