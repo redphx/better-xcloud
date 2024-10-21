@@ -357,11 +357,6 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             default: true,
         },
 
-        [PrefKey.CONTROLLER_ENABLE_SHORTCUTS]: {
-            requiredVariants: 'full',
-            default: false,
-        },
-
         [PrefKey.CONTROLLER_ENABLE_VIBRATION]: {
             requiredVariants: 'full',
             label: t('controller-vibration'),

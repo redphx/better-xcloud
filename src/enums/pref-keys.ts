@@ -37,7 +37,6 @@ export enum PrefKey {
     LOCAL_CO_OP_ENABLED = 'local_co_op_enabled',
     // LOCAL_CO_OP_SEPARATE_TOUCH_CONTROLLER = 'local_co_op_separate_touch_controller',
 
-    CONTROLLER_ENABLE_SHORTCUTS = 'controller_enable_shortcuts',
     CONTROLLER_ENABLE_VIBRATION = 'controller_enable_vibration',
     CONTROLLER_DEVICE_VIBRATION = 'controller_device_vibration',
     CONTROLLER_VIBRATION_INTENSITY = 'controller_vibration_intensity',
