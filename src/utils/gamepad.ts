@@ -33,3 +33,7 @@ export function showGamepadToast(gamepad: Gamepad) {
 
     Toast.show(text, status, {instant: false});
 }
+
+export function updatePollingRate() {
+    window.BX_CONTROLLER_POLLING_RATE = getPref(PrefKey.CONTROLLER_POLLING_RATE);
+}

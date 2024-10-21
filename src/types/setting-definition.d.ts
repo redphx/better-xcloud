@@ -59,4 +59,5 @@ export type NumberStepperParams = Partial<{
     exactTicks: number;
 
     customTextValue: (value: any) => string | null;
+    reverse: boolean;
 }>

@@ -7,7 +7,7 @@ import { BxExposed } from "@utils/bx-exposed";
 import { t } from "@utils/translation";
 import { interceptHttpRequests } from "@utils/network";
 import { CE } from "@utils/html";
-import { showGamepadToast } from "@utils/gamepad";
+import { showGamepadToast, updatePollingRate } from "@utils/gamepad";
 import { EmulatedMkbHandler } from "@modules/mkb/mkb-handler";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { StreamStats } from "@modules/stream/stream-stats";
@@ -360,6 +360,7 @@ function main() {
     StreamStats.setupEvents();
 
     if (isFullVersion()) {
+        updatePollingRate();
         STATES.userAgent.capabilities.touch && TouchController.updateCustomList();
         overridePreloadState();
 

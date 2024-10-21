@@ -12,6 +12,7 @@ interface Window {
     BX_EXPOSED: any;
 
     BX_VIBRATION_INTENSITY: number;
+    BX_CONTROLLER_POLLING_RATE: number;
     BX_ENABLE_CONTROLLER_VIBRATION: boolean;
     BX_ENABLE_DEVICE_VIBRATION: boolean;
 

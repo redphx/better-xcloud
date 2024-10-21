@@ -28,6 +28,7 @@ import { SettingElement, type BxHtmlSettingElement } from "@/utils/setting-eleme
 import type { RecommendedSettings, SettingDefinition, SuggestedSettingCategory as SuggestedSettingProfile } from "@/types/setting-definition";
 import { FullscreenText } from "../fullscreen-text";
 import { BxLogger } from "@/utils/bx-logger";
+import { updatePollingRate } from "@/utils/gamepad";
 
 
 type SettingTabContentItem = Partial<{
@@ -460,6 +461,9 @@ export class SettingsNavigationDialog extends NavigationDialog {
             pref: PrefKey.CONTROLLER_VIBRATION_INTENSITY,
             unsupported: !VibrationManager.supportDeviceVibration(),
             onChange: () => VibrationManager.updateGlobalVars(),
+        }, isFullVersion() && {
+            pref: PrefKey.CONTROLLER_POLLING_RATE,
+            onChange: () => updatePollingRate(),
         }],
     },
 

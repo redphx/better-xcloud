@@ -41,6 +41,7 @@ export enum PrefKey {
     CONTROLLER_DEVICE_VIBRATION = 'controller_device_vibration',
     CONTROLLER_VIBRATION_INTENSITY = 'controller_vibration_intensity',
     CONTROLLER_SHOW_CONNECTION_STATUS = 'controller_show_connection_status',
+    CONTROLLER_POLLING_RATE = 'controller_polling_rate',
 
     NATIVE_MKB_ENABLED = 'native_mkb_enabled',
     NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY = 'native_mkb_scroll_x_sensitivity',

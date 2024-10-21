@@ -160,8 +160,8 @@ export class SettingElement {
 
         let controlValue = value;
 
-        const MIN = setting.min!;
-        const MAX = setting.max!;
+        const MIN = options.reverse ? -setting.max! : setting.min!;
+        const MAX = options.reverse ? -setting.min! : setting.max!;
         const STEPS = Math.max(setting.steps || 1, 1);
 
         const renderTextValue = (value: any) => {
@@ -216,7 +216,7 @@ export class SettingElement {
             type: 'range',
             min: MIN,
             max: MAX,
-            value: value,
+            value: options.reverse ? -value : value,
             step: STEPS,
             tabindex: 0,
         });
@@ -225,13 +225,16 @@ export class SettingElement {
 
         $range.addEventListener('input', e => {
             value = parseInt((e.target as HTMLInputElement).value);
-            const valueChanged = controlValue !== value;
+            if (options.reverse) {
+                value *= -1;
+            }
 
+            const valueChanged = controlValue !== value;
             if (!valueChanged) {
                 return;
             }
 
-            controlValue = value;
+            controlValue = options.reverse ? -value : value;
             updateButtonsVisibility();
             $text.textContent = renderTextValue(value);
 
@@ -324,7 +327,7 @@ export class SettingElement {
         // Custom method
         $wrapper.setValue = (value: any) => {
             $text.textContent = renderTextValue(value);
-            $range.value = value;
+            $range.value = options.reverse ? -value : value;
         };
 
         $btnDec.addEventListener('click', onClick);

@@ -202,12 +202,17 @@ const PATCHES = {
             return false;
         }
 
-        const nextIndex = str.indexOf('setTimeout(this.pollGamepads', index);
-        if (nextIndex === -1) {
+        const setTimeoutIndex = str.indexOf('setTimeout(this.pollGamepads', index);
+        if (setTimeoutIndex < 0) {
             return false;
         }
 
-        let codeBlock = str.substring(index, nextIndex);
+        let codeBlock = str.substring(index, setTimeoutIndex);
+
+        // Patch polling rate
+        const tmp = str.substring(setTimeoutIndex, setTimeoutIndex + 150);
+        const tmpPatched = tmp.replaceAll('Math.max(0,4-', 'Math.max(0,window.BX_CONTROLLER_POLLING_RATE-');
+        str = PatcherUtils.replaceWith(str, setTimeoutIndex, tmp, tmpPatched);
 
         // Block gamepad stats collecting
         if (getPref(PrefKey.BLOCK_TRACKING)) {
@@ -226,7 +231,8 @@ const PATCHES = {
             codeBlock = codeBlock.replace('this.gamepadTimestamps.set', newCode + 'this.gamepadTimestamps.set');
         }
 
-        return str.substring(0, index) + codeBlock + str.substring(nextIndex);
+        str = str.substring(0, index) + codeBlock + str.substring(setTimeoutIndex);
+        return str;
     },
 
     enableXcloudLogger(str: string) {

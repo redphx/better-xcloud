@@ -188,6 +188,7 @@ const Texts = {
     "playing": "Playing",
     "playtime": "Playtime",
     "poland": "Poland",
+    "polling-rate": "Polling rate",
     "position": "Position",
     "powered-off": "Powered off",
     "powered-on": "Powered on",

@@ -388,6 +388,29 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             },
         },
 
+        [PrefKey.CONTROLLER_POLLING_RATE]: {
+            requiredVariants: 'full',
+            label: t('polling-rate'),
+            type: SettingElementType.NUMBER_STEPPER,
+            default: 4,
+            min: 4,
+            max: 40,
+            steps: 4,
+            params: {
+                reverse: true,
+                customTextValue(value: any) {
+                    value = parseInt(value);
+
+                    let text = +(1000 / value).toFixed(2) + ' Hz';
+                    if (value === 4) {
+                        text = `${t('default')} (${text})`;
+                    }
+
+                    return text;
+                },
+            },
+        },
+
         [PrefKey.MKB_ENABLED]: {
             requiredVariants: 'full',
             label: t('enable-mkb'),
