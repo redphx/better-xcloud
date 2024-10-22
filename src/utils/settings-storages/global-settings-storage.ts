@@ -394,9 +394,10 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
             type: SettingElementType.NUMBER_STEPPER,
             default: 4,
             min: 4,
-            max: 40,
+            max: 60,
             steps: 4,
             params: {
+                exactTicks: 20,
                 reverse: true,
                 customTextValue(value: any) {
                     value = parseInt(value);

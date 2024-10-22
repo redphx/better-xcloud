@@ -248,22 +248,24 @@ export class SettingElement {
 
         if (options.ticks || options.exactTicks) {
             const markersId = `markers-${key}`;
-            const $markers = CE('datalist', {'id': markersId});
+            const $markers = CE('datalist', {id: markersId});
             $range.setAttribute('list', markersId);
 
             if (options.exactTicks) {
-                let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
+                let start = Math.max(Math.floor(setting.min! / options.exactTicks), 1) * options.exactTicks;
 
-                if (start === MIN) {
+                if (start === setting.min!) {
                     start += options.exactTicks;
                 }
 
-                for (let i = start; i < MAX; i += options.exactTicks) {
-                    $markers.appendChild(CE<HTMLOptionElement>('option', {'value': i}));
+                for (let i = start; i < setting.max!; i += options.exactTicks) {
+                    $markers.appendChild(CE<HTMLOptionElement>('option', {
+                        value: options.reverse ? -i : i,
+                    }));
                 }
             } else {
                 for (let i = MIN + options.ticks!; i < MAX; i += options.ticks!) {
-                    $markers.appendChild(CE<HTMLOptionElement>('option', {'value': i}));
+                    $markers.appendChild(CE<HTMLOptionElement>('option', {value: i}));
                 }
             }
             $wrapper.appendChild($markers);

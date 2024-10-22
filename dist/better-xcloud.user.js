@@ -812,10 +812,12 @@ class SettingElement {
   }), $wrapper.appendChild($range), options.ticks || options.exactTicks) {
    let markersId = `markers-${key}`, $markers = CE("datalist", { id: markersId });
    if ($range.setAttribute("list", markersId), options.exactTicks) {
-    let start = Math.max(Math.floor(MIN / options.exactTicks), 1) * options.exactTicks;
-    if (start === MIN) start += options.exactTicks;
-    for (let i = start;i < MAX; i += options.exactTicks)
-     $markers.appendChild(CE("option", { value: i }));
+    let start = Math.max(Math.floor(setting.min / options.exactTicks), 1) * options.exactTicks;
+    if (start === setting.min) start += options.exactTicks;
+    for (let i = start;i < setting.max; i += options.exactTicks)
+     $markers.appendChild(CE("option", {
+      value: options.reverse ? -i : i
+     }));
    } else for (let i = MIN + options.ticks;i < MAX; i += options.ticks)
      $markers.appendChild(CE("option", { value: i }));
    $wrapper.appendChild($markers);
@@ -1406,9 +1408,10 @@ class GlobalSettingsStorage extends BaseSettingsStore {
    type: "number-stepper",
    default: 4,
    min: 4,
-   max: 40,
+   max: 60,
    steps: 4,
    params: {
+    exactTicks: 20,
     reverse: !0,
     customTextValue(value) {
      value = parseInt(value);
