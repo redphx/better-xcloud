@@ -11,11 +11,11 @@
   },
   "devDependencies": {
     "@types/bun": "^1.1.11",
-    "@types/node": "^22.7.6",
+    "@types/node": "^22.7.8",
     "@types/stylus": "^0.48.43",
-    "eslint": "^9.12.0",
+    "eslint": "^9.13.0",
     "eslint-plugin-compat": "^6.0.1",
-    "stylus": "^0.63.0"
+    "stylus": "^0.64.0"
   },
   "peerDependencies": {
     "typescript": "^5.6.3"
