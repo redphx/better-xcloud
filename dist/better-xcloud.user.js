@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.9.0-beta
+// @version      5.9.0
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -107,7 +107,7 @@ class UserAgent {
   });
  }
 }
-var SCRIPT_VERSION = "5.9.0-beta", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.9.0", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
  supportedRegion: !0,
@@ -418,7 +418,7 @@ var SUPPORTED_LANGUAGES = {
   ,
   ,
   e => `Version ${e.version} verfügbar`,
-  ,
+  e => `Versi ${e.version} tersedia`,
   e => `Versión ${e.version} disponible`,
   e => `Version ${e.version} disponible`,
   e => `Disponibile la versione ${e.version}`,
@@ -481,7 +481,7 @@ var SUPPORTED_LANGUAGES = {
   e => `Configuració recomanada per a ${e.device}`,
   ,
   e => `Empfohlene Einstellungen für ${e.device}`,
-  ,
+  e => `Rekomendasi pengaturan untuk ${e.device}`,
   e => `Ajustes recomendados para ${e.device}`,
   e => `Paramètres recommandés pour ${e.device}`,
   e => `Configurazioni consigliate per ${e.device}`,
