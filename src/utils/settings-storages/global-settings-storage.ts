@@ -404,7 +404,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
 
                     let text = +(1000 / value).toFixed(2) + ' Hz';
                     if (value === 4) {
-                        text = `${t('default')} (${text})`;
+                        text = `${text} (${t('default')})`;
                     }
 
                     return text;
