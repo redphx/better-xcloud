@@ -130,6 +130,8 @@ export class GameBar {
 
     // Reset all states
     reset() {
-        this.actions.forEach(action => action.reset());
+        for (const action of this.actions) {
+            action.reset();
+        }
     }
 }

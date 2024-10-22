@@ -219,9 +219,10 @@ export class StreamBadges {
         ];
 
         const $container = CE('div', {class: 'bx-badges'});
-        BADGES.forEach(item => {
+
+        for (const item of BADGES) {
             if (!item) {
-                return;
+                continue;
             }
 
             let $badge: HTMLElement;
@@ -232,7 +233,7 @@ export class StreamBadges {
             }
 
             $container.appendChild($badge);
-        });
+        };
 
         this.$container = $container;
         await this.start();

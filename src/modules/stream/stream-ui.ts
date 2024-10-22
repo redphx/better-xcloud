@@ -221,9 +221,10 @@ export class StreamUiHandler {
         }
 
         const observer = new MutationObserver(mutationList => {
-            mutationList.forEach(item => {
+            let item: MutationRecord;
+            for (item of mutationList) {
                 if (item.type !== 'childList') {
-                    return;
+                    continue;
                 }
 
                 item.addedNodes.forEach(async $node => {
@@ -263,7 +264,7 @@ export class StreamUiHandler {
                     // Handle System Menu bar
                     StreamUiHandler.handleSystemMenu($elm);
                 });
-            });
+            };
         });
 
         observer.observe($screen, {subtree: true, childList: true});

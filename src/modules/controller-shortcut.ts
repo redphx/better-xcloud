@@ -73,7 +73,8 @@ export class ControllerShortcut {
         const pressed: boolean[] = [];
         let otherButtonPressed = false;
 
-        gamepad.buttons.forEach((button, index) => {
+        const entries = gamepad.buttons.entries();
+        for (const [index, button] of entries) {
             // Only add the newly pressed button to the array (holding doesn't count)
             if (button.pressed && index !== GamepadKey.HOME) {
                 otherButtonPressed = true;
@@ -84,7 +85,7 @@ export class ControllerShortcut {
                     setTimeout(() => ControllerShortcut.runAction(actions[index]!), 0);
                 }
             }
-        });
+        };
 
         ControllerShortcut.buttonsStatus[gamepadIndex] = pressed;
         return otherButtonPressed;

@@ -177,8 +177,9 @@ export class NavigationDialogManager {
     }
 
     calculateSelectBoxes($root: HTMLElement) {
-        const $selects = $root.querySelectorAll('.bx-select:not([data-calculated]) select');
-        $selects.forEach($select => {
+        const selects = Array.from($root.querySelectorAll('.bx-select:not([data-calculated]) select'));
+
+        for (const $select of selects) {
             const $parent = $select.parentElement! as HTMLElement;
 
             // Don't apply to select.bx-full-width elements
@@ -205,7 +206,7 @@ export class NavigationDialogManager {
             // Set min-width
             $label.style.minWidth = width + 'px';
             $parent.dataset.calculated = 'true';
-        });
+        };
     }
 
     handleEvent(event: Event) {

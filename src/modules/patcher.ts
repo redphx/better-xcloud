@@ -835,10 +835,10 @@ true` + text;
             [UiSection.MOST_POPULAR]: GamePassCloudGallery.MOST_POPULAR,
         };
 
-        PREF_HIDE_SECTIONS.forEach(section => {
+        for (const section of PREF_HIDE_SECTIONS) {
             const galleryId = sections[section];
             galleryId && siglIds.push(galleryId);
-        });
+        };
 
         const checkSyntax = siglIds.map(item => `siglId === "${item}"`).join(' || ');
 

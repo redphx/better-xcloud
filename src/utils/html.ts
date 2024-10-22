@@ -121,9 +121,12 @@ export function createButton<T=HTMLButtonElement>(options: BxButton): T {
     }
 
     const style = (options.style || 0) as number;
-    style && ButtonStyleIndices.forEach((index: keyof typeof ButtonStyleClass) => {
+    if (style) {
+        let index: keyof typeof ButtonStyleClass;
+        for (index of ButtonStyleIndices) {
             (style & index) && $btn.classList.add(ButtonStyleClass[index] as string);
-        });
+        }
+    }
 
     options.classes && $btn.classList.add(...options.classes);
 
