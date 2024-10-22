@@ -144,4 +144,10 @@ export const BxExposed = {
 
         return false;
     },
+
+    GameSlugRegexes: [
+        /[;,/?:@&=+_`~$%#^*()!^\u2122\xae\xa9]/g,
+        / {2,}/g,
+        / /g,
+    ],
 };

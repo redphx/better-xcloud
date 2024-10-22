@@ -972,6 +972,19 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         return str;
     },
 
+    // Optimize Game slug generator by using cached RegEx
+    optimizeGameSlugGenerator(str: string) {
+        let text = '/[;,/?:@&=+_`~$%#^*()!^\\u2122\\xae\\xa9]/g';
+        if (!str.includes(text)) {
+            return false;
+        }
+
+        str = str.replace(text, 'window.BX_EXPOSED.GameSlugRegexes[0]');
+        str = str.replace('/ {2,}/g', 'window.BX_EXPOSED.GameSlugRegexes[1]');
+        str = str.replace('/ /g', 'window.BX_EXPOSED.GameSlugRegexes[2]');
+
+        return str;
+    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -981,6 +994,8 @@ let PATCH_ORDERS: PatchArray = [
         'disableNativeRequestPointerLock',
         'exposeInputSink',
     ] : []),
+
+    'optimizeGameSlugGenerator',
 
     'detectBrowserRouterReady',
     'patchRequestInfoCrash',

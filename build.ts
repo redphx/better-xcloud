@@ -100,6 +100,9 @@ const postProcess = (str: string): string => {
         });
     }
 
+    // Fix unicode regex in Patcher.optimizeGameSlugGenerator
+    str = str.replaceAll('^\\™', '^\\\\u2122');
+
     assert(str.includes('/* ADDITIONAL CODE */'));
     assert(str.includes('window.BX_EXPOSED = BxExposed'));
     assert(str.includes('window.BxEvent = BxEvent'));
