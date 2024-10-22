@@ -4383,6 +4383,11 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   let index = str.indexOf('"ContextualCardActions-module__container');
   if (index >= 0 && (index = str.indexOf('addEventListener("touchstart"', index)), index >= 0 && (index = PatcherUtils.lastIndexOf(str, "return ", index, 50)), index < 0) return !1;
   return str = PatcherUtils.replaceWith(str, index, "return", "return () => {};"), str;
+ },
+ disableSendMetadata(str) {
+  let text = "this.sendMetadata(),this.isStreamActive()";
+  if (!str.includes(text)) return !1;
+  return str = str.replaceAll(text, "true; return;" + text), str;
  }
 }, PATCH_ORDERS = [
  ...getPref("native_mkb_enabled") === "on" ? [
@@ -4438,6 +4443,9 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
  "patchStreamHud",
  "playVibration",
  "alwaysShowStreamHud",
+ ...getPref("block_tracking") ? [
+  "disableSendMetadata"
+ ] : [],
  getPref("audio_enable_volume_control") && !getPref("stream_combine_sources") && "patchAudioMediaStream",
  getPref("audio_enable_volume_control") && getPref("stream_combine_sources") && "patchCombinedAudioVideoMediaStream",
  getPref("stream_disable_feedback_dialog") && "skipFeedbackDialog",
