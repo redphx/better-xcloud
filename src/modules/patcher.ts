@@ -972,15 +972,6 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
         return str;
     },
 
-    disableSendMetadata(str: string) {
-        let text = 'this.sendMetadata(),this.isStreamActive()';
-        if (!str.includes(text)) {
-            return false;
-        }
-
-        str = str.replaceAll(text, 'true; return;' + text);
-        return str;
-    },
 };
 
 let PATCH_ORDERS: PatchArray = [
@@ -1055,10 +1046,6 @@ let PLAYING_PATCH_ORDERS: PatchArray = [
     'playVibration',
 
     'alwaysShowStreamHud',
-
-    ...(getPref(PrefKey.BLOCK_TRACKING) ? [
-        'disableSendMetadata',
-    ] : []),
 
     // 'exposeEventTarget',
 
