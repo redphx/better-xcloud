@@ -4390,6 +4390,11 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   let index = str.indexOf('"ContextualCardActions-module__container');
   if (index >= 0 && (index = str.indexOf('addEventListener("touchstart"', index)), index >= 0 && (index = PatcherUtils.lastIndexOf(str, "return ", index, 50)), index < 0) return !1;
   return str = PatcherUtils.replaceWith(str, index, "return", "return () => {};"), str;
+ },
+ optimizeGameSlugGenerator(str) {
+  let text = "/[;,/?:@&=+_`~$%#^*()!^\\u2122\\xae\\xa9]/g";
+  if (!str.includes(text)) return !1;
+  return str = str.replace(text, "window.BX_EXPOSED.GameSlugRegexes[0]"), str = str.replace("/ {2,}/g", "window.BX_EXPOSED.GameSlugRegexes[1]"), str = str.replace("/ /g", "window.BX_EXPOSED.GameSlugRegexes[2]"), str;
  }
 }, PATCH_ORDERS = [
  ...getPref("native_mkb_enabled") === "on" ? [
@@ -4398,6 +4403,7 @@ if (this.baseStorageKey in window.BX_EXPOSED.overrideSettings) {
   "disableNativeRequestPointerLock",
   "exposeInputSink"
  ] : [],
+ "optimizeGameSlugGenerator",
  "detectBrowserRouterReady",
  "patchRequestInfoCrash",
  "disableStreamGate",
@@ -5776,7 +5782,12 @@ var BxExposed = {
    which: 4
   };
   return document.body.dispatchEvent(new KeyboardEvent("keydown", dict)), document.body.dispatchEvent(new KeyboardEvent("keyup", dict)), !1;
- }
+ },
+ GameSlugRegexes: [
+  /[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g,
+  / {2,}/g,
+  / /g
+ ]
 };
 function localRedirect(path) {
  let url = window.location.href.substring(0, 31) + path, $pageContent = document.getElementById("PageContent");

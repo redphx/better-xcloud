@@ -4428,7 +4428,12 @@ var BxExposed = {
    which: 4
   };
   return document.body.dispatchEvent(new KeyboardEvent("keydown", dict)), document.body.dispatchEvent(new KeyboardEvent("keyup", dict)), !1;
- }
+ },
+ GameSlugRegexes: [
+  /[;,/?:@&=+_`~$%#^*()!^™\xae\xa9]/g,
+  / {2,}/g,
+  / /g
+ ]
 };
 function localRedirect(path) {
  let url = window.location.href.substring(0, 31) + path, $pageContent = document.getElementById("PageContent");
