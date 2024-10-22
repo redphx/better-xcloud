@@ -206,9 +206,12 @@ function createButton(options) {
  if (options.url) $btn = CE("a", { class: "bx-button" }), $btn.href = options.url, $btn.target = "_blank";
  else $btn = CE("button", { class: "bx-button", type: "button" });
  let style = options.style || 0;
- style && ButtonStyleIndices.forEach((index) => {
-  style & index && $btn.classList.add(ButtonStyleClass[index]);
- }), options.classes && $btn.classList.add(...options.classes), options.icon && $btn.appendChild(createSvgIcon(options.icon)), options.label && $btn.appendChild(CE("span", {}, options.label)), options.title && $btn.setAttribute("title", options.title), options.disabled && ($btn.disabled = !0), options.onClick && $btn.addEventListener("click", options.onClick), $btn.tabIndex = typeof options.tabIndex === "number" ? options.tabIndex : 0;
+ if (style) {
+  let index;
+  for (index of ButtonStyleIndices)
+   style & index && $btn.classList.add(ButtonStyleClass[index]);
+ }
+ options.classes && $btn.classList.add(...options.classes), options.icon && $btn.appendChild(createSvgIcon(options.icon)), options.label && $btn.appendChild(CE("span", {}, options.label)), options.title && $btn.setAttribute("title", options.title), options.disabled && ($btn.disabled = !0), options.onClick && $btn.addEventListener("click", options.onClick), $btn.tabIndex = typeof options.tabIndex === "number" ? options.tabIndex : 0;
  for (let key in options.attributes)
   if (!$btn.hasOwnProperty(key)) $btn.setAttribute(key, options.attributes[key]);
  return $btn;
@@ -2871,7 +2874,8 @@ class NavigationDialogManager {
    }).observe(this.$container, { childList: !0 });
  }
  calculateSelectBoxes($root) {
-  $root.querySelectorAll(".bx-select:not([data-calculated]) select").forEach(($select) => {
+  let selects = Array.from($root.querySelectorAll(".bx-select:not([data-calculated]) select"));
+  for (let $select of selects) {
    let $parent = $select.parentElement;
    if ($parent.classList.contains("bx-full-width")) {
     $parent.dataset.calculated = "true";
@@ -2882,7 +2886,7 @@ class NavigationDialogManager {
    if ($select.multiple) $label = $parent.querySelector(".bx-select-value"), width += 20;
    else $label = $parent.querySelector("div");
    $label.style.minWidth = width + "px", $parent.dataset.calculated = "true";
-  });
+  }
  }
  handleEvent(event) {
   switch (event.type) {
@@ -4958,13 +4962,14 @@ class StreamBadges {
    this.serverInfo.video ? this.badges.video.$element : ["video", "?"],
    this.serverInfo.audio ? this.badges.audio.$element : ["audio", "?"]
   ], $container = CE("div", { class: "bx-badges" });
-  return BADGES.forEach((item) => {
-   if (!item) return;
+  for (let item of BADGES) {
+   if (!item) continue;
    let $badge;
    if (!(item instanceof HTMLElement)) $badge = this.renderBadge(...item);
    else $badge = item;
    $container.appendChild($badge);
-  }), this.$container = $container, await this.start(), $container;
+  }
+  return this.$container = $container, await this.start(), $container;
  }
  async getServerStats() {
   let stats = await STATES.currentStream.peerConnection.getStats(), allVideoCodecs = {}, videoCodecId, videoWidth = 0, videoHeight = 0, allAudioCodecs = {}, audioCodecId, allCandidates = {}, candidateId;
@@ -5821,8 +5826,9 @@ class StreamUiHandler {
   let $screen = document.querySelector("#PageContent section[class*=PureScreens]");
   if (!$screen) return;
   let observer = new MutationObserver((mutationList) => {
-   mutationList.forEach((item) => {
-    if (item.type !== "childList") return;
+   let item;
+   for (item of mutationList) {
+    if (item.type !== "childList") continue;
     item.addedNodes.forEach(async ($node) => {
      if (!$node || $node.nodeType !== Node.ELEMENT_NODE) return;
      let $elm = $node;
@@ -5840,7 +5846,7 @@ class StreamUiHandler {
      if (!$elm || ($elm.id || "") !== "StreamHud") return;
      StreamUiHandler.handleSystemMenu($elm);
     });
-   });
+   }
   });
   observer.observe($screen, { subtree: !0, childList: !0 }), StreamUiHandler.observer = observer;
  }
