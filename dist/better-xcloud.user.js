@@ -2725,39 +2725,38 @@ class MkbPresetsDb extends LocalDb {
    }
   }
  }
- presetsTable() {
-  return this.open().then(() => this.table(this.TABLE_PRESETS, "readwrite"));
+ async presetsTable() {
+  return await this.open(), await this.table(this.TABLE_PRESETS, "readwrite");
  }
- newPreset(name, data) {
-  return this.presetsTable().then((table) => this.add(table, { name, data })).then(([table, id2]) => new Promise((resolve) => resolve(id2)));
+ async newPreset(name, data) {
+  let table = await this.presetsTable(), [, id2] = await this.add(table, { name, data });
+  return id2;
  }
- updatePreset(preset) {
-  return this.presetsTable().then((table) => this.put(table, preset)).then(([table, id2]) => new Promise((resolve) => resolve(id2)));
+ async updatePreset(preset) {
+  let table = await this.presetsTable(), [, id2] = await this.put(table, preset);
+  return id2;
  }
- deletePreset(id2) {
-  return this.presetsTable().then((table) => this.delete(table, id2)).then(([table, id3]) => new Promise((resolve) => resolve(id3)));
+ async deletePreset(id2) {
+  let table = await this.presetsTable();
+  return await this.delete(table, id2), id2;
  }
- getPreset(id2) {
-  return this.presetsTable().then((table) => this.get(table, id2)).then(([table, preset]) => new Promise((resolve) => resolve(preset)));
+ async getPreset(id2) {
+  let table = await this.presetsTable(), [, preset] = await this.get(table, id2);
+  return preset;
  }
- getPresets() {
-  return this.presetsTable().then((table) => this.count(table)).then(([table, count]) => {
-   if (count > 0) return new Promise((resolve) => {
-     this.getAll(table).then(([table2, items]) => {
-      let presets = {};
-      items.forEach((item2) => presets[item2.id] = item2), resolve(presets);
-     });
-    });
-   let preset = {
-    name: t("default"),
-    data: MkbPreset.DEFAULT_PRESET
-   };
-   return new Promise((resolve) => {
-    this.add(table, preset).then(([table2, id2]) => {
-     preset.id = id2, setPref("mkb_default_preset_id", id2), resolve({ [id2]: preset });
-    });
-   });
-  });
+ async getPresets() {
+  let table = await this.presetsTable(), [, count] = await this.count(table);
+  if (count > 0) {
+   let [, items] = await this.getAll(table), presets = {};
+   return items.forEach((item2) => presets[item2.id] = item2), presets;
+  }
+  let preset = {
+   name: t("default"),
+   data: MkbPreset.DEFAULT_PRESET
+  }, [, id2] = await this.add(table, preset);
+  return preset.id = id2, setPref("mkb_default_preset_id", id2), {
+   [id2]: preset
+  };
  }
 }
 var PointerToMouseButton = {
@@ -3457,7 +3456,7 @@ class MkbRemapper {
  static instance;
  static getInstance = () => MkbRemapper.instance ?? (MkbRemapper.instance = new MkbRemapper);
  LOG_TAG = "MkbRemapper";
- STATE = {
+ states = {
   currentPresetId: 0,
   presets: {},
   editingPresetData: null,
@@ -3471,7 +3470,7 @@ class MkbRemapper {
  allMouseElements = {};
  bindingDialog;
  constructor() {
-  BxLogger.info(this.LOG_TAG, "constructor()"), this.STATE.currentPresetId = getPref("mkb_default_preset_id"), this.bindingDialog = new Dialog({
+  BxLogger.info(this.LOG_TAG, "constructor()"), this.states.currentPresetId = getPref("mkb_default_preset_id"), this.bindingDialog = new Dialog({
    className: "bx-binding-dialog",
    content: CE("div", {}, CE("p", {}, t("press-to-bind")), CE("i", {}, t("press-esc-to-cancel"))),
    hideCloseButton: !0
@@ -3485,11 +3484,11 @@ class MkbRemapper {
   if ($elm.dataset.keyCode === key.code) return;
   for (let $otherElm of this.allKeyElements)
    if ($otherElm.dataset.keyCode === key.code) this.unbindKey($otherElm);
-  this.STATE.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.dataset.keyCode = key.code;
+  this.states.editingPresetData.mapping[buttonIndex][keySlot] = key.code, $elm.textContent = key.name, $elm.dataset.keyCode = key.code;
  };
  unbindKey = ($elm) => {
   let buttonIndex = parseInt($elm.dataset.buttonIndex), keySlot = parseInt($elm.dataset.keySlot);
-  this.STATE.editingPresetData.mapping[buttonIndex][keySlot] = null, $elm.textContent = "", delete $elm.dataset.keyCode;
+  this.states.editingPresetData.mapping[buttonIndex][keySlot] = null, $elm.textContent = "", delete $elm.dataset.keyCode;
  };
  onWheel = (e) => {
   e.preventDefault(), this.clearEventListeners(), this.bindKey(this.$currentBindingKey, KeyHelper.getKeyFromEvent(e)), window.setTimeout(() => this.bindingDialog.hide(), 200);
@@ -3502,21 +3501,26 @@ class MkbRemapper {
   window.setTimeout(() => this.bindingDialog.hide(), 200);
  };
  onBindingKey = (e) => {
-  if (!this.STATE.isEditing || e.button !== 0) return;
+  if (!this.states.isEditing || e.button !== 0) return;
   console.log(e), this.$currentBindingKey = e.target, window.addEventListener("keydown", this.onKeyDown), window.addEventListener("mousedown", this.onMouseDown), window.addEventListener("wheel", this.onWheel), this.bindingDialog.show({ title: this.$currentBindingKey.dataset.prompt });
  };
  onContextMenu = (e) => {
-  if (e.preventDefault(), !this.STATE.isEditing) return;
+  if (e.preventDefault(), !this.states.isEditing) return;
   this.unbindKey(e.target);
  };
  getPreset = (presetId) => {
-  return this.STATE.presets[presetId];
+  return this.states.presets[presetId];
  };
  getCurrentPreset = () => {
-  return this.getPreset(this.STATE.currentPresetId);
+  let preset = this.getPreset(this.states.currentPresetId);
+  if (!preset) {
+   let firstPresetId = parseInt(Object.keys(this.states.presets)[0]);
+   preset = this.states.presets[firstPresetId], this.states.currentPresetId = firstPresetId, setPref("mkb_default_preset_id", firstPresetId);
+  }
+  return preset;
  };
  switchPreset = (presetId) => {
-  this.STATE.currentPresetId = presetId;
+  this.states.currentPresetId = presetId;
   let presetData = this.getCurrentPreset().data;
   for (let $elm of this.allKeyElements) {
    let buttonIndex = parseInt($elm.dataset.buttonIndex), keySlot = parseInt($elm.dataset.keySlot), buttonKeys = presetData.mapping[buttonIndex];
@@ -3529,35 +3533,33 @@ class MkbRemapper {
    if (typeof value === "undefined") value = MkbPreset.MOUSE_SETTINGS[key].default;
    "setValue" in $elm && $elm.setValue(value);
   }
-  let activated = getPref("mkb_default_preset_id") === this.STATE.currentPresetId;
+  let activated = getPref("mkb_default_preset_id") === this.states.currentPresetId;
   this.$activateButton.disabled = activated, this.$activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate");
  };
- refresh() {
-  while (this.$presetsSelect.firstChild)
-   this.$presetsSelect.removeChild(this.$presetsSelect.firstChild);
-  MkbPresetsDb.getInstance().getPresets().then((presets) => {
-   this.STATE.presets = presets;
-   let $fragment = document.createDocumentFragment(), defaultPresetId;
-   if (this.STATE.currentPresetId === 0) this.STATE.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.STATE.currentPresetId, setPref("mkb_default_preset_id", defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
-   else defaultPresetId = getPref("mkb_default_preset_id");
-   for (let id2 in presets) {
-    let name = presets[id2].name;
-    if (id2 === defaultPresetId) name = "🎮 " + name;
-    let $options = CE("option", { value: id2 }, name);
-    $options.selected = parseInt(id2) === this.STATE.currentPresetId, $fragment.appendChild($options);
-   }
-   this.$presetsSelect.appendChild($fragment);
-   let activated = defaultPresetId === this.STATE.currentPresetId;
-   this.$activateButton.disabled = activated, this.$activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate"), !this.STATE.isEditing && this.switchPreset(this.STATE.currentPresetId);
-  });
+ async refresh() {
+  removeChildElements(this.$presetsSelect);
+  let presets = await MkbPresetsDb.getInstance().getPresets();
+  this.states.presets = presets;
+  let fragment = document.createDocumentFragment(), defaultPresetId;
+  if (this.states.currentPresetId === 0) this.states.currentPresetId = parseInt(Object.keys(presets)[0]), defaultPresetId = this.states.currentPresetId, setPref("mkb_default_preset_id", defaultPresetId), EmulatedMkbHandler.getInstance().refreshPresetData();
+  else defaultPresetId = getPref("mkb_default_preset_id");
+  for (let id2 in presets) {
+   let name = presets[id2].name;
+   if (id2 === defaultPresetId) name = "🎮 " + name;
+   let $options = CE("option", { value: id2 }, name);
+   $options.selected = parseInt(id2) === this.states.currentPresetId, fragment.appendChild($options);
+  }
+  this.$presetsSelect.appendChild(fragment);
+  let activated = defaultPresetId === this.states.currentPresetId;
+  this.$activateButton.disabled = activated, this.$activateButton.querySelector("span").textContent = activated ? t("activated") : t("activate"), !this.states.isEditing && this.switchPreset(this.states.currentPresetId);
  }
  toggleEditing = (force) => {
-  if (this.STATE.isEditing = typeof force !== "undefined" ? force : !this.STATE.isEditing, this.$wrapper.classList.toggle("bx-editing", this.STATE.isEditing), this.STATE.isEditing) this.STATE.editingPresetData = deepClone(this.getCurrentPreset().data);
-  else this.STATE.editingPresetData = null;
+  if (this.states.isEditing = typeof force !== "undefined" ? force : !this.states.isEditing, this.$wrapper.classList.toggle("bx-editing", this.states.isEditing), this.states.isEditing) this.states.editingPresetData = deepClone(this.getCurrentPreset().data);
+  else this.states.editingPresetData = null;
   let childElements = this.$wrapper.querySelectorAll("select, button, input");
   for (let $elm of Array.from(childElements)) {
    if ($elm.parentElement.parentElement.classList.contains("bx-mkb-action-buttons")) continue;
-   let disable = !this.STATE.isEditing;
+   let disable = !this.states.isEditing;
    if ($elm.parentElement.classList.contains("bx-mkb-preset-tools")) disable = !disable;
    $elm.disabled = disable;
   }
@@ -3577,10 +3579,10 @@ class MkbRemapper {
    title: t("rename"),
    icon: BxIcon.CURSOR_TEXT,
    tabIndex: -1,
-   onClick: (e) => {
+   onClick: async () => {
     let preset = this.getCurrentPreset(), newName = promptNewName(preset.name);
     if (!newName || newName === preset.name) return;
-    preset.name = newName, MkbPresetsDb.getInstance().updatePreset(preset).then((id2) => this.refresh());
+    preset.name = newName, await MkbPresetsDb.getInstance().updatePreset(preset), await this.refresh();
    }
   }), createButton({
    icon: BxIcon.NEW,
@@ -3590,7 +3592,7 @@ class MkbRemapper {
     let newName = promptNewName("");
     if (!newName) return;
     MkbPresetsDb.getInstance().newPreset(newName, MkbPreset.DEFAULT_PRESET).then((id2) => {
-     this.STATE.currentPresetId = id2, this.refresh();
+     this.states.currentPresetId = id2, this.refresh();
     });
    }
   }), createButton({
@@ -3601,7 +3603,7 @@ class MkbRemapper {
     let preset = this.getCurrentPreset(), newName = promptNewName(`${preset.name} (2)`);
     if (!newName) return;
     MkbPresetsDb.getInstance().newPreset(newName, preset.data).then((id2) => {
-     this.STATE.currentPresetId = id2, this.refresh();
+     this.states.currentPresetId = id2, this.refresh();
     });
    }
   }), createButton({
@@ -3611,8 +3613,8 @@ class MkbRemapper {
    tabIndex: -1,
    onClick: (e) => {
     if (!confirm(t("confirm-delete-preset"))) return;
-    MkbPresetsDb.getInstance().deletePreset(this.STATE.currentPresetId).then((id2) => {
-     this.STATE.currentPresetId = 0, this.refresh();
+    MkbPresetsDb.getInstance().deletePreset(this.states.currentPresetId).then((id2) => {
+     this.states.currentPresetId = 0, this.refresh();
     });
    }
   }));
@@ -3634,7 +3636,7 @@ class MkbRemapper {
   let $mouseSettings = document.createDocumentFragment();
   for (let key in MkbPreset.MOUSE_SETTINGS) {
    let setting = MkbPreset.MOUSE_SETTINGS[key], value = setting.default, $elm, onChange = (e, value2) => {
-    this.STATE.editingPresetData.mouse[key] = value2;
+    this.states.editingPresetData.mouse[key] = value2;
    }, $row = CE("label", {
     class: "bx-settings-row",
     for: `bx_setting_${key}`
@@ -3651,14 +3653,14 @@ class MkbRemapper {
    style: 1,
    tabIndex: -1,
    onClick: (e) => {
-    setPref("mkb_default_preset_id", this.STATE.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.refresh();
+    setPref("mkb_default_preset_id", this.states.currentPresetId), EmulatedMkbHandler.getInstance().refreshPresetData(), this.refresh();
    }
   })), CE("div", {}, createButton({
    label: t("cancel"),
    style: 4,
    tabIndex: -1,
    onClick: (e) => {
-    this.switchPreset(this.STATE.currentPresetId), this.toggleEditing(!1);
+    this.switchPreset(this.states.currentPresetId), this.toggleEditing(!1);
    }
   }), createButton({
    label: t("save"),
@@ -3666,7 +3668,7 @@ class MkbRemapper {
    tabIndex: -1,
    onClick: (e) => {
     let updatedPreset = deepClone(this.getCurrentPreset());
-    updatedPreset.data = this.STATE.editingPresetData, MkbPresetsDb.getInstance().updatePreset(updatedPreset).then((id2) => {
+    updatedPreset.data = this.states.editingPresetData, MkbPresetsDb.getInstance().updatePreset(updatedPreset).then((id2) => {
      if (id2 === getPref("mkb_default_preset_id")) EmulatedMkbHandler.getInstance().refreshPresetData();
      this.toggleEditing(!1), this.refresh();
     });
