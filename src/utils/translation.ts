@@ -170,7 +170,7 @@ const Texts = {
         (e: any) => `${e.version} 버전 사용가능`,
         (e: any) => `Dostępna jest nowa wersja ${e.version}`,
         (e: any) => `Versão ${e.version} disponível`,
-        ,
+        (e: any) => `Версия ${e.version} доступна`,
         (e: any) => `เวอร์ชัน ${e.version} พร้อมใช้งานแล้ว`,
         (e: any) => `${e.version} sayılı yeni sürüm mevcut`,
         (e: any) => `Доступна версія ${e.version}`,
