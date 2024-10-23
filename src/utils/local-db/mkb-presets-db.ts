@@ -32,65 +32,65 @@ export class MkbPresetsDb extends LocalDb {
         }
     }
 
-    private presetsTable() {
-        return this.open()
-            .then(() => this.table(this.TABLE_PRESETS, 'readwrite'))
+    private async presetsTable() {
+        await this.open();
+        return await this.table(this.TABLE_PRESETS, 'readwrite');
     }
 
-    newPreset(name: string, data: any) {
-        return this.presetsTable()
-            .then(table => this.add(table, {name, data}))
-            .then(([table, id]) => new Promise<number>(resolve => resolve(id)));
+    async newPreset(name: string, data: any) {
+        const table = await this.presetsTable();
+        const [, id] = await this.add(table, { name, data });
+
+        return id;
     }
 
-    updatePreset(preset: MkbStoredPreset) {
-        return this.presetsTable()
-            .then(table => this.put(table, preset))
-            .then(([table, id]) => new Promise(resolve => resolve(id)));
+    async updatePreset(preset: MkbStoredPreset) {
+        const table = await this.presetsTable();
+        const [, id] = await this.put(table, preset);
+
+        return id;
     }
 
-    deletePreset(id: number) {
-        return this.presetsTable()
-            .then(table => this.delete(table, id))
-            .then(([table, id]) => new Promise(resolve => resolve(id)));
+    async deletePreset(id: number) {
+        const table = await this.presetsTable();
+        await this.delete(table, id);
+
+        return id;
     }
 
-    getPreset(id: number): Promise<MkbStoredPreset> {
-        return this.presetsTable()
-            .then(table => this.get(table, id))
-            .then(([table, preset]) => new Promise(resolve => resolve(preset)));
+    async getPreset(id: number): Promise<MkbStoredPreset> {
+        const table = await this.presetsTable();
+        const [, preset] = await this.get(table, id);
+
+        return preset;
     }
 
-    getPresets(): Promise<MkbStoredPresets> {
-        return this.presetsTable()
-            .then(table => this.count(table))
-            .then(([table, count]) => {
-                if (count > 0) {
-                    return new Promise(resolve => {
-                        this.getAll(table)
-                            .then(([table, items]) => {
-                                const presets: MkbStoredPresets = {};
-                                items.forEach((item: MkbStoredPreset) => (presets[item.id!] = item));
-                                resolve(presets);
-                            });
-                    });
-                }
+    async getPresets(): Promise<MkbStoredPresets> {
+        const table = await this.presetsTable();
+        const [, count] = await this.count(table);
 
-                // Create "Default" preset when the table is empty
-                const preset: MkbStoredPreset = {
-                    name: t('default'),
-                    data: MkbPreset.DEFAULT_PRESET,
-                }
+        // Return stored presets
+        if (count > 0) {
+            const [, items] = await this.getAll(table);
+            const presets: MkbStoredPresets = {};
+            items.forEach((item: MkbStoredPreset) => (presets[item.id!] = item));
 
-                return new Promise<MkbStoredPresets>(resolve => {
-                    this.add(table, preset)
-                        .then(([table, id]) => {
-                            preset.id = id;
-                            setPref(PrefKey.MKB_DEFAULT_PRESET_ID, id);
+            return presets;
+        }
 
-                            resolve({[id]: preset});
-                        });
-                });
-            });
+        // Create "Default" preset when the table is empty
+        const preset: MkbStoredPreset = {
+            name: t('default'),
+            data: MkbPreset.DEFAULT_PRESET,
+        };
+
+        const [, id] = await this.add(table, preset);
+
+        preset.id = id;
+        setPref(PrefKey.MKB_DEFAULT_PRESET_ID, id);
+
+        return {
+            [id]: preset,
+        };
     }
 }
