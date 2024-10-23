@@ -2381,7 +2381,7 @@ class MouseDataProvider {
 class MkbHandler {}
 class LocalDb {
  static DB_NAME = "BetterXcloud";
- static DB_VERSION = 1;
+ static DB_VERSION = 2;
  db;
  open() {
   return new Promise((resolve, reject) => {
@@ -2438,17 +2438,16 @@ class MkbPresetsDb extends LocalDb {
   super();
   BxLogger.info(this.LOG_TAG, "constructor()");
  }
+ createTable(db) {
+  db.createObjectStore(this.TABLE_PRESETS, {
+   keyPath: "id",
+   autoIncrement: !0
+  }).createIndex("name_idx", "name");
+ }
  onUpgradeNeeded(e) {
   let db = e.target.result;
-  switch (e.oldVersion) {
-   case 0: {
-    db.createObjectStore(this.TABLE_PRESETS, {
-     keyPath: "id",
-     autoIncrement: !0
-    }).createIndex("name_idx", "name");
-    break;
-   }
-  }
+  if (db.objectStoreNames.contains("undefined")) db.deleteObjectStore("undefined");
+  if (!db.objectStoreNames.contains(this.TABLE_PRESETS)) this.createTable(db);
  }
  async presetsTable() {
   return await this.open(), await this.table(this.TABLE_PRESETS, "readwrite");

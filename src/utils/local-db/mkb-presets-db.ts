@@ -18,17 +18,23 @@ export class MkbPresetsDb extends LocalDb {
         BxLogger.info(this.LOG_TAG, 'constructor()');
     }
 
+    private createTable(db: IDBDatabase) {
+        const presets = db.createObjectStore(this.TABLE_PRESETS, {
+            keyPath: 'id',
+            autoIncrement: true,
+        });
+        presets.createIndex('name_idx', 'name');
+    }
+
     protected onUpgradeNeeded(e: IDBVersionChangeEvent): void {
-        const db = (e.target! as any).result;
-        switch (e.oldVersion) {
-            case 0: {
-                const presets = db.createObjectStore(this.TABLE_PRESETS, {
-                    keyPath: 'id',
-                    autoIncrement: true,
-                });
-                presets.createIndex('name_idx', 'name');
-                break;
-            }
+        const db = (e.target! as any).result as IDBDatabase;
+
+        if (db.objectStoreNames.contains('undefined')) {
+            db.deleteObjectStore('undefined');
+        }
+
+        if (!db.objectStoreNames.contains(this.TABLE_PRESETS)) {
+            this.createTable(db);
         }
     }
 

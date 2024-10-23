@@ -1,8 +1,8 @@
 export abstract class LocalDb {
     static readonly DB_NAME = 'BetterXcloud';
-    static readonly DB_VERSION = 1;
+    static readonly DB_VERSION = 2;
 
-    private db: any;
+    protected db!: IDBDatabase;
 
     protected open() {
         return new Promise<void>((resolve, reject) => {
@@ -29,7 +29,7 @@ export abstract class LocalDb {
 
     protected abstract onUpgradeNeeded(e: IDBVersionChangeEvent): void;
 
-    protected table(name: string, type: string): Promise<IDBObjectStore> {
+    protected table(name: string, type: IDBTransactionMode): Promise<IDBObjectStore> {
         const transaction = this.db.transaction(name, type || 'readonly');
         const table = transaction.objectStore(name);
 
