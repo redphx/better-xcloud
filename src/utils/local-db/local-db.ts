@@ -12,7 +12,7 @@ export abstract class LocalDb {
             }
 
             const request = window.indexedDB.open(LocalDb.DB_NAME, LocalDb.DB_VERSION);
-            request.onupgradeneeded = this.onUpgradeNeeded;
+            request.onupgradeneeded = this.onUpgradeNeeded.bind(this);
 
             request.onerror = e => {
                 console.log(e);

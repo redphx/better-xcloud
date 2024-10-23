@@ -2390,7 +2390,7 @@ class LocalDb {
     return;
    }
    let request = window.indexedDB.open(LocalDb.DB_NAME, LocalDb.DB_VERSION);
-   request.onupgradeneeded = this.onUpgradeNeeded, request.onerror = (e) => {
+   request.onupgradeneeded = this.onUpgradeNeeded.bind(this), request.onerror = (e) => {
     console.log(e), alert(e.target.error.message), reject && reject();
    }, request.onsuccess = (e) => {
     this.db = e.target.result, resolve();
