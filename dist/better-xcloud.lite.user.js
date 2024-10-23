@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud (Lite)
 // @namespace    https://github.com/redphx
-// @version      5.9.1-beta
+// @version      5.9.1
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -105,7 +105,7 @@ class UserAgent {
   });
  }
 }
-var SCRIPT_VERSION = "5.9.1-beta", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.9.1", SCRIPT_VARIANT = "lite", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
  supportedRegion: !0,
@@ -403,7 +403,7 @@ var SUPPORTED_LANGUAGES = {
   e => `${e.version} 버전 사용가능`,
   e => `Dostępna jest nowa wersja ${e.version}`,
   e => `Versão ${e.version} disponível`,
-  ,
+  e => `Версия ${e.version} доступна`,
   e => `เวอร์ชัน ${e.version} พร้อมใช้งานแล้ว`,
   e => `${e.version} sayılı yeni sürüm mevcut`,
   e => `Доступна версія ${e.version}`,
