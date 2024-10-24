@@ -87,7 +87,7 @@ export class XhomeInterceptor {
         ];
 
         XhomeInterceptor.consoleAddrs = {};
-        for (const pair in pairs) {
+        for (const pair of pairs) {
             const [keyAddr, keyPort] = pair;
             if (serverDetails[keyAddr]) {
                 const port = serverDetails[keyPort];
