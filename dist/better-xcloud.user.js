@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      5.9.2
+// @version      5.9.3-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -107,7 +107,7 @@ class UserAgent {
   });
  }
 }
-var SCRIPT_VERSION = "5.9.2", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "5.9.3-beta", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, supportMkb = AppInterface || !userAgent.match(/(android|iphone|ipad)/), STATES = {
  supportedRegion: !0,
@@ -6623,6 +6623,7 @@ class XcloudInterceptor {
   MexicoCentral: "🇲🇽",
   NorthCentralUs: "🇺🇸",
   SouthCentralUS: "🇺🇸",
+  SwedenCentral: "🇸🇪",
   UKSouth: "🇬🇧",
   WestEurope: "🇪🇺",
   WestUS: "🇺🇸",

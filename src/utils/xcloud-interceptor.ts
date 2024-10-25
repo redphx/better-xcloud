@@ -25,6 +25,7 @@ export class XcloudInterceptor {
         MexicoCentral: '🇲🇽',
         NorthCentralUs: '🇺🇸',
         SouthCentralUS: '🇺🇸',
+        SwedenCentral: '🇸🇪',
         UKSouth: '🇬🇧',
         WestEurope: '🇪🇺',
         WestUS: '🇺🇸',
