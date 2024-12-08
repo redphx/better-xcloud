@@ -10,7 +10,6 @@ import { hasGamepad } from "./gamepad";
 import { MkbMappingPresetsTable } from "./local-db/mkb-mapping-presets-table";
 import type { GamepadKey } from "@/enums/gamepad";
 import { MkbPresetKey, MouseConstant } from "@/enums/mkb";
-import { BxEvent } from "./bx-event";
 import { KeyboardShortcutDefaultId, KeyboardShortcutsTable } from "./local-db/keyboard-shortcuts-table";
 import { ShortcutAction } from "@/enums/shortcut-actions";
 import { KeyHelper } from "@/modules/mkb/key-helper";
@@ -111,7 +110,7 @@ export class StreamSettings {
         }
 
         StreamSettings.settings.deviceVibrationIntensity = intensity;
-        BxEvent.dispatch(window, BxEvent.DEVICE_VIBRATION_CHANGED);
+        EventBus.Script.emit('deviceVibrationUpdated', {});
     }
 
     static async refreshMkbSettings() {

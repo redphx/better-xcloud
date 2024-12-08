@@ -17,6 +17,7 @@ type ScriptEvents = {
 
     mkbSettingUpdated: {};
     keyboardShortcutsUpdated: {};
+    deviceVibrationUpdated: {};
 
     // GH pages
     listForcedNativeMkbUpdated: {};

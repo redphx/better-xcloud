@@ -1,6 +1,7 @@
 import { AppInterface, STATES } from "@utils/global";
 import { BxEvent } from "@utils/bx-event";
 import { StreamSettings } from "@/utils/stream-settings";
+import { EventBus } from "@/utils/event-bus";
 
 const VIBRATION_DATA_MAP = {
     gamepadIndex: 8,
@@ -47,9 +48,7 @@ export class DeviceVibrationManager {
             }
         });
 
-        window.addEventListener(BxEvent.DEVICE_VIBRATION_CHANGED, e => {
-            this.setupDataChannel();
-        });
+        EventBus.Script.on('deviceVibrationUpdated', () => this.setupDataChannel());
     }
 
     private setupDataChannel() {
