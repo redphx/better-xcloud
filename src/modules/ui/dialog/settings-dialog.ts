@@ -30,6 +30,7 @@ import { SuggestionsSetting } from "./settings/suggestions";
 import { StreamSettings } from "@/utils/stream-settings";
 import { MkbExtraSettings } from "./settings/mkb-extra";
 import { BxExposed } from "@/utils/bx-exposed";
+import { EventBus } from "@/utils/event-bus";
 
 
 type SettingTabSectionItem = Partial<{
@@ -434,16 +435,13 @@ export class SettingsDialog extends NavigationDialog {
             },
             onCreated: (setting: SettingTabSectionItem, $elm: HTMLElement) => {
                 const $range = $elm.querySelector<HTMLInputElement>('input[type=range')!;
-                window.addEventListener(BxEvent.SETTINGS_CHANGED, e => {
-                    const { storageKey, settingKey, settingValue } = e as any;
-                    if (storageKey !== StorageKey.GLOBAL || settingKey !== PrefKey.AUDIO_VOLUME) {
-                        return;
-                    }
 
-                    $range.value = settingValue;
-                    BxEvent.dispatch($range, 'input', {
-                        ignoreOnChange: true,
-                    });
+                EventBus.Script.on('settingChanged', payload => {
+                    const { storageKey, settingKey, settingValue } = payload;
+                    if (storageKey === StorageKey.GLOBAL && settingKey === PrefKey.AUDIO_VOLUME) {
+                        $range.value = settingValue;
+                        BxEvent.dispatch($range, 'input', { ignoreOnChange: true });
+                    }
                 });
             },
         }],

@@ -1,10 +1,10 @@
 import { PrefKey } from "@/enums/pref-keys";
-import { BxEvent } from "./bx-event";
 import { STATES } from "./global";
 import { humanFileSize, secondsToHm } from "./html";
 import { getPref } from "./settings-storages/global-settings-storage";
 import { BxLogger } from "./bx-logger";
 import { StreamStat } from "@/enums/pref-values";
+import { EventBus } from "./event-bus";
 
 export type StreamStatGrade = '' | 'bad' | 'ok' | 'good';
 
@@ -310,9 +310,8 @@ export class StreamStatsCollector {
     }
 
     static setupEvents() {
-        window.addEventListener(BxEvent.STREAM_PLAYING, e => {
-            const statsCollector = StreamStatsCollector.getInstance();
-            statsCollector.reset();
+        EventBus.Stream.on('statePlaying', () => {
+            StreamStatsCollector.getInstance().reset();
         });
     }
 }

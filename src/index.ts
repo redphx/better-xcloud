@@ -209,7 +209,7 @@ EventBus.Script.on('xcloudServerReady', () => {
     window.setTimeout(HeaderSection.watchHeader, 2000);
 });
 
-window.addEventListener(BxEvent.STREAM_LOADING, e => {
+EventBus.Stream.on('stateLoading', () => {
     // Get title ID for screenshot's name
     if (window.location.pathname.includes('/launch/') && STATES.currentStream.titleInfo) {
         STATES.currentStream.titleSlug = productTitleToSlug(STATES.currentStream.titleInfo.product.title);
@@ -221,7 +221,7 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
 // Setup loading screen
 getPref(PrefKey.LOADING_SCREEN_GAME_ART) && EventBus.Script.on('titleInfoReady', LoadingScreen.setup);
 
-window.addEventListener(BxEvent.STREAM_STARTING, e => {
+EventBus.Stream.on('stateStarting', () => {
     // Hide loading screen
     LoadingScreen.hide();
 
@@ -235,7 +235,7 @@ window.addEventListener(BxEvent.STREAM_STARTING, e => {
     }
 });
 
-window.addEventListener(BxEvent.STREAM_PLAYING, e => {
+EventBus.Stream.on('statePlaying', payload => {
     window.BX_STREAM_SETTINGS = StreamSettings.settings;
     StreamSettings.refreshAllSettings();
 
@@ -254,7 +254,7 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
         KeyboardShortcutHandler.getInstance().start();
 
         // Setup screenshot
-        const $video = (e as any).$video as HTMLVideoElement;
+        const $video = payload.$video as HTMLVideoElement;
         ScreenshotManager.getInstance().updateCanvasSize($video.videoWidth, $video.videoHeight);
 
         // Setup local co-op
@@ -265,8 +265,8 @@ window.addEventListener(BxEvent.STREAM_PLAYING, e => {
     updateVideoPlayer();
 });
 
-window.addEventListener(BxEvent.STREAM_ERROR_PAGE, e => {
-    BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+EventBus.Stream.on('stateError', () => {
+    EventBus.Stream.emit('stateStopped', {});
 });
 
 isFullVersion() && window.addEventListener(BxEvent.XCLOUD_RENDERING_COMPONENT, e => {
@@ -343,9 +343,9 @@ function unload() {
     }
 }
 
-window.addEventListener(BxEvent.STREAM_STOPPED, unload);
+EventBus.Stream.on('stateStopped', unload);
 window.addEventListener('pagehide', e => {
-    BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+    EventBus.Stream.emit('stateStopped', {});
 });
 
 isFullVersion() && window.addEventListener(BxEvent.CAPTURE_SCREENSHOT, e => {

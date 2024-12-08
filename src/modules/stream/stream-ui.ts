@@ -1,11 +1,11 @@
 import { STATES } from "@utils/global.ts";
 import { createSvgIcon } from "@utils/html.ts";
 import { BxIcon } from "@utils/bx-icon";
-import { BxEvent } from "@utils/bx-event.ts";
 import { t } from "@utils/translation.ts";
 import { StreamBadges } from "./stream-badges.ts";
 import { StreamStats } from "./stream-stats.ts";
 import { SettingsDialog } from "../ui/dialog/settings-dialog.ts";
+import { EventBus } from "@/utils/event-bus.ts";
 
 
 export class StreamUiHandler {
@@ -243,7 +243,7 @@ export class StreamUiHandler {
 
                     // Error Page: .PureErrorPage.ErrorScreen
                     if (className.includes('PureErrorPage')) {
-                        BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
+                        EventBus.Stream.emit('stateError', {});
                         return;
                     }
 

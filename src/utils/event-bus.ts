@@ -1,3 +1,4 @@
+import type { PrefKey, StorageKey } from "@/enums/pref-keys";
 import { BX_FLAGS } from "./bx-flags";
 import { BxLogger } from "./bx-logger";
 
@@ -8,12 +9,22 @@ type ScriptEvents = {
     xcloudServerUnavailable: {};
 
     titleInfoReady: {};
+    settingChanged: {
+        storageKey: StorageKey;
+        settingKey: PrefKey;
+        settingValue: any;
+    };
 
     // GH pages
     listForcedNativeMkbUpdated: {};
 };
 
 type StreamEvents = {
+    stateLoading: {};
+    stateStarting: {};
+    statePlaying: { $video?: HTMLVideoElement };
+    stateStopped: {};
+    stateError: {};
 };
 
 export class EventBus<TEvents extends Record<string, any>> {
@@ -49,6 +60,10 @@ export class EventBus<TEvents extends Record<string, any>> {
         if (callbacks.size === 0) {
             this.listeners.delete(event);
         }
+    }
+
+    offAll(): void {
+        this.listeners.clear();
     }
 
     emit<K extends keyof TEvents>(event: K, payload: TEvents[K]): void {

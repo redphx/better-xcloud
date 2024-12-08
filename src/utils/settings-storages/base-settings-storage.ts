@@ -1,16 +1,16 @@
-import type { PrefKey } from "@/enums/pref-keys";
+import type { PrefKey, StorageKey } from "@/enums/pref-keys";
 import type { NumberStepperParams, SettingAction, SettingDefinitions } from "@/types/setting-definition";
-import { BxEvent } from "../bx-event";
 import { t } from "../translation";
 import { SCRIPT_VARIANT } from "../global";
+import { EventBus } from "../event-bus";
 
 export class BaseSettingsStore {
     private storage: Storage;
-    private storageKey: string;
+    private storageKey: StorageKey;
     private _settings: object | null;
     private definitions: SettingDefinitions;
 
-    constructor(storageKey: string, definitions: SettingDefinitions) {
+    constructor(storageKey: StorageKey, definitions: SettingDefinitions) {
         this.storage = window.localStorage;
         this.storageKey = storageKey;
 
@@ -93,7 +93,7 @@ export class BaseSettingsStore {
         this.settings[key] = this.validateValue('get', key, value);
         this.saveSettings();
 
-        emitEvent && BxEvent.dispatch(window, BxEvent.SETTINGS_CHANGED, {
+        emitEvent && EventBus.Script.emit('settingChanged', {
             storageKey: this.storageKey,
             settingKey: key,
             settingValue: value,

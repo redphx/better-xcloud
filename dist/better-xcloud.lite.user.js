@@ -141,7 +141,7 @@ function deepClone(obj) {
 }
 var BxEvent;
 ((BxEvent) => {
- BxEvent.JUMP_BACK_IN_READY = "bx-jump-back-in-ready", BxEvent.POPSTATE = "bx-popstate", BxEvent.SETTINGS_CHANGED = "bx-settings-changed", BxEvent.STREAM_LOADING = "bx-stream-loading", BxEvent.STREAM_STARTING = "bx-stream-starting", BxEvent.STREAM_STARTED = "bx-stream-started", BxEvent.STREAM_PLAYING = "bx-stream-playing", BxEvent.STREAM_STOPPED = "bx-stream-stopped", BxEvent.STREAM_ERROR_PAGE = "bx-stream-error-page", BxEvent.STREAM_WEBRTC_CONNECTED = "bx-stream-webrtc-connected", BxEvent.STREAM_WEBRTC_DISCONNECTED = "bx-stream-webrtc-disconnected", BxEvent.MKB_UPDATED = "bx-mkb-updated", BxEvent.KEYBOARD_SHORTCUTS_UPDATED = "bx-keyboard-shortcuts-updated", BxEvent.STREAM_SESSION_READY = "bx-stream-session-ready", BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED = "bx-custom-touch-layouts-loaded", BxEvent.TOUCH_LAYOUT_MANAGER_READY = "bx-touch-layout-manager-ready", BxEvent.REMOTE_PLAY_READY = "bx-remote-play-ready", BxEvent.REMOTE_PLAY_FAILED = "bx-remote-play-failed", BxEvent.DATA_CHANNEL_CREATED = "bx-data-channel-created", BxEvent.DEVICE_VIBRATION_CHANGED = "bx-device-vibration-changed", BxEvent.GAME_BAR_ACTION_ACTIVATED = "bx-game-bar-action-activated", BxEvent.MICROPHONE_STATE_CHANGED = "bx-microphone-state-changed", BxEvent.SPEAKER_STATE_CHANGED = "bx-speaker-state-changed", BxEvent.VIDEO_VISIBILITY_CHANGED = "bx-video-visibility-changed", BxEvent.CAPTURE_SCREENSHOT = "bx-capture-screenshot", BxEvent.POINTER_LOCK_REQUESTED = "bx-pointer-lock-requested", BxEvent.POINTER_LOCK_EXITED = "bx-pointer-lock-exited", BxEvent.NAVIGATION_FOCUS_CHANGED = "bx-nav-focus-changed", BxEvent.XCLOUD_DIALOG_SHOWN = "bx-xcloud-dialog-shown", BxEvent.XCLOUD_DIALOG_DISMISSED = "bx-xcloud-dialog-dismissed", BxEvent.XCLOUD_GUIDE_MENU_SHOWN = "bx-xcloud-guide-menu-shown", BxEvent.XCLOUD_POLLING_MODE_CHANGED = "bx-xcloud-polling-mode-changed", BxEvent.XCLOUD_RENDERING_COMPONENT = "bx-xcloud-rendering-component", BxEvent.XCLOUD_ROUTER_HISTORY_READY = "bx-xcloud-router-history-ready";
+ BxEvent.JUMP_BACK_IN_READY = "bx-jump-back-in-ready", BxEvent.POPSTATE = "bx-popstate", BxEvent.STREAM_WEBRTC_CONNECTED = "bx-stream-webrtc-connected", BxEvent.STREAM_WEBRTC_DISCONNECTED = "bx-stream-webrtc-disconnected", BxEvent.MKB_UPDATED = "bx-mkb-updated", BxEvent.KEYBOARD_SHORTCUTS_UPDATED = "bx-keyboard-shortcuts-updated", BxEvent.STREAM_SESSION_READY = "bx-stream-session-ready", BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED = "bx-custom-touch-layouts-loaded", BxEvent.TOUCH_LAYOUT_MANAGER_READY = "bx-touch-layout-manager-ready", BxEvent.REMOTE_PLAY_READY = "bx-remote-play-ready", BxEvent.REMOTE_PLAY_FAILED = "bx-remote-play-failed", BxEvent.DATA_CHANNEL_CREATED = "bx-data-channel-created", BxEvent.DEVICE_VIBRATION_CHANGED = "bx-device-vibration-changed", BxEvent.GAME_BAR_ACTION_ACTIVATED = "bx-game-bar-action-activated", BxEvent.MICROPHONE_STATE_CHANGED = "bx-microphone-state-changed", BxEvent.SPEAKER_STATE_CHANGED = "bx-speaker-state-changed", BxEvent.VIDEO_VISIBILITY_CHANGED = "bx-video-visibility-changed", BxEvent.CAPTURE_SCREENSHOT = "bx-capture-screenshot", BxEvent.POINTER_LOCK_REQUESTED = "bx-pointer-lock-requested", BxEvent.POINTER_LOCK_EXITED = "bx-pointer-lock-exited", BxEvent.NAVIGATION_FOCUS_CHANGED = "bx-nav-focus-changed", BxEvent.XCLOUD_DIALOG_SHOWN = "bx-xcloud-dialog-shown", BxEvent.XCLOUD_DIALOG_DISMISSED = "bx-xcloud-dialog-dismissed", BxEvent.XCLOUD_GUIDE_MENU_SHOWN = "bx-xcloud-guide-menu-shown", BxEvent.XCLOUD_POLLING_MODE_CHANGED = "bx-xcloud-polling-mode-changed", BxEvent.XCLOUD_RENDERING_COMPONENT = "bx-xcloud-rendering-component", BxEvent.XCLOUD_ROUTER_HISTORY_READY = "bx-xcloud-router-history-ready";
  function dispatch(target, eventName, data) {
   if (!target) return;
   if (!eventName) {
@@ -172,6 +172,9 @@ class EventBus {
   let callbacks = this.listeners.get(event);
   if (!callbacks) return;
   if (callbacks.delete(callback), callbacks.size === 0) this.listeners.delete(event);
+ }
+ offAll() {
+  this.listeners.clear();
  }
  emit(event, payload) {
   BX_FLAGS.Debug && BxLogger.warning("EventBus", "emit", event, payload);
@@ -902,7 +905,7 @@ class BaseSettingsStore {
   return this.settings[key];
  }
  setSetting(key, value, emitEvent = !1) {
-  return value = this.validateValue("set", key, value), this.settings[key] = this.validateValue("get", key, value), this.saveSettings(), emitEvent && BxEvent.dispatch(window, BxEvent.SETTINGS_CHANGED, {
+  return value = this.validateValue("set", key, value), this.settings[key] = this.validateValue("get", key, value), this.saveSettings(), emitEvent && EventBus.Script.emit("settingChanged", {
    storageKey: this.storageKey,
    settingKey: key,
    settingValue: value
@@ -2165,7 +2168,7 @@ class StreamStatsCollector {
   } catch (e) {}
  }
  static setupEvents() {
-  window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+  EventBus.Stream.on("statePlaying", () => {
    StreamStatsCollector.getInstance().reset();
   });
  }
@@ -2303,7 +2306,7 @@ class StreamStats {
   this.refreshStyles(), document.documentElement.appendChild(this.$container);
  }
  static setupEvents() {
-  window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+  EventBus.Stream.on("statePlaying", () => {
    let PREF_STATS_QUICK_GLANCE = getPref("stats.quickGlance.enabled"), PREF_STATS_SHOW_WHEN_PLAYING = getPref("stats.showWhenPlaying"), streamStats = StreamStats.getInstance();
    if (PREF_STATS_SHOW_WHEN_PLAYING) streamStats.start();
    else if (PREF_STATS_QUICK_GLANCE) streamStats.quickGlanceSetup(), !PREF_STATS_SHOW_WHEN_PLAYING && streamStats.start(!0);
@@ -4279,12 +4282,9 @@ class SettingsDialog extends NavigationDialog {
    },
    onCreated: (setting, $elm) => {
     let $range = $elm.querySelector("input[type=range");
-    window.addEventListener(BxEvent.SETTINGS_CHANGED, (e) => {
-     let { storageKey, settingKey, settingValue } = e;
-     if (storageKey !== "BetterXcloud" || settingKey !== "audio.volume") return;
-     $range.value = settingValue, BxEvent.dispatch($range, "input", {
-      ignoreOnChange: !0
-     });
+    EventBus.Script.on("settingChanged", (payload) => {
+     let { storageKey, settingKey, settingValue } = payload;
+     if (storageKey === "BetterXcloud" && settingKey === "audio.volume") $range.value = settingValue, BxEvent.dispatch($range, "input", { ignoreOnChange: !0 });
     });
    }
   }]
@@ -5480,7 +5480,7 @@ class XcloudInterceptor {
   return STATES.gsToken = obj.gsToken, response.json = () => Promise.resolve(obj), response;
  }
  static async handlePlay(request, init) {
-  BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+  EventBus.Stream.emit("stateLoading", {});
   let PREF_STREAM_TARGET_RESOLUTION = getPref("stream.video.resolution"), PREF_STREAM_PREFERRED_LOCALE = getPref("stream.locale"), url = typeof request === "string" ? request : request.url, parsedUrl = new URL(url), badgeRegion = parsedUrl.host.split(".", 1)[0];
   for (let regionName in STATES.serverRegions) {
    let region = STATES.serverRegions[regionName];
@@ -5516,7 +5516,7 @@ class XcloudInterceptor {
   if (request.method !== "GET") return NATIVE_FETCH(request, init);
   let response = await NATIVE_FETCH(request, init), text = await response.clone().text();
   if (!text.length) return response;
-  BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+  EventBus.Stream.emit("stateStarting", {});
   let obj = JSON.parse(text), overrides = JSON.parse(obj.clientStreamingConfigOverrides || "{}") || {};
   overrides.inputConfiguration = overrides.inputConfiguration || {}, overrides.inputConfiguration.enableVibration = !0;
   let overrideMkb = null;
@@ -5749,7 +5749,7 @@ function onHistoryChanged(e) {
  window.setTimeout(RemotePlayManager.detect, 10);
  let $settings = document.querySelector(".bx-settings-container");
  if ($settings) $settings.classList.add("bx-gone");
- NavigationDialogManager.getInstance().hide(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+ NavigationDialogManager.getInstance().hide(), LoadingScreen.reset(), window.setTimeout(HeaderSection.watchHeader, 2000), EventBus.Stream.emit("stateStopped", {});
 }
 function setCodecPreferences(sdp, preferredCodec) {
  let h264Pattern = /a=fmtp:(\d+).*profile-level-id=([0-9a-f]{6})/g, profilePrefix = preferredCodec === "high" ? "4d" : preferredCodec === "low" ? "420" : "42e", preferredCodecIds = [], matches = sdp.matchAll(h264Pattern) || [];
@@ -6105,7 +6105,7 @@ function patchVideoApi() {
    contrast: getPref("video.contrast"),
    brightness: getPref("video.brightness")
   };
-  STATES.currentStream.streamPlayer = new StreamPlayer(this, getPref("video.player.type"), playerOptions), BxEvent.dispatch(window, BxEvent.STREAM_PLAYING, {
+  STATES.currentStream.streamPlayer = new StreamPlayer(this, getPref("video.player.type"), playerOptions), EventBus.Stream.emit("statePlaying", {
    $video: this
   });
  }, nativePlay = HTMLMediaElement.prototype.play;
@@ -6304,7 +6304,7 @@ class StreamUiHandler {
      if (!($elm instanceof HTMLElement)) return;
      let className = $elm.className || "";
      if (className.includes("PureErrorPage")) {
-      BxEvent.dispatch(window, BxEvent.STREAM_ERROR_PAGE);
+      EventBus.Stream.emit("stateError", {});
       return;
      }
      if (className.startsWith("StreamMenu-module__container")) {
@@ -6431,19 +6431,19 @@ EventBus.Script.on("xcloudServerUnavailable", () => {
 EventBus.Script.on("xcloudServerReady", () => {
  STATES.isSignedIn = !0, window.setTimeout(HeaderSection.watchHeader, 2000);
 });
-window.addEventListener(BxEvent.STREAM_LOADING, (e) => {
+EventBus.Stream.on("stateLoading", () => {
  if (window.location.pathname.includes("/launch/") && STATES.currentStream.titleInfo) STATES.currentStream.titleSlug = productTitleToSlug(STATES.currentStream.titleInfo.product.title);
  else STATES.currentStream.titleSlug = "remote-play";
 });
 getPref("loadingScreen.gameArt.show") && EventBus.Script.on("titleInfoReady", LoadingScreen.setup);
-window.addEventListener(BxEvent.STREAM_STARTING, (e) => {
+EventBus.Stream.on("stateStarting", () => {
  LoadingScreen.hide();
 });
-window.addEventListener(BxEvent.STREAM_PLAYING, (e) => {
+EventBus.Stream.on("statePlaying", (payload) => {
  window.BX_STREAM_SETTINGS = StreamSettings.settings, StreamSettings.refreshAllSettings(), STATES.isPlaying = !0, StreamUiHandler.observe(), updateVideoPlayer();
 });
-window.addEventListener(BxEvent.STREAM_ERROR_PAGE, (e) => {
- BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+EventBus.Stream.on("stateError", () => {
+ EventBus.Stream.emit("stateStopped", {});
 });
 window.addEventListener(BxEvent.DATA_CHANNEL_CREATED, (e) => {
  let dataChannel = e.dataChannel;
@@ -6465,9 +6465,9 @@ function unload() {
  if (!STATES.isPlaying) return;
  STATES.currentStream.streamPlayer?.destroy(), STATES.isPlaying = !1, STATES.currentStream = {}, window.BX_EXPOSED.shouldShowSensorControls = !1, window.BX_EXPOSED.stopTakRendering = !1, NavigationDialogManager.getInstance().hide(), StreamStats.getInstance().destroy(), StreamBadges.getInstance().destroy();
 }
-window.addEventListener(BxEvent.STREAM_STOPPED, unload);
+EventBus.Stream.on("stateStopped", unload);
 window.addEventListener("pagehide", (e) => {
- BxEvent.dispatch(window, BxEvent.STREAM_STOPPED);
+ EventBus.Stream.emit("stateStopped", {});
 });
 function main() {
  if (GhPagesUtils.fetchLatestCommit(), getPref("nativeMkb.mode") !== "off") {

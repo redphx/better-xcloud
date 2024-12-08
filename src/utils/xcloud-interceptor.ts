@@ -4,7 +4,6 @@ import { LoadingScreen } from "@modules/loading-screen";
 import { RemotePlayManager } from "@/modules/remote-play-manager";
 import { StreamBadges } from "@modules/stream/stream-badges";
 import { TouchController } from "@modules/touch-controller";
-import { BxEvent } from "./bx-event";
 import { NATIVE_FETCH, BX_FLAGS } from "./bx-flags";
 import { STATES } from "./global";
 import { generateMsDeviceInfo, getOsNameFromResolution, patchIceCandidates } from "./network";
@@ -108,7 +107,7 @@ export class XcloudInterceptor {
     }
 
     private static async handlePlay(request: RequestInfo | URL, init?: RequestInit) {
-        BxEvent.dispatch(window, BxEvent.STREAM_LOADING);
+        EventBus.Stream.emit('stateLoading', {});
 
         const PREF_STREAM_TARGET_RESOLUTION = getPref<StreamResolution>(PrefKey.STREAM_RESOLUTION);
         const PREF_STREAM_PREFERRED_LOCALE = getPref<StreamPreferredLocale>(PrefKey.STREAM_PREFERRED_LOCALE);
@@ -190,7 +189,7 @@ export class XcloudInterceptor {
             return response;
         }
 
-        BxEvent.dispatch(window, BxEvent.STREAM_STARTING);
+        EventBus.Stream.emit('stateStarting', {});
 
         const obj = JSON.parse(text);
         let overrides = JSON.parse(obj.clientStreamingConfigOverrides || '{}') || {};

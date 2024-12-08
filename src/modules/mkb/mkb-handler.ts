@@ -18,6 +18,7 @@ import { MkbPopup } from "./mkb-popup";
 import type { MkbConvertedPresetData } from "@/types/presets";
 import { StreamSettings } from "@/utils/stream-settings";
 import { ShortcutAction } from "@/enums/shortcut-actions";
+import { EventBus } from "@/utils/event-bus";
 
 const PointerToMouseButton = {
     1: 0,
@@ -639,7 +640,7 @@ export class EmulatedMkbHandler extends MkbHandler {
 
     static setupEvents() {
         if (isFullVersion()) {
-            window.addEventListener(BxEvent.STREAM_PLAYING, () => {
+            EventBus.Stream.on('statePlaying', () => {
                 if (STATES.currentStream.titleInfo?.details.hasMkbSupport) {
                     // Enable native MKB in Android app
                     NativeMkbHandler.getInstance()?.init();

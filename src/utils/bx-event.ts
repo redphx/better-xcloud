@@ -7,15 +7,6 @@ export namespace BxEvent {
     export const JUMP_BACK_IN_READY = 'bx-jump-back-in-ready';
     export const POPSTATE = 'bx-popstate';
 
-    export const SETTINGS_CHANGED = 'bx-settings-changed';
-
-    export const STREAM_LOADING = 'bx-stream-loading';
-    export const STREAM_STARTING = 'bx-stream-starting';
-    export const STREAM_STARTED = 'bx-stream-started';
-    export const STREAM_PLAYING = 'bx-stream-playing';
-    export const STREAM_STOPPED = 'bx-stream-stopped';
-    export const STREAM_ERROR_PAGE = 'bx-stream-error-page';
-
     export const STREAM_WEBRTC_CONNECTED = 'bx-stream-webrtc-connected';
     export const STREAM_WEBRTC_DISCONNECTED = 'bx-stream-webrtc-disconnected';
 
