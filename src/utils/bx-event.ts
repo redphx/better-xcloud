@@ -7,12 +7,6 @@ export namespace BxEvent {
     export const JUMP_BACK_IN_READY = 'bx-jump-back-in-ready';
     export const POPSTATE = 'bx-popstate';
 
-    export const STREAM_WEBRTC_CONNECTED = 'bx-stream-webrtc-connected';
-    export const STREAM_WEBRTC_DISCONNECTED = 'bx-stream-webrtc-disconnected';
-
-    export const MKB_UPDATED = 'bx-mkb-updated';
-    export const KEYBOARD_SHORTCUTS_UPDATED = 'bx-keyboard-shortcuts-updated';
-
     // export const STREAM_EVENT_TARGET_READY = 'bx-stream-event-target-ready';
     export const STREAM_SESSION_READY = 'bx-stream-session-ready';
 

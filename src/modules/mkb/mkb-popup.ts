@@ -1,12 +1,12 @@
 import { CE, createButton, ButtonStyle, type BxButtonOptions } from "@/utils/html";
 import { t } from "@/utils/translation";
-import { BxEvent } from "@/utils/bx-event";
 import { ShortcutAction } from "@/enums/shortcut-actions";
 import { SettingsDialog } from "../ui/dialog/settings-dialog";
 import type { MkbHandler } from "./base-mkb-handler";
 import { NativeMkbHandler } from "./native-mkb-handler";
 import { StreamSettings } from "@/utils/stream-settings";
 import { KeyHelper } from "./key-helper";
+import { EventBus } from "@/utils/event-bus";
 
 type MkbPopupType = 'virtual' | 'native';
 
@@ -24,7 +24,7 @@ export class MkbPopup {
     constructor() {
         this.render();
 
-        window.addEventListener(BxEvent.KEYBOARD_SHORTCUTS_UPDATED, e => {
+        EventBus.Script.on('keyboardShortcutsUpdated', () => {
             const $newButton = this.createActivateButton();
             this.$btnActivate.replaceWith($newButton);
             this.$btnActivate = $newButton;

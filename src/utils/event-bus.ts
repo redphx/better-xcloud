@@ -15,6 +15,9 @@ type ScriptEvents = {
         settingValue: any;
     };
 
+    mkbSettingUpdated: {};
+    keyboardShortcutsUpdated: {};
+
     // GH pages
     listForcedNativeMkbUpdated: {};
 };

@@ -650,7 +650,7 @@ export class EmulatedMkbHandler extends MkbHandler {
             });
 
             if (EmulatedMkbHandler.isAllowed()) {
-                window.addEventListener(BxEvent.MKB_UPDATED, () => {
+                EventBus.Script.on('mkbSettingUpdated', () => {
                     EmulatedMkbHandler.getInstance()?.refreshPresetData();
                 });
             }
