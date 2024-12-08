@@ -191,7 +191,9 @@ window.addEventListener('popstate', onHistoryChanged);
 window.history.pushState = patchHistoryMethod('pushState');
 window.history.replaceState = patchHistoryMethod('replaceState');
 
-window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
+EventBus.Script.on('xcloudServerUnavailable', () => {
+    EventBus.Script.off('xcloudServerUnavailable', null);
+
     STATES.supportedRegion = false;
     window.setTimeout(HeaderSection.watchHeader, 2000);
 
@@ -200,9 +202,9 @@ window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, e => {
     if ($unsupportedPage) {
         SettingsDialog.getInstance().show();
     }
-}, { once: true });
+});
 
-window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, e => {
+EventBus.Script.on('xcloudServerReady', () => {
     STATES.isSignedIn = true;
     window.setTimeout(HeaderSection.watchHeader, 2000);
 });

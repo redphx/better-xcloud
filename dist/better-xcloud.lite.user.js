@@ -141,7 +141,7 @@ function deepClone(obj) {
 }
 var BxEvent;
 ((BxEvent) => {
- BxEvent.JUMP_BACK_IN_READY = "bx-jump-back-in-ready", BxEvent.POPSTATE = "bx-popstate", BxEvent.SETTINGS_CHANGED = "bx-settings-changed", BxEvent.STREAM_LOADING = "bx-stream-loading", BxEvent.STREAM_STARTING = "bx-stream-starting", BxEvent.STREAM_STARTED = "bx-stream-started", BxEvent.STREAM_PLAYING = "bx-stream-playing", BxEvent.STREAM_STOPPED = "bx-stream-stopped", BxEvent.STREAM_ERROR_PAGE = "bx-stream-error-page", BxEvent.STREAM_WEBRTC_CONNECTED = "bx-stream-webrtc-connected", BxEvent.STREAM_WEBRTC_DISCONNECTED = "bx-stream-webrtc-disconnected", BxEvent.MKB_UPDATED = "bx-mkb-updated", BxEvent.KEYBOARD_SHORTCUTS_UPDATED = "bx-keyboard-shortcuts-updated", BxEvent.STREAM_SESSION_READY = "bx-stream-session-ready", BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED = "bx-custom-touch-layouts-loaded", BxEvent.TOUCH_LAYOUT_MANAGER_READY = "bx-touch-layout-manager-ready", BxEvent.REMOTE_PLAY_READY = "bx-remote-play-ready", BxEvent.REMOTE_PLAY_FAILED = "bx-remote-play-failed", BxEvent.XCLOUD_SERVERS_READY = "bx-servers-ready", BxEvent.XCLOUD_SERVERS_UNAVAILABLE = "bx-servers-unavailable", BxEvent.DATA_CHANNEL_CREATED = "bx-data-channel-created", BxEvent.DEVICE_VIBRATION_CHANGED = "bx-device-vibration-changed", BxEvent.GAME_BAR_ACTION_ACTIVATED = "bx-game-bar-action-activated", BxEvent.MICROPHONE_STATE_CHANGED = "bx-microphone-state-changed", BxEvent.SPEAKER_STATE_CHANGED = "bx-speaker-state-changed", BxEvent.VIDEO_VISIBILITY_CHANGED = "bx-video-visibility-changed", BxEvent.CAPTURE_SCREENSHOT = "bx-capture-screenshot", BxEvent.POINTER_LOCK_REQUESTED = "bx-pointer-lock-requested", BxEvent.POINTER_LOCK_EXITED = "bx-pointer-lock-exited", BxEvent.NAVIGATION_FOCUS_CHANGED = "bx-nav-focus-changed", BxEvent.GH_PAGES_FORCE_NATIVE_MKB_UPDATED = "bx-gh-pages-force-native-mkb-updated", BxEvent.XCLOUD_DIALOG_SHOWN = "bx-xcloud-dialog-shown", BxEvent.XCLOUD_DIALOG_DISMISSED = "bx-xcloud-dialog-dismissed", BxEvent.XCLOUD_GUIDE_MENU_SHOWN = "bx-xcloud-guide-menu-shown", BxEvent.XCLOUD_POLLING_MODE_CHANGED = "bx-xcloud-polling-mode-changed", BxEvent.XCLOUD_RENDERING_COMPONENT = "bx-xcloud-rendering-component", BxEvent.XCLOUD_ROUTER_HISTORY_READY = "bx-xcloud-router-history-ready";
+ BxEvent.JUMP_BACK_IN_READY = "bx-jump-back-in-ready", BxEvent.POPSTATE = "bx-popstate", BxEvent.SETTINGS_CHANGED = "bx-settings-changed", BxEvent.STREAM_LOADING = "bx-stream-loading", BxEvent.STREAM_STARTING = "bx-stream-starting", BxEvent.STREAM_STARTED = "bx-stream-started", BxEvent.STREAM_PLAYING = "bx-stream-playing", BxEvent.STREAM_STOPPED = "bx-stream-stopped", BxEvent.STREAM_ERROR_PAGE = "bx-stream-error-page", BxEvent.STREAM_WEBRTC_CONNECTED = "bx-stream-webrtc-connected", BxEvent.STREAM_WEBRTC_DISCONNECTED = "bx-stream-webrtc-disconnected", BxEvent.MKB_UPDATED = "bx-mkb-updated", BxEvent.KEYBOARD_SHORTCUTS_UPDATED = "bx-keyboard-shortcuts-updated", BxEvent.STREAM_SESSION_READY = "bx-stream-session-ready", BxEvent.CUSTOM_TOUCH_LAYOUTS_LOADED = "bx-custom-touch-layouts-loaded", BxEvent.TOUCH_LAYOUT_MANAGER_READY = "bx-touch-layout-manager-ready", BxEvent.REMOTE_PLAY_READY = "bx-remote-play-ready", BxEvent.REMOTE_PLAY_FAILED = "bx-remote-play-failed", BxEvent.DATA_CHANNEL_CREATED = "bx-data-channel-created", BxEvent.DEVICE_VIBRATION_CHANGED = "bx-device-vibration-changed", BxEvent.GAME_BAR_ACTION_ACTIVATED = "bx-game-bar-action-activated", BxEvent.MICROPHONE_STATE_CHANGED = "bx-microphone-state-changed", BxEvent.SPEAKER_STATE_CHANGED = "bx-speaker-state-changed", BxEvent.VIDEO_VISIBILITY_CHANGED = "bx-video-visibility-changed", BxEvent.CAPTURE_SCREENSHOT = "bx-capture-screenshot", BxEvent.POINTER_LOCK_REQUESTED = "bx-pointer-lock-requested", BxEvent.POINTER_LOCK_EXITED = "bx-pointer-lock-exited", BxEvent.NAVIGATION_FOCUS_CHANGED = "bx-nav-focus-changed", BxEvent.XCLOUD_DIALOG_SHOWN = "bx-xcloud-dialog-shown", BxEvent.XCLOUD_DIALOG_DISMISSED = "bx-xcloud-dialog-dismissed", BxEvent.XCLOUD_GUIDE_MENU_SHOWN = "bx-xcloud-guide-menu-shown", BxEvent.XCLOUD_POLLING_MODE_CHANGED = "bx-xcloud-polling-mode-changed", BxEvent.XCLOUD_RENDERING_COMPONENT = "bx-xcloud-rendering-component", BxEvent.XCLOUD_ROUTER_HISTORY_READY = "bx-xcloud-router-history-ready";
  function dispatch(target, eventName, data) {
   if (!target) return;
   if (!eventName) {
@@ -156,6 +156,30 @@ var BxEvent;
  BxEvent.dispatch = dispatch;
 })(BxEvent ||= {});
 window.BxEvent = BxEvent;
+class EventBus {
+ listeners = new Map;
+ static Script = new EventBus;
+ static Stream = new EventBus;
+ on(event, callback) {
+  if (!this.listeners.has(event)) this.listeners.set(event, new Set);
+  this.listeners.get(event).add(callback), BX_FLAGS.Debug && BxLogger.warning("EventBus", "on", event, callback);
+ }
+ off(event, callback) {
+  if (BX_FLAGS.Debug && BxLogger.warning("EventBus", "off", event, callback), !callback) {
+   this.listeners.delete(event);
+   return;
+  }
+  let callbacks = this.listeners.get(event);
+  if (!callbacks) return;
+  if (callbacks.delete(callback), callbacks.size === 0) this.listeners.delete(event);
+ }
+ emit(event, payload) {
+  BX_FLAGS.Debug && BxLogger.warning("EventBus", "emit", event, payload);
+  let callbacks = this.listeners.get(event) || [];
+  for (let callback of callbacks)
+   callback(payload);
+ }
+}
 class GhPagesUtils {
  static fetchLatestCommit() {
   NATIVE_FETCH("https://api.github.com/repos/redphx/better-xcloud/branches/gh-pages", {
@@ -179,7 +203,7 @@ class GhPagesUtils {
  static getNativeMkbCustomList(update = !1) {
   let key = "BetterXcloud.GhPages.ForceNativeMkb";
   update && NATIVE_FETCH(GhPagesUtils.getUrl("native-mkb/ids.json")).then((response) => response.json()).then((json) => {
-   if (json.$schemaVersion === 1) window.localStorage.setItem(key, JSON.stringify(json)), BxEvent.dispatch(window, BxEvent.GH_PAGES_FORCE_NATIVE_MKB_UPDATED);
+   if (json.$schemaVersion === 1) window.localStorage.setItem(key, JSON.stringify(json)), EventBus.Script.emit("listForcedNativeMkbUpdated", {});
   });
   let info = JSON.parse(window.localStorage.getItem(key) || "{}");
   if (info.$schemaVersion !== 1) return window.localStorage.removeItem(key), {};
@@ -1512,7 +1536,7 @@ class GlobalSettingsStorage extends BaseSettingsStore {
    default: [],
    unsupported: !AppInterface && UserAgent.isMobile(),
    ready: (setting) => {
-    if (!setting.unsupported) setting.multipleOptions = GhPagesUtils.getNativeMkbCustomList(!0), window.addEventListener(BxEvent.GH_PAGES_FORCE_NATIVE_MKB_UPDATED, (e) => {
+    if (!setting.unsupported) setting.multipleOptions = GhPagesUtils.getNativeMkbCustomList(!0), EventBus.Script.on("listForcedNativeMkbUpdated", () => {
       setting.multipleOptions = GhPagesUtils.getNativeMkbCustomList();
      });
    },
@@ -4764,30 +4788,6 @@ class SettingsDialog extends NavigationDialog {
   return handled;
  }
 }
-class EventBus {
- listeners = new Map;
- static Script = new EventBus;
- static Stream = new EventBus;
- on(event, callback) {
-  if (!this.listeners.has(event)) this.listeners.set(event, new Set);
-  this.listeners.get(event).add(callback), BX_FLAGS.Debug && BxLogger.warning("EventBus", "on", event, callback);
- }
- off(event, callback) {
-  if (BX_FLAGS.Debug && BxLogger.warning("EventBus", "off", event, callback), !callback) {
-   this.listeners.delete(event);
-   return;
-  }
-  let callbacks = this.listeners.get(event);
-  if (!callbacks) return;
-  if (callbacks.delete(callback), callbacks.size === 0) this.listeners.delete(event);
- }
- emit(event, payload) {
-  BX_FLAGS.Debug && BxLogger.warning("EventBus", "emit", event, payload);
-  let callbacks = this.listeners.get(event) || [];
-  for (let callback of callbacks)
-   callback(payload);
- }
-}
 var BxExposed = {
  getTitleInfo: () => STATES.currentStream.titleInfo,
  modifyPreloadedState: !1,
@@ -5459,7 +5459,7 @@ class XcloudInterceptor {
    ip && request.headers.set("X-Forwarded-For", ip);
   }
   let response = await NATIVE_FETCH(request, init);
-  if (response.status !== 200) return BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE), response;
+  if (response.status !== 200) return EventBus.Script.emit("xcloudServerUnavailable", {}), response;
   let obj = await response.clone().json();
   RemotePlayManager.getInstance()?.setXcloudToken(obj.gsToken);
   let serverRegex = /\/\/(\w+)\./, serverExtra = XcloudInterceptor.SERVER_EXTRA_INFO, region;
@@ -5471,7 +5471,7 @@ class XcloudInterceptor {
     else region.contintent = "other";
    region.shortName = shortName.toUpperCase(), STATES.serverRegions[region.name] = Object.assign({}, region);
   }
-  BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
+  EventBus.Script.emit("xcloudServerReady", {});
   let preferredRegion = getPreferredServerRegion();
   if (preferredRegion && preferredRegion in STATES.serverRegions) {
    let tmp = Object.assign({}, STATES.serverRegions[preferredRegion]);
@@ -6425,10 +6425,10 @@ window.addEventListener(BxEvent.POPSTATE, onHistoryChanged);
 window.addEventListener("popstate", onHistoryChanged);
 window.history.pushState = patchHistoryMethod("pushState");
 window.history.replaceState = patchHistoryMethod("replaceState");
-window.addEventListener(BxEvent.XCLOUD_SERVERS_UNAVAILABLE, (e) => {
- if (STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), document.querySelector("div[class^=UnsupportedMarketPage-module__container]")) SettingsDialog.getInstance().show();
-}, { once: !0 });
-window.addEventListener(BxEvent.XCLOUD_SERVERS_READY, (e) => {
+EventBus.Script.on("xcloudServerUnavailable", () => {
+ if (EventBus.Script.off("xcloudServerUnavailable", null), STATES.supportedRegion = !1, window.setTimeout(HeaderSection.watchHeader, 2000), document.querySelector("div[class^=UnsupportedMarketPage-module__container]")) SettingsDialog.getInstance().show();
+});
+EventBus.Script.on("xcloudServerReady", () => {
  STATES.isSignedIn = !0, window.setTimeout(HeaderSection.watchHeader, 2000);
 });
 window.addEventListener(BxEvent.STREAM_LOADING, (e) => {

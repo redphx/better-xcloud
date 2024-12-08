@@ -31,9 +31,6 @@ export namespace BxEvent {
     export const REMOTE_PLAY_READY = 'bx-remote-play-ready';
     export const REMOTE_PLAY_FAILED = 'bx-remote-play-failed';
 
-    export const XCLOUD_SERVERS_READY = 'bx-servers-ready';
-    export const XCLOUD_SERVERS_UNAVAILABLE = 'bx-servers-unavailable';
-
     export const DATA_CHANNEL_CREATED = 'bx-data-channel-created';
     export const DEVICE_VIBRATION_CHANGED = 'bx-device-vibration-changed';
 
@@ -48,8 +45,6 @@ export namespace BxEvent {
     export const POINTER_LOCK_EXITED = 'bx-pointer-lock-exited';
 
     export const NAVIGATION_FOCUS_CHANGED = 'bx-nav-focus-changed';
-
-    export const GH_PAGES_FORCE_NATIVE_MKB_UPDATED = 'bx-gh-pages-force-native-mkb-updated';
 
     // xCloud Dialog events
     export const XCLOUD_DIALOG_SHOWN = 'bx-xcloud-dialog-shown';

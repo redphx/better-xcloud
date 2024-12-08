@@ -4,7 +4,13 @@ import { BxLogger } from "./bx-logger";
 type EventCallback<T = any> = (payload: T) => void;
 
 type ScriptEvents = {
+    xcloudServerReady: {};
+    xcloudServerUnavailable: {};
+
     titleInfoReady: {};
+
+    // GH pages
+    listForcedNativeMkbUpdated: {};
 };
 
 type StreamEvents = {
@@ -25,7 +31,7 @@ export class EventBus<TEvents extends Record<string, any>> {
         BX_FLAGS.Debug && BxLogger.warning('EventBus', 'on', event, callback);
     }
 
-    off<K extends keyof TEvents>(event: K, callback?: EventCallback<TEvents[K]>): void {
+    off<K extends keyof TEvents>(event: K, callback: EventCallback<TEvents[K]> | null): void {
         BX_FLAGS.Debug && BxLogger.warning('EventBus', 'off', event, callback);
 
         if (!callback) {

@@ -1,7 +1,7 @@
 import { StorageKey } from "@/enums/pref-keys";
 import { NATIVE_FETCH } from "./bx-flags";
 import { BxLogger } from "./bx-logger";
-import { BxEvent } from "./bx-event";
+import { EventBus } from "./event-bus";
 
 
 export type ForceNativeMkbResponse = {
@@ -53,7 +53,7 @@ export class GhPagesUtils {
                 if (json.$schemaVersion === supportedSchema) {
                     // Save to storage
                     window.localStorage.setItem(key, JSON.stringify(json));
-                    BxEvent.dispatch(window, BxEvent.GH_PAGES_FORCE_NATIVE_MKB_UPDATED);
+                    EventBus.Script.emit('listForcedNativeMkbUpdated', {});
                 }
             });
 

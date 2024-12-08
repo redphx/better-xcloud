@@ -13,6 +13,7 @@ import { BypassServerIps } from "@/enums/bypass-servers";
 import { PrefKey } from "@/enums/pref-keys";
 import { getPref } from "./settings-storages/global-settings-storage";
 import { NativeMkbMode, StreamResolution, TouchControllerMode } from "@/enums/pref-values";
+import { EventBus } from "./event-bus";
 
 export class XcloudInterceptor {
     private static readonly SERVER_EXTRA_INFO: Record<string, [string, ServerContinent]> = {
@@ -52,7 +53,7 @@ export class XcloudInterceptor {
         const response = await NATIVE_FETCH(request, init);
         if (response.status !== 200) {
             // Unsupported region
-            BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_UNAVAILABLE);
+            EventBus.Script.emit('xcloudServerUnavailable', {});
             return response;
         }
 
@@ -89,7 +90,7 @@ export class XcloudInterceptor {
             STATES.serverRegions[region.name] = Object.assign({}, region);
         }
 
-        BxEvent.dispatch(window, BxEvent.XCLOUD_SERVERS_READY);
+        EventBus.Script.emit('xcloudServerReady', {});
 
         const preferredRegion = getPreferredServerRegion();
         if (preferredRegion && preferredRegion in STATES.serverRegions) {

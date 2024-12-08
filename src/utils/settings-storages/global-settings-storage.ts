@@ -12,7 +12,7 @@ import { CodecProfile, StreamResolution, TouchControllerMode, TouchControllerSty
 import { MkbMappingDefaultPresetId } from "../local-db/mkb-mapping-presets-table";
 import { KeyboardShortcutDefaultId } from "../local-db/keyboard-shortcuts-table";
 import { GhPagesUtils } from "../gh-pages";
-import { BxEvent } from "../bx-event";
+import { EventBus } from "../event-bus";
 
 
 function getSupportedCodecProfiles() {
@@ -432,7 +432,7 @@ export class GlobalSettingsStorage extends BaseSettingsStorage {
                 if (!setting.unsupported) {
                     (setting as any).multipleOptions = GhPagesUtils.getNativeMkbCustomList(true);
 
-                    window.addEventListener(BxEvent.GH_PAGES_FORCE_NATIVE_MKB_UPDATED, e => {
+                    EventBus.Script.on('listForcedNativeMkbUpdated', () => {
                         (setting as any).multipleOptions = GhPagesUtils.getNativeMkbCustomList();
                     });
                 }
