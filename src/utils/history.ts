@@ -9,8 +9,8 @@ export function patchHistoryMethod(type: 'pushState' | 'replaceState') {
 
     return function(...args: any[]) {
         BxEvent.dispatch(window, BxEvent.POPSTATE, {
-                arguments: args,
-            });
+            arguments: args,
+        });
 
         // @ts-ignore
         return orig.apply(this, arguments);

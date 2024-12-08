@@ -1,7 +1,6 @@
 import { isFullVersion } from "@macros/build" with { type: "macro" };
 
 import { ControllerShortcut } from "@/modules/controller-shortcut";
-import { BxEvent } from "@utils/bx-event";
 import { deepClone, STATES } from "@utils/global";
 import { BxLogger } from "./bx-logger";
 import { BX_FLAGS } from "./bx-flags";
@@ -12,6 +11,7 @@ import { GamePassCloudGallery } from "@/enums/game-pass-gallery";
 import { TouchController } from "@/modules/touch-controller";
 import { NativeMkbMode, TouchControllerMode } from "@/enums/pref-values";
 import { Patcher, type PatchPage } from "@/modules/patcher/patcher";
+import { EventBus } from "./event-bus";
 
 export enum SupportedInputType {
     CONTROLLER = 'Controller',
@@ -139,7 +139,7 @@ export const BxExposed = {
 
         // Save this info in STATES
         STATES.currentStream.titleInfo = titleInfo;
-        BxEvent.dispatch(window, BxEvent.TITLE_INFO_READY);
+        EventBus.Script.emit('titleInfoReady', {});
 
         return titleInfo;
     },

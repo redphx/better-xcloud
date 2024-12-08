@@ -44,6 +44,7 @@ import { StreamSettings } from "./utils/stream-settings";
 import { KeyboardShortcutHandler } from "./modules/mkb/keyboard-shortcut-handler";
 import { GhPagesUtils } from "./utils/gh-pages";
 import { DeviceVibrationManager } from "./modules/device-vibration-manager";
+import { EventBus } from "./utils/event-bus";
 
 // Handle login page
 if (window.location.pathname.includes('/auth/msa')) {
@@ -216,7 +217,7 @@ window.addEventListener(BxEvent.STREAM_LOADING, e => {
 });
 
 // Setup loading screen
-getPref(PrefKey.LOADING_SCREEN_GAME_ART) && window.addEventListener(BxEvent.TITLE_INFO_READY, LoadingScreen.setup);
+getPref(PrefKey.LOADING_SCREEN_GAME_ART) && EventBus.Script.on('titleInfoReady', LoadingScreen.setup);
 
 window.addEventListener(BxEvent.STREAM_STARTING, e => {
     // Hide loading screen

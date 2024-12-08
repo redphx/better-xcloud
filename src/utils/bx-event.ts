@@ -7,8 +7,6 @@ export namespace BxEvent {
     export const JUMP_BACK_IN_READY = 'bx-jump-back-in-ready';
     export const POPSTATE = 'bx-popstate';
 
-    export const TITLE_INFO_READY = 'bx-title-info-ready';
-
     export const SETTINGS_CHANGED = 'bx-settings-changed';
 
     export const STREAM_LOADING = 'bx-stream-loading';
@@ -86,7 +84,7 @@ export namespace BxEvent {
         target.dispatchEvent(event);
         AppInterface && AppInterface.onEvent(eventName);
 
-        BX_FLAGS.Debug && BxLogger.warning('BxEvent', 'dispatch', eventName, data)
+        BX_FLAGS.Debug && BxLogger.warning('BxEvent', 'dispatch', eventName, data);
     }
 }
 
