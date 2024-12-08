@@ -1,5 +1,4 @@
 import type { NumberStepperParams } from "@/types/setting-definition";
-import { BxEvent } from "@/utils/bx-event";
 import { CE, escapeCssSelector } from "@/utils/html";
 import { setNearby } from "@/utils/navigation-utils";
 import type { BxHtmlSettingElement } from "@/utils/setting-element";
@@ -26,7 +25,6 @@ export class BxNumberStepper extends HTMLInputElement implements BxHtmlSettingEl
     private $btnDec!: HTMLButtonElement;
     private $range!: HTMLInputElement | null;
 
-    onInput!: typeof BxNumberStepper['onInput'];
     onRangeInput!: typeof BxNumberStepper['onRangeInput'];
     onClick!: typeof BxNumberStepper['onClick'];
     onPointerUp!: typeof BxNumberStepper['onPointerUp'];
@@ -77,7 +75,6 @@ export class BxNumberStepper extends HTMLInputElement implements BxHtmlSettingEl
         self.$btnDec = $btnDec;
         self.onChange = onChange;
 
-        self.onInput = BxNumberStepper.onInput.bind(self);
         self.onRangeInput = BxNumberStepper.onRangeInput.bind(self);
         self.onClick = BxNumberStepper.onClick.bind(self);
         self.onPointerUp = BxNumberStepper.onPointerUp.bind(self);
@@ -117,8 +114,7 @@ export class BxNumberStepper extends HTMLInputElement implements BxHtmlSettingEl
         self.$range = $range;
         options.hideSlider && $range.classList.add('bx-gone');
 
-        $range.addEventListener('input', self.onRangeInput);
-        self.addEventListener('input', self.onInput);
+        self.addEventListener('input', self.onRangeInput);
         self.appendChild($range);
 
         if (options.ticks || options.exactTicks) {
@@ -181,10 +177,6 @@ export class BxNumberStepper extends HTMLInputElement implements BxHtmlSettingEl
         value = Math.min(this.controlMax, value);
 
         return value;
-    }
-
-    private static onInput(this: BxNumberStepper, e: Event) {
-        BxEvent.dispatch(this.$range, 'input');
     }
 
     private static onRangeInput(this: BxNumberStepper, e: Event) {
