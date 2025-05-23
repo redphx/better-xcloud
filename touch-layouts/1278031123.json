@@ -1,6 +1,6 @@
 {
   "name": "Resident Evil",
-  "default_layout": "alternate",
+  "default_layout": "custom",
   "layouts": [
     "resident-evil"
   ]
