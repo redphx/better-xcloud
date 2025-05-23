@@ -1,0 +1,7 @@
+{
+  "name": "Resident Evil",
+  "default_layout": "alternate",
+  "layouts": [
+    "resident-evil"
+  ]
+}
