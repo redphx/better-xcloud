@@ -70,35 +70,87 @@
               "type": "button",
               "action": "rightTrigger"
             },
+            {
+              "type": "button",
+              "action": "gamepadB",
+              "pullAction": {
+                "type": "segmented",
+                "items": [
+                  "gamepadX"
+                ]
+              },
+              "styles": {
+                "default": {
+                  "pullIndicator": [
+                    {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "lightPunch3"
+                      }
+                    }
+                  ]
+                },
+                "idle": {
+                  "pullIndicator": [
+                    null,
+                    {
+                      "opacity": 0.5
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "lightPunch3"
+                  }
+                }
+              }
+            },
             [
               {
                 "type": "button",
-                "action": "gamepadB"
-              },
-              null,
-              {
-                "type": "button",
                 "action": "gamepadA",
+                "pullAction": {
+                  "type": "segmented",
+                  "items": [
+                    "gamepadX",
+                    "gamepadB"
+                  ]
+                },
                 "styles": {
                   "default": {
                     "faceImage": {
                       "type": "icon",
                       "value": "jump"
-                    }
-                  }
-                }
-              }
-            ],
-            [
-              {
-                "type": "button",
-                "action": "gamepadX",
-                "styles": {
-                  "default": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "lightPunch3"
-                    }
+                    },
+                    "pullIndicator": [
+                      {
+                        "faceImage": {
+                          "type": "icon",
+                          "value": "lightPunch3"
+                        }
+                      },
+                      {
+                        "faceImage": {
+                          "type": "icon",
+                          "value": "gamepadB"
+                        }
+                      }
+                    ]
+                  },
+                  "idle": {
+                    "pullIndicator": [
+                      null,
+                      {
+                        "opacity": 0.0
+                      }
+                    ]
                   }
                 }
               },
@@ -121,7 +173,40 @@
             ],
             {
               "type": "button",
-              "action": "leftTrigger"
+              "action": "leftTrigger",
+              "pullAction": {
+                "type": "segmented",
+                "items": [
+                  "gamepadX",
+                  "rightTrigger"
+                ]
+              },
+              "styles": {
+                "default": {
+                  "pullIndicator": [
+                    {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "lightPunch3"
+                      }
+                    },
+                    {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "rightTrigger"
+                      }
+                    }
+                  ]
+                },
+                "idle": {
+                  "pullIndicator": [
+                    null,
+                    {
+                      "opacity": 0.0
+                    }
+                  ]
+                }
+              }
             },
             {
               "type": "button",
