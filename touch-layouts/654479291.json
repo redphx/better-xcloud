@@ -1,0 +1,7 @@
+{
+  "name": "Conker Live and Reloaded",
+  "default_layout": "custom",
+  "layouts": [
+    "conker-live-and-reloaded"
+  ]
+}
