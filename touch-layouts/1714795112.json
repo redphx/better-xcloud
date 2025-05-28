@@ -1,0 +1,7 @@
+{
+  "name": "DOOM + DOOM II",
+  "default_layout": "custom",
+  "layouts": [
+    "doom-doom-ii"
+  ]
+}
