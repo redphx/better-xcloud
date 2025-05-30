@@ -83,6 +83,9 @@
                 "default": {
                   "pullIndicator": [
                     {
+                      "opacity": 0.2
+                    },
+                    {
                       "faceImage": {
                         "type": "icon",
                         "value": "lightPunch3"
@@ -92,9 +95,8 @@
                 },
                 "idle": {
                   "pullIndicator": [
-                    null,
                     {
-                      "opacity": 0.5
+                      "opacity": 0.0
                     }
                   ]
                 }
@@ -131,6 +133,12 @@
                     },
                     "pullIndicator": [
                       {
+                        "opacity": 0.3
+                      },
+                      {
+                        "opacity": 0.3
+                      },
+                      {
                         "faceImage": {
                           "type": "icon",
                           "value": "lightPunch3"
@@ -146,7 +154,6 @@
                   },
                   "idle": {
                     "pullIndicator": [
-                      null,
                       {
                         "opacity": 0.0
                       }
@@ -185,6 +192,12 @@
                 "default": {
                   "pullIndicator": [
                     {
+                      "opacity": 0.3
+                    },
+                    {
+                      "opacity": 0.3
+                    },
+                    {
                       "faceImage": {
                         "type": "icon",
                         "value": "lightPunch3"
@@ -200,7 +213,9 @@
                 },
                 "idle": {
                   "pullIndicator": [
-                    null,
+                    {
+                      "opacity": 0.0
+                    },
                     {
                       "opacity": 0.0
                     }
