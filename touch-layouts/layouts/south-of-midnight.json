@@ -41,7 +41,10 @@
             null,
             [
               {
-                "type": "directionalPad"
+                "type": "directionalPad",
+                "interaction": {
+                  "activationType": "exclusive"
+                }
               }
             ],
             null,
@@ -83,7 +86,7 @@
                 "default": {
                   "pullIndicator": [
                     {
-                      "opacity": 0.3
+                      "opacity": 0.5
                     },
                     {
                       "faceImage": {
@@ -133,10 +136,10 @@
                     },
                     "pullIndicator": [
                       {
-                        "opacity": 0.3
+                        "opacity": 0.5
                       },
                       {
-                        "opacity": 0.3
+                        "opacity": 0.5
                       },
                       {
                         "faceImage": {
@@ -192,10 +195,10 @@
                 "default": {
                   "pullIndicator": [
                     {
-                      "opacity": 0.3
+                      "opacity": 0.5
                     },
                     {
-                      "opacity": 0.3
+                      "opacity": 0.5
                     },
                     {
                       "faceImage": {
