@@ -27,7 +27,7 @@ export abstract class BaseCanvasPlayer extends BaseStreamPlayer {
             const $video = this.$video;
             frameCallback = $video.requestVideoFrameCallback.bind($video);
         } else {
-            frameCallback = requestAnimationFrame;
+            frameCallback = window.requestAnimationFrame.bind(window);
         }
 
         this.frameCallback = frameCallback;
