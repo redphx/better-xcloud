@@ -1,0 +1,7 @@
+{
+  "name": "Resident Evil Village",
+  "default_layout": "custom",
+  "layouts": [
+    "resident-evil-village"
+  ]
+}
