@@ -32,6 +32,7 @@
   "cancel": "Annulla",
   "center": "Al centro",
   "clarity-boost": "Aumento della nitidezza",
+  "clarity-boost-mode": "Modalità filtro nitidezza",
   "clarity-boost-warning": "Queste impostazioni non funzionano quando la modalità Clarity Boost è attiva",
   "clear": "Pulisci",
   "clear-data": "Cancella i dati",
@@ -164,6 +165,7 @@
   "only-supports-some-games": "Supporta solo alcuni giochi",
   "opacity": "Opacità",
   "other": "Altro",
+  "performance": "Prestazioni",
   "playing": "Gioca a",
   "playtime": "In gioco da",
   "poland": "Polonia",
@@ -179,6 +181,7 @@
   "press-esc-to-cancel": "Premi Esc per annullare",
   "press-to-bind": "Premi un tasto o fai un clic del mouse per associare...",
   "prompt-preset-name": "Nome del profilo:",
+  "quality": "Qualità",
   "recommended": "Consigliato",
   "reduce-animations": "Animazioni ridotte",
   "region": "Regione",
@@ -211,6 +214,7 @@
   "section-touch": "Riproduci con il tocco",
   "separate-touch-controller": "Controller su schermo e Controller #1 separati",
   "separate-touch-controller-note": "Il Giocatore 1 userà il Controller su schermo, il Giocatore 2 userà il Controller #1",
+  "server-list-error": "Impossibile ottenere l'elenco dei server",
   "server-locations": "Posizioni dei server",
   "settings": "Impostazioni",
   "settings-for": "Impostazioni per",
@@ -255,6 +259,7 @@
   "tc-custom-layout-style": "Layout dei tasti personalizzato",
   "tc-muted-colors": "Colori tenui",
   "tc-standard-layout-style": "Layout dei tasti standard",
+  "test-controller": "Verifica il controller",
   "text-size": "Dimensione del testo",
   "theme": "Tema",
   "toggle": "Attiva/disattiva",
@@ -291,5 +296,7 @@
   "visual-quality-normal": "Normale",
   "wait-time-estimated": "Tempo residuo stimato",
   "waiting-for-input": "In attesa di un input...",
-  "wallpaper": "Sfondo"
+  "wallpaper": "Sfondo",
+  "xbox-360-games": "Giochi Xbox 360",
+  "xbox-apps": "Applicazioni Xbox"
 }

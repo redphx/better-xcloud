@@ -1,0 +1,8 @@
+{
+  "name": "Shadow of the Tomb Raider",
+  "product_id": "BRVK4W7RVCXR",
+  "default_layout": "custom",
+  "layouts": [
+    "tomb-raider-shadow"
+  ]
+}

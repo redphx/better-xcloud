@@ -152,6 +152,7 @@
   "mkb-adjust-ingame-settings": "Bu seçenek etkinken bile oyun içi seçeneklerden hassasiyet ve ölü bölge ayarlarını düzeltmeniz gerekebilir",
   "mkb-click-to-activate": "Etkinleştirmek için tıklayın",
   "mkb-disclaimer": "Bu özellik çevrimiçi oyunlarda sizi hile yapıyormuşsunuz gibi gösterebilir",
+  "modifiers-note": "Birden fazla tuş kullanmak için kısayolunuza Ctrl, Alt veya Shift tuşlarını ekleyin. Komut tuşuna izin verilmez. Komut tuşu Ctrl'dir.",
   "mouse-and-keyboard": "Klavye ve Fare",
   "mouse-wheel": "Fare tekerleği",
   "muted": "Kapalı",
@@ -301,5 +302,6 @@
   "wait-time-countdown": "Geri sayım",
   "wait-time-estimated": "Tahminî bitiş süresi",
   "waiting-for-input": "Giriş için bekleniyor...",
-  "wallpaper": "Duvar kâğıdı olarak kullan"
+  "wallpaper": "Duvar kâğıdı olarak kullan",
+  "xbox-360-games": "Xbox 360 oyunları"
 }

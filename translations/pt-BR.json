@@ -34,6 +34,7 @@
   "center": "Centro",
   "chat": "Conversa",
   "clarity-boost": "Ganho de nitidez",
+  "clarity-boost-mode": "Modo de aprimoramento de clareza",
   "clarity-boost-warning": "Estas configurações não funcionam quando o modo \"Clarity Boost\" está ATIVADO",
   "clear": "Limpar",
   "clear-data": "Limpar data",
@@ -168,6 +169,7 @@
   "only-supports-some-games": "Suporta apenas alguns jogos",
   "opacity": "Opacidade",
   "other": "Outros",
+  "performance": "Desempenho",
   "playing": "Jogando",
   "playtime": "Tempo de jogo",
   "poland": "Polônia",
@@ -183,6 +185,7 @@
   "press-esc-to-cancel": "Pressione Esc para cancelar",
   "press-to-bind": "Pressione uma tecla ou clique do mouse para vincular...",
   "prompt-preset-name": "Nome da predefinição:",
+  "quality": "Qualidade",
   "recommended": "Recomendado",
   "reduce-animations": "Reduzir animações da interface",
   "region": "Região",
@@ -216,6 +219,7 @@
   "separate-touch-controller": "Separar o Controle por Toque e o Controle #1",
   "separate-touch-controller-note": "O Controle por Toque é o Jogador 1, o Controle #1 é o Jogador 2",
   "server": "Servidor",
+  "server-list-error": "Não é possível obter a lista de servidores",
   "server-locations": "Localização dos servidores",
   "settings": "Configurações",
   "settings-for": "Configurações de",
@@ -261,6 +265,7 @@
   "tc-custom-layout-style": "Estilo de botão do layout personalizado",
   "tc-muted-colors": "Cores opacas",
   "tc-standard-layout-style": "Estilo de botão do layout padrão",
+  "test-controller": "Testar controles",
   "text-size": "Tamanho do texto",
   "theme": "Tema",
   "toggle": "Alternar",
@@ -297,5 +302,7 @@
   "wait-time-countdown": "Contagem regressiva",
   "wait-time-estimated": "Tempo estimado para a conclusão",
   "waiting-for-input": "Esperando por comando...",
-  "wallpaper": "Plano de fundo"
+  "wallpaper": "Plano de fundo",
+  "xbox-360-games": "Jogos de Xbox 360",
+  "xbox-apps": "Aplicativos Xbox"
 }

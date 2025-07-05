@@ -33,6 +33,7 @@
   "center": "中央",
   "chat": "チャット",
   "clarity-boost": "クラリティブースト",
+  "clarity-boost-mode": "クラリティブーストモード",
   "clarity-boost-warning": "クラリティブーストが有効の場合、映像設定は無効化されます。",
   "clear": "消去",
   "clear-data": "データ削除",
@@ -169,6 +170,7 @@
   "only-supports-some-games": "一部のゲームのみサポート",
   "opacity": "透過度",
   "other": "その他",
+  "performance": "パフォーマンス",
   "playing": "プレイ中",
   "playtime": "プレイ時間",
   "polling-rate": "ポーリングレート",
@@ -183,6 +185,7 @@
   "press-esc-to-cancel": "Escを押してキャンセル",
   "press-to-bind": "キーを押すかマウスをクリックして割り当て...",
   "prompt-preset-name": "プリセット名:",
+  "quality": "クオリティ",
   "recommended": "推奨",
   "reduce-animations": "UIアニメーションを減らす",
   "region": "地域",
@@ -263,6 +266,7 @@
   "tc-custom-layout-style": "カスタムレイアウト",
   "tc-muted-colors": "ミュートカラー",
   "tc-standard-layout-style": "標準レイアウト",
+  "test-controller": "コントローラーテスト",
   "text-size": "文字サイズ",
   "theme": "テーマ",
   "toggle": "切替",
@@ -301,5 +305,6 @@
   "wait-time-estimated": "推定完了時間",
   "waiting-for-input": "入力待ち...",
   "wallpaper": "壁紙",
+  "xbox-360-games": "Xbox 360ゲーム",
   "xbox-apps": "Xboxアプリ"
 }
