@@ -1,0 +1,7 @@
+{
+  "name": "RoboCop: Rogue City",
+  "default_layout": "custom",
+  "layouts": [
+    "robocop-rogue-city"
+  ]
+}
