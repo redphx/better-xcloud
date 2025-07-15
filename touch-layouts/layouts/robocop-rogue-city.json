@@ -1,0 +1,302 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "author": "Kode-Z",
+      "content": {
+        "layers": {
+          "AimTouchpad": {
+            "right": {
+              "inner": [
+                {
+                  "type": "touchpad",
+                  "axis": [
+                    {
+                      "input": "axisX",
+                      "output": "rightJoystickX",
+                      "sensitivity": 9
+                    },
+                    {
+                      "input": "axisY",
+                      "output": "rightJoystickY",
+                      "sensitivity": 9
+                    }
+                  ],
+                  "styles": {
+                    "default": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "aim"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "sensors": [
+              {
+                "type": "gyroscope",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick",
+                  "sensitivity": 1.5
+                }
+              }
+            ]
+          }
+        },
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "action": "leftThumb",
+              "actionThreshold": 0.75,
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick",
+                "deadzone": {
+                  "threshold": 0.05,
+                  "radial": true
+                }
+              },
+              "styles": {
+                "default": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "walk"
+                    }
+                  }
+                },
+                "activated": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "sprint"
+                    },
+                    "background": {
+                      "type": "color",
+                      "value": "#152e73"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightTrigger",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "fire"
+                  }
+                }
+              }
+            },
+            null,
+            [
+              {
+                "type": "directionalPad",
+                "interaction": {
+                  "activationType": "exclusive"
+                }
+              }
+            ],
+            {
+              "type": "button",
+              "action": "rightThumb",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "brightness"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "leftBumper"
+            },
+            [
+              {
+                "type": "joystick",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "leftJoystick",
+                  "deadzone": {
+                    "threshold": 0.5,
+                    "radial": true
+                  }
+                },
+                "action": [
+                  "leftTrigger",
+                  {
+                    "type": "layer",
+                    "target": "AimTouchpad"
+                  }
+                ],
+                "styles": {
+                  "default": {
+                    "knob": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "aim"
+                      },
+                      "background": {
+                        "type": "color",
+                        "value": "#152e73",
+                        "opacity": 0.2
+                      },
+                      "stroke": {
+                        "opacity": 0.1
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "joystick",
+              "expand": false,
+              "axis": {
+                "input": "axisXY",
+                "output": "rightJoystick"
+              }
+            }
+          ],
+          "outer": [
+            [
+              {
+                "type": "button",
+                "action": [
+                  "leftTrigger",
+                  {
+                    "type": "layer",
+                    "target": "AimTouchpad"
+                  }
+                ],
+                "toggle": true,
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "aim"
+                    }
+                  }
+                }
+              },
+              null
+            ],
+            null,
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "dash"
+                  }
+                }
+              }
+            },
+            [
+              {
+                "type": "touchpad",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick",
+                  "deadzone": {
+                    "threshold": 1.0,
+                    "radial": true
+                  }
+                },
+                "renderAsButton": true,
+                "action": [
+                  "rightTrigger"
+                ],
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "fire"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "rightBumper",
+                "styles": {
+                  "default": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "punch"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "button",
+                "action": "gamepadX"
+              }
+            ],
+            {
+              "type": "button",
+              "action": "gamepadY",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "weaponSelect"
+                  }
+                }
+              }
+            },
+            {
+              "type": "button",
+              "action": "gamepadB",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "health"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "view",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "map"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
