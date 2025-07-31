@@ -1,0 +1,7 @@
+{
+  "name": "Choo Choo Charles",
+  "default_layout": "custom",
+  "layouts": [
+    "choo-choo-charles"
+  ]
+}
