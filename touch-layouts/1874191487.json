@@ -1,0 +1,7 @@
+{
+  "name": "High On Life",
+  "default_layout": "custom",
+  "layouts": [
+    "high-on-life"
+  ]
+}
