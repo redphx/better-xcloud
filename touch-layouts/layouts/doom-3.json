@@ -139,7 +139,20 @@
                 }
               },
               {
-                "type": "button",
+                "type": "touchpad",
+                "axis": [
+                  {
+                    "input": "axisX",
+                    "output": "rightJoystickX",
+                    "sensitivity": 3
+                  },
+                  {
+                    "input": "axisY",
+                    "output": "rightJoystickY",
+                    "sensitivity": 3
+                  }
+                ],
+                "renderAsButton": true,
                 "action": "rightTrigger",
                 "styles": {
                   "default": {
