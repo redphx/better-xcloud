@@ -1,7 +1,7 @@
 {
   "name": "DOOM 64",
   "product_id": "9MXND4PQLK3W",
-  "default_layout": "custom",
+  "default_layout": "touchpad",
   "layouts": [
     "doom-64"
   ]
