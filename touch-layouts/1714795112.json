@@ -1,6 +1,6 @@
 {
   "name": "DOOM + DOOM II",
-  "default_layout": "custom",
+  "default_layout": "touchpad",
   "layouts": [
     "doom-doom-ii"
   ]
