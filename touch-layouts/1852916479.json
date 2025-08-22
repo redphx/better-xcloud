@@ -1,0 +1,7 @@
+{
+  "name": "Resident Evil 4 Remake",
+  "default_layout": "type-a-1",
+  "layouts": [
+    "resident-evil-4-remake"
+  ]
+}
