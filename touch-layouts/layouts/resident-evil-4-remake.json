@@ -149,7 +149,10 @@
           ],
           "outer": [
             [
-              null,
+              {
+                "type": "button",
+                "action": "rightBumper"
+              },
               {
                 "type": "button",
                 "action": "rightThumb"
