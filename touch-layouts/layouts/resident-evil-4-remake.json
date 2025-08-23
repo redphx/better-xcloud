@@ -13,12 +13,23 @@
                 "input": "axisXY",
                 "output": "leftJoystick"
               },
+              "action": "leftThumb",
+              "relative": false,
+              "actionThreshold": 2,
               "styles": {
                 "default": {
                   "knob": {
                     "faceImage": {
                       "type": "icon",
                       "value": "walk"
+                    }
+                  }
+                },
+                "activated": {
+                  "knob": {
+                    "faceImage": {
+                      "type": "icon",
+                      "value": "sprint"
                     }
                   }
                 }
@@ -138,19 +149,11 @@
           ],
           "outer": [
             [
+              null,
               {
                 "type": "button",
-                "action": "rightBumper",
-                "styles": {
-                  "default": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "run"
-                    }
-                  }
-                }
+                "action": "rightThumb"
               },
-              null,
               {
                 "type": "button",
                 "action": "gamepadB",
@@ -164,36 +167,30 @@
                 }
               }
             ],
-            [
-              {
-                "type": "button",
-                "action": "gamepadX",
-                "styles": {
-                  "default": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "reload"
-                    }
-                  }
-                }
-              },
-              {
-                "type": "button",
-                "action": "rightThumb"
-              },
-              {
-                "type": "button",
-                "action": "gamepadA",
-                "styles": {
-                  "default": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "interact"
-                    }
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "reload"
                   }
                 }
               }
-            ],
+            },
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "interact"
+                  }
+                }
+              }
+            },
             [
               {
                 "type": "joystick",
