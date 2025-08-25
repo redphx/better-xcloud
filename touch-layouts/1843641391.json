@@ -1,0 +1,7 @@
+{
+  "name": "Quake",
+  "default_layout": "custom",
+  "layouts": [
+    "quake"
+  ]
+}
