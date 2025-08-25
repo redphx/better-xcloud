@@ -1,0 +1,7 @@
+{
+  "name": "Sonic Mania",
+  "default_layout": "custom",
+  "layouts": [
+    "sonic-mania"
+  ]
+}
