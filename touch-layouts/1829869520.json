@@ -1,0 +1,7 @@
+{
+  "name": "Gears of War: Reloaded",
+  "default_layout": "custom",
+  "layouts": [
+    "gears-of-war-reloaded"
+  ]
+}

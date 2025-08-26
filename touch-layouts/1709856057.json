@@ -1,0 +1,7 @@
+{
+  "name": "RoboCop: Rogue City - Unfinished Business",
+  "default_layout": "custom",
+  "layouts": [
+    "robocop-rogue-city"
+  ]
+}
