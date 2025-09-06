@@ -1,0 +1,7 @@
+{
+  "name": "Metal Gear Solid: HD Collection",
+  "default_layout": "mgs2",
+  "layouts": [
+    "metal-gear-solid-hd"
+  ]
+}
