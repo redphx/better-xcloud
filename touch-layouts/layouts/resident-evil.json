@@ -49,21 +49,18 @@
                 "action": "leftTrigger",
                 "styles": {
                   "default": {
-                    "outline": {
-                      "indicator": {
-                        "type": "color",
-                        "value": "#ffffff"
-                      },
-                      "stroke": {
-                        "type": "solid",
-                        "color": "#ffffff"
-                      },
-                      "opacity": 0.1
-                    },
                     "knob": {
                       "faceImage": {
                         "type": "icon",
                         "value": "aim"
+                      },
+                      "background": {
+                        "type": "color",
+                        "value": "#ffffff",
+                        "opacity": 0.1
+                      },
+                      "stroke": {
+                        "opacity": 0.1
                       }
                     }
                   }
