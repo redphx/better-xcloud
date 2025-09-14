@@ -1,0 +1,7 @@
+{
+  "name": "Shenmue II",
+  "default_layout": "custom",
+  "layouts": [
+    "shenmue-1-and-2"
+  ]
+}
