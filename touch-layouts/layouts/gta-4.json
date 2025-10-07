@@ -9,6 +9,7 @@
           "inner": [
             {
               "type": "joystick",
+              "expand": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
@@ -38,21 +39,18 @@
               "action": "leftTrigger",
               "styles": {
                 "default": {
-                  "outline": {
-                    "indicator": {
-                      "type": "color",
-                      "value": "#ffffff"
-                    },
-                    "stroke": {
-                      "type": "solid",
-                      "color": "#ffffff"
-                    },
-                    "opacity": 0.5
-                  },
                   "knob": {
                     "faceImage": {
                       "type": "icon",
                       "value": "leftTrigger"
+                    },
+                    "background": {
+                      "type": "color",
+                      "value": "#ffffff",
+                      "opacity": 0.1
+                    },
+                    "stroke": {
+                      "opacity": 0.1
                     }
                   }
                 }
@@ -71,21 +69,18 @@
               "action": "leftBumper",
               "styles": {
                 "default": {
-                  "outline": {
-                    "indicator": {
-                      "type": "color",
-                      "value": "#ffffff"
-                    },
-                    "stroke": {
-                      "type": "solid",
-                      "color": "#ffffff"
-                    },
-                    "opacity": 0.5
-                  },
                   "knob": {
                     "faceImage": {
                       "type": "icon",
                       "value": "leftBumper"
+                    },
+                    "background": {
+                      "type": "color",
+                      "value": "#ffffff",
+                      "opacity": 0.1
+                    },
+                    "stroke": {
+                      "opacity": 0.1
                     }
                   }
                 }
