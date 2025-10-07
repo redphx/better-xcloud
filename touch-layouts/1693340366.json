@@ -1,0 +1,7 @@
+{
+  "name": "Hogwarts Legacy",
+  "default_layout": "custom",
+  "layouts": [
+    "hogwarts-legacy"
+  ]
+}
