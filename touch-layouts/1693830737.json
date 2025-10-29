@@ -1,0 +1,7 @@
+{
+  "name": "Alan Wake 2",
+  "default_layout": "custom",
+  "layouts": [
+    "alan-wake-2"
+  ]
+}
