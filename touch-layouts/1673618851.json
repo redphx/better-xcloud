@@ -1,0 +1,7 @@
+{
+  "name": "Egging On",
+  "default_layout": "custom",
+  "layouts": [
+    "egging-on"
+  ]
+}
