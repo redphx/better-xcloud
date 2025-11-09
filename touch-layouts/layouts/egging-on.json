@@ -140,6 +140,14 @@
             {
               "type": "button",
               "action": "gamepadB"
+            },
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            {
+              "type": "button",
+              "action": "leftBumper"
             }
           ]
         }
