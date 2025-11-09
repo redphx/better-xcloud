@@ -9,41 +9,10 @@
           "inner": [
             {
               "type": "joystick",
+              "expand": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
-              }
-            }
-          ],
-          "outer": [
-            {
-              "type": "button",
-              "action": "leftTrigger",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "zoomIn"
-                  }
-                }
-              }
-            },
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            {
-              "type": "button",
-              "action": "leftBumper",
-              "styles": {
-                "default": {
-                  "faceImage": {
-                    "type": "icon",
-                    "value": "zoomOut"
-                  }
-                }
               }
             }
           ]
@@ -64,7 +33,18 @@
             }
           ],
           "outer": [
-            null,
+            {
+              "type": "button",
+              "action": "leftTrigger",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "zoomIn"
+                  }
+                }
+              }
+            },
             {
               "type": "button",
               "action": "gamepadY"
@@ -85,7 +65,20 @@
                   "output": "rightJoystick"
                 }
               }
-            ]
+            ],
+            null,
+            {
+              "type": "button",
+              "action": "leftBumper",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "zoomOut"
+                  }
+                }
+              }
+            }
           ]
         },
         "upper": {
