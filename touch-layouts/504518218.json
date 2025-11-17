@@ -1,0 +1,7 @@
+{
+  "name": "L.A. Noire",
+  "default_layout": "custom",
+  "layouts": [
+    "la-noire"
+  ]
+}
