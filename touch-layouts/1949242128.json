@@ -1,0 +1,7 @@
+{
+  "name": "Silent Hill 2",
+  "default_layout": "custom",
+  "layouts": [
+    "silent-hill-2"
+  ]
+}
