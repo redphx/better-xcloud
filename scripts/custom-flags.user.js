@@ -1,3 +1,4 @@
+fly
 // ==UserScript==
 // @name         Better xCloud - Custom flags
 // @namespace    https://github.com/redphx
