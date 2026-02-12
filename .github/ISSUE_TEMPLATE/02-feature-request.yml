@@ -1,0 +1,42 @@
+name: Feature Request 🚀
+description: Request a new feature, improvement, or general suggestion
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the following information to help us understand your request.
+        > [!warning]
+        > Only use English. Any other languages will be deleted.
+  - type: dropdown
+    id: device_type
+    attributes:
+      label: Device type
+      description: "Which device type is this feature for?"
+      options:
+        - All devices
+        - Phone/Tablet
+        - Desktop
+        - TV
+      multiple: false
+    validations:
+      required: true
+
+  - type: input
+    id: device_name
+    attributes:
+      label: "Device"
+      description: "Name of the device"
+      placeholder: "e.g., Google Pixel 8"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: "Suggestion"
+      description: "What do you want to suggest? Include (mockup) screenshot if possible."
+    validations:
+      required: true

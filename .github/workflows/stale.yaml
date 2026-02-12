@@ -1,0 +1,25 @@
+name: 'Mark stale bug issues'
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: |
+            This issue has been marked `stale` due to lack of recent activity. If there is no further activity, the issue will be closed in another 30 days.
+          close-issue-message: |
+            This issue has been closed due to inactivity. If you feel this is in error, please reopen the issue or file a new issue with the relevant details.
+          days-before-stale: 60
+          days-before-close: 30
+          stale-issue-label: 'stale'
+          only-issues: true
+          only-labels: 'bug'

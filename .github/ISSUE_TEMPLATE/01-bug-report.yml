@@ -1,0 +1,137 @@
+name: Bug Report 🐞
+description: File a bug report
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > [!note]
+        > - Use `Discussions` if you want to ask for question.
+        > - Non-English reports will be deleted. No exceptions.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I will only use English in my report.
+          required: true
+        - label: I have used the search function for [**open and closed issues**](https://github.com/redphx/better-xcloud/issues?q=is%3Aissue) to see if someone else has already submitted the same bug report.
+          required: true
+        - label: I will describe the problem with as much detail as possible.
+          required: true
+
+  - type: dropdown
+    id: question_01
+    attributes:
+      label: xCloud officially supports your country/region
+      options:
+        - "No"
+        - "Yes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: question_02
+    attributes:
+      label: "The bug doesn't happen when you disable Better xCloud script"
+      options:
+        - "No"
+        - "Yes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: question_03
+    attributes:
+      label: "Previous Better xCloud versions didn't have this bug (name which one)"
+      options:
+        - "No"
+        - "Yes"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device_type
+    attributes:
+      label: Device
+      description: "Which device are you using?"
+      options:
+        - Phone/Tablet
+        - Laptop
+        - Desktop
+        - TV
+        - Other
+      multiple: false
+    validations:
+      required: true
+
+  - type: input
+    id: device_name
+    attributes:
+      label: "Device"
+      description: "Name of the device"
+      placeholder: "e.g., Google Pixel 8"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: "Operating System"
+      description: "Which operating system is it running?"
+      placeholder: "e.g., Android 14"
+    validations:
+      required: true
+  
+  - type: input
+    id: browser_version
+    attributes:
+      label: "Android app/Browser Version"
+      description: "What is the name and version of the browser/Android app?"
+      placeholder: "e.g., Chrome 124.0, Android app 0.15.0"
+    validations:
+      required: true
+  
+  - type: input
+    id: extension_version
+    attributes:
+      label: "Better xCloud Version"
+      description: "What is the version of Better xCloud?"
+      placeholder: "e.g., 3.5.0"
+    validations:
+      required: true
+  
+  - type: input
+    id: game_list
+    attributes:
+      label: "Game list"
+      description: "Name the game(s) where you saw this bug"
+      placeholder: "e.g., Halo"
+    validations:
+      required: false
+  
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Reproduction Steps"
+      description: |
+        How did you trigger this bug?
+      placeholder: |
+        Example:
+        1. Open game X
+        2. Click on Y
+        3. Error
+    validations:
+      required: true
+
+  - type: textarea
+    id: media
+    attributes:
+      label: "Screenshot/video"
+      description: |
+        Please provide screenshot/video if possible.
+    validations:
+      required: false
