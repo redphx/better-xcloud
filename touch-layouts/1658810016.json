@@ -1,0 +1,7 @@
+{
+  "name": "Resident Evil Requiem",
+  "default_layout": "default",
+  "layouts": [
+    "resident-evil-requiem"
+  ]
+}
