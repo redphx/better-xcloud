@@ -482,6 +482,33 @@ function main() {
         window.addEventListener('gamepadconnected', e => showGamepadToast(e.gamepad));
         window.addEventListener('gamepaddisconnected', e => showGamepadToast(e.gamepad));
     }
+
+    // Ctrl+Scroll Zoom Blocker
+    if (isFullVersion()) {
+        const blockZoom = (e: WheelEvent) => {
+            if (e.ctrlKey && getStreamPref(StreamPref.MKB_DISABLE_ZOOM)) {
+                const isFullscreen = !!(
+                    document.fullscreenElement ||
+                    (document as any).webkitFullscreenElement ||
+                    (document as any).mozFullScreenElement ||
+                    (document as any).msFullscreenElement
+                );
+                if (isFullscreen) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
+            }
+        };
+
+        window.addEventListener('wheel', blockZoom, { passive: false, capture: true });
+        document.addEventListener('wheel', blockZoom, { passive: false, capture: true });
+
+        // Needs to capture again when full screen changes as some sites recreate listeners
+        document.addEventListener('fullscreenchange', () => {
+            window.addEventListener('wheel', blockZoom, { passive: false, capture: true });
+            document.body?.addEventListener('wheel', blockZoom, { passive: false, capture: true });
+        });
+    }
 }
 
 main();

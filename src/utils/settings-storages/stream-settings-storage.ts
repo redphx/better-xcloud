@@ -112,6 +112,12 @@ export class StreamSettingsStorage extends BaseSettingsStorage<StreamPref> {
             default: MkbMappingDefaultPresetId.DEFAULT,
         },
 
+        [StreamPref.MKB_DISABLE_ZOOM]: {
+            requiredVariants: 'full',
+            label: t('disable-zoom'),
+            default: false,
+        },
+
         [StreamPref.MKB_P1_SLOT]: {
             requiredVariants: 'full',
             default: 1,

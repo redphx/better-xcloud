@@ -154,6 +154,7 @@ export const enum StreamPref {
     MKB_P1_SLOT = 'mkb.p1.slot',
     MKB_P2_MAPPING_PRESET_ID = 'mkb.p2.preset.mappingId',
     MKB_P2_SLOT = 'mkb.p2.slot',
+    MKB_DISABLE_ZOOM = 'mkb.disableZoom',
 
     KEYBOARD_SHORTCUTS_IN_GAME_PRESET_ID = 'keyboardShortcuts.preset.inGameId',
 
@@ -193,6 +194,7 @@ export type StreamPrefTypeMap = {
     [StreamPref.MKB_P1_SLOT]: number;
     [StreamPref.MKB_P2_MAPPING_PRESET_ID]: number;
     [StreamPref.MKB_P2_SLOT]: number;
+    [StreamPref.MKB_DISABLE_ZOOM]: boolean;
     [StreamPref.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY]: number;
     [StreamPref.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY]: number;
     [StreamPref.STATS_CONDITIONAL_FORMATTING]: boolean;
@@ -285,6 +287,7 @@ export const ALL_PREFS: {
         StreamPref.MKB_P1_SLOT,
         StreamPref.MKB_P2_MAPPING_PRESET_ID,
         StreamPref.MKB_P2_SLOT,
+        StreamPref.MKB_DISABLE_ZOOM,
         StreamPref.NATIVE_MKB_SCROLL_HORIZONTAL_SENSITIVITY,
         StreamPref.NATIVE_MKB_SCROLL_VERTICAL_SENSITIVITY,
         StreamPref.STATS_CONDITIONAL_FORMATTING,
