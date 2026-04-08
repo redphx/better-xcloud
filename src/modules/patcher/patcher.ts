@@ -321,8 +321,21 @@ if (window.BX_EXPOSED.stopTakRendering) {
     },
 
     supportLocalCoOp(str: string) {
-        let text = 'this.gamepadMappingsToSend=[],';
-        if (!str.includes(text)) {
+        // Try multiple patterns to find the gamepad manager constructor
+        const patterns = [
+            'this.gamepadMappingsToSend=[],',
+            'this.gamepadMappingsToSend=[]',
+        ];
+
+        let text = '';
+        for (const pattern of patterns) {
+            if (str.includes(pattern)) {
+                text = pattern;
+                break;
+            }
+        }
+
+        if (!text) {
             return false;
         }
 

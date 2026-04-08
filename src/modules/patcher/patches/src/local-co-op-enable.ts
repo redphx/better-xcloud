@@ -15,7 +15,22 @@ if (onGamepadChangedStr.startsWith('function ')) {
     onGamepadChangedStr = onGamepadChangedStr.substring(9);
 }
 
-onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
+// Replace hardcoded gamepad index 0 with the actual index from arguments[1]
+// Use targeted patterns instead of replaceAll('0', ...) to avoid corrupting
+// unrelated values like !0 (boolean true), button values, or multi-digit numbers
+onGamepadChangedStr = onGamepadChangedStr
+    // GamepadIndex:0 → GamepadIndex:arguments[1]
+    .replace(/GamepadIndex\s*:\s*0(?=[,}\]\);\s])/g, 'GamepadIndex:arguments[1]')
+    // Map operations: .set(0, .get(0) .delete(0) .has(0)
+    .replace(/(\.(?:set|get|delete|has)\s*\()0(?=[,)])/g, '$1arguments[1]')
+    // Strict equality/inequality: ===0 or !==0
+    .replace(/(={2,3})0(?=[,)}\];])/g, '$1arguments[1]')
+    // Array bracket access: [0]
+    .replace(/\[0\]/g, '[arguments[1]]')
+    // Function call with 0 as first arg: fn(0, or fn(0)
+    .replace(/(\()0(?=[,)])/g, '$1arguments[1]')
+    // 0 as middle/last arg: ,0, or ,0)
+    .replace(/(,)0(?=[,)])/g, '$1arguments[1]');
 eval(`$this$.patchedOnGamepadChanged = function ${onGamepadChangedStr}`);
 
 let onGamepadInputStr = $this$.onGamepadInput.toString();
@@ -24,14 +39,48 @@ if (onGamepadInputStr.startsWith('function ')) {
     onGamepadInputStr = onGamepadInputStr.substring(9);
 }
 
+// Find the GamepadIndex variable reference in the minified code
 match = onGamepadInputStr.match(/(\w+\.GamepadIndex)/);
+if (!match) {
+    // Fallback: try bracket notation access
+    match = onGamepadInputStr.match(/(\w+\["GamepadIndex"\])/);
+}
+if (!match) {
+    // Fallback: try optional chaining
+    match = onGamepadInputStr.match(/(\w+\?\.GamepadIndex)/);
+}
+
 if (match) {
     const gamepadIndexVar = match[0];
-    onGamepadInputStr = onGamepadInputStr.replace('$this$.gamepadStates.get(', `$this$.gamepadStates.get(${gamepadIndexVar},`);
-    eval(`$this$.patchedOnGamepadInput = function ${onGamepadInputStr}`);
-    BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');
+    let replaced = false;
+
+    // Try to patch gamepadStates.get() to use the actual GamepadIndex
+    // Pattern 1: this.gamepadStates.get(
+    if (onGamepadInputStr.includes('$this$.gamepadStates.get(')) {
+        onGamepadInputStr = onGamepadInputStr.replace('$this$.gamepadStates.get(', `$this$.gamepadStates.get(${gamepadIndexVar},`);
+        replaced = true;
+    }
+
+    // Pattern 2: aliased this (e.g., minified variable.gamepadStates.get()
+    if (!replaced) {
+        const statesGetMatch = onGamepadInputStr.match(/(\w+)\.gamepadStates\.get\(/);
+        if (statesGetMatch) {
+            onGamepadInputStr = onGamepadInputStr.replace(
+                statesGetMatch[0],
+                `${statesGetMatch[1]}.gamepadStates.get(${gamepadIndexVar},`,
+            );
+            replaced = true;
+        }
+    }
+
+    if (replaced) {
+        eval(`$this$.patchedOnGamepadInput = function ${onGamepadInputStr}`);
+        BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');
+    } else {
+        BxLogger.error('supportLocalCoOp', '❌ Unable to patch gamepadStates.get pattern');
+    }
 } else {
-    BxLogger.error('supportLocalCoOp', '❌ Unable to patch local co-op support');
+    BxLogger.error('supportLocalCoOp', '❌ Unable to find GamepadIndex reference');
 }
 
 // Add method to switch between patched and original methods
