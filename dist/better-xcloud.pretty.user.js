@@ -5277,9 +5277,10 @@ var LOG_TAG2 = "Patcher", PATCHES = {
    gamepadVar: match[1]
   });
   if (codeBlock = codeBlock.replace("this.gamepadTimestamps.set", newCode + "this.gamepadTimestamps.set"), match = codeBlock.match(/let ([A-Za-z0-9_$]+)=this\.gamepadMappings\.find/), !match) return !1;
-  let xCloudGamepadVar = match[1], gamepadVar = codeBlock.match(/this\.gamepadTimestamps\.set\(([A-Za-z0-9_$]+)\.index/)[1], inputFeedbackManager = PatcherUtils.indexOf(codeBlock, "this.inputFeedbackManager.onGamepadConnected(", 0, 1e4), backetIndex = PatcherUtils.indexOf(codeBlock, "}", inputFeedbackManager, 100);
-  if (backetIndex < 0) return !1;
-  let coOpCode = `;
+  let xCloudGamepadVar = match[1], gamepadVar = codeBlock.match(/this\.gamepadTimestamps\.set\(([A-Za-z0-9_$]+)\.index/)[1], findIndex = codeBlock.indexOf("this.gamepadMappings.find"), findSemicolon = PatcherUtils.indexOf(codeBlock, ";", findIndex, 300), inputFeedbackManager = PatcherUtils.indexOf(codeBlock, "this.inputFeedbackManager.onGamepadConnected(", 0, 1e4);
+  if (PatcherUtils.indexOf(codeBlock, "}", inputFeedbackManager, 100) < 0) return !1;
+  if (findSemicolon > -1) {
+   let coOpCode = `
 if (window.BX_EXPOSED.localCoOpEnabled && ${xCloudGamepadVar}) {
   if (${xCloudGamepadVar}.GamepadIndex !== ${gamepadVar}.index) {
     let _bxCoopM = this.gamepadMappings.find(_m => _m.GamepadIndex === ${gamepadVar}.index);
@@ -5293,8 +5294,13 @@ if (window.BX_EXPOSED.localCoOpEnabled && ${xCloudGamepadVar}) {
     ${xCloudGamepadVar} = _bxCoopM;
   }
 }
-`, customizationCode = ";";
-  return customizationCode += coOpCode, customizationCode += renderString(controller_customization_default, { xCloudGamepadVar }), codeBlock = PatcherUtils.insertAt(codeBlock, backetIndex, customizationCode), str = str.substring(0, index) + codeBlock + str.substring(setTimeoutIndex), str;
+`;
+   codeBlock = PatcherUtils.insertAt(codeBlock, findSemicolon + 1, coOpCode);
+  }
+  let customizationCode = ";";
+  customizationCode += renderString(controller_customization_default, { xCloudGamepadVar });
+  let newInputFeedbackManager = PatcherUtils.indexOf(codeBlock, "this.inputFeedbackManager.onGamepadConnected(", 0, 15000), newBacketIndex = PatcherUtils.indexOf(codeBlock, "}", newInputFeedbackManager, 100);
+  return codeBlock = PatcherUtils.insertAt(codeBlock, newBacketIndex, customizationCode), str = str.substring(0, index) + codeBlock + str.substring(setTimeoutIndex), str;
  },
  enableXcloudLogger(str) {
   let index = str.indexOf("this.telemetryProvider.trackErrorLike");

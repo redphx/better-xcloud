@@ -181,6 +181,11 @@ const PATCHES = {
         const xCloudGamepadVar = match[1];
         const gamepadVar = codeBlock.match(/this\.gamepadTimestamps\.set\(([A-Za-z0-9_$]+)\.index/)![1];
 
+        // Find injection point right after gamepadMappings.find() statement
+        // We need to inject co-op code BEFORE button values are mapped to xCloudGamepad
+        const findIndex = codeBlock.indexOf('this.gamepadMappings.find');
+        const findSemicolon = PatcherUtils.indexOf(codeBlock, ';', findIndex, 300);
+
         const inputFeedbackManager = PatcherUtils.indexOf(codeBlock, 'this.inputFeedbackManager.onGamepadConnected(', 0, 10000);
         const backetIndex = PatcherUtils.indexOf(codeBlock, '}', inputFeedbackManager, 100);
         if (backetIndex < 0) {
@@ -188,9 +193,10 @@ const PATCHES = {
         }
 
         // Local co-op: ensure each physical gamepad gets its own xCloud mapping
-        // with the correct GamepadIndex. This works even if the onGamepadChanged
-        // patch failed to apply.
-        let coOpCode = `;
+        // with the correct GamepadIndex. Injected RIGHT AFTER gamepadMappings.find()
+        // so it runs BEFORE button values are mapped to the xCloudGamepad object.
+        if (findSemicolon > -1) {
+            let coOpCode = `
 if (window.BX_EXPOSED.localCoOpEnabled && ${xCloudGamepadVar}) {
     if (${xCloudGamepadVar}.GamepadIndex !== ${gamepadVar}.index) {
         let _bxCoopM = this.gamepadMappings.find(_m => _m.GamepadIndex === ${gamepadVar}.index);
@@ -205,11 +211,15 @@ if (window.BX_EXPOSED.localCoOpEnabled && ${xCloudGamepadVar}) {
     }
 }
 `;
+            codeBlock = PatcherUtils.insertAt(codeBlock, findSemicolon + 1, coOpCode);
+        }
 
         let customizationCode = ';';  // End previous code line
-        customizationCode += coOpCode;
         customizationCode += renderString(codeControllerCustomization, { xCloudGamepadVar });
-        codeBlock = PatcherUtils.insertAt(codeBlock, backetIndex, customizationCode);
+        // Recalculate backetIndex since codeBlock was modified by co-op insertion
+        const newInputFeedbackManager = PatcherUtils.indexOf(codeBlock, 'this.inputFeedbackManager.onGamepadConnected(', 0, 15000);
+        const newBacketIndex = PatcherUtils.indexOf(codeBlock, '}', newInputFeedbackManager, 100);
+        codeBlock = PatcherUtils.insertAt(codeBlock, newBacketIndex, customizationCode);
 
         str = str.substring(0, index) + codeBlock + str.substring(setTimeoutIndex);
         return str;
