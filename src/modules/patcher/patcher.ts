@@ -181,11 +181,6 @@ const PATCHES = {
         const xCloudGamepadVar = match[1];
         const gamepadVar = codeBlock.match(/this\.gamepadTimestamps\.set\(([A-Za-z0-9_$]+)\.index/)![1];
 
-        // Find injection point right after gamepadMappings.find() statement
-        // We need to inject co-op code BEFORE button values are mapped to xCloudGamepad
-        const findIndex = codeBlock.indexOf('this.gamepadMappings.find');
-        const findSemicolon = PatcherUtils.indexOf(codeBlock, ';', findIndex, 300);
-
         const inputFeedbackManager = PatcherUtils.indexOf(codeBlock, 'this.inputFeedbackManager.onGamepadConnected(', 0, 10000);
         const backetIndex = PatcherUtils.indexOf(codeBlock, '}', inputFeedbackManager, 100);
         if (backetIndex < 0) {
@@ -193,32 +188,37 @@ const PATCHES = {
         }
 
         // Local co-op: ensure each physical gamepad gets its own xCloud mapping
-        // with the correct GamepadIndex. Injected RIGHT AFTER gamepadMappings.find()
-        // so it runs BEFORE button values are mapped to the xCloudGamepad object.
-        if (findSemicolon > -1) {
-            let coOpCode = `
-if (window.BX_EXPOSED.localCoOpEnabled && ${xCloudGamepadVar}) {
-    if (${xCloudGamepadVar}.GamepadIndex !== ${gamepadVar}.index) {
-        let _bxCoopM = this.gamepadMappings.find(_m => _m.GamepadIndex === ${gamepadVar}.index);
-        if (!_bxCoopM) {
-            _bxCoopM = Object.assign({}, ${xCloudGamepadVar}, {GamepadIndex: ${gamepadVar}.index, Dirty: true});
-            this.gamepadMappings.push(_bxCoopM);
-            if (this.gamepadStates && this.gamepadStates.has(${xCloudGamepadVar}.GamepadIndex)) {
-                this.gamepadStates.set(${gamepadVar}.index, structuredClone(this.gamepadStates.get(${xCloudGamepadVar}.GamepadIndex)));
+        // with the correct GamepadIndex. Must run BEFORE button values are mapped
+        // to xCloudGamepad, otherwise the 2nd controller overwrites the 1st's values
+        // in the shared mapping object.
+        // Strategy: find the end of the find() call by counting parentheses,
+        // then inject right after the full statement.
+        const findCallStart = codeBlock.indexOf('this.gamepadMappings.find');
+        if (findCallStart > -1) {
+            const findOpenParen = codeBlock.indexOf('(', findCallStart + 'this.gamepadMappings.find'.length);
+            let parenDepth = 1;
+            let pos = findOpenParen + 1;
+            while (parenDepth > 0 && pos < codeBlock.length) {
+                if (codeBlock[pos] === '(') parenDepth++;
+                else if (codeBlock[pos] === ')') parenDepth--;
+                pos++;
             }
+            // pos is right after the closing ) of find(...)
+            // Skip past any trailing ; or whitespace
+            while (pos < codeBlock.length && (codeBlock[pos] === ';' || codeBlock[pos] === ' ')) pos++;
+
+            let coOpCode = `
+if(window.BX_EXPOSED.localCoOpEnabled&&${xCloudGamepadVar}&&${xCloudGamepadVar}.GamepadIndex!==${gamepadVar}.index){let _bxCoopM=this.gamepadMappings.find(_m=>_m.GamepadIndex===${gamepadVar}.index);if(!_bxCoopM){_bxCoopM=Object.assign({},${xCloudGamepadVar},{GamepadIndex:${gamepadVar}.index,Dirty:!0});this.gamepadMappings.push(_bxCoopM);if(this.gamepadStates&&this.gamepadStates.has(${xCloudGamepadVar}.GamepadIndex)){this.gamepadStates.set(${gamepadVar}.index,structuredClone(this.gamepadStates.get(${xCloudGamepadVar}.GamepadIndex)))}}${xCloudGamepadVar}=_bxCoopM}`;
+
+            codeBlock = PatcherUtils.insertAt(codeBlock, pos, coOpCode);
         }
-        ${xCloudGamepadVar} = _bxCoopM;
-    }
-}
-`;
-            codeBlock = PatcherUtils.insertAt(codeBlock, findSemicolon + 1, coOpCode);
-        }
+
+        // Recalculate positions since codeBlock was modified by co-op insertion
+        const newInputFeedbackManager = PatcherUtils.indexOf(codeBlock, 'this.inputFeedbackManager.onGamepadConnected(', 0, 15000);
+        const newBacketIndex = PatcherUtils.indexOf(codeBlock, '}', newInputFeedbackManager, 100);
 
         let customizationCode = ';';  // End previous code line
         customizationCode += renderString(codeControllerCustomization, { xCloudGamepadVar });
-        // Recalculate backetIndex since codeBlock was modified by co-op insertion
-        const newInputFeedbackManager = PatcherUtils.indexOf(codeBlock, 'this.inputFeedbackManager.onGamepadConnected(', 0, 15000);
-        const newBacketIndex = PatcherUtils.indexOf(codeBlock, '}', newInputFeedbackManager, 100);
         codeBlock = PatcherUtils.insertAt(codeBlock, newBacketIndex, customizationCode);
 
         str = str.substring(0, index) + codeBlock + str.substring(setTimeoutIndex);
