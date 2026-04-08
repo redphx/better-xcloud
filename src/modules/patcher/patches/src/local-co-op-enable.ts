@@ -86,6 +86,7 @@ if (match) {
 // Add method to switch between patched and original methods
 $this$.toggleLocalCoOp = (enable: boolean) => {
     BxLogger.info('toggleLocalCoOp', enable ? 'Enabled' : 'Disabled');
+    window.BX_EXPOSED.localCoOpEnabled = enable;
 
     $this$.onGamepadChanged = enable ? $this$.patchedOnGamepadChanged : $this$.orgOnGamepadChanged;
     $this$.onGamepadInput = enable ? $this$.patchedOnGamepadInput : $this$.orgOnGamepadInput;

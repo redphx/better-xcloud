@@ -234,7 +234,12 @@ export const BxExposed = {
         / /g,
     ],
 
-    toggleLocalCoOp(enable: boolean) {},
+    localCoOpEnabled: false,
+
+    toggleLocalCoOp(enable: boolean) {
+        // Set flag so injected poll code can check it
+        window.BX_EXPOSED.localCoOpEnabled = enable;
+    },
 
     beforePageLoad: isFullVersion() ? (page: PatchPage) => {
         BxLogger.info('beforePageLoad', page);

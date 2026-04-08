@@ -179,13 +179,35 @@ const PATCHES = {
         }
 
         const xCloudGamepadVar = match[1];
+        const gamepadVar = codeBlock.match(/this\.gamepadTimestamps\.set\(([A-Za-z0-9_$]+)\.index/)![1];
+
         const inputFeedbackManager = PatcherUtils.indexOf(codeBlock, 'this.inputFeedbackManager.onGamepadConnected(', 0, 10000);
         const backetIndex = PatcherUtils.indexOf(codeBlock, '}', inputFeedbackManager, 100);
         if (backetIndex < 0) {
             return false;
         }
 
+        // Local co-op: ensure each physical gamepad gets its own xCloud mapping
+        // with the correct GamepadIndex. This works even if the onGamepadChanged
+        // patch failed to apply.
+        let coOpCode = `;
+if (window.BX_EXPOSED.localCoOpEnabled && ${xCloudGamepadVar}) {
+    if (${xCloudGamepadVar}.GamepadIndex !== ${gamepadVar}.index) {
+        let _bxCoopM = this.gamepadMappings.find(_m => _m.GamepadIndex === ${gamepadVar}.index);
+        if (!_bxCoopM) {
+            _bxCoopM = Object.assign({}, ${xCloudGamepadVar}, {GamepadIndex: ${gamepadVar}.index, Dirty: true});
+            this.gamepadMappings.push(_bxCoopM);
+            if (this.gamepadStates && this.gamepadStates.has(${xCloudGamepadVar}.GamepadIndex)) {
+                this.gamepadStates.set(${gamepadVar}.index, structuredClone(this.gamepadStates.get(${xCloudGamepadVar}.GamepadIndex)));
+            }
+        }
+        ${xCloudGamepadVar} = _bxCoopM;
+    }
+}
+`;
+
         let customizationCode = ';';  // End previous code line
+        customizationCode += coOpCode;
         customizationCode += renderString(codeControllerCustomization, { xCloudGamepadVar });
         codeBlock = PatcherUtils.insertAt(codeBlock, backetIndex, customizationCode);
 
