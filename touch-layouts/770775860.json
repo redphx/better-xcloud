@@ -1,0 +1,7 @@
+{
+  "name": "Resident Evil 3",
+  "default_layout": "type-a",
+  "layouts": [
+    "resident-evil-3"
+  ]
+}
