@@ -29,6 +29,7 @@ export type StreamSettingsData = {
             customization: ControllerCustomizationConvertedPresetData | null;
         };
     };
+    gamepadSlots: Record<number, number>; // browserGamepadIndex -> playerSlot (0-3)
 
     mkbPreset: MkbConvertedPresetData | null;
 
@@ -44,6 +45,7 @@ export class StreamSettings {
 
         controllerPollingRate: 4,
         controllers: {},
+        gamepadSlots: {},
 
         mkbPreset: null,
 
@@ -84,6 +86,19 @@ export class StreamSettings {
             }
         }
         settings.controllers = controllers;
+
+        // Build gamepad slot mapping (browserGamepadIndex -> playerSlot)
+        const gamepadSlots: Record<number, number> = {};
+        for (const gamepad of gamepads) {
+            if (!gamepad?.connected || gamepad.id === VIRTUAL_GAMEPAD_ID) {
+                continue;
+            }
+            const slotSetting = STORAGE.Stream.getControllerSetting(gamepad.id);
+            if (slotSetting.playerIndex >= 0) {
+                gamepadSlots[gamepad.index] = slotSetting.playerIndex;
+            }
+        }
+        settings.gamepadSlots = gamepadSlots;
 
         // Controller polling rate
         settings.controllerPollingRate = getStreamPref(StreamPref.CONTROLLER_POLLING_RATE);

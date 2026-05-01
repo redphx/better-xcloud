@@ -24,6 +24,7 @@ type StreamPreferredLocale = 'default' | string;
 type ControllerSetting = {
     shortcutPresetId: number;
     customizationPresetId: number;
+    playerIndex: number; // -1 = auto, 0-3 = fixed player slot
 }
 
 type ControllerSettings = Record<string, ControllerSetting>;

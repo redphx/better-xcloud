@@ -236,6 +236,14 @@ export const BxExposed = {
 
     toggleLocalCoOp(enable: boolean) {},
 
+    getGamepadPlayerSlot(browserIndex: number): number {
+        const slots = window.BX_STREAM_SETTINGS?.gamepadSlots;
+        if (slots && browserIndex in slots) {
+            return slots[browserIndex];
+        }
+        return browserIndex;
+    },
+
     beforePageLoad: isFullVersion() ? (page: PatchPage) => {
         BxLogger.info('beforePageLoad', page);
         Patcher.patchPage(page);
