@@ -9,7 +9,6 @@
           "inner": [
             {
               "type": "joystick",
-              "expand": false,
               "axis": {
                 "input": "axisXY",
                 "output": "leftJoystick"
