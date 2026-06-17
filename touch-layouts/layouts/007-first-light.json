@@ -65,7 +65,15 @@
             ],
             [
               {
-                "type": "button",
+                "type": "joystick",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "leftJoystick",
+                  "deadzone": {
+                    "threshold": 0.05,
+                    "radial": true
+                  }
+                },
                 "action": [
                   "leftBumper",
                   {
@@ -75,13 +83,22 @@
                 ],
                 "styles": {
                   "default": {
-                    "faceImage": {
-                      "type": "icon",
-                      "value": "stopwatch"
+                    "knob": {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "stopwatch"
+                      },
+                      "background": {
+                        "type": "color",
+                        "value": "#ffffff",
+                        "opacity": 0.1
+                      },
+                      "stroke": {
+                        "opacity": 0.1
+                      }
                     }
                   }
-                },
-                "toggle": "true"
+                }
               }
             ],
             [
