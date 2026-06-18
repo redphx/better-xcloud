@@ -1,0 +1,7 @@
+{
+  "name": "007 First Light",
+  "default_layout": "custom",
+  "layouts": [
+    "007-first-light"
+  ]
+}
