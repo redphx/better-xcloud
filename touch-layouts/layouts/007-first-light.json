@@ -36,7 +36,11 @@
                     "type": "button",
                     "action": "gamepadY"
                   },
-                  null
+                  null,
+                  {
+                    "type": "button",
+                    "action": "rightBumper"
+                  }
                 ]
               ]
             }
