@@ -550,6 +550,7 @@ export class SettingsDialog extends NavigationDialog {
             label: t('mouse-and-keyboard'),
             helpUrl: 'https://better-xcloud.github.io/mouse-and-keyboard/',
             items: [
+                StreamPref.MKB_DISABLE_ZOOM,
                 ($parent: HTMLElement) => {
                     $parent.appendChild(MkbExtraSettings.renderSettings.apply(this));
                 },
