@@ -3,7 +3,7 @@ import { t } from "@utils/translation";
 import { Toast } from "@utils/toast";
 import { BxLogger } from "@utils/bx-logger";
 import { GamepadKey, GamepadKeyName } from "@/enums/gamepad";
-import { getStreamPref } from "@/utils/pref-utils";
+import { getStreamPref, STORAGE } from "@/utils/pref-utils";
 import { StreamPref } from "@/enums/pref-keys";
 
 
@@ -23,7 +23,12 @@ export function showGamepadToast(gamepad: Gamepad) {
     let text = '🎮';
 
     if (getStreamPref(StreamPref.LOCAL_CO_OP_ENABLED)) {
-        text += ` #${gamepad.index + 1}`;
+        // Show assigned player slot if set, otherwise show browser index
+        const controllerSetting = STORAGE.Stream.getControllerSetting(gamepad.id);
+        const playerIndex = controllerSetting.playerIndex >= 0
+            ? controllerSetting.playerIndex
+            : gamepad.index;
+        text += ` P${playerIndex + 1}`;
     }
 
     // Remove "(STANDARD GAMEPAD Vendor: xxx Product: xxx)" from ID
