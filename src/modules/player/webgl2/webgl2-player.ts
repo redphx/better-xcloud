@@ -2,6 +2,7 @@ import { compressCodeFile } from "@macros/build" with { type: "macro" };
 
 import { StreamPref } from "@/enums/pref-keys";
 import { getStreamPref } from "@/utils/pref-utils";
+import type { StreamPlayerOptions } from "@/types/stream";
 import { BaseCanvasPlayer } from "../base-canvas-player";
 import { StreamPlayerType, StreamVideoProcessingMode } from "@/enums/pref-values";
 
@@ -11,12 +12,18 @@ export class WebGL2Player extends BaseCanvasPlayer {
     private resources: Array<WebGLBuffer | WebGLTexture | WebGLProgram | WebGLShader> = [];
     private program: WebGLProgram | null = null;
 
+    // Dirty flag: updateCanvas() only recomputes the uniforms when
+    // updateOptions()/refreshPlayer() invalidated it. Options/canvas unchanged
+    // = 1 read + branch (steady 60 Hz path) instead of 7 gl.uniform* calls.
+    private _uniformsDirty = true;
+
     constructor($video: HTMLVideoElement) {
         super(StreamPlayerType.WEBGL2, $video, 'WebGL2Player');
     }
 
     private updateCanvas() {
-        console.log('updateCanvas', this.options);
+        if (!this._uniformsDirty) return;
+        this._uniformsDirty = false;
 
         const gl = this.gl!;
         const program = this.program!;
@@ -30,6 +37,12 @@ export class WebGL2Player extends BaseCanvasPlayer {
         gl.uniform1f(gl.getUniformLocation(program, 'brightness'), this.options.brightness / 100);
         gl.uniform1f(gl.getUniformLocation(program, 'contrast'), this.options.contrast / 100);
         gl.uniform1f(gl.getUniformLocation(program, 'saturation'), this.options.saturation / 100);
+    }
+
+    override updateOptions(newOptions: Partial<StreamPlayerOptions>, refresh = false) {
+        this.options = Object.assign(this.options, newOptions);
+        this._uniformsDirty = true;
+        refresh && this.refreshPlayer();
     }
 
     updateFrame() {
@@ -137,6 +150,7 @@ export class WebGL2Player extends BaseCanvasPlayer {
     }
 
     refreshPlayer(): void {
+        this._uniformsDirty = true;
         this.updateCanvas();
     }
 }
