@@ -10,6 +10,9 @@ export class WebGL2Player extends BaseCanvasPlayer {
     private gl: WebGL2RenderingContext | null = null;
     private resources: Array<WebGLBuffer | WebGLTexture | WebGLProgram | WebGLShader> = [];
     private program: WebGLProgram | null = null;
+    private texture: WebGLTexture | null = null;
+    private allocatedWidth = 0;
+    private allocatedHeight = 0;
 
     constructor($video: HTMLVideoElement) {
         super(StreamPlayerType.WEBGL2, $video, 'WebGL2Player');
@@ -34,8 +37,41 @@ export class WebGL2Player extends BaseCanvasPlayer {
 
     updateFrame() {
         const gl = this.gl!;
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, this.$video);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        const videoWidth = this.$video.videoWidth;
+        const videoHeight = this.$video.videoHeight;
+        // Immutable storage can't be resized: re-create it when the video resolution changes
+        if (videoWidth > 0 && videoHeight > 0 && (this.texture === null || videoWidth !== this.allocatedWidth || videoHeight !== this.allocatedHeight)) {
+            this.allocateStorage(videoWidth, videoHeight);
+        }
+        if (this.texture) {
+            gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGB, gl.UNSIGNED_BYTE, this.$video);
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+        }
+    }
+
+    private allocateStorage(width: number, height: number): void {
+        const gl = this.gl!;
+        if (this.texture) {
+            // Immutable storage can't be resized: recreate the texture
+            this.resources.splice(this.resources.indexOf(this.texture), 1);
+            gl.deleteTexture(this.texture);
+        }
+        const texture = gl.createTexture();
+        this.texture = texture;
+        this.resources.push(texture);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        // gl.RGB is an unsized format and is invalid for texStorage2D (INVALID_ENUM ->
+        // storage never allocated, per-frame texSubImage2D uploads fail, black screen).
+        // texStorage2D requires a sized internal format; texSubImage2D keeps gl.RGB.
+        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGB8, width, height);
+        this.allocatedWidth = width;
+        this.allocatedHeight = height;
     }
 
     protected async setupShaders(): Promise<void> {
@@ -92,22 +128,13 @@ export class WebGL2Player extends BaseCanvasPlayer {
         gl.enableVertexAttribArray(0);
         gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
-        // Texture to contain the video data
-        const texture = gl.createTexture();
-        this.resources.push(texture);
-
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        // Texture to contain the video data (immutable storage, uploaded with texSubImage2D per frame)
+        if (this.$canvas.width > 0 && this.$canvas.height > 0) {
+            this.allocateStorage(this.$canvas.width, this.$canvas.height);
+        }
 
         // Bind texture to the "data" argument to the fragment shader
         gl.uniform1i(gl.getUniformLocation(program, 'data'), 0);
-
-        gl.activeTexture(gl.TEXTURE0);
-        // gl.bindTexture(gl.TEXTURE_2D, texture);
     }
 
     destroy() {
@@ -133,6 +160,7 @@ export class WebGL2Player extends BaseCanvasPlayer {
             }
         }
 
+        this.texture = null;
         this.gl = null;
     }
 
