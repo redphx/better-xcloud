@@ -19,6 +19,42 @@ export class BxSelectElement extends HTMLSelectElement {
     private $label!: HTMLSpanElement;
     private $checkBox!: HTMLInputElement;
 
+    private static observer: MutationObserver | null = null;
+
+    private static ensureObserver() {
+        if (BxSelectElement.observer) return;
+        BxSelectElement.observer = new MutationObserver(BxSelectElement.onMutation);
+        BxSelectElement.observer.observe(document.documentElement, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+        });
+    }
+
+    private static onMutation(mutationList: MutationRecord[]) {
+        const affected = new Set<BxSelectElement>();
+
+        for (const mutation of mutationList) {
+            if (mutation.type !== 'childList' && mutation.type !== 'attributes') continue;
+
+            const $target = mutation.target as Element;
+            if (!$target || !$target.closest) continue;
+
+            const $wrapper = $target.closest('.bx-select') as BxSelectElement | null;
+            if ($wrapper && $wrapper.$select && $wrapper.$select.contains($target)) {
+                affected.add($wrapper);
+            }
+        }
+
+        for (const $wrapper of affected) {
+            $wrapper.visibleIndex = $wrapper.$select.selectedIndex;
+            $wrapper.optionsList = Array.from($wrapper.$select.querySelectorAll<HTMLOptionElement>('option'));
+
+            BxSelectElement.resetIndicators.call($wrapper);
+            BxSelectElement.render.call($wrapper);
+        }
+    }
+
     static create($select: HTMLSelectElement, forceFriendly=false): BxSelectElement {
         const isControllerFriendly = forceFriendly || getGlobalPref(GlobalPref.UI_CONTROLLER_FRIENDLY);
 
@@ -122,24 +158,7 @@ export class BxSelectElement extends HTMLSelectElement {
         }
 
         $select.addEventListener('input', BxSelectElement.render.bind(self));
-
-        const observer = new MutationObserver((mutationList, observer) => {
-            mutationList.forEach(mutation => {
-                if (mutation.type === 'childList' || mutation.type === 'attributes') {
-                    self.visibleIndex = $select.selectedIndex;
-                    self.optionsList = Array.from($select.querySelectorAll<HTMLOptionElement>('option'));
-
-                    BxSelectElement.resetIndicators.call(self);
-                    BxSelectElement.render.call(self);
-                }
-            });
-        });
-
-        observer.observe($select, {
-            subtree: true,
-            childList: true,
-            attributes: true,
-        });
+        BxSelectElement.ensureObserver();
 
         self.append(
             $select,
