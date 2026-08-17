@@ -219,10 +219,10 @@ export type StreamPrefTypeMap = {
 export type AllPrefs = GlobalPref | StreamPref;
 
 export const ALL_PREFS: {
-    global: GlobalPref[],
-    stream: StreamPref[],
+    global: Set<GlobalPref>,
+    stream: Set<StreamPref>,
 } = {
-    global: [
+    global: new Set([
         GlobalPref.AUDIO_MIC_ON_PLAYING,
         GlobalPref.AUDIO_VOLUME_CONTROL_ENABLED,
         GlobalPref.BLOCK_FEATURES,
@@ -272,8 +272,8 @@ export const ALL_PREFS: {
 
         GlobalPref.SCRIPT_LOCALE,
         GlobalPref.USER_AGENT_PROFILE,
-    ],
-    stream: [
+    ]),
+    stream: new Set([
         StreamPref.AUDIO_VOLUME,
         StreamPref.CONTROLLER_POLLING_RATE,
         StreamPref.CONTROLLER_SETTINGS,
@@ -306,7 +306,7 @@ export const ALL_PREFS: {
         StreamPref.VIDEO_RATIO,
         StreamPref.VIDEO_SATURATION,
         StreamPref.VIDEO_SHARPNESS,
-    ],
+    ]),
 } as const;
 
 export type AnySettingsStorage = BaseSettingsStorage<GlobalPref> | BaseSettingsStorage<StreamPref>;
