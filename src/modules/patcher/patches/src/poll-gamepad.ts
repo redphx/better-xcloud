@@ -57,7 +57,11 @@ if (btnHome) {
         }
     } else if (self.bxHomeStates[currentGamepad.index]) {
         hijack = true;
-        const info = structuredClone(self.bxHomeStates[currentGamepad.index]);
+        // The state object is only read here (shortcutPressed, timestamp) and
+        // immediately replaced with null — it's never mutated after being
+        // stored, so a defensive structuredClone is wasted work on the
+        // release path (a deep clone + allocation at every Home release).
+        const info = self.bxHomeStates[currentGamepad.index];
 
         // Home button released
         self.bxHomeStates[currentGamepad.index] = null;
