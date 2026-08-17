@@ -9,6 +9,7 @@ const DEFAULT_FLAGS: BxFlags = {
     SafariWorkaround: true,
 
     EnableWebGPURenderer: false,
+    WebGL2NoColorConversion: false,
 
     ForceNativeMkbTitles: [],
     FeatureGates: null,

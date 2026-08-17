@@ -2,6 +2,7 @@ import { compressCodeFile } from "@macros/build" with { type: "macro" };
 
 import { StreamPref } from "@/enums/pref-keys";
 import { getStreamPref } from "@/utils/pref-utils";
+import { BX_FLAGS } from "@/utils/bx-flags";
 import { BaseCanvasPlayer } from "../base-canvas-player";
 import { StreamPlayerType, StreamVideoProcessingMode } from "@/enums/pref-values";
 
@@ -50,7 +51,12 @@ export class WebGL2Player extends BaseCanvasPlayer {
         } as WebGLContextAttributes) as WebGL2RenderingContext;
         this.gl = gl;
 
-        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+        // Skip the browser color management on video uploads. Slight color shift possible.
+        if (BX_FLAGS.WebGL2NoColorConversion) {
+            gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+        }
 
         // Vertex shader: Identity map
         const vShader = gl.createShader(gl.VERTEX_SHADER)!;
