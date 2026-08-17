@@ -180,6 +180,7 @@ type BxFlags = {
     SafariWorkaround: boolean;
 
     EnableWebGPURenderer: boolean;
+    WebGL2NoColorConversion: boolean;
 
     ForceNativeMkbTitles: string[];
     FeatureGates: { [key: string]: boolean } | null,
