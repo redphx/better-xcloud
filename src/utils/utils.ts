@@ -16,15 +16,6 @@ export function checkForUpdate() {
         return;
     }
 
-    // Always check for new version
-    fetch('https://api.github.com/repos/redphx/better-xcloud/releases/latest')
-        .then(response => response.json())
-        .then(json => {
-            // Store the latest version
-            setGlobalPref(GlobalPref.VERSION_LATEST, json.tag_name.substring(1), 'direct');
-            setGlobalPref(GlobalPref.VERSION_CURRENT, SCRIPT_VERSION, 'direct');
-        });
-
     const CHECK_INTERVAL_SECONDS = 2 * 3600; // check every 2 hours
 
     const currentVersion = getGlobalPref(GlobalPref.VERSION_CURRENT);
@@ -40,6 +31,15 @@ export function checkForUpdate() {
 
     // Update translations
     Translations.updateTranslations(currentVersion === SCRIPT_VERSION);
+
+    // Always check for new version
+    fetch('https://api.github.com/repos/redphx/better-xcloud/releases/latest')
+        .then(response => response.json())
+        .then(json => {
+            // Store the latest version
+            setGlobalPref(GlobalPref.VERSION_LATEST, json.tag_name.substring(1), 'direct');
+            setGlobalPref(GlobalPref.VERSION_CURRENT, SCRIPT_VERSION, 'direct');
+        });
 }
 
 
