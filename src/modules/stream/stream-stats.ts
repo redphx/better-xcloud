@@ -16,7 +16,19 @@ export class StreamStats {
 
     private isRunning = false;
     private intervalId?: number | null;
+    private isUpdating = false;
     private readonly REFRESH_INTERVAL = 1 * 1000;
+
+    private getInterval() {
+        return document.hidden ? StreamStatsCollector.INTERVAL_BACKGROUND : this.REFRESH_INTERVAL;
+    }
+
+    private onVisibilityChanged = () => {
+        if (!this.isRunning) return;
+        this.intervalId && clearTimeout(this.intervalId);
+        this.intervalId = null;
+        this.update();
+    };
 
     private stats = {
         [StreamStat.CLOCK]: {
@@ -82,6 +94,8 @@ export class StreamStats {
         this.boundOnStreamHudStateChanged = this.onStreamHudStateChanged.bind(this);
         BxEventBus.Stream.on('ui.streamHud.rendered', this.boundOnStreamHudStateChanged);
 
+        document.addEventListener('visibilitychange', this.onVisibilityChanged);
+
         this.render();
     }
 
@@ -91,13 +105,11 @@ export class StreamStats {
         }
 
         this.isRunning = true;
-        this.intervalId && clearInterval(this.intervalId);
+        this.intervalId && clearTimeout(this.intervalId);
         await this.update(true);
 
         this.$container.classList.remove('bx-gone');
         this.$container.dataset.display = glancing ? 'glancing' : 'fixed';
-
-        this.intervalId = window.setInterval(this.update, this.REFRESH_INTERVAL);
     }
 
     async stop(glancing=false) {
@@ -106,7 +118,7 @@ export class StreamStats {
         }
 
         this.isRunning = false;
-        this.intervalId && clearInterval(this.intervalId);
+        this.intervalId && clearTimeout(this.intervalId);
         this.intervalId = null;
 
         this.$container.removeAttribute('data-display');
@@ -142,34 +154,46 @@ export class StreamStats {
     }
 
     private update = async (forceUpdate=false) => {
+        if (this.isUpdating) return;
+
         if ((!forceUpdate && this.isHidden()) || !STATES.currentStream.peerConnection) {
             this.destroy();
             return;
         }
 
-        const PREF_STATS_CONDITIONAL_FORMATTING = getStreamPref(StreamPref.STATS_CONDITIONAL_FORMATTING);
-        let grade: StreamStatGrade = '';
+        this.isUpdating = true;
+        try {
+            const PREF_STATS_CONDITIONAL_FORMATTING = getStreamPref(StreamPref.STATS_CONDITIONAL_FORMATTING);
+            let grade: StreamStatGrade = '';
 
-        // Collect stats
-        const statsCollector = StreamStatsCollector.getInstance();
-        await statsCollector.collect();
+            // Collect stats
+            const statsCollector = StreamStatsCollector.getInstance();
+            await statsCollector.collect();
 
-        let statKey: keyof typeof this.stats;
-        for (statKey in this.stats) {
-            grade = '';
+            let statKey: keyof typeof this.stats;
+            for (statKey in this.stats) {
+                grade = '';
 
-            const stat = this.stats[statKey];
-            const value = statsCollector.getStat(statKey);
-            const $element = stat.$element;
-            $element.textContent = value.toString();
+                const stat = this.stats[statKey];
+                const value = statsCollector.getStat(statKey);
+                const $element = stat.$element;
+                $element.textContent = value.toString();
 
-            // Get stat's grade
-            if (PREF_STATS_CONDITIONAL_FORMATTING && 'grades' in value) {
-                grade = statsCollector.calculateGrade(value.current, value.grades);
+                // Get stat's grade
+                if (PREF_STATS_CONDITIONAL_FORMATTING && 'grades' in value) {
+                    grade = statsCollector.calculateGrade(value.current, value.grades);
+                }
+
+                if ($element.dataset.grade !== grade) {
+                    $element.dataset.grade = grade;
+                }
             }
+        } finally {
+            this.isUpdating = false;
 
-            if ($element.dataset.grade !== grade) {
-                $element.dataset.grade = grade;
+            if (this.isRunning) {
+                this.intervalId && clearTimeout(this.intervalId);
+                this.intervalId = window.setTimeout(this.update, this.getInterval());
             }
         }
     }
