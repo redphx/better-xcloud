@@ -494,6 +494,15 @@ export class StreamSettingsStorage extends BaseSettingsStorage<StreamPref> {
     getControllerSetting(gamepadId: string): ControllerSetting {
         const controllerSettings = this.getSetting(StreamPref.CONTROLLER_SETTINGS);
         let controllerSetting = controllerSettings[gamepadId];
+
+        // Fallback to the base gamepad.id preset when a co-op composite key (id::index) isn't stored yet
+        if (!controllerSetting) {
+            const baseGamepadId = gamepadId.replace(/::\d+$/, '');
+            if (baseGamepadId !== gamepadId) {
+                controllerSetting = controllerSettings[baseGamepadId];
+            }
+        }
+
         if (!controllerSetting) {
             controllerSetting = {} as ControllerSetting;
         }
