@@ -21,9 +21,13 @@ if (window.BX_EXPOSED.disableGamepadPolling) {
 
 const currentGamepad = $gamepadVar$;
 
-const btnHome = currentGamepad.buttons[16];
+// Guard against gamepads that don't expose a buttons array or have
+// fewer than 17 buttons (e.g. GameSir G7 SE with 15 buttons and
+// non-standard mapping). Without this guard the exception kills the
+// entire polling loop and controller input silently stops working.
+const btnHome = currentGamepad.buttons?.[16];
 // Controller shortcuts
-if (btnHome) {
+if (btnHome?.pressed !== undefined) {
     if (!self.bxHomeStates) {
         self.bxHomeStates = {};
     }
