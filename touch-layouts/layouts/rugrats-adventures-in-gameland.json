@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom": {
+      "name": "Custom",
+      "author": "Kode-Z",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "directionalPad",
+              "scale": 2.2
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadA",
+              "pullAction": {
+                "type": "segmented",
+                "items": [
+                  "gamepadX"
+                ]
+              },
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "jump"
+                  },
+                  "pullIndicator": [
+                    {
+                      "faceImage": {
+                        "type": "icon",
+                        "value": "downArrow"
+                      }
+                    }
+                  ]
+                },
+                "idle": {
+                  "pullIndicator": [
+                    null,
+                    {
+                      "opacity": 0.3
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "outer": [
+            null,
+            null,
+            [
+              null,
+              {
+                "type": "button",
+                "action": "gamepadB"
+              },
+              null
+            ],
+            null,
+            {
+              "type": "button",
+              "action": "gamepadX",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "throw"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "upper": {
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            },
+            {
+              "type": "button",
+              "action": "view"
+            },
+            {
+              "type": "button",
+              "action": "leftTrigger",
+              "styles": {
+                "default": {
+                  "faceImage": {
+                    "type": "icon",
+                    "value": "zoomIn"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

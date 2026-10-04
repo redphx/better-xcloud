@@ -1,0 +1,7 @@
+{
+  "name": "Rugrats: Adventures in Gameland",
+  "default_layout": "custom",
+  "layouts": [
+    "rugrats-adventures-in-gameland"
+  ]
+}

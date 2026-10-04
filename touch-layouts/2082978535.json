@@ -1,0 +1,7 @@
+{
+  "name": "Halo: Campaign Evolved",
+  "default_layout": "default",
+  "layouts": [
+    "halo-campaign-evolved"
+  ]
+}
