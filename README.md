@@ -1,4 +1,4 @@
-<img width="434" height="602" alt="image" src="https://github.com/user-attachments/assets/381ddcf0-ed67-4332-bd0d-bfdee86cddd3" /><img width="434" height="602" alt="image" src="https://github.com/user-attachments/assets/b32b0278-0627-435e-a947-f10c9e9a64e8" /><div align="center">
+<div align="center">
     <img src="https://raw.githubusercontent.com/redphx/better-xcloud/refs/heads/typescript/resources/logos/better-xcloud.png" width="256"/>  
     <h1>Better xCloud</h1>
     <!-- Latest Version Badge -->
@@ -40,7 +40,7 @@ Visit the [home page](https://better-xcloud.github.io) to know how to install Be
 - For the full details please visit: [**better-xcloud.github.io**](https://better-xcloud.github.io)  
 - [Demo video](https://youtu.be/hyp69Jrb2sQ)
 
-## UPDATE Nov 06
+## ⚠️ UPDATE Nov 06
 
 Better xCloud currently only works on the `xbox.com/play` website. If it redirects you to `play.xbox.com`, you can opt-out by:  
 
