@@ -13,6 +13,7 @@ import { setNearby } from "@/utils/navigation-utils";
 import { PatcherCache } from "@/modules/patcher/patcher";
 import { UserAgentProfile } from "@/enums/user-agent";
 import { UserAgent } from "@/utils/user-agent";
+import { LatencyTest } from "./latency-test";
 import { BX_FLAGS } from "@/utils/bx-flags";
 import { clearAllData, copyToClipboard } from "@/utils/utils";
 import { GlobalPref, StorageKey, StreamPref, type AnyPref } from "@/enums/pref-keys";
@@ -205,6 +206,9 @@ export class SettingsDialog extends NavigationDialog {
                 multiLines: true,
             },
             GlobalPref.SERVER_PREFER_IPV6,
+            ($parent) => {
+                LatencyTest.render($parent);
+            },
         ],
     }, {
         group: 'stream',
