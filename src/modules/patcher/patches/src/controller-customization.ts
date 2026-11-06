@@ -10,8 +10,9 @@ const shareButtonPressed = currentGamepad.buttons[17]?.pressed;
 let shareButtonHandled = false;
 
 const xCloudGamepad: XcloudGamepad = $xCloudGamepadVar$;
-if (currentGamepad.id in window.BX_STREAM_SETTINGS.controllers) {
-    const controller = window.BX_STREAM_SETTINGS.controllers[currentGamepad.id];
+const gamepadKey = window.BX_EXPOSED.localCoOpEnabled ? `${currentGamepad.id}::${currentGamepad.index}` : currentGamepad.id;
+if (gamepadKey in window.BX_STREAM_SETTINGS.controllers) {
+    const controller = window.BX_STREAM_SETTINGS.controllers[gamepadKey];
     if (controller?.customization) {
         const MIN_RANGE = 0.1;
 

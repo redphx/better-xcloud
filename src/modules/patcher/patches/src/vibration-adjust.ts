@@ -8,7 +8,8 @@ declare const e: {
 };
 
 if (e?.gamepad?.connected) {
-    const gamepadSettings = window.BX_STREAM_SETTINGS.controllers[e.gamepad.id];
+    const gamepadKey = window.BX_EXPOSED.localCoOpEnabled ? `${e.gamepad.id}::${e.gamepad.index}` : e.gamepad.id;
+    const gamepadSettings = window.BX_STREAM_SETTINGS.controllers[gamepadKey];
     if (gamepadSettings?.customization) {
         const intensity = gamepadSettings.customization.vibrationIntensity;
 
