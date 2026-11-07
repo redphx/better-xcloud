@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      6.7.12
+// @version      6.7.13-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -195,7 +195,7 @@ class UserAgent {
   });
  }
 }
-var SCRIPT_VERSION = "6.7.12", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "6.7.13-beta", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
  supportedRegion: !0,
@@ -9513,17 +9513,28 @@ function patchSdpBitrate(sdp, video, audio) {
  return lines.join(`\r
 `);
 }
+var UNIFORM_NAMES = [
+ "data",
+ "iResolution",
+ "texelSize",
+ "filterId",
+ "qualityMode",
+ "sharpenFactor",
+ "brightness",
+ "contrast",
+ "saturation"
+];
 class WebGL2Player extends BaseCanvasPlayer {
  gl = null;
  resources = [];
  program = null;
+ uniforms = {};
  constructor($video) {
   super("webgl2", $video, "WebGL2Player");
  }
  updateCanvas() {
-  console.log("updateCanvas", this.options);
-  let gl = this.gl, program = this.program, filterId = this.toFilterId(this.options.processing);
-  gl.uniform2f(gl.getUniformLocation(program, "iResolution"), this.$canvas.width, this.$canvas.height), gl.uniform1i(gl.getUniformLocation(program, "filterId"), filterId), gl.uniform1i(gl.getUniformLocation(program, "qualityMode"), this.options.processingMode === "quality" ? 1 : 0), gl.uniform1f(gl.getUniformLocation(program, "sharpenFactor"), this.options.sharpness / (this.options.processingMode === "quality" ? 1 : 1.2)), gl.uniform1f(gl.getUniformLocation(program, "brightness"), this.options.brightness / 100), gl.uniform1f(gl.getUniformLocation(program, "contrast"), this.options.contrast / 100), gl.uniform1f(gl.getUniformLocation(program, "saturation"), this.options.saturation / 100);
+  let gl = this.gl, u = this.uniforms, width = this.$canvas.width, height = this.$canvas.height, isQuality = this.options.processingMode === "quality";
+  gl.viewport(0, 0, width, height), gl.uniform2f(u.iResolution, width, height), gl.uniform2f(u.texelSize, 1 / width, 1 / height), gl.uniform1i(u.filterId, this.toFilterId(this.options.processing)), gl.uniform1i(u.qualityMode, isQuality ? 1 : 0), gl.uniform1f(u.sharpenFactor, this.options.sharpness / (isQuality ? 1 : 1.2)), gl.uniform1f(u.brightness, this.options.brightness / 100), gl.uniform1f(u.contrast, this.options.contrast / 100), gl.uniform1f(u.saturation, this.options.saturation / 100);
  }
  updateFrame() {
   let gl = this.gl;
@@ -9535,43 +9546,35 @@ class WebGL2Player extends BaseCanvasPlayer {
    antialias: !0,
    alpha: !1,
    depth: !1,
+   desynchronized: !0,
    preserveDrawingBuffer: !1,
    stencil: !1,
    powerPreference: getStreamPref("video.player.powerPreference")
   });
-  this.gl = gl, gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
-  let vShader = gl.createShader(gl.VERTEX_SHADER);
-  gl.shaderSource(vShader, `#version 300 es
-in vec4 position;void main() {gl_Position = position;}`), gl.compileShader(vShader);
-  let fShader = gl.createShader(gl.FRAGMENT_SHADER);
-  gl.shaderSource(fShader, `#version 300 es
-precision mediump float;uniform sampler2D data;uniform vec2 iResolution;const int FILTER_UNSHARP_MASKING = 1;const int FILTER_CAS = 2;const float CAS_CONTRAST_PEAK = 0.8 * -3.0 + 8.0;const vec3 LUMINOSITY_FACTOR = vec3(0.299, 0.587, 0.114);uniform int filterId;uniform bool qualityMode;uniform float sharpenFactor;uniform float brightness;uniform float contrast;uniform float saturation;out vec4 fragColor;vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {vec2 texelSize = 1.0 / iResolution.xy;vec3 b = texture(tex, coord + texelSize * vec2(0, 1)).rgb;vec3 d = texture(tex, coord + texelSize * vec2(-1, 0)).rgb;vec3 f = texture(tex, coord + texelSize * vec2(1, 0)).rgb;vec3 h = texture(tex, coord + texelSize * vec2(0, -1)).rgb;vec3 a;vec3 c;vec3 g;vec3 i;if (filterId == FILTER_UNSHARP_MASKING || qualityMode) {a = texture(tex, coord + texelSize * vec2(-1, 1)).rgb;c = texture(tex, coord + texelSize * vec2(1, 1)).rgb;g = texture(tex, coord + texelSize * vec2(-1, -1)).rgb;i = texture(tex, coord + texelSize * vec2(1, -1)).rgb;}if (filterId == FILTER_UNSHARP_MASKING) {vec3 gaussianBlur = (a + c + g + i) * 1.0 + (b + d + f + h) * 2.0 + e * 4.0;gaussianBlur /= 16.0;return e + (e - gaussianBlur) * sharpenFactor / 3.0;}vec3 minRgb = min(min(min(d, e), min(f, b)), h);vec3 maxRgb = max(max(max(d, e), max(f, b)), h);if (qualityMode) {minRgb += min(min(a, c), min(g, i));maxRgb += max(max(a, c), max(g, i));}vec3 reciprocalMaxRgb = 1.0 / maxRgb;vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);amplifyRgb = inversesqrt(amplifyRgb);vec3 weightRgb = -(1.0 / (amplifyRgb * CAS_CONTRAST_PEAK));vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);vec3 window = b + d + f + h;vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);return mix(e, outColor, sharpenFactor / 2.0);}void main() {vec2 uv = gl_FragCoord.xy / iResolution.xy;vec3 color = texture(data, uv).rgb;if (sharpenFactor > 0.0) {color = clarityBoost(data, uv, color);}color = mix(vec3(dot(color, LUMINOSITY_FACTOR)), color, saturation);color = contrast * (color - 0.5) + 0.5;color = brightness * color;fragColor = vec4(color, 1.0);}`), gl.compileShader(fShader);
-  let program = gl.createProgram();
-  if (this.program = program, gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), gl.useProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS)) console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
-  this.updateCanvas();
-  let buffer = gl.createBuffer();
-  this.resources.push(buffer), gl.bindBuffer(gl.ARRAY_BUFFER, buffer), gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-   -1,
-   -1,
-   3,
-   -1,
-   -1,
-   3
-  ]), gl.STATIC_DRAW), gl.enableVertexAttribArray(0), gl.vertexAttribPointer(0, 2, gl.FLOAT, !1, 0, 0);
+  this.gl = gl;
+  let compile = (type, source) => {
+   let shader = gl.createShader(type);
+   return gl.shaderSource(shader, source), gl.compileShader(shader), shader;
+  }, vShader = compile(gl.VERTEX_SHADER, `#version 300 es
+void main() {vec2 pos = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2);gl_Position = vec4(pos * 2.0 - 1.0, 0.0, 1.0);}`), fShader = compile(gl.FRAGMENT_SHADER, `#version 300 es
+precision highp float;precision highp sampler2D;uniform sampler2D data;uniform vec2 iResolution;uniform vec2 texelSize;const int FILTER_UNSHARP_MASKING = 1;const int FILTER_CAS = 2;const float CAS_CONTRAST_PEAK = 0.8 * -3.0 + 8.0;const vec3 LUMA709 = vec3(0.2126, 0.7152, 0.0722);uniform int filterId;uniform bool qualityMode;uniform float sharpenFactor;uniform float brightness;uniform float contrast;uniform float saturation;out vec4 fragColor;vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {vec3 b = texture(tex, coord + texelSize * vec2(0, 1)).rgb;vec3 d = texture(tex, coord + texelSize * vec2(-1, 0)).rgb;vec3 f = texture(tex, coord + texelSize * vec2(1, 0)).rgb;vec3 h = texture(tex, coord + texelSize * vec2(0, -1)).rgb;vec3 a;vec3 c;vec3 g;vec3 i;if (filterId == FILTER_UNSHARP_MASKING || qualityMode) {a = texture(tex, coord + texelSize * vec2(-1, 1)).rgb;c = texture(tex, coord + texelSize * vec2(1, 1)).rgb;g = texture(tex, coord + texelSize * vec2(-1, -1)).rgb;i = texture(tex, coord + texelSize * vec2(1, -1)).rgb;}if (filterId == FILTER_UNSHARP_MASKING) {vec3 gaussianBlur = (a + c + g + i) * 1.0 + (b + d + f + h) * 2.0 + e * 4.0;gaussianBlur /= 16.0;return e + (e - gaussianBlur) * sharpenFactor / 3.0;}vec3 minRgb = min(min(min(d, e), min(f, b)), h);vec3 maxRgb = max(max(max(d, e), max(f, b)), h);float headroom = 1.0;if (qualityMode) {minRgb += min(min(a, c), min(g, i));maxRgb += max(max(a, c), max(g, i));headroom = 2.0;}vec3 reciprocalMaxRgb = 1.0 / max(maxRgb, 1e-4);vec3 amplifyRgb = clamp(min(minRgb, headroom - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);amplifyRgb = inversesqrt(amplifyRgb);vec3 weightRgb = -(1.0 / (amplifyRgb * CAS_CONTRAST_PEAK));vec3 reciprocalWeightRgb = 1.0 / (4.0 * weightRgb + 1.0);vec3 window = b + d + f + h;vec3 outColor = clamp((window * weightRgb + e) * reciprocalWeightRgb, 0.0, 1.0);return mix(e, outColor, sharpenFactor / 2.0);}void main() {vec2 uv = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y) * texelSize;vec3 color = texture(data, uv).rgb;if (sharpenFactor > 0.0) {color = clarityBoost(data, uv, color);}color = mix(vec3(dot(color, LUMA709)), color, saturation);color = contrast * (color - 0.5) + 0.5;color = brightness * color;fragColor = vec4(color, 1.0);}`), program = gl.createProgram();
+  if (this.program = program, this.resources.push(program), gl.attachShader(program, vShader), gl.attachShader(program, fShader), gl.linkProgram(program), !gl.getProgramParameter(program, gl.LINK_STATUS)) console.error(`Link failed: ${gl.getProgramInfoLog(program)}`), console.error(`vs info-log: ${gl.getShaderInfoLog(vShader)}`), console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
+  gl.detachShader(program, vShader), gl.detachShader(program, fShader), gl.deleteShader(vShader), gl.deleteShader(fShader), gl.useProgram(program);
+  for (let name of UNIFORM_NAMES)
+   this.uniforms[name] = gl.getUniformLocation(program, name);
+  gl.activeTexture(gl.TEXTURE0);
   let texture = gl.createTexture();
-  this.resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !0), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(gl.getUniformLocation(program, "data"), 0), gl.activeTexture(gl.TEXTURE0);
+  this.resources.push(texture), gl.bindTexture(gl.TEXTURE_2D, texture), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR), gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR), gl.uniform1i(this.uniforms.data, 0), this.updateCanvas();
  }
  destroy() {
   super.destroy();
   let gl = this.gl;
   if (!gl) return;
-  gl.getExtension("WEBGL_lose_context")?.loseContext(), gl.useProgram(null);
+  gl.useProgram(null);
   for (let resource of this.resources)
    if (resource instanceof WebGLProgram) gl.deleteProgram(resource);
-   else if (resource instanceof WebGLShader) gl.deleteShader(resource);
    else if (resource instanceof WebGLTexture) gl.deleteTexture(resource);
-   else if (resource instanceof WebGLBuffer) gl.deleteBuffer(resource);
-  this.gl = null;
+  gl.getExtension("WEBGL_lose_context")?.loseContext(), this.resources = [], this.program = null, this.gl = null;
  }
  refreshPlayer() {
   this.updateCanvas();

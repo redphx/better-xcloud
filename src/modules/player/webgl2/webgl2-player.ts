@@ -5,31 +5,51 @@ import { getStreamPref } from "@/utils/pref-utils";
 import { BaseCanvasPlayer } from "../base-canvas-player";
 import { StreamPlayerType, StreamVideoProcessingMode } from "@/enums/pref-values";
 
+const UNIFORM_NAMES = [
+    'data',
+    'iResolution',
+    'texelSize',
+    'filterId',
+    'qualityMode',
+    'sharpenFactor',
+    'brightness',
+    'contrast',
+    'saturation',
+] as const;
+
+type UniformName = typeof UNIFORM_NAMES[number];
+
 
 export class WebGL2Player extends BaseCanvasPlayer {
     private gl: WebGL2RenderingContext | null = null;
-    private resources: Array<WebGLBuffer | WebGLTexture | WebGLProgram | WebGLShader> = [];
+    private resources: Array<WebGLTexture | WebGLProgram> = [];
     private program: WebGLProgram | null = null;
+    private uniforms = {} as Record<UniformName, WebGLUniformLocation | null>;
 
     constructor($video: HTMLVideoElement) {
         super(StreamPlayerType.WEBGL2, $video, 'WebGL2Player');
     }
 
     private updateCanvas() {
-        console.log('updateCanvas', this.options);
-
         const gl = this.gl!;
-        const program = this.program!;
-        const filterId = this.toFilterId(this.options.processing);
+        const u = this.uniforms;
 
-        gl.uniform2f(gl.getUniformLocation(program, 'iResolution'), this.$canvas.width, this.$canvas.height);
+        const width = this.$canvas.width;
+        const height = this.$canvas.height;
+        const isQuality = this.options.processingMode === StreamVideoProcessingMode.QUALITY;
 
-        gl.uniform1i(gl.getUniformLocation(program, 'filterId'), filterId);
-        gl.uniform1i(gl.getUniformLocation(program, 'qualityMode'), this.options.processingMode === StreamVideoProcessingMode.QUALITY ? 1 : 0);
-        gl.uniform1f(gl.getUniformLocation(program, 'sharpenFactor'), this.options.sharpness / (this.options.processingMode === StreamVideoProcessingMode.QUALITY ? 1 : 1.2));
-        gl.uniform1f(gl.getUniformLocation(program, 'brightness'), this.options.brightness / 100);
-        gl.uniform1f(gl.getUniformLocation(program, 'contrast'), this.options.contrast / 100);
-        gl.uniform1f(gl.getUniformLocation(program, 'saturation'), this.options.saturation / 100);
+        // Viewport does not follow canvas resizes, so set it here
+        gl.viewport(0, 0, width, height);
+
+        gl.uniform2f(u.iResolution, width, height);
+        gl.uniform2f(u.texelSize, 1 / width, 1 / height);
+
+        gl.uniform1i(u.filterId, this.toFilterId(this.options.processing));
+        gl.uniform1i(u.qualityMode, isQuality ? 1 : 0);
+        gl.uniform1f(u.sharpenFactor, this.options.sharpness / (isQuality ? 1 : 1.2));
+        gl.uniform1f(u.brightness, this.options.brightness / 100);
+        gl.uniform1f(u.contrast, this.options.contrast / 100);
+        gl.uniform1f(u.saturation, this.options.saturation / 100);
     }
 
     updateFrame() {
@@ -44,31 +64,32 @@ export class WebGL2Player extends BaseCanvasPlayer {
             antialias: true,
             alpha: false,
             depth: false,
+            desynchronized: true,
             preserveDrawingBuffer: false,
             stencil: false,
             powerPreference: getStreamPref(StreamPref.VIDEO_POWER_PREFERENCE),
         } as WebGLContextAttributes) as WebGL2RenderingContext;
         this.gl = gl;
 
-        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferWidth);
+        const compile = (type: number, source: string) => {
+            const shader = gl.createShader(type)!;
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            return shader;
+        };
 
-        // Vertex shader: Identity map
-        const vShader = gl.createShader(gl.VERTEX_SHADER)!;
-        gl.shaderSource(vShader, compressCodeFile('./src/modules/player/webgl2/shaders/clarity-boost.vert') as any as string);
-        gl.compileShader(vShader);
-
-        const fShader = gl.createShader(gl.FRAGMENT_SHADER)!;
-        gl.shaderSource(fShader, compressCodeFile('./src/modules/player/webgl2/shaders/clarity-boost.fs') as any as string);
-        gl.compileShader(fShader);
+        // Vertex shader: fullscreen triangle from gl_VertexID, no vertex buffer
+        const vShader = compile(gl.VERTEX_SHADER, compressCodeFile('./src/modules/player/webgl2/shaders/clarity-boost.vert') as any as string);
+        const fShader = compile(gl.FRAGMENT_SHADER, compressCodeFile('./src/modules/player/webgl2/shaders/clarity-boost.fs') as any as string);
 
         // Create and link program
         const program = gl.createProgram()!;
         this.program = program;
+        this.resources.push(program);
 
         gl.attachShader(program, vShader);
         gl.attachShader(program, fShader);
         gl.linkProgram(program);
-        gl.useProgram(program);
 
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
             console.error(`Link failed: ${gl.getProgramInfoLog(program)}`);
@@ -76,38 +97,36 @@ export class WebGL2Player extends BaseCanvasPlayer {
             console.error(`fs info-log: ${gl.getShaderInfoLog(fShader)}`);
         }
 
-        this.updateCanvas();
+        // Shaders are no longer needed once linked
+        gl.detachShader(program, vShader);
+        gl.detachShader(program, fShader);
+        gl.deleteShader(vShader);
+        gl.deleteShader(fShader);
 
-        // Vertices: A screen-filling quad made from two triangles
-        const buffer = gl.createBuffer();
-        this.resources.push(buffer);
+        gl.useProgram(program);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-            -1.0, -1.0, // Bottom-left
-            3.0, -1.0,  // Bottom-right
-            -1.0, 3.0,  // Top-left
-        ]), gl.STATIC_DRAW);
-
-        gl.enableVertexAttribArray(0);
-        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        // Cache uniform locations
+        for (const name of UNIFORM_NAMES) {
+            this.uniforms[name] = gl.getUniformLocation(program, name);
+        }
 
         // Texture to contain the video data
-        const texture = gl.createTexture();
+        gl.activeTexture(gl.TEXTURE0);
+
+        const texture = gl.createTexture()!;
         this.resources.push(texture);
 
         gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        // No UNPACK_FLIP_Y: the fragment shader flips Y instead
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-        // Bind texture to the "data" argument to the fragment shader
-        gl.uniform1i(gl.getUniformLocation(program, 'data'), 0);
+        // Bind texture unit 0 to the "data" sampler
+        gl.uniform1i(this.uniforms.data, 0);
 
-        gl.activeTexture(gl.TEXTURE0);
-        // gl.bindTexture(gl.TEXTURE_2D, texture);
+        this.updateCanvas();
     }
 
     destroy() {
@@ -118,21 +137,21 @@ export class WebGL2Player extends BaseCanvasPlayer {
             return;
         }
 
-        gl.getExtension('WEBGL_lose_context')?.loseContext();
         gl.useProgram(null);
 
+        // Delete first, then lose the context
         for (const resource of this.resources) {
             if (resource instanceof WebGLProgram) {
                 gl.deleteProgram(resource);
-            } else if (resource instanceof WebGLShader) {
-                gl.deleteShader(resource);
             } else if (resource instanceof WebGLTexture) {
                 gl.deleteTexture(resource);
-            } else if (resource instanceof WebGLBuffer) {
-                gl.deleteBuffer(resource);
             }
         }
 
+        gl.getExtension('WEBGL_lose_context')?.loseContext();
+
+        this.resources = [];
+        this.program = null;
         this.gl = null;
     }
 

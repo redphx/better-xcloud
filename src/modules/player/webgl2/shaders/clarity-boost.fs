@@ -1,17 +1,21 @@
 #version 300 es
 
-precision mediump float;
+precision highp float;
+precision highp sampler2D;
+
 uniform sampler2D data;
 uniform vec2 iResolution;
+// texelSize = 1.0 / iResolution, computed on the CPU
+uniform vec2 texelSize;
 
 const int FILTER_UNSHARP_MASKING = 1;
 const int FILTER_CAS = 2;
 
-// constrast = 0.8
+// contrast = 0.8
 const float CAS_CONTRAST_PEAK = 0.8 * -3.0 + 8.0;
 
-// Luminosity factor: https://www.w3.org/TR/AERT/#color-contrast
-const vec3 LUMINOSITY_FACTOR = vec3(0.299, 0.587, 0.114);
+// Rec. 709 luma. The browser converts video to sRGB/709 RGB before upload.
+const vec3 LUMA709 = vec3(0.2126, 0.7152, 0.0722);
 
 uniform int filterId;
 uniform bool qualityMode;
@@ -23,9 +27,7 @@ uniform float saturation;
 out vec4 fragColor;
 
 vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {
-    vec2 texelSize = 1.0 / iResolution.xy;
-
-    // Load a collection of samples in a 3x3 neighorhood, where e is the current pixel.
+    // Load a collection of samples in a 3x3 neighborhood, where e is the current pixel.
     // a b c
     // d e f
     // g h i
@@ -60,18 +62,23 @@ vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {
     //  a b c             b
     //  d e f * 0.5  +  d e f * 0.5
     //  g h i             h
-    // These are 2.0x bigger (factored out the extra multiply).
+    // In quality mode these are 2.0x bigger (factored out the extra multiply).
     vec3 minRgb = min(min(min(d, e), min(f, b)), h);
     vec3 maxRgb = max(max(max(d, e), max(f, b)), h);
+
+    // Distance to the signal limit: 2.0 when min/max are sums of two samples, else 1.0.
+    float headroom = 1.0;
 
     if (qualityMode) {
         minRgb += min(min(a, c), min(g, i));
         maxRgb += max(max(a, c), max(g, i));
+        headroom = 2.0;
     }
 
     // Smooth minimum distance to signal limit divided by smooth max.
-    vec3 reciprocalMaxRgb = 1.0 / maxRgb;
-    vec3 amplifyRgb = clamp(min(minRgb, 2.0 - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);
+    // max() avoids 0 * inf = NaN on black pixels.
+    vec3 reciprocalMaxRgb = 1.0 / max(maxRgb, 1e-4);
+    vec3 amplifyRgb = clamp(min(minRgb, headroom - maxRgb) * reciprocalMaxRgb, 0.0, 1.0);
 
     // Shaping amount of sharpening.
     amplifyRgb = inversesqrt(amplifyRgb);
@@ -89,7 +96,9 @@ vec3 clarityBoost(sampler2D tex, vec2 coord, vec3 e) {
 }
 
 void main() {
-    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    // Texture is uploaded without Y flip, so flip here.
+    vec2 uv = vec2(gl_FragCoord.x, iResolution.y - gl_FragCoord.y) * texelSize;
+
     // Get current pixel
     vec3 color = texture(data, uv).rgb;
 
@@ -99,7 +108,7 @@ void main() {
     }
 
     // Saturation
-    color = mix(vec3(dot(color, LUMINOSITY_FACTOR)), color, saturation);
+    color = mix(vec3(dot(color, LUMA709)), color, saturation);
 
     // Contrast
     color = contrast * (color - 0.5) + 0.5;
