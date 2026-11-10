@@ -1,4 +1,7 @@
 import { GamepadKey } from "@enums/gamepad";
+import { StreamPref } from "@enums/pref-keys";
+import { getStreamPref } from "@/utils/pref-utils";
+import { getGamepadKey } from "@/utils/gamepad";
 import { ShortcutHandler } from "@/utils/shortcut-handler";
 
 
@@ -12,7 +15,8 @@ export class ControllerShortcut {
     }
 
     static handle(gamepad: Gamepad): boolean {
-        const controllerSettings = window.BX_STREAM_SETTINGS.controllers[gamepad.id];
+        const gamepadKey = getGamepadKey(gamepad, getStreamPref(StreamPref.LOCAL_CO_OP_ENABLED));
+        const controllerSettings = window.BX_STREAM_SETTINGS.controllers[gamepadKey];
         if (!controllerSettings) {
             return false;
         }

@@ -28,6 +28,7 @@ export class ControllerCustomizationsManagerDialog extends BaseProfileManagerDia
     private $leftStickDeadzone!: BxDualNumberStepper;
     private $rightStickDeadzone!: BxDualNumberStepper;
     private $btnDetect!: HTMLButtonElement;
+    private $hintMapping!: HTMLElement;
 
     private selectsMap: PartialRecord<GamepadKey, HTMLSelectElement> = {};
     private selectsOrder: GamepadKey[] = [];
@@ -160,6 +161,9 @@ export class ControllerCustomizationsManagerDialog extends BaseProfileManagerDia
                 },
             }),
 
+            // Mapping hint
+            this.$hintMapping = CE('div', { class: 'bx-settings-dialog-note' }, 'ⓘ ' + t('controller-customization-hint')),
+
             // Mapping
             $rows,
 
@@ -287,8 +291,9 @@ export class ControllerCustomizationsManagerDialog extends BaseProfileManagerDia
         const isDefaultPreset = id <= 0;
         this.updateButtonStates();
 
-        // Show/hide Detect button
+        // Show/hide Detect button and hint
         $btnDetect.classList.toggle('bx-gone', isDefaultPreset);
+        this.$hintMapping.classList.toggle('bx-gone', isDefaultPreset);
 
         // Set mappings
         let buttonIndex: unknown;
