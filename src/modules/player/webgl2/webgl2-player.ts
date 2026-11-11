@@ -61,7 +61,7 @@ export class WebGL2Player extends BaseCanvasPlayer {
     protected async setupShaders(): Promise<void> {
         const gl = this.$canvas.getContext('webgl2', {
             isBx: true,
-            antialias: true,
+            antialias: false,
             alpha: false,
             depth: false,
             desynchronized: true,

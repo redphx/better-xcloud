@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better xCloud
 // @namespace    https://github.com/redphx
-// @version      6.7.13
+// @version      6.7.14-beta
 // @description  Improve Xbox Cloud Gaming (xCloud) experience
 // @author       redphx
 // @license      MIT
@@ -195,7 +195,7 @@ class UserAgent {
   });
  }
 }
-var SCRIPT_VERSION = "6.7.13", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
+var SCRIPT_VERSION = "6.7.14-beta", SCRIPT_VARIANT = "full", AppInterface = window.AppInterface;
 UserAgent.init();
 var userAgent = window.navigator.userAgent.toLowerCase(), isTv = userAgent.includes("smart-tv") || userAgent.includes("smarttv") || /\baft.*\b/.test(userAgent), isVr = window.navigator.userAgent.includes("VR") && window.navigator.userAgent.includes("OculusBrowser"), browserHasTouchSupport = "ontouchstart" in window || navigator.maxTouchPoints > 0, userAgentHasTouchSupport = !isTv && !isVr && browserHasTouchSupport, STATES = {
  supportedRegion: !0,
@@ -9543,7 +9543,7 @@ class WebGL2Player extends BaseCanvasPlayer {
  async setupShaders() {
   let gl = this.$canvas.getContext("webgl2", {
    isBx: !0,
-   antialias: !0,
+   antialias: !1,
    alpha: !1,
    depth: !1,
    desynchronized: !0,
