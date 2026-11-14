@@ -89,6 +89,7 @@ const Texts = {
     "contrast": "Contrast",
     "controller": "Controller",
     "controller-customization": "Controller customization",
+    "controller-customization-hint": "Leave buttons as --- to pass them through unchanged",
     "controller-customization-input-latency-note": "May slightly increase input latency",
     "controller-friendly-ui": "Controller-friendly UI",
     "controller-shortcuts": "Controller shortcuts",

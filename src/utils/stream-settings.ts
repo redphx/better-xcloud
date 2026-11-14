@@ -4,7 +4,7 @@ import type { ControllerCustomizationConvertedPresetData, ControllerCustomizatio
 import { STATES } from "./global";
 import { DeviceVibrationMode } from "@/enums/pref-values";
 import { VIRTUAL_GAMEPAD_ID } from "@/modules/mkb/mkb-handler";
-import { hasGamepad, toXcloudGamepadKey } from "./gamepad";
+import { getGamepadKey, hasGamepad, toXcloudGamepadKey } from "./gamepad";
 import { MkbMappingPresetsTable } from "./local-db/mkb-mapping-presets-table";
 import { GamepadKey } from "@/enums/gamepad";
 import { MkbPresetKey, MouseConstant } from "@/enums/mkb";
@@ -58,6 +58,7 @@ export class StreamSettings {
         const mappingTable = ControllerCustomizationsTable.getInstance();
 
         const gamepads = window.navigator.getGamepads();
+        const isCoOp = getStreamPref(StreamPref.LOCAL_CO_OP_ENABLED);
         for (const gamepad of gamepads) {
             if (!gamepad?.connected) {
                 continue;
@@ -68,7 +69,8 @@ export class StreamSettings {
                 continue;
             }
 
-            const controllerSetting = STORAGE.Stream.getControllerSetting(gamepad.id);
+            const gamepadKey = getGamepadKey(gamepad, isCoOp);
+            const controllerSetting = STORAGE.Stream.getControllerSetting(gamepadKey);
 
             // Shortcuts
             const shortcutsPreset = await shortcutsTable.getPreset(controllerSetting.shortcutPresetId);
@@ -78,7 +80,7 @@ export class StreamSettings {
             const customizationPreset = await mappingTable.getPreset(controllerSetting.customizationPresetId);
             const customizationData = StreamSettings.convertControllerCustomization(customizationPreset?.data);
 
-            controllers[gamepad.id] = {
+            controllers[gamepadKey] = {
                 shortcuts: shortcutsMapping,
                 customization: customizationData,
             }

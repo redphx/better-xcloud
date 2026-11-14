@@ -38,6 +38,7 @@ declare global {
         BX_EXPOSED: typeof BxExposed & Partial<{
             shouldShowSensorControls: boolean;
             stopTakRendering: boolean;
+            localCoOpEnabled: boolean;
             dialogRoutes: {
                 closeAll: () => void;
             };

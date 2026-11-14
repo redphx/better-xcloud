@@ -41,17 +41,34 @@ export function showGamepadToast(gamepad: Gamepad) {
     Toast.show(text, status, { instant: false });
 }
 
+export function getGamepadKey(gamepad: Gamepad, isCoOp: boolean): string {
+    return isCoOp ? `${gamepad.id}::${gamepad.index}` : gamepad.id;
+}
+
 export function simplifyGamepadName(name: string) {
-    return name.replace(/\s+\(.*Vendor: ([0-9a-f]{4}) Product: ([0-9a-f]{4})\)$/, ' ($1-$2)');
+    let playerIndex = -1;
+    let gamepadId = name;
+
+    const match = name.match(/^(.*)::(\d+)$/);
+    if (match) {
+        gamepadId = match[1];
+        playerIndex = parseInt(match[2]);
+    }
+
+    gamepadId = gamepadId.replace(/\s+\(.*Vendor: ([0-9a-f]{4}) Product: ([0-9a-f]{4})\)$/, ' ($1-$2)');
+
+    return playerIndex >= 0 ? `🎮 #${playerIndex + 1} - ${gamepadId}` : gamepadId;
 }
 
 export function getUniqueGamepadNames() {
     const gamepads = window.navigator.getGamepads();
     const names: string[] = [];
+    const isCoOp = getStreamPref(StreamPref.LOCAL_CO_OP_ENABLED);
 
     for (const gamepad of gamepads) {
         if (gamepad?.connected && gamepad.id !== VIRTUAL_GAMEPAD_ID) {
-            !names.includes(gamepad.id) && names.push(gamepad.id);
+            const key = getGamepadKey(gamepad, isCoOp);
+            !names.includes(key) && names.push(key);
         }
     }
 

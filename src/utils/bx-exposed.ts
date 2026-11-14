@@ -5,14 +5,14 @@ import { deepClone, STATES } from "@utils/global";
 import { BxLogger } from "./bx-logger";
 import { BX_FLAGS } from "./bx-flags";
 import { NavigationDialogManager } from "@/modules/ui/dialog/navigation-dialog";
-import { GlobalPref } from "@/enums/pref-keys";
+import { GlobalPref, StreamPref } from "@/enums/pref-keys";
 import { GamePassCloudGallery } from "@/enums/game-pass-gallery";
 import { TouchController } from "@/modules/touch-controller";
 import { NativeMkbMode, TouchControllerMode } from "@/enums/pref-values";
 import { Patcher, type PatchPage } from "@/modules/patcher/patcher";
 import { BxEventBus } from "./bx-event-bus";
 import { FeatureGates } from "./feature-gates";
-import { getGlobalPref } from "./pref-utils";
+import { getGlobalPref, getStreamPref } from "./pref-utils";
 import { LocalCoOpManager } from "./local-co-op-manager";
 
 export enum SupportedInputType {
@@ -212,6 +212,10 @@ export const BxExposed = {
     },
 
     disableGamepadPolling: false,
+
+    get localCoOpEnabled(): boolean {
+        return getStreamPref(StreamPref.LOCAL_CO_OP_ENABLED);
+    },
 
     backButtonPressed: () => {
         const navigationDialogManager = NavigationDialogManager.getInstance();
