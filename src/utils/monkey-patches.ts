@@ -7,7 +7,7 @@ import { GlobalPref, StreamPref } from "@/enums/pref-keys";
 import { CodecProfile } from "@/enums/pref-values";
 import type { SettingDefinition } from "@/types/setting-definition";
 import { BxEventBus } from "./bx-event-bus";
-import { getGlobalPref, getGlobalPrefDefinition, getStreamPref } from "@/utils/pref-utils";
+import { getGlobalPref, getGlobalPrefDefinition, getStreamPref, STORAGE } from "@/utils/pref-utils";
 import type { StreamPlayerOptions } from "@/types/stream";
 
 export function patchVideoApi() {
@@ -68,7 +68,11 @@ export function patchVideoApi() {
 
 
 export function patchRtcCodecs() {
-    const codecProfile = getGlobalPref(GlobalPref.STREAM_CODEC_PROFILE);
+    // Read the raw stored value: getGlobalPref() would trigger validateValue →
+    // definition.options access → RTCRtpReceiver.getCapabilities() (WebRTC
+    // stack init, ~600 ms one-shot). The stored value is absent unless the
+    // user configured the setting.
+    const codecProfile = (STORAGE.Global.settings as Record<string, CodecProfile | undefined>)[GlobalPref.STREAM_CODEC_PROFILE] ?? CodecProfile.DEFAULT;
     if (codecProfile === 'default') {
         return;
     }
@@ -90,7 +94,9 @@ export function patchRtcPeerConnection() {
 
     const maxVideoBitrateDef = getGlobalPrefDefinition(GlobalPref.STREAM_MAX_VIDEO_BITRATE) as Extract<SettingDefinition, { min: number }>;
     const maxVideoBitrate = getGlobalPref(GlobalPref.STREAM_MAX_VIDEO_BITRATE);
-    const codec = getGlobalPref(GlobalPref.STREAM_CODEC_PROFILE);
+    // Same as patchRtcCodecs: avoid getGlobalPref() on STREAM_CODEC_PROFILE
+    // (it would trigger getCapabilities() via the lazy options getter).
+    const codec = (STORAGE.Global.settings as Record<string, CodecProfile | undefined>)[GlobalPref.STREAM_CODEC_PROFILE] ?? CodecProfile.DEFAULT;
 
     if (codec !== CodecProfile.DEFAULT || maxVideoBitrate < maxVideoBitrateDef.max) {
         const nativeSetLocalDescription = RTCPeerConnection.prototype.setLocalDescription;

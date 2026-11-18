@@ -13,13 +13,22 @@ import { GhPagesUtils } from "../gh-pages";
 import { BxEventBus } from "../bx-event-bus";
 
 
+// Result is constant per browser session (the WebRTC stack doesn't change at
+// runtime), so it is memoized: the first call pays the one-shot
+// RTCRtpReceiver.getCapabilities() cost, later accesses are free.
+let codecProfilesCache: PartialRecord<CodecProfile, string> | null = null;
+
 function getSupportedCodecProfiles() {
+    if (codecProfilesCache) {
+        return codecProfilesCache;
+    }
+
     const options: PartialRecord<CodecProfile, string> = {
         default: t('default'),
     };
 
     if (!('getCapabilities' in RTCRtpReceiver)) {
-        return options;
+        return (codecProfilesCache = options);
     }
 
     let hasLowCodec = false;
@@ -66,7 +75,7 @@ function getSupportedCodecProfiles() {
         }
     }
 
-    return options;
+    return (codecProfilesCache = options);
 }
 
 export class GlobalSettingsStorage extends BaseSettingsStorage<GlobalPref> {
@@ -160,20 +169,35 @@ export class GlobalSettingsStorage extends BaseSettingsStorage<GlobalPref> {
         [GlobalPref.STREAM_CODEC_PROFILE]: {
             label: t('visual-quality'),
             default: CodecProfile.DEFAULT,
-            options: getSupportedCodecProfiles(),
+            // Lazy: RTCRtpReceiver.getCapabilities() initializes the WebRTC
+            // stack (~600 ms one-shot on cold starts), so it must not run at
+            // startup. The getter only fires when the setting is actually
+            // rendered/validated, and getSupportedCodecProfiles() memoizes
+            // the result for subsequent accesses.
+            get options() { return getSupportedCodecProfiles(); },
             ready: (setting: SettingDefinition) => {
-                const options = (setting as any).options;
-                const keys = Object.keys(options);
-
-                if (keys.length <= 1) { // Unsupported
-                    setting.unsupported = true;
-                    setting.unsupportedNote = '⚠️ ' + t('browser-unsupported-feature');
-                }
-
-                setting.suggest = {
-                    lowest: keys.length === 1 ? keys[0] : keys[1],
-                    highest: keys[keys.length - 1],
-                };
+                // No computation here (ready runs eagerly at construction):
+                // expose lazy getters instead, computed on first access.
+                Object.defineProperties(setting, {
+                    unsupported: {
+                        get() { return Object.keys(this.options).length <= 1; },
+                        configurable: true,
+                    },
+                    unsupportedNote: {
+                        get() { return this.unsupported ? '⚠️ ' + t('browser-unsupported-feature') : undefined; },
+                        configurable: true,
+                    },
+                    suggest: {
+                        get() {
+                            const keys = Object.keys(this.options);
+                            return {
+                                lowest: keys.length === 1 ? keys[0] : keys[1],
+                                highest: keys[keys.length - 1],
+                            };
+                        },
+                        configurable: true,
+                    },
+                });
             },
         },
         [GlobalPref.SERVER_PREFER_IPV6]: {
