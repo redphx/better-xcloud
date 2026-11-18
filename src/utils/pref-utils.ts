@@ -49,11 +49,11 @@ export const setGlobalPref = globalSettingsStorage.setSetting.bind(globalSetting
 
 
 export function isGlobalPref(prefKey: AnyPref): prefKey is GlobalPref {
-    return ALL_PREFS.global.includes(prefKey as GlobalPref);
+    return ALL_PREFS.global.has(prefKey as GlobalPref);
 }
 
 export function isStreamPref(prefKey: AnyPref): prefKey is StreamPref {
-    return ALL_PREFS.stream.includes(prefKey as StreamPref);
+    return ALL_PREFS.stream.has(prefKey as StreamPref);
 }
 
 export function getPrefInfo(prefKey: AnyPref): PrefInfo {

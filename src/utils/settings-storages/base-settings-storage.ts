@@ -147,10 +147,8 @@ export class BaseSettingsStorage<T extends AnyPref> {
             }
         } else if ('multipleOptions' in def) {
             if (value.length) {
-                const validOptions = Object.keys(def.multipleOptions!);
-                value.forEach((item: any, idx: number) => {
-                    (validOptions.indexOf(item) === -1) && value.splice(idx, 1);
-                });
+                const validOptions = new Set(Object.keys(def.multipleOptions!));
+                value = value.filter((item: any) => validOptions.has(item));
             }
 
             if (!value.length) {
