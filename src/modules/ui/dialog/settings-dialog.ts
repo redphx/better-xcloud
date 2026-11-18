@@ -16,6 +16,7 @@ import { UserAgent } from "@/utils/user-agent";
 import { BX_FLAGS } from "@/utils/bx-flags";
 import { clearAllData, copyToClipboard } from "@/utils/utils";
 import { GlobalPref, StorageKey, StreamPref, type AnyPref } from "@/enums/pref-keys";
+import { StreamResolution } from "@/enums/pref-values";
 import { SettingElement } from "@/utils/setting-element";
 import type { SettingDefinition, SuggestedSettingProfile } from "@/types/setting-definition";
 import { FullscreenText } from "../fullscreen-text";
@@ -47,7 +48,7 @@ type SettingTabSectionItem = Partial<{
 }>
 
 type SettingTabSection = {
-    group: 'general' | 'server' | 'stream' | 'game-bar' | 'mkb' | 'touch-control' | 'loading-screen' | 'ui' | 'other' | 'advanced' | 'footer'
+    group: 'general' | 'server' | 'stream' | 'game-bar' | 'mkb' | 'touch-control' | 'loading-screen' | 'ui' | 'other' | 'advanced' | 'footer' | 'data'
         | 'audio' | 'video'
         | 'device' | 'controller' | 'mkb' | 'native-mkb'
         | 'stats';
@@ -222,6 +223,80 @@ export class SettingsDialog extends NavigationDialog {
             GlobalPref.AUDIO_MIC_ON_PLAYING,
             GlobalPref.GAME_FORTNITE_FORCE_CONSOLE,
             GlobalPref.STREAM_COMBINE_SOURCES,
+        ],
+    }, {
+        group: 'data',
+        label: t('data-usage'),
+        items: [
+            ($parent) => {
+                const MAX_BITRATE = 15 * 1024 * 1000; // max du slider — transformValue.set mappe MAX → 0 (stocké = illimité)
+                const PRESETS = [
+                    {
+                        label: t('data-preset-max'),
+                        summary: t('data-preset-max-summary'),
+                        bitrate: MAX_BITRATE,
+                        resolution: StreamResolution.AUTO,
+                    },
+                    {
+                        label: t('data-preset-balanced'),
+                        summary: t('data-preset-balanced-summary'),
+                        bitrate: 10 * 1024 * 1000,
+                        resolution: StreamResolution.AUTO,
+                    },
+                    {
+                        label: t('data-preset-eco'),
+                        summary: t('data-preset-eco-summary'),
+                        bitrate: 5 * 1024 * 1000,
+                        resolution: StreamResolution.DIM_720P,
+                    },
+                ];
+
+                const $note = CE('div', {
+                    class: 'bx-settings-dialog-note',
+                }, t('data-usage-note'));
+                const $status = CE('div', {
+                    class: 'bx-settings-dialog-note',
+                });
+
+                const formatBitrate = (value: number) => {
+                    // transformValue.get mappe le stocké 0 → MAX_BITRATE (illimité)
+                    if (!value || value >= MAX_BITRATE) {
+                        return t('unlimited');
+                    }
+
+                    return (value / (1024 * 1000)).toFixed(1) + ' Mb/s';
+                };
+
+                const refresh = () => {
+                    const bitrate = getGlobalPref(GlobalPref.STREAM_MAX_VIDEO_BITRATE);
+                    const resolution = getGlobalPref(GlobalPref.STREAM_RESOLUTION);
+
+                    $status.textContent = `${t('data-current')} ${formatBitrate(bitrate)} · ${resolution}`;
+                };
+
+                refresh();
+
+                for (const preset of PRESETS) {
+                    const $btn = createButton({
+                        label: preset.label,
+                        secondaryText: preset.summary,
+                        style: ButtonStyle.FULL_WIDTH | ButtonStyle.FOCUSABLE,
+                        onClick: e => {
+                            setGlobalPref(GlobalPref.STREAM_MAX_VIDEO_BITRATE, preset.bitrate, 'ui');
+                            setGlobalPref(GlobalPref.STREAM_RESOLUTION, preset.resolution, 'ui');
+
+                            refresh();
+                            $note.textContent = '✅ ' + preset.label + ' — ' + t('data-applied');
+                            this.onGlobalSettingChanged(e);
+                        },
+                    });
+
+                    $parent.appendChild($btn);
+                }
+
+                $parent.appendChild($note);
+                $parent.appendChild($status);
+            },
         ],
     }, {
         requiredVariants: 'full',
@@ -983,7 +1058,7 @@ export class SettingsDialog extends NavigationDialog {
             }
 
             // Don't render other settings in unsupported regions
-            if (!this.renderFullSettings && settingTab.group === 'global' && section.group !== 'general' && section.group !== 'footer' && section.group !== 'advanced') {
+            if (!this.renderFullSettings && settingTab.group === 'global' && section.group !== 'general' && section.group !== 'footer' && section.group !== 'advanced' && section.group !== 'data') {
                 continue;
             }
 
