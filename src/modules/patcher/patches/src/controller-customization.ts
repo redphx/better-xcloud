@@ -75,9 +75,13 @@ if (currentGamepad.id in window.BX_STREAM_SETTINGS.controllers) {
                 pressedButtons[targetButton] = 1;
             }
 
-            // Don't send capturing request
+            // Don't send capturing request.
+            // Note: do NOT delete the key from the mapping — `mapping` is a
+            // live reference to the stored settings
+            // (`BX_STREAM_SETTINGS.controllers[...].customization.mapping`),
+            // so deleting it would permanently wipe the user's Share mapping
+            // after the first press.
             shareButtonHandled = true;
-            delete mapping['Share'];
         }
 
         // Handle other buttons
