@@ -21,7 +21,10 @@ if (window.BX_EXPOSED.disableGamepadPolling) {
 
 const currentGamepad = $gamepadVar$;
 
-const btnHome = currentGamepad.buttons[16];
+// Guard against gamepads that report no buttons array (see #991):
+// `buttons[16]` on `undefined` throws and silently kills the whole polling
+// loop — controller input then stops working until a reload.
+const btnHome = currentGamepad.buttons?.[16];
 // Controller shortcuts
 if (btnHome) {
     if (!self.bxHomeStates) {
