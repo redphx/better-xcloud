@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "layouts": {
+    "custom_layout_1": {
+      "name": "Custom Layout",
+      "author": "YourUsername",
+      "content": {
+        "left": {
+          "inner": [
+            {
+              "type": "joystick",
+              "expand": false,
+              "axis": {
+                "input": "axisXY",
+                "output": "leftJoystick"
+              }
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "leftTrigger"
+            },
+            {
+              "type": "button",
+              "action": "leftBumper"
+            },
+            [
+              {
+                "type": "button",
+                "action": "dpadUp"
+              },
+              {
+                "type": "button",
+                "action": "dpadLeft"
+              },
+              {
+                "type": "button",
+                "action": "dpadRight"
+              },
+              {
+                "type": "button",
+                "action": "dpadDown"
+              }
+            ],
+            null,
+            {
+              "type": "button",
+              "action": "leftThumb"
+            }
+          ]
+        },
+        "right": {
+          "inner": [
+            {
+              "type": "button",
+              "action": "gamepadY"
+            },
+            {
+              "type": "button",
+              "action": "gamepadX"
+            },
+            {
+              "type": "button",
+              "action": "gamepadB"
+            },
+            {
+              "type": "button",
+              "action": "gamepadA"
+            }
+          ],
+          "outer": [
+            {
+              "type": "button",
+              "action": "rightBumper"
+            },
+            {
+              "type": "button",
+              "action": "rightTrigger"
+            },
+            null,
+            {
+              "type": "button",
+              "action": "rightThumb"
+            },
+            [
+              {
+                "type": "joystick",
+                "axis": {
+                  "input": "axisXY",
+                  "output": "rightJoystick"
+                }
+              }
+            ]
+          ]
+        },
+        "upper": {
+          "left": [
+            {
+              "type": "button",
+              "action": "view"
+            }
+          ],
+          "center": [
+            {
+              "type": "button",
+              "action": "nexus"
+            }
+          ],
+          "right": [
+            {
+              "type": "button",
+              "action": "menu"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
