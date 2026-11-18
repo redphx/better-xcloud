@@ -15,7 +15,7 @@ if (onGamepadChangedStr.startsWith('function ')) {
     onGamepadChangedStr = onGamepadChangedStr.substring(9);
 }
 
-onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'arguments[1]');
+onGamepadChangedStr = onGamepadChangedStr.replaceAll('0', 'window.BX_EXPOSED.getGamepadPlayerSlot(arguments[1])');
 eval(`$this$.patchedOnGamepadChanged = function ${onGamepadChangedStr}`);
 
 let onGamepadInputStr = $this$.onGamepadInput.toString();
@@ -27,7 +27,7 @@ if (onGamepadInputStr.startsWith('function ')) {
 match = onGamepadInputStr.match(/(\w+\.GamepadIndex)/);
 if (match) {
     const gamepadIndexVar = match[0];
-    onGamepadInputStr = onGamepadInputStr.replace('$this$.gamepadStates.get(', `$this$.gamepadStates.get(${gamepadIndexVar},`);
+    onGamepadInputStr = onGamepadInputStr.replace('$this$.gamepadStates.get(', `$this$.gamepadStates.get(window.BX_EXPOSED.getGamepadPlayerSlot(${gamepadIndexVar}),`);
     eval(`$this$.patchedOnGamepadInput = function ${onGamepadInputStr}`);
     BxLogger.info('supportLocalCoOp', '✅ Successfully patched local co-op support');
 } else {

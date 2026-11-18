@@ -12,6 +12,7 @@ import { ControllerCustomizationsManagerDialog } from "../profile-manger/control
 import { BxIcon } from "@/utils/bx-icon";
 import { getStreamPref, setStreamPref, STORAGE } from "@/utils/pref-utils";
 import { StreamPref } from "@/enums/pref-keys";
+import { BxEventBus } from "@/utils/bx-event-bus";
 
 export class ControllerExtraSettings extends HTMLElement {
     currentControllerId!: string;
@@ -20,6 +21,8 @@ export class ControllerExtraSettings extends HTMLElement {
     $selectControllers!: BxSelectElement;
     $selectShortcuts!: BxSelectElement;
     $selectCustomization!: BxSelectElement;
+    $selectPlayerSlot!: BxSelectElement;
+    $rowPlayerSlot!: HTMLElement;
     $summaryCustomization!: HTMLElement;
 
     updateLayout!: typeof ControllerExtraSettings['updateLayout'];
@@ -27,6 +30,7 @@ export class ControllerExtraSettings extends HTMLElement {
     getCurrentControllerId!: typeof ControllerExtraSettings['getCurrentControllerId'];
     saveSettings!: typeof ControllerExtraSettings['saveSettings'];
     updateCustomizationSummary!: typeof ControllerExtraSettings['updateCustomizationSummary'];
+    updatePlayerSlotVisibility!: typeof ControllerExtraSettings['updatePlayerSlotVisibility'];
     setValue!: typeof ControllerExtraSettings['setValue'];
 
     static renderSettings(this: SettingsDialog): HTMLElement {
@@ -43,6 +47,7 @@ export class ControllerExtraSettings extends HTMLElement {
         $container.switchController = ControllerExtraSettings.switchController.bind($container);
         $container.getCurrentControllerId = ControllerExtraSettings.getCurrentControllerId.bind($container);
         $container.saveSettings = ControllerExtraSettings.saveSettings.bind($container);
+        $container.updatePlayerSlotVisibility = ControllerExtraSettings.updatePlayerSlotVisibility.bind($container);
         $container.setValue = ControllerExtraSettings.setValue.bind($container);
 
         const $selectControllers = BxSelectElement.create(CE('select', {
@@ -72,6 +77,30 @@ export class ControllerExtraSettings extends HTMLElement {
             },
         }));
 
+        // Player slot selector (for local co-op)
+        const $selectPlayerSlot = BxSelectElement.create(CE('select', {
+            autocomplete: 'off',
+            _on: { input: $container.saveSettings },
+        }));
+
+        // Populate player slot options
+        const playerSlotOptions: Array<[string, string]> = [
+            ['-1', t('auto')],
+            ['0', `${t('player')} 1`],
+            ['1', `${t('player')} 2`],
+            ['2', `${t('player')} 3`],
+            ['3', `${t('player')} 4`],
+        ];
+        for (const [value, label] of playerSlotOptions) {
+            $selectPlayerSlot.appendChild(CE('option', { value }, label));
+        }
+
+        const $rowPlayerSlot = createSettingRow(
+            t('local-co-op-player-slot'),
+            $selectPlayerSlot,
+            { multiLines: false },
+        );
+
         const $rowCustomization = createSettingRow(
             t('in-game-controller-customization'),
             CE('div', {
@@ -100,6 +129,8 @@ export class ControllerExtraSettings extends HTMLElement {
                 $selectControllers,
 
                 CE('div', { class: 'bx-sub-content-box' },
+                    $rowPlayerSlot,
+
                     createSettingRow(
                         t('in-game-controller-shortcuts'),
                         CE('div', {
@@ -127,16 +158,27 @@ export class ControllerExtraSettings extends HTMLElement {
         $container.$selectControllers = $selectControllers;
         $container.$selectShortcuts = $selectShortcuts;
         $container.$selectCustomization = $selectCustomization;
+        $container.$selectPlayerSlot = $selectPlayerSlot;
+        $container.$rowPlayerSlot = $rowPlayerSlot;
 
         $container.updateLayout();
+        $container.updatePlayerSlotVisibility();
 
         // Detect when gamepad connected/disconnect
         window.addEventListener('gamepadconnected', $container.updateLayout);
         window.addEventListener('gamepaddisconnected', $container.updateLayout);
 
+        // Update player slot row visibility when local co-op setting changes
+        BxEventBus.Stream.on('setting.changed', data => {
+            if (data?.settingKey === StreamPref.LOCAL_CO_OP_ENABLED) {
+                $container.updatePlayerSlotVisibility();
+            }
+        });
+
         // Refresh layout when parent dialog is shown
         this.onMountedCallbacks.push(() => {
             $container.updateLayout();
+            $container.updatePlayerSlotVisibility();
         });
 
         return $container;
@@ -223,6 +265,11 @@ export class ControllerExtraSettings extends HTMLElement {
         return null;
     }
 
+    private static updatePlayerSlotVisibility(this: ControllerExtraSettings) {
+        const coopEnabled = getStreamPref(StreamPref.LOCAL_CO_OP_ENABLED);
+        this.$rowPlayerSlot.style.display = coopEnabled ? '' : 'none';
+    }
+
     private static async saveSettings(this: ControllerExtraSettings) {
         if (!this.getCurrentControllerId()) {
             return;
@@ -232,6 +279,7 @@ export class ControllerExtraSettings extends HTMLElement {
         controllerSettings[this.currentControllerId] = {
             shortcutPresetId: parseInt(this.$selectShortcuts.value),
             customizationPresetId: parseInt(this.$selectCustomization.value),
+            playerIndex: parseInt(this.$selectPlayerSlot.value),
         };
 
         setStreamPref(StreamPref.CONTROLLER_SETTINGS, controllerSettings, 'ui');
@@ -250,6 +298,7 @@ export class ControllerExtraSettings extends HTMLElement {
         // Update UI
         this.$selectShortcuts.value = controllerSetting.shortcutPresetId.toString();
         this.$selectCustomization.value = controllerSetting.customizationPresetId.toString();
+        this.$selectPlayerSlot.value = (controllerSetting.playerIndex ?? -1).toString();
 
         // Update summary
         ControllerExtraSettings.updateCustomizationSummary.call(this);

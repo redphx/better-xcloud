@@ -507,6 +507,10 @@ export class StreamSettingsStorage extends BaseSettingsStorage<StreamPref> {
             controllerSetting.customizationPresetId = ControllerCustomizationDefaultPresetId.DEFAULT;
         }
 
+        if (!controllerSetting.hasOwnProperty('playerIndex')) {
+            controllerSetting.playerIndex = -1;
+        }
+
         return controllerSetting;
     }
 }
