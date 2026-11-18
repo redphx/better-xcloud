@@ -116,8 +116,8 @@ export function patchRtcPeerConnection() {
 
     const OrgRTCPeerConnection = window.RTCPeerConnection;
     // @ts-ignore
-    window.RTCPeerConnection = function() {
-        const conn = new OrgRTCPeerConnection();
+    window.RTCPeerConnection = function(...args: any[]) {
+        const conn = new OrgRTCPeerConnection(...args);
         STATES.currentStream.peerConnection = conn;
 
         conn.addEventListener('connectionstatechange', e => {
