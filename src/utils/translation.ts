@@ -547,7 +547,6 @@ export class Translations {
             }
             return true;
         } catch (e) {
-            debugger;
         }
 
         return false;
